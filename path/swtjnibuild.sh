@@ -12,7 +12,7 @@
 # swtjnibuild -g   #build for debugging with gdb and GTK3.
 # swtjnibuild -2 -g  #build for debugging with gdb and GTK2.
 
-#Define the global variable for the Java location
+#Define the global variable for the Java location. (prevent the missing jni.h header error).
 #NOTE: Ubuntu stores Java elsewhere:
 #export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 export JAVA_HOME=/usr/lib/jvm/java/
