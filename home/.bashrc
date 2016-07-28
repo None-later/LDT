@@ -3,6 +3,15 @@ if [ -f /etc/bashrc ]; then # Source global definitions
 	. /etc/bashrc
 fi
 
+# Color my PS1:
+PS1='\[\e[1;34m\][\t \W]$ \[\e[m\]'
+# https://www.linux.com/learn/how-make-fancy-and-useful-bash-prompt-linux
+# e1:34 -  1=bold, 34=color.  
+# \[\e[m\]  - stop color
+# \t - time 
+# \w - working dir.
+
+
 # change prompt if in jhbuild shell
 if [ -n "$UNDER_JHBUILD" ]; then
 	    PS1="[jhbuild] $PS1"
@@ -14,24 +23,43 @@ fi
 
 
 export PATH=$PATH:~/git/LDT/path
+
+
+##############
+## Aliases
+#############
+
+# .. cd 
 alias ..="cd .. && pwd"
-#alias ...="cd ../.."
-alias gs="git status"
-alias la="ll -a"
+
+# bashrc editing
 alias cbrc="cat ~/.bashrc"
 alias vbrc="vim ~/.bashrc"
 alias rbrc="source ~/.bashrc"
+
+# c 
+alias cut1="cut -f1 -d ' '"
+
+# d - dnf
 alias sdi="sudo dnf install" #Sudo dnf install
 alias sdla="sudo dnf list available"
-alias cut1="cut -f1 -d ' '"
+
+# g - Git, grep 
 alias g="grep -i"
-alias ccc="echo !! | toclip"
+alias gs="git status"
+alias grh="git reset --hard"
 
-# User functions
-line () {
-	sed -n $1p
-}
+# l
+alias la="ll -a"
 
+# v
+alias vpn="sudo vpnc" 
+
+#################
+## User functions
+#################
+
+# f
 ff () {
 	# Find File
 	# - Dependencies: line
@@ -44,4 +72,9 @@ ff () {
 	else 
 		find . | grep -i "$1" | nl -nln | grep -i "$1"
 	fi
+}
+
+# l
+line () {
+	sed -n $1p
 }
