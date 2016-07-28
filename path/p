@@ -1,14 +1,15 @@
 #!/bin/bash
+clear
 cd "/home/lufimtse/git/LDT/pomlog"
 TODAY=$(date +'%Y-W%V-%m%b-%d%a')
 
 echo -n "Goal?: "
 read GOAL
 
-for i in `seq 1 60`;
+for i in `seq 0 60`;
 do
 	echo -n "$i "
-	read -t 1 ANSW
+	read -t 60 ANSW
 	if [[ "$ANSW" == "c" ]]; then
 		echo "Pomodoro Cancled"
 		exit
@@ -17,8 +18,8 @@ do
 		break
 	fi
 
-	# non-intrusive message about pomodoro finish.
-
+	
+	# TODO - convert this to case statment
 	if [[ $i == '24' ]]; then
 		notify-send "Pomodoro : 24 minute mark"
 	fi
@@ -45,14 +46,22 @@ read ACTUAL
 
 # Pomodor line design:
 # (count) (minutes) Goal: (my goal) Actual: (my actulal)
-
 COUNT=$(wc -l "$TODAY" | cut -f1 -d" ")
 COUNT=`expr $COUNT + 1`
 clear
-echo "$COUNT $MIN_COMPLETED $(date +'%I:%M %p') Goal: $GOAL         ACTUAL: $ACTUAL" | tee -a "$TODAY"
- 
-SUM_MINS=$(cat "$TODAY" | cut -f2 -d" " | paste -sd+ - | bc)
-echo "Today Poms: $COUNT , Sum mins: $SUM_MINS"
 
+# Output to screen:
+echo -e "$(date +'%I:%M %p')\nGOAL  : $GOAL \nACTUAL: $ACTUAL"
+
+# Output to Log:
+echo -e "$COUNT $MIN_COMPLETED POMx $(date +'%I:%M %p') ACTUAL: $ACTUAL (GOAL: $GOAL )" >> "$TODAY"
+
+# Output today's summary. 
+SUM_MINS=$(cat "$TODAY" | cut -f2 -d" " | paste -sd+ - | bc)
+RATIO=$(echo "scale=1; (${SUM_MINS} / 25 * ${COUNT})" | bc)
+echo "Today Poms: $COUNT , Sum mins: $SUM_MINS", Ratio: $RATIO
+
+
+# Some references:
 # http://unix.stackexchange.com/questions/191293/bash-function-to-read-user-input-or-interrupt-on-timeout
 # http://stackoverflow.com/questions/12199631/convert-seconds-to-hours-minutes-seconds
