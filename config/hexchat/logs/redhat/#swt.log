@@ -1,0 +1,232 @@
+**** BEGIN LOGGING AT Mon Jul 25 15:40:23 2016
+
+Jul 25 15:40:23 *	Now talking on #swt
+**** ENDING LOGGING AT Mon Jul 25 15:57:11 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 15:57:11 2016
+
+**** ENDING LOGGING AT Mon Jul 25 15:59:49 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 15:59:49 2016
+
+**** ENDING LOGGING AT Mon Jul 25 16:00:38 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 16:00:38 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 16:52:20 2016
+
+Jul 25 16:52:20 *	Now talking on #swt
+Jul 25 17:42:50 *	ericwill has quit (Quit: ericwill)
+**** ENDING LOGGING AT Mon Jul 25 20:05:21 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 20:05:21 2016
+
+Jul 26 09:48:27 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Tue Jul 26 09:48:27 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 09:48:37 2016
+
+Jul 26 09:48:37 *	Now talking on #swt
+Jul 26 10:48:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Jul 26 10:48:31 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 11:07:18 2016
+
+Jul 26 11:07:18 *	Now talking on #swt
+Jul 26 12:06:10 *	ericwill is now known as ericwill|lunch
+Jul 26 13:05:43 *	ericwill|lunch is now known as ericwill
+Jul 26 15:27:38 *	ipun (~ipun@unused-10-15-17-118.yyz.redhat.com) has joined
+**** ENDING LOGGING AT Tue Jul 26 16:10:30 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 16:10:30 2016
+
+**** ENDING LOGGING AT Tue Jul 26 16:12:19 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 16:12:19 2016
+
+Jul 27 10:45:29 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Jul 27 10:45:29 2016
+
+**** BEGIN LOGGING AT Wed Jul 27 11:58:48 2016
+
+Jul 27 11:58:48 *	Now talking on #swt
+Jul 27 14:07:50 <ipun>	this may seem dumb, but is it correct to why my controlexample is running off of control.class now instead of .java?
+Jul 27 14:08:40 <ipun>	my controlexample use to use the fontsize stuff that ive worked on, now its using control.class instead which i didnt touch
+Jul 27 14:08:57 <ericwill>	the .class files are generated based on your changes from .java
+Jul 27 14:09:11 <ericwill>	so unless you're changes aren't being reflected in the .class files you should be fine
+Jul 27 14:09:19 <ericwill>	*your
+Jul 27 14:13:57 <ipun>	hmm ok i might have to rebuild then thats probably the issue
+Jul 27 14:14:52 <ericwill>	check the Java build path of your controlexample
+Jul 27 14:15:01 <ericwill>	is the SWT project on the build path?
+Jul 27 14:17:37 <ipun>	wierd enough i dont htink it is anymore...
+Jul 27 15:03:46 <ipun>	ericwill looking at the commit, i copied over what its doing and its implementing it correctly with the font sizing
+Jul 27 15:03:52 <ipun>	yet override_font() is still bugged
+Jul 27 15:04:00 <ipun>	praying GTK looks at this seriously
+Jul 27 15:04:11 <ericwill>	hmm
+Jul 27 15:04:17 <ericwill>	link to the commit?
+Jul 27 15:07:49 <ipun>	https://git.gnome.org/browse/gtk+/commit/?id=99c2423043f0c95a60093c618e00823e42e0ddfa
+Jul 27 15:08:08 <ipun>	i implemented it the same way (to follow their way of doing it)
+Jul 27 15:08:26 <ipun>	but i just realized this doesnt really have to do with override_font()
+Jul 27 15:08:56 <ipun>	the guy just posted it since its just about how CSS is currently updated, but the override_font() i dont think has to do with this commit
+Jul 27 15:08:59 <ericwill>	yeah so all that commit does is implement our thing
+Jul 27 15:09:05 <ericwill>	i.e. convert from a pango unit to CSS
+Jul 27 15:09:14 <ericwill>	which we already implemented :P
+Jul 27 15:09:21 <ipun>	yup.
+Jul 27 15:09:23 <ericwill>	would have been nice to know this earlier but oh well
+Jul 27 15:09:47 <ipun>	sadly, i dont think we can use our code in the end =( since we're probably gonna have to use override_font() if its fixed
+Jul 28 09:48:35 <ipun>	ericwill so far the comments on the GTK bug are not useful lol
+Jul 28 09:48:49 <ericwill>	ipun yeah I just saw
+Jul 28 09:48:59 <ipun>	not sure if Matt understands
+Jul 28 09:49:18 <ericwill>	did Alex send you his Menu stuff?
+Jul 28 09:50:30 <ipun>	no lemme msg him about that
+Jul 28 09:52:52 <ericwill>	kk
+Jul 28 10:09:11 <ipun>	should i move on to something else while i wait on GTK and alex?
+Jul 28 10:09:25 <ipun>	cept my stack of things im dealing with is getting larger
+Jul 28 10:13:18 <ericwill>	ipun I am going to ping them about the font thing
+Jul 28 10:13:23 <ericwill>	since the comment wasn't really useful at all
+Jul 28 10:14:40 <ipun>	yeah...
+Jul 28 10:19:19 <ipun>	ericwill for the measured event loop bug, is this something that might be causing the signal call?
+Jul 28 10:19:21 <ipun>	(GtkCellAllocCallback)get_cell_allocation
+Jul 28 10:19:33 <ipun>	i forgot if we talked about that 
+Jul 28 10:19:41 <ericwill>	ipun no, didn't see that
+Jul 28 10:19:43 <ericwill>	looks likely
+Jul 28 10:21:20 <ipun>	hmm okay. I looked deeper into that method but it doesnt have any explicit signals
+Jul 28 10:21:47 <ericwill>	look in Display.initCallbacks() and see if there are any allocate callbacks
+Jul 28 10:21:56 <ericwill>	also look in Tree and see there are any allocate callback methods
+Jul 28 10:22:40 <ipun>	kk
+Jul 28 10:32:42 <ericwill>	ipun send me the commit for that get_dpi thing
+Jul 28 10:32:44 <ericwill>	from matt watson
+Jul 28 10:33:04 <ipun>	https://git.gnome.org/browse/gtk+/commit/?id=df08fc91bdc1d2e4c866122304fabe4dd298a7de
+Jul 28 10:33:28 <ipun>	basically we need their override_font() to use that calculation
+Jul 28 10:33:38 <ipun>	if we do that, it will fix it
+Jul 28 10:33:49 <ericwill>	okay I think we are making progress
+Jul 28 11:58:36 <ipun>	dispaly.initCallback has some callbacks like size_allocate
+Jul 28 11:58:55 <ipun>	thats the only one though
+Jul 28 12:02:05 <ericwill>	hmm
+Jul 28 12:04:23 <ipun>	ericwill: patch went out okay?
+Jul 28 12:04:27 <ipun>	ill comment on the bug then
+Jul 28 12:04:43 <ericwill>	ipun just commented lol, no need
+Jul 28 12:04:46 <ipun>	okay
+Jul 28 12:04:50 <ericwill>	we have a patch but I'm just waiting for him to commit it
+Jul 28 12:05:37 <ipun>	how about on bugzilla?
+Jul 28 12:08:39 <ericwill>	wait for the GTK bug to get fixed and then we can mark the Eclipse bug as fixed and link the commit
+Jul 28 12:10:37 <ipun>	kk
+Jul 28 13:57:25 <ericwill>	so that font bug is fixed and merged in GTK now
+Jul 28 13:57:26 <ericwill>	all good
+Jul 28 14:39:07 <ericwill>	ipun if you are ever bored/want something you don't have to think a lot about, make a bugzilla filter for all open SWT bugs and go through them
+Jul 28 14:39:17 <ericwill>	close the ones which aren't relevant/can't reproduce
+Jul 28 14:39:21 <ericwill>	to keep the BZ tidy
+Jul 28 14:39:26 <ipun>	oaky
+Jul 28 14:39:30 <ipun>	okay*
+Jul 28 14:48:21 <ipun>	ericwill doesnt look like nulling the proc actually turns it off
+Jul 28 14:57:22 <ericwill>	ipun hmm
+Jul 28 14:57:30 <ericwill>	is there a method somewhere that destroys them or something?
+Jul 28 15:05:01 <ipun>	ericwill theres a method called setEnabled from callback class, but i tried it and it doesnt seem to work
+Jul 28 15:05:17 <ipun>	... wat
+Jul 28 15:05:19 <ipun>	wait*
+Jul 28 15:06:21 <ipun>	hahahaahah
+Jul 28 15:06:26 <ipun>	it works
+Jul 28 15:06:30 <ericwill>	okay :P
+Jul 28 15:06:47 <ipun>	i just had to move the reenabling of it lower
+Jul 28 15:06:53 <ipun>	lemme test around with it and we're good
+Jul 28 15:57:16 <ipun>	hey lufimtse im still having issues compiling gtk for some reason with jhbuild... besides cancelling it and rebuilding again, did you find any other solution>
+Jul 28 15:57:34 <lufimtse>	hey
+Jul 28 16:18:48 <lufimtse>	ipun, what was the exact command we used again?
+Jul 28 16:19:01 <lufimtse>	jhbuild buildone --force gtk+ ?
+Jul 28 16:22:01 <ipun>	yeah thats it
+Jul 28 16:25:09 <ericwill>	ipun please post on the platform-ui-dev mailing list and ask someone to review this guy: https://git.eclipse.org/r/#/c/77096/
+Jul 28 16:25:33 <ericwill>	ipun also take a look at this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493357
+Jul 28 16:27:31 <ericwill>	I started work on that but I won't be able to finish it in time before I leave
+Jul 28 16:27:55 <lufimtse>	ipun, ericwill I've updated the wiki: https://wiki.eclipse.org/SWT/Devel/Gtk/jhbuild#Building_different_versions_of_gtk_.28or_compiling_your_changes.29
+Jul 28 16:28:10 <lufimtse>	What you want is: 
+Jul 28 16:28:10 <lufimtse>	 jhbuild buildone --force --no-network --distclean gtk+
+Jul 28 16:28:25 <lufimtse>	the --distclean is especially needed if you go back to an older gtk version. 
+Jul 28 16:28:45 <ipun>	it looks like someone broke a junit case in master
+Jul 28 16:29:01 <lufimtse>	ipun, which one?
+Jul 28 16:29:09 <ipun>	test_getPrinterList
+Jul 28 16:29:20 <ipun>	unless its local
+Jul 28 16:29:42 <lufimtse>	doesn't work on my system if I have a printer
+Jul 28 16:29:53 <lufimtse>	stopped working somewhere in Gtk3.18
+Jul 28 16:30:03 <ipun>	oh i see
+Jul 28 16:30:04 <lufimtse>	I've been meaning to file a bug for it
+Jul 28 16:30:11 <lufimtse>	maybe something for you to work on. 
+Jul 28 16:30:13 <ipun>	ill ignore it for now
+Jul 28 16:30:21 <lufimtse>	do you have a printer on your system?
+Jul 28 16:30:34 <ipun>	ya
+Jul 28 16:30:41 <ipun>	i just added it like a week ago though
+Jul 28 16:33:45 <lufimtse>	that's probably why the jUnit fails
+Jul 28 16:33:52 <lufimtse>	if you have time, feel free to investigate sometime
+Jul 28 16:33:59 <lufimtse>	would be useful to have it fixed.
+Jul 28 16:34:10 <lufimtse>	afaik it doesn't reproduce with gtk3.16 and before
+Jul 28 16:34:13 <lufimtse>	so might be gtk bug.
+Jul 28 16:34:33 FiSHLiM plugin unloaded
+Jul 28 16:34:33 Python interface unloaded
+**** ENDING LOGGING AT Thu Jul 28 16:34:33 2016
+
+**** BEGIN LOGGING AT Thu Jul 28 16:34:57 2016
+
+Jul 28 16:34:57 *	Now talking on #swt
+Jul 29 10:46:02 <ericwill>	ipun hey, left some more comments on the Tree patch
+Jul 29 10:46:06 <ericwill>	please take a look
+Jul 29 10:47:51 <ipun>	kk
+Jul 29 11:09:01 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Jul 29 11:09:01 2016
+
+**** BEGIN LOGGING AT Fri Jul 29 11:30:09 2016
+
+Jul 29 11:30:09 *	Now talking on #swt
+Jul 29 11:38:32 <ipun>	lufimtse looks like the printerlist bug in our test case is really broken logic, techincally none of it shouldve passed
+Jul 29 11:39:05 <lufimtse>	lol
+Jul 29 15:28:33 <ipun>	ericwill should I be replacing all the gtk calls to that function to my private one? Im not sure if this is what we should do
+Jul 29 15:28:58 <ericwill>	your private method is just a wrapper
+Jul 29 15:29:01 <ericwill>	for the GTK call
+Jul 29 15:29:07 <ericwill>	with the callback.setEnabled() in it
+Jul 29 15:32:04 <ipun>	yeah i know, im just curious if its necessary to do that for every call that uses that function
+Jul 29 15:32:19 <ericwill>	we should
+Jul 29 15:32:39 <ericwill>	because if someone wants to use one of those methods in a measure event, the same bug will come up
+Jul 29 15:33:48 <ipun>	oaky sounds good
+Jul 29 15:34:18 <ipun>	i might have to implement it in Control and Widget as well, since Tree is a subclass of Control but Treeitem is a widget subclass
+Jul 29 15:35:39 <ericwill>	ipun nah just do it in Control then
+Jul 29 15:35:45 <ericwill>	sorry, widget
+Jul 29 15:35:50 <ericwill>	all Controls are widgets
+Jul 29 15:38:16 <ipun>	ah your right sorry i misread it 
+Jul 29 16:29:25 <ipun>	ericwill how do you generate a new changeset number again? I tried pushing my changes but the changeset was closed already.
+Jul 29 16:29:41 <ericwill>	before amending the commit, click the gerrit button in egit
+Jul 29 16:29:50 <ericwill>	should give you something with multiple zeros
+Jul 29 16:29:57 <ericwill>	copy and paste that and use it for your new change
+Jul 29 16:32:15 <ipun>	nice thanks!
+Jul 29 16:34:11 <ericwill>	ipun I'll review it on Tuesday
+Jul 29 16:35:18 <ipun>	sounds good np 
+Aug 02 11:42:59 <ipun>	is anyone going to the meeting at 12 today
+Aug 02 11:44:19 <ericwill>	nope
+Aug 02 11:44:22 <ericwill>	I am not
+Aug 02 12:28:25 <lufimtse>	ipun, ericwill : If you guys ever want to know everything about jni, there's a book on it: https://web.archive.org/web/20120728074805/http://java.sun.com/docs/books/jni/
+Aug 03 11:16:49 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug  3 11:16:49 2016
+
+**** BEGIN LOGGING AT Wed Aug  3 11:39:37 2016
+
+Aug 03 11:39:37 *	Now talking on #swt
+Aug 03 14:01:33 <ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
+Aug 03 14:01:37 <ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
+Aug 03 16:29:44 <ipun>	hey is there a setting to remove warnings popping up in console? Theres too many going on and I cant see my prints
+Aug 03 16:34:38 <ericwill>	not sure
+Aug 03 16:34:42 <ericwill>	check preferences
+Aug 04 11:01:26 <ipun>	ericwill: for the setVisible bug you assigned me, seems like a GTK error. Documentation of gtk_window_get_position() says its really unaccurate and that its not 100% reliable
+Aug 04 11:01:53 <ericwill>	ipun then close it as such with a link to the documentation
+Aug 04 11:01:57 <ipun>	kk
+**** BEGIN LOGGING AT Thu Aug  4 13:52:11 2016
+
+Aug 04 13:52:11 *	Now talking on #swt
+**** BEGIN LOGGING AT Thu Aug  4 14:02:41 2016
+
+Aug 04 14:02:41 *	Now talking on #swt
+Aug 04 14:53:45 <ipun>	is anyone familiar with extension points?
+Aug 04 14:57:30 <ericwill>	Roland is
+Aug 04 14:57:35 <ericwill>	you may want to ask him
+Aug 04 15:04:27 <ipun>	okay sounds good
+Aug 04 15:38:40 <lufimtse>	ericwill, ipun , to get color for your gcc: 
+Aug 04 15:38:41 <lufimtse>	export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
+Aug 04 15:38:53 <lufimtse>	for fish you might have to specify 'env export ... '
+Aug 04 15:39:12 <lufimtse>	useful if you want colorized output for build.sh
+Aug 04 16:01:54 <ipun>	thank you!

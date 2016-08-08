@@ -1,0 +1,50 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+
+# If I hacked local modulesets, then set this to true: 
+# (ex when changing WebKit's 'Release' to 'Debug')  # gnome-suites-core-deps-322: 1433: -DCMAKE_BUILD_TYPE=Debug"
+use_local_modulesets = True
+
+# moduleset = 'gnome-apps-3.22'  # need to hack moduleset if I want to build WebKit with debug support.
+moduleset = 'gnome-apps-3.22'
+modules = ['gtk+','dconf', 'WebKit']
+# 'adwaita-icon-theme', 'libcanberra', 'WebKit']
+# modules = ['NetworkManager']
+# Other modules: 
+# PackageKit    -- (to remove startup error, but there seems to be issues with building it)
+# WebKit 		-- WebKitGtk development 
+# may add 'WebKit' to modules.
+# 'glib-networking' seems to fail to build with no target found of sorts...
+
+
+# what directory should the source be checked out to?
+checkoutroot = '~/jhbuild/checkout'
+
+# the prefix to configure/install modules to (must have write access)
+prefix = '~/jhbuild/install'
+
+# custom CFLAGS / environment pieces for the build
+# debug=yes, turn off optimizations
+os.environ['CFLAGS'] = '-Wall -g -O0'
+# extra debug, ex macros: '-Wall -g3 -ggdb3 -O0'
+
+# extra arguments to pass to all autogen.sh scripts
+# to speed up builds of GNOME, try '--disable-static --disable-gtk-doc'
+#autogenargs=''
+# Leo: try the below if debug not working:
+module_autogenargs['gtk+'] = autogenargs + ' --enable-debug=yes '
+module_autogenargs['WebKit'] = autogenargs + ' --enable-debug=yes '
+
+
+# module_autogenargs['NetworkManager:'] = autogenargs + ' --disable-gtk-doc '
+
+# A string listing additional arguments to be passed to make.
+# Set makeargs to 'V=1' for verbose build output.
+# TODO uncomment for regular build
+makeargs = 'V=1'
+
+
+#### Useful:
+# List all package infos (like dependencies) in JHBuild:
+# jhbuild info gtk+ dconf adwaita-icon-theme libcanberra WebKit

@@ -3,22 +3,42 @@ clear
 cd "/home/lufimtse/git/LDT/pomlog"
 TODAY=$(date +'%Y-W%V-%m%b-%d%a')
 
+# print today's log
+
+
+HELP="
+h - help
+t - print today
+n MSG - append note to log 
+vt - vim today's log for editing.
+"
+
+case "$1" in 
+"h") echo "$HELP"
+	exit
+	;;
+"t") cat $TODAY
+	exit
+	;;
+"n")	shift
+	echo "#   NOTE: $(date +'%I:%M %p') $@" >> "$TODAY"	
+	exit
+	;;
+"vt") vim $TODAY
+	exit
+	;;
+esac
+
+
 echo -n "Goal?: "
 read GOAL
 
+# Append start time to log:
+echo "POMSTART: $(date +'%I:%M %p') GOAL__: $GOAL " >> "$TODAY"
+
 for i in `seq 0 60`;
 do
-	echo -n "$i "
-	read -t 60 ANSW
-	if [[ "$ANSW" == "c" ]]; then
-		echo "Pomodoro Cancled"
-		exit
-	elif [[ "$ANSW" == "f" ]]; then
-		echo "Pomodoro finished early"
-		break
-	fi
 
-	
 	# TODO - convert this to case statment
 	if [[ $i == '24' ]]; then
 		notify-send "Pomodoro : 24 minute mark"
@@ -39,14 +59,26 @@ do
 		notify-send "Pomodoro : END" "59 minute mark, Pomodoro timer will shutdown in a min...."
 	fi
 
+	
+	echo -n "$i "
+	#read -t 60 ANSW
+	ANSW=`leo_read.py`  # External dependency
+	if [[ "$ANSW" == "c" ]]; then
+		echo "Pomodoro Cancled"
+		exit
+	elif [[ "$ANSW" == "f" ]]; then
+		echo "Pomodoro finished early"
+		break
+	fi	
 done
+
 MIN_COMPLETED=$i
 echo -n "Actual?: "
 read ACTUAL
 
 # Pomodor line design:
 # (count) (minutes) Goal: (my goal) Actual: (my actulal)
-COUNT=$(wc -l "$TODAY" | cut -f1 -d" ")
+COUNT=$(grep POMF $TODAY | wc -l | cut -f1 -d" ")
 COUNT=`expr $COUNT + 1`
 clear
 
@@ -54,11 +86,11 @@ clear
 echo -e "$(date +'%I:%M %p')\nGOAL  : $GOAL \nACTUAL: $ACTUAL"
 
 # Output to Log:
-echo -e "$COUNT $MIN_COMPLETED POMx $(date +'%I:%M %p') ACTUAL: $ACTUAL (GOAL: $GOAL )" >> "$TODAY"
+echo -e "$COUNT $MIN_COMPLETED POMF $(date +'%I:%M %p') ACTUAL: $ACTUAL \n---------" >> "$TODAY"
 
 # Output today's summary. 
-SUM_MINS=$(cat "$TODAY" | cut -f2 -d" " | paste -sd+ - | bc)
-RATIO=$(echo "scale=1; (${SUM_MINS} / 25 * ${COUNT})" | bc)
+SUM_MINS=$(cat "$TODAY" | grep POMF | cut -f2 -d" " | paste -sd+ - | bc)
+RATIO=$(echo "scale=1; ${SUM_MINS} / (25 * ${COUNT})" | bc)
 echo "Today Poms: $COUNT , Sum mins: $SUM_MINS", Ratio: $RATIO
 
 

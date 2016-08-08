@@ -1,0 +1,568 @@
+T 1469611375 22*	26fuhbot gives channel operator status to 18palves
+T 1469620626 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1469622740 22*	26fuhbot gives channel operator status to 18mbenitez ldimaggi
+T 1469625978 18<xcoulon18>	jjohnstn: hello Jeff. Could you give a look at https://git.eclipse.org/r/#/c/77972/ ? It's mostly about fixing test failures. The only relevant change is in the DockerConnection class, where I set the state to 'CLOSED' when an error occurred when opening the connection
+T 1469626006 18<mbenitez18>	xcoulon, hi, Jeff is on pto until next Tuesday
+T 1469626041 18<xcoulon18>	mbenitez: ha ok… I saw him online and I did not know he was on PTO
+T 1469626056 18<xcoulon18>	mbenitez: thanks
+T 1469626072 18<mbenitez18>	xcoulon, yes :) that is very confusing, Roland should be in soon, maybe he can help you
+T 1469626072 18<xcoulon18>	jjohnstn: never mind, enjoy your PTO
+T 1469626084 18<xcoulon18>	mbenitez: yes, I'll wait for him ;-)
+T 1469626206 22*	26fuhbot gives channel operator status to 18patrickm
+T 1469626921 18<mbenitez18>	eclipse-team: meeting 30 min earlier today, in ~50 min
+T 1469627290 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1469627960 18<xcoulon18>	rgrunber: hello Roland. Would you mind giving a look at https://git.eclipse.org/r/#/c/77972/ ? 
+T 1469627993 18<xcoulon18>	also, I sent a couple of mails this morning but we should discuss about them when Jeff comes back from PTO. Ok for you ?
+T 1469628116 18<rgrunber18>	was just about to send email, basically http://wiki.eclipse.org/Evolving_Java-based_APIs_2#Evolving_API_interfaces_-_API_methods
+T 1469628358 18<xcoulon18>	rgrunber: thanks for the link. But from my understanding, adding a method in IDockerConnectionSettingsFinder breaks the compatibility, right ?
+T 1469628520 18<rgrunber18>	exception is if it doesn't need to be implemented by clients then it's only breaking source compatibility or contract compatibility.
+T 1469628557 18<xcoulon18>	rgrunber: how does this method addition changes from what I proposed in my patches ?
+T 1469628565 18<rgrunber18>	i could just make it internal and not expose it at all.
+T 1469628571 18<xcoulon18>	s/changes/change/
+T 1469628612 18<xcoulon18>	rgrunber: what I'm trying to understand is if this is a valid addition or not, since all my proposals were rejected.
+T 1469628710 18<rgrunber18>	we'll find some way around getting the change in... worst case we just have to not expose any new methods through the interface.
+T 1469628764 18<xcoulon18>	rgrunber: "we'll find some way around getting the change in... " <- ok, fine. Then we can do the same on IDockerConnection and IDockerImage, ok ?
+T 1469628835 18<rgrunber18>	we can do the same thing.. just not add them to the public api for 5.1
+T 1469628850 18<xcoulon18>	ok
+T 1469629135 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469629386 18<mbenitez18>	mbooth, hi,did you see jorton's question in #softwarecollections ? if you haven't yet please reply
+T 1469629558 18<akurtakov18>	mbooth: rgrunber: also in case you haven't planned it - please attend the meeting write after the team one
+T 1469629579 18<rgrunber18>	akurtakov: will do
+T 1469629622 18<mbenitez18>	rgrunber, just sent the invite to you
+T 1469630729 20*	Disconnected (20Connection timed out)
+T 1469635128 19*	Now talking on 22#eclipse
+T 1469635128 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1469635128 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1469635225 18<mbenitez18>	nboldt, thank you for keeping an eye on the notes, I miss stuff :\
+T 1469635227 18<nboldt18>	xcoulon: G2 sprint planning meeting is on now
+T 1469635257 18<nboldt18>	xcoulon: so rgrunber might be busy for another 30 mins in that call
+T 1469635301 18<xcoulon18>	nboldt: ok, thanks for the info
+T 1469637469 18<rgrunber18>	xcoulon: i will, seems to be the right thing to do (set the state)..
+T 1469637571 22*	26fuhbot gives channel operator status to 18mcermak
+T 1469637679 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469637679 18<xcoulon18>	rgrunber: great, thanks !
+T 1469637741 18<xcoulon18>	rgrunber: I think you'll want to skip all the changes in the SWTBot tests, it's really a matter of dealing with all the new connection created by the new extension points that you added
+T 1469638119 18<nboldt18>	ldimaggi_mtg4: mbenitez: akazakov akurtakov: would a better name for the "A" RPM be devstudio-root? 
+T 1469638137 18<nboldt18>	or devstudio-stem?
+T 1469638148 18<akurtakov18>	what's "A"
+T 1469638153 18<akurtakov18>	the shared one ?
+T 1469638157 18<nboldt18>	yes
+T 1469638165 18<nboldt18>	https://docs.google.com/document/d/1EguQBtlIOXCz5CGCoAO3MEWDnNXITv0st6dhIk8Cwac/edit# scroll to near the bottom
+T 1469638187 18<mbenitez18>	I like the root idea but shouldn't it be eclipse? since it's platform
+T 1469638200 18<mbenitez18>	+ other common components
+T 1469638205 18<nboldt18>	right... 
+T 1469638208 18<akurtakov18>	that's implementation detail, which comes from the scl metapackage
+T 1469638211 18<nboldt18>	so devstudio-eclipse-common ?
+T 1469638235 18<nboldt18>	akurtakov: I know it's an implementation detail, I'm just wondering what the best name for it would be 
+T 1469638244 18<mbenitez18>	akurtakov, agreed that it's implementation detail, I think nboldt just wants to clarify
+T 1469638254 18<mbenitez18>	and it would help so we all know what we're talking about
+T 1469638259 18<nboldt18>	(contrary to popular belief I do more than just meetings/minutes and creation of trello cards)
+T 1469638265 18<mbenitez18>	haha
+T 1469638266 18<akurtakov18>	well, as scls prepend
+T 1469638278 18<akurtakov18>	the scl name
+T 1469638312 18<akurtakov18>	it will be rh-eclipse46-smth
+T 1469638321 18<nboldt18>	ah
+T 1469638324 18<akurtakov18>	I see that mbooth went for https://brewweb.engineering.redhat.com/brew/buildinfo?buildID=505275
+T 1469638329 18<akurtakov18>	aka rh-eclipse46-base
+T 1469638335 18<mbenitez18>	that smth could be root
+T 1469638344 18<nboldt18>	could be smdh too :D
+T 1469638360 18<mbooth18>	It can still change :-)
+T 1469638366 18<mbenitez18>	nboldt, this is the meta rpm for eclipse currently https://brewweb.engineering.redhat.com/brew/buildinfo?buildID=505275
+T 1469638368 18<nboldt18>	because I do that a lot these days when I'm asking about base/common/commons/foundation/root/stem/underpinning/stuff-below
+T 1469638370 18<akurtakov18>	BUT we can add Provides: devstudio-common-common and etc.
+T 1469638393 18<akurtakov18>	so `yum install devstudio-eclipse-common` still works 
+T 1469638396 18<mbooth18>	Currently: "rh-eclipse46" -> installs everything in the SCL / "rh-eclipse46-base" -> installs only things shared by the SCL and DevStudio
+T 1469638406 18<xcoulon18>	rgrunber: thanks for the patch review !
+T 1469638419 18<mbenitez18>	mbooth, nice
+T 1469638420 18<xcoulon18>	I marked the issue as resolved/fixed
+T 1469638440 18<akurtakov18>	nboldt: ah, so you're on to clarifying things 
+T 1469638446 18*	akurtakov thought of user experience
+T 1469638460 18<mbooth18>	But if you prefer it to be called something other than "...-base" now is the time :-)
+T 1469638495 18<nboldt18>	yeah, that's why I'm bringing it up
+T 1469638508 18<nboldt18>	to avoid "which base do you mean?" questions
+T 1469638520 18<mbenitez18>	could it be something like IDE?
+T 1469638532 18<akurtakov18>	so we make it which ide :)
+T 1469638548 18<akurtakov18>	I tried to stick to shared(components) but it didn't work better
+T 1469638556 18<akurtakov18>	kind of lost hope to clarify this one
+T 1469638573 18<mbenitez18>	well, it's rh-eclipse-ide...
+T 1469638585 18<mbenitez18>	but base is fine with me
+T 1469638674 18<mbooth18>	akurtakov: It could be rh-eclipse46-shared-components, if you like your RPM names nice and descriptive ;-)
+T 1469638700 18<akurtakov18>	mbooth: well, I read the %description usually :)
+T 1469638714 18<akurtakov18>	it's not me that cares about this one :)
+T 1469638748 18<mbenitez18>	actually, if the default is to install only the common stuff that should be rh-eclipse46
+T 1469638779 18<mbenitez18>	then instead of a base we'd have an rh-eclipse-all or linux or such
+T 1469638786 18<mbooth18>	I mean, it's pretty academic, because the devstudio RPM would just have Requires: rh-eclipse46-whatever-we-call-it and users will never see it
+T 1469638882 18<mbooth18>	mbenitez: I dislike going against the established convention of what you get when you install the unadorned "rh-eclipse46" package (do we want to have different behaviour to other SCLs?)
+T 1469638951 18<mbenitez18>	mbooth, agreed on not going against convention, where will the devstudio rpm live?
+T 1469638961 18<mbenitez18>	rh-eclipse46-devstudio?
+T 1469639054 18<mbooth18>	Good question...
+T 1469639084 18<mbenitez18>	I think once we figure that we can get the names straight
+T 1469639103 18<mbooth18>	If it's not shipping as part of the SCL, it doesn't need to have the rh-eclipse46 prefix
+T 1469639120 18<mbenitez18>	if it is inside the collection [which I think makes sense] then the meta will install it too
+T 1469639159 18<mbenitez18>	if it's not inside the collection it would be another collection, in theory a separate channel...
+T 1469639235 18<mbooth18>	mbenitez: Can we ship binary-only rpms through a RHEL channel?
+T 1469639237 18<mbenitez18>	the idea is to ship an 'eclipse product' with potentially 2 customer bases: devstudio and c/c++
+T 1469639340 18<mbenitez18>	mbooth, I don't know, I'd think no, maybe worth us talking to nboldt about how they are delivering things
+T 1469639355 18<mbenitez18>	maybe we should schedule a call for that
+T 1469639395 18<akurtakov18>	mbenitez: I think we should go with the freedom to have yum repo separately for now
+T 1469639415 18<akurtakov18>	not puting it in any channel and etc.
+T 1469639422 18<mbenitez18>	ok
+T 1469639431 18<akurtakov18>	just generate the devstudio rpms and run createrepo
+T 1469639489 18<akurtakov18>	if/when someone clears the shipping not-build from source in channels
+T 1469639500 18<akurtakov18>	we can think of having channel for it
+T 1469639536 18<akurtakov18>	but for the initial release that would be an overkill as I would bet this question will not be cleared :)
+T 1469640205 18<mbooth18>	mbenitez: BTW, erratum is created: https://errata.devel.redhat.com/advisory/24366
+T 1469640227 18<mbooth18>	Had to also make the bug "modified"
+T 1469640275 18<mbooth18>	Should be called "BureaucracyZilla"
+T 1469640347 18<nboldt18>	mbenitez: we deliver things via a release-engineering@redhat.com / RCM ticket. siege then copies the zips & jars from internal server to CSP stging server and download manager, gets approval from QE, and pushes things to production.
+T 1469640399 18<nboldt18>	I've no idea what the rules are for binary-only RPMs, but we ship binary-only installer & update sites, with either a sources zip beside it or a link back to github for fresh sources
+T 1469640733 18<mbooth18>	nboldt: A yum repo is not that different to a p2 repo -- your rpms could probably be the same way.
+T 1469640750 18<mbooth18>	s/probably be/probably be delivered/
+T 1469640775 18<nboldt18>	so we're currently thinking of rh-eclipse46-base, rh-eclipse46-c++, and rh-eclipse46-devstudio as the three rpms?
+T 1469640797 18<nboldt18>	mbooth: ^ ?
+T 1469640829 18<nboldt18>	or maybe the second one is called rh-eclipse46-linuxtools-and-profiling-and-cdt-and-so-on....
+T 1469640874 18<mbooth18>	nboldt: Or maybe "rh-eclipse46-dts" instead of "...c++" since you'd get the same tools as your used to from the old DTS product
+T 1469640900 18<nboldt18>	ah, ok
+T 1469640914 18<nboldt18>	mbooth: so we have a "base/commons/whatever" one and two named for products?
+T 1469640950 18<nboldt18>	rh-eclipse46-basic-common-shared-stuff, rh-eclipse46-dts, rh-eclipse46-devstudio ?
+T 1469640957 18<mbooth18>	Sounds reasonable
+T 1469640971 18<mbooth18>	akurtakov: Thoughts? ^
+T 1469640975 18<nboldt18>	but these are metapackages for stuff underneath, right?
+T 1469640982 18<mbooth18>	nboldt: Yes
+T 1469640999 18<nboldt18>	so rh-eclipse46-devstudio would actually install things like eclipse-webtools, eclipse-datatools, eclipse-gef, eclipse-mylyn, ...
+T 1469641020 18<nboldt18>	and possibly an rpm called devstudio-javaee-datatools-something-something
+T 1469641049 18<akurtakov18>	mbooth: what do you ask exactly?
+T 1469641080 18<nboldt18>	akurtakov: names of the three RHSCL metpackages: rh-eclipse46-basic-common-shared-stuff, rh-eclipse46-dts, rh-eclipse46-devstudio ?
+T 1469641090 18<nboldt18>	metapackages*
+T 1469641147 18<akurtakov18>	the third one rh-eclipse46-devstudio can be named just rhdevstudio as it woud not come from this metapackage as content for it will not be in that channel
+T 1469641200 18<akurtakov18>	so rh-eclipse46-dts will be additional Provides to rh-eclipse46 (as this one must install the whole scl as per convention)
+T 1469641252 18<akurtakov18>	actually eclipse is separate scl now
+T 1469641259 18<nboldt18>	akurtakov: so you'd call the three packages rh-eclipse46, rh-eclipse46-dts, and rhdevstudio ?
+T 1469641272 18<akurtakov18>	so we should not mention scl 
+T 1469641275 18<akurtakov18>	er dts
+T 1469641286 18<nboldt18>	because product no longer exists?
+T 1469641297 18<nboldt18>	*will no longer* exist?
+T 1469641302 18<akurtakov18>	no, because eclipse is split from it
+T 1469641318 18<akurtakov18>	and dts becomes toolchain (gcc, gdb...) only
+T 1469641381 18<akurtakov18>	so rh-eclipse46 is the current dts eclipse (Provides can be added for yum install "coolname" to work
+T 1469641411 18<nboldt18>	ok, can we at least decide what the devstudio "C" package will be called?
+T 1469641422 18<akurtakov18>	the only thing in question is what to append after rh-eclipse46- for the shared one
+T 1469641425 18<nboldt18>	devstudio-javaee (because it's mostly for javaee work) ?
+T 1469641434 18<akurtakov18>	I like rhdevstudio
+T 1469641441 18<nboldt18>	or rh-eclipse46-devstudio ?
+T 1469641451 18<nboldt18>	rhdevstudio is probably forbidden by Brand
+T 1469641459 18<akurtakov18>	meh :)
+T 1469641494 18<nboldt18>	having been on the receiving end of Brand/UX screwing me over not once but twice in the last GA release, I can assure you that we need to do things according to the Book Of Brand
+T 1469641511 18<akurtakov18>	so let it be rh-eclipse46-devstudio :)
+T 1469641513 18<nboldt18>	failure to adhere to their rules will result in 11th hour panic & extra work
+T 1469641516 18<nboldt18>	ok
+T 1469641546 18<nboldt18>	so in this context "devstudio" is all the stuff that makes the current devstudio be devstudio, EXCEPT its upstream eclipse-* dependencies
+T 1469641553 18<akurtakov18>	I would rather see UX people starting eclipse and working on simplifying real UX 
+T 1469641564 18<akurtakov18>	nboldt: yes
+T 1469641565 18<nboldt18>	thus jbosstools, com.jboss.devstudio.* features, and some eclipse stuff that's not avaialble in rpms
+T 1469641620 18<akurtakov18>	UX should deal with real UX like https://wiki.gnome.org/Design/ not with package names
+T 1469641768 18<akurtakov18>	e.g. smth like https://wiki.gnome.org/Design/Apps/Boxes for the docker plugins 
+T 1469641792 18<akurtakov18>	but I can only dream on focusing on real, user facing stuff
+T 1469641912 18<nboldt18>	mbenitez: if it would help, I can add people to the eclipse-list@ list for you. but you'll have to make me an admin and fwd me a list of email addresses
+T 1469642219 18<mbenitez18>	nboldt, thanks for the offer!
+T 1469642227 18<nboldt18>	ldimaggi_: have I captured all the testing cases you want here? https://trello.com/c/nW3ajKJa/7-wrap-new-devstudio-javaee-update-site-inside-an-rpm-for-linux-installs
+T 1469642248 18<nboldt18>	if you want to split that into another card so you can track QE stuff separately, feel free
+T 1469642285 18<nboldt18>	(much of the discussion at the G2 sprint plan was "is a card done if the doc's not done? what if the work's done, the doc's done, but the doc's not QE'd?"
+T 1469642304 18<nboldt18>	... to which I would say "you need a second card for the doc team's work")
+T 1469642313 18<mbenitez18>	mbooth, I like the new name "BureaucracyZilla" :D thanks for creating the errata
+T 1469642339 18<ldimaggi_18>	nboldt, looking
+T 1469644092 18<akazakov18>	nboldt, why do you call it devstudio-javaee ?
+T 1469644106 18<akazakov18>	it's not only javee stuff, right?
+T 1469644153 18<nboldt18>	got a better name, akazakov ?
+T 1469644161 18<nboldt18>	devstudio-devstudio seems daft
+T 1469644171 18<nboldt18>	and devstudio-common isn't true
+T 1469644185 18<akazakov18>	javaee is not true either..
+T 1469644193 18<nboldt18>	we already use "devstudio core" to differentiate from integration stack, so it's a subset of core
+T 1469644201 18<nboldt18>	devstudio-subcore?
+T 1469644242 18<akazakov18>	this name is for update site only, correct?
+T 1469644270 18<nboldt18>	yes
+T 1469644286 18<nboldt18>	to differentiate it from the core, central, earlyaccess, targetplatform-*, etc.
+T 1469644597 18<akazakov18>	nboldt, I don't know.. maybe devstudio-tools.. I'm bad with names...
+T 1469647833 22*	26fuhbot gives channel operator status to 18palves
+T 1469651822 22*	26fuhbot gives channel operator status to 18palves
+T 1469653320 22*	26fuhbot gives channel operator status to 18ebaron
+T 1469686309 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1469695931 22*	26fuhbot gives channel operator status to 18palves
+T 1469708850 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469709877 22*	26fuhbot2 gives channel operator status to 18patrickm
+T 1469710286 22*	26fuhbot gives channel operator status to 18ldimaggi
+T 1469710728 22*	26fuhbot gives channel operator status to 18mattn
+T 1469711580 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1469713891 18<ipun18>	akurtakov: could you send me the information about the menu popping up in the wrong location when you have time? thanks!
+T 1469713903 18<akurtakov18>	oops, too many things going
+T 1469713937 18<ipun18>	no problem
+T 1469714301 18*	akurtakov looks for relevant bugs - already closed 3 ancient bugs
+T 1469714648 22*	26fuhbot gives channel operator status to 18patrickm
+T 1469715061 18<akurtakov18>	ipun: still trying to find it 
+T 1469715564 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469716334 22*	26fuhbot2 gives channel operator status to 18ebaron
+T 1469719141 18<akazakov18>	mbenitez, just added you to the call with Pete, akurtakov and me to discuss RPM stuff
+T 1469719688 18<akurtakov18>	ipun: can't find it now
+T 1469719705 18<akurtakov18>	it's somewhere in bz 
+T 1469719762 18<akurtakov18>	we badly need someone to do basic triaging as things start to take way too long to just find something
+T 1469719858 18<ericwill18>	akurtakov good news: ipun and I are working on a patch with the GTK guys for the font business
+T 1469719870 18<ericwill18>	early testing shows that it fixes the bug
+T 1469719880 18<akurtakov18>	ericwill: perfect, I badly need good news
+T 1469719888 18<akurtakov18>	on the gtk side or swt
+T 1469719893 18<ipun18>	akurtakov its looking promising, but we will not be using css 
+T 1469719906 18<akurtakov18>	as long as it works
+T 1469719920 18<ipun18>	at this point, absolutely.
+T 1469720337 18<ericwill18>	akurtakov yeah I'm talking to Benjamin now, will let you know once I final patch is done
+T 1469720735 18<mbenitez18>	akazakov, thanks
+T 1469720909 18<akurtakov18>	ericwill: perfect
+T 1469721927 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469728076 18<ericwill18>	akurtakov https://bugs.eclipse.org/bugs/show_bug.cgi?id=494183#c5
+T 1469728078 18<ericwill18>	it's done :)
+T 1469728122 18<akurtakov18>	ericwill: so this means only 3.21.x versions will be broken, right
+T 1469728135 18<ericwill18>	akurtakov only the ones up till now
+T 1469728143 18<ericwill18>	the next point release of 3.21 will have it fixed
+T 1469728172 18<ericwill18>	so it should be in 3.21.5
+T 1469728629 22*	26fuhbot gives channel operator status to 18ebaron
+T 1469729913 18<akurtakov18>	ericwill: perfect, works for me
+T 1469731461 22*	26fuhbot gives channel operator status to 18palves_
+T 1469737571 18<patrickm18>	akurtakov: i'll pay more attention to the devtools-* mailing lists from now on.... it's usually my Friday afternoon reading but can see i need to monitor them more closely
+T 1469737609 18<akurtakov18>	patrickm: thanks
+T 1469737656 18<patrickm18>	akurtakov: if you don't see a timely response to mailing list chatter from me, it's most likely because i haven't seen it... a nudge is all that is required
+T 1469737685 18<akurtakov18>	ok :)
+T 1469738097 19*	Now talking on 22#eclipse
+T 1469738097 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1469738097 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1469738701 22*	26fuhbot2 gives channel operator status to 18ebaron
+T 1469740061 18<ericwill18>	akurtakov fast code review :)
+T 1469740089 18<akurtakov18>	everything taking less than 15 mins is done immediately :)
+T 1469741974 22*	26fuhbot gives channel operator status to 18patrickm
+T 1469742100 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1469742432 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469752308 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1469770463 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1469783659 22*	26fuhbot gives channel operator status to 18palves_
+T 1469795348 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1469797365 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1469799855 18<ericwill18>	mbooth ping, re: https://bugzilla.redhat.com/show_bug.cgi?id=1348912
+T 1469799860 18<ericwill18>	no back port needed, it's fixed in upstream GTK
+T 1469799907 18<mbenitez18>	mbooth, I like your status report, I'll get you a t-shirt with the first line :D
+T 1469799958 18<mbooth18>	ericwill: Cool :-) was this a problem in F25+ only?
+T 1469799975 18<ericwill18>	mbooth yes, only a problem in GTK 3.21.x
+T 1469799982 18<ericwill18>	so only rawhide
+T 1469800028 18<mbooth18>	ericwill: Awesome, would you please add a note to the bug saying which version gtk you expect the fix to be in?
+T 1469800040 18<ericwill18>	mbooth just did :)
+T 1469800066 18<mbooth18>	Nice one, ta :-)
+T 1469800429 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1469802846 22*	26fuhbot gives channel operator status to 18ebaron
+T 1469804941 20*	Disconnected (20Connection timed out)
+T 1469806209 19*	Now talking on 22#eclipse
+T 1469806209 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1469806209 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1469820310 18<akurtakov18>	ericwill: big thanks for the ancient bugs triage - highly appreciated
+T 1469820328 18<ericwill18>	akurtakov yeah I didn't feel like thinking much today :)
+T 1469820333 18<ericwill18>	I am getting a kick out of these old bugs
+T 1469820342 18<ericwill18>	check out this screen shot: https://bugs.eclipse.org/bugs/attachment.cgi?id=66387
+T 1469820346 18<ericwill18>	so old
+T 1469820444 18<akurtakov18>	ericwill: hey this brings sweet memories 
+T 1469820487 18*	akurtakov has been working on mandriva at that time
+T 1469820523 18<ericwill18>	:)
+T 1469821555 18<rgrunber18>	org.spearce.egit... wow.. 
+T 1469823843 22*	26fuhbot gives channel operator status to 18patrickm_
+T 1469859009 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1469878289 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1469892697 22*	26fuhbot gives channel operator status to 18ldimaggi
+T 1469950832 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1469951172 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1469990793 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470032724 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470032725 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470038359 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470038359 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470038423 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470044127 22*	26fuhbot gives channel operator status to 18palves
+T 1470055691 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1470055884 22*	26fuhbot gives channel operator status to 18ldimaggi
+T 1470056691 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1470061900 22*	26fuhbot gives channel operator status to 18mattn
+T 1470070299 18<akurtakov18>	mbooth: I got two "DTS Eclipse" menus in Programing menu :)
+T 1470070360 18<mbooth18>	D'oh
+T 1470070385 18<akurtakov18>	mbooth: sorry, I'm still doing proof reading :)
+T 1470070395 18<mbooth18>	akurtakov: What do you think it should say now it's not part of DTS?
+T 1470070403 18<mbooth18>	Just "Eclipse Neon" maybe?
+T 1470070419 18<akurtakov18>	Red Hat Eclipse? 
+T 1470070432 18<mbooth18>	That works for me :-)
+T 1470070437 18<akurtakov18>	:)
+T 1470070501 18<akurtakov18>	mbooth: I guess standalone debugger desktop file would need similar change
+T 1470070507 18<mbooth18>	Yeah
+T 1470070519 18<akurtakov18>	at least everything installed fine now :)
+T 1470090246 22*	26fuhbot gives channel operator status to 18ldimaggi_
+T 1470117704 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470117705 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470128003 22*	26fuhbot gives channel operator status to 18palves
+T 1470132328 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470140971 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1470142062 22*	26fuhbot gives channel operator status to 18mattn
+T 1470143399 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470144386 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1470144952 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470145871 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470146916 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470147777 22*	26fuhbot2 gives channel operator status to 18patrickm
+T 1470148369 22*	26fuhbot gives channel operator status to 18ebaron
+T 1470151299 18<mbenitez18>	eclipse-team: if interested Toolchain Monthly sync with other Tech Leads [Guest: gdb team to talk ISO C++ 17 debug] in ~40min
+T 1470151306 18<mbenitez18>	https://bluejeans.com/4263586967
+T 1470152078 18<xcoulon18>	rgrunber: jjohnstn: hello ! would you be available tomorrow for a quick weekly call ? We now have our own dashboard on JIRA for the sprint planning (https://issues.jboss.org/secure/RapidBoard.jspa?rapidView=3636&view=planning), so we could discuss about it and see what we plan to do for the current sprint. 
+T 1470152601 18<rgrunber18>	xcoulon: i'm available.. not sure if jeff is back.
+T 1470152633 18<xcoulon18>	rgrunber: oh, I thought he was back yesterday. Or is it on Thursday ? 
+T 1470152674 18<rgrunber18>	xcoulon: i don't see him as being on pto..so i'm guessing should be today.
+T 1470152693 18<rgrunber18>	jjohnstn: ^
+T 1470153088 18<jjohnstn18>	xcoulon: tomorrow is fine...what time?
+T 1470153128 18<xcoulon18>	jjohnstn: rgrunber: same as usual ? 9am for you / 3pm for you ?
+T 1470153552 18<xcoulon18>	rgrunber: jjohnstn: I just sent the invitations for tomorrow. Please let me know if this works for you
+T 1470153585 18<xcoulon18>	or if you want it a bit later (but not too much, I also have family constraints at 5pm CET)
+T 1470155465 18<jjohnstn18>	xcoulon: it is fine..can you look at: https://issues.jboss.org/browse/JBIDE-22274 and tell me why I keep getting messages saying: "This email is the result of a query to locate stalled/invalid jiras. Please fix them. Thanks!"
+T 1470156056 18<xcoulon18>	jjohnstn: we have a daily job that queries the JIRA issues and find erroneous issues. You should have more info about what's wrong in the mail body, but at first sight, I would say that's because the issue is set to be fixed in 4.4.1.AM1 which is past and the issue is still opened. So you should probably set a new fix version.
+T 1470156155 18<jjohnstn18>	xcoulon: thx, I changed to 4.4.1.AM2 so hopefully that is ok
+T 1470156166 18<xcoulon18>	jjohnstn: yes, I guess it will be fine
+T 1470162090 22*	26fuhbot gives channel operator status to 18palves_
+T 1470162708 18<jjohnstn18>	ericwill: can you take a quick look at https://bugs.eclipse.org/bugs/show_bug.cgi?id=495515 and let me know if you have seen the error
+T 1470162776 18<ericwill18>	jjohnstn sure
+T 1470162783 18<jjohnstn18>	thx
+T 1470162898 18<ericwill18>	jjohnstn never seen that before but it does indeed seem to be a duplicate of that bug from comment 2
+T 1470162914 18<jjohnstn18>	ericwill: ok, will close it as such
+T 1470162962 22*	26fuhbot gives channel operator status to 18palves
+T 1470164519 22*	26fuhbot gives channel operator status to 18patrickm_
+T 1470166468 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470171925 22*	26fuhbot gives channel operator status to 18palves
+T 1470201507 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470213718 22*	26fuhbot gives channel operator status to 18palves
+T 1470218352 22*	26fuhbot gives channel operator status to 18akurtakov
+T 1470221236 18<akurtakov18>	mbooth: scela: what comes from mylyn incubation?
+T 1470221260 18<scela18>	akurtakov: i don't think the trick was done in incubation
+T 1470221266 18<scela18>	rather in the main repo
+T 1470221318 18<akurtakov18>	I was thinking as incubation usually creates some issues
+T 1470221329 18<akurtakov18>	we may decide dropping it from mylyn package
+T 1470221342 18<mbooth18>	akurtakov: Some Trac plugin and some "Web Tasks" plugin
+T 1470221347 18<akurtakov18>	and what comes from it could be separate one if at all needed 
+T 1470221376 18<mbooth18>	akurtakov: Basically scela was foiled by some "creative release engineering"
+T 1470221414 18<scela18>	akurtakov: git fun https://git.eclipse.org/c/mylyn/org.eclipse.mylyn.all.git/log/?h=R_3_20_0
+T 1470221432 18<akurtakov18>	:)
+T 1470221439 18<mbooth18>	s/creative/drunk/
+T 1470221473 18<akurtakov18>	that's when "creativity" gets sudden bump 
+T 1470221552 18<mbooth18>	akurtakov: https://xkcd.com/323/
+T 1470221568 18<akurtakov18>	haha, exactly
+T 1470221674 18*	akurtakov was just dealing with hand crafted gtk 2.10 on rhel 6 issues
+T 1470221696 18<akurtakov18>	looks like 0.24 to me to get that creative
+T 1470222623 18<akurtakov18>	scela: mbooth: any issue if I skip today's team call ?
+T 1470222643 18<akurtakov18>	if you need me for smth let's cover it now
+T 1470222661 18<mbooth18>	No issues from me
+T 1470222694 18<scela18>	akurtakov: no
+T 1470226687 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1470227390 22*	26fuhbot gives channel operator status to 18patrickm
+T 1470227862 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470229284 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1470229414 18<rgrunber18>	mbooth: if you have any questions regarding why i did what i did for script, feel free to pick at it :P
+T 1470229872 18<mbooth18>	rgrunber: Sure, thanks :-)
+T 1470229919 18<mbooth18>	rgrunber: Did you see Vaclav's feedback, btw? https://bugzilla.redhat.com/show_bug.cgi?id=1362178
+T 1470229997 18*	rgrunber looks
+T 1470230055 18<rgrunber18>	ah indirectly referenced.. hmm seems like that would be a 'plugin' bug.. ie.. needs an import package on it.. or at least to add to that .java file.
+T 1470230083 22*	26fuhbot gives channel operator status to 18mattn
+T 1470230246 18<mbooth18>	rgrunber: Interesting, I wonder why it did work previously
+T 1470230270 18<rgrunber18>	.. could it be a change in swtbot ?
+T 1470230310 18<rgrunber18>	i mean indirectly referenced happens for things like doing foo().bar() where bar() returns a class you don't import or whatnot..
+T 1470230319 18<rgrunber18>	from what i remember..
+T 1470230425 18<mbooth18>	I mean, why did it work before applying that patch? Nothing else should have changed
+T 1470230449 18<mbooth18>	Those locally installed bundles messing it up?
+T 1470230502 18<rgrunber18>	hmmm
+T 1470230531 18<mbooth18>	vkadlcik: Hi, we are talking about https://bugzilla.redhat.com/show_bug.cgi?id=1362178
+T 1470230552 18<mbooth18>	vkadlcik: I wonder if the problem goes away if you clear your ~/.eclipse again
+T 1470230610 18<rgrunber18>	the other thing is i may need to properly fix things.. ie..the fix vkadlcik has now isn't complete..
+T 1470230674 18<rgrunber18>	also is the org.eclipse.swt in the plugins folder identical to the one on the system... i would try to confirm.. if he used a very new swtbot it might have fetched a newer swt...
+T 1470231011 18<mbenitez18>	rgrunber, hi Roland, if you're joining the call now I'm in Yonge if you want to join
+T 1470231037 18<rgrunber18>	mbenitez: sure, i'll head over there.. just finishing up current docker call
+T 1470231086 18<mbenitez18>	sure, no worries
+T 1470231225 18<vkadlcik18>	mbooth: i'm very sorry but i'm in network problems now and my irc is practically unusable
+T 1470231229 18<vkadlcik18>	mbooth: the problem persists even with deleted ~/.eclipse
+T 1470231231 18<vkadlcik18>	mbooth: machine to test: vncviewer 10.16.186.62:1, all paswords including root's one are "redhat"
+T 1470234359 18<rgrunber18>	vkadlcik_gone: i can have a look.. assuming mbooth isn't on the machine testing.
+T 1470234376 18<mbooth18>	rgrunber: Not yet :-)
+T 1470234403 18<rgrunber18>	mbooth: i may need to do it after the call though :P.. but it's on my list :P
+T 1470234588 18<maxandersen18>	anyone know if mbenitez will be aorund today ? 
+T 1470234602 18<mbenitez18>	maxandersen, I'm here
+T 1470234608 18<maxandersen18>	gah
+T 1470234616 18<maxandersen18>	stupid irc client didnt' list you ;)
+T 1470234620 18<mbenitez18>	:)
+T 1470234640 18<maxandersen18>	do @mbenitez and @akazakov have 5 min to talk about eclipse summit india ? 
+T 1470234656 18<maxandersen18>	i see code refinement is about to start thuogh ;/
+T 1470235041 22*	26fuhbot2 gives channel operator status to 18ebaron
+T 1470236110 18<mbenitez18>	maxandersen, I'm free in 1 hr
+T 1470237409 20*	Disconnected (20Connection timed out)
+T 1470238777 19*	Now talking on 22#eclipse
+T 1470238777 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1470238777 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1470238948 18<rgrunber18>	mbooth: i was just gonna ask about that :P
+T 1470238962 18<mbooth18>	Ask what?
+T 1470238972 18<rgrunber18>	mbooth: accessing the rh-eclipse stuff.
+T 1470238977 18<mbooth18>	Aha
+T 1470238989 18<mbooth18>	Then that was just for you ;-)
+T 1470238999 18<rgrunber18>	also if you're away and i may need to push changes from fedora eclipse into that rh-eclipse..
+T 1470239084 18<mbooth18>	rgrunber: Same process as dts, just different branch name: http://pkgs.devel.redhat.com/cgit/rpms/eclipse/log/?h=rhscl-2.3-rh-eclipse46-rhel-7
+T 1470239102 18<rgrunber18>	ah, awesome
+T 1470239592 18<mbenitez18>	thanks for the email mbooth 
+T 1470239700 18<mbooth18>	mbenitez: No worries, I expected backlash due to sending HTML email ;-)
+T 1470239720 18<mbenitez18>	haha
+T 1470239753 18<mbooth18>	Oh cripes I sent it to the wrong list -- sorry
+T 1470239876 18<mbenitez18>	no worries, this is new
+T 1470239914 18<rgrunber18>	mbooth: one question about the bug in rh-eclipse. when vkadlcik_gone outlined the steps to reproduce, those are things that worked on dts-4.. and not thing that worked on rh-eclipse prior to my patch.. right ?
+T 1470239986 18<rgrunber18>	ah .. umm nvm.. yeah it would imply the patch failed..
+T 1470240006 18<rgrunber18>	since for 3 to fail all of 1-2 had to work..
+T 1470240262 18<mbooth18>	Yeah, everything except installation worked on rh-eclipse prior to the patch
+T 1470240357 18<rgrunber18>	mbooth: what i'm seeing is that no platform bundle is detected by the target platform which seems unrelated.. i'll debug it to see.
+T 1470240367 18<rgrunber18>	which would explain why it isn't being found.
+T 1470240796 18<mbenitez18>	ldimaggi, thank you for all the updates Len!
+T 1470240825 18<ldimaggi18>	mbenitez, just trying to tie up the many loose ends!   ;-)
+T 1470240845 18<mbenitez18>	ldimaggi, great! and really appreciated :)
+T 1470244170 22*	26fuhbot gives channel operator status to 18jjohnstn
+T 1470245358 18<rgrunber18>	mbooth: problem in the bug seems to be solved by the patch i'll end up applying to fix the 'p2.runnable' problem.
+T 1470245390 18<mbooth18>	That's good, right?
+T 1470245412 18<rgrunber18>	yup.. so first patch caused issues likely because it wasn't completed.. and p2.runnable is needed.
+T 1470245455 18<rgrunber18>	in fact what occured is bundles.info never got generated in the user's $HOME/.eclipse.. so of course target platform generation failed... because it was looking for the bundles.info there.
+T 1470245468 18<rgrunber18>	it found the droplets just fine.. but not any of the platform files.
+T 1470245482 18<mbooth18>	Aha
+T 1470250489 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470250562 22*	26fuhbot gives channel operator status to 18fuhbot2
+T 1470250677 22*	26fuhbot gives channel operator status to 18palves
+T 1470253226 18<ericwill18>	This screenshot from a 2002 bug report really screams early 00's: https://bugs.eclipse.org/bugs/attachment.cgi?id=1864
+T 1470253422 18<rgrunber18>	ericwill: i'll take the X framebuffer rendering over this..
+T 1470253560 18<rgrunber18>	the window manager makes it looks like a crappy mmorpg from late 90s.
+T 1470253671 18<ericwill18>	rgrunber ikr
+T 1470253854 18<mbooth18>	ericwill: You youngsters will never know the pain.... I bet it took this user days to get their x.conf just right....
+T 1470253927 18<ericwill18>	mbooth haha, I can imagine :)
+T 1470253970 18<ericwill18>	as a side note, I'm really impressed by the number of old bugs that have snippet reproducers attached
+T 1470253973 18<ericwill18>	really makes life easier
+T 1470254363 18<mbooth18>	rgrunber: Would you quickly try something for me?
+T 1470254370 18<rgrunber18>	mbooth: sure
+T 1470254402 18<mbooth18>	rgrunber: I just sent you a script and a spec file...
+T 1470254445 18<rgrunber18>	i'm guessing you want me to build it..
+T 1470254461 18<mbooth18>	(Based on your original script) Running this script should result in a binary RPM that installs some droplets generated from p2 repos
+T 1470254492 18<mbooth18>	Yes please, also please take a look to see if its sane
+T 1470254528 18<mbooth18>	Actually a yum repo, not just a binary rpm
+T 1470254531 18<rgrunber18>	ahh.. one thing i probably also missed from the repo2runnable script, the option '-flagAsRunnable'
+T 1470254658 18<rgrunber18>	so basically you assume some source folder exists called %{?scl_prefix}devstudio.tar.gz or whatnot.. you extract its contents.. then you call feature/bundle publisher to create the p2 repo from it.. i mean the paths would need to match up.. between the location of those bundles and 'file:$(pwd)/p2-repo'..
+T 1470254718 18<mbooth18>	The build.sh generates the tarball and the srpm, so paths should always br correct
+T 1470254725 18<rgrunber18>	ah.. d'oh
+T 1470254787 18<rgrunber18>	ah.. build.sh is the thing being executed
+T 1470254802 18<mbooth18>	Yes, that wasn't clear, sorry
+T 1470254904 18<mbooth18>	Assumptions made: Machine you are running this on can run mock (Fedora, probably) and you are inside the firewall (so you can build RHEL7 chroot)
+T 1470254937 18<mbooth18>	My thinking is that using mock should give pretty reproducible results outside of brew
+T 1470255101 18<rgrunber18>	k seems to be working.. downloaded stuff.. wrote the srpm..
+T 1470255130 18<rgrunber18>	doing the mock build now...
+T 1470255306 18<rgrunber18>	mbooth: there's one improvement that could be made from that 'p2_feature_curl' thing i wrote.. and that's to actually call the director to install the units. it would require the user list all repositories (like http://download.eclipse.org/releases/neon) but we could do some logic afterwards like.. is this bundle from the p2 repo we care about or one of the others.. and decide whether to add it to the 
+T 1470255312 18<rgrunber18>	droplet on that criteria.
+T 1470255339 18<rgrunber18>	^ that would give us things like docker-client, jersey, ... in the case of linuxtools.docker.. instead of forcing there to be some feature that lists everything.
+T 1470255564 18<rgrunber18>	mbooth: yeah i guess for reproducibility you'd need to run it inside mock.. is it worth supplying an option in the future for the user to point to their own eclipse install.. i mean it'd be much faster should they choose that..
+T 1470255611 18<mbooth18>	Well, second run is faster since the mock root is cached
+T 1470255707 18<mbooth18>	And it's kind of just going be hooked into their existing deploy process -- I don't see people wanting to invoke this manually that much
+T 1470255801 18<mbooth18>	I see what you mean about improving 'p2_feature_curl' though
+T 1470255950 18<rgrunber18>	yeah we need p2's dep resolution greatness.. but then we want to remove all jars that came from somewhere else... or ... i think if we somehow use the system eclipse's profile.. it should.. not bring in the whole platform..
+T 1470255956 18<rgrunber18>	something to test though...
+T 1470256178 18<rgrunber18>	yay building the rpm..
+T 1470256290 18<rgrunber18>	mbooth: works for me.. built the yum repo contents seem right.
+T 1470256373 18<mbooth18>	Good :-)
+T 1470256447 18<mbooth18>	Building a second time should be super quick (the whole of maven is in the build root, a bit unnecessarily for this)
+T 1470256456 18<rgrunber18>	ah you even got rid of the feature.jars
+T 1470256483 18<rgrunber18>	ah nvm.. expanded on it to do features..
+T 1470256640 18<rgrunber18>	yeah this is awesome, nicely done.
+T 1470288040 22*	26fuhbot2 gives channel operator status to 18akurtakov
+T 1470300235 22*	26fuhbot gives channel operator status to 18palves
+T 1470308037 18<vkadlcik18>	mbooth: hi Mat, the rhscl eclipse erratum has not rh-eclipse46-eclipse-egit-mylyn and several rh-eclipse46-eclipse-emf-*
+T 1470308054 18<vkadlcik18>	mbooth: they were there some time ago but not now
+T 1470308061 18<vkadlcik18>	mbooth: is that intentional?
+T 1470308886 18<scela18>	vkadlcik: according to our team calendar, mbooth is on holiday, just so you know
+T 1470308903 18<vkadlcik18>	oh
+T 1470308910 18<vkadlcik18>	scela: thanks!
+T 1470308918 18<scela18>	vkadlcik: np
+T 1470309927 18<mbooth18>	vkadlcik: No, that is not intentional :-( I guess file lists need refreshing in errata or something otherwise the SCL might not be installable from the compose :-(
+T 1470309932 18<mbooth18>	Sorry about that
+T 1470309959 18<mbooth18>	Okay, I'm really on vacation now -- back on Monday
+T 1470310036 18<vkadlcik18>	mbooth: ok, thanks
+T 1470313560 22*	26fuhbot2 gives channel operator status to 18patrickm
+T 1470313787 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470315501 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1470315800 22*	26fuhbot2 gives channel operator status to 18ldimaggi
+T 1470317960 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1470320855 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470322413 22*	26fuhbot2 gives channel operator status to 18patrickm
+T 1470327127 22*	26fuhbot gives channel operator status to 18jjohnstn
+T 1470333131 19*	Now talking on 22#eclipse
+T 1470333131 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1470333131 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1470333761 19*	Now talking on 22#eclipse
+T 1470333761 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1470333761 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1470345595 22*	26fuhbot gives channel operator status to 18palves
+T 1470345833 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1470387516 22*	26fuhbot gives channel operator status to 18palves
+T 1470394515 22*	26fuhbot gives channel operator status to 18patrickm
+T 1470399044 22*	26fuhbot2 gives channel operator status to 18mattn
+T 1470402268 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470404806 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1470407058 18<rgrunber18>	vkadlcik: ping.. ?
+T 1470407072 18<vkadlcik18>	rgrunber: pong
+T 1470407090 18<rgrunber18>	vkadlcik: is there access to the machine on which the slowness is happening ?
+T 1470407301 18<vkadlcik18>	rgrunber: i'll prepare it, give me 15 min
+T 1470407330 18<rgrunber18>	vkadlcik: i'm trying it out on 10.16.186.62 but wasn't able to reproduce huge delay yet..
+T 1470407661 18<rgrunber18>	ok nvm.. i've reproduced something that takes long. might be a similar cause.
+T 1470408099 18<vkadlcik18>	rgrunber: so just in case: vncviewer ibm-ls22-04.rhts.eng.brq.redhat.com:1, password is redhat
+T 1470408118 18<vkadlcik18>	rgrunber: it's starting -application org.eclipse.swtbot.eclipse.junit.headless.swtbottestapplication
+T 1470408154 18<vkadlcik18>	rgrunber: now in about 3 min from my command
+T 1470408167 18<rgrunber18>	yup i see..
+T 1470408185 18<vkadlcik18>	rgrunber: i won't be using the machine today
+T 1470408207 18<vkadlcik18>	rgrunber: all the passwords should be redhat
+T 1470408421 18<rgrunber18>	vkadlcik: can you try instead of calling 'eclipse' for the time being, to replace it with 'java -jar /opt/rh/rh-eclipse46/root/usr/lib*/eclipse/plugins/org.eclipse.equinox.launch_*.jar .. that seemed to make a huge difference when i was trying it out..
+T 1470408455 18<rgrunber18>	also it seems only the first run is insanely slow, definitely droplets related though.
+T 1470408604 18<vkadlcik18>	rgrunber: i used to do it that way but one it needs more parameters and they seem to differ between versions so i ended up with simple 'eclipse'
+T 1470408626 18<vkadlcik18>	s/ one//
+T 1470408740 18<rgrunber18>	vkadlcik: yeah can be a bit trick to always try to find the equinox launcher.. just a workaround until i figure a solution for the issue.
+T 1470409016 18<vkadlcik18>	rgrunber: finding the launcher isn't tricky, the problem was to add all the additional switches in a way that would work across all supported eclipse versions
+T 1470409037 18<vkadlcik18>	rgrunber: but i can do it, in the worst case :-)
+T 1470409042 18<rgrunber18>	ah wait for tests there's additional paramaters other than just what you specified.. ?
+T 1470409294 18<vkadlcik18>	rgrunber: hmm, nope, please stick with what's in bugzilla; what i do normally is out of scope
+T 1470409305 18<vkadlcik18>	rgrunber: sorry for the confusion
+T 1470410312 22*	26fuhbot gives channel operator status to 18jjohnstn
+T 1470423446 22*	26fuhbot gives channel operator status to 18palves
+T 1470435160 22*	26fuhbot gives channel operator status to 18palves
+T 1470474977 22*	26fuhbot gives channel operator status to 18palves
+T 1470585382 18*	scox is away: pto
+T 1470649391 18<vkadlcik18>	mbooth: hi Mat, will you please check/reload the builds in the rh-eclipse46 erratum?
+T 1470649402 18<vkadlcik18>	mbooth: what brewroot has but not in the erratum: -build, -eclipse-egit-mylyn, -eclipse-emf-examples, -eclipse-emf-sdk, -eclipse-emf-tests
+T 1470649417 18<mbooth18>	vkadlcik: Hi, sure -- let me take a look now
+T 1470649484 22*	26fuhbot gives channel operator status to 18palves
+T 1470650377 18<mbooth18>	vkadlcik: Okay done, hopefully that should be better
+T 1470650956 18<vkadlcik18>	mbooth: thanks, just checked - still rh-eclipse46-build is missing
+T 1470650969 18<mbooth18>	D'oh
+T 1470651569 18<mbooth18>	vkadlcik: I don't know how to fix this one -- even removing and re-adding the build did not work :-(
+T 1470651575 18<mbooth18>	Let me ask rzima
+T 1470651654 18<vkadlcik18>	mbooth: ack
+T 1470659009 22*	26fuhbot2 gives channel operator status to 18patrickm
+T 1470661947 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470662895 22*	26fuhbot gives channel operator status to 18rgrunber
+T 1470663082 22*	26fuhbot gives channel operator status to 18mattn
+T 1470664166 18<mbooth18>	Morning, mbenitez 
+T 1470664184 18<mbenitez18>	mbooth, hello Mat, how was your long weekend?
+T 1470664201 18<mbooth18>	mbenitez: Nice and sunny, thanks :-)
+T 1470664212 18<mbenitez18>	excellent :)
+T 1470664262 18<mbooth18>	mbenitez: You should know that there was a slight problem reported with the alpha hand-off that needs PM clarification: https://bugzilla.redhat.com/show_bug.cgi?id=1365100
+T 1470664284 18*	mbenitez looks
+T 1470664408 18<mbenitez18>	mbooth, interesting, I didn't know rhscl doesn't provide this build feature
+T 1470664467 18<mbooth18>	mbenitez: Me neither, this caught us by surprise
+T 1470664488 18<mbenitez18>	mbooth, I just asked briang in #devtoolset, thanks fro bringing this up
+T 1470667007 18<xcoulon18>	rgrunber: woohoo ! it took me a bit of time, but I've just managed to parse the Docker Compose output, read the ANSI escape codes and print in the MessageConsole with proper text coloring: https://www.dropbox.com/s/4v1y94fpgzayxx0/Screenshot%202016-08-08%2016.29.25.png?dl=0
+T 1470667039 18<xcoulon18>	there's still work to do, though
+T 1470667221 18<rgrunber18>	looks good to me. we can probably use that same work to support container logs that have escape codes.. without moving them to tm terminal.
+T 1470667509 18<xcoulon18>	rgrunber: yes, that was my thought too. I suggest we discuss about it in an upcoming change, ok ?
+T 1470667599 22*	26fuhbot gives channel operator status to 18mbenitez
+T 1470667615 18<rgrunber18>	xcoulon: sure. btw is this something you've written from scratch ? or based on existing stuff from projects that have done the same.
+T 1470667638 18<xcoulon18>	rgrunber: nope, I wrote it from scratch
+T 1470667667 18<rgrunber18>	i might look at other projects that have done it to ensure we support all possible codes.
+T 1470667764 18<rgrunber18>	i mean specifically for things like colours, or really uncommon codes.

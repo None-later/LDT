@@ -1,0 +1,1 @@
+window.activate("Eclipse SDK")

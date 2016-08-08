@@ -1,0 +1,732 @@
+**** BEGIN LOGGING AT Mon Jul 25 17:56:31 2016
+
+[akurtakov has address ~akurtakov@vpn1-5-74.ams2.redhat.com]
+Jul 25 17:56:34 <lufimtse>	you still around I see
+Jul 25 17:56:41 <akurtakov>	yup
+Jul 25 17:56:46 <akurtakov>	more like 
+Jul 25 17:56:48 <akurtakov>	I'm back :)
+Jul 25 17:57:06 <lufimtse>	I see, you use the css in the GtkInspector?
+Jul 25 17:57:26 <akurtakov>	I do yes :)
+Jul 25 17:57:36 <akurtakov>	but in general
+Jul 25 17:57:44 <akurtakov>	don't introduce these needless variables
+Jul 25 17:57:49 <lufimtse>	I'm a little bit oppose to duplicate css strings thou.
+Jul 25 17:57:54 <lufimtse>	thoughts?
+Jul 25 17:58:04 <akurtakov>	this is what gtk devs recommend
+Jul 25 17:58:26 <akurtakov>	have separate css per gtk version
+Jul 25 17:59:22 <akurtakov>	see mclassen comment here https://blogs.gnome.org/mclasen/2015/11/20/a-gtk-update/
+Jul 25 17:59:33 <lufimtse>	Lemme read.
+Jul 25 17:59:35 <akurtakov>	second comment
+Jul 25 18:00:15 <akurtakov>	I plan on stripping this css into gtk3.18.css and gtk3.20.css files
+Jul 25 18:00:32 <akurtakov>	and load whichever is needed based on the version we run on
+Jul 25 18:01:31 <lufimtse>	that makes sense
+Jul 25 18:01:52 <akurtakov>	it would be more like gtk3.18.css and gtk.css :)
+Jul 25 18:02:32 <akurtakov>	but duplication of the css in a string is better than introducing tons of local variables for the sake of not duplicating
+Jul 25 18:02:49 <akurtakov>	mind you that a single string will be interned and that's it
+Jul 25 18:03:24 <akurtakov>	with local variables there will be copies for each variable
+Jul 25 18:03:42 <akurtakov>	as intern would not happen due to different content of each variable
+Jul 25 18:04:15 <lufimtse>	meh, I see that folks might not notice the subtle difference in "-gtk-key-bindings" vs "gtk-key-bindings" if we throw everything into a file. But meh... 
+Jul 25 18:04:24 <lufimtse>	performance is not so much on my mind.
+Jul 25 18:04:43 <akurtakov>	it should be the first thing on your mind when working on swt :)
+Jul 25 18:05:12 <akurtakov>	every bit counts here
+Jul 25 18:05:59 <akurtakov>	even this css was extracted that way to load it globally to not apply parts of it everytime given widget is created
+Jul 25 18:07:24 <akurtakov>	keep in mind that one of the undisputable advantages of Eclipse is the native performance UI toolkit 
+Jul 25 18:07:43 <akurtakov>	something that intellij/netbeans can't achieve
+Jul 25 18:08:23 <akurtakov>	we should not allow this advantage to be lost for readability sake
+Jul 25 18:08:41 <akurtakov>	also thinking from end user POV
+Jul 25 18:09:05 <akurtakov>	how performant toolkit is is more important than how readable code is
+Jul 25 18:09:24 <lufimtse>	Well
+Jul 25 18:09:26 <akurtakov>	and last "readable" is personal opinion in some cases like this one
+Jul 25 18:09:35 <lufimtse>	sec
+Jul 25 18:11:07 <akurtakov>	also think from other apps pov - rssowl, vuze....
+Jul 25 18:11:39 <akurtakov>	stuff like http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=520267783601ade56440e29bd1a9d2c726acf627 makes big difference when writing file browser type of app
+Jul 25 18:13:03 <akurtakov>	am I too verbose :)
+Jul 25 18:13:24 <lufimtse>	Well, if you really want the css string musched together we can do that. But just as a note, I took a course on advance Operating systems where they got us to do benchmarking on CPU cycle level. A native call is indeed very expensive, on the order of 30,000+ cycles, but a string construction is like 50 cpu cycles.
+Jul 25 18:13:40 <lufimtse>	http://stackoverflow.com/questions/38295391/how-many-cpu-cycles-an-object-creation-takes-in-java
+Jul 25 18:14:05 <lufimtse>	If we move things into a file, that would kill any performance benifit from constructing stings.
+Jul 25 18:14:10 <lufimtse>	but would indeed be more clean
+Jul 25 18:14:25 <lufimtse>	meh
+Jul 25 18:14:43 <lufimtse>	50cpu cycles translates to around 5ns on a 2.4 ghz
+Jul 25 18:14:44 <lufimtse>	ps
+Jul 25 18:14:45 <lufimtse>	pc
+Jul 25 18:15:14 <lufimtse>	meh
+Jul 25 18:15:31 <lufimtse>	ok, getting late over here, would you mind if I move the thing back into a string tomorrow?
+Jul 25 18:15:43 <akurtakov>	the file will be loaded already as it will be in the jar
+Jul 25 18:15:52 <akurtakov>	not at all
+Jul 25 18:16:24 <lufimtse>	how about file + comment in the file about the -gtk-bindings-keys business ^__^
+Jul 25 18:17:09 <akurtakov>	and comment about GtkToolbar vs toolbar
+Jul 25 18:17:26 <akurtakov>	.undershoot vs scrolledwindow undershoot 
+Jul 25 18:17:28 <akurtakov>	and etc.
+Jul 25 18:17:41 <akurtakov>	it's just a different css file - we have to admit it :)
+Jul 25 18:17:50 <lufimtse>	meh
+Jul 25 18:18:16 <akurtakov>	it's not ideal world :)
+Jul 25 18:18:22 <lufimtse>	X-D
+Jul 25 18:18:39 <lufimtse>	ok ok, I'll musch into a string tomorrow if that's ok with u.
+Jul 25 18:18:46 <akurtakov>	sure
+Jul 25 18:19:57 <akurtakov>	btw, what's "musch" ?
+Jul 25 18:20:33 <lufimtse>	mix
+Jul 25 18:20:35 <lufimtse>	put together
+Jul 25 18:20:40 <lufimtse>	like when you mix ingredients in a bowl
+Jul 25 18:20:44 <lufimtse>	musch
+Jul 25 18:20:49 <akurtakov>	ah, ok 
+Jul 25 18:21:00 <akurtakov>	never heard it before and you used it twice :)
+Jul 25 18:21:13 <lufimtse>	it's one of those things people say but never write much
+Jul 25 18:21:55 <lufimtse>	ok, I"m off, have a nice one ^__^
+Jul 25 19:58:40 *	akurtakov has quit (Ping timeout: 180 seconds)
+**** ENDING LOGGING AT Mon Jul 25 20:05:21 2016
+
+**** BEGIN LOGGING AT Mon Jul 25 20:05:21 2016
+
+Jul 26 09:46:42 <lufimtse>	hey
+Jul 26 09:46:44 <lufimtse>	morning
+Jul 26 09:48:27 *	Disconnected (Invalid argument)
+Jul 26 10:48:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Jul 26 11:28:06 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 12:53:34 2016
+
+[akurtakov has address ~akurtakov@vpn1-4-226.ams2.redhat.com]
+Jul 26 12:53:34 <akurtakov>	some quotes http://izquotes.com/quotes-pictures/quote-perfection-is-achieved-not-when-there-is-nothing-more-to-add-but-when-there-is-nothing-left-to-antoine-de-saint-exupery-161537.jpg
+Jul 26 12:54:01 <akurtakov>	http://startupquotes.startupvitamins.com/post/91064157142/a-user-interface-is-like-a-joke-if-you-have-to
+Jul 26 12:54:22 <akurtakov>	think about these things when the idea to add smth comes :)
+Jul 26 12:54:58 <lufimtse>	the maven thing seems kinda heavy
+Jul 26 12:55:28 <lufimtse>	I've executed:  mvn clean verify -Dnative=gtk.linux.x86 -Pbuild-individual-bundles 
+Jul 26 12:55:31 <lufimtse>	in the binary repo
+Jul 26 12:55:34 <lufimtse>	it's doing it's thing
+Jul 26 12:55:43 <lufimtse>	it's taking a long time
+Jul 26 12:55:58 <lufimtse>	the idea with build script is local rebuild, not so much eclipse rebuild
+Jul 26 12:55:58 <akurtakov>	well, you can cd to the fragment and do it there 
+Jul 26 12:56:02 <akurtakov>	will take far less
+Jul 26 12:56:20 <lufimtse>	what do you mean by fragment?
+Jul 26 12:56:49 <akurtakov>	cd bundles/org.eclipse.swt.gtk.linux.x86_64 :)
+Jul 26 12:56:57 <lufimtse>	lemme try
+Jul 26 12:58:32 <lufimtse>	I did the maven command, it took a while bu finished succesfully. The *.so files are not there, are they put somewhere else?
+Jul 26 13:02:19 <lufimtse>	The pictures are inspiring, but following that logic one would be using vim as oppose to Eclipse ^__^''
+Jul 26 13:02:42 <akurtakov>	hmm, so files are there for me
+Jul 26 13:02:47 <lufimtse>	you mean *.so?
+Jul 26 13:02:52 <akurtakov>	yes
+Jul 26 13:03:11 <akurtakov>	mvn clean verify -Pbuild-individual-bundles -Dnative=gtk.linux.x86_64
+Jul 26 13:03:29 <akurtakov>	http://paste.fedoraproject.org/395892/69552599/
+Jul 26 13:03:38 <akurtakov>	note the just generated *.so file
+Jul 26 13:04:31 <lufimtse>	that command up there is slightly different from the one in Eclipse chat. That one seems to work.
+Jul 26 13:05:04 <akurtakov>	sorry, written by memory 
+Jul 26 13:05:18 <akurtakov>	execed from bash history :)
+Jul 26 13:06:43 <akurtakov>	I'm opposing to adding more things cause there is so much things only one person uses
+Jul 26 13:07:03 <akurtakov>	e.g. do you use SWT_FATAL_WARNING you added?
+Jul 26 13:07:46 <akurtakov>	and most of the time for very short period
+Jul 26 13:08:47 <lufimtse>	We used the warnings things once or twice to hunt down a warning. I guess not that often
+Jul 26 13:08:58 <lufimtse>	the maven thing is nice, just a bit slow I guess
+Jul 26 13:09:32 <lufimtse>	~15 secs (without clean/verify), where as the build script does it in under 1 second
+Jul 26 13:09:55 <lufimtse>	but I guess maven makes it redundant to add another script into root then
+Jul 26 13:10:20 <lufimtse>	People who want to have things faster could use build.sh directly
+Jul 26 13:10:34 <lufimtse>	interesting maven command, never knew about it
+Jul 26 13:10:35 <akurtakov>	yup, it's not the most optimal way but it's generally usable for multiple things
+Jul 26 13:11:22 <akurtakov>	bonus point for using it during development
+Jul 26 13:11:41 <akurtakov>	when things get to releng (Mat) we know that the stuff works
+Jul 26 13:12:11 <akurtakov>	which wasn't the case before support for that was added and whoever was rebasing platform was unbreaking the build for weeks
+Jul 26 13:13:20 <akurtakov>	this makes me think - have you ever done any rpm work ?
+Jul 26 13:13:54 <akurtakov>	it's a mind opener why "creative" releng is bad 
+Jul 26 13:14:29 <akurtakov>	as a permanent member of the team you should be ready to act on such tasks
+Jul 26 13:14:40 <akurtakov>	will get back to that soon :)
+Jul 26 13:15:06 <lufimtse>	I haven't but keep me posted
+Jul 26 13:15:11 <lufimtse>	thanks for maven info
+Jul 26 13:15:28 <akurtakov>	well, you will be officially included in the Neon.1 packaging fest :)
+Jul 26 13:16:24 <lufimtse>	X-D! yay
+Jul 26 13:17:08 <akurtakov>	if looking for improvements to the build speed
+Jul 26 13:17:18 <akurtakov>	it copies the sources twice
+Jul 26 13:17:34 <akurtakov>	and runs the suboptimal 64to32 task
+Jul 26 13:17:55 <akurtakov>	that would benefit everyone if improved
+Jul 26 13:18:12 <akurtakov>	and maybe even migrating from rhino to nashhorn
+Jul 26 13:18:13 <lufimtse>	hmmm
+Jul 26 13:18:23 <lufimtse>	what is the 64 to 32 task
+Jul 26 13:18:54 <lufimtse>	the build.sh runs in like .5 second or less, where as mvn does 15 seconds, there seems to be a magnitude difference?
+Jul 26 13:19:00 <lufimtse>	is that because of 64 to 32 ?
+Jul 26 13:19:52 <akurtakov>	maven does build both gtk3 and 2 (just to make sure you compare apple to apple)
+Jul 26 13:20:11 <akurtakov>	but it also recompiles the java sources  which build.sh doesn't do
+Jul 26 13:20:32 <akurtakov>	and also generates jar in target for direct usage 
+Jul 26 13:20:35 <akurtakov>	and etc.
+Jul 26 13:20:40 <lufimtse>	the .5 reference was to ./build.sh -gtk-all which compiles both btw
+Jul 26 13:20:46 <lufimtse>	and does clean in between
+Jul 26 13:20:57 <lufimtse>	is there a way to exclude java compilation from maven?
+Jul 26 13:21:01 <lufimtse>	(just wondering..)
+Jul 26 13:21:11 <akurtakov>	nope
+Jul 26 13:21:15 <lufimtse>	I see
+Jul 26 13:21:18 <akurtakov>	in buildSWT.xml
+Jul 26 13:21:30 <akurtakov>	there is replace.32.to.64 and replace64.to32
+Jul 26 13:21:33 <lufimtse>	btw, the maven thing works with the latest ./build.sh fixes.
+Jul 26 13:21:41 <lufimtse>	prints green colouring thou.... 
+Jul 26 13:21:43 <lufimtse>	hmmm
+Jul 26 13:21:50 <akurtakov>	I know :) tested it yesterday :0
+Jul 26 13:22:17 <akurtakov>	I'm really cautious when touching these places
+Jul 26 13:22:26 <lufimtse>	I know what you mean
+Jul 26 13:22:26 <akurtakov>	you never know what IBM/others use
+Jul 26 13:23:08 <lufimtse>	I suppose they could test it on their build machines?
+Jul 26 13:24:56 <akurtakov>	yeah, if only Sravan wasn't taking David W. work
+Jul 26 13:25:15 <akurtakov>	and Arun has some personal stuff to deal with so not working lately
+Jul 26 13:25:15 <lufimtse>	He's quite busy?
+Jul 26 13:25:22 <lufimtse>	I see
+Jul 26 13:25:24 <lufimtse>	hmm
+Jul 26 13:25:39 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=476644
+Jul 26 13:25:47 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=498358
+Jul 26 13:26:01 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=498459
+Jul 26 13:26:42 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=498509
+Jul 26 13:26:48 <akurtakov>	all pending on Sravan 
+Jul 26 13:27:06 <akurtakov>	and he is in charge for all builders
+Jul 26 13:27:11 <lufimtse>	I see.
+Jul 26 13:27:21 <akurtakov>	even updating AIX to have GTK 2.24 on it and etc.
+Jul 26 13:27:46 <lufimtse>	on the bright side: https://git.eclipse.org/r/#/c/77357/  << hudson builds successfully
+Jul 26 13:28:05 <lufimtse>	When I was adding functionality, I was checking for backwards support with many shells
+Jul 26 13:28:16 <lufimtse>	cross-platform colouring etc... 
+Jul 26 13:28:45 <lufimtse>	The colouring is quite nice, but at the end of the day I could remove it if it get's the patch in quicker
+Jul 26 13:28:56 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=498429
+Jul 26 13:28:59 <lufimtse>	and instead just have markers like "---" and "***" ...
+Jul 26 13:29:08 <akurtakov>	let's keep it for now
+Jul 26 13:29:19 <akurtakov>	I'll definetely try to push it today
+Jul 26 13:29:38 <akurtakov>	with some jni change right after it to test the native builders don't screw
+Jul 26 13:29:51 <lufimtse>	kk
+Jul 26 13:30:02 <akurtakov>	dinner time now
+Jul 26 13:30:24 <akurtakov>	btw, moving to GTK 2.24 is like updating half the world
+Jul 26 13:30:59 <akurtakov>	working with AIX devs to get gtk 2.24 there, update eclipse.org infra, fix tests, change build scripts ...........
+Jul 26 13:32:50 <lufimtse>	X-D lols.
+Jul 26 13:33:12 <lufimtse>	After dinner: btw, is 2.18 evil>?
+Jul 26 13:33:25 <akurtakov>	yes
+Jul 26 13:33:44 <akurtakov>	there is no machine with gtk 2.18 and 3.x 
+Jul 26 13:34:10 <akurtakov>	meaning that different so files have to be build on different machines
+Jul 26 13:34:23 <akurtakov>	which is not what eclipse webmaster wants
+Jul 26 13:34:37 <akurtakov>	which prevents moving builder to smth we can influence
+Jul 26 13:34:47 <lufimtse>	I see
+Jul 26 13:34:59 <akurtakov>	and building against custom compiled gtk is no-go
+Jul 26 13:35:07 <akurtakov>	not to mention that dropping 2.18
+Jul 26 13:35:25 <akurtakov>	would allow us to remove the dep on XRender 
+Jul 26 13:35:45 <akurtakov>	aka open the door for wayland builds without X11 dep
+Jul 26 13:35:49 <akurtakov>	and I can continue :)
+Jul 26 13:35:55 <akurtakov>	gdk drawing also 
+Jul 26 13:36:09 <akurtakov>	anyway, dinner really
+Jul 26 13:39:37 <lufimtse>	I see
+Jul 26 13:39:39 <lufimtse>	interesting.
+Jul 26 13:39:45 <lufimtse>	enjoy
+Jul 26 15:52:38 <lufimtse>	u still around?
+Jul 26 15:52:45 <akurtakov>	yes
+Jul 26 15:53:03 <lufimtse>	just curious, is Eclipse+GTK2 officially in "maintenance" mode?
+Jul 26 15:53:06 <lufimtse>	like the gtk2 part
+Jul 26 15:53:28 <lufimtse>	I.e, would that imply no new features in that combo?
+Jul 26 15:53:33 <lufimtse>	just fix bugs
+Jul 26 15:53:46 <akurtakov>	this is the message I send on Red Hat behalf
+Jul 26 15:53:59 <akurtakov>	definetely if adding new features
+Jul 26 15:54:05 <akurtakov>	we are not interested in gtk2
+Jul 26 15:54:19 <akurtakov>	e.g. eric's alpha work will be gtk3 only and etc.
+Jul 26 15:54:25 <lufimtse>	I'm just reading Markus's comment
+Jul 26 15:54:37 <akurtakov>	if it's in the shared code we will not ifdef gtk2
+Jul 26 15:54:46 <akurtakov>	but otherwise fixes for gtk3 only from our team
+Jul 26 15:54:57 <akurtakov>	new one?
+Jul 26 15:55:02 <lufimtse>	na
+Jul 26 15:55:02 <akurtakov>	or the one I replied to?
+Jul 26 15:55:07 <lufimtse>	the one u replied to. 
+Jul 26 15:55:43 <akurtakov>	I have sent the message multiple times that we are not going to spend time on gtk2
+Jul 26 16:01:15 <lufimtse>	was thinking of +1 on grounds that we no longer add new features to gtk2
+Jul 26 16:01:36 <lufimtse>	then wanted to check with you if we are in maintenance mode
+Jul 26 16:01:58 <akurtakov>	well better to play the bad cop/good cop sometimes
+Jul 26 16:02:04 <akurtakov>	let me be the bad one this time
+Jul 26 16:06:44 <akurtakov>	btw, do you mind if I remove the CAUTION section
+Jul 26 16:07:30 <akurtakov>	I don't like the idea of this warning message when you know exactly what you do
+**** ENDING LOGGING AT Tue Jul 26 16:10:30 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 16:10:30 2016
+
+**** ENDING LOGGING AT Tue Jul 26 16:12:19 2016
+
+**** BEGIN LOGGING AT Tue Jul 26 16:12:19 2016
+
+Jul 26 16:12:46 <akurtakov>	I'll reduce the output and commit it
+Jul 26 16:13:35 <lufimtse>	that's ok
+Jul 26 16:13:43 <lufimtse>	was thinking of removing it also
+Jul 26 16:13:51 <lufimtse>	considering maven...
+Jul 26 16:14:13 <akurtakov>	there is also the double OS/ARCH announcement first and fifth line
+Jul 26 16:14:23 <lufimtse>	hmmm
+Jul 26 16:14:25 <akurtakov>	will leave the later
+Jul 26 16:15:09 <akurtakov>	https://paste.fedoraproject.org/395992/14695640/
+Jul 26 16:15:17 <akurtakov>	1 and 5 in this paste
+Jul 26 16:16:49 <lufimtse>	I guess that's just info on which GTK is being build. I could compress it into a single line?
+Jul 26 16:16:53 <lufimtse>	if you give me 10 mins
+Jul 26 16:17:04 <akurtakov>	nah, I'm on it 
+Jul 26 16:17:27 <lufimtse>	I.e, like put it into a variable and use it in both build places... 
+Jul 26 16:17:45 <akurtakov>	it's about the output
+Jul 26 16:17:54 <akurtakov>	the two lines contain exactly the same info
+Jul 26 16:18:18 <lufimtse>	how so?
+Jul 26 16:18:25 <lufimtse>	one says architecture, one says gtk2/gtk3
+Jul 26 16:18:33 <lufimtse>	oh
+Jul 26 16:18:35 <lufimtse>	sec
+Jul 26 16:18:39 <lufimtse>	me read wrong thing
+Jul 26 16:18:56 <lufimtse>	yah, I see what you mean
+Jul 26 16:18:56 <akurtakov>	:)
+Jul 26 16:20:07 <lufimtse>	Yea, I see. Good observation X-D
+Jul 26 16:21:45 <akurtakov>	when grep is your most used command duplication is bad :)
+Jul 26 16:22:03 <lufimtse>	good point.
+Jul 26 16:22:22 <akurtakov>	https://git.eclipse.org/r/#/c/77357/11..12/bundles/org.eclipse.swt/Eclipse+SWT+PI/gtk/library/build.sh
+Jul 26 16:22:30 <akurtakov>	I'll push it now
+Jul 26 16:23:24 <lufimtse>	kk
+Jul 26 16:25:19 <akurtakov>	assuming there is no further work planned you can close the bug :)
+Jul 26 16:25:25 <akurtakov>	nice improvement
+Jul 26 16:25:33 <lufimtse>	well
+Jul 26 16:25:37 <lufimtse>	still gotta update wiki
+Jul 26 16:25:51 <lufimtse>	let's keep bug open till then
+Jul 26 16:25:56 <akurtakov>	ok
+Jul 26 16:26:01 <lufimtse>	I'll post in bug about wiki update, then .... 
+Jul 26 16:34:07 <akurtakov>	will this ever end https://git.eclipse.org/r/#/c/77934/
+Jul 26 16:34:49 <akurtakov>	I'm kind of tired of doing this stuff every time I look at a file
+Jul 26 16:53:37 <lufimtse>	oh ^_^
+Jul 26 16:53:41 <lufimtse>	I forgot to remove those
+Jul 26 16:53:42 <lufimtse>	lols
+Jul 27 10:45:29 *	Disconnected (Connection timed out)
+[akurtakov has address ~akurtakov@vpn1-5-43.ams2.redhat.com]
+Jul 27 14:02:01 <akurtakov>	I'm eager to test the webkit2 exec patch :0
+Jul 27 14:02:35 <akurtakov>	sounds like smth that would help my local install using webkit2 :)
+Jul 27 14:02:49 <lufimtse>	getting there
+Jul 27 14:02:53 <lufimtse>	tidying up commit atm
+Jul 27 14:03:09 <lufimtse>	It's a good idea to submit lots of little patches I think
+Jul 27 14:03:28 <lufimtse>	I'm creating my own repo for bug snippets, as at the moment they're just too all over the place.
+Jul 27 14:03:38 <lufimtse>	gimme 10 mins. 
+Jul 27 14:06:18 <lufimtse>	Do you have any good way to tell if webkit1 or webkit2 is runnning?
+Jul 27 14:06:28 <lufimtse>	I currently stuff a printline into WebKit.java
+Jul 27 14:06:32 <lufimtse>	just after WEBKIT2
+Jul 27 14:06:42 <lufimtse>	just kinda tedious to deal with it during commits
+Jul 27 14:08:07 <akurtakov>	use the env variable
+Jul 27 14:08:19 <lufimtse>	I mean like when you run a snippet
+Jul 27 14:08:24 <lufimtse>	I want to verify it's on webkit2.
+Jul 27 14:08:39 <lufimtse>	just to keep sane
+Jul 27 14:09:08 <lufimtse>	atm I put a println after WEBKIT2 saying "Webkit2 has loaded"
+Jul 27 14:09:16 <lufimtse>	but everytime I do a commit, I have to remote that println
+Jul 27 14:09:19 <lufimtse>	and then put it back
+Jul 27 14:09:19 <lufimtse>	meh
+Jul 27 14:09:33 <lufimtse>	or have faith that snippet truly runs webkit2
+Jul 27 14:09:58 <lufimtse>	normally in gtk inspector I can read Gtk version, would be nice to have something equivalent for webkit version
+Jul 27 14:10:00 <lufimtse>	but meh.
+Jul 27 14:10:10 <akurtakov>	http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=d087a6b7e24c09db8fa729b985383ba168fb4055
+Jul 27 14:10:12 <akurtakov>	:)
+Jul 27 14:10:42 <akurtakov>	so System.getenv("org.eclipse.swt.internal.webkitgtk.version") will give you the version 
+Jul 27 14:10:54 <akurtakov>	but only after webkit has been initialized
+Jul 27 14:11:27 <lufimtse>	sorta what I'm looking for I guess
+Jul 27 14:11:41 <lufimtse>	you mean I can stuff that into snippet?
+Jul 27 14:11:43 <lufimtse>	lemme try
+Jul 27 14:11:47 <akurtakov>	yes
+Jul 27 14:14:12 <lufimtse>	hmm, seems to return null for me.
+Jul 27 14:14:19 <lufimtse>	do you happen to have a snippet that works with this?
+Jul 27 14:14:39 <lufimtse>	I run that when a webkit widget has already been loaded.
+Jul 27 14:47:30 <akurtakov>	works for the ide http://git.eclipse.org/c/platform/eclipse.platform.ui.git/commit/?id=0f0d8b4f63b7b569f675138bde11bc576f14d9b9
+Jul 27 14:48:48 <lufimtse>	btw, the save actions keep changing imports
+Jul 27 14:48:49 <lufimtse>	like: import org.eclipse.swt.internal.C;
+Jul 27 14:48:52 <lufimtse>	to import org.eclipse.swt.internal.*
+Jul 27 14:48:59 <lufimtse>	I guess we don't mind?
+Jul 27 14:49:03 <akurtakov>	yup
+Jul 27 14:49:06 <lufimtse>	kk
+Jul 27 14:49:22 <akurtakov>	sooner or later it will modify everything :)
+Jul 27 14:56:34 <lufimtse>	I see
+Jul 27 14:56:35 <lufimtse>	kk
+Jul 27 14:56:38 <lufimtse>	https://github.com/LeoUfimtsev/swt.snippets/blob/master/swt.crossplatform.snippets/generic/browser/Snip_Browser_Javascript_execute.java
+Jul 27 14:56:41 <lufimtse>	^^ snippet 
+Jul 27 14:56:46 <lufimtse>	patch
+Jul 27 14:56:46 <lufimtse>	https://git.eclipse.org/r/#/c/78014/
+Jul 27 14:56:58 <lufimtse>	before patch, try running snippet in W2
+Jul 27 14:57:05 <lufimtse>	buttons don't change background
+Jul 27 14:57:09 <lufimtse>	then apply patch
+Jul 27 14:57:16 <lufimtse>	then try snippet again. 
+Jul 27 14:57:36 <lufimtse>	fyi, this is the repo I made: https://github.com/LeoUfimtsev/swt.snippets
+Jul 27 14:57:40 <lufimtse>	for my future snippets
+Jul 27 15:01:34 <lufimtse>	----
+Jul 27 15:01:45 <lufimtse>	btw, thank you for snippet, that prints webkitgtk version
+Jul 27 15:01:50 <lufimtse>	*thumbs up*
+Jul 27 15:01:52 <lufimtse>	life is good.
+Jul 27 15:33:30 <lufimtse>	---
+Jul 27 15:33:38 <lufimtse>	I'm getting a strange error in swt.tests:
+Jul 27 15:33:39 <lufimtse>	Access restriction: The field 'MozillaVersion.VERSION_XR1_9_2' is not API (restriction on required project 'org.eclipse.swt')
+Jul 27 15:33:44 <lufimtse>	and other alike...
+Jul 27 15:33:50 <lufimtse>	any ideas how to fix?
+Jul 27 15:34:32 <akurtakov>	ignore :)
+Jul 27 15:34:43 <lufimtse>	it only started today
+Jul 27 15:34:47 <lufimtse>	hasn't happened before
+Jul 27 15:34:49 <akurtakov>	hmm
+Jul 27 15:34:57 <lufimtse>	i usually try to keep workspace problem fere
+Jul 27 15:35:00 <lufimtse>	free*
+Jul 27 15:35:17 <akurtakov>	even after restart of eclipse and rebuild workspace
+Jul 27 15:35:19 <akurtakov>	?
+Jul 27 15:36:43 <lufimtse>	ok, closing eclipse and opening worked wonders
+Jul 27 15:36:51 <lufimtse>	X-D
+Jul 27 15:37:07 <lufimtse>	one of those odd things..
+Jul 27 15:39:04 <akurtakov>	I'll minimize your commit message :)
+Jul 27 15:39:50 <lufimtse>	I see
+Jul 27 15:39:53 <lufimtse>	kinda long I guess
+Jul 27 15:40:19 <lufimtse>	I can shorten it ?
+Jul 27 15:40:25 <lufimtse>	you mean the URL part?
+Jul 27 15:40:32 <akurtakov>	no
+Jul 27 15:40:38 <akurtakov>	Part 1: (work in progress, but can be commited)
+Jul 27 15:40:40 <akurtakov>	(The idea is to have more partial commits instead of one huge commit)
+Jul 27 15:40:52 <akurtakov>	not related to the commit :)
+Jul 27 15:40:58 <lufimtse>	I see
+Jul 27 15:41:04 <lufimtse>	good point
+Jul 27 15:41:17 <lufimtse>	I guess those are better put into the comments
+Jul 27 15:41:50 <akurtakov>	do you use git log ?
+Jul 27 15:41:57 <lufimtse>	not much
+Jul 27 15:42:04 <lufimtse>	I use the history view in eclipse
+Jul 27 15:42:16 <akurtakov>	I do for preparing release notes :)
+Jul 27 15:42:29 <lufimtse>	I see
+Jul 27 15:42:32 <akurtakov>	an explanation why I care for these things :)
+Jul 27 15:45:30 <lufimtse>	The webkit work is quite demanding
+Jul 27 15:45:34 <lufimtse>	phew
+Jul 27 15:45:39 <lufimtse>	sometimes hard to stay focused
+Jul 27 15:51:12 <akurtakov>	it's in :)
+Jul 27 15:51:21 <akurtakov>	yeah, focusing is quite hard
+Jul 27 15:51:30 <lufimtse>	nice nice
+Jul 27 15:51:36 <akurtakov>	I almost gave up 
+Jul 27 15:52:23 <akurtakov>	spending 3h on the phone today and talking about N-teen different things if smth needs deepdiving I'm just not left to do it
+Jul 27 15:52:46 <lufimtse>	^__^
+Jul 27 15:52:54 <akurtakov>	actually if I want to do real development I have to stop irc, not check mail and etc. to not be bothered
+Jul 27 15:55:15 <lufimtse>	hmm, maybe I should focus more on getting one thing done at a time.
+Jul 27 15:56:34 <akurtakov>	I don't give suggestion on "how" one to organize his workflow
+Jul 27 15:56:44 <akurtakov>	usually it's strictly personal
+Jul 27 15:56:56 <lufimtse>	I see
+Jul 27 15:57:04 <akurtakov>	what works for me would not for  you and vice-versa
+Jul 27 15:57:08 <lufimtse>	I'm often curious to see other dev's workflows thou.
+Jul 27 15:57:15 <lufimtse>	kinda pick up things as I go along.
+Jul 27 15:59:55 <akurtakov>	my workflow - have clear goal - do whatever needed with whatever tool possible to achieve it :)
+Jul 27 16:00:05 <lufimtse>	I see
+Jul 27 16:00:19 <lufimtse>	BTW, the browser tests are utterly slow (lots of odd 'wait' loops). Unless you know of a good reason why, I wanna speed them up a bit.
+Jul 27 16:00:34 <lufimtse>	unless you know of a good reason why they are so slow*
+Jul 27 16:00:56 <lufimtse>	Like when I make a change, running junits takes for evea
+Jul 27 16:01:45 <akurtakov>	honestly I never understood these tests
+Jul 27 16:01:55 <akurtakov>	what I know is that these are the most fragile tests :)
+Jul 27 16:02:21 <lufimtse>	I see
+Jul 27 16:02:23 <akurtakov>	if you do major changes - be ready to react on every builder update :)
+Jul 27 16:02:40 <lufimtse>	How do I check builder logs
+Jul 27 16:02:56 <akurtakov>	http://download.eclipse.org/eclipse/downloads/drops4/N20160726-2000/
+Jul 27 16:03:01 <akurtakov>	everything is there
+Jul 27 16:03:04 <akurtakov>	from the huge log
+Jul 27 16:03:44 <akurtakov>	down to table test results like http://download.eclipse.org/eclipse/downloads/drops4/N20160726-2000/testresults/html/org.eclipse.pde.ui.tests_ep47N-unit-lin64_linux.gtk.x86_64_8.0.html
+Jul 27 16:04:30 <akurtakov>	or the individual textual output http://download.eclipse.org/eclipse/downloads/drops4/N20160726-2000/logs.php#console
+Jul 27 16:04:44 <akurtakov>	it takes a bit of time to find your way 
+Jul 27 16:05:02 <akurtakov>	but there are enough battles for me to try improving that :)
+Jul 27 16:05:16 <lufimtse>	I see
+Jul 27 16:06:30 <akurtakov>	so will you try to make the async to sync onthe C side or Java side?
+Jul 27 16:06:41 <lufimtse>	well
+Jul 27 16:06:47 <lufimtse>	thought in progress
+Jul 27 16:06:56 <lufimtse>	Sami did it on the java side
+Jul 27 16:06:58 <lufimtse>	via callback
+Jul 27 16:07:07 <lufimtse>	and a hashmap with counters.
+Jul 27 16:07:12 <akurtakov>	would you please point me to it?
+Jul 27 16:07:28 <lufimtse>	Sec
+Jul 27 16:07:49 <lufimtse>	So:...
+Jul 27 16:08:02 <lufimtse>	https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/browser/WebKit.java
+Jul 27 16:08:16 <lufimtse>	private static HashMap<Integer, Long> jsResults = new HashMap<Integer, Long>();
+Jul 27 16:08:16 <lufimtse>	private static int jsCounter = 0;
+Jul 27 16:08:26 <lufimtse>		private static Callback executeJavaScriptFinishedCallback;
+Jul 27 16:08:31 <lufimtse>		executeJavaScriptFinishedCallback = new Callback(WebKit.class, "executeJavaScriptFinishedCallback", 3);
+Jul 27 16:08:35 <lufimtse>	The the actual callback:
+Jul 27 16:08:40 <lufimtse>	@SuppressWarnings("unused")
+Jul 27 16:08:40 <lufimtse>	private static long /*int*/ executeJavaScriptFinishedCallback (long /*int*/ source_object, long /*int*/ res, long /*int*/ user_data){
+Jul 27 16:08:40 <lufimtse>		long /*int*/[] error = new long /*int*/[1];
+Jul 27 16:08:40 <lufimtse>		long /*int*/ result = OS.g_dbus_proxy_call_finish (dbus_proxy, res, error); // << I may have to hack this to be more like native result getter.
+Jul 27 16:08:40 <lufimtse>		int counter = (int) user_data;
+Jul 27 16:08:40 <lufimtse>		if (error[0] != 0){
+Jul 27 16:08:40 <lufimtse>			SWT.error(SWT.ERROR_IO, new Throwable(Converter.getString(OS.g_error_get_message(error[0]))));
+Jul 27 16:08:40 <lufimtse>			result = 0;
+Jul 27 16:08:40 <lufimtse>		}
+Jul 27 16:08:40 <lufimtse>		jsResults.put(counter, (long)result);  // Stuff is inserted into a counter, there is probably a spin-lock checking this counter's result somewhere...
+Jul 27 16:08:40 <lufimtse>		return 0;
+Jul 27 16:08:40 <lufimtse>	}
+Jul 27 16:08:55 <lufimtse>	Then 
+Jul 27 16:09:02 <lufimtse>	For the JS, he loops
+Jul 27 16:09:08 <lufimtse>	till callback puts something back into hashtable
+Jul 27 16:09:09 <lufimtse>	:
+Jul 27 16:09:09 <lufimtse>	private boolean webkit_extension_execute_script (long pageId, String script, String url){
+Jul 27 16:09:09 <lufimtse>		long /*int*/ args[] = { OS.g_variant_new_uint64(pageId),
+Jul 27 16:09:09 <lufimtse>				OS.g_variant_new_string (Converter.wcsToMbcs(null, script, true)),
+Jul 27 16:09:09 <lufimtse>				OS.g_variant_new_string (Converter.wcsToMbcs(null, url, true))};
+Jul 27 16:09:09 <lufimtse>		final long /*int*/ argsTuple = OS.g_variant_new_tuple(args, args.length);
+Jul 27 16:09:09 <lufimtse>		int currentCounter = jsCounter++;
+Jul 27 16:09:09 <lufimtse>		OS.g_dbus_proxy_call (dbus_proxy,
+Jul 27 16:09:09 <lufimtse>				Converter.wcsToMbcs(null,"webkit_extension_execute_script", true),
+Jul 27 16:09:09 <lufimtse>				argsTuple, OS.G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, 0, executeJavaScriptFinishedCallback.getAddress(),currentCounter);
+Jul 27 16:09:09 <lufimtse>		// The following is a workaround for the fact that g_dbus_proxy_call_sync
+Jul 27 16:09:09 <lufimtse>		// blocks until it is timed-out and returns a failure.
+Jul 27 16:09:09 <lufimtse>		// Keep iterating through the event loop until our JavaScript call has finished
+Jul 27 16:09:09 <lufimtse>		// executing, failed, or timed-out.
+Jul 27 16:09:09 <lufimtse>		Display display = this.browser.getDisplay();
+Jul 27 16:09:09 <lufimtse>		while (!display.isDisposed() && jsResults.get(currentCounter) == null) {
+Jul 27 16:09:09 <lufimtse>			if (!display.readAndDispatch()) display.sleep();
+Jul 27 16:09:09 <lufimtse>		}
+Jul 27 16:09:09 <lufimtse>		long result = jsResults.remove(currentCounter);
+Jul 27 16:09:09 <lufimtse>		if (result == 0){
+Jul 27 16:09:09 <lufimtse>			return false;
+Jul 27 16:09:09 <lufimtse>		}
+Jul 27 16:09:09 <lufimtse>		return (Boolean) ((Object[])GVariantConverter.convertGVariantToJava((long /*int*/ )result))[0];
+Jul 27 16:09:09 <lufimtse>	}
+Jul 27 16:09:20 <lufimtse>	----------
+Jul 27 16:09:31 <lufimtse>	i.e, for every new call, he adds something to counter
+Jul 27 16:09:49 <lufimtse>	then loops on that item's value till it's filled by callback.
+Jul 27 16:10:02 <lufimtse>	i.e, it's a basic spin-lock of sort.
+Jul 27 16:10:23 <lufimtse>	mind you the above also has DBus and all that, which is not really needed anymore 
+Jul 27 16:10:33 <akurtakov>	yeah, I see that
+Jul 27 16:10:54 <akurtakov>	which one would be simpler/more readable option for you?
+Jul 27 16:11:04 <lufimtse>	hmmmm
+Jul 27 16:12:19 <lufimtse>	is SWT single threaded?
+Jul 27 16:12:22 <lufimtse>	well
+Jul 27 16:12:28 <lufimtse>	there is the display.async
+Jul 27 16:12:29 <lufimtse>	so I gues snot
+Jul 27 16:12:35 <lufimtse>	guess not*
+Jul 27 16:12:39 <lufimtse>	so we need sync logic
+Jul 27 16:12:45 <lufimtse>	java has nice atomic structures
+Jul 27 16:12:56 <lufimtse>	atomic hashmaps... 
+Jul 27 16:13:08 <lufimtse>	doing the same thing in C might get hairy
+Jul 27 16:13:12 <lufimtse>	with plocks and all
+Jul 27 16:13:27 <akurtakov>	hmm, not GTask ?
+Jul 27 16:13:36 <lufimtse>	GTask? Lemme read.
+Jul 27 16:13:45 <akurtakov>	https://developer.gnome.org/gio/stable/GTask.html
+Jul 27 16:15:48 <lufimtse>	Essentially, what it comes down to is that there may be multiple JS calls (ex if you have two or more webkit widgets), and I need to match up a JS callback with it's original caller.
+Jul 27 16:15:48 <akurtakov>	or the underlying https://developer.gnome.org/gio/stable/GSimpleAsyncResult.html 
+Jul 27 16:16:01 <lufimtse>	I'm kinda thinking about how to do that... 
+Jul 27 16:16:04 <lufimtse>	best... 
+Jul 27 16:16:24 <lufimtse>	u don't happen to know if we do that somewhere in swt already?
+Jul 27 16:16:42 <akurtakov>	can't think of a place
+Jul 27 16:17:32 <akurtakov>	btw, if you do it on the C side
+Jul 27 16:17:52 <akurtakov>	you shouldn't need to match callback with caller
+Jul 27 16:18:07 <akurtakov>	as you would have pointer to it
+Jul 27 16:18:10 <lufimtse>	is that so?
+Jul 27 16:18:12 <lufimtse>	hmm
+Jul 27 16:18:14 <lufimtse>	thinking
+Jul 27 16:19:00 <lufimtse>	is there a way to create a function dynamically in C from within a function?
+Jul 27 16:19:11 <lufimtse>	I may be missing understading of dynamic functions in C, gotta read up on it.
+Jul 27 16:19:14 <lufimtse>	interesting line of thought
+Jul 27 16:19:16 <akurtakov>	no
+Jul 27 16:20:01 <akurtakov>	I'm thinking of 
+Jul 27 16:20:02 <akurtakov>	swt_webkit_web_view_run_javascript () 
+Jul 27 16:20:04 <akurtakov>	swt_webkit_web_view_run_javascript_callback()
+Jul 27 16:21:00 <akurtakov>	if in the former you call webkit_web_view_run_javascript passing the callback 
+Jul 27 16:21:36 <akurtakov>	and wait until the callback returns
+Jul 27 16:21:57 <lufimtse>	suppose you have multiple JS invocations
+Jul 27 16:21:58 <lufimtse>	A
+Jul 27 16:21:59 <lufimtse>	B
+Jul 27 16:22:02 <lufimtse>	A runs first
+Jul 27 16:22:05 <lufimtse>	then B runs,
+Jul 27 16:22:05 <akurtakov>	you would be in the same context which no other jni call will interfere with
+Jul 27 16:22:20 <lufimtse>	..
+Jul 27 16:22:21 <lufimtse>	hmm
+Jul 27 16:22:28 <lufimtse>	you mean block till JS returns?
+Jul 27 16:22:32 <akurtakov>	yes
+Jul 27 16:22:36 <lufimtse>	hmmm
+Jul 27 16:22:39 <lufimtse>	that makes sense
+Jul 27 16:22:40 <akurtakov>	as if it's sync one
+Jul 27 16:22:58 <lufimtse>	haven't thought about it that way, but now that you're saing it
+Jul 27 16:23:04 <lufimtse>	in C that's the case
+Jul 27 16:23:10 <lufimtse>	nothing to block... 
+Jul 27 16:23:15 <lufimtse>	nothing to interrupt*
+Jul 27 16:23:26 <lufimtse>	not a bad idea actually
+Jul 27 16:23:30 <akurtakov>	yes, block vs. map/sync
+Jul 27 16:23:43 <lufimtse>	the map/sync kinda feels messy
+Jul 27 16:23:48 <lufimtse>	block probably better
+Jul 27 16:23:56 <lufimtse>	since it's block on java side any way
+Jul 27 16:24:42 <lufimtse>	I guess there are no concurrent JNI calls?
+Jul 27 16:24:58 <akurtakov>	not from swt side
+Jul 27 16:25:04 <lufimtse>	ah yea, we have the locking logic
+Jul 27 16:25:08 <lufimtse>	in OS.java
+Jul 27 16:25:17 <akurtakov>	the thread calling jni is single one
+Jul 27 16:25:48 <lufimtse>	nice
+Jul 27 16:25:53 <lufimtse>	I see,
+Jul 27 16:25:57 <lufimtse>	the lock is in Platform class
+Jul 27 16:26:05 <lufimtse>	ok, let's try the C road
+Jul 27 16:26:20 <lufimtse>	thanks for suggestion
+Jul 27 16:26:28 <lufimtse>	been stuck on that thought bubble for a while. 
+Jul 27 16:26:34 <akurtakov>	I'm describing the simplest road in my head
+Jul 27 16:26:43 <lufimtse>	:-D
+Jul 27 16:26:45 <akurtakov>	quite possible I miss some important detail :)
+Jul 27 16:26:51 <lufimtse>	who knows
+Jul 27 16:26:55 <lufimtse>	but that seems promising
+Jul 27 16:27:26 <lufimtse>	ok, I'll work on that. First I
+Jul 27 16:27:36 <lufimtse>	I'll add webkit_custom.h etc... 
+Jul 27 16:27:40 <lufimtse>	I'll keep you posted.
+Jul 27 16:30:55 <akurtakov>	just as a reference I have booked g_task_run_in_thread_sync
+Jul 27 16:32:00 <lufimtse>	what do you mean booked?
+Jul 27 16:32:09 <akurtakov>	bookmarked :)
+Jul 27 16:32:47 <lufimtse>	I see
+Jul 27 16:32:51 <lufimtse>	I'll tinker around with GTask
+Jul 27 16:32:55 <lufimtse>	on native snippet
+Jul 27 16:32:59 <lufimtse>	then port to SWT layer
+Jul 27 16:33:07 <lufimtse>	SWT's custom C layer**
+Jul 28 10:10:29 <lufimtse>	-----
+Jul 28 10:10:32 <lufimtse>	hey ya
+[akurtakov has address ~akurtakov@vpn1-5-5.ams2.redhat.com]
+Jul 28 10:10:49 <akurtakov>	hey, whats up
+Jul 28 10:10:50 <lufimtse>	I've started to check out the build jUnit logs you pointed me to
+Jul 28 10:10:55 <lufimtse>	testBrowser3 keeps failing
+Jul 28 10:11:02 <lufimtse>	does that occur much?
+Jul 28 10:11:13 <lufimtse>	and it doesn't fail on my system
+Jul 28 10:11:25 <akurtakov>	you look at linux or centos column
+Jul 28 10:11:35 <lufimtse>	http://download.eclipse.org/eclipse/downloads/drops4/N20160725-2000/testresults/html/org.eclipse.swt.tests_ep47N-unit-lin64_linux.gtk.x86_64_8.0.html#AllBrowserTests
+Jul 28 10:11:59 <akurtakov>	that's ancient sles 11 running with xulrunner not with webbrowser
+Jul 28 10:12:16 <akurtakov>	webmaster promised to update it to sles 12 with webkitgtk
+Jul 28 10:12:20 <akurtakov>	ignore this one for now
+Jul 28 10:12:55 <lufimtse>	ok.
+Jul 28 10:13:18 <lufimtse>	I'm just patching up a few of the jUnits to get them to run a bit quicker.
+Jul 28 10:13:25 <lufimtse>	~hope it doesn't cause breakage.
+Jul 28 10:13:35 <lufimtse>	just some of the wait times are outrageous
+Jul 28 10:13:37 <akurtakov>	careful :)
+Jul 28 10:13:44 <lufimtse>	|-D
+Jul 28 10:13:48 <lufimtse>	let's see what happens. 
+Jul 28 10:13:54 <akurtakov>	seen that build.sh broke on hpux :)
+Jul 28 10:14:05 <lufimtse>	just on hpux?
+Jul 28 10:14:13 <akurtakov>	http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=bb87d69400922d842af2cdcb46b865a77d8495ff
+Jul 28 10:14:23 <akurtakov>	well, there are failures on aix 
+Jul 28 10:14:37 <akurtakov>	but I believe them to not be caused by build.sh change
+Jul 28 10:21:42 <lufimtse>	hmm, I see
+Jul 28 10:22:01 <lufimtse>	u think maybe it's this guy? gtk_adjustment_get_page_increment
+Jul 28 10:24:47 <akurtakov>	yes
+Jul 28 10:25:04 <lufimtse>	should I update the build.sh to not use any '=='
+Jul 28 10:25:08 <lufimtse>	because there are some more further down.
+Jul 28 10:25:14 <akurtakov>	hmm, where?
+Jul 28 10:25:22 <lufimtse>	at bottom
+Jul 28 10:25:28 <lufimtse>	also I could replace [[ ]] with [ ] 
+Jul 28 10:25:39 <lufimtse>	as I think the [[ ]] may potentially need newer bash
+Jul 28 10:25:51 <akurtakov>	yes please
+Jul 28 10:25:56 <lufimtse>	although when replacing [[]] with [] I will need to change || to -o
+Jul 28 10:25:59 <lufimtse>	kk
+Jul 28 10:26:02 <lufimtse>	lemme work on that.
+Jul 28 10:26:20 <akurtakov>	do you see now why this wasn't done
+Jul 28 10:26:42 <akurtakov>	these things prevent us from delivering user visible changes (like the webkit2 port)
+Jul 28 10:27:09 <lufimtse>	X-D
+Jul 28 10:27:11 <lufimtse>	yah, 
+Jul 28 10:27:16 <lufimtse>	but we have to push for innovation
+Jul 28 10:27:28 *	lufimtse fixing up build.sh now
+Jul 28 10:27:43 <akurtakov>	yes, we have to
+Jul 28 10:28:09 <akurtakov>	but we have to keep our user base big and healthy as first goal
+Jul 28 10:30:32 <lufimtse>	I see
+Jul 28 10:36:43 <lufimtse>	btw, on the side. shellED tends to hang and freeze my eclipse
+Jul 28 10:36:48 <lufimtse>	does that happen much with you?
+Jul 28 10:37:09 <akurtakov>	haven't used it much lately
+Jul 28 10:37:17 <akurtakov>	most used tool for me is zimbra lately :(
+Jul 28 10:41:22 <lufimtse>	he he
+Jul 28 10:54:38 <lufimtse>	How about I script it so that colors are only printed for a bash shell?
+Jul 28 10:54:48 <lufimtse>	~3 extra lines of code
+Jul 28 10:54:59 <lufimtse>	or too specific?
+Jul 28 10:55:33 <akurtakov>	too specific I think
+Jul 28 10:55:37 <lufimtse>	kk
+Jul 28 10:55:50 <akurtakov>	do you think it's possible this to break aix ?
+Jul 28 10:56:34 <lufimtse>	not really, just looks funny in saved log
+Jul 28 10:56:53 <lufimtse>	like prints odd characters
+Jul 28 10:56:56 <lufimtse>	but it's not a big deal
+Jul 28 10:57:00 <lufimtse>	just polish.
+Jul 28 10:57:19 <lufimtse>	the fact that the echo did print into log indicates it works
+Jul 28 10:57:29 <lufimtse>	btw
+Jul 28 10:57:33 <lufimtse>	portability patch: https://git.eclipse.org/r/#/c/78072/
+Jul 28 10:57:51 <lufimtse>	I removed advance syntax, to use only the conditional syntax already found in the script.
+Jul 28 10:58:01 <lufimtse>	[ ] and use of '-o' instead of ||
+Jul 28 10:58:12 <lufimtse>	this is POSIX standard I think
+Jul 28 11:00:33 <lufimtse>	this should hopefully make it work on other build machines
+Jul 28 11:00:35 <lufimtse>	lesson learned
+Jul 28 11:18:18 <lufimtse>	I added you as reviewer. 
+Jul 28 14:48:11 <akurtakov>	how are things going with webkit btw?
+Jul 28 14:49:01 <lufimtse>	reading over GTask
+Jul 28 14:49:06 <lufimtse>	atm
+Jul 28 14:49:30 <akurtakov>	promising for now ?
+Jul 28 14:50:01 <lufimtse>	you mean GTask or Webkit as a whole?
+Jul 28 14:50:07 <akurtakov>	gtask
+Jul 28 14:50:17 <akurtakov>	for webkit we simply have no alternative
+Jul 28 14:50:32 <lufimtse>	I'm still kinda wrapping my head around it. Did a bit of testing of the font patch this morning
+Jul 28 14:50:36 <lufimtse>	and build.sh etc... 
+Jul 28 14:50:44 <lufimtse>	Eclipse looks nice again
+Jul 28 14:50:50 <akurtakov>	hah cool
+Jul 28 14:50:57 <akurtakov>	so next week is milestone week
+Jul 28 14:51:01 <akurtakov>	keep this in mind
+Jul 28 14:51:11 <akurtakov>	and tell the others in the office
+Jul 28 14:51:38 <lufimtse>	What does that entail?
+Jul 28 14:52:49 <akurtakov>	https://wiki.eclipse.org/Eclipse/Rhythm#Milestones
+Jul 28 14:53:15 <akurtakov>	important part During that stabilization week, the code base is frozen from Tuesday onwards, except to fix regressions that are found during that week's testing.  
+Jul 28 14:56:52 <lufimtse>	so code freeze for a week?
+Jul 28 14:57:02 <akurtakov>	yes
+Jul 28 14:57:05 <lufimtse>	meh
+Jul 28 14:57:07 <lufimtse>	ok
+Jul 28 14:57:22 <akurtakov>	well, it means you can't push
+Jul 28 14:57:32 <akurtakov>	not that you should not work on fixing the webkit issues :)
+Jul 28 14:57:39 <akurtakov>	just don't let them in during the week
+Jul 28 14:59:38 <lufimtse>	kk
+Jul 28 15:56:41 <lufimtse>	There is g_task_run_in_thread_sync() which may be what we awant
+Jul 28 15:56:49 <lufimtse>	g_task_run_in_thread_sync
+Jul 28 15:56:54 <lufimtse>	https://developer.gnome.org/gio/stable/GTask.html#g-task-run-in-thread-sync
+Jul 28 15:57:03 <lufimtse>	Runs task_func in another thread, and waits for it to return or be cancelled. You can use g_task_propagate_pointer(), etc, afterward to get the result of task_func .
+Jul 28 15:57:07 <lufimtse>	I'll fiddle around with it.
+Jul 28 15:57:19 <akurtakov>	sounds good
+Jul 28 16:12:36 <akurtakov>	fyi https://bugs.eclipse.org/bugs/show_bug.cgi?id=498829
+**** ENDING LOGGING AT Thu Jul 28 16:34:33 2016
+
+**** BEGIN LOGGING AT Thu Jul 28 16:46:03 2016
+
+[akurtakov has address ~akurtakov@vpn1-5-5.ams2.redhat.com]
+Jul 28 16:46:11 <lufimtse>	I've become the jhbuild support guy around here
+Jul 28 17:11:09 <lufimtse>	if you have a snippet with GTask, that would be useful. 
+Jul 28 17:11:10 LEAVE LAGCHECK LASTLOG LIST LOAD lua LOAD load LOAD 
+Jul 28 17:11:20 *	lufimtse reading GTask docu
+Jul 28 17:20:02 <akurtakov>	I don't have any snippet around 
+Jul 29 11:09:01 *	Disconnected (Connection timed out)
+Jul 29 14:09:08 <lufimtse>	hullo
+[akurtakov has address ~akurtakov@vpn1-5-47.ams2.redhat.com]
+Jul 29 14:09:46 <akurtakov>	hey
+Jul 29 14:10:37 <lufimtse>	I read up through GTask, talked on IRC with GTK+ folks. They're saying that GTask is more for turning sync functions into async once. We're working to go the other way. GTK+ folks suggested regular spin lock
+Jul 29 14:10:45 <lufimtse>	meh
+Jul 29 14:10:57 <lufimtse>	GTask is somewhat complicated x_x
+Jul 29 14:11:29 <akurtakov>	so be it :)
+Jul 29 14:11:44 <akurtakov>	I hoped for easier way 
+Jul 29 14:11:49 <lufimtse>	me too*
+Jul 29 14:12:04 <lufimtse>	lemme prowl through glib's thread functins
+Jul 29 15:10:47 <lufimtse>	do you know if we have a minimum gtk3 version? like gtk3.4 etc.. 
+Jul 29 15:11:02 <lufimtse>	or go all the way to 3.0 
+Jul 29 15:11:54 <akurtakov>	no
+Jul 29 15:12:00 <akurtakov>	we have only one min requirement 
+Jul 29 15:12:03 <akurtakov>	which is 2.18 now
+Jul 29 15:12:16 <akurtakov>	everything above it is supported
+Jul 29 15:12:34 <akurtakov>	the issue is I want to kill gtk2 first
+Jul 29 15:12:50 <akurtakov>	but if let's say gtk 3.10
+Jul 29 15:13:14 <akurtakov>	machines with 2.24 and 3.6 will fallback to 2.24 - defintely unwanted
+Jul 29 15:15:50 <lufimtse>	GMutex uses glib 2.32, which needs Gtk3.4
+Jul 29 15:16:09 <lufimtse>	I guess I can wrap things into version checks
+Jul 29 15:16:13 <akurtakov>	yup
+Jul 29 15:16:26 <lufimtse>	webkit2 would then require a min of gtk3.4, which is reasonable 
+Jul 29 15:16:34 <akurtakov>	sounds fine to me
+Jul 29 15:16:44 <akurtakov>	for this year I want to bump to 2.24
+Jul 29 15:17:01 <lufimtse>	kk
+Jul 29 15:17:06 <akurtakov>	next year 3.x
+Jul 29 15:17:11 <akurtakov>	3.0 at least
+Jul 29 15:17:14 <lufimtse>	X-D!!
+Jul 29 15:17:24 <akurtakov>	but I would push for 3.10 :)
+Jul 29 15:17:34 <lufimtse>	makes sense
+Jul 29 15:22:30 <lufimtse>	comming to think of it, I can get away without mutex on this one since there is only one writer and one reader. Neva-mind.
+Jul 29 15:22:44 <lufimtse>	a simple int will do. 
+Jul 29 15:22:50 *	lufimtse hacking away..
+Jul 29 15:25:21 <akurtakov>	:0
+Jul 29 15:25:41 <akurtakov>	you went beyond my level of research
+Aug 03 11:16:49 *	Disconnected (Connection timed out)
+[akurtakov has address ~akurtakov@vpn1-7-170.ams2.redhat.com]
+Aug 04 11:22:22 <akurtakov>	hey Leo
+Aug 04 11:22:35 <lufimtse>	hullo
+Aug 04 11:22:57 <akurtakov>	fyi
+Aug 04 11:23:22 <akurtakov>	next week I'm on vacation the week after that for a meeting in westford
+Aug 04 11:23:35 <akurtakov>	so next regular work day 22nd
+Aug 04 11:23:43 <akurtakov>	don't bet on my my replies before that
+Aug 04 11:23:48 <lufimtse>	I will miss your dearly :'-(
+Aug 04 11:23:52 <lufimtse>	have a nice vacation
+Aug 04 11:23:58 <lufimtse>	thanks for heads up
+Aug 04 11:24:10 <lufimtse>	I'm fiddling around with adding webkitgtk_custom.*
+Aug 04 11:24:20 <lufimtse>	to make files etc.. 
+Aug 04 11:24:36 <akurtakov>	enjoy :)
+Aug 04 11:24:44 <lufimtse>	X-D
+**** BEGIN LOGGING AT Thu Aug  4 14:21:34 2016
+
+[akurtakov has address ~akurtakov@vpn1-7-170.ams2.redhat.com]
+Aug 04 14:21:49 <lufimtse>	btw, suppose I have a webkitgtk commit, should I wait with those till you be back?
+Aug 04 14:21:56 <lufimtse>	ex the webkit_custom is on it's way
+Aug 04 14:24:42 <akurtakov>	no
+Aug 04 14:24:48 <akurtakov>	get someone else to review it
+Aug 04 14:24:50 <akurtakov>	e.g. Eric
+Aug 04 14:25:01 <akurtakov>	but don't do it this week (milestone)
+Aug 04 14:25:19 <lufimtse>	I see
+Aug 04 14:26:36 <lufimtse>	when is the code frozen until?
+Aug 04 14:26:42 <lufimtse>	I'm looking at: https://www.eclipse.org/eclipse/development/plans/freeze_plan_4_6_1.php
+Aug 04 14:26:46 <lufimtse>	does it say it there?
+Aug 04 14:26:48 <akurtakov>	monday is normal business again
+Aug 04 14:27:14 <lufimtse>	how do I tell when code freeze occurs?
+Aug 04 14:36:38 <akurtakov>	there are mails sent announcing the milestone week

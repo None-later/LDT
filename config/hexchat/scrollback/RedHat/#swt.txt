@@ -1,0 +1,176 @@
+T 1469475623 19*	Now talking on 22#swt
+T 1469479940 19*	Now talking on 22#swt
+T 1469482970 24*	ericwill has quit (Quit: ericwill)
+T 1469540907 20*	Disconnected (20Invalid argument)
+T 1469540917 19*	Now talking on 22#swt
+T 1469544511 20*	Disconnected (20Connection timed out)
+T 1469545638 19*	Now talking on 22#swt
+T 1469549170 24*	28ericwill is now known as 18ericwill|lunch
+T 1469552743 24*	28ericwill|lunch is now known as 18ericwill
+T 1469561258 23*	ipun (~ipun@unused-10-15-17-118.yyz.redhat.com23) has joined
+T 1469630729 20*	Disconnected (20Connection timed out)
+T 1469635128 19*	Now talking on 22#swt
+T 1469642870 18<ipun18>	this may seem dumb, but is it correct to why my controlexample is running off of control.class now instead of .java?
+T 1469642920 18<ipun18>	my controlexample use to use the fontsize stuff that ive worked on, now its using control.class instead which i didnt touch
+T 1469642937 18<ericwill18>	the .class files are generated based on your changes from .java
+T 1469642951 18<ericwill18>	so unless you're changes aren't being reflected in the .class files you should be fine
+T 1469642959 18<ericwill18>	*your
+T 1469643237 18<ipun18>	hmm ok i might have to rebuild then thats probably the issue
+T 1469643292 18<ericwill18>	check the Java build path of your controlexample
+T 1469643301 18<ericwill18>	is the SWT project on the build path?
+T 1469643457 18<ipun18>	wierd enough i dont htink it is anymore...
+T 1469646226 18<ipun18>	ericwill looking at the commit, i copied over what its doing and its implementing it correctly with the font sizing
+T 1469646232 18<ipun18>	yet override_font() is still bugged
+T 1469646240 18<ipun18>	praying GTK looks at this seriously
+T 1469646251 18<ericwill18>	hmm
+T 1469646257 18<ericwill18>	link to the commit?
+T 1469646469 18<ipun18>	https://git.gnome.org/browse/gtk+/commit/?id=99c2423043f0c95a60093c618e00823e42e0ddfa
+T 1469646488 18<ipun18>	i implemented it the same way (to follow their way of doing it)
+T 1469646506 18<ipun18>	but i just realized this doesnt really have to do with override_font()
+T 1469646536 18<ipun18>	the guy just posted it since its just about how CSS is currently updated, but the override_font() i dont think has to do with this commit
+T 1469646539 18<ericwill18>	yeah so all that commit does is implement our thing
+T 1469646545 18<ericwill18>	i.e. convert from a pango unit to CSS
+T 1469646554 18<ericwill18>	which we already implemented :P
+T 1469646561 18<ipun18>	yup.
+T 1469646563 18<ericwill18>	would have been nice to know this earlier but oh well
+T 1469646587 18<ipun18>	sadly, i dont think we can use our code in the end =( since we're probably gonna have to use override_font() if its fixed
+T 1469713715 18<ipun18>	ericwill so far the comments on the GTK bug are not useful lol
+T 1469713729 18<ericwill18>	ipun yeah I just saw
+T 1469713739 18<ipun18>	not sure if Matt understands
+T 1469713758 18<ericwill18>	did Alex send you his Menu stuff?
+T 1469713830 18<ipun18>	no lemme msg him about that
+T 1469713972 18<ericwill18>	kk
+T 1469714951 18<ipun18>	should i move on to something else while i wait on GTK and alex?
+T 1469714965 18<ipun18>	cept my stack of things im dealing with is getting larger
+T 1469715198 18<ericwill18>	ipun I am going to ping them about the font thing
+T 1469715203 18<ericwill18>	since the comment wasn't really useful at all
+T 1469715280 18<ipun18>	yeah...
+T 1469715559 18<ipun18>	ericwill for the measured event loop bug, is this something that might be causing the signal call?
+T 1469715561 18<ipun18>	(GtkCellAllocCallback)get_cell_allocation
+T 1469715573 18<ipun18>	i forgot if we talked about that 
+T 1469715581 18<ericwill18>	ipun no, didn't see that
+T 1469715583 18<ericwill18>	looks likely
+T 1469715680 18<ipun18>	hmm okay. I looked deeper into that method but it doesnt have any explicit signals
+T 1469715707 18<ericwill18>	look in Display.initCallbacks() and see if there are any allocate callbacks
+T 1469715716 18<ericwill18>	also look in Tree and see there are any allocate callback methods
+T 1469715760 18<ipun18>	kk
+T 1469716362 18<ericwill18>	ipun send me the commit for that get_dpi thing
+T 1469716364 18<ericwill18>	from matt watson
+T 1469716384 18<ipun18>	https://git.gnome.org/browse/gtk+/commit/?id=df08fc91bdc1d2e4c866122304fabe4dd298a7de
+T 1469716408 18<ipun18>	basically we need their override_font() to use that calculation
+T 1469716418 18<ipun18>	if we do that, it will fix it
+T 1469716429 18<ericwill18>	okay I think we are making progress
+T 1469721516 18<ipun18>	dispaly.initCallback has some callbacks like size_allocate
+T 1469721535 18<ipun18>	thats the only one though
+T 1469721725 18<ericwill18>	hmm
+T 1469721863 18<ipun18>	ericwill: patch went out okay?
+T 1469721867 18<ipun18>	ill comment on the bug then
+T 1469721883 18<ericwill18>	ipun just commented lol, no need
+T 1469721886 18<ipun18>	okay
+T 1469721890 18<ericwill18>	we have a patch but I'm just waiting for him to commit it
+T 1469721937 18<ipun18>	how about on bugzilla?
+T 1469722119 18<ericwill18>	wait for the GTK bug to get fixed and then we can mark the Eclipse bug as fixed and link the commit
+T 1469722237 18<ipun18>	kk
+T 1469728645 18<ericwill18>	so that font bug is fixed and merged in GTK now
+T 1469728646 18<ericwill18>	all good
+T 1469731147 18<ericwill18>	ipun if you are ever bored/want something you don't have to think a lot about, make a bugzilla filter for all open SWT bugs and go through them
+T 1469731157 18<ericwill18>	close the ones which aren't relevant/can't reproduce
+T 1469731161 18<ericwill18>	to keep the BZ tidy
+T 1469731166 18<ipun18>	oaky
+T 1469731170 18<ipun18>	okay*
+T 1469731701 18<ipun18>	ericwill doesnt look like nulling the proc actually turns it off
+T 1469732242 18<ericwill18>	ipun hmm
+T 1469732250 18<ericwill18>	is there a method somewhere that destroys them or something?
+T 1469732701 18<ipun18>	ericwill theres a method called setEnabled from callback class, but i tried it and it doesnt seem to work
+T 1469732717 18<ipun18>	... wat
+T 1469732719 18<ipun18>	wait*
+T 1469732781 18<ipun18>	hahahaahah
+T 1469732786 18<ipun18>	it works
+T 1469732790 18<ericwill18>	okay :P
+T 1469732807 18<ipun18>	i just had to move the reenabling of it lower
+T 1469732813 18<ipun18>	lemme test around with it and we're good
+T 1469735836 19<ipun>	hey lufimtse im still having issues compiling gtk for some reason with jhbuild... besides cancelling it and rebuilding again, did you find any other solution>
+T 1469735854 20<lufimtse>30	hey
+T 1469737128 20<lufimtse>30	ipun, what was the exact command we used again?
+T 1469737141 20<lufimtse>30	jhbuild buildone --force gtk+ ?
+T 1469737321 18<ipun18>	yeah thats it
+T 1469737509 18<ericwill18>	ipun please post on the platform-ui-dev mailing list and ask someone to review this guy: https://git.eclipse.org/r/#/c/77096/
+T 1469737533 18<ericwill18>	ipun also take a look at this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493357
+T 1469737651 18<ericwill18>	I started work on that but I won't be able to finish it in time before I leave
+T 1469737675 20<lufimtse>30	ipun, ericwill I've updated the wiki: https://wiki.eclipse.org/SWT/Devel/Gtk/jhbuild#Building_different_versions_of_gtk_.28or_compiling_your_changes.29
+T 1469737690 20<lufimtse>30	What you want is: 
+T 1469737690 20<lufimtse>30	 jhbuild buildone --force --no-network --distclean gtk+
+T 1469737705 20<lufimtse>30	the --distclean is especially needed if you go back to an older gtk version. 
+T 1469737725 18<ipun18>	it looks like someone broke a junit case in master
+T 1469737741 20<lufimtse>30	ipun, which one?
+T 1469737749 18<ipun18>	test_getPrinterList
+T 1469737760 18<ipun18>	unless its local
+T 1469737782 20<lufimtse>30	doesn't work on my system if I have a printer
+T 1469737793 20<lufimtse>30	stopped working somewhere in Gtk3.18
+T 1469737803 18<ipun18>	oh i see
+T 1469737804 20<lufimtse>30	I've been meaning to file a bug for it
+T 1469737811 20<lufimtse>30	maybe something for you to work on. 
+T 1469737813 18<ipun18>	ill ignore it for now
+T 1469737821 20<lufimtse>30	do you have a printer on your system?
+T 1469737834 18<ipun18>	ya
+T 1469737841 18<ipun18>	i just added it like a week ago though
+T 1469738025 20<lufimtse>30	that's probably why the jUnit fails
+T 1469738032 20<lufimtse>30	if you have time, feel free to investigate sometime
+T 1469738039 20<lufimtse>30	would be useful to have it fixed.
+T 1469738050 20<lufimtse>30	afaik it doesn't reproduce with gtk3.16 and before
+T 1469738053 20<lufimtse>30	so might be gtk bug.
+T 1469738073 FiSHLiM plugin unloaded
+T 1469738073 Python interface unloaded
+T 1469738097 19*	Now talking on 22#swt
+T 1469803562 18<ericwill18>	ipun hey, left some more comments on the Tree patch
+T 1469803566 18<ericwill18>	please take a look
+T 1469803671 18<ipun18>	kk
+T 1469804941 20*	Disconnected (20Connection timed out)
+T 1469806209 19*	Now talking on 22#swt
+T 1469806712 19<ipun>	lufimtse looks like the printerlist bug in our test case is really broken logic, techincally none of it shouldve passed
+T 1469806745 20<lufimtse>30	lol
+T 1469820513 18<ipun18>	ericwill should I be replacing all the gtk calls to that function to my private one? Im not sure if this is what we should do
+T 1469820538 18<ericwill18>	your private method is just a wrapper
+T 1469820541 18<ericwill18>	for the GTK call
+T 1469820547 18<ericwill18>	with the callback.setEnabled() in it
+T 1469820724 18<ipun18>	yeah i know, im just curious if its necessary to do that for every call that uses that function
+T 1469820739 18<ericwill18>	we should
+T 1469820759 18<ericwill18>	because if someone wants to use one of those methods in a measure event, the same bug will come up
+T 1469820828 18<ipun18>	oaky sounds good
+T 1469820858 18<ipun18>	i might have to implement it in Control and Widget as well, since Tree is a subclass of Control but Treeitem is a widget subclass
+T 1469820939 18<ericwill18>	ipun nah just do it in Control then
+T 1469820945 18<ericwill18>	sorry, widget
+T 1469820950 18<ericwill18>	all Controls are widgets
+T 1469821096 18<ipun18>	ah your right sorry i misread it 
+T 1469824165 18<ipun18>	ericwill how do you generate a new changeset number again? I tried pushing my changes but the changeset was closed already.
+T 1469824181 18<ericwill18>	before amending the commit, click the gerrit button in egit
+T 1469824190 18<ericwill18>	should give you something with multiple zeros
+T 1469824197 18<ericwill18>	copy and paste that and use it for your new change
+T 1469824335 18<ipun18>	nice thanks!
+T 1469824451 18<ericwill18>	ipun I'll review it on Tuesday
+T 1469824518 18<ipun18>	sounds good np 
+T 1470152579 18<ipun18>	is anyone going to the meeting at 12 today
+T 1470152659 18<ericwill18>	nope
+T 1470152662 18<ericwill18>	I am not
+T 1470155305 20<lufimtse>30	ipun, ericwill : If you guys ever want to know everything about jni, there's a book on it: https://web.archive.org/web/20120728074805/http://java.sun.com/docs/books/jni/
+T 1470237409 20*	Disconnected (20Connection timed out)
+T 1470238777 19*	Now talking on 22#swt
+T 1470247293 19<ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
+T 1470247297 19<ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
+T 1470256184 18<ipun18>	hey is there a setting to remove warnings popping up in console? Theres too many going on and I cant see my prints
+T 1470256478 18<ericwill18>	not sure
+T 1470256482 18<ericwill18>	check preferences
+T 1470322886 18<ipun18>	ericwill: for the setVisible bug you assigned me, seems like a GTK error. Documentation of gtk_window_get_position() says its really unaccurate and that its not 100% reliable
+T 1470322913 18<ericwill18>	ipun then close it as such with a link to the documentation
+T 1470322917 18<ipun18>	kk
+T 1470333131 19*	Now talking on 22#swt
+T 1470333761 19*	Now talking on 22#swt
+T 1470336825 18<ipun18>	is anyone familiar with extension points?
+T 1470337050 18<ericwill18>	Roland is
+T 1470337055 18<ericwill18>	you may want to ask him
+T 1470337467 18<ipun18>	okay sounds good
+T 1470339520 20<lufimtse>30	ericwill, ipun , to get color for your gcc: 
+T 1470339521 20<lufimtse>30	export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
+T 1470339533 20<lufimtse>30	for fish you might have to specify 'env export ... '
+T 1470339552 20<lufimtse>30	useful if you want colorized output for build.sh
+T 1470340914 18<ipun18>	thank you!
