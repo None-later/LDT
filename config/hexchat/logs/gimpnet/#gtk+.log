@@ -2318,3 +2318,1054 @@ Aug 08 11:46:01 <LRN>	throwaway574, https://bugzilla.gnome.org/show_bug.cgi?id=7
 Aug 08 11:46:03 <bugbot>	Bug 768081: Backend: Win32, normal, gtk-win32-maint, NEW , Enable HiDPI support for GDK-Win32
 Aug 08 11:52:22 <pmike>	regarding the g_data_input_stream_read_line, a bit of context: I'm connection to a device via TCP sockets (similar to telnet), after sending a message i'll receive a bunch of data which is made of several lines terminated with CR+LF.
 Aug 08 11:53:27 <pmike>	the receiving end, is a callback, attached to to the maincontext for G_IO_IN
+Aug 08 11:55:09 <pmike>	the callback will be "fired up" a few times but not for all the lines that were really received (i've wireshark on and the device sent more lines than the ones displayed)
+Aug 08 11:56:19 <pmike>	if i somehow trigger another message to the device, then the callback will be invoked for the remainder of the lines (the missing ones and the new ones, some or all...)
+**** BEGIN LOGGING AT Mon Aug  8 11:57:56 2016
+
+Aug 08 11:57:56 *	Now talking on #gtk+
+Aug 08 11:57:56 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 08 11:57:56 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+**** BEGIN LOGGING AT Mon Aug  8 12:01:24 2016
+
+Aug 08 12:01:24 *	Now talking on #gtk+
+Aug 08 12:01:24 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 08 12:01:24 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+Aug 08 12:03:17 <throwaway574>	I probably could update GTK to a newer version.  I'm using PyGObject for Windows, and I believe that's been updated to 3.18.  I also create an executable with Py2exe to run the program on non-dev machines.
+Aug 08 12:04:18 <throwaway574>	If I right-click on the exe and click 'Disable display scaling on high DPI settings', it almost works.  The text is still too large, but the widgets look better, so there's a solution in there somewhere.
+Aug 08 12:30:30 <pmike>	it seems to work ok on non-presistent socket connection as the callback will be called an undetermined number of times after the other end closes the connection forcing the data to be received but on persistent socket connection it will not work the same way
+Aug 08 12:30:57 <pmike>	e.g., telnet
+Aug 08 13:10:57 <bugbot>	New gtk+ bug 769641 filed by pierluigi.fiorini@gmail.com.
+Aug 08 13:10:58 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769641 Backend: Wayland, major, gtk-bugs, NEW , Mismatched application id with xdg-shell
+Aug 08 14:25:52 <bugbot>	New glib bug 769642 filed by pmikepublic@gmail.com.
+Aug 08 14:25:52 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769642 gio, normal, gtkdev, NEW , g_data_input_stream_read_line blocks instead of returning NULL as stated on the documentation
+Aug 08 14:44:31 <pmike>	:q
+Aug 08 14:59:44 <bugbot>	danw@gnome.org changed the Status on bug 769642 from NEW --- to RESOLVED NOTABUG.
+Aug 08 14:59:45 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769642 gio, normal, gtkdev, RESOLVED NOTABUG, g_data_input_stream_read_line blocks instead of returning NULL as stated on the documentation
+Aug 08 15:01:13 <Company>	ah yes, i need to talk to people about recording statistics again
+Aug 08 15:03:15 <Company>	because we don't even know how many people are using gnome, but We Vibe records which women are the hottest when pleasuring themselves
+Aug 08 15:03:31 <Company>	and people pay them to record that
+Aug 09 10:30:21 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Aug  9 10:30:21 2016
+
+**** BEGIN LOGGING AT Tue Aug  9 10:30:34 2016
+
+Aug 09 10:30:34 *	Now talking on #gtk+
+Aug 09 10:30:34 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 09 10:30:34 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+Aug 09 10:36:52 <jadahl>	garnacho: popovers should use the new menu positioning system. but I guess they shouldn't grab, thus won't be dismissed when clicking outside anything
+Aug 09 10:37:10 <jadahl>	i.e. they'll be xdg_popups, but not part of a menu popup grab chain
+Aug 09 10:42:36 <garnacho>	jadahl: I maybe should have a closer look to v6 :)
+Aug 09 10:42:48 <garnacho>	baedert: looks good :)
+Aug 09 10:42:59 <rudrab>	Hi, in most of the Gtk apps, e.g. epiphany, statusbar is shown as a slide, drawn over other existing widgets, and disappears after remove_all. i.e. it does not need a special place in grid
+Aug 09 10:44:28 <rudrab>	is there any small example that shows this behaviour? I have tried to get it from epiphany, but thats too complex for my present understanding
+Aug 09 10:46:34 <jadahl>	garnacho: i will hopefully nag you about gtk and mutter patches shortly
+Aug 09 10:46:43 <jadahl>	review of that is
+Aug 09 10:57:29 <garnacho>	jadahl: sure :)
+Aug 09 10:58:04 <garnacho>	rudrab: there's several GtkOverlay demos in gtk3-demo
+Aug 09 10:58:37 <bugbot>	New glib bug 769672 filed by sjoerd@luon.net.
+Aug 09 10:58:37 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769672 gthread, normal, gtkdev, NEW , Assert threads for testcase 642026 are sucessfully created
+Aug 09 11:01:36 <rudrab>	garnacho: ok...i didnt know the name...so, not sure what to search for
+Aug 09 11:01:39 <rudrab>	thanks
+Aug 09 11:01:57 <baedert>	well the think in epiphany is a NautilusFloatingBar fwiw
+Aug 09 11:37:03 <bugbot>	New glib bug 769674 filed by simon.mcvittie@collabora.co.uk.
+Aug 09 11:37:04 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769674 gio, normal, gtkdev, NEW , some GIO tests' arbitrary timeouts are too short
+Aug 09 12:19:41 *	baedert ponders just removing the transitions from popovers again :)
+Aug 09 12:28:14 <andlabs>	tempted to make an in-joke from work here
+Aug 09 12:28:20 <andlabs>	(in response to baedert)
+Aug 09 13:50:55 <rudrab>	Hi, is there any container with its own window that can pack the statusbar? (like epiphany)
+Aug 09 13:54:21 <jmd>	rudrab: All containers can pack any widget.
+Aug 09 13:56:09 <Hussam>	a gnome-terminal fix causes a crash. should I post a backtrace in the bug report whose fix introduced the crash or do I file a brand new report?
+Aug 09 13:57:52 <rudrab>	jmd: yes...but they dont have their own window. e.g. I have tried to pack statusbar inside a Gtk.Box...but since it does not has its own window, the text remains transparent to the main window
+Aug 09 13:58:23 <jmd>	The only GtkContainer with its own window, so far as I'm aware is GtkLayout.
+Aug 09 13:58:59 <baedert>	rudrab: transparent?
+Aug 09 13:59:03 <jmd>	But that should not have any bearing on the effect you describe.
+Aug 09 13:59:24 <baedert>	Hussam: Doesn't really matter
+Aug 09 13:59:38 <Hussam>	baedert: ok, I'll post in the same bug.
+Aug 09 14:00:08 <rudrab>	https://paste.gnome.org/plmdvdvw5 is what i am doing
+Aug 09 14:00:45 <rudrab>	since it is overlayed to another, statusbar writes over scroll
+Aug 09 14:01:36 <rudrab>	so, if scroll also has text on the same coordinate, its a mess
+Aug 09 14:02:00 <rudrab>	I am trying to achieve the statusbar like its sone in epiphany
+Aug 09 14:02:21 <baedert>	But how do you want to fix that? Give the text a background?
+Aug 09 14:02:56 <jmd>	rudrab: Typically you would pack a status bar into a GtkBox
+Aug 09 14:03:22 <rudrab>	thats what I have doen
+Aug 09 14:03:27 <rudrab>	isnt it?
+Aug 09 14:03:36 <jmd>	I have no idea.
+Aug 09 14:04:59 <rudrab>	https://paste.gnome.org/pdk3mwt3q is the code...plz have a look...6line only
+Aug 09 14:06:07 <jmd>	You're using GtkOverlay.  That always complicates things.   Do you really need it?
+Aug 09 14:08:07 <rudrab>	yes...actually, I don't want to waste space only for occasional status messages
+Aug 09 14:08:58 <baedert>	"widget drawn without current allocation" is just the most useless warning ever :(
+Aug 09 14:09:12 <rudrab>	but, actually there comes the problem. And thats why, I am looking for a container with its own window
+Aug 09 14:09:39 <jmd>	You could always write one yourself.
+Aug 09 14:14:11 <rudrab>	I have also tried GtkEventBox...
+Aug 09 14:14:47 <baedert>	I still don't understand what you mean by container with its own window or why that would fix your issue.
+Aug 09 14:15:07 <baedert>	Your problem so far is just that you have text overlayd over other text, which is unreadable?
+Aug 09 14:16:39 <rudrab>	baedert: yes
+Aug 09 14:17:02 <baedert>	rudrab: So you just want a background for your text?
+Aug 09 14:17:44 <rudrab>	baedert: yes...i guess.
+Aug 09 14:18:04 <baedert>	rudrab: you guess?
+Aug 09 14:18:52 <rudrab>	I want a background to the text, sure. 
+Aug 09 14:19:20 <baedert>	you get that by adding a style class to a widget and styling the class appropiately
+Aug 09 14:21:29 <rudrab>	baedert: you mean css?
+Aug 09 14:21:40 <baedert>	yep
+Aug 09 14:21:53 <baedert>	or, well, in that case adding .background to the label might even work.
+Aug 09 14:27:58 <rudrab>	self.eventbox.set_visible_window(True) has no apperent change
+Aug 09 14:33:23 *	Notify: ipun is online (GIMPNet)
+Aug 09 14:33:46 *	Notify: ipun is online (GIMPNet)
+Aug 09 14:35:39 <lufimtse>	Question: is there a situation where a callback is not called? (besides system crash..)
+Aug 09 14:36:37 <lufimtse>	GAsyncReadyCallback <
+Aug 09 14:42:00 <baedert>	Did my response to the Nim editor author on gtk-list about using gdb to get a stacktrace for his warning not get through?
+Aug 09 14:56:45 <ebassi>	baedert: It did — at least, I received it
+Aug 09 15:12:49 <baedert>	ebassi: ok thanks
+Aug 09 15:43:58 <bugbot>	New gtk+ bug 769685 filed by melarish@gmail.com.
+Aug 09 15:43:58 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769685 .General, major, gtk-bugs, NEW , Make install fails with gtk+-3.20.8/gtk/.libs/libgtk-3.so.0: file too short
+Aug 09 16:27:26 <nicknameitis>	how does gtk-inspector gets name from glade? name property just specifies class for me
+Aug 09 16:43:24 <swick>	hey, is there anyone here who I can talk to about bug 604015?
+Aug 09 16:43:25 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=604015 gio, normal, gtkdev, NEW , g_file_trash() works on partitions not listed in gvfs trash://
+Aug 09 18:42:07 <jmd>	I have a problem: GtkGestures seem to inhibit my button_press_event handler from firing.  Do I have to call it explicitly from the gesture callback or what?
+Aug 09 21:40:33 <raymod2>	I'm having trouble with HiDPI on a Windows laptop.  The change I made for OSX doesn't seem to be working on Windows 10.
+Aug 09 21:40:51 <raymod2>	I used this:  scale = gtk_widget_get_scale_factor(widget);
+Aug 09 21:41:42 <raymod2>	Then I multiplied my width and height by the scale factor when creating the image surface.
+Aug 09 21:41:59 <raymod2>	And this: cairo_surface_set_device_scale(surface, scale, scale);
+Aug 09 21:43:04 <raymod2>	So why doesn't this work on Windows 10?  My application is getting zoomed by the OS.  In other words I am rendering at 100x100 for example and it is displaying in a window that is 250x250.
+Aug 09 21:43:50 <LRN>	raymod2, https://bugzilla.gnome.org/show_bug.cgi?id=768081
+Aug 09 21:43:51 <bugbot>	Bug 768081: Backend: Win32, normal, gtk-win32-maint, NEW , Enable HiDPI support for GDK-Win32
+Aug 09 21:47:15 <raymod2>	Oh, wow.  I thought this would have been implemented years ago.
+Aug 09 21:54:33 <raymod2>	I read through the bug history.  When do you expect this work will be pulled in?
+Aug 09 21:55:51 <raymod2>	Also, is HiDPI working on Linux?  Fedora and Ubuntu for example?
+Aug 09 22:01:56 <raymod2>	Finally, is it possible to work around this missing support in the near term?  Can my application report to Windows that it is HiDPI capable to prevent the OS from scaling it, then check the screen resolution to see if it is HiDPI, and finally apply a manual scale factor to everything in GTK+?
+Aug 09 22:04:06 <LRN>	HiDPI works on X11
+Aug 09 22:04:23 <LRN>	no idea about workarounds or when this is going to be merged in
+Aug 09 22:04:35 <LRN>	so far only fanc works on this
+Aug 09 22:11:32 <raymod2>	Forgive my ignorance but do the default windows managers on Fedora and Ubuntu use X11?
+Aug 10 04:26:25 <nacho_>	LRN, anything to review?
+Aug 10 04:27:57 <LRN>	nacho_, no
+Aug 10 04:28:08 <nacho_>	ok
+Aug 10 04:57:46 <nacho_>	LRN, did you see this ?
+Aug 10 04:57:49 <nacho_>	..\..\..\gtk\gtkspinbutton.c(1124): error C4013: 'snprintf' undefined; assuming
+Aug 10 04:57:49 <nacho_>	 extern returning int [C:\gtk-build\build\Win32\release\gtk3\build\win32\vs12\g
+Aug 10 04:57:49 <nacho_>	tk-3.vcxproj]
+Aug 10 04:58:06 <LRN>	nope
+Aug 10 04:58:12 <LRN>	since when does that happen?
+Aug 10 04:58:23 <nacho_>	3.20.6 was building
+Aug 10 04:58:25 <nacho_>	3.20.8 does not
+Aug 10 04:59:01 *	LRN tries
+Aug 10 05:01:56 <nacho_>	LRN, https://git.gnome.org/browse/gtk+/commit/?h=gtk-3-20&id=8d34a176c70d19fb58edb03ac7608f94d934c981
+Aug 10 05:03:15 <nacho_>	it should be a matter of prefixing g_
+Aug 10 05:08:35 <rendar>	is there a way to calculate at *compile time* how many bit are needed to store a number? e.g. if i have 15 it should return 4
+Aug 10 05:20:20 <LRN>	nacho_, nope, compiles just fine
+Aug 10 05:20:56 <LRN>	rendar, no idea
+Aug 10 05:25:52 <LRN>	nacho_, ask fanc about it, probably a MSVC-only bug
+Aug 10 06:05:03 <bugbot>	aruiz@gnome.org changed the Status on bug 751893 from NEW --- to RESOLVED NOTABUG.
+Aug 10 06:05:04 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=751893 gdbus, normal, zeuthen, RESOLVED NOTABUG, GDBusConnection singleton doesn't honor/notice DBUS_SESSION_BUS_ADDRESS changes
+Aug 10 06:29:44 <nacho_>	ebassi, http://paste.fedoraproject.org/405311/8249711/
+Aug 10 06:41:13 <baedert>	garnacho: https://paste.xinu.at/PcQKg/
+Aug 10 06:44:01 <baedert>	garnacho: Also https://paste.xinu.at/ZB4F/ was kind of confusing when testing :)
+Aug 10 06:44:32 <ebassi>	nacho_: ACK
+Aug 10 06:44:53 *	ebassi wonders what we could achieve if we stopped caring about sub-par compilers :-P
+Aug 10 06:45:51 <TingPing>	save a lot of bytes on those g_ prefixes
+Aug 10 06:49:58 <nacho_>	ebassi, it seems it was already fixed in master
+Aug 10 06:51:42 <ebassi>	Ah, nice
+Aug 10 06:52:26 <ebassi>	So, MSVC does not support the section of C99 that adds snprintf?
+Aug 10 06:53:26 <TingPing>	2015 does
+Aug 10 06:54:02 <garnacho>	baedert: looks mostly good from a cursory look :), although I think now you remove modality after the fade out animation, as opposed to before?
+Aug 10 06:54:07 <nacho_>	it provides a non standard one
+Aug 10 07:18:39 <nacho_>	TingPing, any news on using gtls on hexchat?
+Aug 10 07:18:51 <TingPing>	nope
+Aug 10 07:55:29 *	ChanServ sets mode +q on #gtk+ Company
+Aug 10 07:55:29 *	ChanServ gives channel operator status to Company
+Aug 10 08:22:47 <rudrab>	Hi, yesterday, I was talking about statusbar, which is yet to solve
+Aug 10 08:30:43 <rudrab>	I have put a question at SO, with the image, and my aim:
+Aug 10 08:30:55 <rudrab>	http://stackoverflow.com/questions/38866053/epiphany-chrome-like-statusbar-with-its-own-background
+Aug 10 08:31:10 <rudrab>	may I request you a kindl look?
+Aug 10 08:33:59 <TingPing>	rudrab, basically want this - https://github.com/GNOME/nautilus/blob/master/src/nautilus-floating-bar.c
+Aug 10 08:35:58 <TingPing>	rudrab, here is the css - https://github.com/GNOME/nautilus/blob/master/src/resources/css/Adwaita.css#L64-L90
+Aug 10 08:36:17 <TingPing>	rudrab, really it should be as simple as just apply that css to the box
+Aug 10 08:38:06 <TingPing>	i swore i had a python example using that but i can't find it
+Aug 10 08:39:00 <rudrab>	TingPing: thanks. I will try it. But, what I am thinking of is how the box will disappear with the statusbar message. May be I need to create it every time, and destroy. But I will check
+Aug 10 08:39:15 <TingPing>	rudrab, just call hide()
+Aug 10 08:39:39 <rudrab>	ah..ok
+Aug 10 08:40:10 <csoriano___>	rudrab: that code has that handling too
+Aug 10 08:40:44 <baedert>	garnacho: Um yes, is the important part here the modality or the input shape?
+Aug 10 08:47:21 <nicknameitis>	i asked this yesterday and no answer. i'm trying to figure out how gtk-inspector gets the widget name as it is specified in glade. i looked at its sources, but failed to find it
+Aug 10 08:47:43 <baedert>	nicknameitis: With the name you mean the name or the id?
+Aug 10 08:50:00 <nicknameitis>	baedert: had to reopen glade, darn thing just crashed on me for the first time in 2 weeks. in glade it is ID
+Aug 10 08:50:47 <baedert>	gtk_buildable_get_name?
+Aug 10 08:51:11 <nicknameitis>	thanks, i'll try asap
+Aug 10 08:51:33 <baedert>	object-tree.c:1089 fwiw
+Aug 10 08:59:37 <garnacho>	baedert: both, removing modality makes the rest of the app responsive asap, the empty input shape prevents you from clicking again on the popover before it disappears
+Aug 10 09:08:22 <nicknameitis>	baedert: thanks a ton, that works
+Aug 10 09:08:54 <andlabs>	someone here should probably respond to this because I'm at a loss http://stackoverflow.com/questions/38871450/how-can-i-get-the-default-colors-in-gtk
+Aug 10 09:12:35 <baedert>	Why? For a sufficiently complex widget, you'll have to style it yourself (or the theme has to), and that's it.
+Aug 10 09:15:04 <nicknameitis>	andlabs: i asked this question quite a while ago and answers i got were: "you can't since move on css, at best you can do is draw it" and from more useful to me from lapoc "you can use @theme_selected_bg_color"
+Aug 10 09:15:38 <nicknameitis>	i needed color of selected item when i asked this
+Aug 10 09:16:05 <rudrab>	may be I am doing something very stupid, but statusbar.connect("text-pushed") is not working
+Aug 10 09:17:27 <rudrab>	https://paste.gnome.org/pjd1pabiw
+Aug 10 09:19:01 <andlabs>	nicknameitis: yeah, I'm at a loss of how to explain this in a convincing way
+Aug 10 09:19:20 <andlabs>	I think the model that GTK+ devs want you to follow is use composite widgets unless absolutely necesary
+Aug 10 09:19:24 <andlabs>	but
+Aug 10 09:19:40 <visarion>	glib related, I try to open a file two times using g_open (path, O_RDWR)
+Aug 10 09:20:16 <nicknameitis>	andlabs: truth is that with css really is nothing like color as you might specify gradient between two colors or bitmap for value
+Aug 10 09:20:20 <visarion>	The second time I get -1 as a result. Isn't g_open suppose to behave like POSIX open and provide two fd to the same file ?
+Aug 10 09:20:58 <TingPing>	visarion, on unix it literally is calling open()
+Aug 10 09:21:16 <visarion>	Oh, ok
+Aug 10 09:21:18 <visarion>	:)
+Aug 10 09:22:24 <andlabs>	what OS
+Aug 10 09:22:37 <andlabs>	and what's the full call
+Aug 10 09:25:50 <baedert>	garnacho: https://paste.xinu.at/RivxH/
+Aug 10 09:26:04 <baedert>	garnacho: Any ideas about naming? Pop*over*, pop*down* and pop*up*? :)
+Aug 10 09:32:02 <garnacho>	baedert: not offhead... at least this one is consistent with GtkComboBox/Menu
+Aug 10 09:32:08 <garnacho>	baedert: looks good IMO :)
+Aug 10 09:37:17 <garnacho>	andlabs: the rationale is more or less that there's no "default colors", background might be a gradient/image, colors are animatable... you ideally just gtk_render_*() stuff and trust css, or get colors from the GtkStyleContext in a rather limited way
+Aug 10 09:38:16 <garnacho>	andlabs: themes obviously want a base palette, but they can name those colors however they want, certainly not limited to background/foreground
+Aug 10 09:48:03 <baedert>	garnacho: The other problem is that if the popover uses a subsurface, that still causes the toplevel to be drawn without an allocation (if the popover resizes)
+Aug 10 09:48:48 <andlabs>	ah yes I forgot gtk_render_layout()
+Aug 10 09:48:59 <andlabs>	even though I literally just used it the last time I wrote GTK+ a month or so ago
+Aug 10 09:49:33 <andlabs>	but it's more that last comment there that irks me and that makes me unsure how to properly answer the question
+Aug 10 09:49:34 <andlabs>	"Moreover, how would you react if you crashed a program just because you dared removing a single label somewhere? How would you react if changing the color of a label actually changed the color of other, completely unrelated, widgets? "
+Aug 10 09:50:08 <andlabs>	like don't we *want* text to be the same color regardless of what widget it is?
+Aug 10 09:50:42 <Company>	NO
+Aug 10 09:50:51 <baedert>	I don't want my .destructive-action buttons to have the same color as normal buttons
+Aug 10 09:50:55 <Company>	man, my caps key...
+Aug 10 09:51:31 <baedert>	freudian caps
+Aug 10 09:51:54 <Company>	no, i have an app where i use caps to look at a dashboard temporarily
+Aug 10 09:52:52 <Company>	andlabs: the correct answer to that question is "there are no colors apart from the foreground color for your widget that you can query via gtk_style_context_get_color()
+Aug 10 09:53:16 <Company>	andlabs: everything else is done via gtk_render_*() functions
+Aug 10 09:53:44 <Company>	and whether those things use colors or not is none of your business
+Aug 10 09:54:07 <Company>	(not colors = they use images most likely)
+Aug 10 09:58:24 <andlabs>	yeah
+Aug 10 09:58:26 <andlabs>	I figured
+Aug 10 09:58:40 <andlabs>	and right, I know widgets that are supposed to stand out should have different colors
+Aug 10 09:58:42 <andlabs>	I mean in general
+Aug 10 09:58:55 <andlabs>	it'd be jarring if every button had rainbow text
+Aug 10 09:59:08 <garnacho>	baedert: hmm, I think that'd hint a bug somewhere else...
+Aug 10 09:59:29 <baedert>	garnacho: Yeah, but it was the bug I was initially trying to fix :)
+Aug 10 09:59:48 <baedert>	garnacho: i.e. even if you apply that patch, you'll still get those warnings on wayland
+Aug 10 10:17:36 <rudrab>	any help please
+Aug 10 10:25:23 <sumustinis>	Hi there, I have a treeview and signal button-release-event connected to it. I pass coordinates to get_path_at_pos to get path and column. But if click in celleditable within treeview I can not know anymore is it coordinates of celleditable area or treeview area any suggestions?
+Aug 10 10:47:35 <sumustinis>	Ok found a solution myself ... have to connect same signal to editable with connect_after and return true so it does not propagate to a treeview ...
+**** BEGIN LOGGING AT Wed Aug 10 11:03:41 2016
+
+Aug 10 11:03:41 *	Now talking on #gtk+
+Aug 10 11:03:41 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 10 11:03:41 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+Aug 10 11:09:04 <bugbot>	New gtk+ bug 769706 filed by mail@baedert.org.
+Aug 10 11:09:04 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769706 Widget: GtkPopover, normal, gtk-bugs, NEW , Add show/hide API to GtkPopover
+Aug 10 11:18:30 <ebassi>	baedert: Would GTK use popup/popdown or show/hide, internally?
+Aug 10 11:19:52 <ebassi>	win 6
+Aug 10 11:22:35 <baedert>	ebassi: depends probably. GtkMenuButton for example would use popup/down, but if you want to hide it like any other widget, you'd use gtk_widget_hide.
+Aug 10 11:46:23 <garnacho>	ebassi: probably, most places where we now show popovers would want popup()/popdown()
+Aug 10 12:05:50 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 10 12:05:50 2016
+
+**** BEGIN LOGGING AT Wed Aug 10 12:06:03 2016
+
+Aug 10 12:06:03 *	Now talking on #gtk+
+Aug 10 12:06:03 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 10 12:06:03 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+Aug 10 12:20:05 *	ChanServ gives channel operator status to alex
+Aug 10 13:06:05 *	ChanServ gives channel operator status to alex
+Aug 10 13:36:36 <kalkin->	hi
+Aug 10 13:37:11 <kalkin->	How do I add a menu with gtk3 to the gnome shell topbar?
+Aug 10 13:37:31 <baedert>	https://wiki.gnome.org/HowDoI/ApplicationMenu
+Aug 10 13:40:33 <kalkin->	baedert: thanks 
+Aug 10 13:52:14 <kalkin->	Actually I don't want to have it left. I want to have it right next to the network/profile/shutdown menu
+Aug 10 13:52:36 <baedert>	Then you have to write a shell extension
+Aug 10 13:53:17 <kalkin->	But a shell extension only works if I'm using Gnome DE. The app should also work in KDE & XFCE. 
+Aug 10 13:54:02 <baedert>	But neither of those have a bar at the top you could put your menu in.
+Aug 10 13:54:27 <kalkin->	baedert: Currently I use AppIndicator3 for that
+Aug 10 13:54:58 <kalkin->	But Gnome Shell puts stuff using AppIndicator3 hidden in the bottom left corner
+**** BEGIN LOGGING AT Wed Aug 10 14:53:27 2016
+
+Aug 10 14:53:27 *	Now talking on #gtk+
+Aug 10 14:53:27 *	Topic for #gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto GTK+ Hackfest
+Aug 10 14:53:27 *	Topic for #gtk+ set by Company (Mon Jun 13 12:40:28 2016)
+Aug 10 15:20:37 <benc>	is it possible to add docker.lang to gedit?
+Aug 10 15:20:38 <benc>	https://github.com/ilogue/docker.lang
+Aug 10 15:20:45 <benc>	I didn't create it
+Aug 10 15:29:42 <TingPing>	benc, can look for an issue on the gtksourceview product on bugzilla.gnome.org
+Aug 10 15:33:07 <benc>	thanks
+Aug 10 15:36:18 <rudrab>	Hi, while running the code https://developer.gnome.org/gnome-devel-demos/stable/messagedialog.py.html.en, i am not getting the same thing as shown in the image
+Aug 10 15:36:29 <rudrab>	(I mean no image, etc)
+Aug 10 15:36:44 <rudrab>	http://picpaste.com/Screenshot_from_2016-08-10_21-32-44-418IxiKl.png is what I am getting
+Aug 10 15:37:09 <rudrab>	is this due to change in Gtk and/or Adwaita?
+Aug 10 15:39:15 <baedert>	yes
+Aug 10 16:05:32 *	ChanServ gives channel operator status to alex
+Aug 10 17:05:07 *	ChanServ gives channel operator status to alex
+Aug 10 20:31:15 <norbert>	so... I'm old, and more than 15 years ago I wrote something using imlib that I'm looking into migrating to imlib2; I think imlib was gdkimlib, and I think gdk and gtk+ are/were kind of related, does anyone know if there are any migration guides from gtk+1 to 2 and/or 2 to 3, and (gdk)imlib1 to imlib2 ?
+Aug 10 20:32:33 <norbert>	or, as a shorter and more general question, what happened to gdk_imlib.h
+Aug 11 01:48:28 <bugbot>	New gtk+ bug 769725 filed by christian@hergert.me.
+Aug 11 01:48:29 <bugbot>	Trace: wl_abort, wl_proxy_marshal_array_constructor_versioned, wl_proxy_marshal_array_constructor, wl_proxy_marshal, wl_data_source_offer (Possibly not interesting)
+Aug 11 01:48:29 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769725 Backend: Wayland, normal, gtk-bugs, NEW , crash in gtktextview with clipboard on wayland
+Aug 11 01:52:22 <bugbot>	New gtk+ bug 769726 filed by christian@hergert.me.
+Aug 11 01:52:22 <bugbot>	Trace: gtk_box_get_content_size, gtk_css_custom_gadget_get_preferred_size, gtk_css_gadget_get_preferred_size, gtk_box_get_preferred_height_and_baseline_for_width, gtk_widget_query_size_for_orientation (Possibly not interesting)
+Aug 11 01:52:23 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769726 .General, normal, gtk-bugs, NEW , gadget changes cause crash with gtksourceview
+Aug 11 06:00:39 *	ChanServ gives channel operator status to alex
+Aug 11 06:58:52 *	ChanServ sets mode +q on #gtk+ Company
+Aug 11 06:58:52 *	ChanServ gives channel operator status to Company
+Aug 11 07:07:52 <bugbot>	New gtk+ bug 769739 filed by emanuele.aina@collabora.com.
+Aug 11 07:07:52 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769739 .General, normal, gtk-bugs, NEW , Add a more efficient way to draw EGLImages, gdk_cairo_draw_from_egl_image()
+Aug 11 07:08:54 <bugbot>	mclasen@redhat.com changed the Status on bug 769603 from REOPENED --- to RESOLVED FIXED.
+Aug 11 07:08:54 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769603 .General, normal, gtk-bugs, RESOLVED FIXED, gtk+-3.20.8: underlink issue with ld.gold - build fails: ./.libs/libgdk-3.so: error: undefined reference to 'shm_open'
+Aug 11 08:10:10 *	ChanServ gives channel operator status to alex
+Aug 11 08:48:37 <norbert>	hi folks, what does gtk+3 use instead of gtk_file_selection_get_filename() ?
+Aug 11 08:49:11 <norbert>	at https://developer.gnome.org/gtk2/stable/GtkFileSelection.html#gtk-file-selection-get-filename it says "gtk_file_selection_get_filename is deprecated and should not be used in newly-written code." but it doesn't mention an alternative
+Aug 11 08:49:50 <heftig>	norbert: create a GtkFileChooserWidget and use gtk_file_chooser_get_filename
+Aug 11 08:49:53 <norbert>	oh actually, I think I found it, it's probably gtk_file_chooser_get_filename()
+Aug 11 08:50:01 <heftig>	(GtkFileChooser is an interface)
+Aug 11 08:50:02 <norbert>	yes, thanks heftig :)
+Aug 11 08:50:47 <heftig>	er, actually it's GtkFileChooserDialog, sorry
+Aug 11 08:50:52 <heftig>	the widget is the embedded one
+Aug 11 09:11:16 <nicknameitis>	is the anal handling of gtk_list_box_check_model_compat really necessary at least what filtering is concerned? you can still use model perfectly normally with specifying "visible" property on row in filter method
+Aug 11 09:12:02 <nicknameitis>	it constantly spews warnings on 100% working application of it
+Aug 11 09:33:28 <NathanZhao>	Hi, is there any way to get the reference count of a GValue?
+Aug 11 09:34:13 <bugbot>	mclasen@redhat.com changed the Status on bug 769601 from NEW --- to RESOLVED FIXED.
+Aug 11 09:34:13 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769601 Documentation, minor, gtk-bugs, RESOLVED FIXED, Dead link in faq on gtk-question-index.html
+Aug 11 10:15:16 <bugbot>	mclasen@redhat.com changed the Component on bug 769611 from .General to Class: GtkStyleContext.
+Aug 11 10:15:17 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769611 Class: GtkStyleContext, normal, gtk-bugs, NEW , CSS text transitions are not smooth
+Aug 11 10:43:59 <bugbot>	New glib bug 769745 filed by pgrunt@redhat.com.
+Aug 11 10:43:59 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769745 gio, normal, gtkdev, NEW , gtask: Add guards for public functions
+Aug 11 11:15:14 <bugbot>	mclasen@redhat.com changed the Status on bug 768663 from NEW --- to RESOLVED OBSOLETE.
+Aug 11 11:15:14 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=768663 .General, normal, gtk-bugs, RESOLVED OBSOLETE, x11-libs/gtk+-2.24.30 - ui-tests/send-shift-key fails: assertion failed: (gtk_widget_has_focus (button))
+Aug 11 11:15:55 <bugbot>	mclasen@redhat.com changed the Status on bug 768662 from NEW --- to RESOLVED OBSOLETE.
+Aug 11 11:15:55 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=768662 .General, normal, gtk-bugs, RESOLVED OBSOLETE, x11-libs/gtk+-3.20.6 fails test accessibility-dump
+Aug 11 11:19:01 <bugbot>	mclasen@redhat.com marked bug 766089 as a duplicate of unknown bug.
+Aug 11 11:19:01 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=766089 Widget: GtkFileChooser, normal, gtk-bugs, RESOLVED DUPLICATE, Unpredictable behaviour for single/double mouse clicks
+Aug 11 11:50:44 <bugbot>	mclasen@redhat.com changed the Status on bug 766773 from NEW --- to RESOLVED WONTFIX.
+Aug 11 11:50:44 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=766773 Class: GtkStyleContext, normal, gtk-bugs, RESOLVED WONTFIX, Publicize GtkCSSNode API
+Aug 11 12:02:58 <bugbot>	mclasen@redhat.com marked bug 764126 as a duplicate of unknown bug.
+Aug 11 12:02:58 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=764126 Class: GtkStyleContext, normal, gtk-bugs, RESOLVED DUPLICATE, moving the mouse between gtk+ places leaves random ones highlighted/greyed out.
+Aug 11 12:26:02 <bugbot>	mclasen@redhat.com changed the Status on bug 769568 from NEW --- to RESOLVED FIXED.
+Aug 11 12:26:02 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769568 Widget: GtkFileChooser, normal, gtk-bugs, RESOLVED FIXED, Modification date display incorrectly wraps calendar days (and is inconsistent with GTK2 and Nautilus)
+Aug 11 12:38:59 <bugbot>	william@attente.ca changed the Status on bug 768138 from NEW --- to RESOLVED FIXED.
+Aug 11 12:39:00 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=768138 Backend: Mir, normal, gtk-bugs, RESOLVED FIXED, Update the GDK-Mir backend to fix a few problems
+Aug 11 13:41:03 <jmd>	How can I avoid a GtkApplication connecting to another instance of itself when starting?   I want to run two completely seperate applications.
+Aug 11 13:45:08 <halfline>	i think GtkApplication is single instance by design, but you might be able to fake it with dbus-run-session your-application
+Aug 11 13:46:41 <chpe>	use the G_APPLICATION_NON_UNIQUE flag when creating the GtkApplication
+Aug 11 13:46:42 <jmd>	halfline: It's a real mis-feature.  I hope it is taken out of GTK soon.
+Aug 11 13:46:59 <halfline>	chpe: oh interesting, didn't know about that
+Aug 11 13:47:30 <jmd>	chpe: I want to be able to control it at runtime.  ./myapp --ignore-all-other-instances or something.
+Aug 11 13:48:42 <chpe>	parse the command line before creating the app ? I guess gapplication cmdline parsing won't work for that
+Aug 11 13:50:58 <TingPing>	jmd, can look how gnome-builder implements the --standalone flag
+Aug 11 13:52:20 <TingPing>	jmd, looks trivial - https://github.com/GNOME/gnome-builder/blob/fec0655ee750f74eaba274bf6d82148288287796/libide/application/ide-application-command-line.c#L342-L349
+Aug 11 13:55:14 <jmd>	TingPing: I'll  consider doing something similar.  Thanks.
+Aug 11 16:16:48 *	ChanServ gives channel operator status to alex
+Aug 11 23:01:49 <bugbot>	New glib bug 769778 filed by smspillaz@gmail.com.
+Aug 11 23:01:49 <bugbot>	Trace: g_application_real_local_command_line, g_application_run, ffi_call_unix64, ffi_call, JS::Evaluate (Possibly not interesting)
+Aug 11 23:01:50 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769778 gapplication, normal, gtkdev, NEW , Crash in gapplication.c:1014 when reading error message if dbus_register returns false without setting error
+Aug 12 03:35:33 <baedert>	Can I check where gsettings gets its schemas from (like if it takes the one from /usr/local or /usr)?
+Aug 12 03:55:47 <rudrab>	Hi, I am trying to close a method, when the window is destroyed.
+Aug 12 03:56:23 <rudrab>	https://paste.gnome.org/ps9enne9r is what I am trying
+Aug 12 04:12:35 <rudrab>	anyone please?
+Aug 12 04:15:09 <LRN>	"close a method"?
+Aug 12 04:15:16 <LRN>	must be something pythonic
+Aug 12 04:15:49 <rudrab>	LRN yes. actually I want to kill the function itself when the window is closed
+Aug 12 04:16:05 <LRN>	how do you normally kill a function?
+Aug 12 04:16:35 <rudrab>	with a `return`
+Aug 12 04:17:15 <LRN>	are threads involved?
+Aug 12 04:17:21 <rudrab>	no
+Aug 12 04:17:58 <LRN>	then i do not quite understand the control flow in your hypothetical program
+Aug 12 04:18:33 <LRN>	gtk is, by itself, single-threaded and event-based, with a main loop running the app
+Aug 12 04:19:49 <LRN>	what does the function (the one you want to kill) do?
+Aug 12 04:20:29 <rudrab>	will it be helpful if I paste the complete function?
+Aug 12 04:20:44 <LRN>	you can just explain in your own words
+Aug 12 04:21:28 <rudrab>	it creates a a window and a treeview, and populate the treeview through a loop
+Aug 12 04:22:04 <LRN>	and then?
+Aug 12 04:22:33 <rudrab>	say, if I close the window, before the loop (and any other job) finished, I want the loop and the rest of the code to exit
+Aug 12 04:23:03 <LRN>	how long does it take for the loop to populate the treeview?
+Aug 12 04:24:08 <rudrab>	~20sec
+Aug 12 04:24:51 <LRN>	is the window with the treeview the only window you have?
+Aug 12 04:25:34 <rudrab>	no...its a side job. If its the main window I could have done Gtk.main_quit()
+Aug 12 04:25:42 <LRN>	i see
+Aug 12 04:26:00 <LRN>	do you understand the concept of a main loop and event processing in GUI applications?
+Aug 12 04:27:59 <rudrab>	I have read that, but..
+Aug 12 04:28:08 <LRN>	but what?
+Aug 12 04:29:43 <rudrab>	i mean not sure abt ubderstanding
+Aug 12 04:31:02 <LRN>	a GUI application (a GTK+-based GUI application, at least) works by running a main loop. Main loop does 3 things: 1) waits for something to happen, 2) turns that "something" into an event, 3) passes the event to the application
+Aug 12 04:32:02 <LRN>	GTK+ handles many events internally, but some of them are turned into signals that *your* code can handle (such as button being pressed or a window being closed)
+Aug 12 04:32:56 <LRN>	GTK+ is single-threaded internally. When an event is passed from the main loop to GTK+, the main loop stops fetching new events and waits for GTK+ to handle the event it already has
+Aug 12 04:33:29 <LRN>	If that event causes a signal in your code to be sent, then while your signal handler is working, the main loop is still stopped
+Aug 12 04:34:20 <LRN>	that is why any GUI code you have must work quickly. It absolutely cannot take 20 seconds to complete, because your application will freeze for these 20 seconds
+Aug 12 04:34:57 <LRN>	there are three ways to get around that.
+Aug 12 04:35:31 <LRN>	One is to split the work you need to do into small chunks and do it one chunk at a time
+Aug 12 04:36:45 <LRN>	when a chunk is done, you queue a continuation (something like g_idle_add() or somesuch), telling the toolkit to go back to its thing and call your worker function again once it doesn't have anything better to do, so that you can do the next chunk
+Aug 12 04:37:06 <LRN>	The second way is to do your work in a thread.
+Aug 12 04:37:44 <LRN>	However, there are subtle difficulties in invoking GTK+ functions from another thread and passing data from your worker thread to GTK+ main thread
+Aug 12 04:38:06 <LRN>	There are guides and code examples for doing this somewhere
+Aug 12 04:39:12 <LRN>	The third way is to use asynchronous APIs to do your work. If such APIs exist. For example, most filesystem-related functions have asynchronous variants.
+Aug 12 04:39:48 <LRN>	this is the same as using threads, but the OS (usually it's the OS) will hide the ugly details from you
+Aug 12 04:40:21 <LRN>	obviously, complex mathematical functions or anything you write on your own will not be asynchronous
+Aug 12 04:41:13 <LRN>	The fourth way is...um...i forgot what it is
+Aug 12 04:41:22 *	LRN tries to remember
+Aug 12 04:42:16 <LRN>	damn
+Aug 12 04:42:33 <LRN>	anyway, back to your application
+Aug 12 04:43:03 <LRN>	if you need examples, GTK has something similar - filechooser dialog search functionality
+Aug 12 04:43:25 <LRN>	it has a treeview that is, over time, populated by the results of filesystem search (which is, by definition, a slow-ish process)
+Aug 12 04:44:56 <The_gull>	baedert: not that I know
+Aug 12 04:45:59 <LRN>	ah, i remembered the fourth way. The fourth way is to just do your work in a loop and have it regularly explicitly nudge the main loop
+Aug 12 04:47:14 <LRN>	i think the function is g_main_context_iteration ()
+Aug 12 04:47:30 <LRN>	i wouldn't recommend that though
+Aug 12 04:50:36 <LRN>	anyway, your "kill the function" functionality will be done differently, depending on how you do your work
+Aug 12 04:50:48 <LRN>	if it's a thread, you can cancel it like any other thread
+Aug 12 04:51:26 <LRN>	if it's async API, you can cancel it like any other async API (glib async APIs are usually cancellable)
+Aug 12 04:52:47 <LRN>	if it's split into chunks, you don't queue the next chunk
+Aug 12 04:53:26 <LRN>	if you're manually cranking the main loop, you just check whether you should stop, and don't go on if you should
+Aug 12 04:56:01 <LRN>	caveat emptor: in Python threads do not run in parallel, so the threaded way won't work for you
+Aug 12 04:59:46 <rudrab>	LRN:thanks...looking for async threads
+Aug 12 05:04:00 <rudrab>	*async & threads
+Aug 12 05:55:03 <bugbot>	New glib bug 769785 filed by bugzilla@tecnocode.co.uk.
+Aug 12 05:55:04 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769785 general, normal, gtkdev, NEW , gmessages: Expand documentation further for structured logging
+Aug 12 06:04:52 <nacho_>	desrt, hey
+Aug 12 06:05:04 <nacho_>	desrt, any chance to get a new glib stable release?
+Aug 12 06:08:56 <bugbot>	New gtk+ bug 769788 filed by jadahl@gmail.com.
+Aug 12 06:08:56 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769788 Backend: Wayland, normal, gtk-bugs, NEW , Fix stacking order of flatpak portals on Wayland
+Aug 12 06:30:00 <bugbot>	New gtk+ bug 769791 filed by andreas.pokorny@gmail.com.
+Aug 12 06:30:00 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769791 Backend: Mir, normal, gtk-bugs, NEW , [Mir] Small redraw improvement : Usage of GdkFramClock
+Aug 12 07:21:55 <sanketdg>	hi I have a question and I am not sure if its the right place to ask
+Aug 12 07:22:19 <Eclipser>	depends on the question -.-
+Aug 12 07:22:48 <sanketdg>	I am trying to write a url parser, and apparenly I find gnome-terminal's url parsing thing is very accurate
+Aug 12 07:22:56 <sanketdg>	could anybody point me to how its donw
+Aug 12 08:16:51 <bugbot>	bugzilla@tecnocode.co.uk changed the Status on bug 769785 from NEW --- to RESOLVED FIXED.
+Aug 12 08:16:51 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769785 general, normal, gtkdev, RESOLVED FIXED, gmessages: Expand documentation further for structured logging
+Aug 12 08:46:21 <The_gull>	is there a way to know at what position a popover is drawn ? (not what its favorite position is)
+Aug 12 08:48:05 <The_gull>	or : I’m trying to attach a popover to a row at the left-right position where the mouse has right-click, but I want it to be attach at the top of the row when the popover will be drawn on top, and at the bottom of the row when the popover will be drawn on bottom ; how should I do ?
+Aug 12 10:31:26 <tomtix>	i'm currently trying to make a popover searchbar that pop under the mouse when you press space (like in blender ui, or in glade ui when you double click on central pane); currently i just show the popover when the key-press-event is emitted on the window (top level) object but when the popover fades I get this error: (osux_editor:3431): GLib-GObject-WARNING **: gsignal.c:2635: instance '0x1fae350' has no handler with id '1101' (the adr
+Aug 12 10:31:26 <tomtix>	ess is the one of the window)
+Aug 12 10:32:42 <tomtix>	the popover is currently relative to some button in the window, and this error does not happen when it is shown by the clicked event on this button
+Aug 12 10:32:58 <tomtix>	Can somebody explain what is happening to me?
+Aug 12 10:34:20 <tomtix>	code and interface: https://paste.gnome.org/plzn1hsta  https://paste.gnome.org/pdzunhjql
+Aug 12 10:57:16 <baedert>	tomtix: Can you run it inside gdb with G_DEBUG=fatal-warnings and see where the g_signal_disconnect is called?
+Aug 12 10:59:16 <tomtix>	https://paste.gnome.org/pvcdanjpe
+Aug 12 11:04:49 <LRN>	what kind of timezone is GUADEC on?
+Aug 12 11:05:07 <LRN>	GMT+1?
+Aug 12 11:06:48 <teuf>	LRN: UTC+2
+Aug 12 11:06:58 <teuf>	LRN: it's 17:06 at the moment
+Aug 12 11:14:58 <baedert>	tomtix: did you connect to the popover's close signal?
+Aug 12 11:15:56 <tomtix>	no
+Aug 12 11:16:29 <tomtix>	should I?
+Aug 12 11:16:32 <baedert>	how do you create the popover?
+Aug 12 11:17:35 <tomtix>	with glade and GtkBuilder https://paste.gnome.org/pdzunhjql#line-695
+Aug 12 11:20:33 <bugbot>	mcrha@redhat.com changed the Status on bug 769263 from NEW --- to RESOLVED FIXED.
+Aug 12 11:20:33 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769263 Backend: Wayland, critical, gtk-bugs, RESOLVED FIXED, [Wayland] Changes parent menu selection on hover of a child
+Aug 12 11:30:17 <bugbot>	ofourdan@redhat.com marked bug 769263 as a duplicate of unknown bug.
+Aug 12 11:30:18 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769263 Backend: Wayland, critical, gtk-bugs, RESOLVED DUPLICATE, [Wayland] Changes parent menu selection on hover of a child
+Aug 12 11:38:45 <baedert>	tomtix: what gtk version?
+Aug 12 11:39:46 <tomtix>	gtk3
+Aug 12 11:40:27 <baedert>	tomtix: what gtk3 version?
+Aug 12 11:40:37 <tomtix>	the precise version is 3.20.8-1
+Aug 12 11:41:22 <tomtix>	from the archlinux package
+Aug 12 11:53:47 <jmd>	How does one "register" a GApplication ?
+Aug 12 11:56:03 <TingPing>	just a guess, g_application_register()
+Aug 12 11:56:36 <TingPing>	i think that all normally happens under the hood
+Aug 12 12:26:10 <pgrunt>	hi, what is proper way to get HWND from GdkWindow? gdk_win32_window_get_impl_hwnd / GDK_WINDOW_HWND ?
+Aug 12 12:26:52 <pgrunt>	spice-gtk uses GDK_WINDOW_HWND but has rendering issues with CSD enabled
+Aug 12 12:39:07 <LRN>	anyone interested in having colored structured logging output on Windows?
+Aug 12 12:39:50 <LRN>	pgrunt, why do you need HWND?
+Aug 12 12:40:13 <LRN>	also, which version of GTK+ does spice-gtk use?
+Aug 12 12:40:28 <pgrunt>	the problems started with 3.20
+Aug 12 12:41:21 <pgrunt>	LRN: we need it in some winapi https://cgit.freedesktop.org/spice/spice-gtk/tree/src/spice-widget.c#n715
+Aug 12 12:44:22 <LRN>	gdk_win32_window_get_impl_hwnd() internally just calls GDK_WINDOW_HWND() after checking that the window is indeed a WIN32 one
+Aug 12 12:44:35 <pgrunt>	LRN: it is different GDK_WINDOW_HWND
+Aug 12 12:45:00 <pgrunt>	see gdkwin32misc.h
+Aug 12 12:45:00 <LRN>	ah, yes, the internal one
+Aug 12 12:45:34 <LRN>	anyway, it should work
+Aug 12 12:45:50 <LRN>	why would spice-gtk have rendering issues if it doesn't render anything using that HWND?
+Aug 12 12:45:57 <pgrunt>	yeah, my concern is that both are not very documented
+Aug 12 12:46:04 <pgrunt>	LRN: it is because gdk_window_ensure_native
+Aug 12 12:46:57 <LRN>	gdk_win32_window_get_handle() seems pretty reasonable
+Aug 12 12:47:23 <LRN>	or not
+Aug 12 12:47:45 <LRN>	yeah, definitely not
+Aug 12 12:48:04 <LRN>	does it work better with gdk_win32_window_get_impl_hwnd()?
+Aug 12 12:48:22 <pgrunt>	yes, it seems to work
+Aug 12 12:48:39 <pgrunt>	we had the same issues with linux implementation
+Aug 12 12:49:07 <pgrunt>	no rendering, because gdk_window_ensure_native steals the window, or something like that
+Aug 12 12:49:13 <LRN>	creating new impl for each GdkWindow is definitely not a good idea, so do use gdk_win32_window_get_impl_hwnd()
+Aug 12 12:49:52 <pgrunt>	LRN: thanks!
+Aug 12 12:50:03 <LRN>	that's what gdk_window_ensure_native() does - it creates an impl for the window, unless it already has one tied to itself
+Aug 12 12:50:34 <LRN>	normally only the toplevel has its own impl, all its children just use the one they get from their toplevel
+Aug 12 12:51:20 <LRN>	you can probably work around this in user code by first doing gdk_window_get_toplevel() on the window, then getting its HWND
+Aug 12 12:51:45 <LRN>	gdk_win32_window_get_impl_hwnd() is probably better though
+Aug 12 12:53:09 <pgrunt>	and for me it is just s/GDK_WINDOW_HWND/gdk_win32_window_get_impl_hwnd/g ;)
+Aug 12 12:54:57 <pgrunt>	LRN: thanks for explanation 
+Aug 12 12:55:28 <LRN>	NP-complete
+Aug 12 13:00:24 <pgrunt>	fidencio: the key part is: "creating new impl for each GdkWindow is definitely not a good idea, so do use gdk_win32_window_get_impl_hwnd()"
+Aug 12 14:33:16 <norbert>	hey folks, which function will I use to get the text_length of a gtk_editable?
+Aug 12 14:33:27 <norbert>	gtk_entry used to have gtk_entry_get_text_length()
+Aug 12 14:33:58 <TingPing>	norbert, still does
+Aug 12 14:34:04 <norbert>	I can do a conversion "gtk_entry_get_text_length (GTK_ENTRY (...))" but I'm not sure if that's the best solution
+Aug 12 14:34:09 <norbert>	ok
+Aug 12 14:34:38 <TingPing>	norbert, if you have an editable that IS an entry, it is safe to cast up yes
+Aug 12 14:36:02 <norbert>	actually, now that I'm here, I have another question
+Aug 12 14:36:46 <norbert>	when I change a gtk_table_attach to a gtk_grid_attach, the last 4 parameters disappear, including the padding; how can I bring back the padding?
+Aug 12 14:38:53 <norbert>	I guess maybe the _spacing() functions? although from what I'm reading they don't function on a per-'cell' basis
+Aug 12 14:39:09 <norbert>	they probably go for all columns or all rows
+Aug 12 14:39:19 <TingPing>	norbert, the widgets margin property?
+Aug 12 14:40:02 <norbert>	I don't know, how would I use the widget's margin property? can it have a different distance left/right versus top/bottom?
+Aug 12 14:40:25 <TingPing>	yes, margin-top, margin-left, etc
+Aug 12 14:40:29 <norbert>	oh, never mind the last question, I see margin-bottom, etc.
+Aug 12 14:41:26 <norbert>	gtk_widget_set_margin_left() seems to be one of the functions I can use
+Aug 12 14:41:33 <norbert>	alrighty, thanks
+Aug 12 14:51:48 <norbert>	warning: implicit declaration of function ‘gtk_widget_set_margin’
+Aug 12 14:52:07 <norbert>	is a bit weird though, you'd think if everything is, for example, 2, you could just use one function
+Aug 12 14:52:44 <norbert>	similar to what css can do with margin in addition to margin-top etc.
+Aug 12 14:53:11 <norbert>	I can of course put together my own function for this - probably will
+Aug 12 14:53:39 <ernestask>	you could just set the “margin” property
+Aug 12 14:54:01 <norbert>	ernestask, how can I do that?
+Aug 12 14:54:03 <TingPing>	norbert, i mean, you could probably use css for this too
+Aug 12 14:54:44 <norbert>	ernestask, I haven't touched GTK+ in 16 years :)
+Aug 12 14:54:52 <norbert>	17, actually
+Aug 12 14:55:45 <ernestask>	norbert, you could look into using CSS, as TingPing suggested, or use g_object_set (widget, "margin", margin, NULL)
+Aug 12 14:56:47 <norbert>	thanks
+Aug 12 14:59:34 <norbert>	the GTK+ documentation is pretty good, better than the SDL documentation; one thing that's a bit unfortunate is that occasionally it just says "... has been deprecated since version ... and should not be used in newly-written code" without mentioning alternatives
+Aug 12 15:00:01 <baedert>	there are not always replacements
+Aug 12 15:00:34 <norbert>	true, but I've been able to find them several times when they weren't mentioned
+Aug 12 15:54:25 <norbert>	should I always be able to use "$ GTK_DEBUG=interactive ./application" and then Ctrl+Shift+i on any window to bring up something?
+Aug 12 15:54:41 <grawity>	for apps which do not use dbus-activation
+Aug 12 15:54:42 <norbert>	I'm trying to find out why there's space around images
+Aug 12 15:55:13 <norbert>	I don't think I'm using dbus-activation, because I don't know what that is :)
+Aug 12 15:55:18 <norbert>	but the debug window is not showing up
+Aug 12 15:55:39 <norbert>	I'm on Linux, if that makes any difference
+Aug 12 15:55:54 <grawity>	normally GTK_DEBUG=interactive makes the inspector visible by default
+Aug 12 15:56:30 <TingPing>	norbert, also i presume you have gtk >= 3.14
+Aug 12 15:56:53 <norbert>	I'm not sure how to check
+Aug 12 15:56:59 <TingPing>	what distro
+Aug 12 15:57:02 <norbert>	I tried "pkg-config gtk+-3.0 --version" but it says 0.26 for, I'm guessing, pkg-config
+Aug 12 15:57:04 <norbert>	Mint
+Aug 12 15:57:57 <norbert>	apt just says "libgtk-3-dev - development files for the GTK+ library" although.. lemme look up the apt command to see more info
+Aug 12 15:58:08 <slaf>	pkg-config --modversion gtk+-3.0
+Aug 12 15:58:11 <TingPing>	norbert, mint 17 is ancient with 3.10
+Aug 12 15:58:20 <TingPing>	mint 18 is recent enough
+Aug 12 15:58:38 <norbert>	ok, I'm using Mint 17.3
+Aug 12 15:58:53 <norbert>	oh, I see 18 arrived 43 days ago
+Aug 12 15:58:59 <norbert>	I guess I can dist-upgrade
+Aug 12 15:59:02 <norbert>	I'll do that
+Aug 12 15:59:10 <TingPing>	i thought mint doesn't support dist upgrades
+Aug 12 15:59:19 <norbert>	it does
+Aug 12 16:05:12 <norbert>	usually the Update Manager has something like https://www.linuxmint.com/pictures/screenshots/rosa/thumb_mintupgrade1.png
+Aug 12 16:39:12 <norbert>	thanks again, I'm off
+Aug 12 18:42:41 <bugbot>	New glib bug 769815 filed by bugzilla@tecnocode.co.uk.
+Aug 12 18:42:41 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769815 general, normal, gtkdev, NEW , gmessages: Add a convenience function for logging details of a GError
+Aug 12 19:24:27 <norbert>	I've upgraded to Mint 18 and GTK_DEBUG=interactive now works, the GtkImage seems to be the right size, but the GtkButton is larger than the image
+Aug 12 19:25:31 <norbert>	on the button, there are about 6 pixels of gray around the image
+Aug 12 19:26:12 <norbert>	the buttons also appear to be slightly rounded, but they should be as the square image
+Aug 12 19:26:22 <norbert>	I really want 0 pixels around the image
+Aug 12 19:26:33 <norbert>	any suggestions how I could tackle this issue?
+Aug 12 19:30:30 <norbert>	the button says allocated size 42x37, clip area 42x38; the image on it is 24x24
+Aug 12 19:32:15 <norbert>	very nice by the way that interactive tool
+Aug 12 19:35:58 <norbert>	I do use gtk_widget_set_size_request() to pick 24
+Aug 12 19:36:06 <norbert>	don't get why it's larger
+Aug 12 19:40:29 <The_gull>	norbert: set CSS padding/border/margin to 0 ?
+Aug 12 19:43:45 <norbert>	The_gull: I can just paste "padding:0px; border:0px; margin:0px;" in the CSS field of Objects to test?
+Aug 12 19:46:26 <The_gull>	norbert: what version of GNOME / gtk+ are you using ?
+Aug 12 19:46:55 <norbert>	I wish there was an easy gtk3-config --version
+Aug 12 19:47:15 <norbert>	GTK+ 3.18.9
+Aug 12 19:47:28 <The_gull>	in 3.20+, “headerbar button { padding:0; border:none;  margin:0; background:transparent; }” does some quite complete things
+Aug 12 19:48:03 <grim>	like "pkg-config --modversion gtk+-3.0" ?
+Aug 12 19:48:08 <The_gull>	in 3.18.n, it should be different (and there’s not anymore a “CSS field of Objects”, there’s just the generic CSS thing)
+Aug 12 19:48:30 <The_gull>	.titlebar .button { … }, IIRC, should work
+Aug 12 19:48:48 <norbert>	The_gull: yes, now it does something
+Aug 12 19:50:17 <norbert>	when I use ".button { padding:0; margin:0; border:0; }" it removes a lot of space, but still not all
+Aug 12 19:51:17 <The_gull>	there could be some margin around the image, also
+Aug 12 19:51:18 <norbert>	but I should be able to figure things out this way, thanks
+Aug 12 20:02:18 <norbert>	can status bars have newlines? \n doesn't work
+Aug 12 21:58:17 <norbert>	it says gdk_cursor_new() is deprecated; I see the replacement gdk_cursor_new_for_display() but that requires a display parameter; can I just use gdk_display_open() with NULL to get/create one, and then pass that to this new function?
+Aug 12 21:59:55 <The_gull>	norbert: IIRC there’s a gdk_display_get_default(), could help
+Aug 12 22:00:31 <norbert>	I did see that function, but it returns a GdkDisplay
+Aug 12 22:00:48 <norbert>	and gdk_display_open() needs a const gchar *display_name
+Aug 12 22:01:23 <norbert>	oh, wait, you mean I can just use that one
+Aug 12 22:02:54 <norbert>	yeah, thanks
+Aug 12 22:02:59 <The_gull>	I think this has a chance to be the correct way to do that :·)
+Aug 12 22:03:51 <norbert>	any thought on whether status bars can have newlines?
+Aug 12 22:04:33 <norbert>	I'm porting a super old GTK+ application and back in the day \n worked, but it now displays a 000A block
+Aug 12 22:04:49 <norbert>	a unicode character
+Aug 12 22:05:03 <norbert>	instead of actually moving the next text to a newline
+Aug 12 22:06:03 <norbert>	actually, now that I'm writing this
+Aug 12 22:06:43 <norbert>	hm, no, I thought maybe &#10; would work but it doesn't
+Aug 12 22:11:53 <norbert>	I should say migrating instead of porting
+Aug 12 22:21:24 <norbert>	time to go to batman
+Aug 13 03:33:20 <bugbot>	bugzilla@tecnocode.co.uk changed the Status on bug 768198 from NEW --- to RESOLVED FIXED.
+Aug 13 03:33:20 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=768198 build, normal, gtkdev, RESOLVED FIXED, Can't build glib with systemtap enabled
+Aug 13 04:03:55 <rudrab>	Hi, how can I set preferences for future sessions? like, say, my project will save pdf file to some place. Currently, it is hard coded to Downloads dir. Can i give user a choice to reset it? 
+Aug 13 04:14:44 <jmd>	What is the likelihood of GValue getting deprecated in the foreseeable future?
+Aug 13 04:28:33 <baedert>	1.3%
+Aug 13 04:29:22 <baedert>	rudrab: yes? you can always just save a path your user selected?
+Aug 13 04:38:17 <jmd>	How can I define my own GVariantType ?
+Aug 13 06:18:11 <jmd>	Why is it that the argument to g_variant_print is non const ?
+Aug 13 06:33:43 <jmd>	According to the documentation for g_variant_bytestring:
+Aug 13 06:33:49 <jmd>	If the array does not end with a nul terminator character, the empty string is returned. For this reason, you can always trust that a non-NULL nul-terminated string will be returned by this function.
+Aug 13 06:34:03 <jmd>	This is self-contradictory.
+Aug 13 06:34:23 <jmd>	The empty string IS null terminated.
+Aug 13 07:01:07 <tomtix>	this means that if the the byte array contained in the gvariant is not a well formed string, the empty string is return instead, isn't it?
+Aug 13 07:02:01 <jmd>	tomtix: Yes. I think that is what it means.
+Aug 13 07:02:28 <jmd>	But like I say, the text of the documentation contradicts itself.
+Aug 13 07:02:49 <tomtix>	why?
+Aug 13 07:03:15 <jmd>	If the first sentence is true, the the second CANNOT be true.
+Aug 13 07:04:37 <tomtix>	if the gvariant hold a well formed string, this string is returned, otherwise empty (well formed) string is return; In both case a well formed string is return. And NULL is never returned. This is what is means. I don't see where the contradiction is
+Aug 13 07:05:06 <jmd>	You must be reading  a different text to me.
+Aug 13 07:06:38 <tomtix>	I'm reading this: https://developer.gnome.org/glib/stable/glib-GVariant.html#g-variant-get-bytestring
+Aug 13 07:07:11 <jmd>	Right.  It contradicts itself severly.
+Aug 13 07:07:35 <tomtix>	can you explain more
+Aug 13 07:07:40 <tomtix>	?
+Aug 13 07:09:20 <jmd>	The empty string is null terminated.
+Aug 13 07:09:30 <tomtix>	yes
+Aug 13 07:09:48 <tomtix>	and?
+Aug 13 07:10:15 <jmd>	I give up.
+Aug 13 07:11:56 <tomtix>	the doc says this function must return only well formed (null terminated) strings, so if the byte array is not a well formed string, the empty string which is well formed and null terminated is returned instead of the byte array content.
+Aug 13 07:12:19 <tomtix>	this is not a contradiction
+Aug 13 07:13:24 <ork>	hey folks
+Aug 13 07:14:29 <ork>	I'm subclassing Gtk.Image to display a resource image whil attempting to asynchronously loading with HTTP a remote image, and caching it
+Aug 13 07:14:57 <ork>	Do you know of any existing implementation? That would be grand if I can skip that
+Aug 13 07:17:30 <ork>	(I'm doing a Gtk3 Steam client http://ork.olol.eu/public/2016-08-13_13-17-00__wip-steam.png)
+Aug 13 07:21:21 <TingPing>	ork, Lutris provides a launcher to steam games too
+Aug 13 07:28:01 <rudrab>	baedert: sorry for awfully late response. So, basically, I need a .config file, where the user selected data will be stored and will be read from?
+Aug 13 07:31:13 <TingPing>	rudrab, ideally you use GSettings
+Aug 13 07:35:40 <rudrab>	TingPing: ok
+Aug 13 07:46:19 <rudrab>	TingPing: do you have any idea of what contains GSettings in python? I am getting many things lke Gtk.Settings/GioSettings etc but not Gsettings
+Aug 13 07:46:44 <rudrab>	https://wiki.gnome.org/Projects/PyGObject?
+Aug 13 07:47:17 <TingPing>	rudrab, G prefix means GLib, which does have multiple namespaces in python, but this specifically is Gio.Settings
+Aug 13 07:47:51 <rudrab>	ok...thanks again
+Aug 13 07:48:52 <TingPing>	rudrab, you probably will want to consult the C docs for a higher level overview, you need to make a schema file and install/build it
+Aug 13 07:50:33 <TingPing>	rudrab, if you *really* want to avoid it because it is complicated (though providing some nice features) you can just throw any text file in XDG_CONFIG_DIR and call it a day
+Aug 13 07:51:22 <rudrab>	TingPing: nope...if Gsettings is the std way, I will do that
+Aug 13 07:51:48 <rudrab>	possibly, I will come up with some stupid Q here
+Aug 13 08:45:54 <baedert>	ork: Your image implementation displays a loading image (from a resource) while you download the actual image you want to show?
+Aug 13 08:47:36 <jmd>	I continually get segfault calling g_variant_print
+Aug 13 08:47:52 <jmd>	Do the contents from whcih the variant was constructed have to persist?
+Aug 13 08:56:19 <mlundblad>	jmd: I'm not 100% sure, but I think g_variant_new would ref the stuff you pass to it (unless it's primitive types)
+Aug 13 08:56:44 <ork>	yup baedert
+Aug 13 08:58:58 <jmd>	mlundblad: OK,  I must read some more about GVariants
+Aug 13 08:59:22 <baedert>	ork: so do you still use a uri for downloading it and hope gvfs/gio does it or are you using libsoup?
+Aug 13 08:59:27 <bugbot>	New gtk+ bug 769835 filed by kritphong@mongkhonvanit.tk.
+Aug 13 08:59:27 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769835 Widget: GtkGLArea, normal, gtk-bugs, NEW , On Wayland, application containing GtkGLArea stops responding to D-Bus messages if it's not on current workspace
+Aug 13 09:06:18 <ork>	an async inputstream from libsoup baedert
+Aug 13 09:06:48 <ork>	I'm working on the caching / etag checking part now
+Aug 13 09:14:47 <baedert>	so you download stuff yourself, what do you need that Gtkimage doesn't yet have?
+Aug 13 10:56:07 <bugbot>	New glib bug 769841 filed by bugzilla@tecnocode.co.uk.
+Aug 13 10:56:07 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769841 general, normal, gtkdev, NEW , gapplication: Add an org.gtk.Debugging interface
+Aug 13 11:30:54 <bugbot>	New gtk+ bug 769845 filed by arnaud.bonatti@gmail.com.
+Aug 13 11:30:54 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769845 Themes, normal, gtk-bugs, NEW , Infobars’ warning/error/question/info CSS classes are similar
+Aug 13 11:36:28 <bugbot>	New glib bug 769846 filed by bugzilla@tecnocode.co.uk.
+Aug 13 11:36:29 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769846 general, normal, gtkdev, NEW , gmessages: Add timestamp to g_log_writer_format_fields()
+Aug 13 11:55:12 <tomtix>	I'm currently looking at https://git.gnome.org/browse/gtk+/tree/examples/application4/exampleapp.c; and I try to understand how gobject works; In example_app_startup line 51 I suppose this is the "chain" call to the parent startup method but isn't 'example_app_parent_class' the same object that the 'class' variable in example_app_class_init? My first guest looking at the code is that the 'example_app_class_init' must have been called b
+Aug 13 11:55:12 <tomtix>	efore and line 51 would end up in a recursive call (But practice proved me wrong) How does this work?
+Aug 13 11:57:37 <chpe>	no, parent_class is the parent class of @class in class_init
+Aug 13 11:59:05 <tomtix>	with the cast, it doesn't end up in the same field anyway?
+Aug 13 12:01:01 <tomtix>	I think i'm missing something big
+Aug 13 12:02:04 <chpe>	in class_init, the parent fields of @class are copied from the parent class, so if you override them you set them in @class not in @parent_class
+Aug 13 12:06:36 <tomtix>	Like I said, I think i'm lacking too much knowledge about gobject and/or probably assuming some wrong things because this is not helping me
+Aug 13 12:08:50 <tomtix>	I need to see what the define type macro is doing
+Aug 13 12:22:55 <The_gull>	tomtix: the GObject documentation might help a little, if you didn’t start there
+Aug 13 12:33:03 <tomtix>	Oh i think i got it
+Aug 13 13:23:12 <bugbot>	New glib bug 769859 filed by lrn1986@gmail.com.
+Aug 13 13:23:12 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769859 general, minor, gtkdev, NEW , structural logging does not support colored output to Windows console
+Aug 13 13:25:42 <LRN>	*facepalm*
+Aug 13 13:25:47 <LRN>	s/structural/structured/
+Aug 13 14:18:26 <polochon>	Hi! I've made a GTK+ program with Glade, with a huge GtkTreeView, but when I scroll, I have warnings like « Allocating size to GtkWindow 0x55761a6082b0 without calling gtk_widget_get_preferred_width/height(). How does the code know the size to allocate? », is it normal ?
+Aug 13 15:24:07 <baedert>	polochon: always when scrolling?
+Aug 13 15:25:03 <polochon>	baedert: yes !
+Aug 13 15:25:08 <polochon>	or when new elements are added
+Aug 13 16:22:01 <polochon>	baedert: do you have any idea where it comes from ?
+Aug 13 16:37:04 <baedert>	polochon: nope, that should be gtk 3.20?
+Aug 13 17:30:15 <norbert>	I'm having trouble with my gtk_statusbar; I used to be able to use \n for newlines, but this no longer works; as a solution I'm now trying to set the widget to a max width, but then I have no idea what to do/will happen if the text is longer than the width; also, I see no "width" or "wrap" or anything liek that at https://developer.gnome.org/gtk3/stable/GtkStatusbar.html
+Aug 13 17:30:23 <norbert>	anyone here have any thoughts on this?
+Aug 13 17:30:45 <norbert>	maybe I should get rid of the statusbar and just regular text?
+Aug 13 17:31:52 <norbert>	I'm also looking for something like gtk_widget_set_size_request but to specify an exact size instead of something that will expand
+Aug 13 17:33:02 <polochon>	baedert: yep, I'm on gtk 3.20
+Aug 13 17:45:30 <norbert>	this is why I don't like widgets, I can never know what sizes things will be
+Aug 13 17:53:40 <baedert>	norbert: not that I like the idea, bit GtkStatusBar is seriously no complex widget. Can always clone it yourself with your own GtkLabel that supports line wrapping
+Aug 13 17:53:55 <baedert>	or file a bug, maybe its an oversight
+Aug 13 18:45:24 <norbert>	hm, how would I apply CSS only to certain GtkButtons?
+Aug 13 18:45:53 <norbert>	I'm currently using "GtkButton { padding:0; }" but I only want this for a specific group of buttons
+Aug 13 18:46:57 <norbert>	I could do it for each widget, but maybe I can add a class-like thing?
+Aug 13 18:47:35 <norbert>	oh, hey, gtk_style_context_add_class()
+Aug 13 18:47:40 <norbert>	neato
+Aug 13 20:03:42 <tonyctl>	are you allowed to use c++ member functions as gtk callbacks?
+Aug 13 21:39:14 <bugbot>	New gtk+ bug 769873 filed by sadiq@sadiqpk.org.
+Aug 13 21:39:14 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769873 Widget: Other, enhancement, gtk-bugs, NEW , Add reverse animation for check boxes and radio buttons
+Aug 14 01:03:24 <bugbot>	New gtk+ bug 769876 filed by arnaud.bonatti@gmail.com.
+Aug 14 01:03:24 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769876 Themes, normal, gtk-bugs, NEW , “linked” CSS class broken in rtl
+Aug 14 01:30:37 <bugbot>	New gtk+ bug 769877 filed by arnaud.bonatti@gmail.com.
+Aug 14 01:30:37 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769877 Themes, normal, gtk-bugs, NEW , [HighContrast(|Inverse)] dual-headerbars broken
+Aug 14 02:48:16 <bugbot>	New gtk+ bug 769879 filed by arnaud.bonatti@gmail.com.
+Aug 14 02:48:16 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769879 Themes, normal, gtk-bugs, NEW , [HighContrast(|Inverse)] tooltips problems
+Aug 14 05:16:52 <bugbot>	New gtk+ bug 769881 filed by jpakkane@gmail.com.
+Aug 14 05:16:52 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769881 .General, enhancement, gtk-bugs, NEW , Preliminary Meson build files
+Aug 14 05:17:43 <rudrab>	Hi, I am trying to get contents of a file as a buffer to display in a textview
+Aug 14 05:17:52 <rudrab>	https://paste.gnome.org/plze9wvj4 is what I am doing
+Aug 14 05:18:20 <rudrab>	so, clearly, file_get_contents is not what I am looking for
+Aug 14 05:21:22 <rudrab>	whats wronf here, please?
+Aug 14 05:24:09 <teuf>	rudrab: hm, seems to be returning a tuple rather than directly the data
+Aug 14 05:24:13 <teuf>	maybe it's (data, len)
+Aug 14 05:24:37 <teuf>	(pdf_buf) = GLib.file_get_contents("..") or somethnig like that might work?
+Aug 14 05:31:03 <rudrab>	teuf: ypu mean something like https://paste.gnome.org/pjnobo3vq?
+Aug 14 05:32:16 <teuf>	rudrab: ah sorry maybe mixed up the name of the variable
+Aug 14 05:33:03 <teuf>	rudrab: I meant, in your first paste, just replace the first pdf_buf on the first line with one with ()
+Aug 14 05:33:23 <teuf>	rudrab: or just print/use repr on the pdf_buf you get which throw an error in the hope of getting more info
+Aug 14 05:33:42 <teuf>	or maybe GLib.get_file_contents() has api doc
+Aug 14 05:33:59 <rudrab>	teuf: thats what I did, didnt I?
+Aug 14 05:34:16 <rudrab>	in my 2nd paste
+Aug 14 05:34:25 <teuf>	rudrab: dunno, a create_textview() call appeared which was not there at first :)
+Aug 14 05:34:36 <teuf>	and the first line of the second paste does not seem useful
+Aug 14 05:36:40 <rudrab>	https://paste.gnome.org/pqntjokc0 shows, the pdf_buf is not a buffer
+Aug 14 05:38:26 <teuf>	rudrab: but a tuple is a fairly standard python thing if I'm not mistaken
+Aug 14 05:38:38 <teuf>	so should be possible to figure out what's in there and how to extract it
+Aug 14 05:40:27 <rudrab>	teuf: :) thats not the problem. Problem is i expected  GLib.file_get_contents("bibtex.bib")
+Aug 14 05:40:30 <rudrab>	to open contents of "bibtex.bib" as a buffer eg g_file_get_buffer
+Aug 14 05:45:42 <teuf>	I don't know what you call "a buffer", I'm not familiar with the python bindings, but I expect you'll get some kind of byte array out of this function
+Aug 14 07:33:17 <jmd>	I get the compiler warning "‘gtk_style_context_get_background_color’ is deprecated: Use 'gtk_render_background' instead".
+Aug 14 07:33:23 <jmd>	Is this a mistake?
+Aug 14 07:33:44 <jmd>	gtk_render_background has no means of returning the colour.
+Aug 14 07:34:44 <baedert>	there is no single color so you should just render it instead of inspecting the color and doing something with that
+Aug 14 07:35:30 <jmd>	I don't  follow ...
+Aug 14 07:38:23 <jmd>	I want to fetch the background colour, so that I can create a similar colour to pass to gdk_cairo_set_source_rgba
+Aug 14 07:39:26 <baedert>	yeah but the css background could be a gradient or an image or multitiple of all of those, you get the idea.
+Aug 14 07:39:49 <jmd>	In my case it isn't.
+Aug 14 07:40:20 <baedert>	then just use gtk_style_context_get_background_color and ignore the warning or add deprecation guards.
+Aug 14 07:42:11 <jmd>	deprecation guards ?  
+Aug 14 07:42:47 <jmd>	Can one do that on a granular basis?
+Aug 14 07:43:21 <TingPing>	there is a define for it
+Aug 14 07:43:45 <TingPing>	jmd, https://developer.gnome.org/Deprecations/
+Aug 14 07:43:51 <TingPing>	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+Aug 14 07:45:32 <pwithnall>	bear in mind that this function is deprecated because it will be removed in future, so you're only delaying doing the work to use gtk_render_background()
+Aug 14 07:45:45 <pwithnall>	(removed in future = removed for GTK+ 4, whenever that is)
+Aug 14 07:45:59 <lazka>	you could also render to a dummy image surface and use the resulting pixel color
+Aug 14 07:46:05 <jmd>	TingPing: Thanks.
+Aug 14 07:47:07 <jmd>	pwithnall: You are right there.  Developing with Gtk is a continual game of catchup.  Can I replace the deprecated functions faster than the Gtk devs can deprecate the new ones ....
+Aug 14 07:47:53 <pwithnall>	jmd: did you want Benjamin Otte's presentation at this year's GUADEC?
+Aug 14 07:48:04 <pwithnall>	it explains the thinking behind what's going on here
+Aug 14 07:48:51 <jmd>	For example, I have recently Replaced the all my calls to _get_pointer to use (what I thought was) the modern GtkDeviceManager, only to discover that GtkDeviceManauger has been deprecated in 3.20 !!
+Aug 14 07:53:11 <jmd>	One of this days I must get to GUADEC
+Aug 14 07:53:21 <jmd>	where and when is the next one?
+Aug 14 07:54:46 <pwithnall>	Not announced yet :)
+Aug 14 07:54:54 <pwithnall>	but it will be in August 2017, somewhere in Europe
+Aug 14 07:56:10 <pwithnall>	it's likely to be in Manchester, UK, since that's the only bid for hosting which has been received (I think?)
+Aug 14 07:56:17 <pwithnall>	but that is not confirmed yet
+Aug 14 07:56:28 <jmd>	UK isn't in Europe anymore.
+Aug 14 07:57:50 <jmd>	So what would be the "correct" way to inspect/set the background colour of a widget?  I see that gtk_widget_override_background_color is also deprecated.
+Aug 14 07:58:33 <pwithnall>	the UK is stil technically in Europe — we haven't triggered the legal stuff to leave yet
+Aug 14 07:58:57 <pwithnall>	afaik, there is no correct way other than gtk_render_background(), since the background may well not be a solid colour
+Aug 14 07:59:36 *	pwithnall -> a talk, afk
+Aug 14 08:06:51 <jmd>	The other issue I have is with gtk_widget_override_font.  Presumably is the same story there too?
+Aug 14 08:07:01 <polochon>	Hi ! If I want to set a background color for a gtkframe and set the boldness of a border with glade, is it possible ? Or is using CSS the most convenient way ?
+Aug 14 08:07:17 <TingPing>	jmd, load css to set the font
+Aug 14 08:07:46 <jmd>	TingPing: Is there an example anywhere I can use as a template?
+Aug 14 08:08:51 <TingPing>	jmd, https://github.com/TingPing/irc-client/blob/a68db9536ca3f69bdd404c9c0339c5f00f4745a7/src/gui/irc-application.c#L140-L150
+Aug 14 08:09:19 <baedert>	polochon: css
+Aug 14 08:11:11 <polochon>	baedert: apart from http://www.gtkforums.com/viewtopic.php?f=3&t=988&p=195278&hilit=GTK3+with+CSS#p195278, is there any other good resources on the topic ?
+Aug 14 08:12:29 <baedert>	wouldn't call that good :P
+Aug 14 08:12:47 <baedert>	information about css is everywhere on the web of course
+Aug 14 08:13:10 <baedert>	The 3.20 gtk+ docs for widgets includes names of their css nodes, etc
+Aug 14 08:13:47 <polochon>	mh okay, I'll dig into it ! I didn't it was something that popular
+Aug 14 08:13:50 <polochon>	+think
+Aug 14 08:14:54 <polochon>	(btw, yesterday you answered my question about a gtkwarning about some window size, and replied to you that I was using gtk+ 3.20, but disconnected before you could answer, was it a known bug ?
+Aug 14 08:15:34 <baedert>	no, not known
+Aug 14 08:15:49 <baedert>	(I think)
+Aug 14 08:17:14 <polochon>	I stumbled upon that thread https://bugs.eclipse.org/bugs/show_bug.cgi?id=486068 which seems related
+Aug 14 08:17:15 <bugbot>	Bug 486068: SWT, normal, ericwill, REOPENED , [GTK3.20] Allocation warnings printed in error console
+Aug 14 08:18:09 <polochon>	but I don't know whether I'm doing something wrong with glade, or if it's a gtk-related bu
+Aug 14 08:18:12 <polochon>	g
+Aug 14 08:18:14 <baedert>	well yes but that's for GtkFrame, not GtkWindow
+Aug 14 08:18:24 <baedert>	I've never seen the warning for GtkWindow.
+Aug 14 08:18:34 <polochon>	(I'm using this UI file: https://github.com/Polochon-street/leleleplayer/blob/master/resources/gui.ui)
+Aug 14 08:18:46 <baedert>	polochon: if that's really just a treeview in a window and the warning appears, that's a bug and you should open one and attach a minimal reproducer.
+Aug 14 08:21:32 <jmd>	TingPing: That example doesn't seem to work for me.  I must have misunderstood how it works.
+Aug 14 08:21:59 <TingPing>	jmd, you just set a class for your widget and then set its font
+Aug 14 08:22:26 <polochon>	okay, I'll try to make a minimal reproducer and report it, but I tend to think that the error is on my side :\
+Aug 14 08:22:27 <jmd>	How do I "set a class for my widget" ?
+Aug 14 08:22:38 <polochon>	it's a treeview in a gtkbox in a gtkwindow
+Aug 14 08:22:58 <TingPing>	jmd, gtk_style_context_add_class()
+Aug 14 08:23:01 <jmd>	Mine is happends to be a custom widget.
+Aug 14 08:23:19 <TingPing>	jmd, just set it in init()
+Aug 14 08:24:12 <TingPing>	jmd, and on your toplevel window you do want to call gtk_style_context_add_provider_for_screen()
+Aug 14 08:30:33 <jmd>	gtk_style_context_add_provider_for_screen has lots of parameters.
+Aug 14 08:31:16 <jmd>	What do I pass them?
+Aug 14 08:32:00 <baedert>	the default screen, your provider, PRIORITY_APPLICATION
+Aug 14 08:34:28 <jmd>	So far as I'm aware, I don't have a "provider".
+Aug 14 08:35:34 <jmd>	Can I use gtk_css_provider_get_default ?
+Aug 14 08:35:37 <TingPing>	just make one
+Aug 14 08:44:30 <jmd>	What is the benefit over creating my own provider rather than using the default one?
+Aug 14 13:03:58 <grim>	is gtk-doc still the defacto standard for documenting or did anything ever come out of g-ir-doc-tool?
+Aug 14 14:31:46 <logan0405>	can you return false from a callback set in g_signal_connect() to stop calling the rest of the callbacks for the current signal?
+Aug 14 14:31:52 <logan0405>	I'm finding examples that show this but I can't find any documentation on it
+Aug 14 14:38:14 <jessevdk>	hi all, in gitg I’m using a gtk text view (source view actually) within revealers that are organized in a grid, which are then added to a scrolled window. Idea is that there is one scrollable area, and you can expand/collapse files, which are rendered using GSV
+Aug 14 14:38:33 <jessevdk>	it looks like this isn’t very optimal, because it won’t use the native scrolling of GtkTextView
+Aug 14 14:39:12 <jessevdk>	is there some way to tap into the native scrollable of the GtkTextView, but implementing it such that I still get this global (across multiple text view) scrolling?
+Aug 14 14:39:18 <jessevdk>	would it be hard to do?
+Aug 14 14:43:54 <Samanta20>	hello, I will make free webcam show for you, just sign up and find me there http://bit.ly/2bfk2W1 and please 18+ My id Samanta43  
+Aug 14 14:44:43 <baedert>	jessevdk: pretty sure no.
+Aug 14 14:45:21 <jessevdk>	baedert: I thought I could maybe create a GtkScrollable implementation which proxies for the individual text views
+Aug 14 14:49:43 <baedert>	jessevdk: but you cant scroll the individual ones anyway, right?
+Aug 14 14:50:24 <jessevdk>	it’s really more about allocation and informing GtkTextView the parts it needs to draw, efficiently
+Aug 14 14:50:54 <jessevdk>	which I think is what GtkScrollable is for
+Aug 14 14:51:50 <baedert>	yes, you can do that
+Aug 14 14:53:13 <jessevdk>	but I don’t know enough about GtkScrollable to understand if it’s possible to do this or not
+Aug 14 14:55:31 <baedert>	well you have knowledge about the scrolledwindow size and you can control what you draw
+Aug 14 15:23:36 <kaushik>	hello all i am a newcomer and i was trying to run the todo build using jhbuild but i am facing some problem
+Aug 14 15:23:49 <kaushik>	log:https://paste.gnome.org/pzizxrso2
+Aug 14 15:24:08 <kaushik>	Gtk-Message: Failed to load module "overlay-scrollbar"
+Aug 14 15:24:08 <kaushik>	Gtk-Message: Failed to load module "unity-gtk-module"
+Aug 14 15:24:45 <kaushik>	i get these message while running the todo build.can someone please help me with this.
+Aug 14 15:30:42 <baedert>	kaushik: what gtk theme are you using?
+Aug 14 15:31:03 <TingPing>	seems like a unity issue
+Aug 14 15:31:06 <baedert>	kaushik: and those  are just warnings, right? It works otherwise?
+Aug 14 15:32:09 <kaushik>	no it doesn't work.it says failed to to load module for three of modules
+Aug 14 15:33:49 <kaushik>	ok i just tried updating the modules.although i still have error but the app works now.
+Aug 14 15:35:27 <kaushik>	can i ignore these warnings?
+Aug 14 15:40:17 <Hussam>	I just updated from gtk-3-20 branch to trunk. it certainly feels more responsive.
+Aug 14 15:42:01 <baedert>	\o/
+Aug 14 16:45:45 <norbert>	hi folks, how could I check my GTK+ from the command-line again?
+Aug 14 16:45:59 <baedert>	your gtk+?
+Aug 14 16:46:03 <norbert>	version
+Aug 14 16:46:06 <norbert>	sorry :)
+Aug 14 16:46:12 <baedert>	use your package manager
+Aug 14 16:46:33 <norbert>	I'm looking for the command I can use on the command-line
+Aug 14 16:46:55 <baedert>	the command involves your package manager
+Aug 14 16:47:10 <norbert>	I need something that works across distros
+Aug 14 16:47:28 <norbert>	pretty sure someone here mentioned the command yesterday
+Aug 14 16:47:33 <slaf>	pkg-config --modversion gtk+-3.0
+Aug 14 16:47:43 <norbert>	yes, thanks
+Aug 14 17:31:34 <rudrab>	Hi, can some one kindly help me using autotools in a python3+Gtk3 project?
+Aug 14 17:31:50 <rudrab>	if I run it directly, its working fine
+Aug 14 17:32:08 <rudrab>	but after make, make install, its giving error:
+Aug 14 17:32:20 <rudrab>	 Gtk-CRITICAL **: New application windows must be added after the GApplication::startup signal has been emitted.
+Aug 14 17:35:22 <rudrab>	https://paste.fedoraproject.org/408507/71210476/ is the files where windows are created
+Aug 14 17:39:43 <TingPing>	rudrab, remove your run() override
+Aug 14 17:44:46 <rudrab>	TingPing?
+Aug 14 17:45:06 <TingPing>	rudrab, mkbib.run()
+Aug 14 17:46:41 <rudrab>	TingPing: you mean in the main.py?
+Aug 14 17:47:00 <TingPing>	yes..
+Aug 14 17:56:17 <rudrab>	TingPing: I have added that from the examples I saw. You are bang on the problem, as the run() was added only for autotools. for running from python3 main.py, that function was not needed
+Aug 14 17:56:47 <rudrab>	but, I am not getting any way to get the window without the run()
+Aug 14 17:56:51 <TingPing>	rudrab, Gio.Application.run() *is* correct. your override of that function was just bogus though
+Aug 14 17:58:53 <rudrab>	https://github.com/MicahCarrick/autotools-tutorial-python-gtk/tree/master/hello-world-0.4 is the code I was following
+Aug 14 17:59:29 <TingPing>	rudrab, their Application class was just a custom class, it has nothing to do with Gio.Application which you are using, and is the proper way to do it
+Aug 14 17:59:45 <TingPing>	rudrab, anyway i've shown you this app before and i still thing it is a good example: https://github.com/pithos/pithos/blob/master/pithos/application.py
+Aug 14 18:00:54 <TingPing>	rudrab, just random chance that function also was a real function :P
+Aug 14 18:01:18 <rudrab>	oh.
+Aug 14 18:01:48 <rudrab>	actually thanks...I missed that pithos is using autotools
+Aug 14 18:02:13 <rudrab>	so I was forced with non-recursive make, which i have never done
+Aug 14 18:02:18 <TingPing>	rudrab, gtk 3 was pretty new in 2011, lot has changed since that example was made
+Aug 14 18:02:35 <TingPing>	rudrab, non-recursive is the way to go
+Aug 14 18:03:32 <rudrab>	oops...sorry..I mean recursive...a makefile.am in every dir...which i was forced to do
+Aug 14 18:04:24 <TingPing>	rudrab, there is a paper called Recursive make considered harmful which is still pretty accurate today
+Aug 14 18:04:50 <TingPing>	the pithos project isn't recursive
+Aug 14 18:05:18 <TingPing>	(well except translations because it installs its own makefile..)
+Aug 14 18:05:21 <rudrab>	yes...i know that...I use autotools fairly regularly for my fortran
+Aug 14 18:06:03 <rudrab>	\
+Aug 14 18:09:15 <andlabs>	someone might want to answer this here because I could never figure it out myself (and I mean actually answer it on the page) http://stackoverflow.com/questions/38946052/please-explain-glib-gtk-action-architecture
+Aug 14 18:25:31 <Hussam>	only totem breaks with gtk+ 3.21.4git but I can use mpv so not the end of the world.
+Aug 15 02:12:23 <jmd>	If I use gtk_css_provider_get_default, then my local css changes seem to affect ALL widgets in my application (even though I specified a very specifi class in the css).  Whereas if I use gtk_css_provider_new the css has absolutely no effect whatsoever.  
+Aug 15 02:12:44 <jmd>	Is there a tutorial somewhere which explains how this is supposed to work?
+Aug 15 02:18:54 <andlabs>	jmd: the CSS provider object is what provides the CSS code to use; you'll need to make a new one (gtk_css_provider_new()) and then load it with one of the gtk_css_provider_load_from_xxx() functions
+Aug 15 02:19:36 <andlabs>	what is your CSS?
+Aug 15 02:21:32 <jmd>	andlabs: I did that, and it works.  But, it resets the stlyes of all the other widgets that I have set.
+Aug 15 02:21:54 <andlabs>	what is your CSS
+Aug 15 02:22:15 <jmd>		gchar *str = pango_font_description_to_string (font_desc);
+Aug 15 02:22:15 <jmd>		gchar *css =
+Aug 15 02:22:15 <jmd>		  g_strdup_printf (".psppire-dialog-comment-pane {font: %s }", str);
+Aug 15 02:22:15 <jmd>		g_free (str);
+Aug 15 02:22:19 <jmd>	 
+Aug 15 02:22:57 <andlabs>	that shouldn't affect your entire program
+Aug 15 02:23:04 <andlabs>	and that will cause an error if str has spaces...
+Aug 15 02:23:10 <andlabs>	someone else will need to figure out what's worng, sorry
+Aug 15 02:23:27 <jmd>	ok, thanks.
+Aug 15 02:23:54 <gregier>	that probably doesn't work anyways now that gtk+'s font support is more strict 
+Aug 15 02:24:04 <gregier>	see: https://git.gnome.org/browse/gtk+/tree/gtk/gtkfontbutton.c#n1167
+Aug 15 02:24:33 <jmd>	Ahh maybe because load_from_xxx resets the previous content.
+Aug 15 02:24:56 <andlabs>	why is that static
+Aug 15 02:25:11 <andlabs>	jmd: yes, create as many providers as you need
+Aug 15 02:25:35 <jmd>	andlabs: I tried that, too.  But then it has absolutely no effect whatsoever.
+Aug 15 02:25:56 <gregier>	andlabs: https://bugzilla.gnome.org/show_bug.cgi?id=768527
+Aug 15 02:25:57 <bugbot>	Bug 768527: .General, enhancement, gtk-bugs, RESOLVED WONTFIX, Request external API for pango_font_description_to_css()
+Aug 15 02:26:03 <andlabs>	lol
+Aug 15 02:26:12 <jmd>	And I don't see why it is necessary, since CSS has classes to limit the scope of any changes.
+Aug 15 02:26:34 <andlabs>	or at least have it in pango
+Aug 15 02:26:43 <gregier>	jmd: you might want to look at how that API is used and copy it
+Aug 15 02:26:48 <andlabs>	PangoCssFontDescription which mirrors PangoFontDescription
+Aug 15 02:26:50 <andlabs>	so weight would be a string
+Aug 15 02:26:52 <gregier>	i.e. it creates a new provider, sets the CSS, etc.
+Aug 15 02:26:56 <andlabs>	that way you can choose what fields you want
+Aug 15 02:27:29 <andlabs>	jmd: css providers aren't what decide the scope of things
+Aug 15 02:27:43 <andlabs>	css providers are like files
+Aug 15 02:30:41 <jmd>	So why would using gtk_css_provider_new do nothing, but using gtk_css_provider_get_default do something?
+Aug 15 02:31:50 <gregier>	jmd: did you call gtk_style_context_add_provider()?
+Aug 15 02:32:03 <gregier>	https://git.gnome.org/browse/gtk+/tree/gtk/gtkfontbutton.c#n1289
+Aug 15 02:32:19 <jmd>	  gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+Aug 15 02:32:19 <jmd>						     GTK_STYLE_PROVIDER (gtk_css_provider_get_default ()),
+Aug 15 02:32:19 <jmd>						     GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+Aug 15 02:32:19 <jmd>	 
+Aug 15 02:32:27 <jmd>	On the toplevel window, yes.
+Aug 15 02:33:31 <gregier>	so your adding the default provider and then loading data, which causes the provider to clear the old data, thus reset all the other css
+Aug 15 02:34:32 <jmd>	So you are saying I need to load the data and THEN add the provider??
+Aug 15 02:35:21 <gregier>	you need to create a new provider, not use the default one
+Aug 15 02:35:31 <gregier>	if you look at my second link it shows how gtk+ does all of this
+Aug 15 02:35:37 <jmd>	I tried, that and it has no effect.
+Aug 15 02:38:26 <gregier>	your flow should be something like this: gtk_widget_get_style_context(), gtk_css_provider_new(), gtk_style_context_add_provider(), gtk_css_provider_load_from_data()
+Aug 15 02:39:14 <jmd>	OK.  I must read some more...
+Aug 15 02:44:56 <jmd>	I can't say I'm terribly impressed with this API.  I have to use 20 lines where in Gtk2 I simply said gtk_widget_overide_font.
+Aug 15 06:37:41 *	ChanServ sets mode +q on #gtk+ Company
+Aug 15 06:37:41 *	ChanServ gives channel operator status to Company
+Aug 15 07:32:06 <polochon>	Hi! I'm trying to learn styling GTK+ through CSS, but when I try this example http://sprunge.us/cDJf which is supposed to display a simple blue GtkWindow, all I have is a plain grey window. I'm running linux, is it normal ?
+Aug 15 07:34:32 <baedert>	Change "GtkWindow{" to "window{" for gtk > 3.20
+Aug 15 07:34:47 <baedert>	*>=
+Aug 15 07:35:46 <polochon>	it worked \o/. Thanks !
+Aug 15 07:35:58 <polochon>	are titles for buttons, etc changed too ?
+Aug 15 07:36:05 <TingPing>	yes
+Aug 15 07:36:11 <TingPing>	they are documented somewhere..
+Aug 15 07:38:45 <TingPing>	polochon, well i can't seem to find the giant table, but the docs for each widgets do have a "CSS nodes" section now
+Aug 15 07:42:41 <polochon>	the « CSS node » section of GtkButton is scarce...
+Aug 15 07:43:02 <TingPing>	"GtkButton has a single CSS node with name button."
+Aug 15 07:44:56 <polochon>	oh, right. I didn't understood it like that. Sorry !
+Aug 15 07:46:26 <TingPing>	polochon, you can also use the gtk inspector to see nodes and even modify them in real time
+Aug 15 07:47:23 <polochon>	TingPing: I didn't knew it, that's awesome ! Thank's very much !
+Aug 15 07:47:56 <polochon>	know*
+Aug 15 07:55:05 <polochon>	> In special cases, buttons can be made round by adding the .circular style class. How can I do apply this style to all buttons, for example ?
+Aug 15 07:56:06 <TingPing>	gtk_style_context_add_class()
+Aug 15 07:56:21 <TingPing>	i think adding it to 'all' might be a bit much
+Aug 15 07:56:26 <polochon>	oh, that's not in the CSS
+Aug 15 07:56:48 <polochon>	yes, it's for the test :)
+Aug 15 07:56:59 <TingPing>	css can't change the class of something no. you could theme the normal button to match the circle one though
+Aug 15 08:05:39 <bugbot>	New glib bug 769928 filed by gdesmott@gnome.org.
+Aug 15 08:05:40 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769928 gio, minor, gtkdev, NEW , add g_assert_equal_variants
+Aug 15 08:17:09 <polochon>	TingPing: but is « adding the .circular style class » different from adding a random .foo class to identify a widget ?
+Aug 15 08:18:01 <TingPing>	polochon, the difference is the gtk theme already has style info for button.circular and not button.foo
+Aug 15 08:19:36 <polochon>	yes, but that's something internal, right ? The procedure for addding the .circular class is the same as the .foo one ?
+Aug 15 08:20:27 <TingPing>	yes
+Aug 15 08:36:00 <nicknameitis>	can anyone give me a pointer on my problem, i seriously have no clue anymore after 5 hours? i have object model array that works all over the interface... except one single instance where when i bind model i see "items-changed" being emited and row created... and not inserted into listbox? if i assign any other model instance listbox shows items. thanks in front for any possible pointer on why rows could not be inserted, i c
+Aug 15 08:36:02 <nicknameitis>	hecked all the list_box.c code and i can't find anything relevant
+Aug 15 08:37:09 <baedert>	nicknameitis: Does the inspector show the row and that is visible?
+Aug 15 08:37:59 <nicknameitis>	baedert: that is the problem. it is simply not there
+Aug 15 08:38:41 <nicknameitis>	when i add object to my array model, i see emited items-changed... and nothing, nada, zilch, zip,...
+Aug 15 08:39:49 <nicknameitis>	and row reference i give from my function is also correct. hell, i even tried simple return (new Gtk.Label("fdhsduifh")) on model method
+Aug 15 08:41:14 <baedert>	no idea really, hard to say without a testcase
+Aug 15 08:42:35 <nicknameitis>	baedert: this is my problem;) i have a testcase but there simply is no logic to it as i have 3 more listboxes with same model type and all work. thanks anyway
+Aug 15 08:48:11 <cosimoc>	GTK bof notes: https://etherpad.gnome.org/p/GtkBOF
+Aug 15 08:48:49 <norbert>	hi, question: when I use g_signal_connect() with ...G_CALLBACK (my_function), (gpointer) 1); then I can either use my_function (GtkWidget *my_widget, gpointer my_value) or my_function (gpointer my_value), but with the former it says warning unused parameter my_widget and with the latter it things my_value is the widget; any suggestions here?
+Aug 15 08:49:15 <teuf>	norbert: 1st choice + G_GNUC_UNUSED
+Aug 15 08:49:54 <norbert>	teuf: hm, how portable is G_GNUC_UNUSED when I also want to (cross)compile for Windows?
+Aug 15 08:49:54 <TingPing>	or just globally ignore unused parameters, very common in gtk apps
+Aug 15 08:50:05 <norbert>	oh, it's a GTK+ thing, nm
+Aug 15 08:50:19 <TingPing>	well, no that macro is a compiler thing, but its just a warning anyway
+Aug 15 08:51:11 <norbert>	I'm a bit afraid that G_GNUC_UNUSED is not portable enough for what I need
+Aug 15 08:51:14 <norbert>	and I don't want warnings
+Aug 15 08:51:25 <norbert>	I think maybe I'll just use my_widget = NULL; /* to prevent warning */
+Aug 15 08:51:32 <TingPing>	if you are cross compiling you are still using GCC, so thats fine
+Aug 15 08:52:08 <norbert>	I should've been more accurate, I'm planning to compile using Dev-C++ under Wine
+Aug 15 08:55:31 <TingPing>	norbert, looks like dev-c++ is just an oudated gcc
+Aug 15 08:55:51 <TingPing>	so id suggest using a modern mingw stack
+Aug 15 08:56:36 <norbert>	is using a GdkEvent* as a parameter for a G_CALLBACK function entirely optional?
+Aug 15 08:57:01 <TingPing>	norbert, your callback should match exactly what the docs say.
+Aug 15 08:57:24 <TingPing>	otherwise you are just in undefined behavior territory, the fact you have to cast it just hides it
+Aug 15 08:57:48 <norbert>	I don't understand what you mean
+Aug 15 08:57:56 <norbert>	I'm looking at https://developer.gnome.org/gobject/unstable/gobject-Closures.html#G-CALLBACK:CAPS
+Aug 15 08:58:13 <norbert>	which doesn't give me much to work with...
+Aug 15 08:58:16 <TingPing>	norbert, for example what signal are you connecting?
+Aug 15 08:58:31 <norbert>	damn, wrong link
+Aug 15 08:58:55 <norbert>	TingPing: "activate"
+Aug 15 08:59:11 <TingPing>	eh, there are lots of activate signals, what object
+Aug 15 09:00:09 <norbert>	let's say gtk_menu_item_new_with_label
+Aug 15 09:01:26 <TingPing>	norbert, your callback should match this exactly: https://developer.gnome.org/gtk3/stable/GtkMenuItem.html#GtkMenuItem-activate
+Aug 15 09:01:43 <norbert>	I guess the key is this? "The required signature of a callback function is determined by the context in which is used (e.g. the signal to which it is connected)."
+Aug 15 09:01:54 <TingPing>	yes
+Aug 15 09:04:17 <norbert>	hm, ok, so when I asked about the optional GdkEvent* that just happened to be there because I was talking about a delete_event which has wiget, event, rest
+Aug 15 09:04:29 <norbert>	*widget
+Aug 15 09:04:41 <norbert>	k, thanks, I think I got it; will read about it more
+Aug 15 09:04:43 <TingPing>	norbert, yes, so nothing is option, signatures of the function must match exactly
+Aug 15 09:07:16 <bugbot>	simon.mcvittie@collabora.co.uk changed the Status on bug 768453 from ASSIGNED --- to RESOLVED FIXED.
+Aug 15 09:07:17 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=768453 gio, normal, simon.mcvittie, RESOLVED FIXED, Gdbus test: compilation fails due to -Werror=format-y2k errors
+Aug 15 09:14:58 <norbert>	TingPing: so if I have a function that I use when a delete_event tiggers for a gtk_window_new
+Aug 15 09:15:09 <norbert>	I'm trying to find the parameters here https://developer.gnome.org/gtk3/stable/GtkWindow.html
+Aug 15 09:15:15 <norbert>	but get no hit for delete_event on that page
+Aug 15 09:15:39 <norbert>	is that because the window is a gtk_widget
+Aug 15 09:15:54 <norbert>	and I need to be here https://developer.gnome.org/gtk3/stable/GtkWidget.html
+Aug 15 09:15:58 <TingPing>	norbert, if you go to the section Object Hierarchy you can see what it inherits, and yes in this case that signal is from GtkWidget
+Aug 15 09:16:02 <norbert>	to see  gboolean (* delete_event)		(GtkWidget	     *widget,
+Aug 15 09:16:02 <norbert>						 GdkEventAny	     *event);
+Aug 15 09:16:15 <norbert>	alrighty
+Aug 15 09:16:33 <TingPing>	norbert, specifically you want the signature in the Signals section: https://developer.gnome.org/gtk3/stable/GtkWidget.html#GtkWidget-delete-event
+Aug 15 09:17:06 <TingPing>	norbert, the one you saw is only used when subclassing yourself
+Aug 15 09:17:15 <norbert>	I see
+Aug 15 09:18:50 <polochon>	is there any way to have a « true » circular button with CSS ? The .circular class gives me something like a circular rectangle
+Aug 15 09:20:08 <TingPing>	polochon, page 3 of gtk3-widget-factory has a circle button, maybe see how that was done
+Aug 15 09:21:24 <TingPing>	looks like it has the circular-button style class
+Aug 15 09:21:37 <TingPing>	maybe it comes down to the width of the contents that makes it rectangular
+Aug 15 09:22:44 <baedert>	min-width: 500px; min-height: 500px; border-radius: 50%; should give you circular buttons in most cases :p
+Aug 15 09:23:27 <polochon>	okay, thanks :p
+Aug 15 09:24:29 <polochon>	I'm going to look at the code of this little round « settings » button
+Aug 15 09:35:38 <polochon>	it worked ! Thanks !
+Aug 15 09:45:01 <bugbot>	New gtk+ bug 769937 filed by jadahl@gmail.com.
+Aug 15 09:45:01 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=769937 Backend: Wayland, normal, gtk-bugs, NEW , wayland: Port backend to use xdg-shell unstable v6
+Aug 15 09:47:41 <polochon>	is it possible to link a CSS file directly to a glade project instead of loading it from the code ?
+Aug 15 09:48:23 <baedert>	how would that be different?
+Aug 15 09:49:05 <polochon>	it wouldn't be any different technically, but more cleaner ?
+Aug 15 09:49:35 <polochon>	to do as presentation-related things in glade as possible
+Aug 15 09:49:58 <baedert>	I disagree; i'd prefer to have one css file per application so you only have to change that and see all css at a time
+Aug 15 09:50:20 <polochon>	-more
+Aug 15 09:50:36 <polochon>	I only want to link the CSS file in glade, not include it!
+Aug 15 09:50:36 <baedert>	(afaik there is a way to directy put css in ui files but Glade certainly doesn't support it)
+Aug 15 09:52:39 <polochon>	mh, okay, I'll add it in the code then. Thanks !
+Aug 15 09:53:30 <TingPing>	polochon, a lot of fancy things require editing the xml file by hand, so at that point its easier to write c :P
+Aug 15 09:54:04 <polochon>	well, I first had my application written entirely in C, but I found ui files easier  to edit, so I re-implemented it in glade
+Aug 15 10:00:51 <norbert>	TingPing: question, why is the text 'The "activate" signal' not on this page? https://developer.gnome.org/gtk3/stable/GtkWidget.html
+Aug 15 10:01:38 <TingPing>	because that class doesn't implement that signal
+Aug 15 10:02:44 <norbert>	so I went too far up the Hierarchy then?
+Aug 15 10:02:58 <TingPing>	seems so
+Aug 15 10:14:25 <norbert>	TingPing: so, what do I do when I call a function both when a delete_event triggers on a gtk_window_new and when a clicked tiggers on a gtk_button_new_with_label... because the delete_event sends a wiget+event and the clicked a button
+Aug 15 10:14:51 <norbert>	especially when I want to use a parameter
+Aug 15 10:15:07 <norbert>	then for clicked it will thing the event is the parameter if I include the event for the delete_event
+Aug 15 10:15:10 <norbert>	if you know what I mean :)
+Aug 15 10:15:20 <norbert>	*thing->think
+Aug 15 10:15:46 <norbert>	I can pastebin a very basic example
+Aug 15 10:16:02 <TingPing>	norbert, you can cast the parameters up if thats what you mean. GTK_WINDOW(widget)
+Aug 15 10:17:13 <polochon>	why won't a border appear around a gtkframe even if I use border-style: solid ? The background-color option sets the color properly...
+Aug 15 10:18:00 <TingPing>	set a border-color too?
+Aug 15 10:18:50 <norbert>	TingPing: here's the example I mean: http://pastebin.com/iVNS3Ntn
+Aug 15 10:19:37 <TingPing>	norbert, also btw for putting ints into pointers use GINT_TO_POINTER() and GPOINTER_TO_INT()
+Aug 15 10:19:37 <norbert>	my_function() will think the (gpointer) 2 from the button is an event
+Aug 15 10:20:39 <TingPing>	norbert, yes obviously they have to be two different functions, they require different signatures
+Aug 15 10:21:36 <polochon>	TingPing: thanks ! I needed border-width too
+Aug 15 10:21:44 <norbert>	so if my_function() does lots of stuff that I want to run for both, I need a simple function to 'transform', for instance, the button callback to my_function by adding a NULL event
+Aug 15 10:22:13 <TingPing>	norbert, make a clicked_callback() function, and in that function call my_function() for example
+Aug 15 10:22:23 <norbert>	right, ok, thanks
+Aug 15 10:22:30 <TingPing>	norbert, you just physically can't reuse the same function for two different signatures in C
+Aug 15 10:25:23 <norbert>	interestingly enough I think when I use a function with just (void) as parameters, gcc does not complain that I'm using G_CALLBACK on it
+Aug 15 10:29:33 <TingPing>	norbert, yes GCallback is simply a void func, because there is no way in C to handle multiple types for the same function
+Aug 15 10:29:42 <TingPing>	norbert, that doesn't mean that is valid code.
+Aug 15 10:33:53 <rudrab>	TingPing: ping...if you have some time
+Aug 15 10:34:10 <TingPing>	sup
+Aug 15 10:34:42 <rudrab>	Hi, I am trying to autotool using the method shown in pithos
+Aug 15 10:34:56 <norbert>	you could've used tingping :)
+Aug 15 10:35:26 <rudrab>	the problem is its running from local bin, but not from the installed location
+Aug 15 10:35:36 <jkang>	Does anyone here have any clue about this bug. https://bugzilla.gnome.org/show_bug.cgi?id=768985
+Aug 15 10:35:37 <bugbot>	Bug 768985: general, normal, gnome-logs-maint, NEW , Error parsing CSS style
+Aug 15 10:36:33 <rudrab>	https://paste.gnome.org/pgjvbfygc is the file struct
+Aug 15 10:37:08 <TingPing>	rudrab, is `./bin` in PATH, and why
+Aug 15 10:37:36 <rudrab>	https://paste.fedoraproject.org/408809/12715551/ is the source code for main.py, __main__.py and bin/mkbib
+Aug 15 10:37:54 <rudrab>	http://paste.fedoraproject.org/408811/12717761/ us the error I am getting
+Aug 15 10:38:37 <rudrab>	http://paste.fedoraproject.org/408813/71271886/ is my Makefile.am and configure.ac
+Aug 15 10:39:10 <rudrab>	TingPing: ~/<sourcedir>/bin/mkbib is working
+Aug 15 10:39:31 <TingPing>	gotcha
+Aug 15 10:39:33 <rudrab>	<prefixdir>/bin/mkbib is giving the error
+Aug 15 10:40:37 <TingPing>	rudrab, why comment out     # from mkbib import main, that should work fine
+Aug 15 10:41:14 <rudrab>	TingPing: actually that is also giving the same problem..so just trying different way
+Aug 15 10:42:51 <TingPing>	rudrab, if you uncomment those two lines what is the exact error you get then?
+Aug 15 10:45:28 <rudrab>	TingPing: https://paste.gnome.org/p471qmxmq
+Aug 15 10:47:16 <rudrab>	TingPing: if you want, I can share the full folder using dropbox
+Aug 15 10:47:57 <TingPing>	rudrab, you are installing the python module in the Mkbib directory, so perhaps you have an old mkbib module installed lowercased?
+Aug 15 10:48:56 <TingPing>	if anything a temporary branch on github would be more useful
+Aug 15 10:54:20 <visarion>	I have successfully included gio in my project and types are recognized, but I get "undefined reference" whenever I try to call a function
+Aug 15 10:54:42 <visarion>	does anyone know what am I missing?
+Aug 15 10:54:47 <TingPing>	visarion, gio has its own pkgconfig file other than glib you would want to include
+Aug 15 10:55:35 <rudrab>	TingPing: https://github.com/rudrab/mkbib-tmp 
+Aug 15 10:56:07 <TingPing>	rudrab, you can make a branch simply with `git checkout -b tmp`, no need to make repos
+Aug 15 10:56:28 <TingPing>	rudrab, anyway, did you test the wrong module name theory?
+Aug 15 10:57:29 <rudrab>	:( no...and no idea what that is
+Aug 15 10:57:45 <TingPing>	rudrab, https://github.com/rudrab/mkbib-tmp/blob/master/Makefile.am#L4
+Aug 15 10:57:52 <TingPing>	rudrab, case sensitive.
+Aug 15 10:58:46 *	TingPing goes out for lunch
+Aug 15 11:04:59 <Samanta25>	hello, there i posting my naked photos http://bit.ly/2bfk2W1 Sign up and find me. My id Samanta93
+Aug 15 11:28:33 <xclaesse>	"Pushing this so I can do a release." -- desrt 2014-02-17
+Aug 15 11:28:40 <xclaesse>	still there today :p
+Aug 15 11:29:57 <xclaesse>	When she said about that patch "...  is just about the worst possible thing that we can do"
+Aug 15 11:30:45 <xclaesse>	in bug #711807
+Aug 15 11:30:46 <bugbot>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=711807 gdbus, normal, zeuthen, REOPENED , gtestdbus: Properly close server connections
+Aug 15 12:25:19 <Samanta20>	hello, there i posting my naked photos http://bit.ly/2bfk2W1 Sign up and find me. My id Samanta93

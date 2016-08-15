@@ -52,7 +52,7 @@ export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 #############
 
 # temp:
-alias swt_webkit="set -x && ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$"
+alias swt_webkit="set -x && ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$ && set +x"
 
 # .. cd 
 alias ..="cd .. && pwd"
@@ -65,27 +65,53 @@ alias rbrc="source ~/.bashrc"
 # a
 alias a="alias"
 alias ag="alias | g"
-
+# b
 # c 
+alias cd-swtbuild.sh="cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
+
 alias cut1="cut -f1 -d ' '"
+alias lez="less -E"
 
 # d - dnf
 alias sdi="sudo dnf install" #Sudo dnf install
 alias sdla="sudo dnf list available"
-
+# e
+# f
 # g - Git, grep 
 alias g="grep -i"
 alias gs="git status"
 alias grh="git reset --hard"
-
+alias ggu="git add . && git commit -m 'general update' && git push"
+alias not="grep -iv"
+# h
+# i
+# j
+# k
 # l
 alias la="ll -a"
 
 # m
 alias man="man -P most"
+alias make=colormake
+
+# n
+# o
+# p
+# q
+# r
+alias rc="referenceGenerator.sh | toclip"
+
+# s
+alias startssh="systemctl start sshd.service"
+alias stopssh="systemctl stop sshd.service"
+# t
+# u
 # v
 alias vpn="sudo vpnc" 
 alias v="vim"
+# w
+
+
 #################
 ## User functions
 #################

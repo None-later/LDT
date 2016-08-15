@@ -788,3 +788,370 @@ Aug 08 10:46:55 <rgrunber>	xcoulon: sure. btw is this something you've written f
 Aug 08 10:47:18 <xcoulon>	rgrunber: nope, I wrote it from scratch
 Aug 08 10:47:47 <rgrunber>	i might look at other projects that have done it to ensure we support all possible codes.
 Aug 08 10:49:24 <rgrunber>	i mean specifically for things like colours, or really uncommon codes.
+Aug 08 11:55:01 <rgrunber>	mbooth: thanks for offering hope in that automated testing bug. i'm interested to discover what's causing reconciler to take 10min to decide to do (i hope) nothing but if disabling it is an option we can probably discuss.
+**** BEGIN LOGGING AT Mon Aug  8 11:57:54 2016
+
+Aug 08 11:57:54 *	Now talking on #eclipse
+Aug 08 11:57:54 *	Topic for #eclipse is: Eclipse discussions
+Aug 08 11:57:54 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 08 11:57:58 <mbooth>	rgrunber: The plan ought to be to stop supporting dropins in Fedora in some future release...
+**** BEGIN LOGGING AT Mon Aug  8 12:01:22 2016
+
+Aug 08 12:01:22 *	Now talking on #eclipse
+Aug 08 12:01:22 *	Topic for #eclipse is: Eclipse discussions
+Aug 08 12:01:22 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 08 12:01:31 <mbooth>	rgrunber: Good question :-)
+Aug 08 12:09:09 <mbenitez>	you can consider this release a major so no commitments to backwards functionality if that helps
+Aug 08 12:12:53 <rgrunber>	yeah, i guess we can just disable it in the worst case. Figuring out the real issue becomes a bit of a bonus, assuming ptp migration to droplets goes smoothly.
+Aug 08 17:38:58 *	fuhbot gives channel operator status to palves
+Aug 09 10:13:22 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Tue Aug  9 10:13:22 2016
+
+**** BEGIN LOGGING AT Tue Aug  9 10:13:34 2016
+
+Aug 09 10:13:34 *	Now talking on #eclipse
+Aug 09 10:13:34 *	Topic for #eclipse is: Eclipse discussions
+Aug 09 10:13:34 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 09 10:32:27 <mbenitez>	akazakov, hi, are you joining the call?
+Aug 09 10:32:50 <mbenitez>	nvm :)
+Aug 09 10:38:41 <vkadlcik>	mbenitez: and others on the meeting: i'm sorry but my connection is full of dropouts
+Aug 09 10:39:06 <vkadlcik>	was there a question on me?
+Aug 09 10:48:45 *	fuhbot2 gives channel operator status to patrickm
+Aug 09 10:56:52 *	fuhbot gives channel operator status to patrickm_
+Aug 09 11:05:16 <mbooth>	vkadlcik: I don't think you will have missed anything vital, there was mostly just talk about BZ/Jira integration :-)
+Aug 09 11:05:33 <rgrunber>	mbooth: so about the p2_feature_curl part, i'm guessing that currently doesn't pick up transitive dependencies.. ie only stuff that's a direct dep of the feature ?
+Aug 09 11:05:54 <vkadlcik>	mbooth: thanks
+Aug 09 11:07:49 <mbooth>	rgrunber: Yes -- but I did add an option to download a "whole" update site (i.e. if you don't specify a feature it lists all IUs with a jar payload and downloads everything)
+Aug 09 11:08:18 <rgrunber>	mbooth: yup, i think i saw it in the updated version.
+Aug 09 11:08:31 <nboldt>	mbenitez: mbooth: https://issues.jboss.org/browse/JBIDE-22966
+Aug 09 11:08:53 <nboldt>	If I missed anything important or screwed anything up, please edit the JIRA or throw comments on it
+Aug 09 11:10:12 <rgrunber>	i mentioned it before a bit but was thinking of changing that to call the p2 director to install the feature.group iu (with empty profile specified). this way script only needs to specify the main p2 repo, and the locatin of other repos for which platform/additional content exists. from there we just remove the additional content and are left with just the jars needed from the main repo.
+Aug 09 11:10:43 <rgrunber>	added benefit would be that it should support composites since director takes care of it.
+Aug 09 11:11:09 <mbenitez>	nboldt, thank you! I had it in my TODO to file the issue as you requested :)
+Aug 09 11:11:33 <nboldt>	rgrunber: I'm going to be doing something very similar for the rh-eclipse46-devstudio rpm creation
+Aug 09 11:11:41 <nboldt>	rgrunber: we should combine forces :D
+Aug 09 11:12:13 <nboldt>	mbenitez: 
+Aug 09 11:12:50 <nboldt>	mbenitez: one question ... not sure I'll be able to get this written this week as well as getting the RPM stuff prototyped. I'm going to assume bzira scrape is less important than rpm creation
+Aug 09 11:13:12 <mbenitez>	vkadlcik_gone, thank you for joining!
+Aug 09 11:14:46 <rgrunber>	nboldt: yeah, so the problem i want to address is that generally features don't include *everything* they need, so for linuxtools.docker you probably won't get jersey*,jnr*,jackson* even though they should be in the droplet.
+Aug 09 11:15:37 <nboldt>	ah, then the feature owner should revamp the feature (or better, its plugins) to proeprly declare dependencies and versions
+Aug 09 11:15:49 <nboldt>	don't fix this in your tool. make the projects upstream behave correctly :D
+Aug 09 11:15:59 <nboldt>	rgrunber: ^
+Aug 09 11:16:42 <rgrunber>	nboldt: well, not really, because that's how features work. a feature just says "these are things i'm providing that i own".. it would kinda be abusing osgi if you decided to include everything needed.
+Aug 09 11:17:17 <mbooth>	Eclipse features are an abuse of OSGi anyway :-p
+Aug 09 11:17:38 <rgrunber>	i mean if you ran the director it works fine.. problem is when you query a feature for its dependencies, you'll only get the immediate plugins.. not all deps recursively.
+Aug 09 11:17:43 <nboldt>	rgrunber: MANIFEEST.MF in plugins are SUPPOSED to define their deps
+Aug 09 11:18:16 <nboldt>	feature is a more loose definition of requirements but you can certainly set includes AND deps in feature.xml
+Aug 09 11:18:39 <nboldt>	best practices says to do the dep declaration in the plugins, but if there's a good reason to move that into the feature, it can be done there too
+Aug 09 11:18:43 <nboldt>	(or instead)
+Aug 09 11:19:11 <mbooth>	I think you are agreeing with one another...
+Aug 09 11:19:13 <nboldt>	tldr, the problem is in the upstream plugins' MANIFEST.MF files. Fix those and your tools will work correctly
+Aug 09 11:19:37 <rgrunber>	yeah.. so that's what i'm getting at.. if we just call the director, we'll get what we need.
+Aug 09 11:21:00 <rgrunber>	what we're doing now is getting just the feature.group requirements.. and stopping there.. or downloading the entire repo, which i guess would assume the repo is a 1-1 mapping with the droplet content.. which again might not be true upstream.
+Aug 09 11:23:17 <nboldt>	exactly. director (or p2.mirror) is better than whatever else you're using as it doesn't read p2 metadata
+Aug 09 11:23:25 <nboldt>	it = whatever else
+Aug 09 11:23:56 <nboldt>	director will install things (unpack jars); p2.mirror will simply copy them as is
+Aug 09 11:23:59 <rgrunber>	nboldt: well the feature getting thing works in some special cases (feature defines everything needed, entire p2 repo is the droplet)
+Aug 09 11:27:06 <rgrunber>	nboldt: i mean i don't mind working on this if i can get some time.. i had something written up, but unless you're already working on it..
+Aug 09 11:29:14 <nboldt>	I need to (re)create a script that can, for a list of features, produce an update site
+Aug 09 11:29:33 <nboldt>	I think that might be a different usecase than you if you're using director to unpack the features
+Aug 09 11:31:04 <rgrunber>	nboldt: so given an update site and list of features, it produces a more compact update site ?..
+Aug 09 11:31:15 <rgrunber>	excluding non-essential stuff.
+Aug 09 11:31:32 <nboldt>	yes
+Aug 09 11:31:43 <nboldt>	that's what I need for the rh-eclipse46-devstudio RPM
+Aug 09 11:31:50 <nboldt>	based on mbooth's build.sh script
+Aug 09 11:31:59 <rgrunber>	nboldt: it's quite similar. we want to do the same, except our final output is a droplet, not another update site.
+Aug 09 11:32:08 <rgrunber>	oh.. :P hah
+Aug 09 11:32:23 <nboldt>	is a droplet "given an update site, install everything in it" ?
+Aug 09 11:33:16 <rgrunber>	nboldt: droplet is just an update site that has had the repo2runnable task run on it with -createFragments.
+Aug 09 11:34:06 <nboldt>	ah... so yes. same use case then
+Aug 09 11:34:19 <nboldt>	I believe the rh-eclipse46-devstudio RPM is thus "a droplet" too :D
+Aug 09 11:34:24 *	nboldt is learning the terms here
+Aug 09 11:35:52 <rgrunber>	nboldt: basically i'm saying, if we modify the p2_feature_curl method in build.sh to call the director to install.. and do a bit of pruning of unnecessary things, then you no longer need to do what you were going to do.. or at least do less..
+Aug 09 11:36:44 <nboldt>	rgrunber: oh... that's cool
+Aug 09 11:37:04 <nboldt>	that would possibly save time / effort and be reusable for your stuff too
+Aug 09 11:37:29 <nboldt>	I'll be in the office this afternoon so we can talk more in person (if you're in today)
+Aug 09 11:37:44 <rgrunber>	nboldt: the only thing that i'd need to know, is would there be some kind of update site that contains things like "org.eclipse.ui, org.eclipse.platform, ... base platform stuff"
+Aug 09 11:38:01 <nboldt>	yes! we have that 
+Aug 09 11:38:03 <rgrunber>	ie. that is used in devtools product ..
+Aug 09 11:38:11 <rgrunber>	worst case i use releases/neon or whatnot
+Aug 09 11:38:43 <nboldt>	point director at https://devstudio.jboss.com/10.0/stable/updates/ and if it can scrape children of the composite all the deps you need should be there
+Aug 09 11:39:00 *	fuhbot gives channel operator status to jjohnstn
+Aug 09 11:39:03 <nboldt>	since that site contains devstudio + devstudio target platform
+Aug 09 11:39:32 <nboldt>	rgrunber: we also have the same site as 4 zips, if you want to play offline and save b/w download time for iterative experiments
+Aug 09 11:40:01 <nboldt>	zips are linked on https://devstudio.jboss.com/10.0/stable/updates/ in the right hand column under "Offline Install"
+Aug 09 11:40:04 <nboldt>	rgrunber: ^
+Aug 09 11:43:23 <rgrunber>	yeah i'll have to play around with things.. a lot of this work will vary depending on what assumptions/input data is being given.
+Aug 09 11:44:07 <nboldt>	yep
+Aug 09 11:46:02 <rgrunber>	nboldt: oh final thing :P , is there any plan to map issue states (NEW,ASSIGNED,..,VERIFIED,CLOSED) into jira ?
+Aug 09 11:46:51 <rgrunber>	can be slight pain to remember to change a bug twice (once in bz, once in jira)
+Aug 09 11:46:52 <nboldt>	currently no, the tool only creates the JIRA
+Aug 09 11:47:11 <nboldt>	but in future yes, we could have VERIFIED => resolved, CLOSED -> closed
+Aug 09 11:47:24 <nboldt>	add that to the JIRA I opened (or make a subtask?)
+Aug 09 11:47:38 <nboldt>	rgrunber: https://issues.jboss.org/browse/JBIDE-22966 
+Aug 09 11:48:01 <rgrunber>	yeah, sounds good, i'll do that
+Aug 09 12:56:13 *	fuhbot2 gives channel operator status to ebaron
+Aug 09 14:01:57 *	fuhbot gives channel operator status to palves_
+Aug 09 16:28:01 <nboldt>	rgrunber: any progress on scripting a replacement to go in build.sh ?
+Aug 09 16:29:43 <rgrunber>	nboldt: i've got something already on my home laptop (which isn't here with me) but i'm sure it'll work.
+Aug 09 16:30:16 <rgrunber>	was working on it around the time i handed off the script to Mat but got sidetracked.
+Aug 09 16:34:17 <nboldt>	rgrunber: ok, no worries. I'll work on something else and bug you again in a day or two :D
+Aug 09 16:34:26 <nboldt>	no point reinventing your wheel 
+Aug 09 16:34:45 <nboldt>	(but happy to review your code & test it out for my rpm)
+Aug 09 16:35:24 <rgrunber>	nboldt: yeah np.. i should finish it quickly.. i thought i hit a rather annoying block with respect to associative arrays in bash.. but apparently they need to be explicitly enabled.
+Aug 09 16:36:49 <nboldt>	haven't used assoc arrays in bash in a while but I don't recall that... just that you had to type-declare the object before loading it.
+Aug 09 16:37:10 <rgrunber>	yeah.. that's what i meant.
+Aug 09 16:38:18 <nboldt>	cool
+Aug 09 16:38:50 <rgrunber>	as opposed to just foo["a.b.c"]=1
+Aug 09 16:39:21 <rawblem>	rgrunber,  hey, where was that api for updating the details of a docker connection again?
+Aug 09 16:39:25 <rawblem>	i seem to have misplaced it
+Aug 09 16:39:48 *	nboldt sees rawblem and points at the Google in the corner, just waiting to be used
+Aug 09 16:40:11 <rawblem>	nboldt,  if you seriously think i can find an api via google search and simply guessing class or method names, you're insane
+Aug 09 16:40:23 <rgrunber>	rawblem: DockerConnectionManager.updateConnection or something..
+Aug 09 16:40:28 <rawblem>	thnx
+Aug 09 16:41:13 <rawblem>	nboldt,  NOW i can use google.  fsckuverymuch
+Aug 09 16:47:45 *	fuhbot2 gives channel operator status to patrickm
+Aug 10 04:49:49 *	fuhbot gives channel operator status to palves_
+Aug 10 05:00:21 *	fuhbot gives channel operator status to scox
+Aug 10 05:34:57 *	fuhbot2 gives channel operator status to mattn
+Aug 10 08:01:45 *	fuhbot gives channel operator status to patrickm
+Aug 10 08:30:05 *	fuhbot gives channel operator status to mbenitez
+Aug 10 09:03:54 *	fuhbot2 gives channel operator status to ebaron
+Aug 10 09:43:25 *	fuhbot gives channel operator status to rgrunber
+Aug 10 10:21:08 *	fuhbot gives channel operator status to mbenitez
+Aug 10 10:31:49 <rgrunber>	nboldt1: mbooth https://rgrunber.fedorapeople.org/resolveFeature that worked for me. format is : p2extract ${dropletP2Repo} ${neededRepo1},${neededRepo2} ${groupFeatureID} .
+Aug 10 10:32:39 <rgrunber>	any plans to push that build.sh + devstudio.spec into some git repo.. ?
+Aug 10 10:38:12 <mbooth>	rgrunber: I figured we'd let nboldt1 add it to some git repo since it will form a part of devstudio process, not SCL process
+Aug 10 10:38:22 <rgrunber>	ah ok
+Aug 10 10:45:16 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 10 10:49:45 <jjohnstn>	rgrunber: I have a fix that touches IDockerConnectionSettings to add a getProperties() method.  I have added stuff in the tests for it.  Do you want to review it or should I just check it in since you are busy elsewhere?
+Aug 10 10:50:24 <nboldt1>	rgrunber: yes, I was going to put it in https://github.com/jbdevstudio/jbdevstudio-product
+Aug 10 10:50:36 <nboldt1>	mbooth: ^
+Aug 10 10:51:16 <rgrunber>	jjohnstn: feel free to push. only slight concern is that it not be mandatory.. ie.. the code can handle it being null, or empty..
+Aug 10 10:51:43 <rgrunber>	because i create IDockerConnectionSettings in some places associated with the extension point providers
+Aug 10 10:52:58 <jjohnstn>	rgrunber: if you create TCPConnectionSettings or UnixSocketConnectionSettings under the covers, that is already handled...empty properties are ok
+Aug 10 10:53:07 <rgrunber>	k sounds good then.
+Aug 10 10:53:11 <jjohnstn>	thx
+Aug 10 10:55:11 <nboldt1>	rgrunber: so "p2extract ${dropletP2Repo} ${neededRepo1},${neededRepo2} ${groupFeatureID} ." replaces p2_feature_curl in build.sh?
+**** BEGIN LOGGING AT Wed Aug 10 11:49:54 2016
+
+Aug 10 11:49:54 *	Now talking on #eclipse
+Aug 10 11:49:54 *	Topic for #eclipse is: Eclipse discussions
+Aug 10 11:49:54 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 10 12:13:24 <nboldt1>	rgrunber_mtg: cool, thanks. I've reworked your script a bit to perform the install for 212 features in one step instead of having to loop through 212 installs :D
+Aug 10 12:14:02 <nboldt1>	and switched to using metadataRepository and artifactRepository because need that when using p2.director -list
+Aug 10 12:23:24 <nboldt1>	rgrunber_mtg: the droplet-bundles folder is missing all the unpacked plugins. is that intentional?
+Aug 10 12:24:19 *	fuhbot gives channel operator status to ebaron
+Aug 10 12:24:29 <nboldt1>	when I mirror all the features in devstudio, I get 643M of stuff, but then the part of p2extract that copies them to droplet_bundles folder only copies 373M of stuff
+Aug 10 12:24:33 <nboldt1>	rgrunber_mtg: ^
+Aug 10 12:38:16 <nboldt1>	rgrunber_mtg: also playing with -profileProperties org.eclipse.update.install.features=true so that features are included in the installation :D
+Aug 10 12:59:28 <rgrunber>	nboldt1: unintentional.. needs improvement.. only worked for jars for now.
+Aug 10 12:59:38 <nboldt1>	ok cool
+Aug 10 12:59:55 <nboldt1>	working on bootstrapping this using update site jars for better performance of CI iterations
+Aug 10 14:08:31 <nboldt1>	jjohnstn: any new docker tooling to include in devstudio for tomorrow's code freeze?
+Aug 10 14:08:34 <nboldt1>	https://issues.jboss.org/browse/JBIDE-22885 
+Aug 10 14:09:17 <nboldt1>	I see org.eclipse.linuxtools.docker.feature_2.1.0.201608052203.jar as latest in http://download.eclipse.org/linuxtools/updates-docker-nightly/features/?d ... should we include that or wait until close to Aug 30 to update?
+Aug 10 14:09:22 <nboldt1>	jjohnstn: ^
+Aug 10 14:10:38 <rgrunber>	nboldt1: there are a bunch of bug fixes.. and some new features.. i wouldn't mind getting a nightly out.. assuming we can still ship whatever we have on august 30th also..
+Aug 10 14:11:03 <nboldt1>	yeah, if you bump to a nightly now, you're comitting to releasing something stable by Aug 30
+Aug 10 14:13:35 <jjohnstn>	nboldt1 I am building master right now to fix a problem with Oxygen M1...this will contain some additional fixes I have resolved as part of the latest sprint
+Aug 10 14:15:34 <nboldt1>	jjohnstn: so... ETA for new nightly I can include for eclipse 4.6.0-based builds of devstudio 10.1 / jbosstools 4.4.1?
+Aug 10 14:15:40 <nboldt1>	today? tomorrow?
+Aug 10 14:15:50 <jjohnstn>	nboldt1: today
+Aug 10 14:15:59 <nboldt1>	jjohnstn: before or after 5pm?
+Aug 10 14:16:34 <jjohnstn>	nboldt: should be before 5 pm as I have already started the build
+Aug 10 14:16:54 <jjohnstn>	nboldt1: ^
+Aug 10 14:18:34 <nboldt1>	jjohnstn: sweet, thanks
+Aug 10 14:47:25 <jjohnstn>	nboldt1 I have finished the build which I copied to update-oxygen-docker-m1...you can use nightly if you wish
+**** BEGIN LOGGING AT Wed Aug 10 14:53:24 2016
+
+Aug 10 14:53:24 *	Now talking on #eclipse
+Aug 10 14:53:24 *	Topic for #eclipse is: Eclipse discussions
+Aug 10 14:53:24 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 10 14:53:57 <nboldt1>	jjohnstn: please put the URL for it in the JIRA, unless it's the one that's already here
+Aug 10 14:53:59 <nboldt1>	*there
+Aug 10 14:54:19 <nboldt1>	jjohnstn: that is, are the bits on http://download.eclipse.org/linuxtools/updates-docker-nightly/ ?
+Aug 10 14:54:40 <jjohnstn>	nboldt1 yes
+Aug 10 15:04:35 <nboldt1>	jjohnstn: ok thx
+Aug 11 04:09:33 *	fuhbot gives channel operator status to palves_
+Aug 11 07:56:51 *	fuhbot2 gives channel operator status to patrickm
+Aug 11 08:36:44 *	fuhbot gives channel operator status to mbenitez
+Aug 11 09:07:26 *	fuhbot2 gives channel operator status to ebaron
+Aug 11 09:27:57 *	fuhbot gives channel operator status to rgrunber
+Aug 11 10:09:10 <mbooth>	nboldt: Thanks for Jira formatting hints :-) BTW, is there no "quote" or "reply" button? I can't find one
+Aug 11 10:17:21 <nboldt>	there's just "comment"
+Aug 11 10:17:24 <nboldt>	mbooth: ^
+Aug 11 10:18:07 <nboldt>	mbooth: sorta like bugzilla in that respect. but NOT like bugzilla, you can do all kinds of formatting and even emojis
+Aug 11 10:18:41 <nboldt>	you will learn to love {quote} and {code} and !image.png! and [^somefile.txt] 
+Aug 11 10:18:56 <mbooth>	nboldt: I guess I just miss replying to comments in-line like I would with email/bugzilla 
+Aug 11 10:19:13 <mbooth>	Copy/pasting someone's reply loses formatting :-(
+Aug 11 10:19:17 <nboldt>	yeah, you can do that with RCM tickets, which are backed by jira/confluence
+Aug 11 10:19:38 <nboldt>	mbooth: you can EDIT someone's comment to get it as code, then paste that
+Aug 11 10:20:16 <mbooth>	I can edit other folks' comments? That sounds... dangerous :-o
+Aug 11 10:21:32 <nboldt>	well, I can. maybe that's only an admin ability
+Aug 11 10:21:55 <nboldt>	which reminds me I need to find someone with JIRA God Mode Powers to add a new project, RHECLIPSE
+Aug 11 10:31:14 *	fuhbot gives channel operator status to patrickm
+Aug 11 10:52:53 *	fuhbot gives channel operator status to mbenitez
+Aug 11 12:10:26 <nboldt>	dumb question... http://developers.redhat.com/products/openjdk/overview/ says "ON WINDOWS 8:" but surely the OpenJDK .msi installer works on Win 7/8/8.1/10 ?
+Aug 11 12:11:13 <nboldt>	followup dumb question, where do I report a bug in that doc? JIRA -> DEVELOPER issue? 
+Aug 11 12:11:25 <nboldt>	mbenitez: patrickm: ^
+Aug 11 12:12:27 <mbenitez>	nboldt, the first question would be for dbhole / omajid they are in #toronto [in a team mtg in Westford now]
+Aug 11 12:12:45 <mbenitez>	the second I don't know but let me find, it's something we'll just need more and more
+Aug 11 12:14:52 <nboldt>	mbenitez: https://issues.jboss.org/secure/RapidBoard.jspa?rapidView=3362&projectKey=DEVELOPER is where I generally open issues for developers.redhat.com updates (eg., to release new devstudio)
+Aug 11 12:15:09 <nboldt>	but thought maybe you guys would have a different process for openjdk (eg.., bugzilla?)
+Aug 11 12:15:46 <mbenitez>	nboldt, I think that should be it then, tbh we haven't filed anything yet
+Aug 11 12:21:52 <nboldt>	mbenitez: I've opened https://issues.jboss.org/browse/DEVELOPER-3393 to track the problem
+Aug 11 12:22:33 <mbenitez>	nboldt, thanks Nick! for that and teaching me where to report this stuff :)
+Aug 11 12:24:15 <nboldt>	mbenitez: no problem. next, I need to introduce you to Paul Robinson, who can usually escalate things in DEVELOPER when they get stuck
+Aug 11 12:24:40 <nboldt>	(He's @Paul in hipchat.)
+Aug 11 12:25:34 <mbenitez>	nboldt, that would be nice, I need to open a request to post an Eclipse Infocentre, finally I'll have connections on this website
+Aug 11 12:26:59 <nboldt>	oh god, really? You want an infocentre on developers.redhat.com? 
+Aug 11 12:27:14 <nboldt>	(I assume you mean something like http://help.eclipse.org/neon/index.jsp ?
+Aug 11 12:28:06 <nboldt>	mbenitez: or do you mean simply linking to docs on eclipse.org like the SystemTap UG? http://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.linuxtools.systemtap.ui.doc%2FLinux_Tools_Project%2FSystemtap%2FUser_Guide%2FUser-Guide.html
+Aug 11 12:28:53 <mbenitez>	nboldt, yes, like that: http://infocenter-mbooth.rhcloud.com/index.jsp
+Aug 11 12:29:26 <mbenitez>	nboldt, mbooth put this together long time ago and we just couldn't get follow up on where to host it, the developer portal should be the right place
+Aug 11 12:30:03 <mbenitez>	at the time we were talking to rkratky he didn't know who to contact yet, but finally all the pieces are coming together
+Aug 11 12:30:05 <nboldt>	I bet you'll need to rebrand that before you can put it there
+Aug 11 12:30:33 <nboldt>	yeah, rob should talk to @paul about how to host it (or if we can host it)
+Aug 11 12:30:41 <mbenitez>	absolutely, the design was just temporary, to show other how this could be branded for the product
+Aug 11 12:30:51 <nboldt>	could dump the whole thing into github I guess :D
+Aug 11 12:31:26 <mbenitez>	nboldt, glad to have you around, you have a lot of insights into the processes :)
+Aug 11 12:31:27 <nboldt>	mbenitez: that would be here: https://github.com/redhat-developer/developers.redhat.com
+Aug 11 12:32:11 <nboldt>	probably more like here: https://github.com/redhat-developer/developers.redhat.com/tree/master/products/developertoolset
+Aug 11 12:32:27 <mbenitez>	nice!
+Aug 11 12:32:51 <mbenitez>	I'll open a trello card to start tracking this again, and of course a jira
+Aug 11 12:33:21 <nboldt>	yeah. (aside: there's a great asciidoctor.js plugin for Chrome which is awesome for testing .adoc files locally before pushing them as a PR or having to use rake to build them)
+Aug 11 12:34:43 <nboldt>	mbenitez: I suppose the other option would be for rkratky to look at publishing the infocentre as another "multiple html pages" format and have it here: https://access.redhat.com/documentation/en/red-hat-developer-toolset/
+Aug 11 12:35:11 <mbenitez>	it seems like a good project to include with the consolidation / UX improvements we're working towards
+Aug 11 12:35:35 <nboldt>	eg., another "Paged HTML" document like https://access.redhat.com/documentation/en-US/Red_Hat_Developer_Toolset/4/html/4.1_Release_Notes/index.html
+Aug 11 12:35:49 <mbenitez>	nboldt, we talked about that but there were some concerns about the content not being internally created IIRC
+Aug 11 12:35:50 <nboldt>	again, Brand might complain about that idea, but *shrug*
+Aug 11 12:36:05 <mbenitez>	haha no kidding, processes... ;)
+Aug 11 12:36:13 <nboldt>	internally created? where did mbooth build the infocentre?
+Aug 11 12:38:39 <mbooth>	nboldt: The infocenter is *built* here, but much of the content was written upstream -- it was the origin of the content that was the concern, IIRC
+Aug 11 12:39:23 <mbenitez>	I think so too
+Aug 11 12:40:55 <nboldt>	mbooth: oic. another "NIH" paranoia event
+Aug 11 12:40:58 <mbooth>	But it seems silly that even appropriately licensed documentation cannot be rehosted...
+Aug 11 12:41:02 <mbooth>	Exactly
+Aug 11 12:41:16 <nboldt>	mbooth: yeah, "silly" is one word for it
+Aug 11 12:41:33 <nboldt>	are they worried that the doc source isn't open enough, being html?
+Aug 11 12:41:57 *	nboldt points the lawyers at the CTRL and Y keys and tell them to view-source:
+Aug 11 12:42:13 <nboldt>	(ctrl-U I mean)
+Aug 11 12:42:33 <mbooth>	nboldt: TBH, I don't remember. But it's nothing that isn't already shipped inside an RPM...
+Aug 11 12:43:16 <nboldt>	mbooth: ah, so if it's good enough to be IN RHEL it should be good enough to be online discussing what's IN RHEL
+Aug 11 12:43:49 <mbenitez>	I don't think we got to legal last time, things just got lost in conversations and we never made it close to publish
+Aug 11 12:49:06 <mbenitez>	nboldt, I opened https://issues.jboss.org/browse/DEVELOPER-3394 does it look good to you?
+Aug 11 12:49:20 *	mbenitez has lost the JIRA-fu over time
+Aug 11 12:49:45 <mbenitez>	also added the description to trello
+Aug 11 12:49:58 <nboldt>	mbenitez: you should cross link them
+Aug 11 12:50:19 <mbenitez>	add the trello card to JIRA?
+Aug 11 12:50:22 <nboldt>	eg., JIRA -> More > Link > Web Link > url for the trello card
+Aug 11 12:50:31 <mbenitez>	ok, will do
+Aug 11 12:50:58 <nboldt>	Trello > card > add Checklist > add checklist item = https://issues.jboss.org/browse/DEVELOPER-3394
+Aug 11 12:51:21 <nboldt>	that way the info is in both places and PgM can track from their side / devs can track from their side, etc.
+Aug 11 12:51:29 <nboldt>	it's more time/effort but imho it helps :D
+Aug 11 12:53:15 <mbenitez>	good idea, it doesn't hurt :)
+Aug 11 12:57:53 <nboldt>	DEVELOPER-3394 is assigned to James Cobb (our branding guy)
+Aug 11 13:17:30 <patrickm>	nboldt: where in the doc does it say Windows 8?
+Aug 11 13:17:48 <patrickm>	ah, in *BOLD*
+Aug 11 13:18:45 <patrickm>	arrrgh, they still didn't change the Red Hat OpenJDK title
+Aug 11 13:40:25 *	fuhbot2 gives channel operator status to patrickm
+Aug 11 14:24:26 <nboldt>	patrickm: yep. BOLD ALL CAPS, even :D
+Aug 11 14:24:48 <patrickm>	nboldt: apparently I'm an idiot ;)
+Aug 11 14:25:00 <nboldt>	patrickm: I've opened https://issues.jboss.org/browse/DEVELOPER-3393 to track the problem ... feel free to add more complaints / screenshots with big red arrows, etc.
+Aug 11 14:25:14 <nboldt>	patrickm: no worries. we're all blind from time to time
+Aug 11 14:27:38 <patrickm>	nboldt: i was looking for it in the text... that's my excuse and I'm sticking with that story
+Aug 11 14:30:52 <nboldt>	patrickm: lol, no problem
+Aug 11 14:31:10 <nboldt>	I opened the JIRA before noticing that there's RHEL 6 in there too (no mention of RHEL 7)
+Aug 11 14:35:55 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 11 16:07:01 *	fuhbot gives channel operator status to patrickm
+Aug 11 17:22:51 *	fuhbot gives channel operator status to mbenitez
+Aug 12 04:22:10 *	fuhbot gives channel operator status to akurtakov
+Aug 12 04:57:12 *	fuhbot gives channel operator status to palves_
+Aug 12 08:51:16 *	fuhbot gives channel operator status to patrickm
+Aug 12 08:54:54 *	fuhbot gives channel operator status to rgrunber
+Aug 12 08:59:15 *	fuhbot gives channel operator status to mbenitez
+Aug 12 09:01:39 <xcoulon>	rgrunber: hello Roland. Are you joining us for the Docker weekly meeting today ?
+Aug 12 09:01:48 <rgrunber>	ah crap.. sorry i'm coming.
+Aug 12 09:02:02 <xcoulon>	ok, great
+Aug 12 09:48:00 *	fuhbot gives channel operator status to jjohnstn_
+Aug 12 09:48:51 <jjohnstn_>	xcoulon: I have made the fix for the gerrit change to add IDockerConnection2..feel free to review...I need to go out to the walk-in clinic soon
+Aug 12 09:53:43 <xcoulon>	jjohnstn: ok. I'm working on my patch as well. Some tests are broken so I need to fix them before submitting to gerrit again
+Aug 12 10:59:34 <patrickm>	nboldt: i talked with dbhole, there is not restriction in the .msi that states it should only install on Windows 8
+Aug 12 10:59:43 <patrickm>	nboldt: we'll get that corrected
+Aug 12 11:00:25 <patrickm>	nboldt: it seems to be an oversight, there were so many "8"'s on that page
+Aug 12 11:04:14 <nboldt>	patrickm: yeah, felt like an overzealous regex matching
+Aug 12 11:04:25 <nboldt>	patrickm: but that doesn't explain the RHEL 6 mention :D
+Aug 12 11:04:56 <nboldt>	more likely this page was boilerplated from a year or two ago before Win10 and RHEL 7 were things we support
+Aug 12 11:05:12 <patrickm>	nboldt: it does, because the pkg names are different
+Aug 12 13:48:38 *	fuhbot gives channel operator status to fuhbot2
+Aug 12 16:42:38 *	fuhbot gives channel operator status to patrickm
+Aug 12 19:16:07 *	fuhbot gives channel operator status to jjohnstn_
+Aug 12 20:46:27 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Fri Aug 12 20:46:27 2016
+
+**** BEGIN LOGGING AT Fri Aug 12 20:48:58 2016
+
+Aug 12 20:48:58 *	Now talking on #eclipse
+Aug 12 20:51:27 *	irc.devel.redhat.com removes channel operator status from jjohnstn
+Aug 12 20:51:27 *	*** Notice -- TS for #eclipse changed from 1471049332 to 1432349060
+Aug 12 20:51:27 *	irc.lab.bos.redhat.com sets mode +s on #eclipse
+Aug 12 20:51:27 *	irc.lab.bos.redhat.com has changed the topic to: Eclipse discussions
+Aug 12 20:51:28 *	irc.yyz.redhat.com gives channel operator status to lberk fuhbot
+Aug 12 20:51:58 *	irc-2.devel.redhat.com gives channel operator status to palves_
+Aug 12 20:52:06 *	irc-01.app.eng.brq.redhat.com gives channel operator status to mattn|pto
+Aug 12 20:52:07 *	fuhbot gives channel operator status to sergiodj fuhbot2 jjohnstn_ jjohnstn
+Aug 12 20:59:45 *	fuhbot gives channel operator status to scox
+Aug 12 23:30:52 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Fri Aug 12 23:30:52 2016
+
+**** BEGIN LOGGING AT Fri Aug 12 23:31:03 2016
+
+Aug 12 23:31:03 *	Now talking on #eclipse
+Aug 12 23:31:08 *	irc.devel.redhat.com removes channel operator status from jjohnstn_
+Aug 12 23:31:08 *	*** Notice -- TS for #eclipse changed from 1471059061 to 1432349060
+Aug 12 23:31:08 *	irc.yyz.redhat.com sets mode +s on #eclipse
+Aug 12 23:31:08 *	irc.yyz.redhat.com gives channel operator status to lberk fuhbot
+Aug 12 23:31:21 *	fuhbot gives channel operator status to jjohnstn_
+Aug 12 23:31:51 *	fuhbot gives channel operator status to sergiodj
+Aug 12 23:32:48 *	fuhbot gives channel operator status to fuhbot2
+Aug 12 23:36:09 *	irc-01.app.eng.brq.redhat.com gives channel operator status to mattn|pto
+Aug 12 23:36:09 *	irc-01.app.eng.brq.redhat.com has changed the topic to: Eclipse discussions
+Aug 12 23:36:38 *	fuhbot gives channel operator status to palves_ scox
+Aug 13 01:18:08 *	fuhbot2 gives channel operator status to akurtakov
+Aug 14 02:01:52 *	fuhbot gives channel operator status to akurtakov
+Aug 14 07:22:38 *	fuhbot gives channel operator status to akurtakov
+Aug 14 07:27:28 *	fuhbot gives channel operator status to fuhbot2
+Aug 14 14:32:10 *	fuhbot gives channel operator status to akurtakov
+Aug 15 03:03:07 *	fuhbot2 gives channel operator status to akurtakov
+Aug 15 03:09:45 *	fuhbot gives channel operator status to akurtakov
+Aug 15 03:17:16 *	fuhbot gives channel operator status to akurtakov
+Aug 15 03:23:46 *	fuhbot2 gives channel operator status to akurtakov
+Aug 15 03:30:16 *	fuhbot2 gives channel operator status to akurtakov
+Aug 15 03:36:32 *	fuhbot2 gives channel operator status to akurtakov
+Aug 15 08:53:10 *	fuhbot gives channel operator status to mbenitez
+Aug 15 08:53:42 *	fuhbot gives channel operator status to ldimaggi
+Aug 15 09:20:40 <scela>	lufimtse: ping
+Aug 15 09:46:39 <scela>	ericwill: hey
+Aug 15 09:47:01 <ericwill>	scela hey, what's up
+Aug 15 09:47:59 <scela>	ericwill: business as usual, working on the generic editor stuff
+Aug 15 09:48:01 <scela>	https://git.eclipse.org/r/#/c/75921/
+Aug 15 09:48:12 <scela>	check the before-last comment
+Aug 15 09:48:31 <scela>	ericwill: is this a known issue ?
+Aug 15 09:48:53 <scela>	ericwill: i have the feeling now that the gtk versions were restricted the hudson machine is 'out of date'
+Aug 15 09:49:08 <ericwill>	scela it was fallout from bug 499545
+Aug 15 09:49:14 <ericwill>	scela it has been fixed with this patch: https://git.eclipse.org/r/#/c/78989/
+Aug 15 09:49:36 <ericwill>	the tests should be working now
+Aug 15 09:52:30 <scela>	ericwill: thanks, I retriggered
+Aug 15 09:58:04 <ericwill>	scela yeah this change was annoying as master was broken Friday and over the weekend
+Aug 15 09:58:39 <scela>	ericwill: the retrigger also failed
+Aug 15 09:58:45 <scela>	ericwill: probably needs time to propagate
+Aug 15 09:59:14 <ericwill>	scela probably
+Aug 15 10:02:33 *	fuhbot2 gives channel operator status to ebaron
+Aug 15 10:04:28 *	fuhbot gives channel operator status to rgrunber
+Aug 15 10:51:55 <lufimtse>	scela, hullo
+Aug 15 10:54:31 <scela>	lufimtse: hey
+Aug 15 10:54:49 <scela>	i wanted to ask about what I asked ericwill above
+Aug 15 10:54:55 <scela>	so I'm good
+Aug 15 10:59:12 <lufimtse>	kk
+Aug 15 12:11:18 *	fuhbot2 gives channel operator status to jjohnstn
