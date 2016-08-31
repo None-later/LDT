@@ -1,0 +1,117 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-07T12:58:18-04:00
+
+====== Bug 487757 ScrolledComposite ======
+Created Tuesday 07 June 2016
+
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=487757
+
+Related:
+Bug 487160 - [GTK3] Using ScrolledComposite in a multi-page Wizard results in improper sizing of widgets -> SIZING ISSUE FIXED BY ERIC.
+Bug 465280 - [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls
+
+My test case:
+https://github.com/ericwill/SWT-snippets/blob/master/src/testsnippets/Bug494115_Multi_Page_Wizard_shows_empty_pages_with_ScrolledForm.java
+
+Investigating bug:
+
+Bug 465644 - [GTK3] Investigate a GTK+ specific fix outside CTabFolder for rendering issues with GTK3
+https://git.eclipse.org/r/#/c/57479/
+/CTabFolder.java
+> Small change in: runUpdate() method. (2 lines).
+> Revert Doesn’t fix my snippet.
+
+ Bug 477798 - [Win32][Cocoa]CTabFolder has wrong initial size
+
+https://git.eclipse.org/r/#/c/56655/
+> Small change in updateTabHeight() method. (1 line)>
+> Revert Doesn’t fix my snippet.
+
+Revert for CTabFolder: (that doesn’t fix the issue)
+https://git.eclipse.org/r/#/c/73703/
+
+Gtk3:
+hBar size: Point {46, 13}  sc.getSize: Point {0, 0}
+hBar size: Point {46, 6}  sc.getSize: Point {0, 0}
+
+Gtk2:
+hBar size: Point {48, 13}  sc.getSize: Point {0, 0}
+hBar size: Point {48, 13}  sc.getSize: Point {690, 227}
+Content Rectangle: Rectangle {0, 0, 0, 0}
+hostRect: Rectangle {0, 0, 690, 227}
+
+Gtk3    / Gtk2
+
+hBar size: Point {46, 13}  sc.getSize: Point {0, 0}
+hBar size: Point {46, 6}  sc.getSize: Point {0, 0}
+hBar size: Point {46, 6}  sc.getSize: Point {0, 0}
+c2 size: Point {0, 0}
+c2 size 2: Point {0, 0}
+c2 size: 3Point {0, 0}
+hBar size: Point {46, 6}  sc.getSize: Point {1, 1}
+c2 size: 4 (set size)Point {1, 1}
+c2 size: 5 (open)Point {1, 1}
+
+hBar size: Point {48, 13}  sc.getSize: Point {0, 0}
+hBar size: Point {48, 13}  sc.getSize: Point {0, 0}
+hBar size: Point {48, 13}  sc.getSize: Point {0, 0}
+c2 size: Point {0, 0}
+c2 size 2: Point {0, 0}
+c2 size: 3Point {0, 0}
+hBar size: Point {48, 13}  sc.getSize: Point {600, 263}
+Content Rectangle: Rectangle {0, 0, 0, 0}
+hostRect: Rectangle {0, 0, 598, 261}
+c2 size: 4 (set size)Point {600, 263}
+c2 size: 5 (open)Point {600, 263}
+
+Research:
+gtk_widget_get_size_request ()
+https://developer.gnome.org/gtk3/unstable/GtkWidget.html#gtk-widget-get-size-request
+vs
+gtk_widget_get_preferred_size ()
+https://developer.gnome.org/gtk3/unstable/GtkWidget.html#gtk-widget-get-preferred-size
+
+Research:
+ScrollCompositeLayout.java: layout
+// Point hBarSize = hBar.getSize();
+// if (hBarSize.y == 6) {
+// System.out.println("GTK 3 is miss-behaving.");
+// sc.getSize();
+// }
+// Point scSize = sc.getSize();
+// if (scSize.y > 0) {
+// System.out.println("Gtk2 getting right size.");
+// sc.getSize();
+// }
+
+System.out.println("hBar size: " + hBar.getSize().toString()
++ "  sc.getSize: " + sc.getSize().toString());
+
+FIX:
+Widget:
+void gtk_widget_get_preferred_size (long /*int*/ widget, GtkRequisition requisition){
+if (OS.GTK3) {
+int [] x = new int [1];
+int [] y = new int [1];
+OS.gtk_widget_get_size_request(widget, x, y);
+requisition.height = y[0];
+requisition.width = x[0];
+
+ScrolledComposite.java
+// LNOTE - setVisible() call to parent.layout() hack.
+//@Override
+//public void setVisible (boolean visible) {
+// super.setVisible(visible);
+// this.getParent().layout();
+//}
+
+fix 3:
+public void setMinSize(int width, int height) {
+checkWidget();
+if (width == minWidth && height == minHeight) return;
+minWidth = Math.max(0, width);
+minHeight = Math.max(0, height);
+this.getParent().layout(true);
+}
+\

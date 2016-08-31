@@ -1,0 +1,77 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-27T10:22:37-04:00
+
+====== Wednesday 27 Jul 2016 ======
+
+Last Week:
+(In Progress)
+Bug 430538: [GTK3][webkit] Support Custom JavaScript execution in WebKit2 mode of SWT Browser
+ - Got Javascript 'execution' to work (without use extension)
+ 	- After figuring out how to debug WebKitGtk+ (via Eclipse CDT btw) I observed that
+	  a String was mangled up when it was passed from Java to C via JNI.
+	- After invsetigation, I found a combination of bugs in JNI wrapper and
+	  in code (due to ambigious variable naming and re-use of a variable for different purposes)
+	- Some more Browser junit test cases start to function now.
+	  (As a side not, at the time Sami was working on this, it didn't work because of a
+	  bug in WebKitGtk+ due to UTF8/UTF16 conversion issue, which is now fixed).
+ - Now I'm working on implementing support for handling Javascript return values
+ 	- this is a bit tricky because it's an Asynchronous call.
+	- I'm reading over Sami's patch, to re-use some of his code.
+
+(Disscussion)
+Bug 498356 – [problems view] Add buttons to Problem View, to narrow scope
+	- Disscussion with platform.ui community about changing problems view, 
+	  so as to have a single view that reflects
+	  project-local problems as well as a hint to problems in global scope.
+	  (see bug for details)
+
+Tested my build.sh patch on various other shells (Dash, Fish) and shell-plugins like ZSH.
+
+
+Triage:
+- Expanditem scrolled composite not resized. (may be related to my bugfix)
+- etc.. 
+
+Patch review:
+Bug 372607 - Tree should expand/collapse on Arrow_Left/Arrow_Right (Alex's CSS patch)
+ - tested across various GTK3 versions (Gtk3.6-3.22)
+
+Other:
+- Briefly introduced Ian to MyLyn, helped with some rebuilding JNI bindings etc..
+
+ Next Week:
+ Bug 430538: [GTK3][webkit] Support Custom JavaScript execution in WebKit2 mode of SWT Browser
+  - Implement handling of return value.
+
+
+
+------------------------ MEeting notes:
+Week 1:
+* Build.sh uprgrades 
+  - Had to use hacks to move *.so files manually (for 4 years). Binaries moved, but build.sh not updated. 
+  - Previously: Clean Project in Eclipse, build gtk2, clean project in eclipse, build gtk3.
+  - Added parmater support and logic
+  	- Now: 1 command that cleans/builds everything.
+  	- Logic that stops if one build fails.
+  - Made user-friendly:
+  	- Implemented colouring of output (distinguish build.sh from GCC output)
+  	- Saftey checks that enusres output (binary repo) exists/is checked out.
+  	- Dynamically acquire JAVA_HOME path (prevent).
+  	- Added '-help' param that explains usage.
+  - Tested my build.sh patch on various other shells (Dash, Fish) and shell-plugins like ZSH.
+  - Maven can build gtk2/gtk3, but takes a long time. build.sh >0.5 seconds.
+  - >>> need to update wikipedia.
+
+* Stuck on JS native call, just didn't work.
+  - Figured out how to compile GTK+ and WebKitGtk+ in JHbuild with debug support 
+	(Took a while no documentation for JHBuild+Webkit, figured out by reading build scripts)
+
+Week 2
+* Debugged JS native call 
+  - found that string got mangled when passed from Java to Webkit.
+  - found that JNI wrapper had bug 
+  - found SWT mangled String
+  - JS *execution* now works
+  - Now investigating how to deal with return values. (async).
+  - Reading over sami's patch

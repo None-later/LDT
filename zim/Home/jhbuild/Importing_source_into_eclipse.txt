@@ -1,0 +1,46 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-07T12:10:21-04:00
+
+====== Importing source into eclipse ======
+Created Thursday 07 July 2016
+
+===== Initial =====
+The whole folder:
+~/jhbuild/checkout/
+Can be imported as a c/c++ project (I call it gtk_collection).
+But better to  create a project elsewhere and link to it, because you might re-create 'checkout' folder when 
+compiling various builds.
+
+====== Fixing indexing issues ======
+
+===== Platform specific includes =====
+Some includes are platform or library specific. The indexer might not pickup on those without a little bit of hackery.
+
+==== Ex: Webkit2 include: ====
+Webkit based applications are looking for the "#include <webkit2/webkit2.h>', but in webkit the folder is called 'gtk'.
+~/jhbuild/checkout/webkitgtk**-2.13.2**/Source/WebKit2/UIProcess/API/**gtk**
+
+Solution is to create a symlink called 'webkit2':
+# cd ~/jhbuild/checkout/webkitgtk**-2.13.2**/Source/WebKit2/UIProcess/API #version specific
+# this one works if there is 
+cd ~/jhbuild/checkout/webkitgtk**-2.***/Source/WebKit2/UIProcess/API
+ln -s -T gtk/ webkit2
+
+Then refresh eclipse project, rebuild index etc...
+
+===== Generated code through 'configure' =====
+
+==== Ex: gsize in glib ====
+Some headers are generated when you run 'configure'. For example if you use gsize anywhere like:
+	gsize       str_length;
+The indexer might throw an error complaining that it's not defined.
+If you grep around for it "grep -r 'gsize;' | grep typedef;" you may observe that it's in some 'configure.ac' file where the type is a bash variable:
+	configure.ac:typedef unsigned $glib_size_type_define gsize;
+In this case:
+- navigate to the relevant source repo (**glib**) and execute './configure'. 
+- Refresh the Eclipse project.
+- Right click on 'glib' -> index -> update with modified files 
+
+
+

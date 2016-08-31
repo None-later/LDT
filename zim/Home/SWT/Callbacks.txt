@@ -1,0 +1,37 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-02T15:19:44-04:00
+
+====== Callbacks ======
+Created Tuesday 02 August 2016
+
+===== Regular Callbacks =====
+
+
+===== Static callbacks =====
+Ex generic 'drop' events that come out of no-where may have static callbacks.
+ * Instances of this class represent entry points into Java
+ * which can be invoked from operating system level callback
+ * routines.
+
+Return calls from the operating system:
+org.eclipse.swt.internal.Callback
+
+ex:
+DragSource.java:
+static Callback DragEnd; // declare
+..
+.. // register
+	DragEnd = new Callback(DragSource.class, "DragEnd", 2); //$NON-NLS-1$
+	if (DragEnd.getAddress() == 0) SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
+	...
+// connect signal at one point:
+	OS.g_signal_connect(control.handle, OS.drag_end, DragEnd.getAddress(), 0);
+
+// It is then handled in a static routine:
+static long /*int*/ DragEnd(long /*int*/ widget, long /*int*/ context){
+	DragSource source = FindDragSource(widget);
+	if (source == null) return 0;
+	source.dragEnd(widget, context);
+	return 0;
+}

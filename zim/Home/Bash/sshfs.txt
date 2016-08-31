@@ -1,0 +1,60 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-10T17:04:18-04:00
+
+====== sshfs ======
+Created Wednesday 10 August 2016
+
+Mount volume from SSH connection.
+
+===== Configuration =====
+* enable ssh on target machine (google this..) (that has the files)
+* install sshfs on machine from which you will mount.
+
+===== Usage =====
+**On target machine:**
+	sshfs -o 192.168.124.1:/home/lufimtse [[~/mnt/home]]
+	(see optimiztions for better performance)
+	
+	Some nice options:
+	sshfs -o Ciphers=arcfour -o Compression=no -o reconnect -o ServerAliveInterval=15 -o transform_symlinks -o follow_symlinks 192.168.124.1:/home/lufimtse ~/h
+	(might also try 'allow_others', but that requires some config, see: http://stackoverflow.com/questions/24966676/transport-endpoint-is-not-connected)
+
+**To dissconnect:** 
+	fusermount -zu [[~/mnt/home]] 
+
+
+===== Optimizations: =====
+Turn off compression:
+	sshfs -o **Compression=no** 192.168.124.1:/home/lufimtse ~/h
+
+**Use arcfour chiper: (less encryption == faster/less secure)**
+	Need to 'allow' them first.
+	On machine with files:
+		sudo vim [[/etc/ssh/sshd_config]]
+	Add the following: 
+		# Ciphers and keying
+		#RekeyLimit default none
+		Ciphers 3des-cbc,blowfish-cbc,cast128-cbc,arcfour,arcfour128,arcfour256,aes128-cbc,aes192-cbc,aes256-cbc,rijndael-cbc@lysator.liu.se,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com
+	scr: http://mgalgs.github.io/2014/10/22/enable-arcfour-and-other-fast-ciphers-on-recent-versions-of-openssh.html
+	
+	Then on target machine connect like:
+	sshfs -o Ciphers=arcfour -o Compression=no 192.168.124.1:/home/lufimtse ~/h
+
+
+===== Premenent mount =====
+Have not tried, but:
+https://www.digitalocean.com/community/tutorials/how-to-use-sshfs-to-mount-remote-file-systems-over-ssh
+
+
+===== Troubleshooting =====
+
+==== Endpoint not connected: ====
+http://slopjong.de/2013/04/26/sshfs-transport-endpoint-is-not-connected/
+
+===== Sources =====
+Roland: https://rgrunber.wordpress.com/2015/07/21/sharing-directories-over-a-network-with-sshfs/
+Enable ssh: https://docs.fedoraproject.org/en-US/Fedora/24/html/System_Administrators_Guide/s2-ssh-configuration-sshd.html
+
+
+

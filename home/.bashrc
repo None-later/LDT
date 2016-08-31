@@ -52,7 +52,7 @@ export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 #############
 
 # temp:
-alias swt_webkit="set -x && ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$ && set +x"
+alias swt_webkit="set -x ;{ ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$; }; set +x"
 
 # .. cd 
 alias ..="cd .. && pwd"
@@ -66,9 +66,11 @@ alias rbrc="source ~/.bashrc"
 alias a="alias"
 alias ag="alias | g"
 # b
+alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
+
 # c 
 alias cd-swtbuild.sh="cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
-
+alias cd.="cd $(pwd)"
 alias cut1="cut -f1 -d ' '"
 alias lez="less -E"
 
@@ -100,7 +102,7 @@ alias make=colormake
 # q
 # r
 alias rc="referenceGenerator.sh | toclip"
-
+alias rcp="rsync -azh --info=progress2 "
 # s
 alias startssh="systemctl start sshd.service"
 alias stopssh="systemctl stop sshd.service"
@@ -115,6 +117,12 @@ alias v="vim"
 #################
 ## User functions
 #################
+
+gp () {
+	git add .
+	git commit -m "General update. Note: $1"
+	git push
+}
 
 # f
 ff () {

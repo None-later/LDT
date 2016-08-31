@@ -1,0 +1,65 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-10T10:50:58-04:00
+
+====== gerrit ======
+Created Friday 10 June 2016
+
+====== Configuration: ======
+
+===== Plugins =====
+//Not sure about if  this guy is needed://
+Download plugin:
+https://wiki.eclipse.org/EGerrit/p2_repositories
+http://download.eclipse.org/egerrit/updates/nightly
+
+===== Config: =====
+Expand repo, under "Remotes", right click on "Origin" -> "Gerrit Configuration". Type in username (lufimtsev) and you're good.
+{{./screenshot_2016-06-10-112448.png}}
+
+{{./screenshot_2016-06-10-112509.png}}
+
+====== Usage ======
+
+===== Pushing to review =====
+- Create a new branch from master
+- Make your changes
+- Right click on repo, "Push to Gerrit..."
+- Makesure 'Platform" is selected in URI (not gitroot), Gerrit Branch leave as is (refs/for ___ master)
+{{./screenshot_2016-07-14-112704.png}}
+- Finish
+- It should give you a link to gerrit reviews.
+
+===== Ammending older commit in a series of commits =====
+I.e: you have the following patches in gerrit:
+a -> b -> c
+
+But now you want to update 'a'. 
+You create a seperate patch:
+a -> b -> c -> a_fix
+
+then using interactive rebase, you re-position the fix and squash:
+1) a -> a_fix -> b -> c
+2) a_fix -> b -> c
+
+Then push to gerrit and it adds new patch sets.
+
+NOTE:
+- ensure that change id in commit message of squashed commit is that of 'a', not of a_fix.
+
+Source: http://stackoverflow.com/questions/12487791/how-to-amend-review-issues-in-gerrit-when-there-is-a-second-newer-review-also
+For interactive rebase, see also: http://eclipsesource.com/blogs/2014/06/23/git-improvements-top-eclipse-feature-luna-3/
+
+====== Web-UI ======
+
+===== Understanding dependencies =====
+Patches are listed in the way git-log lists them:
+{{./screenshot_2016-07-14-113312.png}}
+For example in the above Change 3 depends on 2, which depends on 1.
+src: 
+https://git.eclipse.org/r/Documentation/user-review-ui.html#related-changes
+
+===== References =====
+http://www.vogella.com/tutorials/Gerrit/article.html
+
+Web-UI Documentation: https://git.eclipse.org/r/Documentation/user-review-ui.html#related-changes

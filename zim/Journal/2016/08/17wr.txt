@@ -1,0 +1,63 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-17T13:36:05-04:00
+
+====== Wednesday 17 Aug 2016 ======
+Last Week:
+
+I've mostly been working on C side of SWT JNI bindings and various shell scripts.
+
+Bug 430538 - Webkit2 Javascript port 
+(Finished)	
+* Stage 1 patch submitted for review. (Implement 'execute' support of Javascript).
+	- My patch would not compile on machines without webkit2gtk4, so I researched 
+	conditional evaluation in Makefiles and #ifdefn in C. (Similar to Sami's initial webkit patch, thank you Sami).
+	Implemented conditional compilation so new code is only compiled with machines that have webkit2gtk4 installed. 
+	(this took a while to figure out, read lots of material online).
+	
+	- Setup Fedora 21 VM for testing on older machines. 
+	Researched how to quickly test changes from host on guest vm.
+	Followed Roland's suggestion to use SSHFS to mount my host files into VM.
+	This way I can run the Eclipse from my host machine on the VM and share the workspace
+	as well as use the same git repo. I.e I can instantly test changes on older vm without
+	pushing/pulling patches. I can keep source on host vm and compile on test VM.
+	Thank you Roland for blogging about this.
+
+* Stage 2 (next) will be for evaluating Javascript (i.e have a return value).
+
+(Finished)
+Bug 499545 - Investigated unsat link error
+	- Recent patch to SWT broke native rebuild of bindings, all linux build servers stopped building.
+	- Performed bisect to find commit that broke SWT 
+ 	- Investigated the commit. A method was moved from one file to another (C.java to OS.java).
+	- This change lead to a change in the sequence of code execution,
+	- A native method (setenv) was now being called before the native library was loaded, 
+	  leading to an unsatisfied link error.
+	- Wrote a quick patch to get compilations to work again. Suggested to revert original patch.
+	- Original patch was reverted and modified.
+
+(Finished)
+Bug 497923 - Minor improvement to .build.sh.
+	- Previously I checked if regular java is installed. This is not that useful on it's own.
+	  Modified it so that it checks if java-devel is installed, which has the jni.h
+	  header that is required for linking and compilation.
+
+(Finished)
+Bug 499577 - Add install_sysdeps.sh to swt.tools 
+	- Setting up Fedora for SWT development involves installing multiple devel packages 
+	before you can rebuild JNI bindings. The first time I had to do this as an intern,
+	it took me 2 days to figure out why the build was failing me and which packages are needed.
+	I wrote a script simmilar to JHBuild's 'install sysdeps', which depending on your 
+	linux distribution automatically installs the required devel libraries.
+	- Currently works on various versions of Fedora (with YUM on F21 and before and DNF after).
+	- Left place-holder for other linux distributions
+	- Throws warning at user if .classpath is not configured and provides instructions.
+
+(Finished)
+Small bits:
+- backport Bug 498829 - Load webkit2 so file if webkit 1.x is not available 
+- Updated SWT wiki's 'how to backport' section with cherry pick instructions, screenshot of push dialogue and relevant details. 
+
+
+This week:
+ Start on Stage 2 of Webkit Javascript port. Support evaluation of expressions.

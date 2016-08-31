@@ -1,0 +1,27 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-22T15:02:27-04:00
+
+====== read string return pointers ======
+Created Friday 22 July 2016
+
+====== ex: webkit_web_view_get_uri () ======
+https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitWebView.html#webkit-web-view-get-uri
+
+	const gchar *
+	webkit_web_view_get_uri (WebKitWebView *web_view);
+
+WebKit.java: getUrl
+{{{code: lang="java" linenumbers="True"
+public String getUrl () {
+	long /*int*/ uri = WebKitGTK.webkit_web_view_get_uri (webView); // this function returns a string to a pointer.
+	..
+	int length = OS.strlen (uri); 
+	byte[] bytes = new byte[length];
+	OS.memmove (bytes, uri, length);  // We copy the bytes manually to new byte array.
+
+	String url = new String (Converter.mbcsToWcs (null, bytes));
+}}}
+
+
+

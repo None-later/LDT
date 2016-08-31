@@ -1,0 +1,49 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-10T10:45:50-04:00
+
+====== 10WR ======
+Created Wednesday 10 August 2016
+(In progress) 
+Bug 430538 - [GTK3][webkit] Support Custom JavaScript execution in WebKit2 mode of SWT Browser
+ - Modified Makefile to add a webkitgtk_custom.c file and other makefile cleanups.
+ - Implemented custom native function with callback to call javascript from native C code.
+ - Implemented spinlock mechanism in native code to convert async call into a sync one. 
+ 	 (I pass pointer to spinlock via user_data to the callback on C side,
+ 	  this is better than a global spin lock because it allows concurrent javascript executions).
+ - Researched Javascript return types and methods to convert to C.
+ - Patch is getting a bit large/complex. Will break the patch into stages. 
+	 Will push 'stage 1' that will support basic 'execute()' of Javascript, 
+	 next will work on 'stage 2' that should support 'evaluate()'.
+* Javassript execution, implemented spinlock mechanism in nativecode to convert async call to sync.
+* Pass lock as userdata to callback, which unlocks the original caller -> allows concurrent execution, no global locks needed.
+* Updated makefile, tie makefile to webkit via pkg-config 
+* Need to add conditions to make makefile work on machines that don't have webkit2.
+* Break patch into Stages, try to push what I have before working on 'evalute'.
+
+
+(Finished)
+Bug 499387 - Speed up BrowserSuite 
+ - Browser tests run very slowly, so slow that they are ran in a separate test suite.
+ - Some jUnit tests had 'forced timeouts', which caused delays even if test was finished.
+ - Modified some junit test cases to wait till test is finished instead of random timeout.
+ - 2x improvement in run time.
+ - BrowserTests are notorious for being fragile. I checked the next day: No breakage in build server jUnit test cases.
+
+
+(finished)
+Bug 312451 - Accessible.addRelations should check if target == null 
+ - STW user reported to swt-devel mailing list that they receive 2000 crash reports a week from their clients and 
+	asked SWT team to look into the relevant bug (reported 5 years ago).
+ - Investigated stack trace (no snippet to reproduce), investigated what could cause such NPE.
+ - Added null pointer checks around public api. This way clients can add try/catch clauses.
+
+ Other
+  - Updated wiki to reflect new build.sh parameters 
+  - helped Ian with JNI binding troubles 
+  - Investigated broken SWT download links (as reported to swt-devel mailing list)																																														
+
+This week:
+ Webkit port: 
+   - adapt makefile so that my changes don't break non webkit2 build machines.
+   - Push Stage 1 to master. (this should fix several jUnit test cases related to 'execute()')

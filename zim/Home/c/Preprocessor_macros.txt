@@ -1,0 +1,149 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-30T10:41:41-04:00
+
+====== Preprocessor macros ======
+Created Tuesday 30 August 2016
+
+====== Tutorial ======
+Think string substitution.
+
+===== Basic defines =====
+#define IDENTIFIER VALUE
+ex:
+#define LENGTH 50
+#define THREE_PIES (3.14 * 3)      # Brackets avoid that precedence of operators breaks macro.
+
+===== Includes =====
+#include <studio.h>     // Standard headers
+#include "mylib.h"      // user headers
+
+===== Redefine a variable =====
+#undef var
+#define var 50
+
+===== If statments =====
+	#ifdef DEBUG
+		// meh
+	#endif
+
+Define som[[Home:Gnome:GTK]]e value if not defined already:
+	#ifndef NULL
+	#define NULL (void *)0
+	#endif // #ifndef NULL
+
+==== If else ====
+	#if expression
+	text-if-true
+	#else /* Not expression */
+	text-if-false
+	#endif /* Not expression */
+	src: https://gcc.gnu.org/onlinedocs/gcc-3.0.2/cpp_4.html#IDX40
+	
+
+===== Operands =====
+
+==== Continuation \  (multi-line macro) ====
+Continue a macro via '\'
+#define message (a, b) \
+	printf(#a     "and"     #b      ": we love you!\n")
+
+Note, no '\' on the last line.
+
+
+==== Stringize # ====
+Convert a macro-paramater into a string constant.
+	#include <stdio.h>
+	#define  message_for(a, b)  \
+	   printf(#a " and " #b ": We love you!\n")
+	
+	int main(void) {
+	   message_for(Carole, Debra);
+	   return 0;
+	}
+
+
+==== Token pasting ## ====
+Sort of escape sequance for a macro paramater. Useful to generate new tokens from given once:
+	#include <stdio.h>
+	#define tokenpaster(n) printf ("token" #n " = %d", token##n)
+	int main(void) {
+	   int token34 = 40;
+	   tokenpaster(34);
+	   return 0;
+	}
+Pre-processor produces:
+	printf ("token34 = %d", token34);
+
+src: [1] [2]
+
+
+===== Parameterized Macros =====
+Basic structure:
+	#define MACRO_NAME(arg1, arg2, ...) [code to expand to]
+
+
+==== Increment example ====
+#define INCREMENT(x) x++
+
+==== Square example ====
+	int square(int x) {
+		return x * x;
+	}
+	>>
+	#define square(x) ((x) * (x))              //no semi colon. No spaces between 'square( ' and first bracket.
+	
+
+==== Max example ====
+	#define MAX(x,y) ((x) > (y) ? (x) : (y))
+	...
+	printf("max is: %d", MAX(20,10));
+
+
+===== Avoiding Pitfalls =====
+
+===== Brackets around math =====
+	- Use lots of brackets ( ) in the expansion to avoid operand-precedence bugs.
+
+
+===== Braces around multiple statments =====
+**Problematic:**
+	#define SWAP(a, b)  a ^= b; b ^= a; a ^= b;  // < Problematic
+	
+	int x = 10;
+	int y = 5;
+	
+	// works OK
+	SWAP(x, y);
+	
+	// What happens now?
+	if(x < 0)
+		SWAP(x, y);
+**Better:**
+	#define SWAP(a, b)  {a ^= b; b ^= a; a ^= b;} 
+	// but still has issues if used like this:
+	SWAP(x,z);   // < cannot have semi-colon after curly brace if inside an if statment. [2]
+
+**Hacky solution:**
+Use a do while loop:
+	#define SWAP(a, b)  do { a ^= b; b ^= a; a ^= b; } while ( 0 )
+
+
+===== Macros substitute, but do not evaluate =====
+see "more Gotchas [2].
+
+====== Sources ======
+Theory:
+[1] http://www.tutorialspoint.com/cprogramming/c_preprocessors.htm 
+
+Practical advise:
+[2] http://www.cprogramming.com/tutorial/cpreprocessor.html
+
+
+===== Further reading: =====
+Things like assert(..)   and advance notions:
+http://www.keithschwarz.com/cs106l/spring2009/handouts/080_Preprocessor_2.pdf
+
+Gcc docu:
+https://gcc.gnu.org/onlinedocs/cpp/Macros.html
+

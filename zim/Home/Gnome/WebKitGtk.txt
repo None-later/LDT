@@ -1,0 +1,56 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-07T09:45:23-04:00
+
+====== WebKitGtk ======
+Created Thursday 07 July 2016
+
+====== Repository ======
+Git hub mirror:
+	https://github.com/WebKit/webkit
+Cmd:
+	git clone git://git.webkit.org/WebKit.git WebKit
+
+Note: JHBuild doesn't seem to clone the whole thing, i.e, the source code in checkout/webkitgtk lacks some stuff in 'Tools/Scripts' like the build script.
+But with some hackery [[Home:jhbuild:WebKitGtk jhbuild]] it can still be build with debug support.
+
+====== Sources ======
+**Reference:**
+https://webkitgtk.org/reference/webkit2gtk/unstable/index.html   #webkit ref
+https://webkitgtk.org/reference/webkitdomgtk/stable/index.html  #webkit DOM ref
+https://wiki.gnome.org/Projects/WebKitGtk/ProgrammingGuide/Cookbook#Executing_JavaScript  << programming book, cookbook.
+
+====== Building ======
+Build via [[Home:jhbuild]] :
+jhbuild build WebKit    #(double check spelling).
+
+====== Compiling applicaion with webkit ======
+Needs flags and libs:
+webkit2gtk-4.0 for any webkit related items. javascriptcoregtk-4.0 for any JS related calls.
+{{{code: lang="makefile" linenumbers="True"
+gcc `pkg-config --cflags gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0` -g3 -Wall -o main main.c `pkg-config --libs gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0`
+}}}
+
+
+====== Includes for webkit ======
+{{{code: lang="c" linenumbers="True"
+#include <webkit2/webkit2.h>			 //includes all the webkit headers.
+#include <JavaScriptCore/JavaScript.h>   //includes all the other JS headers.
+}}}
+
+
+====== Debugging ======
+See: [[Home:jhbuild:WebKitGtk jhbuild]]
+
+
+
+
+**Programming guide:**
+https://wiki.gnome.org/Projects/WebKitGtk/ProgrammingGuide
+
+**Class diagram:** https://wiki.gnome.org/Projects/WebKitGtk/ProgrammingGuide/ClassDiagram
+Line - association relationship, usually interact with properties via getter/setter 
+Dashed line - use relationship, one class uses the other in paramater of signal callback.
+
+{{./pasted_image.png}}
+

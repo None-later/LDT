@@ -1155,3 +1155,833 @@ Aug 15 10:54:49 <scela>	i wanted to ask about what I asked ericwill above
 Aug 15 10:54:55 <scela>	so I'm good
 Aug 15 10:59:12 <lufimtse>	kk
 Aug 15 12:11:18 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 15 14:37:35 <ericwill>	GUADEC talks are on YouTube, if anyone is interested: https://www.youtube.com/user/GUADEC/videos
+Aug 16 04:59:29 *	fuhbot gives channel operator status to palves
+Aug 16 07:00:30 *	fuhbot gives channel operator status to akurtakov
+Aug 16 08:41:27 *	fuhbot gives channel operator status to ldimaggi
+Aug 16 09:23:29 *	fuhbot gives channel operator status to rgrunber
+Aug 16 10:03:19 *	fuhbot gives channel operator status to ebaron
+Aug 16 10:07:49 *	fuhbot gives channel operator status to palves
+Aug 16 10:54:27 <xcoulon>	rgrunber: hello Roland. Did you see my comment on Gerrit ? Actually, it's more or less the same as the one I posted on BZ. Could you update your patch ? BTW, this bug is a blocker for JBoss Tools 4.4.1.AM3, so just let me know if you don't have time to fix it today, I'll take care of it.
+Aug 16 10:54:55 <xcoulon>	Then once it's good, we should trigger a build of the Docker tooling so that Nick can pull it into the TP of JBoss Tools.
+Aug 16 10:55:41 <rgrunber>	sure i can change them to return an empty list.
+Aug 16 11:00:21 <xcoulon>	rgrunber: great ! thanks
+Aug 16 11:00:36 <xcoulon>	rgrunber: we should have tests to cover this, btw.
+Aug 16 11:19:11 <nboldt>	xcoulon: dude. is this REALLY a blocker given that...
+Aug 16 11:19:16 <nboldt>	AM3 = alpha release
+Aug 16 11:19:21 <nboldt>	TP freeze was last week
+Aug 16 11:19:57 <nboldt>	changing TP on the same day as the release/QE signoff day (today) means the release will likely delayed until tomorrow or Thurs
+Aug 16 11:20:09 <nboldt>	...?
+Aug 16 11:20:21 <xcoulon>	nboldt: I'm not the one to decide if this is a blocker. But it looks pretty bad, since the Docker Explorer view is broken on Windows, which means that the whole Docker tooling fails.
+Aug 16 11:20:38 <xcoulon>	nboldt: can we discuss this with Alexey and Len, then ?
+Aug 16 11:20:51 <xcoulon>	akazakov: ldimaggi_mtg ^^
+Aug 16 11:20:58 <nboldt>	xcoulon: sure. looks like we have a topic for today's build.next call
+Aug 16 11:21:41 <xcoulon>	nboldt: sure.. when is this call ? Do I need to join ?
+Aug 16 11:21:59 <nboldt>	xcoulon: in 9 minutes, and yes, that would be helpful
+Aug 16 11:22:15 <xcoulon>	nboldt:  can you forward the invite, please ? 
+Aug 16 11:22:21 <nboldt>	xcoulon: http://jbds-pm.etherpad.corp.redhat.com/build-next-20160816
+Aug 16 11:22:40 <xcoulon>	nboldt: thanks ! I'm out for 5min, I'll be back for the call
+Aug 16 11:22:52 <nboldt>	xcoulon: ok
+Aug 16 11:23:06 <ldimaggi_mtg>	xcoulon, nboldt Given that https://issues.jboss.org/browse/JBIDE-23011 is both a regression and literally blocks the use of the feature, I don't think that we should release AM3 until this is fixed
+Aug 16 11:25:20 <nboldt>	ldimaggi_mtg: you're killing me, DiMaggio.
+Aug 16 11:25:54 <ldimaggi_mtg>	nboldt, sorry - trying to pay attention to this massive meeting in Westford
+Aug 16 11:51:02 <xcoulon>	rgrunber: I commented on the issue. We plan to include a message in the user to ask them to pull the nightly build to update the Docker Tooling, but I'm also concerned with this issue that I found today: https://bugs.eclipse.org/bugs/show_bug.cgi?id=499744 and I think we should also fix that one before we ask the users to update the bundles.
+Aug 16 11:51:43 <xcoulon>	rgrunber: I'm going to look at it right now
+Aug 16 12:01:55 <nboldt>	xcoulon: rgrunber: will the docker tools nightly site have the fix by EOD today?
+Aug 16 12:02:22 <xcoulon>	nboldt: I think so, yes.
+Aug 16 12:02:28 <rgrunber>	yes.
+Aug 16 12:02:59 <nboldt>	ok cool
+Aug 16 12:03:09 <nboldt>	then when the blog goes out (tomorrow?) it'll be accurate
+Aug 16 12:03:11 <xcoulon>	nboldt: but I found a bug this morning that I'd rather see fixed before asking the users to install the nightly build. I'm already working on it now
+Aug 16 12:03:37 <nboldt>	xcoulon: bug in docker tooling or in openshift?
+Aug 16 12:03:42 <xcoulon>	nboldt: yes, if blog goes out tomorrow it should be fine, the update site should be up-to-date.
+Aug 16 12:03:47 <xcoulon>	nboldt: bug in Docker tooling
+Aug 16 12:03:48 <nboldt>	sweet
+Aug 16 12:03:53 <nboldt>	ok perfect
+Aug 16 12:04:09 <xcoulon>	nboldt: I appreciate your sense of "perfect" ;-)
+Aug 16 12:04:44 <nboldt>	perfect, for all values of "good enough"
+Aug 16 12:04:47 <rgrunber>	xcoulon: what's the issue with bug 499744 ? looks like an issue with remote api output format...
+Aug 16 12:05:34 <rgrunber>	media type=text/plain ? .. for Container messages i would think that should be application/json
+Aug 16 12:05:58 <xcoulon>	rgrunber: damn'it, I commented on the wrong issue. Please ignore the "comment 1"
+Aug 16 12:06:21 <rgrunber>	in fact i remember filing a bug ages ago for some remote api returns which specify a media type of text/plain.. which was clearly wrong.
+Aug 16 12:06:22 <xcoulon>	rgrunber: but also, can you try to reproduce it ? I can't see the new connection in the Explorer view
+Aug 16 12:06:39 <xcoulon>	rgrunber: yes, me too. This was at the time of Docker 1.7
+Aug 16 12:07:40 <rgrunber>	so it's related to version of docker daemon used.. possibly.
+Aug 16 12:08:57 <xcoulon>	I would think so, but I commented there for another bug
+Aug 16 12:09:03 <xcoulon>	which is on CDK
+Aug 16 12:09:44 <xcoulon>	499744 is just about the Docker Explorer view not being refreshed, I think. But first I'm writing an SWT Bot test to retproduce it
+Aug 16 12:09:53 <xcoulon>	s/retproduce/reproduce
+Aug 16 12:10:50 <rgrunber>	ahhh ok i c now.. your comment #2 is not meant for that..
+Aug 16 12:11:20 <rgrunber>	or no.. comment#1.. yeah.. 2nd thing in the bug
+Aug 16 12:11:42 <xcoulon>	rgrunber: yes, sorry for the confusion, I was commenting on the 499744 page for another bug
+Aug 16 12:21:12 <rgrunber>	xcoulon: the functionality worked before https://git.eclipse.org/r/76610/ so i'd like at the explorer code from there.
+Aug 16 12:21:22 <rgrunber>	in fact.. this looks pretty suspect : https://git.eclipse.org/r/#/c/76610/8/containers/org.eclipse.linuxtools.docker.ui/src/org/eclipse/linuxtools/internal/docker/ui/views/DockerExplorerView.java
+Aug 16 12:21:38 <xcoulon>	jeez...
+Aug 16 12:22:03 <xcoulon>	why did I do that ??
+Aug 16 12:22:08 <xcoulon>	sigh...
+Aug 16 12:22:10 <rgrunber>	testing?
+Aug 16 12:23:41 <xcoulon>	rgrunber: I'm not sure. I probably thought these lines where useless in my use-case… 
+Aug 16 12:24:25 <xcoulon>	rgrunber: the good news is: I just wrote an SWTBot test that reproduced the problem and that verified that uncommenting the 3 lines actually resolves the problem
+Aug 16 12:25:18 <xcoulon>	rgrunber: so now, let me run the whole suite of tests again and then I'll push to gerrit
+Aug 16 12:25:37 <xcoulon>	rgrunber: I won't touch my laptop for ~10min while the tests are running
+Aug 16 12:29:36 <rgrunber>	k. you could also try creating some fake display (Xvnc/Xvfb) and then just pass the display # to the mvn call, or in the junit launch config.. i usually do that.. especiall because running the full linuxtools+tests takes a while. 
+Aug 16 12:30:51 *	fuhbot gives channel operator status to fuhbot2
+Aug 16 12:36:07 <xcoulon>	rgrunber: yes, I should try to see if it's doable on MacOSX
+Aug 16 12:43:03 <xcoulon>	rgrunber: I'm pushing the fix for 499744 on gerrit.
+Aug 16 12:43:40 <xcoulon>	I just added you as a reviewer on it: https://git.eclipse.org/r/#/c/79147/
+Aug 16 12:45:19 <rgrunber>	k
+Aug 16 12:47:50 <rgrunber>	xcoulon: feel free to push https://git.eclipse.org/r/79130/ as well if you're fine with it.
+Aug 16 12:48:58 <xcoulon>	rgrunber: ok, done ;-)
+Aug 16 12:49:39 <xcoulon>	rgrunber: btw, I don't remember how/when the nightly update site is updated for the Docker tooling. Is it once a day, 3x a day or after each build ?
+Aug 16 13:03:26 <rgrunber>	xcoulon: i'll have to trigger a build.. iirc it's only twice a day.
+Aug 16 13:04:56 <rgrunber>	appears to be at 12pm or 6pm, if a change exists.
+Aug 16 13:05:03 <xcoulon>	rgrunber: ok
+Aug 16 13:15:17 <xcoulon>	rgrunber: ok, so build was successful and I merged the patch: https://git.eclipse.org/r/#/c/79147/
+Aug 16 13:15:30 <xcoulon>	rgrunber: can you trigger a build for the Docker tooling ?
+Aug 16 13:16:15 <rgrunber>	triggered.
+Aug 16 13:16:21 <rgrunber>	https://hudson.eclipse.org/linuxtools/job/linuxtools-master/2574/
+Aug 16 13:16:34 <rgrunber>	once it's done, content should be available under the updates-docker-nightly site.
+Aug 16 13:19:50 <xcoulon>	rgrunber: awesome ! also, can I mark https://bugs.eclipse.org/bugs/show_bug.cgi?id=499745 as fixed/resolved 
+Aug 16 13:21:57 <rgrunber>	yeah.. we'd still need for reporter to confirm it's fixed for the windows one.
+Aug 16 13:22:17 <xcoulon>	ok, so I'll leave it open and ask Martin to confirm it's fixed, then.
+Aug 16 13:22:51 <xcoulon>	rgrunber: I'm off for now.
+Aug 16 13:41:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Aug 16 13:41:58 2016
+
+**** BEGIN LOGGING AT Tue Aug 16 14:15:41 2016
+
+Aug 16 14:15:41 *	Now talking on #eclipse
+Aug 16 14:15:41 *	Topic for #eclipse is: Eclipse discussions
+Aug 16 14:15:41 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 16 14:19:12 *	fuhbot gives channel operator status to akurtakov
+Aug 16 15:10:50 *	fuhbot gives channel operator status to ebaron
+Aug 16 15:39:01 *	fuhbot gives channel operator status to akurtakov
+Aug 16 16:43:49 *	fuhbot gives channel operator status to palves_
+Aug 16 22:02:47 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 16 23:42:21 *	fuhbot2 gives channel operator status to akurtakov
+Aug 17 05:13:22 *	fuhbot gives channel operator status to palves_
+Aug 17 07:43:00 <scela>	+
+Aug 17 08:16:24 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 17 09:08:10 *	fuhbot gives channel operator status to mattn
+Aug 17 09:45:13 *	fuhbot2 gives channel operator status to akurtakov
+Aug 17 09:47:17 *	fuhbot gives channel operator status to rgrunber
+Aug 17 10:14:40 *	fuhbot2 gives channel operator status to akurtakov
+Aug 17 10:15:24 *	fuhbot gives channel operator status to ebaron
+Aug 17 13:32:00 *	scox is away: lunch
+Aug 17 13:43:35 *	fuhbot2 gives channel operator status to akurtakov
+Aug 17 13:53:56 *	fuhbot2 gives channel operator status to akurtakov
+Aug 17 14:52:25 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 17 14:52:25 2016
+
+**** BEGIN LOGGING AT Wed Aug 17 14:54:25 2016
+
+Aug 17 14:54:25 *	Now talking on #eclipse
+Aug 17 14:54:25 *	Topic for #eclipse is: Eclipse discussions
+Aug 17 14:54:25 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 17 15:34:23 *	fuhbot gives channel operator status to ldimaggi_mtg
+Aug 17 16:02:29 *	Disconnected (No route to host)
+**** ENDING LOGGING AT Wed Aug 17 16:02:29 2016
+
+**** BEGIN LOGGING AT Wed Aug 17 16:02:40 2016
+
+Aug 17 16:02:40 *	Now talking on #eclipse
+Aug 17 16:02:40 *	Topic for #eclipse is: Eclipse discussions
+Aug 17 16:02:40 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 17 17:17:43 *	fuhbot gives channel operator status to palves_
+Aug 17 22:01:14 *	fuhbot2 gives channel operator status to akurtakov
+Aug 18 04:01:15 *	fuhbot gives channel operator status to palves_
+Aug 18 08:31:42 *	fuhbot2 gives channel operator status to akurtakov
+Aug 18 08:53:45 *	fuhbot gives channel operator status to mattn
+Aug 18 09:50:32 *	fuhbot gives channel operator status to rgrunber
+Aug 18 09:58:03 *	fuhbot2 gives channel operator status to mattn
+Aug 18 10:23:38 *	fuhbot2 gives channel operator status to ebaron
+Aug 18 11:39:36 *	fuhbot2 gives channel operator status to akurtakov
+Aug 18 12:03:03 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 18 12:03:06 *	fuhbot gives channel operator status to ldimaggi_mtg
+Aug 18 12:57:24 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Aug 18 12:57:24 2016
+
+**** BEGIN LOGGING AT Thu Aug 18 12:57:35 2016
+
+Aug 18 12:57:35 *	Now talking on #eclipse
+Aug 18 12:57:35 *	Topic for #eclipse is: Eclipse discussions
+Aug 18 12:57:35 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 18 15:35:43 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Thu Aug 18 15:35:43 2016
+
+**** BEGIN LOGGING AT Fri Aug 19 10:19:13 2016
+
+Aug 19 10:19:13 *	Now talking on #eclipse
+Aug 19 10:19:13 *	Topic for #eclipse is: Eclipse discussions
+Aug 19 10:19:13 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 19 10:24:37 *	fuhbot2 gives channel operator status to ebaron
+Aug 19 10:44:16 *	fuhbot gives channel operator status to rgrunber
+Aug 19 14:03:17 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Aug 19 14:03:17 2016
+
+**** BEGIN LOGGING AT Fri Aug 19 14:11:44 2016
+
+Aug 19 14:11:44 *	Now talking on #eclipse
+Aug 19 14:11:44 *	Topic for #eclipse is: Eclipse discussions
+Aug 19 14:11:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 19 14:16:31 *	fuhbot gives channel operator status to mattn
+Aug 19 17:28:35 *	fuhbot gives channel operator status to rgrunber
+Aug 21 22:39:57 *	fuhbot gives channel operator status to ldimaggi
+Aug 22 03:31:15 *	fuhbot2 gives channel operator status to akurtakov
+Aug 22 04:50:12 *	fuhbot gives channel operator status to palves
+Aug 22 08:56:57 *	fuhbot gives channel operator status to mattn
+Aug 22 10:32:51 *	fuhbot gives channel operator status to ebaron
+Aug 22 11:56:41 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 22 12:26:41 <xcoulon>	jjohnstn: hello Jeff. Do you think you would have time to review my pending patches before tomorrow evening and the RC1 build ?
+Aug 22 12:27:26 <xcoulon>	jjohnstn: also, I have serious internet connection issues here this week. Currently on tethering until a technician comes to see what's wrong with the network/cable. He's scheduled to come on Friday only :-(
+Aug 22 12:30:46 <xcoulon>	jjohnstn: FYI, I'm working on https://bugs.eclipse.org/bugs/show_bug.cgi?id=499749 and I hope I can have a patch later tonight or tomorrow morning, too.
+Aug 22 12:52:41 <jjohnstn>	xcoulon: sounds good
+Aug 22 12:52:57 <jjohnstn>	xcoulon: I am reviewing your patches
+Aug 22 14:47:36 *	fuhbot gives channel operator status to ebaron
+Aug 22 15:45:14 *	fuhbot2 gives channel operator status to akurtakov
+Aug 22 17:44:43 *	fuhbot gives channel operator status to palves
+Aug 23 05:01:01 *	fuhbot gives channel operator status to palves
+Aug 23 07:43:53 *	fuhbot gives channel operator status to mbenitez
+Aug 23 08:28:35 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 23 08:52:39 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 23 08:58:48 *	fuhbot2 gives channel operator status to mattn
+Aug 23 10:29:15 *	fuhbot2 gives channel operator status to ebaron
+Aug 23 11:31:43 <xcoulon>	akurtakov: hello Alexander. Have you seen Jeff lately ? I wanted to discuss about some patches for Docker for Neon.1.RC1
+Aug 23 11:32:08 <akurtakov>	xcoulon: he should be at LinuxCon which is in toronto this week
+Aug 23 11:33:09 <xcoulon>	akurtakov: oh, I thought he said he was not going. I guess I misunderstood, then
+Aug 23 11:33:43 <akurtakov>	hmm, I don't know I see in the team calendar leo, roland and martha going 
+Aug 23 11:34:06 <xcoulon>	akurtakov: ok, I have to disconnectnow, but I'll join the channel later today to try to reach him
+Aug 23 11:34:09 <xcoulon>	akurtakov: thanks !
+Aug 23 11:34:17 <akurtakov>	xcoulon: you're wlecome
+Aug 23 12:41:59 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 23 13:30:04 <xcoulon>	jjohnstn: hello Jeff ! I just saw that you merged the patch to support Docker Compose ! Thanks a lot !
+Aug 23 13:30:38 <xcoulon>	jjohnstn: also, I'm seeing some changes on https://git.eclipse.org/r/#/c/79490/ but I'm not sure what you did on patch set 2
+Aug 23 13:31:17 <xcoulon>	jjohnstn: and finally, do you need any help from me tonight for the RC1 build ?
+Aug 23 13:32:05 <xcoulon>	jjohnstn: or maybe patchset 2 for https://git.eclipse.org/r/#/c/79490/ was just a rebase on master after you merged the patch for Docker Compose ?
+Aug 23 13:39:14 <xcoulon>	jjohnstn: are you here ?
+Aug 23 13:39:38 <xcoulon>	(ha, that might be lunch time for you..)
+Aug 23 14:14:31 <jjohnstn>	xcoulon: yes, I was at a late lunch...I had to rebase your other patch as it collided with your Docker Compose patch
+Aug 23 14:15:06 <jjohnstn>	xcoulon: I shouldn't require any help from you this evening...if I have build issues, I may contact you tomorrow morning
+Aug 23 14:18:08 <jjohnstn>	xcoulon: I am getting "No Docker image selected" for your hierarchy patch no matter whether I choose an image in Explorer or Images view...any ideas?
+Aug 23 15:02:17 *	fuhbot gives channel operator status to akurtakov
+Aug 23 15:19:20 <nboldt1>	anyone know which jenkins slaves (if any) have mock and rpmbuild installed on them? 
+Aug 23 15:24:25 <xcoulon>	jjohnstn: hello again ! 
+Aug 23 15:25:05 <xcoulon>	jjohnstn: so, do you need any help for the RC1 build today/this evening ?
+Aug 23 15:25:31 <jjohnstn>	xcoulon: hi...I managed to check in your other patch, but you need to eventually clean up the UI...the hierarchy view says no image selected even though an image can be selected in Explorer or Images view....perhaps it should just be empty
+Aug 23 15:25:39 <xcoulon>	(damn… even pulling mails via phone is a pain..)
+Aug 23 15:25:59 <jjohnstn>	xcoulon: s
+Aug 23 15:26:15 <jjohnstn>	xcoulon: I shouldn't require any help this evening, but perhaps tomorrow if I run into a problem
+Aug 23 15:26:51 <xcoulon>	jjohnstn: ok for the build. I'm not sure I understant what you mean by "the hierarchy view says no image selected even though an image can be selected in Explorer or Images view"
+Aug 23 15:27:58 <jjohnstn>	xcoulon: if hierarchy view is open on startup, it contains a msg saying "no image has been selected"...this occurs even if you select an image in the Explorer or Images views...it only fills in if you right-click an image in Explorer view and select Open Hierarchy View
+Aug 23 15:28:53 <xcoulon>	jjohnstn: ha ok. So not a blocker for the RC1 build, then ?
+Aug 23 15:28:59 <jjohnstn>	xcoulon: correct
+Aug 23 15:29:21 <jjohnstn>	xcoulon: but open a bug to track it...also add support to Images view context menu
+Aug 23 15:29:44 <xcoulon>	jjohnstn: ok, sure
+Aug 23 15:32:12 <xcoulon>	jjohnstn: ok so my connection is so slow that BZ does not even load the page to open new issues. I'll look at that tomorrow morning
+Aug 23 15:32:26 <jjohnstn>	xcoulon: ok
+Aug 23 15:33:36 <xcoulon>	jjohnstn: I'm off for this evening, then. I'll check my mails tomorrow morning to see if there's anything to do for the RC1 build
+Aug 23 15:33:40 <xcoulon>	jjohnstn: have a good afternoon/night
+Aug 23 15:33:44 <jjohnstn>	you too
+Aug 23 15:36:27 <xcoulon>	jjohnstn: thanks ! Regarding the Image Hierarchy view message, what would you suggest ? I'm not sure we should support the link to the explorer view/images view/containers view selection. Should I just change the message to something more specific/less confusing ?
+Aug 23 15:37:00 <jjohnstn>	xcoulon: I think leave it empty and don't open the view by default
+Aug 23 15:37:15 <xcoulon>	(since BZ finally responded, I'm going to fill the issues now)
+Aug 23 15:37:54 <xcoulon>	jjohnstn: well, I'm just surprised that it was open by default. I'll need to check that. Maybe there's a setting in the plugin.xml that I copied from the Explorer view..
+Aug 23 15:38:01 <xcoulon>	but I see what you mean
+Aug 23 15:38:20 <jjohnstn>	xcoulon: the workspace could have remembered it being open
+Aug 23 15:39:40 <xcoulon>	jjohnstn: yes, maybe. So I opened https://bugs.eclipse.org/bugs/show_bug.cgi?id=500159 . Feel free to comment ;-)
+Aug 23 15:39:49 <xcoulon>	jjohnstn: that's all for me now. Bye !
+Aug 23 15:41:21 <nboldt1>	jjohnstn: so RC1 bits are live some time tomorrow?
+Aug 23 15:41:39 <nboldt1>	s/are/will be
+Aug 23 15:46:23 <jjohnstn>	nboldt1: yes, tomorrow before 5 pm
+Aug 23 15:50:47 <nboldt1>	jjohnstn: great!
+Aug 23 17:27:45 *	fuhbot gives channel operator status to palves
+Aug 24 08:48:40 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 24 09:02:36 *	fuhbot gives channel operator status to mattn
+Aug 24 09:24:50 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 24 09:33:51 *	fuhbot2 gives channel operator status to ebaron
+Aug 24 09:47:23 <scela>	mistria: hey
+Aug 24 09:47:32 <mistria>	scela: hi!
+Aug 24 09:47:34 <scela>	will you have time in the near future to push the example projects to https://bugs.eclipse.org/bugs/show_bug.cgi?id=499811
+Aug 24 09:47:46 <scela>	i have some strange issue with the CLA-now ECA
+Aug 24 09:51:11 <scela>	mistria: i think i fixed it. had to invalidate and sign again.
+Aug 24 09:51:14 <scela>	so I'll do it myself
+Aug 24 09:51:33 <mistria>	scela: so it was removed from the initial contribution, right?
+Aug 24 09:51:34 <akurtakov>	scela: your counting is weird :)
+Aug 24 09:51:44 <akurtakov>	two members - Dani, Alex and Lars :)
+Aug 24 09:52:09 <scela>	akurtakov: yeah I forgot one and added it only in one place :)
+Aug 24 09:52:24 <scela>	mistria: yes
+Aug 24 09:52:40 <scela>	we need refactoring in bugzilla
+Aug 24 09:52:52 <scela>	akurtakov: ^
+Aug 24 09:54:39 <mistria>	scela: ok. I'm working on setting up a patch with examples as a child of current patch set 25
+Aug 24 09:54:50 <mistria>	scela: in a separate commit/review
+Aug 24 09:55:50 <mistria>	scela: by the way, I believe I've achieved a major step forward regarding language servers
+Aug 24 09:56:09 <mistria>	scela: use can now define a LaunchConfiguration which is a language server and associate it with the content type of their choice
+Aug 24 09:56:26 <mistria>	scela: so if you want to add support for a new language server, you can do it without installing anything
+Aug 24 09:56:48 <scela>	mistria: nice
+Aug 24 09:56:53 <scela>	is it in the github so I can try it?
+Aug 24 09:56:58 <mistria>	is it only me or Gerrit isn't reachable via CLI/HTTP
+Aug 24 09:57:03 <mistria>	yes, it's on GitHub
+Aug 24 09:57:19 <mistria>	CLI/SSH sorry
+Aug 24 09:57:43 <scela>	mistria: I'll give it a look
+Aug 24 09:57:54 <scela>	mistria: I'm still stuck waiting on dani to review the patch
+Aug 24 09:58:01 <scela>	to get the editor infrastructure in
+Aug 24 09:58:21 <scela>	that would also be quite nice to have. hopefully we have it in M2.
+Aug 24 09:58:47 <scela>	mistria: don't know about CLI on gerrit, i use only http
+Aug 24 09:59:02 <mistria>	Gerrit is back for me
+Aug 24 09:59:17 <mistria>	Yeah, I'm also frustrated to have to wait for Dani
+Aug 24 09:59:28 <mistria>	but at least, he cares about it
+Aug 24 09:59:31 <mistria>	that's a good thing ;)
+Aug 24 09:59:47 <mistria>	it means he's going to really review it, one day
+Aug 24 10:01:12 <scela>	mistria: once we have that part in it will 'release' us to focus on some consumption scenarios to feed to p.ui or p.text
+Aug 24 10:01:55 <mistria>	scela: Dani told me that the .project editor would be sufficient to feed platform.whatever
+Aug 24 10:02:30 <scela>	mistria: 'sufficient' to get it in. but it would be nice to have more in order to put it under lots of use case scenarios
+Aug 24 10:02:44 <scela>	mistria: a. loskutov was pretty happy about it and he wanted more
+Aug 24 10:02:50 <scela>	like .classpath editor etc.
+Aug 24 10:07:22 <mistria>	scela: enjoy https://git.eclipse.org/r/#/c/79630/
+Aug 24 10:08:06 <mistria>	scela: doesn't JDT already contribute a correct editor for .classpath? Also, the Project Settings page is IMO perfect at doing it.
+Aug 24 10:10:41 <scela>	mistria: no i don't think there is a .classpath textual editor
+Aug 24 10:10:49 <scela>	they are usually opened in plain text
+Aug 24 10:11:06 <scela>	mistria: yeah the settings are a way to do it, but that's also true for .project
+Aug 24 10:11:16 <scela>	it's more an alternative way than a feature addition
+Aug 24 10:12:24 <mistria>	scela: a project settings page would be perfect for .project too: http://eclip.se/102527
+Aug 24 10:15:43 <scela>	mistria: the only thing lacking is the nature AFAICS
+Aug 24 10:16:17 <akurtakov>	scela: mistria: if you look for real world test case for the editor stuff - ant editor is probably quite good for that purpose
+Aug 24 10:16:31 <akurtakov>	plain editor reimplementing everything from scratch IIRC
+Aug 24 10:16:47 <scela>	akurtakov: can the ant editor give me autocomplete on natures?
+Aug 24 10:17:10 <mistria>	akurtakov: Ant sucks and is not much used at the moment; I don't think it would bring that much value
+Aug 24 10:17:26 <mistria>	akurtakov: FYI, my current main editor for testing language server is a C# one
+Aug 24 10:17:48 <mistria>	akurtakov: I have diagnostics, completion, hover, Find References, Open Declaration
+Aug 24 10:17:55 <mistria>	akurtakov: working on Refactoring
+Aug 24 10:18:16 <akurtakov>	mistria: I see, I was thinking for the case where you need a use case in platform itself and you can try way more things with the ant editor than with .project editor
+Aug 24 10:18:38 <scela>	mistria: have you thought about whether we can contribute some of that C# stuff to some real eclipse project once the editor infra is in?
+Aug 24 10:19:18 <mistria>	scela: the general binding with language servers can be contributed, it's only using Eclipse's API
+Aug 24 10:20:10 <scela>	mistria: which project are you thinking of to contribute that part?
+Aug 24 10:20:16 <mistria>	scela: For the C# part, we can ship a plugin that tries to detect some OmniSharp version and create the launch configuration and association, in an IStartup
+Aug 24 10:20:45 <mistria>	scela: VSCode team people told me that soon, the dotnet SDK will ship a language server out of the box
+Aug 24 10:20:51 <mistria>	scela: ie, no OmniSharp
+Aug 24 10:21:24 <mistria>	scela: plain dotnet commands, that we can easily set up as launch configurations
+Aug 24 10:21:33 <mistria>	scela: about a target project, I don't know
+Aug 24 10:21:40 <mistria>	scela: Platform is IMO too low level.
+Aug 24 10:21:51 <mistria>	scela: Maybe DLTK would be a good fit
+Aug 24 10:21:56 <mistria>	scela: or create a new one...
+Aug 24 10:22:07 <scela>	akurtakov: do you think DLTK is a fit? ^
+Aug 24 10:22:41 <scela>	mistria: it's nice they'll make it easier. i wiped my packages twice trying to set up omnisharp on fedora
+Aug 24 10:23:20 <akurtakov>	mistria: scela: could be, it was supposed to serve such usecases
+Aug 24 10:23:45 <mistria>	akurtakov: nice!
+Aug 24 10:23:54 <akurtakov>	with that said, I don't know what exactly do you want to contribute in eclipse land
+Aug 24 10:24:25 <mistria>	akurtakov: as soon as the lsp4j project is provisioned at Eclipse.org and Platform intergrated the Generic editor, the language server support for Generic Editor can be moved to DLTK then
+Aug 24 10:24:43 <mistria>	akurtakov: it's https://github.com/eclipselabs/eclipse-language-service
+Aug 24 10:25:04 <akurtakov>	mistria: so basically that is hooking lsp4j in the generic editor?
+Aug 24 10:25:09 <scela>	akurtakov: yes
+Aug 24 10:25:19 <akurtakov>	sounds good
+Aug 24 10:25:51 <scela>	akurtakov: generic editor can have any source, language servers are one. the code to bind to language servers will have to go to somewhere.
+Aug 24 10:26:14 <scela>	by 'source' i mean source of information on coloring autocomplete etc. :)
+Aug 24 10:35:30 <maxandersen>	mistria why would we not want the generic editor in eclipse platform ? 
+Aug 24 10:36:05 <akurtakov>	maxandersen: not the generic editor but it's hook to language server
+Aug 24 10:36:17 <mistria>	maxandersen: you misread some comments: generic editor in Platform, lsp-based extensions into DLTK
+Aug 24 10:37:09 <maxandersen>	@akurtakov okey - as long as it does not require installing all the existing stuff in DLTK that can work. 
+Aug 24 10:37:21 <maxandersen>	but where would i.e. json language server live ? 
+Aug 24 10:37:29 <maxandersen>	language server based editor i mean.
+Aug 24 10:37:35 <maxandersen>	would that be in WTP or DLTK ? 
+Aug 24 10:37:40 <akurtakov>	that's entirely different question 
+Aug 24 10:38:13 <maxandersen>	akurtakov okey, then I don't grok what is suggested to be in dltk ? 
+Aug 24 10:38:15 <mistria>	maxandersen: specific "connections" or server would most likely go into WTP
+Aug 24 10:38:40 <mistria>	maxandersen: the language server client for Eclipse Platform generic editor
+Aug 24 10:38:48 <mistria>	maxandersen: which isn't language-specific
+Aug 24 10:38:51 <maxandersen>	mistria okey, so WTP would need to depend on DLTK to get what it needs, mnot just platform ? 
+Aug 24 10:39:10 <mistria>	maxandersen: if they want to pick the language server support, yes
+Aug 24 10:39:26 <mistria>	maxandersen: there is IMO no way to have this language server support in Platform
+Aug 24 10:39:27 <maxandersen>	ookey, so back to again - why not have that in the platform.
+Aug 24 10:39:37 <mistria>	maxandersne: but maybe akurtakov have a different opinion
+Aug 24 10:39:41 <maxandersen>	just like syntax highlghting is in the platform.
+Aug 24 10:39:48 <maxandersen>	sourceviewerconfiguration
+Aug 24 10:40:12 <mistria>	maxandersen: those don't depend on an external protocol or api, that's I believe what can make a difference
+Aug 24 10:40:20 <maxandersen>	I honestly think if we put LPS stuff in higher level projects we'll not get the benefirts from it.
+Aug 24 10:40:21 <akurtakov>	we wanted to create ide-commons for that sole purpose to hoste launchbar, remote, templates and eventually this one
+Aug 24 10:40:27 <mistria>	maxandersen: but if platform is fine with keeping the LSP client, why not
+Aug 24 10:40:27 <akurtakov>	but never got to it
+Aug 24 10:41:00 <maxandersen>	akurtakov yes, which is why I was hopening putting it in platform would hav emore success ;)
+Aug 24 10:41:01 <akurtakov>	I'm not convinced about lsp in platfrom yet
+Aug 24 10:41:23 <akurtakov>	how much influence can community have over lsp?
+Aug 24 10:41:41 <akurtakov>	is it 100% one company controlled?
+Aug 24 10:41:53 <akurtakov>	as long as that's true I don't see it coming into platform
+Aug 24 10:41:58 <mistria>	maxandersen akurtakov: I believe the API and release rules in Platform wouldn't fit for such a technology that's prone to evolve a lot
+Aug 24 10:42:30 <akurtakov>	at least that's the PMC opinion from previous meetings
+Aug 24 10:42:37 <mistria>	akurtakov maxandersen: could be in the e4.ui repository, that's where I've put all my mess lately ;)
+Aug 24 10:44:02 <scela>	mistria: i'd rather not have it into an incubation-level project
+Aug 24 10:44:10 <akurtakov>	being in e4.ui has the nasty incubation thing
+Aug 24 10:44:41 <akurtakov>	which would prevent using it in e.g. linuxtools for the dockereditor or in dltk ruby and etc.
+Aug 24 10:45:46 <mistria>	maybe just lsp4j would be fine
+Aug 24 10:46:01 <mistria>	they'd have their plain API in one repo, and another repo for the Eclipse integration
+Aug 24 10:46:22 <mistria>	after all, it's where this would make the more sense
+Aug 24 10:46:41 <scela>	mistria: which repos do you mean in either case?
+Aug 24 10:46:59 <mistria>	lsp4j.core, lsp4j.eclipse.ui
+Aug 24 10:47:06 <mistria>	(imagining here)
+Aug 24 10:48:01 <maxandersen>	mistria the platform needs to find a way to ship things that moves faster into the release train ;)
+Aug 24 10:48:51 <akurtakov>	maxandersen: that has been also discussed multiple times - there is no issue with that other than no one to act on real releng tasks to make this happen
+Aug 24 10:49:37 <akurtakov>	so we have the agreement this has to happen and all available resources at 150% at other tasks
+Aug 24 10:50:17 <akurtakov>	so nothing happens
+Aug 24 10:50:39 <akurtakov>	as it's more important keeping what we have now not breaking
+Aug 24 10:52:21 <akurtakov>	maxandersen: I'm with you on that but if we want it to happen we have huge backlog to fight first
+Aug 24 10:53:11 <akurtakov>	e.g. even for Neon we lifted the limit to what can be backported so Neon.1...n will be more important releases
+Aug 24 10:53:26 <akurtakov>	but we face the issue of not having who to do the actual backports
+Aug 24 10:53:45 <maxandersen>	agreed - if putting in platform is impossible then need to find another place to host it - DLTK for me just seem so foreign and seperated ;)
+Aug 24 10:54:00 <maxandersen>	but if it could be done in DLTK similar to how docker tools was done in linux tools then great.
+Aug 24 10:54:22 <maxandersen>	ie. docker was just put in linux tools so it could be released, but no actual connection to linux tools.
+Aug 24 10:54:43 <akurtakov>	maxandersen: I really don't have preference over lsp4j and dltk 
+Aug 24 10:55:05 <akurtakov>	if lsp4j folks are not fine with having it we should be able to sneak it into dltk so we can release it
+Aug 24 10:55:37 <maxandersen>	you guys are aware gorkem is being asked by IBM to contribute the jdt-server implementation to JDT ...that will not use lsp4j anytime soon. 
+Aug 24 10:55:40 <akurtakov>	maxandersen: it's not that it's important to put into platform it just requires more effort 
+Aug 24 10:56:29 <maxandersen>	and he is working on a propsoal for that.
+Aug 24 10:56:47 <akurtakov>	my impression was that lsp4j was more for client side implementation
+Aug 24 10:57:22 <akurtakov>	when for server side you can implement protocol easier and faster without such abstractions
+Aug 24 10:59:32 <akurtakov>	also lsp4j had this xtend/xtext dep, right? 
+Aug 24 10:59:55 <akurtakov>	we already suffer from the emf/platform circular dep so adding one more is definetely bad idea
+Aug 24 11:01:31 <akurtakov>	and again platform and jdt are built together (due to historical reasons) and breaking this circle requires effort
+Aug 24 11:01:45 <akurtakov>	once this done - jdt could use way more deps 
+Aug 24 11:02:48 <akurtakov>	everytime one adds such "innocent" small circle dep he/she slows the next iteration significantly
+Aug 24 11:06:39 *	fuhbot gives channel operator status to jjohnstn_
+Aug 24 11:48:54 <maxandersen>	akurtakov yes, lsp4j has this dep and why I find it not useful for me ;)
+Aug 24 12:31:05 *	fuhbot gives channel operator status to ebaron
+Aug 24 12:42:56 <xcoulon>	jjohnstn: hello Jeff. Have you tried the support for creating a connection from environment variables in the clipboard ? It does not seem to work here and it breaks a test
+Aug 24 12:43:24 <xcoulon>	do you know how it is supposed to work ? copy values from CLI and paste in the Docker Explorer view ?
+Aug 24 12:44:23 <xcoulon>	jjohnstn: ha, never mind, I see it works from a runtime Eclipse. Now I need to figure out why the test fails
+Aug 24 12:44:49 <jjohnstn|wfh>	xcoulon: I am at home and forgot to shut down my work IRC
+Aug 24 12:45:01 <xcoulon>	jjohnstn: oh, you're on PTO ?
+Aug 24 12:45:09 <jjohnstn|wfh>	xcoulon: no, just working from home
+Aug 24 12:45:15 <xcoulon>	ha ok
+Aug 24 12:45:29 <xcoulon>	so I should ping you on jjohnstn|wfh. got it
+Aug 24 12:45:38 <jjohnstn|wfh>	yup
+Aug 24 12:46:07 <xcoulon>	anyway, I'll try to see why it fails here. In the mean time, I'll push a patch on gerrit to see if the build succeeds
+Aug 24 12:46:07 <jjohnstn|wfh>	xcoulon: the build should be aggregated from last night...do we need to update a JIRA?
+Aug 24 12:46:26 <xcoulon>	jjohnstn|wfh: if you can update them, please, yes
+Aug 24 12:46:46 <xcoulon>	I'm still connecting via my phone, so can you do it ?
+Aug 24 12:48:32 <xcoulon>	jjohnstn|wfh: so from my understanding, we're good for Neon.1.RC1, right ?
+Aug 24 12:51:09 <jjohnstn|wfh>	I'll let nboldt know...the docker stuff is found at: http://download.eclipse.org/linuxtools/update-neon-1-docker-rc1
+Aug 24 12:51:32 <jjohnstn|wfh>	xcoulon: yes
+Aug 24 12:53:01 <xcoulon>	jjohnstn|wfh: great ! so I'll logoff for today. spend a bit of time with wife and kids as they just came back from 4 days away from home ;-)
+Aug 24 12:53:11 <xcoulon>	jjohnstn|wfh: I'll see you tomorrow
+Aug 24 12:53:13 <xcoulon>	bye
+Aug 24 12:53:48 <jjohnstn|wfh>	xcoulon: enjoy
+Aug 24 12:55:58 <xcoulon1>	jjohnstn|wfh: thanks ! have a good afternoon
+Aug 24 12:59:37 <nboldt>	jjohnstn jjohnstn|wfh contents are live and ready for me to mirror into JBT TP?
+Aug 24 13:00:19 <nboldt>	p2browser shows contents built last night ~10pm. 
+Aug 24 13:01:00 <nboldt>	jjohnstn jjohnstn|wfh: so just wanted to confirm the site won't be updated later today as you'd said 5pm was the cutoff time and it's only 1pm now :D
+Aug 24 14:05:42 <nboldt>	jjohnstn: I'm going to assume your silence = my assumption is correct and the site is complete and ready for use
+Aug 24 14:43:55 <jjohnstn|wfh>	nboldt: yes, sorry, I was afk and forgot to denote it
+Aug 24 14:47:24 <jjohnstn|wfh>	nboldt: yes, sorry, I was afk and forgot to denote it
+Aug 24 15:06:21 <jjohnstn|wfh>	nboldt: to confirm...last night's build is the one I aggregated
+Aug 24 15:07:52 <nboldt>	jjohnstn|wfh: thanks, I'm mirroring it now
+Aug 24 15:09:17 <nboldt>	jjohnstn|wfh: do you forsee another update next week?
+Aug 24 15:10:13 <jjohnstn|wfh>	nboldt: we are on a weekly rc1 schedule...next week is RC2, then a week later RC3, then finally a week after that RC4 which will become our Neon.1 5.1.0 release
+Aug 24 15:10:21 <jjohnstn|wfh>	nboldt: so yet
+Aug 24 15:10:25 <jjohnstn|wfh>	nboldt: so yes
+Aug 24 15:10:33 <nboldt>	jjohnstn|wfh: ok, thanks
+Aug 24 15:20:01 *	fuhbot gives channel operator status to akurtakov
+Aug 24 17:37:21 *	fuhbot2 gives channel operator status to mattn
+Aug 24 17:46:17 *	fuhbot gives channel operator status to palves
+Aug 24 18:17:52 *	fuhbot2 gives channel operator status to ebaron
+Aug 24 18:24:38 <strykerawb>	jjohnstn,  ping
+Aug 24 18:25:20 <strykerawb>	i've been browsing https://bugs.eclipse.org/bugs/show_bug.cgi?id=495251   and can't seem to grok what the replacement of ImagePushProgressHandler is
+Aug 24 18:25:48 <strykerawb>	the bugzilla seems to indicate the goal was to make ImagePushProgressHandler  into public API
+Aug 24 18:25:54 <strykerawb>	however i'm not seeing it available in public api
+Aug 24 18:26:00 <strykerawb>	all i'm seeing is an interface
+Aug 24 18:43:24 <strykerawb>	ugh the docker guys broke api.  They changed the only constructor to RegistryInfo
+Aug 25 04:41:27 *	fuhbot gives channel operator status to palves
+Aug 25 05:18:34 *	fuhbot gives channel operator status to palves
+Aug 25 08:21:46 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 25 08:34:19 *	fuhbot gives channel operator status to mbenitez
+Aug 25 09:00:36 <xcoulon>	jjohnstn: joining on call now
+Aug 25 09:01:01 <xcoulon>	jjohnstn: actually, I'm going to try by phone instead of BJ
+Aug 25 09:01:03 *	fuhbot gives channel operator status to jjohnstn_
+Aug 25 09:04:32 *	fuhbot gives channel operator status to ldimaggi_
+Aug 25 09:15:48 <jjohnstn_>	nboldt: we intend to move vagrant feature to 2.1.0 for RC2...there may be no changes, but typically all features move in lock-sync for releases (e.g. all linuxtools features are now 5.1.0)...any issues with this?
+Aug 25 09:20:15 <jjohnstn_>	nboldt: we can discuss later this afternoon
+Aug 25 09:29:03 *	fuhbot gives channel operator status to mattn
+Aug 25 09:30:29 <akurtakov>	jjohnstn: to prevent such things in the future
+Aug 25 09:30:55 <akurtakov>	we should bump features versions right after branching not before releasing
+Aug 25 09:32:58 *	fuhbot gives channel operator status to ldimaggi
+Aug 25 09:32:58 *	fuhbot2 gives channel operator status to ldimaggi
+Aug 25 09:35:13 <xcoulon>	jjohnstn: some colleague reported this error: https://paste.fedoraproject.org/413829/13184714/
+Aug 25 09:35:22 <xcoulon>	looks like bouncy castle is missing ??
+Aug 25 09:35:32 <xcoulon>	and I can't see it as a dependency in docker.core
+Aug 25 09:35:51 <xcoulon>	have we missed that from the beginning ???
+Aug 25 09:36:20 *	fuhbot gives channel operator status to rgrunber
+Aug 25 09:37:26 <xcoulon>	rgrunber: hello Roland ! A colleague reported https://paste.fedoraproject.org/413829/13184714/ and found a link to https://bugs.eclipse.org/bugs/show_bug.cgi?id=479489
+Aug 25 09:37:51 <xcoulon>	what's weird is that it is not in the Docker core MANIFEST.MF
+Aug 25 09:38:33 <xcoulon>	but it is in spotify client's MANIFEST.MF: org.bouncycastle.asn1.pkcs;version="
+Aug 25 09:38:35 <xcoulon>	 [1.51,2)
+Aug 25 09:38:56 <xcoulon>	and org.bouncycastle.openssl;version="[1.51,2)
+Aug 25 09:39:46 <rgrunber>	docker.core doesn't depend on bouncycastle.
+Aug 25 09:39:52 <rgrunber>	only docker-client
+Aug 25 09:40:06 <xcoulon>	rgrunber: yes, my bad. I was too quick
+Aug 25 09:40:48 <xcoulon>	rgrunber: I was afraid that we missed something on the Docker tooling side, but I suspect the problem that our colleague has is related to his TP
+Aug 25 09:41:33 <rgrunber>	i'd have to look into it but according to what i wrote 1.51 has PEMParser and we certainly require it according to that through docker-client.
+Aug 25 09:41:42 <rgrunber>	perhaps they're using an older docker-client, or something..
+Aug 25 09:42:05 <xcoulon>	rgrunber: yes, there seems to be something wrong somewhere
+Aug 25 09:47:22 <xcoulon>	jjohnstn: btw, docker.editor is still in version 1.0.0 and docker.doc is in version 2.0.0. Maybe we should align them with the others (2.1.0) ?
+Aug 25 10:32:46 *	fuhbot gives channel operator status to ebaron
+Aug 25 10:56:19 <rgrunber>	xcoulon: .. aren't you on pto today ?
+Aug 25 10:56:31 <xcoulon>	rgrunber: tonight
+Aug 25 10:56:45 <xcoulon>	until next Thursday (Sept 1st)
+Aug 25 10:56:57 <rgrunber>	ah ok.
+Aug 25 10:57:17 <xcoulon>	rgrunber: btw, how was Linuxconf ?
+Aug 25 11:00:50 *	fuhbot gives channel operator status to mbenitez
+Aug 25 11:01:17 <mbenitez>	eclipse-team: modified weekly team call now
+Aug 25 11:02:53 <mbenitez>	rgrunber, jjohnstn, lufimtse ping^
+Aug 25 11:23:55 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Aug 25 11:23:55 2016
+
+**** BEGIN LOGGING AT Thu Aug 25 12:16:00 2016
+
+Aug 25 12:16:00 *	Now talking on #eclipse
+Aug 25 12:16:00 *	Topic for #eclipse is: Eclipse discussions
+Aug 25 12:16:00 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 25 12:16:01 <xcoulon>	rgrunber: what do you mean ?
+Aug 25 12:16:25 <nboldt1>	why is the new bundle called "jdk15on" ?
+Aug 25 12:16:39 <nboldt1>	was it compiled w/ JDK 1.5 instead of perhaps something newer ?
+Aug 25 12:16:52 <nboldt1>	is it possible the class is not accessible to JDK 8?
+Aug 25 12:17:03 <xcoulon>	O_O
+Aug 25 12:17:13 *	nboldt1 is speculating wildly
+Aug 25 12:17:32 <rgrunber>	i believe they're both the same jdk15on..  just the bsn that is different from when it was originally in orbit.
+Aug 25 12:17:49 <xcoulon>	rgrunber: I can't update my TP here because my phone is my modem, so rgrunber could you try that ?
+Aug 25 12:18:16 <xcoulon>	try to create a connection in the Docker tooling when bouncycastle 1.52 is used
+Aug 25 12:18:24 <nboldt1>	but in the docker tools RC1 site, the bundles don't have -jdk15on suffix in them
+Aug 25 12:19:10 <nboldt1>	rgrunber: https://issues.jboss.org/secure/attachment/12408773/RC1vs0825N_sorted.txt (on the left is RC1 < and on the right is nightly >)
+Aug 25 12:19:32 <nboldt1>	< org.bouncycastle.bcpkix [1.51.0.v201505131810] 
+Aug 25 12:19:36 <nboldt1>	> org.bouncycastle.bcpkix-jdk15on [1.52.0.v20160323-2125] 
+Aug 25 12:19:40 <nboldt1>	< org.bouncycastle.bcprov [1.51.0.v201505131810] 
+Aug 25 12:19:41 <nboldt1>	> org.bouncycastle.bcprov-jdk15on [1.52.0.v20160323-2125]
+Aug 25 12:19:55 <nboldt1>	so it's not QUITE the same :D
+Aug 25 12:20:35 <rgrunber>	no but docker-client does an import-package so it wouldn't matter they both Export-Package the correct content.
+Aug 25 12:23:04 <rgrunber>	i'll try out a connection against 1.52 to see since that'll pretty much decide it.
+Aug 25 12:23:09 <akurtakov>	lufimtse: would you please review https://git.eclipse.org/r/#/c/79638/
+Aug 25 12:23:15 <nboldt1>	rgrunber: yeah, that's what I was expecting... though I'm really curious why the suffix is there and what it means
+Aug 25 12:24:35 <akurtakov>	lufimtse: https://twitter.com/akurtakov/status/768736440398118912 pretty much gives you what to expect
+Aug 25 12:24:35 <rgrunber>	but from my investigation i couldn't see any reason why the update from 1.51 to 1.52 would fail.. docker-client import packages to bouncycastle would still support 1.52 and the classes are in the same location so nothing like that should happen..
+Aug 25 12:24:42 <rgrunber>	nboldt1: ah about the suffix..
+Aug 25 12:24:51 <rgrunber>	nboldt1: https://www.bouncycastle.org/latest_releases.html
+Aug 25 12:25:22 <akurtakov>	lufimtse: if you test the additional css file path too and please test I haven't broke 3.18 and older :)
+Aug 25 12:25:52 <rgrunber>	15on -> JDK 1.5 and onward.
+Aug 25 12:26:40 <nboldt1>	maybe they're not declared as singletons so both 1.51 and 1.52 are present in devstudio?
+Aug 25 12:27:27 <akurtakov>	why should they be singletons?
+Aug 25 12:27:30 <rgrunber>	they probably wouldn't be singletons.. as libraries
+Aug 25 12:28:05 <rgrunber>	yeah.. so if the same classloader tried to load 2 different ones.. that could cause it..
+Aug 25 12:32:09 <xcoulon>	rgrunber: can you comment on https://issues.jboss.org/browse/JBIDE-23043 ?
+Aug 25 12:32:27 <xcoulon>	I have to go for errands but I should be back after dinner (in 2-3hrs)
+Aug 25 12:32:48 <rgrunber>	k i'll try and see what's wrong.
+Aug 25 12:35:23 <lufimtse>	akurtakov, ok
+Aug 25 12:35:47 *	fuhbot gives channel operator status to ebaron
+Aug 25 12:39:40 <mbenitez>	mbooth, do you have access to BZ1367019 ?
+Aug 25 12:42:56 <xcoulon>	rgrunber: thanks
+Aug 25 12:43:00 <xcoulon>	see you later
+Aug 25 12:47:28 <mbooth>	mbenitez: I think so
+Aug 25 12:48:02 <mbenitez>	I can't access that or a few others in Martin's testing results
+Aug 25 12:48:37 <mbooth>	mbenitez: Oh, maybe I see the problem "Groups: Red Hat Quality Assurance (internal)"
+Aug 25 12:49:06 <mbooth>	mbenitez: Try now
+Aug 25 12:49:07 <mbenitez>	mbooth, that sounds promising
+Aug 25 12:49:50 <lufimtse>	mbooth, what was the link to the Trello board again?
+Aug 25 12:49:54 <mbenitez>	mbooth, you got it! it works now, can I ask you to please change a few more? since you have QA rights :)
+Aug 25 12:50:03 <mbooth>	mbenitez: Sure
+Aug 25 12:50:16 <mbooth>	mbenitez: Although, I expected you to have more rights than me!
+Aug 25 12:50:44 <mbooth>	lufimtse: This is the board I was looking at: https://trello.com/b/yugU3B6P/team-code
+Aug 25 12:51:34 <mbenitez>	mbooth, maybe as component owner you are more trustworthy than me :) if you can: 1367354 1367471 1367667
+Aug 25 12:53:07 <mbooth>	mbenitez: I fixed the last two, but even I am not authorised for 1367354 :-(
+Aug 25 12:57:09 <mbenitez>	mbooth, thanks! I'll ask vkadlcik_gone tomorrow
+Aug 25 12:58:11 *	fuhbot2 gives channel operator status to ebaron
+Aug 25 13:27:37 <nboldt1>	rgrunber: mbooth: what's a good way to test whether the rh-eclipse46-devstudio rpm works as expected? I can launch it but ... then what? Asking because I have two versions of it now - one is 300M and one is bloated up to 460M
+Aug 25 13:28:11 <nboldt1>	hope the smaller one works just as well as the big one since difference is duplicate IUs already installed via RPMs (eclipse-* packages)
+Aug 25 13:28:19 <nboldt1>	ldimaggi: ^ same question for you
+Aug 25 13:28:23 <mbooth>	nboldt1: I guess you can see if all your bundles are loaded?
+Aug 25 13:29:00 <nboldt1>	you mean osgi console?
+Aug 25 13:29:04 <mbooth>	Sure
+Aug 25 13:29:22 <mbooth>	I mean, I don't know what devstudio includes, so I can't say if there are missing perspectives, menus, etc
+Aug 25 13:30:07 <nboldt1>	mbooth: fair enough ... that's why I'm asking. I don't have a good "smoke test" other than "does it start and can I see Central / install stuff from there" which I use for staging & releasing builds
+Aug 25 13:30:13 <ldimaggi>	nboldt1, what is in the extra 160MB? any ideas?
+Aug 25 13:30:43 <nboldt1>	ldimaggi: https://issues.jboss.org/browse/JBDS-3981?focusedCommentId=13283931&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13283931
+Aug 25 13:30:58 <nboldt1>	yes, I know exactly what the 160M are. See attachmetns on the jira ;)
+Aug 25 13:31:13 <mbooth>	nboldt1: I usually check to see there are no bundles in the "INSTALLED" state (that could not be resolved)
+Aug 25 13:31:51 <nboldt1>	mbooth: I haven't used osgi console in AGES. can you pastebin me some commands you use to do that?
+Aug 25 13:32:04 <mbooth>	ss -s INSTALLED
+Aug 25 13:32:07 <nboldt1>	other than `./eclipse -console -consolelog -debug`
+Aug 25 13:32:12 <nboldt1>	I see
+Aug 25 13:35:24 <nboldt1>	mbooth: hmm. not sure if the RPM actually installs anything. When I launch /usr/bin/eclipse I only see Eclipse + EMF installed :(
+Aug 25 13:36:10 <mbooth>	/usr/bin/eclipse ... ?
+Aug 25 13:36:24 <nboldt1>	yes, isn't that where the rh-eclipse36-base is installed?
+Aug 25 13:36:27 <nboldt1>	46*
+Aug 25 13:36:33 <mbooth>	No
+Aug 25 13:36:37 <nboldt1>	ah
+Aug 25 13:36:42 <nboldt1>	so... then... where?
+Aug 25 13:36:52 <rgrunber>	 /opt
+Aug 25 13:36:59 <mbooth>	You can use the launcher from the gnome menu
+Aug 25 13:37:07 <mbooth>	Or from the command line:
+Aug 25 13:37:17 <mbooth>	scl enable rh-eclipse46 eclipse
+Aug 25 13:37:30 <mbooth>	IIRC
+Aug 25 13:38:59 <mbooth>	What rgrunber says
+Aug 25 13:39:18 <rgrunber>	mbooth: executing '/opt' won't do much :P
+Aug 25 13:39:31 <mbooth>	I mean for location :-p
+Aug 25 13:39:36 <mbooth>	scl enable rh-eclipse46 'which eclipse' might do it
+Aug 25 13:39:50 <nboldt1>	yeah, I looked in there and found a whole ./root/subtree/madness
+Aug 25 13:40:05 <rgrunber>	but yeah it's in /opt/rh/rh-eclipse46/root/usr/lib64/eclipse/
+Aug 25 13:40:37 <rgrunber>	the scl stuff just sets things like PATH and other env needed to resolve things nicely
+Aug 25 13:40:53 <nboldt1>	so... that last one worked
+Aug 25 13:40:57 <rgrunber>	if you need to test things from cli, really useful to do something like 'scl enable rh-eclipse46 bash', then go from there.
+Aug 25 13:41:00 <nboldt1>	scl enable rh-eclipse46 `which eclipse` 
+Aug 25 13:41:36 <nboldt1>	but the eclipse that's launched only has RCP, platform, help, and emf.{ecore,common}
+Aug 25 13:41:52 <nboldt1>	that's pretty BASE. why no devstudio, I wonder
+Aug 25 13:42:44 <nboldt1>	should I be building this in another scl thing?
+Aug 25 13:42:53 <mbooth>	nboldt1: Try what rgrunber suggests, do "scl enable rh-eclipse46 bash" and then launch "eclipse" from there
+Aug 25 13:42:55 <nboldt1>	eg., not rh-eclipse46 but rh-eclipse46-devstudio?
+Aug 25 13:43:06 <mbooth>	The SCL needs to be enabled when you launch it
+Aug 25 13:43:32 <mbooth>	The gnome launcher hides this from you
+Aug 25 13:45:17 <nboldt1>	/opt/rh/rh-eclipse46/root/usr/lib64/eclipse/plugins contains no devstudio. also not in droplets, dropins, etc.
+Aug 25 13:45:53 <nboldt1>	so... I feel like my build script is producing something that yum/dnf/rpm is not installing correctly
+Aug 25 13:45:59 <nboldt1>	mbooth: rgrunber: ^
+Aug 25 13:46:57 <rgrunber>	if you're installing an rpm, does rpm -ql $rpm say anything about where the contents are ?
+Aug 25 13:48:05 <nboldt1>	/opt/rh/rh-eclipse46/root/usr/share/eclipse/droplets/devstudio/...
+Aug 25 13:48:34 <mbooth>	nboldt1: Hmm, and those dirs/files listed do not exist on disk?
+Aug 25 13:48:42 <nboldt1>	it does. yes
+Aug 25 13:49:07 <nboldt1>	 but /opt/rh/rh-eclipse46/root/usr/lib64/eclipse/ is not the same as /opt/rh/rh-eclipse46/root/usr/share/eclipse/
+Aug 25 13:50:39 <mbooth>	Oh I see, usr/share is used for architecture independent droplets, usr/lib64 for dropins that contain architecture-specific bits
+Aug 25 13:50:56 <mbooth>	s/dropins/droplets/
+Aug 25 13:51:34 <mbooth>	So it seems installed correctly then
+Aug 25 13:51:49 <nboldt1>	then why don't I see any of that when I fire up eclipse?
+Aug 25 13:52:24 <mbooth>	nboldt1: I am just downloading your rpm from the jira ticket to see, is that correct rpm to test?
+Aug 25 13:52:35 <nboldt1>	which one? there are 2 linked there
+Aug 25 13:52:49 <mbooth>	Latest: http://wonka.mw.lab.eng.bos.redhat.com/RHDS/10.0/snapshots/builds/20160824-2319/
+Aug 25 13:52:58 <nboldt1>	that's the bigger one at 460M
+Aug 25 13:53:07 <nboldt1>	I'm hoping the 300M one will work too
+Aug 25 13:53:18 <nboldt1>	http://www.qa.jboss.com/binaries/RHDS/10.0/snapshots/builds/devstudio.rpm_master/20160824-2110/ << from there
+Aug 25 13:57:16 <mbooth>	nboldt1, rgrunber: Okay I will go for dinner while this downloads, if no-one has any ideas when I get back I will investigate further :-)
+Aug 25 13:57:39 <rgrunber>	nearly done downloading.. 20s.
+Aug 25 13:57:40 <nboldt1>	mbooth: all I get is the splash screen but it doesn't seem it's ever going to start
+Aug 25 13:58:36 <mbooth>	rgrunber: You win the chance to investigate then, I think VPN is a bottleneck for me
+Aug 25 13:58:40 <mbooth>	;-)
+Aug 25 13:58:53 <rgrunber>	nboldt1: what version of 'eclipse-platform'
+Aug 25 13:59:43 <nboldt1>	Installed Packages
+Aug 25 13:59:43 <nboldt1>	Name        : eclipse-platform
+Aug 25 13:59:43 <nboldt1>	Arch        : x86_64
+Aug 25 13:59:43 <nboldt1>	Epoch       : 1
+Aug 25 13:59:43 <nboldt1>	Version     : 4.6.0
+Aug 25 13:59:44 <nboldt1>	Release     : 3.fc24
+Aug 25 14:04:27 <rgrunber>	nboldt1: could you try against http://koji.fedoraproject.org/koji/buildinfo?buildID=793168 ?
+Aug 25 14:04:41 <rgrunber>	i'llbe pushing that to bodhi very soon.
+Aug 25 14:05:10 <nboldt1>	rgrunber: how do I make dnf find that version?
+Aug 25 14:08:09 <rgrunber>	they're not in any repo even that koji would have so you'll have to manually download those.
+Aug 25 14:14:55 <nboldt1>	all of them? ugh. 
+Aug 25 14:15:05 <nboldt1>	anyway, after a few mins devstudio DID start up
+Aug 25 14:15:14 <nboldt1>	rather, Eclipse started and it includes devstudio features
+Aug 25 14:15:23 <nboldt1>	but I've found like 4 other problems :D
+Aug 25 14:15:45 <rgrunber>	nboldt1: which ones ?
+Aug 25 14:16:07 <nboldt1>	I'll open JIRAs
+Aug 25 14:16:12 <nboldt1>	with screenshots n' shit
+Aug 25 14:16:38 <rgrunber>	can you try -6 just to confirm they aren't solved by that ? are they only UI problems ?
+Aug 25 14:30:18 <nboldt1>	they don't look like UI problems
+Aug 25 14:30:28 <nboldt1>	https://issues.jboss.org/browse/JBDS-3982 contains 3 new subtasks, rgrunber
+Aug 25 14:30:44 <nboldt1>	https://issues.jboss.org/browse/JBDS-4020, https://issues.jboss.org/browse/JBDS-4021, https://issues.jboss.org/browse/JBDS-4022
+Aug 25 14:31:45 <nboldt1>	rgrunber: do you at least have a bash script to scrape the koji page for rpm links, and curl them all ?
+Aug 25 14:48:39 <rgrunber>	nboldt1: there's 'koji download-build $buildid'
+Aug 25 14:49:09 <rgrunber>	ughh one sec.
+Aug 25 14:50:29 <rgrunber>	koji download-build eclipse-4.6.0-6.fc24 --arch=noarch --arch=x86_64
+Aug 25 15:16:55 *	fuhbot gives channel operator status to ldimaggi
+Aug 25 15:31:28 <nboldt1>	rgrunber: symptoms persist after updating from koji
+Aug 25 15:34:45 <rgrunber>	nboldt1: i would file bugs for it then.
+Aug 25 15:40:07 <xcoulon>	jjohnstn: hello Jeff, I'm back ;-) 
+Aug 25 15:40:17 <xcoulon>	I see that you just merged https://git.eclipse.org/r/79650 ?
+Aug 25 15:40:30 <nboldt1>	rgrunber: you mean JIRAs? I have
+Aug 25 15:40:35 <jjohnstn>	xcoulon: yes...I noticed the same missing images message...I thought you fixed that
+Aug 25 15:40:45 <nboldt1>	rgrunber: https://issues.jboss.org/browse/JBDS-4020, https://issues.jboss.org/browse/JBDS-4021, https://issues.jboss.org/browse/JBDS-4022
+Aug 25 15:40:47 <rgrunber>	ah, d'oh yup
+Aug 25 15:40:59 <xcoulon>	jjohnstn: huh ? 
+Aug 25 15:41:06 <xcoulon>	jjohnstn: where ?
+Aug 25 15:41:15 <xcoulon>	jjohnstn: ha
+Aug 25 15:41:17 <xcoulon>	wait
+Aug 25 15:41:23 <xcoulon>	it's in another patch: 
+Aug 25 15:41:30 <xcoulon>	https://git.eclipse.org/r/79699
+Aug 25 15:41:44 <xcoulon>	that one you can review and merge as well
+Aug 25 15:41:54 <jjohnstn>	xcoulon: ok
+Aug 25 15:42:09 <xcoulon>	greatm thanks
+Aug 25 15:42:15 <xcoulon>	s/greatm/great
+Aug 25 15:42:42 <jjohnstn>	xcoulon: anyway, if you can rebase any patches, it makes life easier for me to review
+Aug 25 15:43:32 <xcoulon>	jjohnstn: sure ! let me do that. Wasn't it the case for the one you just reviewed ? 
+Aug 25 15:43:52 <jjohnstn>	xcoulon: no, it applied cleanly
+Aug 25 15:44:02 <xcoulon>	jjohnstn: ok, cool
+Aug 25 15:44:50 <xcoulon>	btw, https://bugs.eclipse.org/bugs/show_bug.cgi?id=500298 should be fixed with one of today's patches
+Aug 25 15:49:52 <xcoulon>	mmh, not sure…
+Aug 25 16:35:17 <xcoulon1>	jjohnstn: I just pushed an update of the patch for BZ 500158
+Aug 25 16:35:50 <jjohnstn>	xcoulon1: ok, thx
+Aug 25 16:39:53 <xcoulon1>	jjohnstn: did you need my review on https://git.eclipse.org/r/#/c/79768/ or is it just a cherry-pick from my patch to apply on stable-5.1 ?
+Aug 25 16:40:35 <jjohnstn>	it is a cherry pick
+Aug 25 16:40:48 <jjohnstn>	xcoulon1: ^
+Aug 25 16:52:40 <xcoulon1>	jjohnstn: ok, great
+Aug 25 16:53:22 <xcoulon1>	rgrunber: I have a patch for bug 500298: https://git.eclipse.org/r/#/c/79774/. 1 line ! \o/
+Aug 25 16:54:48 *	fuhbot gives channel operator status to ldimaggi_car
+Aug 25 16:57:07 *	fuhbot gives channel operator status to ebaron
+Aug 25 16:57:07 *	fuhbot2 gives channel operator status to ebaron
+Aug 25 16:59:35 <rgrunber>	k sounds good.
+Aug 25 17:20:04 *	fuhbot2 gives channel operator status to akurtakov
+Aug 25 18:34:58 <xcoulon1>	jjohnstn: ok, so build https://hudson.eclipse.org/linuxtools/job/linuxtools-gerrit/11128/ is taking ages and I'm getting sleepy (it's 0:30am here), so I'll stop here for tonight and I'll check again tomorrow if the build passed and if it needs to be rebased 
+Aug 25 18:35:17 <jjohnstn>	ok
+Aug 25 18:35:39 <xcoulon1>	bye
+Aug 25 18:36:48 <jjohnstn>	talk to you tomorrow
+Aug 25 20:25:13 Python interface unloaded
+**** ENDING LOGGING AT Thu Aug 25 20:25:13 2016
+
+**** BEGIN LOGGING AT Fri Aug 26 10:47:04 2016
+
+Aug 26 10:47:04 *	Now talking on #eclipse
+Aug 26 10:47:04 *	Topic for #eclipse is: Eclipse discussions
+Aug 26 10:47:04 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 26 11:04:12 <mbenitez>	lufimtse, thank you for receiving the remaining stuff from the conference!
+Aug 26 11:06:17 <lufimtse>	^.^, well, I actually stepped out for a bit to pay rent for the apartment I'm moving in to, but it made it here never the less.
+Aug 26 11:30:20 *	fuhbot gives channel operator status to mbenitez
+Aug 26 11:36:13 <mbenitez>	lufimtse, give trello another try now
+Aug 26 11:38:37 <lufimtse>	kk
+Aug 26 11:39:29 *	fuhbot gives channel operator status to jjohnstn
+Aug 26 11:42:33 <lufimtse>	mbenitez, that worked. I added a card for the webkit port.
+Aug 26 11:42:45 <lufimtse>	Will post comments as I make progress.
+Aug 26 11:43:08 <mbenitez>	lufimtse, good, and thanks for getting this started
+Aug 26 15:03:55 <mbenitez>	nboldt, nice progress on the rpm, it's encouraging to see the changes
+Aug 26 15:17:46 <nboldt>	mbenitez: thanks
+Aug 26 16:13:36 *	fuhbot2 gives channel operator status to akurtakov_
+Aug 26 16:16:36 *	fuhbot gives channel operator status to palves_
+Aug 26 17:37:35 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Aug 26 17:37:35 2016
+
+**** BEGIN LOGGING AT Fri Aug 26 19:36:42 2016
+
+Aug 26 19:36:42 *	Now talking on #eclipse
+Aug 26 19:36:42 *	Topic for #eclipse is: Eclipse discussions
+Aug 26 19:36:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Aug 26 20:10:58 2016
+
+**** BEGIN LOGGING AT Mon Aug 29 09:03:26 2016
+
+Aug 29 09:03:26 *	Now talking on #eclipse
+Aug 29 09:03:26 *	Topic for #eclipse is: Eclipse discussions
+Aug 29 09:03:26 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 29 09:08:04 *	fuhbot gives channel operator status to mbenitez
+Aug 29 09:18:43 *	fuhbot gives channel operator status to mattn
+Aug 29 09:32:19 *	fuhbot gives channel operator status to rgrunber
+Aug 29 09:37:52 <akurtakov_>	lufimtse: can't you regenerate the mac/win files oyurself?
+Aug 29 09:38:12 <akurtakov_>	if you use .classpath_win32/cocoa and rebuild?
+Aug 29 09:45:29 <lufimtse>	hmm
+Aug 29 09:45:39 <lufimtse>	I could probably
+Aug 29 09:45:43 <lufimtse>	never thought of it
+Aug 29 09:45:46 <lufimtse>	let me try
+Aug 29 09:53:12 *	fuhbot gives channel operator status to patrickm
+Aug 29 10:02:47 <lufimtse>	akurtakov_, can't seem to get it to work. When using .classpath_cocoa, swt just throws lots of errors in my face and changes to OS.java on mac side don't seem to get the desired effect. Have you ever got it to work?
+Aug 29 10:03:05 <akurtakov_>	never tried 
+Aug 29 10:03:12 <akurtakov_>	just thought it should work :)
+Aug 29 10:03:24 <lufimtse>	X-D
+Aug 29 10:04:07 <lufimtse>	I could boot into my OS X os, (I still have OS X installed as fallback) and re-compile there, but I figured it might be easier for someone with Cocoa dev experience to refresh bindings. 
+**** ENDING LOGGING AT Mon Aug 29 10:15:44 2016
+
+**** BEGIN LOGGING AT Mon Aug 29 10:15:44 2016
+
+Aug 29 12:37:07 <rgrunber>	akazakov: could you add jjohnstn@redhat.com to the developer group on trello ? (noticed you have admin perms on it)
+Aug 29 12:44:42 <mbenitez>	rgrunber, just added him to the board, we'll need somebody with permissions to add Jeff and others as official team members
+Aug 29 12:45:45 <rgrunber>	ah good call, seems any member can add someone to the board.. just the team needs probably admin or something.
+Aug 29 12:47:48 <mbenitez>	exactly
+Aug 29 16:34:18 <lufimtse>	@anyone: In eclipse, some folders can be marked as derived, so that they don't show up in searches. Is there a way to see all folders that you marked as derived?
+Aug 30 09:56:56 <mbenitez>	lufimtse, we replied to Eric almost a t the same time :D
+Aug 30 10:05:36 <lufimtse>	:-D
+Aug 30 10:40:33 <mbenitez>	ipun, you should be able to access the trello board now
+Aug 30 10:41:55 <ipun>	mbenitez: in now, thanks!
+Aug 30 10:42:05 <mbenitez>	good, np!
+Aug 30 12:03:48 <nboldt>	jjohnstn: on track for a release of Docker Tooling RC2 on/before tomorrow @ noon?
+Aug 30 12:24:03 <jjohnstn>	nboldt: should be
+Aug 30 12:27:36 <nboldt>	jjohnstn: great, thanks
+Aug 30 16:20:10 <jjohnstn>	rgrunber: running into problem running gerrit due to being unable to load the launchbar-master repo in linuxtools-e4.6.target...any ideas?
+Aug 30 16:39:01 <rgrunber>	jjohnstn: is gerrit hanging ?
+Aug 30 16:39:31 <jjohnstn>	rgrunber: no, it fails...now I am having trouble just connecting to hudson.eclipse.org via browser
+Aug 30 16:43:55 <jjohnstn>	rgrunber: browser is ok now
+Aug 30 16:44:19 <rgrunber>	jjohnstn: also about the e-mail, i'm not sure where those are coming from.. even the latest I-build from Orbit doesn't include jackson 2.6.0.
+Aug 30 16:45:10 <jjohnstn>	rgrunber: gerrit keeps getting no route to host for https://hudson.eclipse.org
+Aug 30 16:45:52 <rgrunber>	yeah i would restar the build.. it failed with No route to host...
+Aug 30 16:47:15 <jjohnstn>	rgrunber: I have restarted multiple times and still the same error
+Aug 30 16:47:54 <rgrunber>	ah.. well https://hudson.eclipse.org/ definitely seems down to me.
+Aug 30 16:48:20 <rgrunber>	even though the service itself is up
+Aug 30 17:00:49 <jjohnstn>	rgrunber: the 2.6.0 stuff is coming from the downloads/apitools/linuxtools-2.0.0.zip which is owned by you...any ideas?
+Aug 30 17:04:39 <rgrunber>	ah linuxtools-docker-2.0.0.zip
+Aug 30 17:05:40 <jjohnstn>	rgrunber: can we remove it?
+Aug 30 17:05:46 <rgrunber>	nothing in apitools is being shipped.. can we just get rid of them for now?... yeah..
+Aug 30 17:07:16 <jjohnstn>	rgrunber: I can't remove it...it is owned by you with no group privileges
+Aug 30 17:07:23 <rgrunber>	we will need uses-cqs for bounycastle 1.52.. unless i just patch linuxtools to use the older one
+Aug 30 17:08:07 <rgrunber>	k i'll remove it then.
+Aug 30 17:08:37 <jjohnstn>	rgrunber: thx...regarding bouncycastle...your pick...I suggest opening the CQ...do you need me to do it?
+Aug 30 17:09:37 <rgrunber>	jjohnstn: if you can go ahead. it's only needed for bcprov and bcpkix.
+Aug 30 17:13:37 <rgrunber>	jjohnstn: k the file should be gone.
+Aug 30 17:13:51 <jjohnstn>	ok, thx
+Aug 30 17:16:14 <rgrunber>	jjohnstn: oh and swtchart.. hmm
+Aug 30 17:18:13 <rgrunber>	swtchart 0.10.0 is in Orbit now.. my guess is we grab it because our deps only specify a lower limit.
+Aug 30 17:18:37 <rgrunber>	it's brough in by tracecompass not us but out target platform picks it up.
+Aug 30 17:26:49 <jjohnstn>	I have opened USE CQs for bcprov, bcpkix, and swtchart
+Aug 30 17:27:01 <jjohnstn>	rgrunber: ^
+Aug 30 17:32:18 <rgrunber>	jjohnstn: 5.1.0 is based off of the stable-5.0 branch right ?
+Aug 30 17:32:35 <jjohnstn>	rgrunber: no, stable-5.1 branch
+Aug 30 17:32:42 <rgrunber>	ah yes, that one.
+Aug 30 17:34:35 <jjohnstn>	rgrunber: I can't even get to linuxtools dashboard anymore and no response on the mailing list or from emo
+Aug 30 17:35:43 <rgrunber>	yeah good call on the explanation.. i couldn't understand why they're flagging bcprov, bcpkix, slf4j.api when those are only for oxygen.
+Aug 30 17:35:58 <jjohnstn>	nboldt: we have some issues with our build...Hudson is not working...gerrit can't connect to one of the repos we access...I can't guarantee we will be ready by noon anymore
+Aug 30 17:36:34 <rgrunber>	so slf4j.api is another but afaict only the nighlies pull from the Orbit I-build
+Aug 30 17:37:25 <jjohnstn>	rgrunber: do I need to do an slf4j.api CQ?
+Aug 30 17:37:46 <rgrunber>	you would for oxygen, but that isn't going into Neon.1
+Aug 30 17:48:56 <rgrunber>	welp.. apparently Doug says Marketplace is down too..
+Aug 30 19:11:29 <nboldt>	jjohnstn: awesome. OK, thx for the heads up
+Aug 31 10:34:08 <scela>	mbenitez: will this telephony problem going around impact our ability to hold the meeting?
+Aug 31 10:34:40 <rgrunber>	hmm not if we do a pure bjn and skip phones..
+Aug 31 10:34:57 <mbenitez>	scela, if you use the polycom phone yes, but bluejeans seems to be working
+Aug 31 10:35:16 <scela>	mbenitez: i don't have polycom but i had the feeling you use them in the conference room
+Aug 31 10:35:21 <rgrunber>	i prefer to dial in with the phone and use laptop only for video but we could try all from laptop.
+Aug 31 10:35:28 <mbenitez>	what Roland says may be the only issue, we may have to use only computers
+Aug 31 10:35:39 <scela>	also mbooth usually joins by phone
+Aug 31 10:35:57 <mbenitez>	scela, we'll figure it out, we have a few laptops around to get around this
+Aug 31 10:36:24 <rgrunber>	but it may be only the office phone networks affected.. the bjn call service infrastructure is on the blujeans side right ?
+Aug 31 10:36:53 *	rgrunber dials 
+Aug 31 10:36:55 <scela>	mbenitez: ok, just wanted to bring it up so we don't waste time while we're there
+Aug 31 10:37:09 <mbenitez>	scela, thank you
+Aug 31 10:38:47 <rgrunber>	fwiw the 1-888 dial-in code works so i expect the european one to as well.
+Aug 31 10:38:53 <rgrunber>	(off my cell)
+Aug 31 10:41:15 <mbooth>	Huh, I was wondering why my phone was displaying a danger sign...
+Aug 31 10:41:46 <akurtakov>	wait am I late for the call?
+Aug 31 10:41:52 <akurtakov>	it should bne in 20 mins, right?
+Aug 31 10:42:03 <scela>	akurtakov: yep
+Aug 31 10:42:12 <akurtakov>	ok
+Aug 31 10:42:12 <scela>	that's exactly why i brought it up now :)
+Aug 31 10:42:23 <rgrunber>	mbooth: oh crap.. you use the actual polycom ones..
+Aug 31 10:42:40 <rgrunber>	ie.. on the network or something..
+Aug 31 10:42:49 <mbooth>	rgrunber: I will have to slum it and use the laptop mic
+Aug 31 10:42:51 <scela>	rgrunber: that's voip no?
+Aug 31 10:43:13 <rgrunber>	mbooth: do you have some toll-free dial-in for bjn in your area ?
+Aug 31 10:43:39 <mbenitez>	I should have the info around
+Aug 31 10:44:13 <mbenitez>	you can try 08006948057 (UK)
+Aug 31 10:44:42 <mbooth>	rgrunber: Maybe, but in the hierarchy of call quality, PSTN is right at the bottom
+Aug 31 10:46:53 <mbenitez>	https://bluejeans.com/numbers
+Aug 31 10:56:22 <jjohnstn>	nboldt: did you get my note regarding RC2 being built..docker stuff is at http://download.eclipse.org/linuxtools/update-neon-1-docker-rc2
+Aug 31 10:56:35 <nboldt>	yes, jjohnstn. Will start the mirror shortly
+Aug 31 10:56:38 <nboldt>	thanks!
+Aug 31 11:04:27 <lufimtse>	hey
+Aug 31 11:17:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 31 11:17:31 2016
+
+**** BEGIN LOGGING AT Wed Aug 31 11:17:42 2016
+
+Aug 31 11:17:42 *	Now talking on #eclipse
+Aug 31 11:17:42 *	Topic for #eclipse is: Eclipse discussions
+Aug 31 11:17:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 31 11:45:09 <mistria>	akurtakov lufimtse: http://stackoverflow.com/questions/39250833/improve-eclipse-look-and-feel-on-fedora
+Aug 31 11:46:33 <akurtakov>	mistria: so this stackoverflow is a joke
+Aug 31 11:46:51 <akurtakov>	I asked a question to clarify it and it was deleted
+Aug 31 11:46:52 <mistria>	akurtakov: that's not me you ahve to convince ;)
+Aug 31 11:47:25 <akurtakov>	I can't comment just to answer but how to answer unclear question, wtf
+Aug 31 11:48:20 <mistria>	akurtakov: could it be user is still using GTK2 ?
+Aug 31 11:48:42 <scela>	mistria: ^ deleted :)
+Aug 31 13:33:25 <lufimtse>	mistria, I posted a reply.
+**** ENDING LOGGING AT Wed Aug 31 16:11:10 2016
+
+**** BEGIN LOGGING AT Wed Aug 31 16:12:30 2016
+
+Aug 31 16:12:30 *	Now talking on #eclipse
+Aug 31 16:12:30 *	Topic for #eclipse is: Eclipse discussions
+Aug 31 16:12:30 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)

@@ -1,0 +1,24 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-26T12:57:00-04:00
+
+====== webkit bindings ======
+Created Friday 26 August 2016
+
+===== Dynamic loading of functions 2016-08Aug-26Fri =====
+@journal @webkit @2016 @w34
+Webkit1 and Webkit2 calls have to be dynamic, no hard-linking or compile macros like:
+	WEBKITCFLAGS = `pkg-config --cflags glib-2.0 webkit2gtk-4.0` -DSWT_WEBKIT4_EXISTS=1
+	WEBKITLIBS = `pkg-config --libs-only-l glib-2.0 webkit2gtk-4.0`
+
+Otherwise if:
+Fedora_NEW builds with webkit2GTK4 on it's system, 
+but we try to run on Fedora_OLD that doesn't have webkit2GTK4, we get an error even if we only run webkit1:
+Exception in thread "main" org.eclipse.swt.SWTError: No more handles
+	at org.eclipse.swt.SWT.error(SWT.java:4559)
+	at org.eclipse.swt.SWT.error(SWT.java:4448)
+	at org.eclipse.swt.SWT.error(SWT.java:4419)
+	at org.eclipse.swt.browser.Browser.<init>(Browser.java:103)
+	at browser.Bug430538_JS_Set_Background.main(Bug430538_JS_Set_Background.java:36)
+
+Now I just have to figure out how to make all native function calls dynamic.. 

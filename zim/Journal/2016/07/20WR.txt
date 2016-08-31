@@ -1,0 +1,68 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-20T11:43:07-04:00
+
+====== 20WR ======
+Created Wednesday 20 July 2016
+Weekly report:
+
+(Finished)
+- Bug 497923 - [GTK] build.sh bugfixes and improvements (for Gtk bindings))
+	One of the reasons why starting SWT development can be difficult
+	is because it's complicated to build the GTK bindings.
+	The current build.sh was buggy, in that to get it to work devs had
+	to use workarounds (like setting JAVA_HOME manually, then 
+	manually copy *.so libraries into the right place).
+	One had to "know the bugs and hacks" to get by.
+	This has been the case for the last ~4+(?) years.
+	It was also confusing and time-consuming to to build 
+	Gtk2 and Gtk3 at the same time, as one had to do multiple project
+	clean-up actions from within Eclipse.
+	I did a major overhall of build.sh, which:
+	- Fixes *.so copy issue, now libraries are copied into the right place
+	  in the binary repository. No hacks needed, just pass 'install' paramater.
+	  (in the past *.so resided inside SWT project, but then they were moved
+	   to their own projct but the build.sh was not updated for that.)
+	- Implemented functionality to build Gtk2 and Gtk3 in one sweep, no manual
+	  project clean-ups are needed from inside Eclipse anymore.
+	  (The logic automatically performs required cleanups between builds etc...)
+	- Implemented paramater support, now you can specify things like:
+	  "-gtk-all" to build gtk2/gtk3 at the same time
+	  "-gtk2" or "-gtk3" to select only specific versions
+	- Implemented colouring of output to distinguish build.sh output from
+	   gtk2/gtk3 compilation. Green for correct steps, Red for errors.
+	- Added mechanism to dynamically acquire JAVA_HOME path independent of 
+	  linux platform. (On Fedora/Ubuntu etc.. path is different). 
+	  I Tested this on Fedora and Ubuntu, should also work for other platforms.
+	  (Previously this had to be set manually prior to running build.sh)
+	- Implemented '--help' or '-h' paramater explaining usage.
+	- Implemented warning that prints suggested usage if user runs build.sh 
+	  without correct paramaters.
+	- Implemented check for output directory. If user specifies 'install' but
+	  target git-repository is not checked out, the script throws an error
+	  and provides instructions on cloning the binary repo.
+
+
+(in Progress)
+Bug 430538: [GTK3][webkit] Support Custom JavaScript execution in WebKit2 mode of SWT Browser
+	- Got somewhat stuck on a native call that doesn't work:
+	 "WebKitGTK.webkit_web_view_run_javascript(...)"
+	 It looks like the call is being done correctly, but it has no effect.
+	- Investigated how simmilar calls are done
+	- Next step is to debug SWT and WebKitGtk 
+	- Investigated and rebuild JHBuild Gtk+ and WebKit with debug support.
+	  (compiling WebKit with debug support is not straight forward as documentation
+	   didn't reflect actual files in repository. Had to read through JHBuild 
+	   scripts and configuration files).
+	- Got debugging of WebKitGtk calls to work for a 'C' snippet, 
+	  next need to get configure debugging for SWT's native calls.
+
+
+Research:
+- Learned how to work with sequence of commits in Gerrit 
+	ex: a -> b -> c,  then suppose you want to update 'a',
+	you can create a new commit, then with interactive rebase 
+	move it between a & b, then squash it into a. 
+	It's just important to keep gerrit ID the same.
+	This is useful for working on dependent commits.
+- Learned about interactive rebasing and squashing in Eclipse.

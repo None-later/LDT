@@ -1,0 +1,50 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-18T14:07:29-04:00
+
+====== wMonday 18 Jul 2016 ======
+- Investigated mylyn dropdown button overlappinng with status icon. 
+- Verified Eric's Patch on OS-X: https://git.eclipse.org/r/#/c/66380/
+
+# The first commit's message is:
+Bug 497923:[GTK]build.sh(2): Multiple new improvements
+
+This is a relatively large patch that adds additional paramter support.
+Features:
+* Build Gtk2 and Gtk3 can *both* be built via a single command:
+ ./build.sh clean -gtk-all install
+  This replaces the tedious process of having to:
+ - In Eclipse, clean project, build Gtk2,
+ - In Eclipse, clean Project, build Gtk3,
+ - manually copy '*.so' files to binary repository.
+* Help parameter (-h, --help) that explains parameters
+* Gtk2/Gtk3 can be selected via: "-gtk2, -gtk3"flags
+* 'echo' now prefix script name to make debugging easier. ex:
+	build.sh: Building SWT/GTK+ for ....
+* 'echo now print in color. Green for general msgs, red for error
+* Additional actions can be performed after a clean up.
+	ex clean, build and copy binaries via command above.
+* Added error check for binary repository:
+	If user specifies 'install' flag, which normally copies compiled
+	*.so files to binary repo, but folder/binary repo does not exist,
+	then user is warned and the script exits with error.
+* Added warning if build.sh is ran without parameters,
+	advising users on correct parameters which clean & copy produced
+	*.so files to the binary repository (command above)
+* Added color to outpu
+
+JAVA_HOME fix:
+* build.sh often fails on fresh systems because JAVA_HOME is not set.
+  JAVA_HOME is usually blank on most systems.
+  The failure usually reads:
+	swt.h:23:17: fatal error: jni.h: No such file or directory
+	compilation terminated.
+  This patch dynamically acquires JAVA_HOME based on the location of
+  the 'java' executable. This works on Fedora 24 and on Ubuntu 16
+  (and probably on other systems).
+
+  To test:
+	export JAVA_HOME=""   #if not already blank.
+	./build.sh
+  Before the patch the above should fail with missing 'include jni.h',
+  after patch, everything should compile fine.

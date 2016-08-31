@@ -1,0 +1,155 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-06-14T15:31:30-04:00
+
+====== jhbuild ======
+Created Tuesday 14 June 2016
+Note, I documented things in the wiki: https://wiki.eclipse.org/SWT/Devel/Gtk/jhbuild
+
+====== New notes ======
+
+===== Building a module that you updated =====
+If you update a module yourself (e.g add a print statment), then you can compile just it via build done. See: https://wiki.gnome.org/HowDoI/Jhbuild#Using_jhbuild
+	$ jhbuild buildone -n modulename
+
+
+===== Config =====
+Sample config in: examples/sample.jhbuildrc
+copy to: [[~/.config/jhbuildrc]]
+
+default in: 
+~/jhbuild/jhbuild/jhbuild/defaults.jhbuildrc
+
+==== Example ====
+**Compile only 'gtkmm'**
+the core deps module set has a limited set of modules, but if needed:
+	moduleset = 'gnome-suites-core-deps-3.18'
+	modules = ['gtkmm']
+
+**Compile only gtk+**
+	moduleset = 'gnome-apps-3.22'
+	modules = ['gtk+']
+
+
+==== See also: ====
+https://developer.gnome.org/jhbuild/stable/config-reference.html.en   <<  Config file reference 
+https://developer.gnome.org/gtkmm-tutorial/stable/sec-setting-up-jhbuild.html.en  << Config guide 
+http://gnomedeveloper.blogspot.ca/2010/06/jhbuild-and-jhbuildrc.html   << Blog on personal config
+
+
+===== Pulling code for a single module =====
+	jhbuild update one epiphany
+
+
+====== OLD NOTES: ======
+
+====== Getting started guide: ======
+https://wiki.gnome.org/HowDoI/Jhbuild
+
+===== Setup =====
+https://developer.gnome.org/jhbuild/unstable/config-reference.html.en
+https://wiki.gnome.org/Newcomers/BuildGnome  <<< good starting point.
+f23+: 
+**sudo dnf install @c-development @development-tools docbook-xsl gnome-common pygobject2 dbus-python redhat-rpm-config perl-Text-CSV perl-XML-Parser gettext-devel python3-devel xmlto ragel xorg-x11-util-macros xkeyboard config-devel libxslt-devel**
+
+**mkdir ~/jhbuild**
+**cd ~/jhbuild **
+**git clone git://git.gnome.org/jhbuild**
+
+**# install** 
+cd jhbuild
+./autogen.sh --simple-install
+make install
+
+# ensure [[~/.local/bin]]  is in your path (echo $PATH, then see near the end. For example it should contain: '[[:/home/lufimtse/bin:/....']] "/).
+# Check that you can run '**jhbuild sanitycheck' **from **any** directory. 
+# (I.e [[~/.local/bin/jhbuild]] should be on your path).	
+# if not, append the following to your [[~/.bashrc:]] PATH=~/.local/bin:$PATH
+
+# Install all deps:
+**jhbuild sysdeps --install**
+
+#Check if you need anything:
+**jhbuild sysdeps gtk+**
+If you do, then manually install the missing packages
+
+# Install some dependencies (may not actually need? only gtk may be needed)
+**jhbuild build adwaita-icon-theme dconf glib-networking gvfs libcanberra**
+
+===== Theory =====
+[[~/jhbuild/checkout]]   # all git repos 
+[[~/jhbuild/install]]        #jhbuild installed apps.
+
+===== Building =====
+# It's possible to build everything that jhbuild supports (the whole gnnome environment), but typically you don't do it.
+FYI: jhbuild build   #takes forever, uses lots of space.. 
+
+# Instead you build just relevant modules:
+jhbuild build gtk+
+
+**jhbuild build dconf      **//# Needed for gtkinspector to function.//
+jhbuild build PackageKit     # Optional, to squelch warning. Install missing packages (not really needed/used)
+
+# listd available modules:
+jhbuild list
+
+===== Running jhbuild =====
+You can run a shell with jhbuild via:
+	
+	jhbuild shell
+
+Now everything you launch in this shell (like eclipse) will use the compiled libraries.
+
+Also, put this into your [[~/.bashrc]]
+	if [ -n "$UNDER_JHBUILD" ]; then
+			PS1="[jhbuild] $PS1"
+	fi
+
+With that you will see '[jhbuild]' in the command prompt if you're in jhbuild shell. ([[https://developer.gnome.org/jhbuild/unstable/command-reference.html.en#command-reference-shell|Source]])
+
+You can also run induvidual commands like:
+
+	jhbuild run [[~/eclipse]] 
+
+
+===== Build specific version of gtk: =====
+Tested works:
+Enter jhhell:
+	jhbuild shell 
+
+Check out gtk version that you want to build, then:
+	jhbuild make 
+
+This will build whatever you have currently checked out.
+Src: ebassi's advice in gtk+ channel.
+
+Can also **try: (as per feaneron's) advice:**
+jhbuild builddone gtk+
+This should in theo
+
+
+
+
+===== Arguments (e.g: clean..) =====
+https://developer.gnome.org/jhbuild/stable/command-reference.html.en
+
+==== Listing ====
+Suggested to use '-'a option to see all modules, not just apps:
+	jhbuild list -a
+
+
+===== Further readings / research =====
+* Wayland: https://wiki.gnome.org/Initiatives/Wayland/TryingIt
+* Build specific module set with '-m' paramater with module set.
+
+===== References: =====
+https://developer.gnome.org/jhbuild/unstable/
+
+===== Also interesting: =====
+
+==== Graphviz graph of dependencies: ====
+''jhbuild''** dot gtk+ | dot -Tpng > dep.png**
+
+
+
+

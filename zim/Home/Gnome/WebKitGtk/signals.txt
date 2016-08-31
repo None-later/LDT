@@ -1,0 +1,47 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-22T14:23:35-04:00
+
+====== Signals ======
+Created Friday 22 July 2016
+
+====== About webkit signals and how they intearct with SWT ======
+Signals are different from callbacks. But for signals that are listed in the reference pages:
+
+===== "load-changed" example =====
+
+ref: https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#WebKitWebView-load-changed
+
+SWT: WebKit.java has a call-back handler that catched load_changed signal:
+
+{{{code: lang="java" linenumbers="True"
+// Define signal  (where to get number from? Probably from source somewhere)
+	static final int LOAD_CHANGED = 16;
+
+// Convert name to java:
+	public static final byte[] load_changed = ascii ("load-changed"); // $NON-NLS-1$
+
+// create callback:
+  OS.g_signal_connect (webView, WebKitGTK.load_changed, Proc3.getAddress (), LOAD_CHANGED);
+
+
+
+long /*int*/ webViewProc (long /*int*/ handle, long /*int*/ arg0, long /*int*/ user_data) {
+	switch ((int)/*64*/user_data) {
+		...
+		case LOAD_CHANGED: return webkit_load_changed (handle, (int) arg0, user_data);
+		...
+		default: return 0;
+	}
+}
+}}}
+
+
+
+
+
+
+
+
+
+

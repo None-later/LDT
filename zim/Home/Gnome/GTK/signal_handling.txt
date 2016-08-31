@@ -1,0 +1,73 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-08T12:56:04-04:00
+
+====== signal and event handling ======
+Created Friday 08 July 2016
+
+====== Tutorial ======
+
+===== Basic button press =====
+{{{code: lang="c" linenumbers="True"
+// Basic handler:
+static void
+print_hello (GtkWidget *widget,
+             gpointer   data)
+{
+  g_print ("Hello World\n");
+}
+...
+
+ // Basic registration of signal:
+ main {
+ ..
+ button = gtk_button_new_with_label ("Hello World");
+ g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
+ ..
+ }
+}}}
+
+See the widget 'signals' to see which signals can be connected to. (ex GtkButton -> Signals)
+
+===== Swapped =====
+The idea behind connect_swapped is that you call an existing handler with another widget as it's widget.
+Ex here the 'window' is passed as the main widget to the destroy function. I.e pressing the button destroys the window:
+{{{code: lang="c" linenumbers="True"
+g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
+}}}
+
+
+===== Passing another widget as data =====
+You can pass another widget or structure as data, just be attentive to casting.
+{{{code: lang="c" linenumbers="True"
+static void
+handlerFor_button_go (GtkWidget *widget,
+			gpointer data)
+{
+	GtkEntry *address_entry = data;
+	g_print(gtk_entry_get_text(address_entry));
+}
+
+...
+GtkWidget *address_entry1 = gtk_entry_new();
+g_signal_connect (go_button, "clicked", G_CALLBACK(handlerFor_button_go), address_entry1);
+..
+// taken from webkit.c snippet.
+}}}
+
+Make sure to initialize pointers before passing them as data.
+
+src: http://stackoverflow.com/questions/9320670/how-to-get-the-text-of-a-button-in-gtk
+
+====== Events ======
+Events are generic things like button_press_event. They are handled differently:
+https://developer.gnome.org/gtk-tutorial/unstable/x182.html
+
+
+====== Sources ======
+Hello world connects buttons to handlers: https://developer.gnome.org/gtk3/unstable/gtk-getting-started.html
+
+Signal theory: https://developer.gnome.org/gtk-tutorial/stable/x159.html  
+zetcode: http://zetcode.com/gui/gtk2/gtkevents/
+
+

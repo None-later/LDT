@@ -524,3 +524,359 @@ Aug 15 10:04:27 *	fuhbot gives channel operator status to rgrunber
 Aug 15 11:12:15 *	fuhbot gives channel operator status to pwouters
 Aug 15 12:02:54 *	fuhbot2 gives channel operator status to lisac
 Aug 15 12:11:16 *	fuhbot gives channel operator status to jjohnstn
+Aug 15 16:06:33 *	fuhbot gives channel operator status to pwouters
+Aug 15 16:32:40 *	fuhbot gives channel operator status to Highlander
+Aug 15 17:17:56 *	fuhbot gives channel operator status to fnasser
+Aug 15 17:31:46 *	fuhbot2 gives channel operator status to mwringe
+Aug 15 17:31:47 *	fuhbot gives channel operator status to mwringe
+Aug 16 08:03:39 *	fuhbot gives channel operator status to phi
+Aug 16 08:05:35 *	fuhbot gives channel operator status to flu
+Aug 16 08:48:08 *	fuhbot gives channel operator status to fnasser
+Aug 16 08:53:29 *	fuhbot gives channel operator status to pcheung
+Aug 16 09:23:22 *	fuhbot gives channel operator status to rgrunber
+Aug 16 10:03:22 *	fuhbot gives channel operator status to ebaron Highlander
+Aug 16 10:08:06 *	fuhbot gives channel operator status to alanm
+Aug 16 10:39:44 *	fuhbot gives channel operator status to pwouters
+Aug 16 10:52:04 <strykerawb>	rgrunber,  hi roland :D
+Aug 16 10:52:11 <rgrunber>	strykerawb: hey
+Aug 16 10:52:28 <strykerawb>	rgrunber,   im sure xavier will ping you shortly
+Aug 16 10:52:29 <strykerawb>	but https://issues.jboss.org/browse/JBIDE-23011 
+Aug 16 10:53:00 <strykerawb>	they want this fixed yesterday ;)   
+Aug 16 10:53:24 <rgrunber>	strykerawb: there's a fix for it in the upstream bug on review.. i could push it..
+Aug 16 10:56:17 <strykerawb>	if im not annoying you, why is a return of object[]{null} possible?  where is that?
+Aug 16 10:57:16 <strykerawb>	"a return of a list with a single null entry is possible."
+Aug 16 10:58:16 <rgrunber>	strykerawb: it's not intended, but on windows, the script that checks for some environment variables returns 0 even if it fails.
+Aug 16 10:58:51 <strykerawb>	where's that code?
+Aug 16 10:59:02 <strykerawb>	i vaguely remember such weird environment variable loading script
+Aug 16 10:59:14 <rgrunber>	script.bat is the resource.
+Aug 16 11:00:13 <rgrunber>	i mean i should be clear, i haven't confirmed it, but it's the only way to get the behaviour observed. and it makes sense because the other providers do the right thing afaict.
+Aug 16 11:01:14 <strykerawb>	[rob@rawbdor resources] (master)$ cat script.bat 
+Aug 16 11:01:14 <strykerawb>	@echo off
+Aug 16 11:01:14 <strykerawb>	SET DOCKER
+Aug 16 11:01:19 <strykerawb>	thats the whole script?
+Aug 16 11:02:15 <rgrunber>	yeah that's whats run..
+Aug 16 11:03:41 <strykerawb>	wtf does that even do? 
+Aug 16 11:04:29 <rgrunber>	strykerawb: i figure it prints all env variables containing 'DOCKER' as a term.
+Aug 16 11:05:05 <rgrunber>	http://ss64.com/nt/set.html
+Aug 16 11:05:14 <rgrunber>	'The SET command invoked with a string (and no equal sign) will display a wildcard list of all matching variables'
+Aug 16 11:05:54 <strykerawb>	ok so is the issue that the return value of the process is 0 (ie success) even if no such env vars are found?
+Aug 16 11:06:30 <strykerawb>	i wouldn't consider that a bug at all... and whatever code you have that runs this batch script and loads it into a list should account for the fact that it may still provide an empty list
+Aug 16 11:06:39 <strykerawb>	where's the code that runs the script?
+Aug 16 11:07:12 <rgrunber>	ShellConnectionSettingsProvider
+Aug 16 11:07:57 <rgrunber>	i have a fix i'll be pushing in + kicking a build, just need to modify how values are returned.
+Aug 16 11:09:10 <strykerawb>	i mean xavier's comments are true.  This method just shouldn't be able to return a list with a null value
+Aug 16 11:09:11 <strykerawb>					IDockerConnectionSettings setting = createDockerConnectionSettings(dockerSettings);
+Aug 16 11:09:11 <strykerawb>					return Arrays.asList(new IDockerConnectionSettings [] { setting });
+Aug 16 11:09:17 <strykerawb>	just check if setting is null first?
+Aug 16 11:09:52 <strykerawb>	o
+Aug 16 11:09:54 <strykerawb>	your patch does that
+Aug 16 11:09:55 <strykerawb>	.........
+Aug 16 11:10:09 <rgrunber>	strykerawb: yeah empty list would have solved this.. he wants to also return an empty list..
+Aug 16 11:10:33 <rgrunber>	ideally i would have just pushed the smallest change that fixes it, but i don't mind also changing the returns to be proper.
+Aug 16 11:10:43 <strykerawb>	eh, null vs empty list, your choice.  the question is who's using that api
+Aug 16 11:10:59 <strykerawb>	if the caller is expecting a null or a list with 1 element,   then empty list might cause arrayindex shit 
+Aug 16 11:11:12 <strykerawb>	or list index
+Aug 16 11:11:14 <strykerawb>	whatever it is
+Aug 16 11:11:32 <strykerawb>	so i'd advise you do a call heirarchy and see what the assumptions are here
+Aug 16 11:12:04 <rgrunber>	strykerawb: i can make all my providers return an empty list.. i really think it should be ok.. but i still need to check nulls because someone could just dump a plugin that uses that extension point and returns null.
+Aug 16 11:12:36 <strykerawb>	yep
+Aug 16 11:12:43 <strykerawb>	ok seems you've got this under control
+Aug 16 11:13:59 <rgrunber>	strykerawb: yeah, for now.. just an fyi i've been swamped with eclipse upstream related work so i've not had much time lately to work on the docker tooling.
+Aug 16 11:14:23 <rgrunber>	i guess i mean non-docker upstream work :P
+Aug 16 11:14:30 <strykerawb>	rgrunber,  what stuff you working on now?   
+Aug 16 11:15:05 <rgrunber>	Eclipse Orbit.. moving it over to git and ebr (new way of contributing 3rd party libraries)
+Aug 16 11:15:36 <strykerawb>	that sounds like pure work :|
+Aug 16 11:15:47 <rgrunber>	and the eclipse scl for devtools (rheclipse46)
+Aug 16 11:17:27 *	fuhbot gives channel operator status to mwringe
+Aug 16 11:24:16 *	fuhbot gives channel operator status to lisac
+Aug 16 12:26:36 *	fuhbot gives channel operator status to fche|bos
+Aug 16 12:30:44 *	fuhbot gives channel operator status to fuhbot2
+Aug 16 12:37:32 *	fuhbot2 gives channel operator status to green
+Aug 16 12:39:50 <green>	does anybody in the office today have a micro-USB cable I could borrow this aft?
+Aug 16 12:46:09 <green>	lisac to the rescue.
+Aug 16 13:41:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Aug 16 13:41:58 2016
+
+**** BEGIN LOGGING AT Tue Aug 16 14:15:41 2016
+
+Aug 16 14:15:41 *	Now talking on #toronto
+Aug 16 15:10:48 *	fuhbot2 gives channel operator status to ebaron
+Aug 16 16:25:13 *	fuhbot gives channel operator status to green
+Aug 16 18:26:42 *	fuhbot2 gives channel operator status to mwringe
+Aug 17 07:59:19 *	fuhbot gives channel operator status to phi
+Aug 17 08:54:12 *	fuhbot gives channel operator status to flu
+Aug 17 09:03:46 *	fuhbot2 gives channel operator status to pcheung
+Aug 17 09:05:35 *	fuhbot2 gives channel operator status to alanm
+Aug 17 09:33:27 *	fuhbot gives channel operator status to mwringe_
+Aug 17 09:46:57 *	fuhbot gives channel operator status to rgrunber
+Aug 17 10:12:00 *	fuhbot gives channel operator status to pwouters
+Aug 17 10:14:41 *	fuhbot gives channel operator status to green
+Aug 17 10:15:14 *	fuhbot2 gives channel operator status to ebaron
+Aug 17 10:54:28 *	fuhbot2 gives channel operator status to lisac
+Aug 17 11:28:28 *	fuhbot gives channel operator status to Highlander
+Aug 17 11:36:39 <fbricon>	rgrunber: https://bugs.eclipse.org/bugs/show_bug.cgi?id=499849
+Aug 17 11:39:11 <rgrunber>	fbricon: excellent, i shall cc jeff though i'm sure he'll agree with the fix.
+Aug 17 14:02:26 *	fuhbot gives channel operator status to pwouters
+Aug 17 14:52:25 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 17 14:52:25 2016
+
+**** BEGIN LOGGING AT Wed Aug 17 14:54:25 2016
+
+Aug 17 14:54:25 *	Now talking on #toronto
+Aug 17 16:02:29 *	Disconnected (No route to host)
+**** ENDING LOGGING AT Wed Aug 17 16:02:29 2016
+
+**** BEGIN LOGGING AT Wed Aug 17 16:02:40 2016
+
+Aug 17 16:02:40 *	Now talking on #toronto
+Aug 18 04:41:02 *	fuhbot gives channel operator status to phi
+Aug 18 08:52:08 *	fuhbot2 gives channel operator status to lisac
+Aug 18 08:53:52 *	fuhbot gives channel operator status to flu
+Aug 18 08:59:47 *	fuhbot gives channel operator status to alanm
+Aug 18 09:50:43 *	fuhbot2 gives channel operator status to pcheung
+Aug 18 09:50:55 *	fuhbot gives channel operator status to rgrunber
+Aug 18 10:23:42 *	fuhbot gives channel operator status to ebaron
+Aug 18 10:32:35 <jooho>	lisac: ping
+Aug 18 10:32:47 <lisac>	jooho, hi
+Aug 18 10:45:02 *	fuhbot gives channel operator status to Highlander
+Aug 18 11:32:15 *	fuhbot gives channel operator status to phi
+Aug 18 12:02:52 *	fuhbot2 gives channel operator status to jjohnstn
+Aug 18 12:57:24 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Aug 18 12:57:24 2016
+
+**** BEGIN LOGGING AT Thu Aug 18 12:57:35 2016
+
+Aug 18 12:57:35 *	Now talking on #toronto
+Aug 18 14:07:53 *	fuhbot gives channel operator status to pwouters
+Aug 18 15:04:35 *	fuhbot gives channel operator status to alanm
+Aug 18 15:35:43 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Thu Aug 18 15:35:43 2016
+
+**** BEGIN LOGGING AT Fri Aug 19 10:19:13 2016
+
+Aug 19 10:19:13 *	Now talking on #toronto
+Aug 19 10:24:50 *	fuhbot2 gives channel operator status to ebaron
+Aug 19 10:44:23 *	fuhbot gives channel operator status to rgrunber
+Aug 19 11:30:14 *	fuhbot2 gives channel operator status to lisac
+Aug 19 14:03:17 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Aug 19 14:03:17 2016
+
+**** BEGIN LOGGING AT Fri Aug 19 14:11:44 2016
+
+Aug 19 14:11:44 *	Now talking on #toronto
+Aug 19 14:16:33 <LG>	jjohnstn|wfh, mbenitez are you guys coming to the office?
+Aug 19 14:21:12 <jjohnstn|wfh>	LG: I was waiting to hear from Lisa when we were leaving...AFAIK we are going to wait for mbenitez
+Aug 19 14:23:33 <LG>	jjohnstn|wfh, lisac mbenitez It seems Martha won't be able to make it
+Aug 19 14:24:00 <mbenitez>	LG, jjohnstn|wfh, lisac I'll fail you this time... falling asleep :\
+Aug 19 14:26:53 *	fuhbot gives channel operator status to Highlander
+Aug 19 14:30:11 <jjohnstn|wfh>	LG, lisac Elaine has a call at 3:00 and we can head in after that...if that is too late, we can meet you two down there
+Aug 19 14:31:30 <LG>	jjohnstn|wfh, lisac I'm good with whatever you guys decide
+Aug 19 14:33:01 <jjohnstn|wfh>	lisac: your thoughts?
+Aug 19 14:36:56 <lisac>	jjoh
+Aug 19 14:37:17 <lisac>	oh dear...head in after 3 and we can leave when you get here
+Aug 19 14:50:26 <jjohnstn|wfh>	lisac: ok, don't know when her meeting ends but will let you know when we are leaving
+Aug 19 16:40:48 <jjohnstn|wfh>	lisac LG leaving now...the meeting went late
+Aug 19 16:41:34 <lisac>	ok
+Aug 19 16:41:39 <LG>	ok
+Aug 19 17:28:46 *	fuhbot gives channel operator status to rgrunber
+Aug 22 07:54:59 *	fuhbot gives channel operator status to chrisphi
+Aug 22 08:45:36 *	fuhbot2 gives channel operator status to pcheung
+Aug 22 08:59:22 *	fuhbot2 gives channel operator status to alanm
+Aug 22 09:16:48 *	fuhbot gives channel operator status to fnasser
+Aug 22 09:30:00 *	fuhbot gives channel operator status to Highlander
+Aug 22 10:00:19 *	rgb wonders what day this week would be best to come in to office
+Aug 22 10:00:41 <rgb>	thurs/fri aren't great because I expect to be occupied at LSS.
+Aug 22 10:24:16 *	fuhbot gives channel operator status to pwouters
+Aug 22 10:32:58 *	fuhbot2 gives channel operator status to ebaron
+Aug 22 11:56:23 *	fuhbot gives channel operator status to jjohnstn
+Aug 22 12:19:27 *	fuhbot2 gives channel operator status to lisac
+Aug 22 13:24:33 *	fuhbot gives channel operator status to phi
+Aug 22 14:47:42 *	fuhbot2 gives channel operator status to ebaron
+Aug 22 16:57:26 *	fuhbot gives channel operator status to pwouters
+Aug 22 19:06:36 *	fuhbot gives channel operator status to pwouters
+Aug 23 05:17:14 *	fuhbot2 gives channel operator status to mjw
+Aug 23 07:43:46 *	fuhbot gives channel operator status to mbenitez
+Aug 23 08:04:11 *	fuhbot2 gives channel operator status to fnasser
+Aug 23 08:13:07 *	fuhbot gives channel operator status to Highlander
+Aug 23 08:56:17 *	fuhbot gives channel operator status to pcheung
+Aug 23 08:56:17 *	fuhbot2 gives channel operator status to pcheung
+Aug 23 10:22:15 *	fuhbot gives channel operator status to pwouters
+Aug 23 10:23:00 *	fuhbot gives channel operator status to Highlander
+Aug 23 10:29:38 *	fuhbot2 gives channel operator status to ebaron
+Aug 23 10:50:52 *	fuhbot gives channel operator status to Highlander
+Aug 23 11:32:36 *	fuhbot gives channel operator status to phi
+Aug 23 12:41:48 *	fuhbot gives channel operator status to jjohnstn
+Aug 23 14:26:08 *	fuhbot2 gives channel operator status to lisac
+Aug 23 16:27:54 *	fuhbot gives channel operator status to fnasser_
+Aug 23 16:36:41 *	fuhbot gives channel operator status to csanting_ csanting__
+Aug 23 16:43:03 *	fuhbot gives channel operator status to csanting
+Aug 23 16:48:58 *	fuhbot gives channel operator status to pwouters
+Aug 23 22:41:02 *	fuhbot gives channel operator status to pwouters
+Aug 24 04:49:39 *	fuhbot gives channel operator status to phi
+Aug 24 05:23:42 *	fuhbot gives channel operator status to mjw
+Aug 24 08:47:50 *	fuhbot2 gives channel operator status to pcheung
+Aug 24 08:58:06 *	fuhbot gives channel operator status to csanting
+Aug 24 09:00:08 *	fuhbot gives channel operator status to mwringe
+Aug 24 09:05:35 *	fuhbot gives channel operator status to flu
+Aug 24 09:15:14 *	fuhbot gives channel operator status to mwringe_
+Aug 24 09:33:51 *	fuhbot gives channel operator status to ebaron
+Aug 24 09:55:29 *	fuhbot gives channel operator status to Highlander
+Aug 24 10:09:27 <rgb>	anybody going to be around for lunch?  I'd be interested to join a few going for lunch at a local joint of some kind around the office
+Aug 24 11:02:50 *	fuhbot gives channel operator status to pwouters
+Aug 24 11:06:41 *	fuhbot gives channel operator status to jjohnstn_
+Aug 24 11:11:43 *	fuhbot2 gives channel operator status to mwringe
+Aug 24 12:31:23 *	fuhbot2 gives channel operator status to ebaron
+Aug 24 14:33:39 *	fuhbot gives channel operator status to csanting
+Aug 24 15:46:07 *	fuhbot gives channel operator status to pwouters
+Aug 24 16:16:39 *	fuhbot gives channel operator status to pwouters
+Aug 24 18:17:55 *	fuhbot gives channel operator status to ebaron
+Aug 24 22:42:39 *	fuhbot gives channel operator status to pwouters
+Aug 25 04:41:50 *	fuhbot gives channel operator status to chrisphi
+Aug 25 04:42:22 *	fuhbot gives channel operator status to phi
+Aug 25 08:29:21 <almac>	macs8500
+Aug 25 08:29:40 <almac>	whoops lol
+Aug 25 08:34:29 *	fuhbot gives channel operator status to mbenitez
+Aug 25 08:44:12 *	fuhbot gives channel operator status to pcheung
+Aug 25 08:57:56 *	fuhbot2 gives channel operator status to lisac
+Aug 25 09:00:47 *	fuhbot gives channel operator status to jjohnstn_
+Aug 25 09:36:15 *	fuhbot gives channel operator status to rgrunber
+Aug 25 09:45:10 *	fuhbot gives channel operator status to Highlander
+Aug 25 10:12:30 *	fuhbot gives channel operator status to pwouters
+Aug 25 10:32:40 *	fuhbot gives channel operator status to ebaron
+Aug 25 10:58:55 *	fuhbot2 gives channel operator status to pcheung
+Aug 25 11:00:47 *	fuhbot gives channel operator status to mbenitez
+Aug 25 11:23:55 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Aug 25 11:23:55 2016
+
+**** BEGIN LOGGING AT Thu Aug 25 12:16:00 2016
+
+Aug 25 12:16:00 *	Now talking on #toronto
+Aug 25 12:22:55 *	fuhbot gives channel operator status to Highlander
+Aug 25 12:35:50 *	fuhbot gives channel operator status to ebaron
+Aug 25 12:57:57 *	fuhbot2 gives channel operator status to ebaron
+Aug 25 13:54:11 *	fuhbot2 gives channel operator status to pcheung
+Aug 25 14:28:04 *	fuhbot gives channel operator status to lisac
+Aug 25 16:05:56 *	fuhbot gives channel operator status to Highlander
+Aug 25 16:57:03 *	fuhbot gives channel operator status to ebaron
+Aug 25 17:06:22 *	fuhbot gives channel operator status to pwouters
+**** ENDING LOGGING AT Thu Aug 25 20:25:13 2016
+
+**** BEGIN LOGGING AT Fri Aug 26 10:47:04 2016
+
+Aug 26 10:47:04 *	Now talking on #toronto
+Aug 26 11:30:21 *	fuhbot gives channel operator status to mbenitez
+Aug 26 11:37:20 *	fuhbot2 gives channel operator status to lisac
+Aug 26 11:39:38 *	fuhbot gives channel operator status to jjohnstn
+Aug 26 13:13:47 <lisac>	is anyone in the office?
+Aug 26 13:16:11 <dcheung>	jkang_lunch: ^^
+Aug 26 13:17:05 <lisac>	hopefully he will ping me when he gets back:-)
+Aug 26 13:47:00 <jkang>	lisac, hi!
+Aug 26 13:49:21 <jkang>	lisac, I am in the office :)
+Aug 26 13:53:27 <lisac>	jkang, it was just about the boxes downstairs however I think you helped with them this morning
+Aug 26 13:53:39 <jkang>	lisac, yes we moved them into your office
+Aug 26 13:53:56 <lisac>	thanks, must not be much room in there now:-)
+Aug 26 13:54:17 <jkang>	there's still some space to sit :D
+Aug 26 13:54:32 <lisac>	great
+Aug 26 13:55:27 <rgrunber>	jkang: feel free to take a t-shirt for your effort :P
+Aug 26 13:56:34 <jkang>	rgrunber, ah yeah leo was talking about them earlier; thanks!
+Aug 26 15:34:59 *	fuhbot gives channel operator status to Highlander
+Aug 26 17:37:35 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Aug 26 17:37:35 2016
+
+**** BEGIN LOGGING AT Fri Aug 26 19:36:42 2016
+
+Aug 26 19:36:42 *	Now talking on #toronto
+**** ENDING LOGGING AT Fri Aug 26 20:10:58 2016
+
+**** BEGIN LOGGING AT Mon Aug 29 09:03:26 2016
+
+Aug 29 09:03:26 *	Now talking on #toronto
+Aug 29 09:08:02 *	fuhbot gives channel operator status to mbenitez
+Aug 29 09:25:28 *	fuhbot gives channel operator status to chrisphi
+Aug 29 09:32:15 *	fuhbot gives channel operator status to rgrunber
+Aug 29 09:40:42 *	fuhbot2 gives channel operator status to fnasser
+Aug 29 09:40:42 *	fuhbot gives channel operator status to fnasser
+Aug 29 09:49:12 *	fuhbot gives channel operator status to Highlander
+Aug 29 09:53:08 *	fuhbot2 gives channel operator status to patrickm
+**** ENDING LOGGING AT Mon Aug 29 10:15:44 2016
+
+**** BEGIN LOGGING AT Mon Aug 29 10:15:44 2016
+
+Aug 29 11:15:39 <mbenitez>	#toronto free t-shirts and openshift books across from Lisa's office
+Aug 29 11:16:00 <jkang>	nice, thanks!
+Aug 29 12:11:18 <fche>	mbenitez, are those openshift books on topic for devtools peeps?
+Aug 29 12:12:31 <mbenitez>	what I've seen is an introduction to OpenShift 3, how to install it, configure, get your first apps running
+Aug 29 14:17:45 <rgb>	is that the free T-shirts from linuxcon?  the monster ones?
+Aug 29 14:18:03 *	rgb only saw XL and larger and declined...
+Aug 29 14:19:12 <mbenitez>	yes, the ones from linuxcon
+Aug 30 10:31:23 <patrickm>	cookies in the kitchen from Honolulu Cookie Company... the chocolate dipped lilikoi is the best  [http://www.honolulucookie.com/] 
+Aug 30 10:34:50 <jkang>	thanks!
+Aug 30 11:43:08 <strykerawb>	rgrunber,  hi roland :D
+Aug 30 11:43:20 <rgrunber>	strykerawb: hey, any luck ?
+Aug 30 11:43:26 <strykerawb>	nope!  :D
+Aug 30 11:43:41 <strykerawb>	i mean i got it to work in principle but it still doesn't work ;) 
+Aug 30 11:44:06 <strykerawb>	the problem is that most vagrant commands i issue this way end up saying that vagrant is trying to talk to the process as if it was a TTY terminal
+Aug 30 11:44:23 <rgrunber>	strykerawb: i had some suggestions a little while ago for that.
+Aug 30 11:44:39 <rgrunber>	strykerawb: i didn't have a chance to try them out..
+Aug 30 11:44:59 <rgrunber>	(see the jira)
+Aug 30 11:45:39 <strykerawb>	rgrunber,   yeah...  we're only using machine-readbale during vagrant service-manager env  calls
+Aug 30 11:45:43 <strykerawb>	so thats not relevant 
+Aug 30 11:45:59 <strykerawb>	and as for wrapping in a call to bash,  um... this stuff needs to work in windows too
+Aug 30 11:46:05 <strykerawb>	so we can't really wrap it in bash 
+Aug 30 11:47:34 <strykerawb>	rgrunber,   is there an official vagrant syntax to avoid the vagrant commands trying to treat the caller as a tty terminal?
+Aug 30 11:47:36 <rgrunber>	can you wrap it in bash for just linux ?.. i could have sworn the vagrant code said something like "if not on windows and stdin.tty is false then error"
+Aug 30 11:47:38 <strykerawb>	or is it on a per-command basis? 
+Aug 30 11:51:22 <rgrunber>	strykerawb: i don't think its possible. vagrant expects the stdin stream to be from a tty when not on windows.
+Aug 30 11:51:50 <strykerawb>	that seems absolutely horrible as an assumption
+Aug 30 11:51:55 <rgrunber>	strykerawb: hey so.. can you just try running this on windows and see if it works.. i mean.. it seems like it should.
+Aug 30 11:52:17 <rgrunber>	'# We can't ask questions when the output isn't a TTY.'
+Aug 30 11:52:27 <strykerawb>	where's that from? link?
+Aug 30 11:52:35 <rgrunber>	ah one sec.. vagrant sources
+Aug 30 11:53:08 <rgrunber>	https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/ui.rb#L161
+Aug 30 11:54:48 <strykerawb>	see the thing that gets me is the wording in the error itself
+Aug 30 11:54:58 <strykerawb>	Most actions in Vagrant that require a TTY have configuration
+Aug 30 11:54:58 <strykerawb>	switches to disable this requirement. Please do that or run Vagrant
+Aug 30 11:54:58 <strykerawb>	with TTY.
+Aug 30 11:55:23 <strykerawb>	so this begs the question:  is there a way to ask questions without tty and its up to the plugins (ie vagrant service-manager) to implement properly a flag?
+Aug 30 11:55:35 <strykerawb>	sorry i mean vagrant registration
+Aug 30 11:57:27 <strykerawb>	rgrunber, the reason i ask this question is because,  running a simple java program that reads standard in / standard out doesn't require a TTY terminal
+Aug 30 11:57:27 <rgrunber>	do they mean that there are configuration switches to answer the 'question' .. rather than.. there's a way to get the questions without TTY requirement.. i mean this is supposed to be a string message geared towards a user.. not a developer who cares about the internals.
+Aug 30 11:57:43 <strykerawb>	so i can't see any technical reason they can't ask questions without a tty
+Aug 30 11:57:45 <strykerawb>	it makes no sense
+Aug 30 11:59:57 <strykerawb>	rgrunber,  who do you think we can ask? =P 
+Aug 30 12:00:01 <rgrunber>	maybe they send terminal codes through.. and try to confirm the stream is attached to something that could read them.. seems like it's not their problem but meh.
+Aug 30 12:00:55 <rgrunber>	you might get a better answer on devtools (hopefully).. if not i'd love to play around with it because i think this is the right approach.. also you're so close.
+Aug 30 12:00:57 <strykerawb>	now again, if i simply open a terminal view, connect to the local host, and send to the terminal's stream "vagrant up" it will work
+Aug 30 12:01:08 <strykerawb>	bc then it IS a tty terminal
+Aug 30 12:01:17 <strykerawb>	but then i can't get a reference to the IProcess
+Aug 30 12:01:35 <strykerawb>	or even a java.lang.Process
+Aug 30 12:01:42 <rgrunber>	a stream from bash -i should also be a tty though.. if i could get that to work.
+Aug 30 12:02:29 <strykerawb>	rgrunber,  do you have time to do some pair coding today or tomorrow? not sure on your current work load
+Aug 30 12:02:44 <strykerawb>	i suspect the current impl "just works" in windows already
+Aug 30 12:02:49 <strykerawb>	when run as admin
+Aug 30 12:03:01 <strykerawb>	but to get it to work on both windows and linux is the hard part
+Aug 30 12:04:41 <rgrunber>	strykerawb: so weird for me to be like 'yay it works on windows, that's .. actually the really important case' :(
+Aug 30 12:05:28 <rgrunber>	strykerawb: i'll be in tomorrow. tbh i just wanna tinker with wrapping the call in bash.. that should let isatty() pass.
+Aug 30 16:43:39 <patrickm>	*
+Aug 30 16:43:39 <patrickm>	*
+Aug 30 16:43:39 <patrickm>	* PSA: Just as an fyi, the 2015-2016 Canadian Government R&D Tax Credit
+Aug 30 16:43:39 <patrickm>	*      submission that many of you worked on resulted in a $1.743 million
+Aug 30 16:43:39 <patrickm>	*      tax credit.  Thanks!
+Aug 30 16:43:40 <patrickm>	*
+Aug 30 16:46:14 <rgrunber>	\o/
+Aug 30 16:47:23 <omajid_wfh>	whoa
+Aug 30 17:02:28 <dbhole>	nice :)
+Aug 30 17:09:10 <efraim>	lisac, still busy with work... but, I will be in the office tomorrow... can we meet in the AM?
+Aug 30 17:31:33 <lisac>	efraim, no problem, see you tomorrow
+Aug 30 17:31:57 <efraim>	lisac, ack
+Aug 31 11:17:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 31 11:17:31 2016
+
+**** BEGIN LOGGING AT Wed Aug 31 11:17:42 2016
+
+Aug 31 11:17:42 *	Now talking on #toronto
+**** ENDING LOGGING AT Wed Aug 31 16:11:10 2016
+
+**** BEGIN LOGGING AT Wed Aug 31 16:12:30 2016
+
+Aug 31 16:12:30 *	Now talking on #toronto

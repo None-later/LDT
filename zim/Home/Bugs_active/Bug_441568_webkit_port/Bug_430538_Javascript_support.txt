@@ -1,0 +1,130 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-06T15:06:17-04:00
+
+====== Bug 430538 Javascript support ======
+Created Wednesday 06 July 2016
+@bug @webkit
+
+====== inbox ======
+- Build only webkit target:
+make -f make_linux.mak make_webkit
+
+- clean and rebuild webkit target, see if .so were compiled:
+./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$
+
+
+JS data types:
+https://msdn.microsoft.com/en-us/library/7wkd9z69(v=vs.94).aspx
+https://developer.mozilla.org/en/docs/Web/JavaScript/Data_structures
+
+====== Code Notes ======
+- GMutex was introduced in Glib 2.32
+- Gtk3-4 depends on Glib2.32.
+
+===== Commits =====
+
+==== Bug 425123 - Port SWT Browser to webkit2gtk ====
+6c6dfbde54f73e110515be4b620f4ab18c1f4c84    : ~2014, initial port to webkit2.
+This added Javascript execution webkit2 code to exec (not sure if it used to work at some point..)
+
+==== Executing Javascript in webview ====
+https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html
+{{{code: lang="cpp" linenumbers="True"
+void
+webkit_web_view_run_javascript 
+							(WebKitWebView *web_view,
+								const gchar *script,
+								GCancellable *cancellable,
+								GAsyncReadyCallback callback,
+								gpointer user_data);
+}}}
+
+
+typedef struct _WebKitJavascriptResult WebKitJavascriptResult;
+
+also:
+WebKitScriptWorld
+https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitScriptWorld.html
+
+
+====== Communication ======
+- get the result **synchronously**.
+- Alex reccomends:
+Implement native function **"webkit_web_view_run_javascript_sync"** that calls **webkit_web_view_run_javascript** (it's async and you pass it callback function), blocks until the callback returns and return the result after that. That way the implementation in Java will be clear, you can make use of **glib threading apis** easily in the C code and all the code will be in existing libswt-webkit.so file so no fancy loading would be needed.
+- Alex:
+Alex: _> youcan use ExecutorService and pass it a Callable	 	
+akurtakov_> than executor.submit will give return you a future
+<akurtakov_> future.get will block the current thread until the callable completes
+
+====== Sources ======
+https://wiki.gnome.org/Projects/WebKitGtk/ProgrammingGuide/Cookbook#Executing_JavaScript
+
+====== See Also: ======
+
+===== Epiphany JS port: =====
+Bug 678601 – Port run javascripts to WebKit2: https://bugzilla.gnome.org/show_bug.cgi?id=678601
+port: https://bugzilla.gnome.org/attachment.cgi?id=217003&action=diff
+
+2943        #ifdef HAVE_WEBKIT2
+2944	    webkit_web_view_run_javascript (WEBKIT_WEB_VIEW (view), decoded_url, NULL, NULL, NULL);
+2945	#else
+2946	    webkit_web_view_execute_script (WEBKIT_WEB_VIEW (view), decoded_url);	
+2947	#endif
+
+===== Implementing wait for testing =====
+I might want to try sleep. See: [[Home:www:Javascript]]
+
+
+====== Temp ======
+
+===== Try a custom function: =====
+void webkitgtk_custom_web_view_run_javascript() {
+	 g_print("webkitgtk custom function execution!!!\n");
+}
+
+
+public static final native void _webkitgtk_custom_web_view_run_javascript();
+public static final void webkitgtk_custom_web_view_run_javascript() {
+	lock.lock();
+	try {
+		_webkitgtk_custom_web_view_run_javascript (); //
+	} finally {
+		lock.unlock();
+	}
+}
+
+===== Warning about unsupported functions: =====
+/*************************************************************
+ * WEBKIT2 FUNCTIONS TO BE PORTED
+ *
+ * Below are WEBKIT2 functions that aren't working yet.
+ * Override is point out that they may cause issues, also helps find
+ * find things in Eclipse that use these functions.
+ * ~ Port in progress ~
+ *  Bug 441568 - [GTK3][webkit] Port SWT Browser to webkit2gtk
+ *************************************************************
+ */
+@Override
+public Object evaluate (String script) throws SWTException {
+	if (WEBKIT2) { // TODO WEBKIT2 - to be implemented. Currently throws error.
+		System.err.println("Warning: Currently running with Webkit2 and calling 'evaluate'."
+				+ " Call to 'evaluate' is not yet fully ported on Webkit2, may cause random behaviour. See Bug 430538 ");
+		return super.evaluate(script); // Currently doesn't return anything anyway.
+	} else {
+		return super.evaluate(script);
+	}
+}
+
+@Override
+public void createFunction (BrowserFunction function) {
+	if (WEBKIT2) { // TODO WEBKIT2 - to be implemented. Currently throws error.
+		System.err.println("Warning: Currently running with Webkit2 and calling 'createFunction'."
+				+ "Call to 'createFunction' is not fully ported on Webkit2, may cause random behaviour. Bug 430538 ");
+		super.createFunction(function);
+	} else {
+		super.createFunction(function);
+	}
+}
+/** WEBKIT2 FUNCTIONS TO BE PORTED END **/
+

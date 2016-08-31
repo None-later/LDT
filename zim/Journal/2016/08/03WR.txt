@@ -1,0 +1,42 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-03T10:57:28-04:00
+
+====== 03WR ======
+Created Wednesday 03 August 2016
+
+(done)
+Bug 497923 - [GTK] build.sh bugfixes and improvements
+	- Newer bash syntax caused some execution errors on older build servers.
+	- Updated build.sh to use older syntax like '[]' instead of ''
+	  (as per Alex.K's observation)
+	- Now build servers seem to be building again.
+
+(In progress) 
+Bug 430538 - [GTK3][webkit] Support Custom JavaScript execution in WebKit2 mode of SWT Browser
+	- Working on converting an async call into a sync one:
+	- Spent time investigating GTask framework, GLib's threading an GMutex and SWT's
+	  'Call' mechanism, but found that those were not suitable for this task.
+	  (WebKitGtk uses GTask internally, so using GTask on top of GTask could casuse issues,
+	   also GTask is more for making Sync calls async as oppose to the other way around).
+	-- Implemented a native C snippet that uses a simple spin-lock to convert async call into
+	   a sync call, that uses g_main_context_iteration.
+	-- Discussing with Alex about how to best port to SWT layer without causing dead-locks in SWT,
+	   I will try to implement a non-recursive lock in WebKitGtk.java to simplify proceddure. 
+		
+
+Triage:
+- 495561: When implementing Expandbar inside a composite the composite does not resize or redraw properly
+  https://bugs.eclipse.org/bugs/show_bug.cgi?id=495561
+  etc... 
+- Tested Alex's path:
+	Bug 498533 – Binding for gtk_adjustment_* shouldn't be dynamic
+	https://bugs.eclipse.org/bugs/show_bug.cgi?id=498533
+	Doesn't cause test failures for me. Probably issue with old build server.
+
+Other:
+	- (As per request by Ian) Figured out how to compile GTK patches/changes with JHBuild (jhbuild buildone... )
+	  This is for testing bugfix patches for latest gtk builds.
+	  Documented it in SWT wiki.
+	- Investigated and submitted bug to Mylyn tasks: Bug 499066 - Add 'Bug ' to commit message.
+
