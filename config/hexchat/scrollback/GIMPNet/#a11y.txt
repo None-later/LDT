@@ -195,3 +195,229 @@ T 1472661372 18<alexarnaud18>	I'll check, thanks you so much.
 T 1472664258 20*	Disconnected (20Connection timed out)
 T 1472664271 19*	Now talking on 22#a11y
 T 1472674353 19*	Now talking on 22#a11y
+T 1472832936 19*	Now talking on 22#a11y
+T 1473106243 20*	Disconnected (20Connection reset by peer)
+T 1473106257 19*	Now talking on 22#a11y
+T 1473170362 20*	Disconnected (20Connection timed out)
+T 1473170375 19*	Now talking on 22#a11y
+T 1473261220 20*	Disconnected (20Connection timed out)
+T 1473261233 19*	Now talking on 22#a11y
+T 1473265161 20*	Disconnected (20Connection timed out)
+T 1473265174 19*	Now talking on 22#a11y
+T 1473685438 19*	Now talking on 22#a11y
+T 1473691113 18<ankh18>	schoppenhauer, in theory you could use an image inside svg, but in practice I don't know if that works very well. You could have a "longdesc" attribute on the image pointing to a script that sent the appropriate transcription, or you could generate the img element itself on the fly with a server-side include
+T 1473691132 18<ankh18>	on Linux at least you can try orca as a reader
+T 1473691146 18<schoppenhauer18>	i never got orca to work properly with firefox
+T 1473691179 18<schoppenhauer18>	i cannot generate the img-element on the fly when I want to host the file statically
+T 1473691238 18<schoppenhauer18>	hm. longdesc does not really solve this problem.
+T 1473691491 18<schoppenhauer18>	ankh: probably a VM with vinux is the easiest to get a working orca+ff, right?
+T 1473691553 18<ankh18>	no idea re. vinux
+T 1473691586 18<ankh18>	well, you're doing some scripting to generate the random image already
+T 1473691633 18<ankh18>	have that script generate <img alt="..." src="data:....." />
+T 1473691647 18<ankh18>	watch that you can't have paragraph breaks or other markup inside alt, though
+T 1473691726 18<schoppenhauer18>	well then I would have to generate the whole page containing the <img>
+T 1473691731 18<schoppenhauer18>	which I want to host statically
+T 1473691932 18<ankh18>	hmm, no, most web servers i think support server-side includes
+T 1473691949 18<ankh18>	e.g. in apache <!--#include....-->
+T 1473691961 18<ankh18>	or be sucky and use an iframe :)
+T 1473691993 18<schoppenhauer18>	I will probably use an iframe
+T 1473692003 18<schoppenhauer18>	but will screenreaders then read the contents of this iframe?
+T 1473692060 18<schoppenhauer18>	hm. i will see soon probably …
+T 1473692064 18<schoppenhauer18>	if vinux works.
+T 1473692971 18<ankh18>	they should, just as if you had used blocking javascript to fetch image and text, or to generate the image on a canvas
+T 1473692988 18<ankh18>	and added alternate text inside the canvas
+T 1473694004 18<schoppenhauer18>	ankh: how can I tell orca to read a website?
+T 1473694018 18<schoppenhauer18>	ankh: in the current vinux installation it does not even read alt-texts for some images
+T 1473694100 18<ankh18>	i'm not sure why, maybe try valdiating the page?
+T 1473694136 18<schoppenhauer18>	validating?
+T 1473694159 18<joanie18>	schoppenhauer: I don't have time for a deep dive, but how are you reading the page?
+T 1473694166 18<joanie18>	are you arrowing in the content?
+T 1473694197 18<schoppenhauer18>	I am trying
+T 1473694215 18<joanie18>	is it reading other things?
+T 1473694217 18<schoppenhauer18>	ah. I include the svg-images via <object>. and inside the object, I have a jpeg. and inside this jpeg, I have an alt-text
+T 1473694220 18<schoppenhauer18>	yes
+T 1473694222 18<schoppenhauer18>	it just ignores the image
+T 1473694241 18<joanie18>	I need to look at how object elements are exposed
+T 1473694245 18<joanie18>	my guess is ROLE_EMBEDDED
+T 1473694262 18<joanie18>	which makes it look like a web app (e.g. google sheets)
+T 1473694267 18<schoppenhauer18>	m(
+T 1473694275 18<joanie18>	and Orca is not supposed to allow navigation in that
+T 1473694281 18<joanie18>	says a spec
+T 1473694292 18<schoppenhauer18>	is there anything not broken with screenreaders?
+T 1473694326 18*	joanie sighs at the question
+T 1473694496 18<schoppenhauer18>	can I disable object-tags then?
+T 1473694497 18<joanie18>	negativity aside, images with alt text are normally presented by Orca. I'll add looking into <object> as time permits. But it should work with the img element.
+T 1473694500 18<joanie18>	is that not an option?
+T 1473694516 18<schoppenhauer18>	no it is not
+T 1473694517 18<joanie18>	disable them?
+T 1473694541 18<schoppenhauer18>	svg should be included using object-tags, especially since this is the only way to have a fallback jpeg
+T 1473694549 18<schoppenhauer18>	and this jpeg is included using img
+T 1473694566 18<joanie18>	ok, then I'll look into the object issue. That's the best I can do right now
+T 1473694567 18<joanie18>	sorry
+T 1473694574 18<schoppenhauer18>	I assumed that when a screenreader cannot handle the object-tag, it would use the alternative content
+T 1473694596 18<schoppenhauer18>	because object-tags have alternative content for that purpose I think
+T 1473694607 18<joanie18>	the problem (what I need to address) is that the accessible object probably looks just like a web app
+T 1473694624 18<joanie18>	and the W3C spec says screen readers are supposed to not consume or cause navigation in web apps
+T 1473694641 18<joanie18>	so I need to pull tags out of object attributes to see that it's not a web app
+T 1473694654 18<joanie18>	and I apologize for not realizing this needed doing
+T 1473694661 18<joanie18>	i'll look at it shortly
+T 1473694667 18<schoppenhauer18>	ok
+T 1473694690 18<joanie18>	you have a test case handy?
+T 1473694705 18<schoppenhauer18>	joanie: https://blog.uxul.de/e?e=beekeeping
+T 1473694722 18<joanie18>	thanks. please give me a few as I didn't really have time for this
+T 1473694728 18<schoppenhauer18>	ok
+T 1473694732 18<schoppenhauer18>	take your time.
+T 1473694976 18<schoppenhauer18>	maybe in the meantime I'll try jaws on a vm
+T 1473694987 18<joanie18>	sounds like a plan
+T 1473695271 18<joanie18>	schoppenhauer: I was wrong about my theory. I'm looking at this in accerciser
+T 1473695280 18<joanie18>	The svg has ROLE_DOCUMENT_FRAME
+T 1473695288 18<joanie18>	and no alt text
+T 1473695305 18<joanie18>	because ROLE_DOCUMENT_FRAME is not ROLE_IMAGE
+T 1473695323 18<joanie18>	and the accessible name of the DOCUMENT_FRAME is the url of the svg
+T 1473695337 18<schoppenhauer18>	joanie: so … what can I do to make it accessible?
+T 1473695363 18<joanie18>	I would need to play around with it. Happily this time doesn't seem to be all screen readers being broken. That's something, anyway ;)
+T 1473695363 18<schoppenhauer18>	joanie: it is an <object ...><img ... alt="" /></object>
+T 1473695381 18<joanie18>	yeah, I see a bunch of child images which lack names
+T 1473695390 18<joanie18>	which result from the <img ... alt="">
+T 1473695403 18<schoppenhauer18>	it actually has alt-text
+T 1473695410 18<joanie18>	what does?
+T 1473695412 18<schoppenhauer18>	and I would have expected the alt-text to appear 
+T 1473695413 18<joanie18>	the svg?
+T 1473695416 18<schoppenhauer18>	no, the jpeg
+T 1473695419 18<schoppenhauer18>	inside the object-tag
+T 1473695429 18<joanie18>	I'm looking at this in accerciser
+T 1473695991 18<joanie18>	schoppenhauer: http://picpaste.com/what-alt-text-wBmYqIfi.png
+T 1473695998 18<joanie18>	that's a screenshot from Accerciser
+T 1473696005 18<joanie18>	that is what Orca sees
+T 1473696022 18<joanie18>	you'll note in that image that there's another image which does have an accessible name
+T 1473696027 18<joanie18>	the one about hipsters
+T 1473696043 18<joanie18>	you'll note that the svg element has the url as the accessible name
+T 1473696050 18<joanie18>	and a bunch of nameless child elements
+T 1473696071 18<schoppenhauer18>	joanie: that is the random image. does the internal frame have another child besides the svg?
+T 1473696092 18<joanie18>	lemme look
+T 1473696197 18<joanie18>	schoppenhauer: nope the internal frame has one child: the svg
+T 1473696228 18<joanie18>	and the svg has 162 nameless child images
+T 1473696348 18<joanie18>	and JAWS and NVDA are reading this??
+T 1473696823 18<joanie18>	schoppenhauer: Should I anticipate a new version to examine for accessibility?
+T 1473697074 18<schoppenhauer18>	joanie: anticipate?
+T 1473697094 18<joanie18>	I set aside some things to answer your questions and see if there was something I could fix in Orca
+T 1473697098 18<schoppenhauer18>	(jaws is not running yet)
+T 1473697104 18<joanie18>	if you're about to have a new version I'll wait
+T 1473697111 18<joanie18>	otherwise I'll go back to other stuff
+T 1473697141 18<joanie18>	but from what I see in Accerciser from this version, there's nothing on my side I can do
+T 1473697146 18<schoppenhauer18>	joanie: it has time, maybe first do other stuff and I'll find out what other screenreaders do
+T 1473697155 18<joanie18>	ok
+T 1473697169 18<joanie18>	I'd be curious as to what NVDA does as it gets the windows version of what I get
+T 1473697175 18<joanie18>	and I'm not getting anything I can work with
+T 1473699629 18<schoppenhauer18>	joanie: ok, jaws reads it
+T 1473699648 18<joanie18>	schoppenhauer: does NVDA?
+T 1473699662 18<joanie18>	JAWS might be parsing the content from the DOM
+T 1473699678 18<joanie18>	i.e. as opposed to using a11y apis
+T 1473700130 18<joanie18>	schoppenhauer: I just dusted off a windows 10 box I have for occasional testing. NVDA with Firefox seems to skip right over the image.
+T 1473700147 18<schoppenhauer18>	but why :(
+T 1473700157 18<joanie18>	remember that screenshot?
+T 1473700161 18<schoppenhauer18>	yes
+T 1473700166 18<schoppenhauer18>	but I don't understand that
+T 1473700169 18<schoppenhauer18>	it makes no sense
+T 1473700171 18<joanie18>	like I said earlier, NVDA gets essentially the same thing Orca gets
+T 1473700179 18<joanie18>	it's IA2 rather than ATK/AT-SPI2
+T 1473700191 18<joanie18>	but the accessibility tree and exposed info tends to be the same
+T 1473700201 18<joanie18>	so if NVDA cannot see it, Orca probably cannot either
+T 1473700221 18<joanie18>	JAWS, at least years ago, wasn't getting all it's info from the accessibility tree
+T 1473700246 18<joanie18>	I'm guessing perhaps it still does
+T 1473700268 18<joanie18>	getting back to your question: I don't know why Firefox is not exposing things to Orca and NVDA in the way you would like
+T 1473700278 18<joanie18>	but that would be a question for them
+T 1473700287 18<schoppenhauer18>	ok
+T 1473700297 18<joanie18>	if you go to irc.mozilla.org and join #accessibility
+T 1473700301 18<schoppenhauer18>	people should just use edbrowse.
+T 1473700303 18<schoppenhauer18>	ok
+T 1473700303 18<joanie18>	they might know the answer
+T 1473700308 18<schoppenhauer18>	thx, I'll ask them.
+T 1473700313 18<schoppenhauer18>	(not today, but probably tomorrow)
+T 1473700318 18<joanie18>	sorry I could n't just fix it for you
+T 1473700328 18<joanie18>	but I cannot turn nothing into something ;)
+T 1473700335 18<joanie18>	and what I'm getting is, I'm afraid, nothing
+T 1473700360 18<joanie18>	if you file a bug against gecko a11y, feel free to cc me
+T 1473700365 18<joanie18>	jdiggs at igalia dot com
+T 1473866291 20*	Disconnected (20Connection timed out)
+T 1473866309 19*	Now talking on 22#a11y
+T 1473869433 20*	Disconnected (20Connection timed out)
+T 1473869446 19*	Now talking on 22#a11y
+T 1473871466 18<ernestask18>	hello, could an at-spi developer (or not) take a look at https://bugzilla.gnome.org/show_bug.cgi?id=768881 ?
+T 1473871471 18<ernestask18>	it would be greatly appreciated
+T 1473873190 18<mgorse18>	ernestask: Sorry; I hadn't noticed that bug. Patch looks fine. Going to push (I imagine it's okay since it's trivial)
+T 1473873320 18<mgorse18>	Going to check whether I'm getting the bugzilla email in all cases...
+T 1473873398 18<ernestask18>	awesome, thanks, mgorse
+T 1473926587 20*	Disconnected (20Remote host closed socket)
+T 1473926601 19*	Now talking on 22#a11y
+T 1473969200 19*	Now talking on 22#a11y
+T 1474251575 19*	Now talking on 22#a11y
+T 1474287609 19*	Now talking on 22#a11y
+T 1474315757 19*	Now talking on 22#a11y
+T 1474381530 19*	Now talking on 22#a11y
+T 1474467676 19*	Now talking on 22#a11y
+T 1474471033 20*	Disconnected (20Connection timed out)
+T 1474471046 19*	Now talking on 22#a11y
+T 1474475058 20*	Disconnected (20Connection timed out)
+T 1474475071 19*	Now talking on 22#a11y
+T 1474551499 19*	Now talking on 22#a11y
+T 1474684547 19*	Now talking on 22#a11y
+T 1474694309 20*	Disconnected (20Connection timed out)
+T 1474694382 19*	Now talking on 22#a11y
+T 1474736502 19*	Now talking on 22#a11y
+T 1474737874 18<joanie18>	ankh: and djb: I just commented on the bug
+T 1474737917 18<joanie18>	I'll look into the numlock not toggling issue, but KP_Enter is doing the right thing (expected by users who are blind) if NumLock is off
+T 1474738107 18<djb18>	joanie: great thanks!
+T 1474738130 18<djb18>	after you said that i checked with gtk+, and indeed, if the numlock is off, then Enter does function as a way to retrigger the reading
+T 1474738178 18<joanie18>	djb: and this is all documented in the Orca docs
+T 1474738200 18<joanie18>	which, again, no one reads docs and that sucks if you're not a "typical" screen reader user
+T 1474738208 18<djb18>	mea culpa
+T 1474738210 18<joanie18>	but like I said in the bug, I don't see changing that
+T 1474738222 18<joanie18>	no, it's perfectly reasonable for you to not know that
+T 1474738231 18<djb18>	glad i found the oddity with gnome-shell though
+T 1474738251 18<joanie18>	scren reader users and developers and instructors know all the secret handshakes and knocks ;)
+T 1474738281 18<joanie18>	Orca has to hack around other known clutter input-event exposure (or failure to expose) issues
+T 1474738308 18<joanie18>	so my guess is that this is another not-Orca bug which Orca should hack around but isn't
+T 1474738322 18<joanie18>	or that Orca's hack is getting things wrong here :-/
+T 1474738330 18<joanie18>	this is why sad hacks are sad
+T 1474738331 18<joanie18>	;)
+T 1474738421 18<joanie18>	and ankh, yeah, I'm still traveling. Now in A Coruña.
+T 1474738446 18<joanie18>	sadly my suitcase didn't make it quite as smoothly as I did. 
+T 1474738469 18<joanie18>	regardless it was great to see you.
+T 1474739462 18<djb18>	joanie: thanks for the replies, hope that was useful
+T 1474741758 18*	ankh still in Lisbon after a travel fail
+T 1474741807 18<ankh18>	good luck with the suitcase.
+T 1474742813 20*	Disconnected (20Invalid argument)
+T 1474742857 19*	Now talking on 22#a11y
+T 1474742863 18<ankh18>	to be fair it was some ungodly hour in Canada though
+T 1474742870 18<joanie18>	ouch
+T 1474742899 18<ankh18>	(and i noticed, because pulling my suitcase, things like accessible ramps to restrooms that led to 3 steep steps down)
+T 1474743022 18<joanie18>	:(
+T 1474743487 18*	ankh going to avoid cocktails at the bar again tonight :)
+T 1474743774 18<joanie18>	heh
+T 1474743813 18<joanie18>	apparently there was opera last night. I missed it.
+T 1474743869 18<ankh18>	yes there was
+T 1474743875 18<ankh18>	i only listened for a few minutes
+T 1474743995 18<ankh18>	had to meet Janina in the lobby at 6am (shoud have gone with my intuition & said 05:40)
+T 1474749830 19*	Now talking on 22#a11y
+T 1474843633 19*	Now talking on 22#a11y
+T 1474898910 19*	Now talking on 22#a11y
+T 1474911386 19*	Now talking on 22#a11y
+T 1474912760 18*	tbsaunde grumbles about atk.h needing to be run through m4
+T 1474912900 FiSHLiM plugin unloaded
+T 1474919116 19*	Now talking on 22#a11y
+T 1474924972 20*	Disconnected (20Connection timed out)
+T 1474924985 19*	Now talking on 22#a11y
+T 1474932694 19*	Now talking on 22#a11y
+T 1474940299 19*	Now talking on 22#a11y
+T 1474977227 19*	Now talking on 22#a11y
+T 1474996053 19*	Now talking on 22#a11y
+T 1474999200 Python interface unloaded
+T 1475004218 19*	Now talking on 22#a11y
+T 1475006620 19*	Now talking on 22#a11y
+T 1475073122 19*	Now talking on 22#a11y
+T 1475075869 20*	Disconnected (20Connection timed out)
+T 1475075882 19*	Now talking on 22#a11y
+T 1475082472 20*	Disconnected (20Connection timed out)
+T 1475082485 19*	Now talking on 22#a11y
+T 1475500502 19*	Now talking on 22#a11y

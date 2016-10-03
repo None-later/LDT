@@ -1,0 +1,51 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-09-02T11:54:34-04:00
+
+====== Bug 498217 - [GTK3] Dragging parts does not show rectangle ======
+Created Friday 02 September 2016
+
+Gtk-3-8 Working: 
+aa384b3eb98d9f06442ae0c4121165f06c4d2a0b  < works.
+Fri May 29 20:30:22 2015 +0000
+
+Gtk-3-10
+d2609c1daba935ace5b9bd6fc8d3c79fe9793c72 << not working.
+Date:   Tue Oct 6 08:00:18 2015 +0000
+
+Breakage caused by:
+commit a60ccd3672467efb454b121993febc36f33cbc79
+Author: Alexander Larsson <alexl@redhat.com>
+Date:   Wed May 15 10:55:59 2013 +0200
+
+	GdkWindow: Fix shape handling for native windows
+    
+	We don't track the full clip for each window anymore, as this
+	is not useful when no windows are opaque. However, we still
+	need the full clip for the shape, so its calculated manually.
+    
+	However, it was previously only recalculated when the clip changes
+	which doesn't correctly handle the case of a sibling geometry changing.
+    
+	So, instead of doing this directly when geometry changes we just
+	set a bit in the toplevel whenever some window geometry changes, and
+	we then handle this in process_updates, updating the shape for all
+	native windows. This should be ok performance-wise because we don't
+	expect a lot of native children.
+
+
+===== disk vs ramdisk =====
+Gtk3-10 build with ramdisk:
+real	1m15.922s
+user	3m14.301s
+sys	1m51.851s
+
+Gtk3-10 build with Mac's pci-e disk:
+real	2m35.001s
+user	11m0.095s
+sys	2m44.054s
+
+Gtk3-10 build on Ian's ssd:
+real 2m37.790s
+user 5m56.970s
+sys 1m51.493s

@@ -66,7 +66,7 @@ alias rbrc="source ~/.bashrc"
 alias a="alias"
 alias ag="alias | g"
 # b
-alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
+#alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
 
 # c 
 alias cd-swtbuild.sh="cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
@@ -80,7 +80,7 @@ alias sdla="sudo dnf list available"
 # e
 # f
 # g - Git, grep 
-alias g="grep -i"
+alias g="grep -i -I -s"  #i= ignore uppercase. I=Ignore binary s= suppress error messages.
 alias gs="git status"
 alias grh="git reset --hard"
 alias ggu="git add . && git commit -m 'general update' && git push"
@@ -103,6 +103,7 @@ alias make=colormake
 # r
 alias rc="referenceGenerator.sh | toclip"
 alias rcp="rsync -azh --info=progress2 "
+alias rsync-workspace="rsync -r --delete ~/workspace/ ~/workspacecopy"
 # s
 alias startssh="systemctl start sshd.service"
 alias stopssh="systemctl stop sshd.service"

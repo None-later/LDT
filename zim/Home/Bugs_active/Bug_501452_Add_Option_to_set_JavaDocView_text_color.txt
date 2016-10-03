@@ -1,0 +1,43 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-09-15T11:26:15-04:00
+
+====== Bug 501452 Add Option to set JavaDocView text color ======
+Created Thursday 15 September 2016
+
+
+Background color id:
+org.eclipse.jdt.ui.JavadocView.backgroundColor
+
+Extension point id: org.eclipse.ui.themes
+
+
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-902-      <colorDefinition
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml:903:            label="**%JavadocViewBackgroundColor.label"**
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-904-            categoryId="org.eclipse.jdt.ui.presentation"
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-905-            value="**COLOR_INFO_BACKGROUND"**
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-906-            id="org.eclipse.jdt.ui.JavadocView.**backgroundColor**">
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-907-         <description>
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-908-            **%JavadocViewBackgroundColor.description**
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-909-         </description>
+eclipse.pde.ui/ui/org.eclipse.pde.ui.tests/tests/performance/plugin/org.eclipse.jdt.ui/plugin.xml-910-      </colorDefinition>
+
+
+eclipse.jdt.ui/org.eclipse.jdt.ui/plugin.properties-1055-#--- Info view colors
+eclipse.jdt.ui/org.eclipse.jdt.ui/plugin.properties:1056:JavadocViewBackgroundColor.label= Javadoc view background
+eclipse.jdt.ui/org.eclipse.jdt.ui/plugin.properties-1057-JavadocViewBackgroundColor.description= The color used as background for the Javadoc view.
+eclipse.jdt.ui/org.eclipse.jdt.ui/plugin.properties-1058-DeclarationViewBackgroundColor.label= Declaration view background
+eclipse.jdt.ui/org.eclipse.jdt.ui/plugin.properties-1059-DeclarationViewBackgroundColor.description= The color used as background for the Declaration view.
+
+
+
+==== -JavadocHover.java fix: ====
+
+method: JavadocBrowserInformationControlInput(..)
+... 
+			IPreferenceStore preferenceStore = JavaPlugin.getDefault().getCombinedPreferenceStore();
+
+			RGB background = PreferenceConverter.getColor(preferenceStore, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
+			RGB foreground = PreferenceConverter.getColor(preferenceStore, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND);
+															// FG              BG
+			HTMLPrinter.insertPageProlog(buffer, 0, new RGB (100,0,0), background, JavadocHover.getStyleSheet());

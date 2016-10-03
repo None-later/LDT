@@ -1,0 +1,17 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-09-01T13:23:47-04:00
+
+====== Bug 494619 Tree sends defaultSelection ======
+Created Thursday 01 September 2016
+
+Cocoa -> Tree.java:SendDoubleSelection,,, (
+		Event event = new Event ();
+		event.item = item;
+		sendSelectionEvent (SWT.DefaultSelection, event, false);
+
+Win32 -> Tree.java:6152:
+ 			Event event = new Event ();
+			long /*int*/ hItem = OS.SendMessage (handle, OS.TVM_GETNEXTITEM, OS.TVGN_CARET, 0);
+			if (hItem != 0) event.item = _getItem (hItem);
+			sendSelectionEvent (SWT.DefaultSelection, event, false);

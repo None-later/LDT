@@ -357,3 +357,359 @@ Aug 31 13:24:31 *	Now talking on #a11y
 **** BEGIN LOGGING AT Wed Aug 31 16:12:33 2016
 
 Aug 31 16:12:33 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Sep  2 12:14:34 2016
+
+**** BEGIN LOGGING AT Fri Sep  2 12:15:36 2016
+
+Sep 02 12:15:36 *	Now talking on #a11y
+Sep 05 16:10:43 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Mon Sep  5 16:10:43 2016
+
+**** BEGIN LOGGING AT Mon Sep  5 16:10:57 2016
+
+Sep 05 16:10:57 *	Now talking on #a11y
+Sep 06 09:59:22 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Sep  6 09:59:22 2016
+
+**** BEGIN LOGGING AT Tue Sep  6 09:59:35 2016
+
+Sep 06 09:59:35 *	Now talking on #a11y
+Sep 07 11:13:40 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep  7 11:13:40 2016
+
+**** BEGIN LOGGING AT Wed Sep  7 11:13:53 2016
+
+Sep 07 11:13:53 *	Now talking on #a11y
+Sep 07 12:19:21 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep  7 12:19:21 2016
+
+**** BEGIN LOGGING AT Wed Sep  7 12:19:34 2016
+
+Sep 07 12:19:34 *	Now talking on #a11y
+**** BEGIN LOGGING AT Mon Sep 12 09:03:58 2016
+
+Sep 12 09:03:58 *	Now talking on #a11y
+Sep 12 10:38:33 <ankh>	schoppenhauer, in theory you could use an image inside svg, but in practice I don't know if that works very well. You could have a "longdesc" attribute on the image pointing to a script that sent the appropriate transcription, or you could generate the img element itself on the fly with a server-side include
+Sep 12 10:38:52 <ankh>	on Linux at least you can try orca as a reader
+Sep 12 10:39:06 <schoppenhauer>	i never got orca to work properly with firefox
+Sep 12 10:39:39 <schoppenhauer>	i cannot generate the img-element on the fly when I want to host the file statically
+Sep 12 10:40:38 <schoppenhauer>	hm. longdesc does not really solve this problem.
+Sep 12 10:44:51 <schoppenhauer>	ankh: probably a VM with vinux is the easiest to get a working orca+ff, right?
+Sep 12 10:45:53 <ankh>	no idea re. vinux
+Sep 12 10:46:26 <ankh>	well, you're doing some scripting to generate the random image already
+Sep 12 10:47:13 <ankh>	have that script generate <img alt="..." src="data:....." />
+Sep 12 10:47:27 <ankh>	watch that you can't have paragraph breaks or other markup inside alt, though
+Sep 12 10:48:46 <schoppenhauer>	well then I would have to generate the whole page containing the <img>
+Sep 12 10:48:51 <schoppenhauer>	which I want to host statically
+Sep 12 10:52:12 <ankh>	hmm, no, most web servers i think support server-side includes
+Sep 12 10:52:29 <ankh>	e.g. in apache <!--#include....-->
+Sep 12 10:52:41 <ankh>	or be sucky and use an iframe :)
+Sep 12 10:53:13 <schoppenhauer>	I will probably use an iframe
+Sep 12 10:53:23 <schoppenhauer>	but will screenreaders then read the contents of this iframe?
+Sep 12 10:54:20 <schoppenhauer>	hm. i will see soon probably …
+Sep 12 10:54:24 <schoppenhauer>	if vinux works.
+Sep 12 11:09:31 <ankh>	they should, just as if you had used blocking javascript to fetch image and text, or to generate the image on a canvas
+Sep 12 11:09:48 <ankh>	and added alternate text inside the canvas
+Sep 12 11:26:44 <schoppenhauer>	ankh: how can I tell orca to read a website?
+Sep 12 11:26:58 <schoppenhauer>	ankh: in the current vinux installation it does not even read alt-texts for some images
+Sep 12 11:28:20 <ankh>	i'm not sure why, maybe try valdiating the page?
+Sep 12 11:28:56 <schoppenhauer>	validating?
+Sep 12 11:29:19 <joanie>	schoppenhauer: I don't have time for a deep dive, but how are you reading the page?
+Sep 12 11:29:26 <joanie>	are you arrowing in the content?
+Sep 12 11:29:57 <schoppenhauer>	I am trying
+Sep 12 11:30:15 <joanie>	is it reading other things?
+Sep 12 11:30:17 <schoppenhauer>	ah. I include the svg-images via <object>. and inside the object, I have a jpeg. and inside this jpeg, I have an alt-text
+Sep 12 11:30:20 <schoppenhauer>	yes
+Sep 12 11:30:22 <schoppenhauer>	it just ignores the image
+Sep 12 11:30:41 <joanie>	I need to look at how object elements are exposed
+Sep 12 11:30:45 <joanie>	my guess is ROLE_EMBEDDED
+Sep 12 11:31:02 <joanie>	which makes it look like a web app (e.g. google sheets)
+Sep 12 11:31:07 <schoppenhauer>	m(
+Sep 12 11:31:15 <joanie>	and Orca is not supposed to allow navigation in that
+Sep 12 11:31:21 <joanie>	says a spec
+Sep 12 11:31:32 <schoppenhauer>	is there anything not broken with screenreaders?
+Sep 12 11:32:06 *	joanie sighs at the question
+Sep 12 11:34:56 <schoppenhauer>	can I disable object-tags then?
+Sep 12 11:34:57 <joanie>	negativity aside, images with alt text are normally presented by Orca. I'll add looking into <object> as time permits. But it should work with the img element.
+Sep 12 11:35:00 <joanie>	is that not an option?
+Sep 12 11:35:16 <schoppenhauer>	no it is not
+Sep 12 11:35:17 <joanie>	disable them?
+Sep 12 11:35:41 <schoppenhauer>	svg should be included using object-tags, especially since this is the only way to have a fallback jpeg
+Sep 12 11:35:49 <schoppenhauer>	and this jpeg is included using img
+Sep 12 11:36:06 <joanie>	ok, then I'll look into the object issue. That's the best I can do right now
+Sep 12 11:36:07 <joanie>	sorry
+Sep 12 11:36:14 <schoppenhauer>	I assumed that when a screenreader cannot handle the object-tag, it would use the alternative content
+Sep 12 11:36:36 <schoppenhauer>	because object-tags have alternative content for that purpose I think
+Sep 12 11:36:47 <joanie>	the problem (what I need to address) is that the accessible object probably looks just like a web app
+Sep 12 11:37:04 <joanie>	and the W3C spec says screen readers are supposed to not consume or cause navigation in web apps
+Sep 12 11:37:21 <joanie>	so I need to pull tags out of object attributes to see that it's not a web app
+Sep 12 11:37:34 <joanie>	and I apologize for not realizing this needed doing
+Sep 12 11:37:41 <joanie>	i'll look at it shortly
+Sep 12 11:37:47 <schoppenhauer>	ok
+Sep 12 11:38:10 <joanie>	you have a test case handy?
+Sep 12 11:38:25 <schoppenhauer>	joanie: https://blog.uxul.de/e?e=beekeeping
+Sep 12 11:38:42 <joanie>	thanks. please give me a few as I didn't really have time for this
+Sep 12 11:38:48 <schoppenhauer>	ok
+Sep 12 11:38:52 <schoppenhauer>	take your time.
+Sep 12 11:42:56 <schoppenhauer>	maybe in the meantime I'll try jaws on a vm
+Sep 12 11:43:07 <joanie>	sounds like a plan
+Sep 12 11:47:51 <joanie>	schoppenhauer: I was wrong about my theory. I'm looking at this in accerciser
+Sep 12 11:48:00 <joanie>	The svg has ROLE_DOCUMENT_FRAME
+Sep 12 11:48:08 <joanie>	and no alt text
+Sep 12 11:48:25 <joanie>	because ROLE_DOCUMENT_FRAME is not ROLE_IMAGE
+Sep 12 11:48:43 <joanie>	and the accessible name of the DOCUMENT_FRAME is the url of the svg
+Sep 12 11:48:57 <schoppenhauer>	joanie: so … what can I do to make it accessible?
+Sep 12 11:49:23 <joanie>	I would need to play around with it. Happily this time doesn't seem to be all screen readers being broken. That's something, anyway ;)
+Sep 12 11:49:23 <schoppenhauer>	joanie: it is an <object ...><img ... alt="" /></object>
+Sep 12 11:49:41 <joanie>	yeah, I see a bunch of child images which lack names
+Sep 12 11:49:50 <joanie>	which result from the <img ... alt="">
+Sep 12 11:50:03 <schoppenhauer>	it actually has alt-text
+Sep 12 11:50:10 <joanie>	what does?
+Sep 12 11:50:12 <schoppenhauer>	and I would have expected the alt-text to appear 
+Sep 12 11:50:13 <joanie>	the svg?
+Sep 12 11:50:16 <schoppenhauer>	no, the jpeg
+Sep 12 11:50:19 <schoppenhauer>	inside the object-tag
+Sep 12 11:50:29 <joanie>	I'm looking at this in accerciser
+Sep 12 11:59:51 <joanie>	schoppenhauer: http://picpaste.com/what-alt-text-wBmYqIfi.png
+Sep 12 11:59:58 <joanie>	that's a screenshot from Accerciser
+Sep 12 12:00:05 <joanie>	that is what Orca sees
+Sep 12 12:00:22 <joanie>	you'll note in that image that there's another image which does have an accessible name
+Sep 12 12:00:27 <joanie>	the one about hipsters
+Sep 12 12:00:43 <joanie>	you'll note that the svg element has the url as the accessible name
+Sep 12 12:00:50 <joanie>	and a bunch of nameless child elements
+Sep 12 12:01:11 <schoppenhauer>	joanie: that is the random image. does the internal frame have another child besides the svg?
+Sep 12 12:01:32 <joanie>	lemme look
+Sep 12 12:03:17 <joanie>	schoppenhauer: nope the internal frame has one child: the svg
+Sep 12 12:03:48 <joanie>	and the svg has 162 nameless child images
+Sep 12 12:05:48 <joanie>	and JAWS and NVDA are reading this??
+Sep 12 12:13:43 <joanie>	schoppenhauer: Should I anticipate a new version to examine for accessibility?
+Sep 12 12:17:54 <schoppenhauer>	joanie: anticipate?
+Sep 12 12:18:14 <joanie>	I set aside some things to answer your questions and see if there was something I could fix in Orca
+Sep 12 12:18:18 <schoppenhauer>	(jaws is not running yet)
+Sep 12 12:18:24 <joanie>	if you're about to have a new version I'll wait
+Sep 12 12:18:31 <joanie>	otherwise I'll go back to other stuff
+Sep 12 12:19:01 <joanie>	but from what I see in Accerciser from this version, there's nothing on my side I can do
+Sep 12 12:19:06 <schoppenhauer>	joanie: it has time, maybe first do other stuff and I'll find out what other screenreaders do
+Sep 12 12:19:15 <joanie>	ok
+Sep 12 12:19:29 <joanie>	I'd be curious as to what NVDA does as it gets the windows version of what I get
+Sep 12 12:19:35 <joanie>	and I'm not getting anything I can work with
+Sep 12 13:00:29 <schoppenhauer>	joanie: ok, jaws reads it
+Sep 12 13:00:48 <joanie>	schoppenhauer: does NVDA?
+Sep 12 13:01:02 <joanie>	JAWS might be parsing the content from the DOM
+Sep 12 13:01:18 <joanie>	i.e. as opposed to using a11y apis
+Sep 12 13:08:50 <joanie>	schoppenhauer: I just dusted off a windows 10 box I have for occasional testing. NVDA with Firefox seems to skip right over the image.
+Sep 12 13:09:07 <schoppenhauer>	but why :(
+Sep 12 13:09:17 <joanie>	remember that screenshot?
+Sep 12 13:09:21 <schoppenhauer>	yes
+Sep 12 13:09:26 <schoppenhauer>	but I don't understand that
+Sep 12 13:09:29 <schoppenhauer>	it makes no sense
+Sep 12 13:09:31 <joanie>	like I said earlier, NVDA gets essentially the same thing Orca gets
+Sep 12 13:09:39 <joanie>	it's IA2 rather than ATK/AT-SPI2
+Sep 12 13:09:51 <joanie>	but the accessibility tree and exposed info tends to be the same
+Sep 12 13:10:01 <joanie>	so if NVDA cannot see it, Orca probably cannot either
+Sep 12 13:10:21 <joanie>	JAWS, at least years ago, wasn't getting all it's info from the accessibility tree
+Sep 12 13:10:46 <joanie>	I'm guessing perhaps it still does
+Sep 12 13:11:08 <joanie>	getting back to your question: I don't know why Firefox is not exposing things to Orca and NVDA in the way you would like
+Sep 12 13:11:18 <joanie>	but that would be a question for them
+Sep 12 13:11:27 <schoppenhauer>	ok
+Sep 12 13:11:37 <joanie>	if you go to irc.mozilla.org and join #accessibility
+Sep 12 13:11:41 <schoppenhauer>	people should just use edbrowse.
+Sep 12 13:11:43 <schoppenhauer>	ok
+Sep 12 13:11:43 <joanie>	they might know the answer
+Sep 12 13:11:48 <schoppenhauer>	thx, I'll ask them.
+Sep 12 13:11:53 <schoppenhauer>	(not today, but probably tomorrow)
+Sep 12 13:11:58 <joanie>	sorry I could n't just fix it for you
+Sep 12 13:12:08 <joanie>	but I cannot turn nothing into something ;)
+Sep 12 13:12:15 <joanie>	and what I'm getting is, I'm afraid, nothing
+Sep 12 13:12:40 <joanie>	if you file a bug against gecko a11y, feel free to cc me
+Sep 12 13:12:45 <joanie>	jdiggs at igalia dot com
+Sep 14 11:18:11 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 14 11:18:11 2016
+
+**** BEGIN LOGGING AT Wed Sep 14 11:18:29 2016
+
+Sep 14 11:18:29 *	Now talking on #a11y
+Sep 14 12:10:33 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 14 12:10:33 2016
+
+**** BEGIN LOGGING AT Wed Sep 14 12:10:46 2016
+
+Sep 14 12:10:46 *	Now talking on #a11y
+Sep 14 12:44:26 <ernestask>	hello, could an at-spi developer (or not) take a look at https://bugzilla.gnome.org/show_bug.cgi?id=768881 ?
+Sep 14 12:44:31 <ernestask>	it would be greatly appreciated
+Sep 14 13:13:10 <mgorse>	ernestask: Sorry; I hadn't noticed that bug. Patch looks fine. Going to push (I imagine it's okay since it's trivial)
+Sep 14 13:15:20 <mgorse>	Going to check whether I'm getting the bugzilla email in all cases...
+Sep 14 13:16:38 <ernestask>	awesome, thanks, mgorse
+Sep 15 04:03:07 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Thu Sep 15 04:03:07 2016
+
+**** BEGIN LOGGING AT Thu Sep 15 04:03:21 2016
+
+Sep 15 04:03:21 *	Now talking on #a11y
+**** ENDING LOGGING AT Thu Sep 15 13:43:36 2016
+
+**** BEGIN LOGGING AT Thu Sep 15 15:53:20 2016
+
+Sep 15 15:53:20 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Sep 16 19:31:59 2016
+
+**** BEGIN LOGGING AT Sun Sep 18 22:19:35 2016
+
+Sep 18 22:19:35 *	Now talking on #a11y
+**** BEGIN LOGGING AT Mon Sep 19 08:20:09 2016
+
+Sep 19 08:20:09 *	Now talking on #a11y
+**** ENDING LOGGING AT Mon Sep 19 15:33:44 2016
+
+**** BEGIN LOGGING AT Mon Sep 19 16:09:17 2016
+
+Sep 19 16:09:17 *	Now talking on #a11y
+**** BEGIN LOGGING AT Tue Sep 20 10:25:30 2016
+
+Sep 20 10:25:30 *	Now talking on #a11y
+**** ENDING LOGGING AT Tue Sep 20 18:15:45 2016
+
+**** BEGIN LOGGING AT Wed Sep 21 10:21:16 2016
+
+Sep 21 10:21:16 *	Now talking on #a11y
+Sep 21 11:17:13 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 21 11:17:13 2016
+
+**** BEGIN LOGGING AT Wed Sep 21 11:17:26 2016
+
+Sep 21 11:17:26 *	Now talking on #a11y
+Sep 21 12:24:18 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 21 12:24:18 2016
+
+**** BEGIN LOGGING AT Wed Sep 21 12:24:31 2016
+
+Sep 21 12:24:31 *	Now talking on #a11y
+**** BEGIN LOGGING AT Thu Sep 22 09:38:19 2016
+
+Sep 22 09:38:19 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Sep 23 21:22:23 2016
+
+**** BEGIN LOGGING AT Fri Sep 23 22:35:47 2016
+
+Sep 23 22:35:47 *	Now talking on #a11y
+Sep 24 01:18:29 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Sep 24 01:18:29 2016
+
+**** BEGIN LOGGING AT Sat Sep 24 01:19:42 2016
+
+Sep 24 01:19:42 *	Now talking on #a11y
+**** BEGIN LOGGING AT Sat Sep 24 13:01:42 2016
+
+Sep 24 13:01:42 *	Now talking on #a11y
+Sep 24 13:24:34 <joanie>	ankh: and djb: I just commented on the bug
+Sep 24 13:25:17 <joanie>	I'll look into the numlock not toggling issue, but KP_Enter is doing the right thing (expected by users who are blind) if NumLock is off
+Sep 24 13:28:27 <djb>	joanie: great thanks!
+Sep 24 13:28:50 <djb>	after you said that i checked with gtk+, and indeed, if the numlock is off, then Enter does function as a way to retrigger the reading
+Sep 24 13:29:38 <joanie>	djb: and this is all documented in the Orca docs
+Sep 24 13:30:00 <joanie>	which, again, no one reads docs and that sucks if you're not a "typical" screen reader user
+Sep 24 13:30:08 <djb>	mea culpa
+Sep 24 13:30:10 <joanie>	but like I said in the bug, I don't see changing that
+Sep 24 13:30:22 <joanie>	no, it's perfectly reasonable for you to not know that
+Sep 24 13:30:31 <djb>	glad i found the oddity with gnome-shell though
+Sep 24 13:30:51 <joanie>	scren reader users and developers and instructors know all the secret handshakes and knocks ;)
+Sep 24 13:31:21 <joanie>	Orca has to hack around other known clutter input-event exposure (or failure to expose) issues
+Sep 24 13:31:48 <joanie>	so my guess is that this is another not-Orca bug which Orca should hack around but isn't
+Sep 24 13:32:02 <joanie>	or that Orca's hack is getting things wrong here :-/
+Sep 24 13:32:10 <joanie>	this is why sad hacks are sad
+Sep 24 13:32:11 <joanie>	;)
+Sep 24 13:33:41 <joanie>	and ankh, yeah, I'm still traveling. Now in A Coruña.
+Sep 24 13:34:06 <joanie>	sadly my suitcase didn't make it quite as smoothly as I did. 
+Sep 24 13:34:29 <joanie>	regardless it was great to see you.
+Sep 24 13:51:02 <djb>	joanie: thanks for the replies, hope that was useful
+Sep 24 14:29:18 *	ankh still in Lisbon after a travel fail
+Sep 24 14:30:07 <ankh>	good luck with the suitcase.
+Sep 24 14:46:53 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Sat Sep 24 14:46:53 2016
+
+**** BEGIN LOGGING AT Sat Sep 24 14:47:37 2016
+
+Sep 24 14:47:37 *	Now talking on #a11y
+Sep 24 14:47:43 <ankh>	to be fair it was some ungodly hour in Canada though
+Sep 24 14:47:50 <joanie>	ouch
+Sep 24 14:48:19 <ankh>	(and i noticed, because pulling my suitcase, things like accessible ramps to restrooms that led to 3 steep steps down)
+Sep 24 14:50:22 <joanie>	:(
+Sep 24 14:58:07 *	ankh going to avoid cocktails at the bar again tonight :)
+Sep 24 15:02:54 <joanie>	heh
+Sep 24 15:03:33 <joanie>	apparently there was opera last night. I missed it.
+Sep 24 15:04:29 <ankh>	yes there was
+Sep 24 15:04:35 <ankh>	i only listened for a few minutes
+Sep 24 15:06:35 <ankh>	had to meet Janina in the lobby at 6am (shoud have gone with my intuition & said 05:40)
+**** BEGIN LOGGING AT Sat Sep 24 16:43:50 2016
+
+Sep 24 16:43:50 *	Now talking on #a11y
+**** BEGIN LOGGING AT Sun Sep 25 18:47:13 2016
+
+Sep 25 18:47:13 *	Now talking on #a11y
+**** BEGIN LOGGING AT Mon Sep 26 10:08:30 2016
+
+Sep 26 10:08:30 *	Now talking on #a11y
+**** ENDING LOGGING AT Mon Sep 26 13:03:12 2016
+
+**** BEGIN LOGGING AT Mon Sep 26 13:36:26 2016
+
+Sep 26 13:36:26 *	Now talking on #a11y
+Sep 26 13:59:20 *	tbsaunde grumbles about atk.h needing to be run through m4
+Sep 26 14:01:40 FiSHLiM plugin unloaded
+**** ENDING LOGGING AT Mon Sep 26 14:01:40 2016
+
+**** BEGIN LOGGING AT Mon Sep 26 15:45:16 2016
+
+Sep 26 15:45:16 *	Now talking on #a11y
+Sep 26 17:22:52 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Sep 26 17:22:52 2016
+
+**** BEGIN LOGGING AT Mon Sep 26 17:23:05 2016
+
+Sep 26 17:23:05 *	Now talking on #a11y
+**** ENDING LOGGING AT Mon Sep 26 18:27:55 2016
+
+**** BEGIN LOGGING AT Mon Sep 26 19:31:34 2016
+
+Sep 26 19:31:34 *	Now talking on #a11y
+**** BEGIN LOGGING AT Mon Sep 26 21:38:19 2016
+
+Sep 26 21:38:19 *	Now talking on #a11y
+**** BEGIN LOGGING AT Tue Sep 27 07:53:47 2016
+
+Sep 27 07:53:47 *	Now talking on #a11y
+**** BEGIN LOGGING AT Tue Sep 27 13:07:33 2016
+
+Sep 27 13:07:33 *	Now talking on #a11y
+Sep 27 14:00:00 Python interface unloaded
+**** ENDING LOGGING AT Tue Sep 27 14:00:00 2016
+
+**** BEGIN LOGGING AT Tue Sep 27 15:23:38 2016
+
+Sep 27 15:23:38 *	Now talking on #a11y
+**** ENDING LOGGING AT Tue Sep 27 15:42:34 2016
+
+**** BEGIN LOGGING AT Tue Sep 27 16:03:40 2016
+
+Sep 27 16:03:40 *	Now talking on #a11y
+**** ENDING LOGGING AT Tue Sep 27 17:04:21 2016
+
+**** BEGIN LOGGING AT Wed Sep 28 10:32:02 2016
+
+Sep 28 10:32:02 *	Now talking on #a11y
+Sep 28 11:17:49 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 28 11:17:49 2016
+
+**** BEGIN LOGGING AT Wed Sep 28 11:18:02 2016
+
+Sep 28 11:18:02 *	Now talking on #a11y
+Sep 28 13:07:52 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Sep 28 13:07:52 2016
+
+**** BEGIN LOGGING AT Wed Sep 28 13:08:05 2016
+
+Sep 28 13:08:05 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Sep 30 17:54:22 2016
+
+**** BEGIN LOGGING AT Mon Oct  3 09:15:02 2016
+
+Oct 03 09:15:02 *	Now talking on #a11y

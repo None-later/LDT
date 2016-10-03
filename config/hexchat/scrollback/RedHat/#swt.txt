@@ -1,323 +1,3 @@
-T 1469475623 19*	Now talking on 22#swt
-T 1469479940 19*	Now talking on 22#swt
-T 1469482970 24*	ericwill has quit (Quit: ericwill)
-T 1469540907 20*	Disconnected (20Invalid argument)
-T 1469540917 19*	Now talking on 22#swt
-T 1469544511 20*	Disconnected (20Connection timed out)
-T 1469545638 19*	Now talking on 22#swt
-T 1469549170 24*	28ericwill is now known as 18ericwill|lunch
-T 1469552743 24*	28ericwill|lunch is now known as 18ericwill
-T 1469561258 23*	ipun (~ipun@unused-10-15-17-118.yyz.redhat.com23) has joined
-T 1469630729 20*	Disconnected (20Connection timed out)
-T 1469635128 19*	Now talking on 22#swt
-T 1469642870 18<ipun18>	this may seem dumb, but is it correct to why my controlexample is running off of control.class now instead of .java?
-T 1469642920 18<ipun18>	my controlexample use to use the fontsize stuff that ive worked on, now its using control.class instead which i didnt touch
-T 1469642937 18<ericwill18>	the .class files are generated based on your changes from .java
-T 1469642951 18<ericwill18>	so unless you're changes aren't being reflected in the .class files you should be fine
-T 1469642959 18<ericwill18>	*your
-T 1469643237 18<ipun18>	hmm ok i might have to rebuild then thats probably the issue
-T 1469643292 18<ericwill18>	check the Java build path of your controlexample
-T 1469643301 18<ericwill18>	is the SWT project on the build path?
-T 1469643457 18<ipun18>	wierd enough i dont htink it is anymore...
-T 1469646226 18<ipun18>	ericwill looking at the commit, i copied over what its doing and its implementing it correctly with the font sizing
-T 1469646232 18<ipun18>	yet override_font() is still bugged
-T 1469646240 18<ipun18>	praying GTK looks at this seriously
-T 1469646251 18<ericwill18>	hmm
-T 1469646257 18<ericwill18>	link to the commit?
-T 1469646469 18<ipun18>	https://git.gnome.org/browse/gtk+/commit/?id=99c2423043f0c95a60093c618e00823e42e0ddfa
-T 1469646488 18<ipun18>	i implemented it the same way (to follow their way of doing it)
-T 1469646506 18<ipun18>	but i just realized this doesnt really have to do with override_font()
-T 1469646536 18<ipun18>	the guy just posted it since its just about how CSS is currently updated, but the override_font() i dont think has to do with this commit
-T 1469646539 18<ericwill18>	yeah so all that commit does is implement our thing
-T 1469646545 18<ericwill18>	i.e. convert from a pango unit to CSS
-T 1469646554 18<ericwill18>	which we already implemented :P
-T 1469646561 18<ipun18>	yup.
-T 1469646563 18<ericwill18>	would have been nice to know this earlier but oh well
-T 1469646587 18<ipun18>	sadly, i dont think we can use our code in the end =( since we're probably gonna have to use override_font() if its fixed
-T 1469713715 18<ipun18>	ericwill so far the comments on the GTK bug are not useful lol
-T 1469713729 18<ericwill18>	ipun yeah I just saw
-T 1469713739 18<ipun18>	not sure if Matt understands
-T 1469713758 18<ericwill18>	did Alex send you his Menu stuff?
-T 1469713830 18<ipun18>	no lemme msg him about that
-T 1469713972 18<ericwill18>	kk
-T 1469714951 18<ipun18>	should i move on to something else while i wait on GTK and alex?
-T 1469714965 18<ipun18>	cept my stack of things im dealing with is getting larger
-T 1469715198 18<ericwill18>	ipun I am going to ping them about the font thing
-T 1469715203 18<ericwill18>	since the comment wasn't really useful at all
-T 1469715280 18<ipun18>	yeah...
-T 1469715559 18<ipun18>	ericwill for the measured event loop bug, is this something that might be causing the signal call?
-T 1469715561 18<ipun18>	(GtkCellAllocCallback)get_cell_allocation
-T 1469715573 18<ipun18>	i forgot if we talked about that 
-T 1469715581 18<ericwill18>	ipun no, didn't see that
-T 1469715583 18<ericwill18>	looks likely
-T 1469715680 18<ipun18>	hmm okay. I looked deeper into that method but it doesnt have any explicit signals
-T 1469715707 18<ericwill18>	look in Display.initCallbacks() and see if there are any allocate callbacks
-T 1469715716 18<ericwill18>	also look in Tree and see there are any allocate callback methods
-T 1469715760 18<ipun18>	kk
-T 1469716362 18<ericwill18>	ipun send me the commit for that get_dpi thing
-T 1469716364 18<ericwill18>	from matt watson
-T 1469716384 18<ipun18>	https://git.gnome.org/browse/gtk+/commit/?id=df08fc91bdc1d2e4c866122304fabe4dd298a7de
-T 1469716408 18<ipun18>	basically we need their override_font() to use that calculation
-T 1469716418 18<ipun18>	if we do that, it will fix it
-T 1469716429 18<ericwill18>	okay I think we are making progress
-T 1469721516 18<ipun18>	dispaly.initCallback has some callbacks like size_allocate
-T 1469721535 18<ipun18>	thats the only one though
-T 1469721725 18<ericwill18>	hmm
-T 1469721863 18<ipun18>	ericwill: patch went out okay?
-T 1469721867 18<ipun18>	ill comment on the bug then
-T 1469721883 18<ericwill18>	ipun just commented lol, no need
-T 1469721886 18<ipun18>	okay
-T 1469721890 18<ericwill18>	we have a patch but I'm just waiting for him to commit it
-T 1469721937 18<ipun18>	how about on bugzilla?
-T 1469722119 18<ericwill18>	wait for the GTK bug to get fixed and then we can mark the Eclipse bug as fixed and link the commit
-T 1469722237 18<ipun18>	kk
-T 1469728645 18<ericwill18>	so that font bug is fixed and merged in GTK now
-T 1469728646 18<ericwill18>	all good
-T 1469731147 18<ericwill18>	ipun if you are ever bored/want something you don't have to think a lot about, make a bugzilla filter for all open SWT bugs and go through them
-T 1469731157 18<ericwill18>	close the ones which aren't relevant/can't reproduce
-T 1469731161 18<ericwill18>	to keep the BZ tidy
-T 1469731166 18<ipun18>	oaky
-T 1469731170 18<ipun18>	okay*
-T 1469731701 18<ipun18>	ericwill doesnt look like nulling the proc actually turns it off
-T 1469732242 18<ericwill18>	ipun hmm
-T 1469732250 18<ericwill18>	is there a method somewhere that destroys them or something?
-T 1469732701 18<ipun18>	ericwill theres a method called setEnabled from callback class, but i tried it and it doesnt seem to work
-T 1469732717 18<ipun18>	... wat
-T 1469732719 18<ipun18>	wait*
-T 1469732781 18<ipun18>	hahahaahah
-T 1469732786 18<ipun18>	it works
-T 1469732790 18<ericwill18>	okay :P
-T 1469732807 18<ipun18>	i just had to move the reenabling of it lower
-T 1469732813 18<ipun18>	lemme test around with it and we're good
-T 1469735836 19<ipun>	hey lufimtse im still having issues compiling gtk for some reason with jhbuild... besides cancelling it and rebuilding again, did you find any other solution>
-T 1469735854 20<lufimtse>30	hey
-T 1469737128 20<lufimtse>30	ipun, what was the exact command we used again?
-T 1469737141 20<lufimtse>30	jhbuild buildone --force gtk+ ?
-T 1469737321 18<ipun18>	yeah thats it
-T 1469737509 18<ericwill18>	ipun please post on the platform-ui-dev mailing list and ask someone to review this guy: https://git.eclipse.org/r/#/c/77096/
-T 1469737533 18<ericwill18>	ipun also take a look at this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493357
-T 1469737651 18<ericwill18>	I started work on that but I won't be able to finish it in time before I leave
-T 1469737675 20<lufimtse>30	ipun, ericwill I've updated the wiki: https://wiki.eclipse.org/SWT/Devel/Gtk/jhbuild#Building_different_versions_of_gtk_.28or_compiling_your_changes.29
-T 1469737690 20<lufimtse>30	What you want is: 
-T 1469737690 20<lufimtse>30	 jhbuild buildone --force --no-network --distclean gtk+
-T 1469737705 20<lufimtse>30	the --distclean is especially needed if you go back to an older gtk version. 
-T 1469737725 18<ipun18>	it looks like someone broke a junit case in master
-T 1469737741 20<lufimtse>30	ipun, which one?
-T 1469737749 18<ipun18>	test_getPrinterList
-T 1469737760 18<ipun18>	unless its local
-T 1469737782 20<lufimtse>30	doesn't work on my system if I have a printer
-T 1469737793 20<lufimtse>30	stopped working somewhere in Gtk3.18
-T 1469737803 18<ipun18>	oh i see
-T 1469737804 20<lufimtse>30	I've been meaning to file a bug for it
-T 1469737811 20<lufimtse>30	maybe something for you to work on. 
-T 1469737813 18<ipun18>	ill ignore it for now
-T 1469737821 20<lufimtse>30	do you have a printer on your system?
-T 1469737834 18<ipun18>	ya
-T 1469737841 18<ipun18>	i just added it like a week ago though
-T 1469738025 20<lufimtse>30	that's probably why the jUnit fails
-T 1469738032 20<lufimtse>30	if you have time, feel free to investigate sometime
-T 1469738039 20<lufimtse>30	would be useful to have it fixed.
-T 1469738050 20<lufimtse>30	afaik it doesn't reproduce with gtk3.16 and before
-T 1469738053 20<lufimtse>30	so might be gtk bug.
-T 1469738073 FiSHLiM plugin unloaded
-T 1469738073 Python interface unloaded
-T 1469738097 19*	Now talking on 22#swt
-T 1469803562 18<ericwill18>	ipun hey, left some more comments on the Tree patch
-T 1469803566 18<ericwill18>	please take a look
-T 1469803671 18<ipun18>	kk
-T 1469804941 20*	Disconnected (20Connection timed out)
-T 1469806209 19*	Now talking on 22#swt
-T 1469806712 19<ipun>	lufimtse looks like the printerlist bug in our test case is really broken logic, techincally none of it shouldve passed
-T 1469806745 20<lufimtse>30	lol
-T 1469820513 18<ipun18>	ericwill should I be replacing all the gtk calls to that function to my private one? Im not sure if this is what we should do
-T 1469820538 18<ericwill18>	your private method is just a wrapper
-T 1469820541 18<ericwill18>	for the GTK call
-T 1469820547 18<ericwill18>	with the callback.setEnabled() in it
-T 1469820724 18<ipun18>	yeah i know, im just curious if its necessary to do that for every call that uses that function
-T 1469820739 18<ericwill18>	we should
-T 1469820759 18<ericwill18>	because if someone wants to use one of those methods in a measure event, the same bug will come up
-T 1469820828 18<ipun18>	oaky sounds good
-T 1469820858 18<ipun18>	i might have to implement it in Control and Widget as well, since Tree is a subclass of Control but Treeitem is a widget subclass
-T 1469820939 18<ericwill18>	ipun nah just do it in Control then
-T 1469820945 18<ericwill18>	sorry, widget
-T 1469820950 18<ericwill18>	all Controls are widgets
-T 1469821096 18<ipun18>	ah your right sorry i misread it 
-T 1469824165 18<ipun18>	ericwill how do you generate a new changeset number again? I tried pushing my changes but the changeset was closed already.
-T 1469824181 18<ericwill18>	before amending the commit, click the gerrit button in egit
-T 1469824190 18<ericwill18>	should give you something with multiple zeros
-T 1469824197 18<ericwill18>	copy and paste that and use it for your new change
-T 1469824335 18<ipun18>	nice thanks!
-T 1469824451 18<ericwill18>	ipun I'll review it on Tuesday
-T 1469824518 18<ipun18>	sounds good np 
-T 1470152579 18<ipun18>	is anyone going to the meeting at 12 today
-T 1470152659 18<ericwill18>	nope
-T 1470152662 18<ericwill18>	I am not
-T 1470155305 20<lufimtse>30	ipun, ericwill : If you guys ever want to know everything about jni, there's a book on it: https://web.archive.org/web/20120728074805/http://java.sun.com/docs/books/jni/
-T 1470237409 20*	Disconnected (20Connection timed out)
-T 1470238777 19*	Now talking on 22#swt
-T 1470247293 19<ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
-T 1470247297 19<ericwill>	lufimtse http://paste.stg.fedoraproject.org/5376/24659314/raw/
-T 1470256184 18<ipun18>	hey is there a setting to remove warnings popping up in console? Theres too many going on and I cant see my prints
-T 1470256478 18<ericwill18>	not sure
-T 1470256482 18<ericwill18>	check preferences
-T 1470322886 18<ipun18>	ericwill: for the setVisible bug you assigned me, seems like a GTK error. Documentation of gtk_window_get_position() says its really unaccurate and that its not 100% reliable
-T 1470322913 18<ericwill18>	ipun then close it as such with a link to the documentation
-T 1470322917 18<ipun18>	kk
-T 1470333131 19*	Now talking on 22#swt
-T 1470333761 19*	Now talking on 22#swt
-T 1470336825 18<ipun18>	is anyone familiar with extension points?
-T 1470337050 18<ericwill18>	Roland is
-T 1470337055 18<ericwill18>	you may want to ask him
-T 1470337467 18<ipun18>	okay sounds good
-T 1470339520 20<lufimtse>30	ericwill, ipun , to get color for your gcc: 
-T 1470339521 20<lufimtse>30	export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
-T 1470339533 20<lufimtse>30	for fish you might have to specify 'env export ... '
-T 1470339552 20<lufimtse>30	useful if you want colorized output for build.sh
-T 1470340914 18<ipun18>	thank you!
-T 1470671874 19*	Now talking on 22#swt
-T 1470672082 19*	Now talking on 22#swt
-T 1470752002 20*	Disconnected (20Connection reset by peer)
-T 1470752014 19*	Now talking on 22#swt
-T 1470752022 18<ericwill18>	I don't think there should be a border at all
-T 1470752029 18<ericwill18>	maybe leave that one for when Alex gets back
-T 1470752041 18<ipun18>	kk
-T 1470772239 19<ipun>	lufimtse do i need to do anything special after ive done my changes on os_custom.c and h?
-T 1470772265 18<ipun18>	i tried rebuildling but its still giving me the same error
-T 1470772357 18<ericwill18>	you should just have to run the build.sh
-T 1470772486 18<ipun18>	kk
-T 1470773626 20<lufimtse>30	hey
-T 1470773639 20<lufimtse>30	lemme see
-T 1470844194 19*	Now talking on 22#swt
-T 1470848549 20<lufimtse>30	ipun, when you get bored...: https://bugs.eclipse.org/bugs/show_bug.cgi?id=499515
-T 1470855204 19*	Now talking on 22#swt
-T 1470949653 19<ericwill>	ipun lufimtse going to work from home tomorrow fyi
-T 1470949669 18<ipun18>	kk
-T 1471007683 19<ericwill>	lufimtse hey...when you're around I have a question
-T 1471010327 20<lufimtse>30	ericwill, hullo
-T 1471010353 20<lufimtse>30	ericwill, I miss your company already X-D
-T 1471010364 20<lufimtse>30	wanted to complain about my landlady to you.
-T 1471010382 18<ericwill18>	haha yeah, working from home is kinda lonely
-T 1471010384 18<ericwill18>	the sleep is nice though
-T 1471010392 18<ericwill18>	what did your landlady do?
-T 1471010402 20<lufimtse>30	It's like when I was suggesting to you to use certain tools (emacs), she is suggesting me to organise my room in a certain way. Man she's driving me mad ^____^.
-T 1471010414 20<lufimtse>30	Boy I have learned
-T 1471010447 18<ericwill18>	lol, that seems like an odd thing for a landlady to be involved in -.-
-T 1471010659 19<ericwill>	btw lufimtse I tested your sysdeps script...works very well
-T 1471010695 18<ericwill18>	might be useful to note that after using sysdeps, you can only use the build.sh once you've renamed your .classpath_gtk in the SWT git repo
-T 1471010739 20<lufimtse>30	I was thinking of fixing that up... hmmm
-T 1471010752 20<lufimtse>30	I could add a check?
-T 1471010795 20<lufimtse>30	like ask user "no .classpath found, would you like to copy .classpath_gtk to .classpath? [y/n]"
-T 1471010797 20<lufimtse>30	thoughts?
-T 1471010886 19<xipun>	wait lufimtse why is your landlady giving you pointers about your room
-T 1471010960 20<lufimtse>30	Some of the furniture is hers
-T 1471010981 20<lufimtse>30	We have a friendly relationship, but her micro-management is somewhat intense..
-T 1471010992 20<lufimtse>30	also I'm not that clean, she is a obsessive about cleaning
-T 1471011004 20<lufimtse>30	I have stuff lying around my room, kinda like on my desk.
-T 1471011018 20<lufimtse>30	she's like, "you should put the things you don't use into the garage"
-T 1471011025 20<lufimtse>30	me like "i'm quite happy with my room the way it is"
-T 1471011049 20<lufimtse>30	tensions eventually escalate, 
-T 1471011068 20<lufimtse>30	grr
-T 1471011074 20<lufimtse>30	need to let off some steam lol ^_^
-T 1471011092 18<ericwill18>	oh lols
-T 1471011098 18<ericwill18>	yeah that would be annoying
-T 1471011168 19<ericwill>	lufimtse re: the sysdeps thing, you could check and print something, but offering to copy it makes the assumption that you've checked out the git repo already
-T 1471011175 18<ericwill18>	which is fine by me actually
-T 1471011221 20<lufimtse>30	good idea. 
-T 1471011236 20<lufimtse>30	very unintrusive
-T 1471011298 18<ericwill18>	I like the script, saved me a lot of time
-T 1471011428 19<ericwill>	also lufimtse, did you by any chance document that bit about the "fetch from gerrit" menu missing? I ran into the same issue on my machine at home, can't remember how you got it to work
-T 1471013036 20<lufimtse>30	humms
-T 1471013079 20<lufimtse>30	not in public wiki, but let me check my private wiki
-T 1471013086 20<lufimtse>30	I should blog about these things.
-T 1471013219 18<ericwill18>	:)
-T 1471013297 20<lufimtse>30	ericwill, try this business: http://storage5.static.itmages.com/i/16/0812/h_1471013314_4547631_5829c53197.png
-T 1471013444 20<lufimtse>30	I think I read this article and found it somewhere burried in there: http://www.vogella.com/tutorials/Gerrit/article.html
-T 1471013701 19<ericwill>	lufimtse okay will try it out, thanks
-T 1471014262 19<ericwill>	lufimtse hmm so all I needed to do was select the http option with no username
-T 1471014267 18<ericwill18>	i.e.: http://git.eclipse.org/gitroot/platform/eclipse.platform.swt.git
-T 1471014279 20<lufimtse>30	let me check
-T 1471014301 20<lufimtse>30	ssh://lufimtsev@git.eclipse.org:29418/platform/eclipse.platform.swt.git
-T 1471014306 20<lufimtse>30	avoid the 'gitroot' one
-T 1471014324 20<lufimtse>30	I also copied SSH keys to the right places
-T 1471014342 20<lufimtse>30	I keep my SSH key in my google drive and then copy it to my machine when needed
-T 1471014350 20<lufimtse>30	or generate new key and put to eclipse org
-T 1471014366 18<ericwill18>	ah okay
-T 1471014392 20<lufimtse>30	http://storage8.static.itmages.com/i/16/0812/h_1471014423_5798266_dffa5947e3.png
-T 1471014394 20<lufimtse>30	when I push
-T 1471014405 20<lufimtse>30	for review
-T 1471014421 20<lufimtse>30	you may have to tinker with .git/config
-T 1471014425 20<lufimtse>30	and stuff gerrit in there
-T 1471014433 20<lufimtse>30	do you need my copy of the .git/config?
-T 1471014445 18<ericwill18>	no no
-T 1471014451 18<ericwill18>	I copied the one from my work machine, seems to work
-T 1471014490 18<ericwill18>	also the ssh works for me now too, just had to remove gitroot from the URI
-T 1471014492 18<ericwill18>	all good
-T 1471015339 20<lufimtse>30	kewl
-T 1471015354 20<lufimtse>30	I should document it
-T 1471015368 20<lufimtse>30	originally you helped me with finding that one had to get rid of 'gitroot',
-T 1471015429 18<ericwill18>	yup
-T 1471015436 18<ericwill18>	and now I had totally forgotten it
-T 1471015444 18<ericwill18>	this is why it's important to document :P
-T 1471016325 18<ericwill18>	ipun is this for review? https://git.eclipse.org/r/#/c/78969/
-T 1471016358 18<ipun18>	oh woops sorry i forgot to tag the WIP on it
-T 1471016363 18<ipun18>	im just running the tests on it now
-T 1471016366 18<ericwill18>	kk
-T 1471016416 20<lufimtse>30	After I push stage 1 of the webkit business, I'll tryina invest sometime into more documentation and blogging
-T 1471016436 20<lufimtse>30	I've been somewhat happy with my zim and been lazy about putting things into public wiki
-T 1471016447 20<lufimtse>30	:-3
-T 1471016454 20<lufimtse>30	I'm so bad.
-T 1471016571 19<ipun>	lufimtse im having issues compiling eclipse after running your build script =(
-T 1471016584 20<lufimtse>30	X-D
-T 1471016588 20<lufimtse>30	let's investigate
-T 1471016639 18<ericwill18>	ipun are you by any chance getting: java.lang.UnsatisfiedLinkError: org.eclipse.swt.internal.gtk.OS.setenv([B[BI)I
-T 1471016921 19<ericwill>	lufimtse it looks like your commit yesterday to the build script broke something
-T 1471016926 18<ericwill18>	reverting it fixes it for me
-T 1471017527 20<lufimtse>30	it's the commit after my commit
-T 1471017531 20<lufimtse>30	sravan's changes to c.c
-T 1471017535 20<lufimtse>30	ericwill, 
-T 1471017539 20<lufimtse>30	Investigating
-T 1471017551 20<lufimtse>30	BUT FIRST
-T 1471017552 18<ericwill18>	hmm
-T 1471017553 20<lufimtse>30	Tea.
-T 1471017590 18<ericwill18>	okay makes sense actually
-T 1471017815 20<lufimtse>30	of course,
-T 1471017825 20<lufimtse>30	drinking tea before tacking a problem always makes sense.
-T 1471017871 18<ericwill18>	:D
-T 1471018061 18<ipun18>	well my patch works if rebased on a previous commit
-T 1471018068 18<ipun18>	tried on all versions, it looks good now
-T 1471018112 20<lufimtse>30	ipun, ericwill I'm investigating the setenv business, will post in bug or on dev-list
-T 1471018126 18<ericwill18>	kk
-T 1471020671 20<lufimtse>30	ericwill|lunch, ipun I figured it out. the first static initializer in OS.java calls OS.setenv(..) before the library is loaded.
-T 1471022754 18<ericwill18>	oh lord
-T 1471022758 18<ericwill18>	rebooted over lunch
-T 1471022765 18<ericwill18>	forgot I had removed my boot partition
-T 1471022767 18<ericwill18>	had to re-install grub
-T 1471023057 19<ipun>	did you let svan know lufimtse ?
-T 1471023417 18<ipun18>	:qq
-T 1471023422 18<ipun18>	woops sorry
-T 1471023896 20<lufimtse>30	ipun, I posted in the bug, investigating fix.
-T 1471027887 19<ericwill>	lufimtse are you okay with me merging that sysdeps thing?
-T 1471028612 20<lufimtse>30	sec
-T 1471028619 20<lufimtse>30	ericwill, I'm still adding the .class thing check
-T 1471028623 20<lufimtse>30	I wrote it, just need to push it.
-T 1471028636 20<lufimtse>30	twiddling with hi-dpi unsat.link error.
-T 1471028639 20<lufimtse>30	atm
-T 1471028646 18<ericwill18>	yeah that error is annoying
-T 1471028651 18<ericwill18>	I just reverted it locally
-T 1471030442 20<lufimtse>30	ericwill, ipun, I submitted a patch, https://git.eclipse.org/r/#/c/78989/
-T 1471030455 20<lufimtse>30	I'm awaiting Niraj or Sravan to review and push to master.
-T 1471030485 19<ericwill>	lufimtse saw it, looks good from my end
-T 1471030492 18<ericwill18>	sadly they are in India and probably in bed already
-T 1471030496 18<ericwill18>	so we don't get a fix till Monday
-T 1471030500 20<lufimtse>30	If they haven't done it by monday evening, I'll just push it myself... 
-T 1471049187 20*	Disconnected (20Remote host closed socket)
-T 1471049338 19*	Now talking on 22#swt
-T 1471049338 22*	26irc.devel.redhat.com sets mode 24+n on 22#swt
-T 1471049338 22*	26irc.devel.redhat.com sets mode 24+t on 22#swt
-T 1471049488 22*	26irc.devel.redhat.com removes channel operator status from 18lufimtse
-T 1471049488 29*	*** Notice -- TS for #swt changed from 1471049338 to 1469540824
-T 1471059052 20*	Disconnected (20Connection reset by peer)
-T 1471059063 19*	Now talking on 22#swt
 T 1471059063 22*	26irc.devel.redhat.com sets mode 24+n on 22#swt
 T 1471059063 22*	26irc.devel.redhat.com sets mode 24+t on 22#swt
 T 1471059068 22*	26irc.devel.redhat.com removes channel operator status from 18lufimtse
@@ -431,3 +111,390 @@ T 1472668627 18<ipun18>	ericwill:  https://git.eclipse.org/r/#/c/80031/
 T 1472668705 18<ericwill18>	ipun kk
 T 1472668707 18<ericwill18>	will do that now
 T 1472674350 19*	Now talking on 22#swt
+T 1472736818 19<ipun>	hey lufimtse  if i already made a commit to a bug and i want to commit the same thing to a differnt bug ID, how do i do that?
+T 1472738779 18<ipun18>	ericwill: were you able to replicate Bug 500664?
+T 1472738786 18<ericwill18>	ipun yeah
+T 1472738789 18<ericwill18>	GTK2 and 3
+T 1472738879 18<ipun18>	gotcha, ill work on it
+T 1472738910 18<ericwill18>	if you have other stuff it's fine, I can work on it
+T 1472738915 18*	ericwill looking for stuff to do 
+T 1472741658 18<ericwill18>	ipun https://bugs.eclipse.org/bugs/show_bug.cgi?id=500664#c7
+T 1472741664 18<ericwill18>	that comment is so useful
+T 1472741687 18<ericwill18>	if that ends up being true we should replace all instances of gdk_screen_get_monitor_at_window() with that
+T 1472741733 18<ericwill18>	that would fix https://bugs.eclipse.org/bugs/show_bug.cgi?id=494771 as well
+T 1472741890 20<lufimtse>30	hey
+T 1472741899 20<lufimtse>30	ipun, sup
+T 1472741928 20<lufimtse>30	ipun, change bug id in title, make a new change id
+T 1472741939 20<lufimtse>30	that should create new gerrit review.
+T 1472743039 18<ipun18>	ericwill thanks for the comment, that does indeed get the correct monitor
+T 1472743049 18<ipun18>	however, its still painting in the wrong place
+T 1472743053 18<ipun18>	working on finding why its doing that
+T 1472743080 18<ericwill18>	ipun look at ToolTip.drawTooltip()
+T 1472744310 18<ipun18>	have any of you guys had issues with eclipse causing your whole computer to slow down for like 2 minutes and crash
+T 1472744313 18<ipun18>	ive had that happen once in a while
+T 1472744492 18<ericwill18>	hmm
+T 1472744494 18<ericwill18>	nope
+T 1472745532 18<ipun18>	ericwill so i fixed it, but because of nonexistant documentation, i have no idea how
+T 1472745592 18<ipun18>	in configure () theres soooo many numbers that have no meaning
+T 1472746176 18<ericwill18>	ipun throw the patch onto gerrit I'll take a look
+T 1472746200 18<ericwill18>	oh god, looking at tooltip.configure()...
+T 1472746207 18<ericwill18>	what is happening here
+T 1472746238 18<ericwill18>	I don't think these numbers affect us, just the monitor bits
+T 1472746717 18<ipun18>	ericwill k i found out whats going on
+T 1472746722 18<ipun18>	its actually f rom configure()
+T 1472746726 18<ipun18>	i fixed it from there
+T 1472746736 18<ipun18>	i have an idea on how to fix, just needs some time
+T 1472755405 20<lufimtse>30	Ubunutu with gnome: https://ubuntugnome.org/
+T 1472755409 20<lufimtse>30	>_>'
+T 1472755417 20<lufimtse>30	<_<
+T 1472757916 18<ipun18>	ericwill so im almost done the fix, im just trying to get it supporting 2+ monitors
+T 1472757927 18<ericwill18>	ipun cool
+T 1472757928 18<ericwill18>	no worriesd
+T 1472757931 18<ericwill18>	*worries
+T 1472757944 18<ipun18>	its annoying because GTK sees a certain monitor as 1 but its not primary in my setup
+T 1472757954 18<ipun18>	like, from the OS you can switch it
+T 1472757967 18<ipun18>	so now im trying to figure out how to get it working correctly
+T 1472757990 18<ericwill18>	yeah it's tricky
+T 1472826810 20*	lufimtse 30invites ipun to join freenode#swt
+T 1472826828 20<lufimtse>30	we have cookies there.
+T 1472828422 18<ericwill18>	alright guys, I'm off for the day. Have a good long weekend!
+T 1472832933 19*	Now talking on 22#swt
+T 1472837509 18<ipun18>	real 2m37.790s
+T 1472837511 18<ipun18>	user 5m56.970s
+T 1472837513 18<ipun18>	sys 1m51.493s
+T 1472837515 18<ipun18>	yyy
+T 1473170278 20*	Disconnected (20Connection timed out)
+T 1473170289 19*	Now talking on 22#swt
+T 1473174993 19<ipun>	lufimtse i made a new branch and tried to push to a bug that already had a changeID, it genereated a new changeID but its not showing up on bugs.eclipse
+T 1473261225 20*	Disconnected (20Connection timed out)
+T 1473264134 19*	Now talking on 22#swt
+T 1473264717 18<ipun18>	ericwill when we heading out for lunch? 1230?
+T 1473264729 18<ericwill18>	ipun I believe so
+T 1473276516 19<ipun>	lufimtse does lars not use IRC?
+T 1473283545 20<lufimtse>30	ipun, not afaik, but he seems to be on mattermost # Platform
+T 1473351203 19<ipun>	lufimtse could you help me set up my gerrit for another repo im working on?
+T 1473351208 18<ipun18>	i forggot some of the steps
+T 1473351213 20<lufimtse>30	ipun, hey
+T 1473351214 20<lufimtse>30	sure
+T 1473351214 20<lufimtse>30	sec
+T 1473351901 19<ericwill>	lufimtse ipun looks like the SWT JUnit tests are broken on GTK3 for master
+T 1473351905 18<ericwill18>	can any of you confirm
+T 1473352041 18<ericwill18>	oh wait nvm
+T 1473352043 18<ericwill18>	I got it to work
+T 1473352046 18<ericwill18>	disregard :)
+T 1473355841 20<lufimtse>30	ericwill, :-3
+T 1473355875 20<lufimtse>30	I spoke with Stefan Xenos on Mattermost today, it was nice to actually be able to reach out and chat to other swt developers
+T 1473355891 20<lufimtse>30	too bad people don't seem to gravitate thowards freenode#swt
+T 1473355892 20<lufimtse>30	oh well.
+T 1473356514 19<ericwill>	lufimtse yeah I'm going to download it today and check it out
+T 1473358131 20<lufimtse>30	kewl
+T 1473358162 18<ipun18>	whats next?
+T 1473358322 18<ericwill18>	ipun I sent you some emails
+T 1473358348 18<ipun18>	ericwill i gottem thanks! sorry i was asking "whats next" to leo
+T 1473358353 18<ipun18>	lufimtse^
+T 1473358357 18<ericwill18>	ipun ah lol, np
+T 1473358358 18<ipun18>	my eclipse has ded
+T 1473358948 20<lufimtse>30	@ipun, Guide on how to setup Eclipse to run nightly: https://coffeeorientedprogramming.com/2016/09/08/running-nightly-eclipse-for-the-impatient/
+T 1473359366 18<ipun18>	thank you!
+T 1473359518 18<ericwill18>	that's it for me today, talk to you guys later
+T 1473359523 20<lufimtse>30	ericwill, kk
+T 1473359527 20<lufimtse>30	have nice 1
+T 1473359534 20<lufimtse>30	ipun, lemme know if you get stuck somewhere
+T 1473359540 19<ericwill>	lufimtse you too :)
+T 1473359552 20<lufimtse>30	you will need to download all the relevant 'mylyn' plugins (with gerrit integration)
+T 1473359575 20<lufimtse>30	Setting up a new workspace might not be a bad idea, to have a fresh start.
+T 1473359589 20<lufimtse>30	But the existing one should theoretically get the job done as well.
+T 1473359636 18<ipun18>	hokay
+T 1473359985 19<ipun>	lufimtse which stuff from mylyn do i need?
+T 1473360001 18<ipun18>	klike
+T 1473360005 18<ipun18>	whats "relevent"
+T 1473360250 18<ipun18>	also im still having that same issue. I know eric and I figured it out a while back it had to do with some config file
+T 1473362095 20<lufimtse>30	hey
+T 1473362106 20<lufimtse>30	lemme checks.
+T 1473429867 18<ericwill18>	morning ipun 
+T 1473429877 18<ipun18>	hello ericwill
+T 1473429934 18<ericwill18>	hello, looks like the focus patch got reverted
+T 1473429939 18*	ericwill sighs
+T 1473429946 18<ericwill18>	you win some you lose some haha
+T 1473429966 18<ipun18>	i know =(
+T 1473430012 18<ericwill18>	looks like we need to start running the JFace tests at least once on patches
+T 1473430017 18<ericwill18>	which is annoying but necessary I suppose
+T 1473430031 19<ipun>	lufimtse, would you be able to add that to your test script?
+T 1473430073 18<ericwill18>	I don't think so
+T 1473430081 18<ericwill18>	the test script is located in the SWT repo
+T 1473430115 18<ericwill18>	though maybe an optional "run jface tests too" flag/option could be added
+T 1473430434 18<ipun18>	yeah true
+T 1473430450 18<ipun18>	lemme try to fix the test suite stuff
+T 1473430468 18<ericwill18>	np
+T 1473430488 18<ericwill18>	might be worth it to write a bunch of test cases and put them into the SWT test suite too
+T 1473431057 20<lufimtse>30	ipun, ericwill, it's potentially possible to add jface stuff to the script.
+T 1473431069 20<lufimtse>30	the only thing it would take much much longer to execute
+T 1473431087 19<ipun>	set it as a flag lufimtse 
+T 1473431089 18<ericwill18>	^
+T 1473431096 18<ericwill18>	-J or something
+T 1473431103 20<lufimtse>30	unless I make it so that it only runs one gtk version for jFace, and many for gtk
+T 1473431109 18<ipun18>	considering that it needs to be run anyways, running the thing on a VM would be the best
+T 1473431136 20<lufimtse>30	or a selector, which versions to test with jface, which versions to test with swt
+T 1473431163 20<lufimtse>30	From technical side, can be done. 
+T 1473431164 19<ericwill>	lufimtse a selector sounds good. By default you could have it run the JFace tests with the same GTK3 version as the build machine
+T 1473431169 18<ericwill18>	(3.10 I think)
+T 1473431199 20<lufimtse>30	another option is to figure out how to run maven from command line, 
+T 1473431211 20<lufimtse>30	then run gtk_version_test && maven on jface
+T 1473431222 20<lufimtse>30	maven does testing
+T 1473431239 20<lufimtse>30	we can then pre-load LD_LIBRARY_PATH before maven runs
+T 1473432448 18<ipun18>	also ericwill, it kinda coordinates with how you told me the focus fix could have a test suite on it
+T 1473432480 18<ericwill18>	ipun yeah, now you can do the fix and add the test suites at the same time :)
+T 1473434353 20<lufimtse>30	ericwill, How do I test the project in here? : https://bugs.eclipse.org/bugs/show_bug.cgi?id=497812
+T 1473434362 20<lufimtse>30	I open child eclipse, but can't find any extra views
+T 1473434391 19<ericwill>	lufimtse are you sure the new child eclipse is running with that plugin enabled?
+T 1473434515 20<lufimtse>30	Oh, I think it has some dependencies
+T 1473434523 20<lufimtse>30	org.eclipse.e4.core.di
+T 1473434524 20<lufimtse>30	meh
+T 1473434534 20<lufimtse>30	did you have to import those?
+T 1473434643 20<lufimtse>30	hmm, can't get the thing to work. Hmmmz
+T 1473434650 18<ericwill18>	I didn't run that project
+T 1473434683 18<ericwill18>	oh wait
+T 1473434685 18*	ericwill checks
+T 1473434763 20<lufimtse>30	ericwill, oh, never mind
+T 1473434768 20<lufimtse>30	It's an RCP application
+T 1473434779 20<lufimtse>30	I went to com.vogella.eclipse.dndcontrols.product
+T 1473434785 20<lufimtse>30	clicked on "Launch an Eclipse application", 
+T 1473434788 20<lufimtse>30	snippet fired up.
+T 1473434799 18<ericwill18>	yes I just discovered this also lol
+T 1473434882 19<ericwill>	lufimtse is that thing related to tracker/parts business?
+T 1473434887 18<ericwill18>	because the fix for that bug got merged already
+T 1473434911 20<lufimtse>30	No, but the fix contains instanceof
+T 1473434913 20<lufimtse>30	which is evil
+T 1473434946 18<ericwill18>	yeah I saw that
+T 1473434952 18<ericwill18>	I think in this case it is necessary though
+T 1473434978 18<ericwill18>	and since the instanceof is checking for Composite in Composite.java, I'm okay with it
+T 1473435008 20<lufimtse>30	Well, I beg to differ :-)
+T 1473435016 20<lufimtse>30	I'll submit a followup patch.
+T 1473435023 18<ericwill18>	what are your concerns?
+T 1473435113 20<lufimtse>30	Well, 
+T 1473435120 20<lufimtse>30	I'll submit patch, you'll see.
+T 1473435137 18<ericwill18>	ok
+T 1473435838 19<ericwill>	lufimtse ah good call
+T 1473435841 18<ericwill18>	that patch looks good to me
+T 1473435844 18<ericwill18>	shall I merge?
+T 1473436020 20<lufimtse>30	Let's wait a day.
+T 1473436027 20<lufimtse>30	Then merge tomorrow if no objections.
+T 1473436035 20<lufimtse>30	Just to allow people to see it.
+T 1473436044 20<lufimtse>30	I'll followup on the bug.
+T 1473436054 18<ericwill18>	tomorrow is saturday :P
+T 1473436059 18<ericwill18>	also Monday is the code freeze for M2
+T 1473436070 18<ericwill18>	so if you want to wait that's fine but it will have to wait till M3
+T 1473436084 20<lufimtse>30	oh
+T 1473436090 20<lufimtse>30	thanks for pointing it out.
+T 1473436095 20<lufimtse>30	Hmmmmzzz
+T 1473436100 18<ericwill18>	I'm fine with waiting
+T 1473436102 18<ericwill18>	it's not urgen
+T 1473436105 18<ericwill18>	*urgent
+T 1473436115 20<lufimtse>30	Let's merge at 5pm today :-)
+T 1473436131 18<ericwill18>	okay you do it, I won't be on
+T 1473436143 20<lufimtse>30	ok, if you could +1 it...
+T 1473436146 20<lufimtse>30	that'd be great.
+T 1473436165 20<lufimtse>30	thanks for being on IRC.
+T 1473436169 20<lufimtse>30	~good karma.
+T 1473436199 18<ericwill18>	np haha
+T 1473436205 18<ericwill18>	good catch btw
+T 1473436212 18<ericwill18>	didn't think of markLayout()
+T 1473436363 18<ipun18>	ericwill when i run the Test_org_eclipse_swt_custom_Ccombo test it seems to pass
+T 1473436374 18<ipun18>	i wonder whats causing the null exception...
+T 1473436391 18<ericwill18>	ipun do the JFace tests fail for you locally?
+T 1473436415 18<ipun18>	ericwill im actually trying to figure our why none of my Jface tests are running right now ==
+T 1473436424 20<lufimtse>30	X-D
+T 1473436434 20<lufimtse>30	lemme knows if u need helpz
+T 1473436443 18<ipun18>	kk
+T 1473436443 18<ericwill18>	I mean, you gotta crawl before you can walk :D
+T 1473438001 19<ipun>	ericwill lufimtse am i the only one getting failures in Jface from master branches?
+T 1473438047 18<ericwill18>	last time I checked a few weeks back I got some
+T 1473438502 18<ipun18>	hmm okay
+T 1473438677 18<ipun18>	ericwill i ran the jface stuff with my focus bug, doesnt seem to be a jface error =S i wonder whats causing that null exception
+T 1473438804 19<ericwill>	ask Alex or lufimtse if they can reproduce the bug locally
+T 1473438827 20<lufimtse>30	meh?
+T 1473438830 20<lufimtse>30	what goes on
+T 1473438845 19<ericwill>	lufimtse ipun is having trouble reproducing a test failure on his machine
+T 1473438863 20<lufimtse>30	ericwill, do you know how the javadoc thing is constructed? is it physically using a tooltop or some browser?
+T 1473438875 19<ericwill>	lufimtse it's a Browser widget
+T 1473438886 18<ericwill18>	it has nothing to with ToolTip.java
+T 1473438887 20<lufimtse>30	Do you know where to find the source?
+T 1473438906 18<ericwill18>	yeah it's in the JDT source code
+T 1473438920 20<lufimtse>30	ericwill, if it is not a tooltip, what is it? Is it a content assistant?
+T 1473438937 19<ericwill>	lufimtse it's a Browser that's been shrunk down and renders HTML
+T 1473438951 18<ericwill18>	if you run a child eclipse and set a breakpoint in Browser.java you can see the stack trace
+T 1473438967 20<lufimtse>30	ah
+T 1473438982 20<lufimtse>30	but from a theoretical point of view, how would we call that thing?
+T 1473438990 20<lufimtse>30	that 'construct'?
+T 1473438997 20<lufimtse>30	it's not a tooltip, it's a .......
+T 1473438999 20<lufimtse>30	fill in dots
+T 1473439001 18<ericwill18>	I would call it a popup browser
+T 1473439015 18<ericwill18>	just like the quick outline is popup tree, etc.
+T 1473439069 20<lufimtse>30	https://en.wikipedia.org/wiki/Modal_window ?
+T 1473439075 20<lufimtse>30	I wanna argue with Dani mergerd
+T 1473439089 20<lufimtse>30	Megert*
+T 1473439126 19<ericwill>	lufimtse it's not even a modal window because it doesn't prevent you from clicking the main Eclipse window while it's open
+T 1473439141 18<ericwill18>	it's literally a small widget that pops up and is clickable, and disappears if you click outside of it
+T 1473439150 18<ericwill18>	calling it a tooltip is just wrong lol
+T 1473439163 20<lufimtse>30	yea, I'm looking for a name to call it, would you refer to it as a modal_window?
+T 1473439180 18<ericwill18>	no
+T 1473439186 18<ericwill18>	modal windows disable the parent window
+T 1473439198 18<ericwill18>	the javadoc tooltip doesn't disable the parent Eclipse window while it's open
+T 1473439215 20<lufimtse>30	I see
+T 1473439215 20<lufimtse>30	hmm
+T 1473439238 19<ipun>	lufimtse ill ask you about the errors later
+T 1473439244 18<ipun18>	doesnt seem to be happening on my machine or my VM
+T 1473439424 19<ericwill>	lufimtse I would just argue to him that it's simply a small widget
+T 1473439435 18<ericwill18>	and that because of that it should at the very least have COLOR_WIDGET_* colors
+T 1473439445 18<ericwill18>	since it doesn't have any of the properties of a tooltip like I mentioned
+T 1473439572 20<lufimtse>30	ericwill, what color should it have?
+T 1473439614 19<ericwill>	lufimtse it should have the same colors as a normal browser widget IMO
+T 1473439620 18<ericwill18>	so look in ControlExample
+T 1473439622 18<ericwill18>	whatever that is
+T 1473439644 18<ericwill18>	I think it's COLOR_WIDGET_BACKGROUND for the controls and COLOR_LIST_BACKGROUND for the content rendering area
+T 1473439782 19<ericwill>	anyways lufimtse I have to run, we'll chat more next week
+T 1473439785 18<ericwill18>	have a good weekend :)
+T 1473439795 20<lufimtse>30	ericwill, thank you for feedback, have a nice one.
+T 1473439805 20<lufimtse>30	looking forward to having u back in office.
+T 1473439821 19<ericwill>	lufimtse I know, me too. IRC is tedious -.-
+T 1473439824 18<ericwill18>	the countdown begins
+T 1473439839 20<lufimtse>30	Teamspeak/Ventrillo X-D
+T 1473439842 20<lufimtse>30	lol
+T 1473439852 18<ericwill18>	now there's an idea...
+T 1473439855 18*	ericwill will think about it
+T 1473439857 18<ericwill18>	haha see ya
+T 1473447699 19<ipun>	hey lufimtse so i cant replicate the issue with the focus fix
+T 1473447714 18<ipun18>	not sure why, apparently it was erroring on the nightly
+T 1473447718 18<ipun18>	but mine isnt erroring 
+T 1473447764 18<ipun18>	http://download.eclipse.org/eclipse/downloads/drops4/N20160908-2000/testresults/html/org.eclipse.ui.tests_ep47N-unit-cen64_linux.gtk.x86_64_8.0.html
+T 1473447766 18<ipun18>	this is the log from it
+T 1473448642 20<lufimtse>30	hey
+T 1473449058 20<lufimtse>30	where was ur patch again?
+T 1473449176 20<lufimtse>30	ipun, 
+T 1473449264 18<ipun18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=69650
+T 1473449266 18<ipun18>	l
+T 1473449268 20<lufimtse>30	kk
+T 1473449269 19<ipun>	lufimtse: 
+T 1473449269 20<lufimtse>30	on it.
+T 1473449276 20<lufimtse>30	lemme see on ma machine
+T 1473449387 18<ipun18>	kk
+T 1473449515 20<lufimtse>30	ipun, I'm counting 26 errors with your patch.
+T 1473449519 20<lufimtse>30	it breaks shit dude.
+T 1473449539 20<lufimtse>30	Let me inspect your machine.
+T 1473449541 18<ipun18>	zokay
+T 1473685435 19*	Now talking on 22#swt
+T 1473711742 19<ipun>	lufimtse: i realize right now date time works in a really wierd way when you do on click changes (typing it in on your own). Do you remmber any bug IDs that you worked on relating to it?
+T 1473711829 20<lufimtse>30	hey
+T 1473711840 20<lufimtse>30	sec
+T 1473711930 20<lufimtse>30	ipun, 
+T 1473711930 20<lufimtse>30	<ipun> ericwill i ran the jface stuff with my focus bug, doesnt seem to be a jface error =S i wonder whats causing that null exception
+T 1473711930 20<lufimtse>30	<ericwill> ask Alex or lufimtse if they can reproduce the bug locally
+T 1473711930 20<lufimtse>30	<lufimtse> meh?
+T 1473711930 20<lufimtse>30	<lufimtse> what goes on
+T 1473711930 20<lufimtse>30	<ericwill> lufimtse ipun is having trouble reproducing a test failure on his machine
+T 1473711931 20<lufimtse>30	sec
+T 1473711943 20<lufimtse>30	ipun,  -> https://git.eclipse.org/r/#/c/29442/
+T 1473711954 20<lufimtse>30	had weird stuff in my clipboard lol
+T 1473711989 20<lufimtse>30	Anatoly started the port, I finished it off.
+T 1473712001 20<lufimtse>30	It was the first SWT thing I worked on.
+T 1473712008 18<ipun18>	ah i see thank you
+T 1473713144 19<ipun>	also lufimtse, i looked into this bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=197690
+T 1473713163 18<ipun18>	if you did a lot of work on date time, this might be easier for you to fix without disrupting too much of your logic
+T 1473713267 18<ipun18>	did you happen to touch anything with onNumberKeyInput()?
+T 1473775719 18<ericwill18>	morning gentlemen
+T 1473775889 18<ipun18>	morning gentlemen
+T 1473776020 20<lufimtse>30	It would be a while before I would get to it. I first have to resolve some DnD issues, then the webkit thing, then the wayland port etc.. 
+T 1473776046 20<lufimtse>30	if you want to work on something else, feel free to assign it to platform-swt-inbox and someday I might get to it.
+T 1473776089 18<ericwill18>	what's this?
+T 1473776137 18<ipun18>	wrong convo?
+T 1473776190 19<ericwill>	lufimtse ?
+T 1473776201 18<ericwill18>	also ipun, is this guy ready for review? https://git.eclipse.org/r/#/c/80853/
+T 1473777154 18<ipun18>	ericwill oui oui
+T 1473777163 18<ericwill18>	ipun okay
+T 1473777175 18<ericwill18>	ipun can you also write a JUnit test case for this bug?
+T 1473777202 18<ipun18>	okay
+T 1473777229 18<ericwill18>	you can put it in a separate gerrit
+T 1473777238 18<ipun18>	kk, part of same bug ID?
+T 1473777318 18<ericwill18>	yup
+T 1473780785 18<ericwill18>	ipun I'll review your patches sometime this week
+T 1473780791 18<ericwill18>	we can't merge anything till M2 is released
+T 1473780810 18<ericwill18>	aka Friday
+T 1473781996 18<ipun18>	kewl
+T 1473782009 18<ipun18>	ericwill im going to work on a bit of dark theme bugs in the time being
+T 1473782142 18<ericwill18>	ipun yeah that sounds fine :)
+T 1473794654 19<ipun>	lufimtse, for one of my bugs im working on, it turns out that setBackground() is taking priority over css
+T 1473794661 20<lufimtse>30	hey
+T 1473794670 20<lufimtse>30	which bugz
+T 1473794677 20<lufimtse>30	I'm working on Color of javadoc hover
+T 1473794684 18<ipun18>	it seems that after "refreshing" it (clicking a different tab, selecting it and dselcting it, etc) it fixes it
+T 1473794695 18<ipun18>	is there a method in control that refreshes?
+T 1473794731 20<lufimtse>30	meh?
+T 1473794738 20<lufimtse>30	What bugs u working on
+T 1473794775 18<ipun18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=483789
+T 1473794810 18<ipun18>	like, for example, if you click on something it highlights it, meaning it overrites the color with a "highlight color"
+T 1473794822 18<ipun18>	once you remove the highlight (deselect), it refreshes it
+T 1473794825 18<ipun18>	thast just one example
+T 1473794915 20<lufimtse>30	Do you get that behavoiur in pure swt?
+T 1473794922 20<lufimtse>30	it's possible that platform UI messes with colours
+T 1473794963 18<ipun18>	i havent played with that in SWT no
+T 1473795438 18<ipun18>	actaully i think i know the issue. It seems that its directly overriting the css since it uses setBackgroundColor
+T 1473795457 18<ipun18>	i wonder if theres a way to see if it is using a theme
+T 1473795498 18<ipun18>	ill ask
+T 1473863209 19<ipun>	hey lufimtse, i had to do some cleaning on my workspace, and i forgot where in the run configuations do i set it so it runs my code for platform.ui
+T 1473863218 18<ipun18>	that is if i was running a child elcipse
+T 1473866208 20*	Disconnected (20Connection timed out)
+T 1473868458 19*	Now talking on 22#swt
+T 1473952237 18<ipun18>	ericwill, for https://bugs.eclipse.org/bugs/show_bug.cgi?id=501420
+T 1473952263 18<ipun18>	how did you checkout egit? Is this a SWT repo?
+T 1473952276 18<ericwill18>	no, it's another Eclipse project
+T 1473952307 18<ericwill18>	you can find it at git.eclipse.org/c
+T 1473952312 18<ericwill18>	search for egit
+T 1473953849 18<ipun18>	oh my god im an idiot 
+T 1473953851 18<ipun18>	thanks.
+T 1473969197 19*	Now talking on 22#swt
+T 1474038768 18<ericwill18>	hello fellow SWT comrades
+T 1474039870 18<ipun18>	hey
+T 1474039909 18<ipun18>	ericwill for isDisposed(), its annoying cause I cant reproduce it im not quite sure where its hitting this problem 
+T 1474039951 18<ipun18>	its defs going to be a item.isDisposed() condition, im just not exactly sure what exactly it should return if it is disposed
+T 1474040041 18<ericwill18>	ipun probably throw the error that the javadocs says
+T 1474040056 18<ericwill18>	or return the topItem at index 0
+T 1474040069 18<ericwill18>	you'll have to investigate and see
+T 1474040082 18<ericwill18>	btw I posted comments on that focus bug, other than those comments it's good to go
+T 1474287606 19*	Now talking on 22#swt
+T 1474308216 19<ipun>	lufimtse, did you do any work on a method called onNumberKeyInput() in DateTime?
+T 1474308229 20<lufimtse>30	dunnow
+T 1474308234 20<lufimtse>30	does git blame says so?
+T 1474308245 20<lufimtse>30	looks vaguley familiar
+T 1474308294 18<ipun18>	yeah it does, but its pretty nested so im not sure if you were the original writer of that method or if you did the refactoring
+T 1474313624 Python interface unloaded
+T 1474381527 19*	Now talking on 22#swt
+T 1474381849 19<ipun>	lufimtse when you have time could you check if you may or may not have written that?
+T 1474381859 18<ipun18>	if not, I may have to do some severe refactoring to fix it
+T 1474382222 20<lufimtse>30	ipun, the DateTime thing?
+T 1474382231 18<ipun18>	yup
+T 1474382597 18<ericwill18>	hello hello
+T 1474384250 19<ericwill>	lufimtse hey, can you do a pull on SWT master and see if your build.sh script works?
+T 1474384500 18<ericwill18>	for some reason it gives me "cd: /home/ericwill/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
+T 1474385740 18<ericwill18>	ah nvm I figured it out
+T 1474385747 18<ericwill18>	you have to remove a missing entry from the SWT build path
+T 1474385757 18<ericwill18>	one of Alex's fixes removed something
+T 1474385763 19<ericwill>	lufimtse ipun ^
+T 1474385789 18<ipun18>	thanks bro
+T 1474389231 18<ipun18>	so
+T 1474389233 19<ipun>	lufimtse...
+T 1474397321 19<ericwill>	lufimtse I wrote a python script that parses os_custom.h, fetches the list of deprecated functions in GTK, and compares to see if any dynamic functions are deprecated
+T 1474397332 18<ericwill18>	...there are quite a few it seems
+T 1474397353 18<ericwill18>	and we never see that they're deprecated since they never run through the compiler
+T 1474397752 18<ipun18>	 thanks ericwill 
+T 1474467673 19*	Now talking on 22#swt
+T 1474470952 20*	Disconnected (20Connection timed out)
+T 1474474028 19*	Now talking on 22#swt
+T 1474551496 19*	Now talking on 22#SWT
+T 1474557949 18<ericwill18>	hey guys
+T 1474898907 19*	Now talking on 22#SWT
+T 1474923929 19*	Now talking on 22#SWT
+T 1474977224 19*	Now talking on 22#SWT
+T 1475073119 19*	Now talking on 22#SWT
+T 1475075826 20*	Disconnected (20Connection timed out)
+T 1475081455 19*	Now talking on 22#SWT
+T 1475500500 19*	Now talking on 22#SWT

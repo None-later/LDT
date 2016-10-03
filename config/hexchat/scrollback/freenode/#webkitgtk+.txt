@@ -1,502 +1,502 @@
-T 1471627889 18<mcatanzaro18>	At the time of that change, I complained that it would break WebKit, but nobody cared
-T 1471627894 18*	mcatanzaro shrugs
-T 1471627908 18<rishi18>	I don't know the difference between modesetting and Intel drivers, except that the later is possibly used for Intel hardware. :)
-T 1471627926 18<mcatanzaro18>	rishi: KaL found the workaround after he noticed that in 2.14 *every* page was affected
-T 1471627947 18<mcatanzaro18>	rishi: I don't understand it either, but the intel driver is apparently obsolete
-T 1471627999 18<rishi18>	mcatanzaro: Yes, I remember. I am CCed on the bug. I paged it out since my F23 systems were unaffected.
-T 1471628539 18<rishi18>	mcatanzaro: Thanks.
-T 1471629780 20*	Disconnected (20Connection timed out)
-T 1471629802 19*	Now talking on 22#webkitgtk+
-T 1471629802 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.3, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1471629802 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Jul 27 06:56:52 2016)
-T 1471631317 20*	Disconnected (20Connection timed out)
-T 1471631341 19*	Now talking on 22#webkitgtk+
-T 1471631341 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.3, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1471631341 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Jul 27 06:56:52 2016)
-T 1471657042 18*	MonkeyofDoom also seeing that scrolling perf bug
-T 1471657082 18<MonkeyofDoom18>	which LIBGL_DRI3_DISABLE seems to help (webkit2gtk 2.12.3 here, building 2.13.4 presently)
-T 1471664904 18<MonkeyofDoom18>	yeah, 2.13.4 is 1fps scrolling on all pages w/o the env var
-T 1471790348 18<Joao18>	hey guys, was the create-plugin-widget signal really removed from webkit2gtk?
-T 1471797328 18<Joao18>	in that case, how can one embed a gtk widget into a webkitview?
-T 1471837436 18<Joao18>	and why don't widgets as object/embed cause the application to fail when the width is set to 100% of the container element?
-T 1471837485 18<Joao18>	the error reads something like: " Gdk-ERROR **: The program 'XXXXX' received an X Window System error. / This probably reflects a bug in the program. / The error was 'BadAlloc (insufficient resources for operation)'. /(Details: serial 1468258 error_code 11 request_code 53 (core protocol) minor_code 0) and more...
-T 1471837511 18<Joao18>	sorry, I meant height
-T 1471837515 18<Joao18>	width works like a charm
-T 1471837520 18<Joao18>	height is the one that screws it all
-T 1471837551 18<Joao18>	if I remove "height: 100%", it works, but can't get it to vertically auto-resize to the available space
-T 1471837624 18<Joao18>	and stranger even
-T 1471837630 18<Joao18>	I can resize the window to grow
-T 1471837638 18<Joao18>	but it doesn't allow me to shrink it
-T 1471837641 18<Joao18>	(with the mouse, I mean)
-T 1471838056 18<MonkeyofDoom18>	create-plugin-widget seems like it would have significant and confusing interaction with multiprocess architecture
-T 1471838061 18<MonkeyofDoom18>	as a reason for why it was removed
-T 1471877939 18<garnacho_18>	KaL: ping? I think you're a right guy to talk about wayland issues? :)
-T 1471878582 18<KaL18>	garnacho_: I'm back
-T 1471878685 18<garnacho_18>	KaL: hey :), I'm realizing mcatanzaro might be best, I had a look into the clipboard issues, and just found https://bugs.webkit.org/show_bug.cgi?id=146574
-T 1471878702 18<mcatanzaro18>	Hi garnacho_
-T 1471878707 18<KaL18>	garnacho_: indeed, I'm only working on accelerated compositing stuff
-T 1471878748 18<garnacho_18>	mcatanzaro: oh! last time I tried to autocomplete you didn't seem to be here :)
-T 1471878773 18<garnacho_18>	KaL: nevermind then :)
-T 1471878855 18<garnacho_18>	mcatanzaro: so, reading that last comment, what was your approach to fixing this? I came to think that only proxying clipboard content to the ui process could work...
-T 1471879022 18<mcatanzaro18>	garnacho_: That's exactly what I'm trying. If you're interested in working on it, I haven't gotten very far; I have just a little work done on vacation a month or so ago
-T 1471879075 18<mcatanzaro18>	garnacho_: We already have cross-platform code for proxying clipboard content as it's how it works on macOS and iOS, but we have to reverse the logic in the GTK-specific files to use it
-T 1471879254 18<garnacho_18>	mcatanzaro: right, is it this PasteboardHelper I'm seeing? you already seem to do this to some extent for DnD
-T 1471879286 18<mcatanzaro18>	garnacho_: Yes. Which reminds me, trying to do DnD just causes the web process to crash :)
-T 1471879357 18<mcatanzaro18>	garnacho_: I just left another comment on the bug with a couple hints
-T 1471879413 18<garnacho_18>	mcatanzaro: thanks :). I'm jumping into vacation sometime this week, but nonetheless I think would be great to have this fixed for 3.22, might take time till I get to it, but I eventually will
-T 1471879452 18<mcatanzaro18>	yaaaaay :D
-T 1471900577 18<Joao18>	so, guys, any idea why I cannot reduce a window which has as only child a webkitgtk control?
-T 1472025632 22*	26ChanServ gives channel operator status to 18KaL
-T 1472025643 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472025646 22*	26KaL removes channel operator status from 18KaL
-T 1472026443 18<blino18>	magomez: hi, did you have time to get a look at bug 159928 ? (WebGL GPU-GPU copy)
-T 1472026477 18<magomez18>	not yet blino, but I'll try to do it this week
-T 1472026917 18<blino18>	great, thanks
-T 1472070748 18<xjuan18>	hello guys, is it possible to access a file url from a custom url scheme registered with webkit_web_context_register_uri_scheme() ?
-T 1472070772 18<xjuan18>	Received an unexpected URL from the web process: 'file://local.html/'
-T 1472070774 18<xjuan18>	Received an invalid message "WebPageProxy.DecidePolicyForNavigationAction" from the web process.
-T 1472070783 18<xjuan18>	that the error I get when I try to do so
-T 1472072307 18<mcatanzaro18>	xjuan: You might have to try different security settings
-T 1472072333 18<mcatanzaro18>	There is an AllowUniversalAccessToFileURIs setting; if your app doesn't display any untrusted content, that might be the easiest solution
-T 1472072463 18<xjuan18>	ohh nice
-T 1472072472 18<xjuan18>	btw this is my test case in JS http://pastebin.com/yh3JNEbV
-T 1472072486 18<mcatanzaro18>	xjuan: Try https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitSecurityManager.html#webkit-security-manager-register-uri-scheme-as-local
-T 1472072513 18<xjuan18>	I did, and that is when I get those errors
-T 1472072514 18<mcatanzaro18>	Unless you need to use that URI scheme from non-local pages, then it definitely won't work
-T 1472072532 18<mcatanzaro18>	Ah, you've already looked into this more than me, sorry. :(
-T 1472072538 18<xjuan18>	no the new scheme is local
-T 1472072567 18<xjuan18>	nono I am a webkitgtk newby so any help is much appreciated
-T 1472072600 18<mcatanzaro18>	xjuan: Try flipping https://webkitgtk.org/reference/webkit2gtk/stable/WebKitSettings.html#WebKitSettings--allow-file-access-from-file-urls as well (though note that's definitely not secure if you allow loading arbitrary file URLs)
-T 1472072641 18<mcatanzaro18>	You can also try asking here earlier in the day, when European folks are active; more likely to get a response then. Worst case, it's not possible and requires new API....
-T 1472072662 18<xjuan18>	yeah I tried that one too
-T 1472072976 18<xjuan18>	mcatanzaro: thanks! I will ask tomorrow morning
-T 1472079890 18<memeka18>	Hi, does webkit2gtk uses gstreamer?
-T 1472079901 18<mcatanzaro18>	memeka: Yes!
-T 1472079927 18<memeka18>	The system one or bundled?
-T 1472079936 18<mcatanzaro18>	memeka: System!
-T 1472079957 18<memeka18>	Decodebin?
-T 1472079974 18<mcatanzaro18>	memeka: I don't know!
-T 1472079997 18<memeka18>	I get YouTube crashing after the first frame in epiphany 3.20
-T 1472080041 18<memeka18>	Default decoder is v4l2 (hw accelerated exynos mfc)
-T 1472080056 18<mcatanzaro18>	memeka: That's sad, it works for me on Fedora 24 with WebKitGTK+ 2.12.3 and GStreamer 1.8.3
-T 1472080083 18<mcatanzaro18>	If you get a backtrace, then you can file a bug (bugzilla.webkit.org if you think it's a WebKit bug, bugzilla.gnome.org if you think it's a GStreamer bug)
-T 1472080108 18<memeka18>	I am assuming it's the decoder not the presentation
-T 1472080109 18<mcatanzaro18>	The GStreamer backend code is in Source/WebCore/platform/graphics/gstreamer if you're curious.
-T 1472080119 18<memeka18>	Although gst plays correctly
-T 1472080140 18<memeka18>	How can I get a trace of gst events?
-T 1472080401 18<mcatanzaro18>	memeka: I don't know! I think there is an environment variable. GST_TRACE? GST_DEBUG?
-T 1472080415 18<memeka18>	yes i think so, thx!
-T 1472082681 18<memeka18>	mcatanzaro: any idea why webGL in wayland is slow?
-T 1472082699 18<mcatanzaro18>	memeka: I didn't realize WebGL worked in Wayland!
-T 1472082741 18<memeka18>	well, chrome has a chrome://gpu page which shows all gpu details (including EGL extensions)
-T 1472082757 18<memeka18>	i could not find anything similar in webkit/epiphany
-T 1472082770 18<mcatanzaro18>	I don't think we have anything similar. Sounds like a cool thing to have!
-T 1472082787 18<memeka18>	but on a webgl info page, it showed it's compatible with webgl
-T 1472082796 18<memeka18>	and showed my GPU string
-T 1472082801 18<memeka18>	as opposed to MESA
-T 1472082808 18<mcatanzaro18>	I believe you, I just didn't know it was done!
-T 1472082815 18<memeka18>	(chrome in xwayland uses llvm mesa)
-T 1472082827 18<memeka18>	HOWEVER, webgl stuff is very slow
-T 1472082832 18<memeka18>	2-3 fps :)
-T 1472082848 18<memeka18>	so maybe it's not done :)
-T 1472082858 18<memeka18>	or at least, it's not zero-copy?
-T 1472082865 18<mcatanzaro18>	memeka: Try running with LIBGL_DRI3_DISABLE=1, does that help? If so it's fixed in this morning's release
-T 1472083122 18<memeka18>	mcatanzaro: http://paste.ubuntu.com/23086809/
-T 1472083148 18<memeka18>	so i think you were right, webgl is not working :) at least not accelerated :P
-T 1472083157 18<memeka18>	Major Performance Caveat:	Not implemented
-T 1472083159 18<memeka18>	:)
-T 1472083202 18<mcatanzaro18>	I wonder what's not implemented....
-T 1472083230 18<memeka18>	it gets the correct vendor, GL version, renderer etc
-T 1472083244 18<memeka18>	so it does read libEGL and libGLES
-T 1472083255 18<memeka18>	or at least gets them from wayland
-T 1472083833 18<memeka18>	mcatanzaro: yay now gstreamer HW decoder is being used
-T 1472083847 18<memeka18>	but the video is still not very fluid, i think it's the presentation layer?
-T 1472083984 18<memeka18>	either that, or it's scaling done in SW
-T 1472108965 18<keis18>	is there some way to get webkit_web_view_run_javascript to return a better error message?
-T 1472109017 18<keis18>	it only tells me "An exception was raised in JavaScript" which is not very helpful
-T 1472110816 18<KaL18>	keis: yes, we could expose the exception details parameter that we are currently ignoring, please file a bug report
-T 1472112150 18<keis18>	KaL: will do
-T 1472112160 18<keis18>	are you using the gnome bugzilla?
-T 1472112170 18<KaL18>	nope, webkit bugzilla
-T 1472112173 18<keis18>	kk
-T 1472112195 18<KaL18>	bugs.webkit.org WebKitGtk component
-T 1472112581 18<keis18>	https://bugs.webkit.org/show_bug.cgi?id=161187
-T 1472112614 18<keis18>	also found that `window.location` fails like that while `""+window.location` works fine
-T 1472112622 18<keis18>	should I open a bug for that too?
-T 1472113258 18<KaL18>	sure
-T 1472133294 18<xjuan18>	morning guys
-T 1472133333 18<xjuan18>	I get the folowing error when I try to open a file:// scheme from a custom scheme like new://
-T 1472133341 18<xjuan18>	Received an unexpected URL from the web process: 'file://local.html/'
-T 1472133343 18<xjuan18>	Received an invalid message "WebPageProxy.DecidePolicyForNavigationAction" from the web process.
-T 1472133374 18<xjuan18>	http://pastebin.com/yh3JNEbV is a simple test case in JS
-T 1472138661 20*	Disconnected (20Connection timed out)
-T 1472138683 19*	Now talking on 22#webkitgtk+
-T 1472138683 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472138683 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:43 2016)
-T 1472139296 18<KaL18>	xjuan: that sounds like mixing different versions of UI and web process
-T 1472139359 18<mcatanzaro18>	KaL: No, it sounds like no sandbox extension was taken
-T 1472139389 18<mcatanzaro18>	The UI process just refuses to load file URLs from the web process if it hasn't seen them before, unless you change (something)
-T 1472139390 18<KaL18>	it's complaining about an invalid message
-T 1472139417 18<KaL18>	that could explain the unexpected URL not the invalid message
-T 1472139431 18<mcatanzaro18>	Hm
-T 1472139586 18<mcatanzaro18>	xjuan: I just tried your test case and I'm not seeing those errors, actually
-T 1472139617 18<mcatanzaro18>	When I click the middle URL it prints:
-T 1472139619 18<mcatanzaro18>	decide-policy: new://local.html
-T 1472139621 18<mcatanzaro18>	load schema: local.html
-T 1472139623 18<mcatanzaro18>	decide-policy: new://local.html
-T 1472139710 18<mcatanzaro18>	KaL: I think the description for our https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitSettings.html#WebKitSettings--allow-universal-access-from-file-urls is outdated now, right? You can access local storage regardless of whether the setting is set now in 2.12.4, right?
-T 1472139784 18<KaL18>	mcatanzaro: nope, the description is the same
-T 1472139812 18<KaL18>	mcatanzaro: ah, well, the local storage part
-T 1472140142 18<mcatanzaro18>	KaL: The local storage part!
-T 1472140379 18<KaL18>	right, we can probably just omit that part
-T 1472141129 18<xjuan18>	mcatanzaro: sorry I was having lunch
-T 1472141215 18<xjuan18>	mcatanzaro: you get "CONSOLE ERROR Not allowed to load local resource: file:///home/xjuan/local.html" right?
-T 1472141226 18<mcatanzaro18>	No xjuan, I do not
-T 1472141236 18<mcatanzaro18>	What version of WebKitGTK+ do you have?
-T 1472141307 18<xjuan18>	pkg-config --modversion webkit2gtk-4.0
-T 1472141310 18<xjuan18>	2.12.3
-T 1472141314 18<mcatanzaro18>	Same as me
-T 1472141320 18<xjuan18>	using debian sid here
-T 1472141367 18<xjuan18>	btw I get the "Received an unexpected URL" error when I register the new scheme as local
-T 1472141379 18<xjuan18>	in the test case I posted that line is commented
-T 1472141396 18*	mcatanzaro did not modify your file
-T 1472142754 20*	Disconnected (20Connection timed out)
-T 1472142782 19*	Now talking on 22#webkitgtk+
-T 1472142782 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472142782 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:43 2016)
-T 1472222839 19*	Now talking on 22#webkitgtk+
-T 1472222839 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472222839 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:43 2016)
-T 1472247423 20*	Disconnected (20Connection timed out)
-T 1472247445 19*	Now talking on 22#webkitgtk+
-T 1472247445 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472247445 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:44 2016)
-T 1472255554 20*	Disconnected (20Connection timed out)
-T 1472255579 19*	Now talking on 22#webkitgtk+
-T 1472255579 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472255579 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:43 2016)
-T 1472475817 19*	Now talking on 22#webkitgtk+
-T 1472475817 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.10.x | http://trac.webkit.org/wiki/WebKitGTK/2.12.x | "HTML is useful for a web content rendering engine.
-T 1472475817 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 24 04:00:43 2016)
-T 1472485649 18<JeanLuc__18>	hi, has anyone tested WebKit.WebView.load_html with a base_uri other than 'null' with the freshly released version 2.14.4?
-T 1472485676 18<JeanLuc__18>	sadly the webview is broken for me since the update =/
-T 1472485877 18<KaL18>	what does broken mean?
-T 1472485965 18<JeanLuc__18>	this is how it looks now: http://imgur.com/gallery/ZDqFs
-T 1472485997 18<JeanLuc__18>	and a picture with base_uri = 'null' to compare
-T 1472486023 18<JeanLuc__18>	both images and text used to work with base_uri = '/some/path'
-T 1472486097 18<KaL18>	I guess fonts are blocked by csp or something like that
-T 1472486124 18<KaL18>	or cross-origin checks
-T 1472486182 18<KaL18>	JeanLuc__: if you file a bug report with a simple test case in C to try, I can try to bisect to find the commit
-T 1472486184 18<JeanLuc__18>	csp? is there a workaround? is there anything I can do in my code (other than not using base_uri, which is kind of a deal-breaker for me)?
-T 1472486204 18<JeanLuc__18>	never written anything gobject in c =/
-T 1472486262 18<JeanLuc__18>	does generated c-code from vala work for you in this case?
-T 1472486483 18<KaL18>	JeanLuc__: as long as it builds it's fine
-T 1472486510 18<KaL18>	JeanLuc__: if there's a regression, I'll fix it and make a new release
-T 1472487150 18<KaL18>	JeanLuc__: could you open the inspector and check if there's any error in the js console?
-T 1472488187 18<JeanLuc__18>	KaL: how do i open the inspector?
-T 1472488197 18<JeanLuc__18>	KaL: https://bugs.webkit.org/show_bug.cgi?id=161313
-T 1472488226 18<KaL18>	right click, open inspector, you need to enable developer extras setting first
-T 1472488362 18<JeanLuc__18>	opened the insector, further instructions? :D
-T 1472489019 18<KaL18>	check the console
-T 1472489608 18<JeanLuc__18>	KaL: only a blue box with "Selected Element" and then the html-element that I selected below
-T 1472489622 18<KaL18>	JeanLuc__: in you exampole you are using literally file://some/path/
-T 1472489643 18<KaL18>	fonts in the article are using relative paths
-T 1472489657 18<KaL18>	and of course  file://some/path/assets/whateverfont
-T 1472489661 18<KaL18>	doesn't exists
-T 1472489891 18<JeanLuc__18>	KaL, totally forgot about the fonts (a webdesigner wrote the css for me), I will fix the css and close the bugs. Any idea why it worked before when it actually shuldn't? oO
-T 1472489990 18<KaL18>	no idea, I guess a security fix made the thing more strict
-T 1472490027 18<KaL18>	JeanLuc__: but, where are those fonts supposed to be located?
-T 1472490048 18<KaL18>	JeanLuc__: when using null those are ignored, I think, and fallbacks are probably used
-T 1472490055 18<KaL18>	that's why itworks
-T 1472490082 18<JeanLuc__18>	OOOkay :D, well big thank you for your time. I will fix it and close the bugs as soon as I'm done.
-T 1472490110 18<KaL18>	JeanLuc__: the thing is that if those are supposed to be local, then you should indeed use a base uri
-T 1472490119 18<JeanLuc__18>	no that's no what I meant, before 2.12.4 it used to work even with random base_uri paths
-T 1472490156 18<KaL18>	using random base_uri paths doesn't make any sense
-T 1472490174 18<KaL18>	if you don't load any local resource then simply use null
-T 1472490185 18<JeanLuc__18>	well, the path to where the images were stored, but not the fonts
-T 1472490188 18<KaL18>	and about:blank is automatically used as the base uri
-T 1472490198 18<KaL18>	ah
-T 1472490203 18<KaL18>	ok
-T 1472490306 18<JeanLuc__18>	Is there a way to have to locations from where resources can be loaded? The fonts are installed with the package (so most likely /usr/share/) but the images of the articles are downloaded into $HOME/.local/share/ of the user
-T 1472490322 18<JeanLuc__18>	... to have TWO locations ...
-T 1472511240 18<brrian18>	Hi folks. I am adding a derived sources phase to WebInspectorUI.
-T 1472511264 18<brrian18>	I think I can figure out the CMake needed, but just a heads up.
-T 1472511305 18<mcatanzaro18>	brrian: What could possibly go wrong! (sarcasm)
-T 1472511321 18<mcatanzaro18>	Good luck; if you can't make it work, we'll try to fix it tomorrow
-T 1472511335 18<brrian18>	mcatanzaro: I even have a VM :)
-T 1472511404 18<brrian18>	planning to move more of our messy perl script into actual build files now that Windows VS project is irrelevant
-T 1472511581 18*	mcatanzaro can barely ready our Perl scripts
-T 1472530420 18<memeka18>	hi; what are the sinks used for video in wayland?
-T 1472532523 18<memeka18>	anyone?
-T 1472539305 18<philn18>	memeka: there's an internal video sink
-T 1472539328 18<memeka18>	philn: and that one is not EGL is it :(
-T 1472539331 18<philn18>	doesn't depend on the windowing protocol
-T 1472539342 18<memeka18>	it's very slow on wayland
-T 1472539360 18<philn18>	yep
-T 1472539361 18<memeka18>	is there a way to use the opengl sink (from gst-plugins-bad) ?
-T 1472539367 18<philn18>	yep
-T 1472539371 18<memeka18>	how? :D
-T 1472539411 18<philn18>	you would need to rebuild webkitgtk, setting the USE_GSTREAMER_GL option to ON
-T 1472539431 18<philn18>	it's disabled by default for now
-T 1472539579 18<memeka18>	philn: any plans to turn it on soon?
-T 1472539606 18<philn18>	it's declared in Source/cmake/OptionsGTK.cmake but i forgot how enable it without editing that file :)
-T 1472539643 18<philn18>	there's no date set in stone for the switch
-T 1472539751 18<memeka18>	philn: thx
-T 1472539757 18<memeka18>	i'll try to recompile
-T 1472539955 18<memeka18>	philn: it's gonna use the opengl sink from the system's gst, right? if it works with gst-launch-1.0 it should work in epiphany too ...
-T 1472539998 18<philn18>	memeka: not exactly, if you're building trunk we use an appsink there for GL video rendering
-T 1472539999 18<memeka18>	there;s also a gtksink, it's not gonna use that one, issit?
-T 1472540013 18<philn18>	but it's similar in behavior to glimagesink
-T 1472540027 18<memeka18>	not on my system :-S
-T 1472540056 18<philn18>	i mean the GL appsink is enabled if USE_GSTREAMER_GL is on
-T 1472540067 18<memeka18>	yes of course
-T 1472540070 18<memeka18>	just wanted to make sure
-T 1472540077 18<memeka18>	what sink exactly is gonna be used
-T 1472540083 18<memeka18>	gtksink, or glimagesink
-T 1472540093 18<philn18>	neither :)
-T 1472540102 18<memeka18>	(what's USE_GSTREAMER_MPEGTS?)
-T 1472540124 18<memeka18>	philn: where's the code then for this neither sink? :)
-T 1472540151 18<philn18>	the MPEGTS option is used for <track> element support iirc
-T 1472540164 18<memeka18>	platform/graphics/gstreamer/MediaPlayerPrivateGStreamer.cpp ?
-T 1472540177 18<philn18>	MediaPlayerPrivateGStreamerBase.cpp
-T 1472540192 18<philn18>	look for GSTREAMER_GL there
-T 1472540276 18<memeka18>	k, i see EGL and Wayland there :D
-T 1472540321 18<memeka18>	do i need to make sure COORDINATED_GRAPHICS_THREADED it's also ON?
-T 1472540375 18<memeka18>	looks like it's on based on ENABLE_OPENGL
-T 1472540428 18<philn18>	humm yes it might be needed
-T 1472540440 18<memeka18>	i saw it depends on ENABLE_OPENGL
-T 1472540448 18<philn18>	but i'm not sure the threaded compositor works under Wayland
-T 1472540453 18<memeka18>	and ENABLE_OPENGL depends on USE_GSTREAMER_GL
-T 1472540463 18<memeka18>	hm
-T 1472540477 18<philn18>	that's ok memeka, ENABLE_OPENGL is the general option for GL which includes EGL
-T 1472540507 18<philn18>	yoon: what's the status of threaded compositor in Wayland?
-T 1472540540 18<philn18>	perhaps KaL knows too :)
-T 1472540569 18<memeka18>	i'll wait until i start compiling then :) takes 7-8 hours on my system
-T 1472540800 18<KaL18>	philn: threaded compositor is now the default in both X11 and wayland
-T 1472540813 18<memeka18>	yay
-T 1472540825 18<philn18>	memeka: see you in 8 hours
-T 1472540829 18<philn18>	:)
-T 1472540846 18<memeka18>	KaL: is it good in webkit2gtk-2.12.3 ?
-T 1472540862 18<memeka18>	that's the one i has currently
-T 1472540870 18<KaL18>	no, it's current trunk that will be 2.14 in couple of months
-T 1472540885 18<philn18>	i'm not sure 2.12.3 has the latest appsink GL changes
-T 1472540891 18<KaL18>	or even earlier I don't remember the schedule :-P
-T 1472540900 18<KaL18>	no, I didn't merge those
-T 1472540927 18<philn18>	memeka: if you could try a trunk snapshot it would be better then
-T 1472540934 18<memeka18>	of course
-T 1472540963 18<KaL18>	current trunk doesn't build, give me some minutes to fix it
-T 1472541116 18<memeka18>	waiting to  svn checkout https://svn.webkit.org/repository/webkit/trunk WebKit2 :)
-T 1472541118 18<foser18>	KaL: schedule is in weeks i think? if it follows gnome release.. not sure if the new epiphany hard deps on 2.13
-T 1472541146 18<memeka18>	well, i will be using the ubuntu receipe to build it
-T 1472541153 18<KaL18>	foser: right, weeks :-)
-T 1472541163 18<memeka18>	so it will be seen as 2.12.3 :)
-T 1472541491 18<memeka18>	KaL: let me know when i can checkout
-T 1472542615 18<KaL18>	memeka: build is now fixed
-T 1472542716 18<memeka18>	KaL: thx, checking out now
-T 1472542734 18<memeka18>	i'll be back in many hours, compiling on ARM is not that fast :P
-T 1472542777 18<philn18>	memeka: you should cross-compile :)
-T 1472542784 18<memeka18>	naah
-T 1472542806 18<memeka18>	8 cores is reasonably fast
-T 1472542830 18<memeka18>	actually let's call them 4
-T 1472542848 18<memeka18>	cause 4 are stupid, and do more harm in using up the RAM
-T 1472542852 18<memeka18>	:)
-T 1472560641 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.12.4, unstable: 2.13.4 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
-T 1472576698 18<brrian18>	how to clean just derived sources for one project?
-T 1472578812 18<mcatanzaro18>	brrian: For one subdirectory? You can try deleting just that directory manually; I think it should work
-T 1472578823 18<brrian18>	mcatanzaro: ok
-T 1472578833 18<mcatanzaro18>	e.g. WebKitBuild/Debug/
-T 1472578848 18<brrian18>	mcatanzaro: I'm making a separate CMakeLists.txt for WebInspectorUI, which at a minimum has the new derived sources generation command and a shared list of resources
-T 1472578859 18<mcatanzaro18>	Sorry, delete WebKitBuild/Debug/WebInspectorUI and I *think* they should be regenerated properly, rebuilding only the minimum number of things required
-T 1472578864 18<brrian18>	every CMake port seems to do something different with the files, so that stuff will be in the .cmake files
-T 1472578877 18<brrian18>	k
-T 1472578893 18<mcatanzaro18>	brrian: #webkit would probably be a better place to discuss this since all CMake folks will be there (e.g. alexchristensen)
-T 1472578900 18<brrian18>	yeah he's aware
-T 1472578910 18<brrian18>	apparently EFL runs its own minifier o_O
-T 1472578913 18<brrian18>	that could backfire
-T 1472578929 18<mcatanzaro18>	Just for the web inspector...?
-T 1472578932 18<brrian18>	well
-T 1472578935 18<brrian18>	UglifyJS
-T 1472578948 18<brrian18>	for Make based ports we run a perl script that minifies and combines stuff
-T 1472578961 18<mcatanzaro18>	Is minification really useful for the web inspector?
-T 1472578973 18<brrian18>	concatenation is way more important
-T 1472578987 18<brrian18>	otherwise WebCore has to spin through ~400 resource loads before showing anything
-T 1472579011 18<brrian18>	but minifying helps reduce parse times a little bit. on Mac we use a very simple minifier, no renaming or anything.
-T 1472579057 18<brrian18>	I don't know what the GResource stuff does, but if you want to improve load times it should be pretty easy to copy or reuse the perl script
-T 1472579255 18<mcatanzaro18>	brrian: It puts all the data inside the binary itself, in some fancy ELF location
-T 1472579263 18<brrian18>	ah I see
-T 1472579265 18<mcatanzaro18>	So there is no file opening
-T 1472579278 18<mcatanzaro18>	brrian: If you're curious: https://blogs.gnome.org/alexl/2012/01/26/resources-in-glib/
-T 1472579281 18<brrian18>	sure, but it still has to go through the network loader
-T 1472579306 18<annulen18>	brrian: are you talking about WebInspectorUI/Scripts/copy-user-interface-resources.pl? There is yet another script doing similar thing, JavaScriptCore/Scripts/inline-and-minify-stylesheets-and-scripts.py
-T 1472579317 18<brrian18>	mcatanzaro: nice link!
-T 1472579327 18<brrian18>	annulen: yeah, I'm starting to break that script up a bit
-T 1472579332 18<annulen18>	cool
-T 1472579339 18<annulen18>	I was tempted to use it in Qt
-T 1472579349 18<brrian18>	annulen: only Mac uses it afaik
-T 1472579357 18<brrian18>	I'm consolidating some CMake stuff
-T 1472579381 18<annulen18>	I know, and anyone trying to refactor it on pther platform will necessary break Mac things :)
-T 1472579431 18<brrian18>	heh
-T 1472579447 18<brrian18>	well most of what it does is easy enough to do in CMake or Make
-T 1472579460 18<brrian18>	and way easier to maintain
-T 1472579462 18<brrian18>	that way
-T 1472579590 18<brrian18>	annulen: pretty much all of the minification/combining should be independent of the port-specific resource packaging system.. the input is either a few combined files or a few hundred files from source
-T 1472579637 18<annulen18>	fully agree, if it doesn't require installing nodejs, like EFL approach :)
-T 1472579645 18<brrian18>	yeah, that's a nonstarter for us
-T 1472579653 18<brrian18>	and our minifier is much simpler little python script
-T 1472579682 18<brrian18>	btw, is there some rhyme or reason to using ${CMAKE_SOURCE_DIR}/Source/WebInspectorUI/... vs ${WEBINSPECTORUI_DIR}/...
-T 1472579702 18<brrian18>	the latter seems better, except SOURCES lists don't use prefixes usually
-T 1472579725 18<mcatanzaro18>	Probably no rhyme or reason, should probably standardize on WEBINSPECTORUI_DIR
-T 1472579730 18<brrian18>	k
-T 1472579791 18<brrian18>	another interesting difference is that on Mac, DerivedSources is usually flattened, whereas with CMake it seems to parallel the source layout
-T 1472579879 18<brrian18>	ugh.. is there some magic to make ubuntu have emacs line-oriented keybindings everywhere/ :P
-T 1472579922 18<mcatanzaro18>	brrian: There is a GTK+ setting for that actually... somewhere...
-T 1472579931 18<brrian18>	looks like
-T 1472579936 18<brrian18>	gnome-tweak-tools or something
-T 1472579940 18<annulen18>	one possible problem with minification: you have to inline everything into both Main.html and Test,html
-T 1472579961 18<annulen18>	so it becomes important to get rid of Test.html in production build
-T 1472579962 18<brrian18>	annulen: that's not what is done now
-T 1472579997 18<brrian18>	Main.html is normal and includes Main.js (which has 100's of files) and all the redundant includes are removed
-T 1472580004 18<brrian18>	the same for Test.html
-T 1472580019 18<mcatanzaro18>	brrian: in gnome-tweak-tool: Keyboard and Mouse -> Key theme -> Emacs
-T 1472580036 18<mcatanzaro18>	That's in GNOME 3.20, Ubuntu will have something older, but *probably* will be in the same place
-T 1472580052 18<mcatanzaro18>	(It will only work for GTK+ apps of course)
-T 1472580063 18<brrian18>	yeah
-T 1472580088 18<brrian18>	emacs bindings everywhere is one thing that OS X has done since NextStep probably, which I take for granted
-T 1472580098 18<brrian18>	I have fixed a few kill ring bugs in WebKit ;-)
-T 1472580099 18<mcatanzaro18>	Impressive
-T 1472580142 18<mcatanzaro18>	Yeah I remember someone (you?) talking about kill ring at the Contributors Meeting last year... I was more than a bit surprised to learn WebKit supports that
-T 1472580161 18<mcatanzaro18>	Anyway brrian some "good" news: emacs depends on WebKitGTK+ now
-T 1472580169 18<brrian18>	mcatanzaro: kill ring C-k C-y etc works in any Cocoa app
-T 1472580182 18<mcatanzaro18>	I do not know why, but the rumor I heard was so it could play videos
-T 1472580189 18<brrian18>	o_O
-T 1472580210 18<brrian18>	maybe it's necessary for EmacsOS
-T 1472580215 18<brrian18>	=P
-T 1472580239 18<mcatanzaro18>	They are using WebKit1 (very old/insecure WebKitGTK+ 2.4) though, so now I have the enviable task of proposing we remove Emacs from Fedora (won't happen, WK is an optional dependency) to get rid of WebKit1
-T 1472580311 18<mcatanzaro18>	Oh wow, looks like they switched to git, at long last....
-T 1472580313 18<mcatanzaro18>	http://git.savannah.gnu.org/cgit/emacs.git
-T 1472580359 18<mcatanzaro18>	http://git.savannah.gnu.org/cgit/emacs.git/tree/configure.ac#n2625 "Enable xwidgets if GTK3 and WebKitGTK+ are available."
-T 1472580377 18<mcatanzaro18>	I wonder what xwidgets are. And if I was gullible for believing videos. ;)
-T 1472580420 18<brrian18>	I tried to dual boot ubuntu on my fast new PC but the installer kernel panicked :(
-T 1472580426 18<brrian18>	so I'm doing this stuff back in my VM
-T 1472580439 18<mcatanzaro18>	brrian: Fedora!
-T 1472580451 18<brrian18>	yeah, I guess. :|
-T 1472580457 18<brrian18>	I have no allegiance
-T 1472580465 18<mcatanzaro18>	Fedora!
-T 1472580468 18<brrian18>	I do have fancy new hardware
-T 1472580491 18<brrian18>	well not that new, it's a Z170 chipset and a skylake i7
-T 1472580498 18<mcatanzaro18>	Ubuntu!
-T 1472580520 18<mcatanzaro18>	But seriously, Intel released a bad microcode update and it's apparently breaking Skylake laptops
-T 1472580540 18<mcatanzaro18>	You're safe on Ubuntu because Ubuntu doesn't update anything
-T 1472580540 18<brrian18>	I mean, how long does it take for Debian or Fedora or anyone to add a major Intel rev :) :P
-T 1472580557 18<brrian18>	not if the installer is borked
-T 1472580567 18<mcatanzaro18>	Oh yeah, you did just mention that
-T 1472580601 18<brrian18>	ok, sweet. the keybindings work
-T 1472580613 18<brrian18>	well, at least in GTK apps (not sublime)
-T 1472580783 18<brrian18>	heh. good ole CMake.
-T 1472580800 18<brrian18>	if I spent more time with it, it would be easier right? :P
-T 1472580814 18<brrian18>	Make is atrocious so I can't love it no matter how many hours
-T 1472580896 18<annulen18>	make is way more straightforward, flexible, never gets in your way
-T 1472580939 18<brrian18>	I agree with 1 and 2
-T 1472580941 18<brrian18>	not 3
-T 1472580949 18<mcatanzaro18>	https://git.gnome.org/browse/empathy/commit/?id=03ad9867f02aeb337d61b0b26ba687593bede9f0
-T 1472580955 18<brrian18>	or I guess, there are so many gotchas
-T 1472580982 18<mcatanzaro18>	annulen: Have you been following meson?
-T 1472581004 18<annulen18>	not really
-T 1472581024 18<mcatanzaro18>	They're trying to be the next autotools/cmake replacement; got some traction with GStreamer and they're aiming for GNOME next
-T 1472581036 18*	mcatanzaro intends to investigate it more seriously eventually
-T 1472581067 18<annulen18>	I was involved in premake some time ago
-T 1472581294 18<brrian18>	mcatanzaro: is there some concept of Engineering vs Production builds for webkitgtk?
-T 1472581312 18<brrian18>	there are some things we only usually include in builds from source, like the uncaught exception reporter
-T 1472581335 18<mcatanzaro18>	brrian: Yes, -DCMAKE_BUILD_TYPE=Release vs. -DCMAKE_BUILD_TYPE=Debug
-T 1472581345 18<mcatanzaro18>	Also: -DDEVELOPER_MODE=ON
-T 1472581389 18<brrian18>	hmm, how would I convert that to ENGINEERING_BUILD? true if Debug or DEVELOPER_MODE=ON?
-T 1472581418 18<brrian18>	the combined Inspector.html.in uses ENGINEERING_BUILD macro just because that's what I know
-T 1472581422 18<mcatanzaro18>	Probably just if (DEVELOPER_MODE)
-T 1472581470 18<mcatanzaro18>	Debug vs. Release is more just about whether to compile debug info, or enable assertions, leak tracking of WebCore objects....
-T 1472581477 18<brrian18>	right
-T 1472581486 18<brrian18>	Mac port has a separate level above that
-T 1472581521 18<mcatanzaro18>	I forget what we use DEVELOPER_MODE for, probably for loading stuff from the current directory; that's probably what you want to use
-T 1472581533 18<brrian18>	ok!
-T 1472582071 18<brrian18>	annulen: do you know where the top-level ENABLE_WEBCORE, etc gets set?
-T 1472582090 18<brrian18>	I can't find it anywhere! don't know if ENABLE_WEBINSPECTORUI is necessary or just use ENABLE_WEBKIT2
-T 1472582146 18<annulen18>	brrian: OptionsXXX.cmake
-T 1472582160 18<annulen18>	but there is no ENABLE_WEBCORE afaik
-T 1472582175 18<annulen18>	oops, there is
-T 1472582301 18<brrian18>	so my new CMakeLists.txt isn't getting picked up.
-T 1472582311 18<brrian18>	but I added add_subdirectory to the top-level file
-T 1472582325 18<mcatanzaro18>	brrian: Strange, you might need to re-run cmake...?
-T 1472582340 18<brrian18>	well, I see it running again
-T 1472582346 18<brrian18>	maybe it's using some cached things
-T 1472582382 18<annulen18>	brrian: are you adding add_subdirectory to Source/CMakeLists.txt?
-T 1472582393 18<brrian18>	ya
-T 1472584105 18<brrian18>	annulen: now the file is picked up, but its definitions aren't accessible from OptionsGTK.cmake
-T 1472584110 18<brrian18>	o_O
-T 1472584223 18<annulen18>	brrian: it goes in reverse, OptionsGTK.cmake is visible everywhere
-T 1472584245 18<brrian18>	er, my bad
-T 1472584252 18<brrian18>	PlatformGTK.cmake in WebKit2
-T 1472584274 18<annulen18>	oh, they are separate from each other
-T 1472584282 18<brrian18>	can't see CMakeLists.txt in WebInspectorUI
-T 1472584369 18<brrian18>	I had kinda assumed all variables were global, maybe not
-T 1472584378 18<annulen18>	no, they aren't
-T 1472584400 18<brrian18>	I can move that particular rule to PlatformGTK.cmake in WebInspectorUI, then use the generated XML file from derived sources in WebKit2's PlatformGTK.cmake
-T 1472584413 18<brrian18>	now to figure out how the platform files get included.. :P
-T 1472584478 18<annulen18>	some time ago I tried to do similar thing in my fork for Qt port, but I gave up and ended up including WebInspectorUI/PlatformQt.cmake where resource are needed
-T 1472584570 18<annulen18>	https://github.com/annulen/webkit/commit/4dfce6e929322a61975b509663b55b46c445f10c
-T 1472584631 18<brrian18>	do the platform.cmake files just get automatically picked up?
-T 1472584635 18<brrian18>	can't see any refs
-T 1472584649 18<annulen18>	WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS() pick them
-T 1472584666 18<annulen18>	if there is no WEBKIT_INCLUDE_CONFIG_FILES_IF_EXISTS in that dir, it's not picked :)
-T 1472584666 18<brrian18>	ahhhh
-T 1472584667 18<brrian18>	magics
-T 1472584668 18<brrian18>	ok
-T 1472584675 18<brrian18>	I wonder what that did
-T 1472584686 18<brrian18>	you folks are so helpful
-T 1472584714 18<mcatanzaro18>	My super key stopped working after I did something in gnome-initial-setup, I should be less helpful :(
-T 1472584725 18<mcatanzaro18>	Sorry, I meant gnome-tweak-tool
-T 1472584731 18<mcatanzaro18>	What did I change, I don't remember changing anything :(
-T 1472584929 18<annulen18>	brrian: btw, I use yet another script to bundle inspector files into resource file, qt resources are very similar but yet not 100% equivalent to glib resources, you can see its invocation in patch above
-T 1472584939 18<brrian18>	yeah I saw
-T 1472584961 18<brrian18>	so I have WebInspectorUI_RESOURCES
-T 1472584987 18<brrian18>	which include js, html, css. eventually that list would include combined files if needed
-T 1472585001 18<brrian18>	and the port-specific packager shouldn't care
-T 1472585015 18<brrian18>	it can filter out for JS or CSS or whatever if needs to do something special
-T 1472585041 18<brrian18>	as long as it searches WEBINSPECTORUI_DERIVED_SOURCES since that's where the combined files would go
-T 1472585112 18<annulen18>	I think we need shared list of inspector files + some switch what icon directory should be used
-T 1472585137 18<annulen18>	maintaining separate lists leads to omissions which go unnoticed
-T 1472585146 18<brrian18>	annulen: yeah, especially as I make things complicated
-T 1472585152 18<brrian18>	but can't each platform file append to the main list?
-T 1472585161 18<annulen18>	https://bugs.webkit.org/show_bug.cgi?id=156165
-T 1472585172 18<annulen18>	yes
-T 1472585199 18<brrian18>	I need to find whoever does EFL and get them to use the shared list
-T 1472585202 18<brrian18>	it does something funky now
-T 1472585212 18<annulen18>	they grab everything
-T 1472585215 18<annulen18>	literally
-T 1472585249 18<annulen18>	look in Source/PlatformEFL.cmake
-T 1472585252 18<brrian18>	randomly minifying files with ES6 is probably not a good idea
-T 1472585255 18<brrian18>	yea I have it open
-T 1472585861 18<brrian18>	 Cannot find source file: /home/bburg/repos/webkit/OpenSource/WebKitBuild/Release/DerivedSources/WebInspectorUI/InspectorGResourceBundle.c
-T 1472585876 18<brrian18>	I appended it to WebKit2_DERIVED_SOURCES
-T 1472585899 18<brrian18>	the rule to create it is in WebInspectorUI/PlatformGTK.cmake, not sure why it can't see the reipe
-T 1472585901 18<brrian18>	recipe
-T 1472586087 18<annulen18>	brrian: you may need GENERATED property on that file
-T 1472586103 18<annulen18>	cmake is very dumb sometimes
-T 1472586211 18<brrian18>	didn't help.
-T 1472586283 18<brrian18>	maybe I need to add it to some dummy target in WebInspectorUI
-T 1472586343 18<annulen18>	be careful not to make it rebuilding on each run
-T 1472586395 18<brrian18>	something we have done in Make before is output a file with the contents of a list
-T 1472586410 18<brrian18>	to force it to invalidate when the list changes
-T 1472586467 18<brrian18>	add_custom_target(stageSharedScripts DEPENDS ${JavaScriptCore_SCRIPTS})
-T 1472586467 18<brrian18>	add_dependencies(JavaScriptCore stageSharedScripts)
-T 1472586472 18<brrian18>	that looks similar
-T 1472631900 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.12.4, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
-T 1472656700 20*	Disconnected (20Connection timed out)
-T 1472656726 19*	Now talking on 22#webkitgtk+
-T 1472656726 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
-T 1472656726 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 31 04:24:59 2016)
-T 1472664323 20*	Disconnected (20Connection timed out)
-T 1472664348 19*	Now talking on 22#webkitgtk+
-T 1472664348 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
-T 1472664348 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 31 04:24:59 2016)
-T 1472674365 19*	Now talking on 22#webkitgtk+
-T 1472674366 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.4, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
-T 1472674366 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Wed Aug 31 04:24:59 2016)
+T 1473261221 20*	Disconnected (20Connection timed out)
+T 1473261247 19*	Now talking on 22#webkitgtk+
+T 1473261247 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473261247 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Mon Sep  5 06:36:09 2016)
+T 1473265144 20*	Disconnected (20Connection timed out)
+T 1473265170 19*	Now talking on 22#webkitgtk+
+T 1473265170 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.90 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473265170 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@125.red-79-159-212.dynamicip.rima-tde.net (24Mon Sep  5 06:36:09 2016)
+T 1473342064 18<garnacho18>	mcatanzaro: hey :), fyi I got some working code shuffling clipboard management.
+T 1473342088 18<mcatanzaro18>	garnacho clipboard hero :)
+T 1473342120 18<garnacho18>	:), I've got a couple of questions though
+T 1473342190 18<garnacho18>	mcatanzaro: do you know if I can pass enums through the .messages.in plumbing? assuming yes, where would you recommend to define those if they need to be visible all the way from Pasteboard to PlatformPasteboard?
+T 1473342211 18<mcatanzaro18>	Hmmmm, I will investigate
+T 1473342313 18<garnacho18>	mcatanzaro: cheers :), right now I'm passing selection(primary/clipboard) and mimetype as strings, surely sounds like there's a better way when we expect a limited set for both
+T 1473350035 18<garnacho18>	mcatanzaro: just attached the patch to get things going, feel free to chime in :)
+T 1473350044 18<mcatanzaro18>	Thanks garnacho!
+T 1473350052 18<mcatanzaro18>	I will look and try to find an answer for the enum issue
+T 1473350080 18<mcatanzaro18>	They probably get automatically serialized to ints, I would expect
+T 1473350294 18<garnacho18>	mcatanzaro: yeah I'd assume so, I guess it's more about where can I put those so they are widely available with no layering violations
+T 1473350320 18<mcatanzaro18>	I'll think about it, KaL will probably know off the top of his head though
+T 1473350797 18<KaL18>	there's encodeEnum decodeEnum methods in Decoder/Encoder classes
+T 1473350831 18<KaL18>	I'll look at the patch tomorrow, too late for me today
+T 1473352966 18<mcatanzaro18>	garnacho: Have you noticed that clicking the close button on a GtkNotebook can cause two tabs to close at once? As if the click is being registered twice. I think it's a recent regression, maybe in GTK+?
+T 1473353557 18<garnacho18>	mcatanzaro: hmm, haven't seen that tbh
+T 1473355815 18<mcatanzaro18>	garnacho: https://paste.gnome.org/pzuck4npy
+T 1473355832 18<mcatanzaro18>	You were probably using a release build? :)
+T 1473355868 18<mcatanzaro18>	It's m_clipboard, not m_gtkClipboard
+T 1473355878 18<garnacho18>	could well be
+T 1473355944 18<mcatanzaro18>	It's a good idea to use -DCMAKE_BUILD_TYPE=Debug when developing, so you get asserts and debuginfo
+T 1473355966 18<mcatanzaro18>	We have debug fission now, so that doesn't make it super slow to build anymore
+T 1473355990 18<garnacho18>	mcatanzaro: couldn't afford debuginfo on this laptop :), too little disk space and memory
+T 1473355997 18<mcatanzaro18>	OK
+T 1473356800 18<mcatanzaro18>	OK garnacho, next one: https://paste.gnome.org/pkqevjqsa
+T 1473356808 18<mcatanzaro18>	I wonder what a "key function" is
+T 1473356921 18<mcatanzaro18>	garnacho, I'm not sure what the error means, but the functions you added there should probably be pure virtual regardless, and I bet that would make it go away
+T 1473356963 18<garnacho18>	mcatanzaro: hmm, I see this = 0; in the vfuncs for the other platforms
+T 1473356973 18<annulen18>	mcatanzaro: key function is a first virtual function in declaration
+T 1473357013 18<mcatanzaro18>	Ah yeah, so the problem is you didn't implement the functions, they all really do need to be pure virtual :)
+T 1473357016 18<mcatanzaro18>	that's the = 0
+T 1473357034 18<annulen18>	you can add implementation even for pure virtual function
+T 1473357038 18<mcatanzaro18>	I wonder why you were able to build it garnacho
+T 1473357043 18<annulen18>	to make vtable anchored
+T 1473357054 18*	garnacho gets lost in c++ parlance :)
+T 1473357056 18<mcatanzaro18>	There's no point though, it's in a PLATFORM(GTK) guard
+T 1473357061 18<garnacho18>	mcatanzaro: me too tbh
+T 1473357070 18<garnacho18>	thanks for spotting those
+T 1473357141 18<mcatanzaro18>	garnacho: The = 0 requires subclasses to implement the function. It's like setting a pointer to
+T 1473357143 18<mcatanzaro18>	NULL
+T 1473357190 18<annulen18>	with difference that setting pointer to nullptr doesn't trigger any compilation errors when it's used :)
+T 1473359704 18<garnacho18>	mcatanzaro: any more build errors? I applied the fixes locally and it (still) builds/runs fine here
+T 1473359719 18<garnacho18>	as soon as you confirm, I'll update the patch :)
+T 1473359736 18<mcatanzaro18>	No garnacho, I built it successfully. But I have to finish typing your review before I can switch to Wayland to test it. Almost done!
+T 1473359764 18<garnacho18>	mcatanzaro: ah sure, no worries :)
+T 1473359831 18<garnacho18>	mcatanzaro: known issue: pasting from primary into webkit is opted out in wayland, I've got https://paste.gnome.org/pciioqwm7 locally too
+T 1473359886 18<garnacho18>	but that's perhaps a too wide shot, doesn't tell much about the compositor actually implementing primary selection
+T 1473359922 18<mcatanzaro18>	garnacho: Yeah, I changed that at the web engines hackfest a couple years ago, since Wayland didn't have primary selection at the time
+T 1473359994 18<mcatanzaro18>	I think it's probably fine to say it's always supported there... nothing horrible is going to go wrong if we do so, right?
+T 1473360020 18<mcatanzaro18>	It's not like GTK+ is going to somehow crash the compositor if the compositor doesn't support primary selection and we try to use the PRIMARY clipboard.
+T 1473360069 18<mcatanzaro18>	But yeah, it would be ideal to actually check whether it's really supported; we'd just want to cache the result there to avoid doing IPC every time that innocuous-looking function is called.
+T 1473360071 18<garnacho18>	mcatanzaro: not like that, should double check what happens if you do gtk_clipboard_wait_for_contents() if there's no backing selection though
+T 1473360081 18<mcatanzaro18>	Oh
+T 1473360093 18<mcatanzaro18>	OK, I posted your review, gonna log into Wayland to try it now
+T 1473360241 18<mcatanzaro18>	garnacho: I see (WebKitWebProcess:7437): Gdk-WARNING **: Wayland compositor does not support xdg_shell interface, not using Wayland display
+T 1473360248 18<mcatanzaro18>	Is that fallout from the xdg_shell version bump?
+T 1473360287 18<garnacho18>	mcatanzaro: it is :(, gtk+ master just works (not sure if there was release in between)
+T 1473360307 18<mcatanzaro18>	I'll rebuild GTK+ then
+T 1473360420 18<mcatanzaro18>	garnacho: Still seeing those warnings with GTK+ master
+T 1473360437 18<mcatanzaro18>	Clipboard works though :P
+T 1473360491 18<garnacho18>	mcatanzaro: well, it should follow the same paths now on both x11/wayland :)
+T 1473360501 18<garnacho18>	I guess it's falling back to x11 if you get that warning though
+T 1473360562 18<garnacho18>	mcatanzaro: I'm thinking, if you get that warning, it's perhaps that you already had gtk+ at xdg_shell v6 but mutter is still at v5?
+T 1473360588 18<mcatanzaro18>	garnacho: Yes, I'm using mutter 3.20
+T 1473360618 18<garnacho18>	ah, looks like it then
+T 1473360628 18<mcatanzaro18>	When you said "Gtk+ master just works" I thought you meant it supported both versions, oh well
+T 1473360647 18<mcatanzaro18>	I'll try downgrading GTK+
+T 1473360726 18<garnacho18>	mcatanzaro: I hear you, now that kde got xdg_shell v5 support :P
+T 1473361342 18<mcatanzaro18>	garnacho: "pure virtual method was called" is a bad problem. I've looked over your patch and I don't see where the mistake is though
+T 1473361376 18<mcatanzaro18>	My guess is object slicing somewhere: http://stackoverflow.com/questions/274626/what-is-object-slicing
+T 1473361389 18<mcatanzaro18>	But I've never seen this error ever before
+T 1473361527 18<mcatanzaro18>	OK, with older GTK+ and actually using the Wayland backend now, it works. Great.
+T 1473361582 18<garnacho18>	yay :)
+T 1473361737 18<mcatanzaro18>	(The "pure virtual method called" is probably what's causing the "terminate called without active exception")
+T 1473362300 18<garnacho18>	mcatanzaro: uhm... weird that those errors don't happen on MiniBrowser
+T 1473362313 18<garnacho18>	at least here
+T 1473362439 18<mcatanzaro18>	garnacho: And they don't happen for me since I rebooted my computer. Quite strange.
+T 1473362454 18<garnacho18>	uh, indeed
+T 1473362459 18<mcatanzaro18>	I guess we can just ignore it until the next time they show up. Maybe not related to your patch at all....
+T 1473362470 18<mcatanzaro18>	It was happening for me in ephy tab at shutdown.
+T 1473362482 18<mcatanzaro18>	Great work fixing this btw, this will make a lot of people happy besides me :)
+T 1473362561 18<garnacho18>	mcatanzaro: yw :), I'll stay second in queue :P
+T 1473370599 18<zaitor18>	garnacho: yay - patch working :-)
+T 1473370686 18<garnacho18>	zaitor: nice :), thanks for testing
+T 1473370705 18<zaitor18>	nah, thanks for producing it!
+T 1473370751 18<zaitor18>	that is one major roadblock for wayland by default removed, so good job
+T 1473370905 18<garnacho18>	cheers!
+T 1473395011 18<brrian18>	hi folks, the GTK EWS bots seem stuck, 81 patches in queue..
+T 1473423161 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.12.5, unstable: 2.13.91 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473685449 19*	Now talking on 22#webkitgtk+
+T 1473685449 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.91 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473685449 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Fri Sep  9 08:12:41 2016)
+T 1473686898 18<KaL18>	garnacho: commented
+T 1473688075 18<garnacho18>	KaL: thanks :)
+T 1473688111 18<KaL18>	noticed now that clear func callback is now ignored, we need to fix that
+T 1473688120 18<KaL18>	gotta go, bbl
+T 1473783061 18<KaL18>	mcatanzaro: "When gtk_clipboard_set_with_data() success clearClipboardContentsCallback takes the ownership of data, so we leak it here."
+T 1473783079 18<KaL18>	mcatanzaro: does it sound less confusing?
+T 1473783088 18<mcatanzaro18>	Yes KaL, but success -> succeeds
+T 1473783109 18<KaL18>	oh, sure
+T 1473866256 20*	Disconnected (20Connection timed out)
+T 1473866279 19*	Now talking on 22#webkitgtk+
+T 1473866279 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.91 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473866279 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Fri Sep  9 08:12:41 2016)
+T 1473869487 20*	Disconnected (20Connection timed out)
+T 1473869513 19*	Now talking on 22#webkitgtk+
+T 1473869513 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.91 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473869513 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Fri Sep  9 08:12:41 2016)
+T 1473931146 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.12.5, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473957345 18<SHIV18>	Hi
+T 1473957360 18<SHIV18>	i am new in webkit
+T 1473957411 18<SHIV18>	i need your help to develop a App for embedded device
+T 1473969212 19*	Now talking on 22#webkitgtk+
+T 1473969212 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1473969212 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Thu Sep 15 05:19:06 2016)
+T 1474011933 18<KaL18>	tpopela, bertogg: current trunk doesn't build with gcc 4.9, would it be a problem for debian/fedora if we bump GCC requirements to 5?
+T 1474011972 18<tpopela18>	KaL, no problem for us on Fedora..
+T 1474012047 18<tpopela18>	KaL, we have 5.3.1 on F23 (the oldest supported release)..
+T 1474012076 18<KaL18>	cool
+T 1474012112 18<tpopela18>	KaL, do you have some bug with the issue mentioned?
+T 1474012126 18<KaL18>	not yet
+T 1474012141 18<KaL18>	or do you mean the gcc bug?
+T 1474012151 18<KaL18>	https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60511
+T 1474012178 18<tpopela18>	KaL, gcc bug is fine, thanks!
+T 1474012345 18<tpopela18>	KaL, btw do we have https://trac.webkit.org/changeset/205462 in 2.14? I'm curious how bad https://trac.webkit.org/changeset/205998 would be..
+T 1474012450 18<KaL18>	tpopela: yes, please add that one to the wiki
+T 1474012458 18<KaL18>	I'll merge that for 2.14.0
+T 1474012468 18<tpopela18>	KaL, I don't have rights to add it there :/
+T 1474012488 18<KaL18>	I'll do it, then
+T 1474012575 18<tpopela18>	KaL, thanks!
+T 1474251585 19*	Now talking on 22#webkitgtk+
+T 1474251585 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474251585 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Thu Sep 15 05:19:06 2016)
+T 1474287623 19*	Now talking on 22#webkitgtk+
+T 1474287623 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474287623 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Thu Sep 15 05:19:06 2016)
+T 1474315760 19*	Now talking on 22#webkitgtk+
+T 1474315760 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.12.5, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474315760 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Thu Sep 15 05:19:06 2016)
+T 1474381540 19*	Now talking on 22#webkitgtk+
+T 1474381540 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474381540 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474382087 18<mcatanzaro18>	Hm, we have settings exposed for media stream and WebRTC, but not for plain old video playback
+T 1474382090 18<mcatanzaro18>	:(
+T 1474382111 18<mcatanzaro18>	I bet a patch exposing whatever setting you need in WebKitSettings would be welcome
+T 1474382134 18<xjuan18>	yes I am looking into it
+T 1474382403 18<xjuan18>	btw is there any replacement in webkit2gtk for the old create-plugin-widget signal?
+T 1474382415 18<xjuan18>	other than creating an actual plugin I guess
+T 1474382491 18<mcatanzaro18>	I don't think so, you can't use real GtkWidgets anymore at least
+T 1474382646 18<xjuan18>	that explains why its not implemented in the new API :D
+T 1474382724 18<xjuan18>	ok good, so I guess a plugin is the only option to handle a custom object element
+T 1474383100 18<mcatanzaro18>	xjuan: One or two people have tried sending messages from the web process to the UI process and using that to draw widgets on top of the web view with GtkOverlay, so it's possible, but a bad idea as there's visible delays when scrolling
+T 1474383185 18<annulen18>	if npapi plugins work somehow, it should be possible to draw widgets in the same manner
+T 1474383217 18*	annulen haven't investigated how npapi works in wk2 yet
+T 1474383445 18<mcatanzaro18>	annulen: NPAPI is drawn in the web process, you've no access to GTK+ stuff there
+T 1474383474 18<mcatanzaro18>	Also FYI: NPAPI plugins can't draw anything in Wayland, only plugins with no UI work
+T 1474383555 18<xjuan18>	I see, what about the new plugin api, PPAPI?
+T 1474383566 18*	xjuan does not even know if that is supported in webkit2
+T 1474383591 18<mcatanzaro18>	That's Chrome-only
+T 1474383619 18<mcatanzaro18>	I doubt we'd ever support it, Apple would have to admit that Google did something well. And nobody wants to support plugins anymore.
+T 1474383670 18<annulen18>	mcatanzaro: there is https://github.com/i-rinat/freshplayerplugin
+T 1474383682 18<annulen18>	it's a translation layer between PPAPI and NPAPI
+T 1474383700 18<annulen18>	in theory we could integrate it deeper
+T 1474384041 18<mcatanzaro18>	I think we don't want to :P
+T 1474384073 18<xjuan18>	hehe right I do not want to be held accountable for bringing that up :P
+T 1474384112 18<xjuan18>	mcatanzaro, so are npapi plugin ever going to be supported in wayland?
+T 1474384212 18<mcatanzaro18>	xjuan: They are already supported if they don't draw anything. Plugins that draw stuff can never be supported because it depends on X11 :P
+T 1474384273 18<xjuan18>	well I knew some plugins used xembed, but npapi plugins works on windows so...
+T 1474384316 18<xjuan18>	I would not expect X11 plugins to work, but a wayland npapi plugin should
+T 1474384373 18<xjuan18>	but yeah, who is going to write wayland NPAPI pluggins
+T 1474384374 18<xjuan18>	:D
+T 1474385121 18<mcatanzaro18>	tpopela: I see you handled the Epiphany updates, thanks!
+T 1474385177 18<mcatanzaro18>	Your WebKit builds finished in koji so it should be possible to build the Epiphany updates now
+T 1474385223 18<blino18>	KaL_out: magomez: hi, that's weird, the gstreamer backend does not build anymore for me since the sharedDisplay changes
+T 1474385226 18<blino18>	../../Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp: In member function 'bool WebCore::MediaPlayerPrivateGStreamerBase::ensureGstGLContext()':
+T 1474385229 18<blino18>	../../Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp:264:63: error: passing 'const WebCore::PlatformDisplay' as 'this' argument discards qualifiers [-fpermissive]
+T 1474385233 18<blino18>	     GLContext* webkitContext = sharedDisplay.sharingGLContext();
+T 1474385251 18<blino18>	that's with gcc 5.4.0, not sure if it's related
+T 1474385270 18<magomez18>	blino yes, I have that in my todo
+T 1474385289 18<mcatanzaro18>	blino: Are you working on GStreamerGL?
+T 1474385304 18<blino18>	mcatanzaro: yes, with WebKitForWayland
+T 1474385319 18<blino18>	BTW, we did a YouTube 360 demo at IBC on our set-top boxes
+T 1474385339 18<blino18>	thanks all for providing solid pieces for this :)
+T 1474385351 18*	mcatanzaro wishes YouTube 360 worked in WebKitGTK+
+T 1474385361 18<blino18>	mcatanzaro: it does
+T 1474385371 18*	mcatanzaro wishes he could play >360p YouTube video in WebKitGTK+
+T 1474385375 18<magomez18>	blino, just remove the const in MediaPlayerGStreamerBase.cpp at line 238
+T 1474385384 18<blino18>	magomez: ok, thanks
+T 1474385384 18<mcatanzaro18>	blino: It definitely does not, at least not in the current stable release?
+T 1474385410 18<mcatanzaro18>	I had to switch to Firefox to get this year's snoop dawg april fools joke to work.
+T 1474385434 18<mcatanzaro18>	*snoop dogg
+T 1474385470 18<blino18>	mcatanzaro: with the GPU-GPU WebGL patch I have pending (working on a resubmit after magomez review), that should be better
+T 1474385502 18<mcatanzaro18>	blino: It depends on GStreamerGL? (When will we be able to enable that?)
+T 1474385862 18<blino18>	mcatanzaro: not sure if GST_MAP_GL would work otherwise, but it will perform better if video frames come as GL textures
+T 1474385936 18<magomez18>	mcatanzaro VideoSinkGStreamer doesn't use opengl rendering anymore
+T 1474385965 18<magomez18>	that's only done with GStreamerGL enabled
+T 1474386037 18<mcatanzaro18>	magomez: Do you have any plans to enable GStreamerGL in WebKitGTK+? You've been working on it?
+T 1474386100 18<magomez18>	mcatanzaro I did some work, but not sure when it's gonna be enabled by default
+T 1474386121 18<magomez18>	maybe KaL or philn know better
+T 1474386136 18<mcatanzaro18>	magomez: I doubt KaL knows much about it, we rely on you to tell us when it's stable
+T 1474386145 18<KaL18>	indeed!
+T 1474386147 18<mcatanzaro18>	(you and philn)
+T 1474386169 18<KaL18>	I'm fine to enable it whenever you consider it's stable enough
+T 1474386194 18<mcatanzaro18>	Now would be a good time actually, at the start of the development cycle, rather than the end
+T 1474386196 18<magomez18>	I'll discuss it with philn then and come back to you ;)
+T 1474386234 18<mcatanzaro18>	Thanks
+T 1474386267 18<mcatanzaro18>	You need to be the ones to decide because you'll be getting the bug reports if you choose wrongly :P
+T 1474386288 18<magomez18>	lol :P
+T 1474387904 18<blino18>	mcatanzaro: I am running SnoopaVision in 1080s
+T 1474387989 18<mcatanzaro18>	blino: It is the best possible conference demo, no?
+T 1474388079 18<blino18>	SnoopaVision ? not so sure :)
+T 1474388099 18<blino18>	there are racing videos like https://www.youtube.com/watch?v=FRTnWZxTeQs
+T 1474388115 18<blino18>	I think there is a Rihanna concert in 360 somewhere around on YouTube, can't find it right now
+T 1474388139 18<mcatanzaro18>	blino: In 2.12.5 it says "360° video playback is not supported on this browser."
+T 1474388177 18<mcatanzaro18>	And anything over 360p is unavailable, with a link to https://support.google.com/youtube/answer/6322658?visit_id=1-636099849476989668-1699397936&p=missing_quality&rd=1
+T 1474388212 18<blino18>	here is my run command: ./Tools/Scripts/run-minibrowser --gtk --enable-write-console-messages-to-stdout=true --enable-mediasource=true --enable-webgl=true --user-agent "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36" "https://www.youtube.com/watch?v=M3l6mM3qVzk&index=2&list=PLbpi6ZahtOH4TalzBzHHczrUgJL7vsDdG"
+T 1474388229 18<blino18>	build command is: ./Tools/Scripts/build-webkit --gtk --no-media-stream --cmakeargs="-DUSE_GSTREAMER_GL=ON"
+T 1474388279 18<blino18>	I am not sure why we need to force the user agent, from what I read in the (obfuscated) YouTube JS, it was supposed to already handle correctly the original agent
+T 1474388448 18<mcatanzaro18>	OK, so we need two build settings that are currently disabled, and a user agent hack, thanks
+T 1474388656 18<blino18>	mcatanzaro: aren't MSE and WebGL enabled in epiphany by default?
+T 1474388679 18<mcatanzaro18>	blino: WebGL is indeed, I misread it as GStreamerGL.
+T 1474388687 18<mcatanzaro18>	MSE is not, that's why we are stuck on 360p
+T 1474388711 18<mcatanzaro18>	You need an unsupported build flag to turn on MSE, -DENABLE_MEDIA_SOURCE=ON. philn taught me this yesterday :)
+T 1474388730 18<annulen18>	I think it's safe to enable it by default since it has runtime setting
+T 1474388735 18<blino18>	hmm, not, with build-webkit, maybe for the pure cmake build
+T 1474388747 18<annulen18>	--media-source
+T 1474388750 18<mcatanzaro18>	Yeah, build-webkit enables experimental features, you don't want to use that in production
+T 1474389694 18<blino18>	mcatanzaro: not sure how we can avoid the user agent hack, we could try to contact someone at YouTube to get more details
+T 1474389773 18<mcatanzaro18>	blino: It's probably hopeless, we'll just always send Chrome to youtube.com
+T 1474389785 18<mcatanzaro18>	I'm going to do this for all Google domains anyway
+T 1474389787 18<mcatanzaro18>	https://bugs.webkit.org/show_bug.cgi?id=142074
+T 1474389809 18<mcatanzaro18>	I'll try to deal with that next week-
+T 1474389974 18<annulen18>	oh, I wasn't aware that youtube requires ua hacks
+T 1474401233 18<rave_18>	If I load a blank error page or anything, just running the gtklauncher takes more than 100MB of RAM
+T 1474401243 18<rave_18>	does anybody know what could be the reason?
+T 1474404104 18<mcatanzaro18>	rave_: gtklauncher isn't supported anymore, time to move on to WebKit2....
+T 1474404554 18<zaitor18>	Hi upstream, I got no idea how to file this bug, so I'm just going to give you a screenshot
+T 1474404566 18<zaitor18>	https://usercontent.irccloud-cdn.com/file/Ed7A63EN/Skjermdump%20fra%202016-09-20%2022-47-56.png
+T 1474404594 18<zaitor18>	both evolution and epip does this when in wayland
+T 1474404650 18<rave_18>	mcatanzaro: oh ok but we are still using it... not sure if anybody knows the legacy system?
+T 1474404686 18<mcatanzaro18>	Hm zaitor, I just told DimStar in #gnome-hackers that it looked like a WebKit bug, but that doesn't look like a WebKit bug at all
+T 1474404693 18<mcatanzaro18>	(now that I see your screenshot)
+T 1474404741 18<mcatanzaro18>	Well maybe
+T 1474404792 18<rave_18>	mcatanzaro: it is not related to gtklauncher, even if I use bare minimum API the lib takes too much of RAM
+T 1474404801 18<zaitor18>	All I can say is that it's just evo and epip showing the behavior yet - granted they may only be the "messengers"
+T 1474404819 18<rave_18>	even with cache model set to DOCUMENT_VIEWER
+T 1474404821 18<mcatanzaro18>	Not other WK2 apps? Not yelp?
+T 1474404827 18<zaitor18>	let me try
+T 1474404830 18<rave_18>	even with no page loaded
+T 1474404842 18<DimStar18>	yelp does it too
+T 1474404845 18<zaitor18>	yelp does the same indeed
+T 1474404852 18<zaitor18>	and DimStar beat me to it
+T 1474404882 18<DimStar18>	zaitor: :) sorry - I did not find the channel (I missed the '+' in the name at first)
+T 1474404889 18<mcatanzaro18>	rave_: See https://blogs.gnome.org/mcatanzaro/2016/02/01/on-webkit-security-updates/ for why it's a bad idea to be using WebKit1 almost three years after it was discontinued
+T 1474404928 18<mcatanzaro18>	DimStar, zaitor: It's either mutter or WebKit, I dunno which. Do you know if WebKitGTK+ 2.13.92 or 2.13.91 worked properly?
+T 1474404931 18<DimStar18>	note: there are also messages on CLI: Error sending IPC message: Broken pipe
+T 1474404938 18<zaitor18>	check out the "cool" area on overview - maybe that is a hint https://usercontent.irccloud-cdn.com/file/OCacWaGm/Skjermdump%20fra%202016-09-20%2022-54-34.png
+T 1474404980 18<zaitor18>	also note how epip and evo is overlapping
+T 1474404986 18<DimStar18>	mcatanzaro: I'm pretty sure I did not see this with 2.13.92 (I was just going to rebuild .92 and retest.. just building webkit is not 'just' done)
+T 1474405021 18<mcatanzaro18>	zaitor: Good find. Let's start with mutter, it shouldn't be doing that even if WebKit is broken somehow. And DimStar thinks WebKit 2.13.92 was OK, and not much happened in WebKit since then.
+T 1474405037 18<mcatanzaro18>	CC me and cgarcia please
+T 1474405088 18<DimStar18>	mcatanzaro: at least webkit's NEWS has some interesting changes regarding wayland, like: Use gdk_cairo_draw_from_gl() when possible in Wayland to render
+T 1474405102 18<zaitor18>	ah yes, this is wayland only btw
+T 1474405108 18<zaitor18>	x11 is fine for the same
+T 1474405133 18<mcatanzaro18>	Changes in WebKit are here: http://trac.webkit.org/log/releases/WebKitGTK/webkit-2.14
+T 1474405171 18*	zaitor looks at mcatanzaro: Not much happend...
+T 1474405194 18<zaitor18>	:-)
+T 1474405210 18<mcatanzaro18>	Well maybe r206045 or r206080 :)
+T 1474405231 18<mcatanzaro18>	That really is not much for a WebKit release :P
+T 1474405249 18<zaitor18>	hehe :-) active bunch you are /yoda mode off
+T 1474405346 18<mcatanzaro18>	Just make sure you have a bug on one Bugzilla or the other, cgarcia on CC, screenshots attached; someone smarter than me will need to sort it out!
+T 1474405395 18<DimStar18>	zaitor: can you file the bug? I'm just trying to rebuild .92; then we can at least conclusively say that this alone would or would not be the cause
+T 1474405703 18<DimStar18>	I still had some 2.13.91 binaries of webkitgtk around: with those, yelp and evo behave as expected
+T 1474406080 18<mcatanzaro18>	http://trac.webkit.org/changeset/206045 had to do with scaling factor
+T 1474406204 18<DimStar18>	https://bugs.webkit.org/show_bug.cgi?id=162317 - we have a basic bug where we can start adding details as we find them
+T 1474467685 19*	Now talking on 22#webkitgtk+
+T 1474467685 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474467685 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474470978 20*	Disconnected (20Connection timed out)
+T 1474471000 19*	Now talking on 22#webkitgtk+
+T 1474471000 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474471000 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474475047 20*	Disconnected (20Connection timed out)
+T 1474475074 19*	Now talking on 22#webkitgtk+
+T 1474475074 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474475074 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474551507 19*	Now talking on 22#webkitgtk+
+T 1474551507 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474551507 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:36 2016)
+T 1474551527 18<annulen18>	blino: I haven't investigated GstGL in Qt port yet, on my devices there's no use for it as STBs have hardware blending for video & UI layers, and on desktop it has okayish performance already
+T 1474551588 18<blino18>	ok
+T 1474551891 18<blino18>	KaL: for WebKitForWayland, I still think it would be useful to have both gst-gl path and HOLE_PUNCH_GSTREAMER path at the same time, but maybe it's specific to WPE
+T 1474551953 18<KaL18>	yes, as long as we don't have punch hole upstream it's specific to wpe
+T 1474552126 18*	annulen wonders about https://bugs.webkit.org/show_bug.cgi?id=157314 progress
+T 1474552593 18<blino18>	annulen: it is being done in WebKitForWayland
+T 1474552671 18<annulen18>	I'd preffered to get such things from trunk, but I'll check there, thanks
+T 1474552760 18<philn18>	annulen: it will land in trunk "soon"
+T 1474552767 18<blino18>	:)
+T 1474552812 18<blino18>	what is the most advanced branch now regarding MSE? wpe-media in WebKitForWayland repo or wpe-staging in the Metrological one? or are they similar now wrt MSE?
+T 1474552821 18<annulen18>	well, eocanha told me that it was already working in May :)
+T 1474552847 18<philn18>	blino: i'm lost in the branches, zdobersek should know
+T 1474552953 18<zdobersek18>	they should be identical in terms of behavior
+T 1474553000 18*	blino is waiting for the next big bang in Metrological repo, when you will update to a newer WebKit snapshot
+T 1474553012 18<zdobersek18>	https://github.com/eocanha/webkit/tree/mse-backport-rebased-20160916 is going upstream
+T 1474553032 18<blino18>	I think there will be no hope anymore for the C++14 revert hacks at next WebKit rebase
+T 1474553090 18<mcatanzaro18>	Yeah good luck with that, you guys haven't upgraded to GCC 4.9 yet? I'm intent on continuing to support 4.9 but the 4.8 ship sailed long ago
+T 1474553172 18<philn18>	mcatanzaro: some antique MIPS-based hardware product still uses it
+T 1474553204 18<annulen18>	AFAIK broadcom provides only 4.8
+T 1474553209 18<blino18>	yep
+T 1474553210 18<annulen18>	need to build my own toolchain
+T 1474553228 18<blino18>	we are actually waiting for the chipset vendor to provide an "official toolchain" updated to >= 4.8, to get "official support"
+T 1474553245 18<blino18>	philn: ARM-based as well
+T 1474553257 18<annulen18>	same here but probably hopeless
+T 1474553264 18<blino18>	it's roughly the same BSP for MIPS and ARM at Broadcom
+T 1474553287 18<annulen18>	and codesourcery toolchain requires mips32r2 minimum
+T 1474553296 18<blino18>	annulen: I did a try with crosstool-NG, maybe it's what we'll use in the end for ARM
+T 1474553310 18<blino18>	with gcc >= 5.0
+T 1474553325 18<blino18>	a crosstool-NG with clang would be good as well, not sure if it is being worked on
+T 1474553356 18<annulen18>	I'm afraid it will miscompile kernel or broadcom's code
+T 1474553368 18<blino18>	I think we would use that only for WebKit
+T 1474553394 18<annulen18>	I also doubt it will optimize better
+T 1474553582 18<annulen18>	using clang with libstdc++ 4.8 won't work as it lacks needed c++14 library features
+T 1474553911 18<blino18>	yep, it would require libc++
+T 1474559265 18<blino18>	danw: hi, any hope to get the tls split branch merged in libsoup? it would be great to have the grounds for an openssl backend
+T 1474559317 18<danw18>	you mean glib-networking, not libsoup... um, yeah, i need to deal with that
+T 1474559453 18<mcatanzaro18>	danw: hi, any hope you'll find time to review kekun's HSTS patch? (I'll probably wind up trying to update and land it sooner or later.)
+T 1474559467 18<mcatanzaro18>	That's actually libsoup!
+T 1474559518 18<danw18>	mcatanzaro: my primary goal for libsoup and glib-networking for the next release cycle is to find new maintainers for them
+T 1474559549 18<danw18>	(this was also my primary goal for the *last* release cycle, i was just really lame about it...)
+T 1474559558 18<mcatanzaro18>	OK
+T 1474560662 18<blino18>	danw: yes, sorry, I meant glib-networking
+T 1474560721 18<blino18>	danw: my final goal is to be able to use hardware-specific openssl engines in WebKitForWayland
+T 1474562388 18<blino18>	KaL: I think I'll have a follow-up patch to handle the flipY case in copyVideoTextureToPlatformTexture()
+T 1474637765 18<blino18>	zdobersek: it seems that when we stop WPE with C-c (SIGINT) from a terminal, SIGINT is received by all the process group (UIProcess, WebProcess, NetworkProcess), and that there is no proper termination handling in WebProcess, thus our MediaPlayerPrivate and our gstreamer elements are not cleaned up properly, which exposes driver issues
+T 1474637776 18<blino18>	is this supposed to be terminated properly with SIGINT?
+T 1474638422 18<zdobersek18>	blino: SIGINT propagates to children, and that's probably fine
+T 1474638449 18<zdobersek18>	blino: the proper approach would be to handle SIGINT in the UIProcess and terminate that process cleanly
+T 1474638628 18<blino18>	but SIGINT will still propagate to children first, no?
+T 1474639151 18<zdobersek18>	yeah, that's the case
+T 1474639249 18<blino18>	so even if we handle SIGINT properly in the UIProcess to terminate children cleanly, they will likely be already gone because of SIGINT
+T 1474639286 18<annulen18>	handle SIGINT in WebProcess
+T 1474639433 18<blino18>	yes, we can do that
+T 1474639880 18<zdobersek18>	yeah, that seems most appropriate
+T 1474639898 18<zdobersek18>	in WebProcessMain::platformInitialize(), before anything starts
+T 1474640008 18<blino18>	using g_unix_signal_source_new() ?
+T 1474640087 18<zdobersek18>	that may be an overkill
+T 1474640110 18<zdobersek18>	it should be fine to just define the handler via g_unix_signal_add()
+T 1474640132 18<zdobersek18>	as long as the intent is to just suppress the signal
+T 1474640184 18<zdobersek18>	and it should be fine not to manage the lifetime of the source since it's a single source that's meant for the lifetime of the process
+T 1474646698 18<blino18>	KaL: I've added support for flipY (used by THREE.js) in https://bugs.webkit.org/show_bug.cgi?id=162491
+T 1474659858 18<rave18>	does anybody knows if webkitgtk suports vsync ?
+T 1474659863 18<rave18>	for Webgl Animations
+T 1474661668 18<rave18>	anybody >?
+T 1474684556 19*	Now talking on 22#webkitgtk+
+T 1474684556 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474684556 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474688274 20*	Disconnected (20Remote host closed socket)
+T 1474688300 19*	Now talking on 22#webkitgtk+
+T 1474688300 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474688300 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474690816 20*	Disconnected (20Remote host closed socket)
+T 1474690842 19*	Now talking on 22#webkitgtk+
+T 1474690842 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474690842 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474694329 20*	Disconnected (20Connection timed out)
+T 1474694532 19*	Now talking on 22#webkitgtk+
+T 1474694532 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474694532 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:36 2016)
+T 1474736516 19*	Now talking on 22#webkitgtk+
+T 1474736516 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474736516 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474742885 20*	Disconnected (20Invalid argument)
+T 1474750094 19*	Now talking on 22#webkitgtk+
+T 1474750094 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474750094 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474843641 19*	Now talking on 22#webkitgtk+
+T 1474843641 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474843641 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474898920 19*	Now talking on 22#webkitgtk+
+T 1474898920 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474898920 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474911391 19*	Now talking on 22#webkitgtk+
+T 1474911391 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474911391 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474919126 19*	Now talking on 22#webkitgtk+
+T 1474919126 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474919126 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474924958 20*	Disconnected (20Connection timed out)
+T 1474924982 19*	Now talking on 22#webkitgtk+
+T 1474924982 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474924982 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474932699 19*	Now talking on 22#webkitgtk+
+T 1474932699 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474932699 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474940310 19*	Now talking on 22#webkitgtk+
+T 1474940310 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474940310 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474977238 19*	Now talking on 22#webkitgtk+
+T 1474977238 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474977238 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1474982750 18<rishi18>	mcatanzaro: tpopela: KaL: kov: annulen: Sorry for disappearing yesterday! It kept freezing my system with very high I/O, and it was already quite late so I gave up and went away.
+T 1474982753 18<rishi18>	Let me try now.
+T 1474982807 18<tpopela18>	rishi, we think that we have now fixes for all issues..
+T 1474983845 18<rishi18>	tpopela: kov: It works fine with WEBKIT_DISABLE_COMPOSITING_MODE=1.
+T 1474983861 18<rishi18>	Ok. Let me know if you want me to test anything.
+T 1474984092 18<kov18>	rishi, can you test with a previous version of webkitgtk4 maybe?
+T 1474984175 18<rishi18>	kov: I was using webkitgtk4-2.12.5 on this F23 machine without any problems before.
+T 1474984354 18<mcatanzaro18>	Ideally we would have a test package with carlos's recent xsync fix
+T 1474984443 18<kov18>	mcatanzaro, which one is that?
+T 1474985096 18<mcatanzaro18>	kov: http://trac.webkit.org/changeset/206305
+T 1474985128 18<mcatanzaro18>	You suggested that might be to blame for rishi's issue, right? I am not sure why....
+T 1474985153 18<kov18>	I didn't, I didn't know about that issue, probably someone else
+T 1474985174 18<kov18>	mcatanzaro, so rishi is on X, right?
+T 1474985183 18<mcatanzaro18>	Um I dunno, rishi?
+T 1474985188 18<mcatanzaro18>	I guess so, it's F23
+T 1474985190 18<rishi18>	Yes, X.
+T 1474985208 18<rishi18>	mcatanzaro: tpopela suggested it.
+T 1474985209 18<kov18>	that fix is for X, anyway =)
+T 1474985211 18<rishi18>	<tpopela> rishi, mcatanzaro that X error should be the one fixed by KaL
+T 1474985309 18<kov18>	\o/ let's see if it works
+T 1474995962 19*	Now talking on 22#webkitgtk+
+T 1474995962 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1474995962 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475004279 19*	Now talking on 22#webkitgtk+
+T 1475004279 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475004279 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475006625 19*	Now talking on 22#webkitgtk+
+T 1475006625 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475006625 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475007817 20*	Disconnected (20Connection reset by peer)
+T 1475073133 19*	Now talking on 22#webkitgtk+
+T 1475073133 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475073133 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475075849 20*	Disconnected (20Connection timed out)
+T 1475075877 19*	Now talking on 22#webkitgtk+
+T 1475075877 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475075877 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475076178 18<danw18>	KaL: (sorry, didn't notice your response earlier). i was being unclear. I meant, I think that if you don't skip to the end of the input stream before closing it, then libsoup won't read in the response body, and so as a result, it will have to close the HTTP connection rather than being able to reuse it
+T 1475076257 18<KaL18>	danw: np, ah, I see
+T 1475076316 18<KaL18>	danw: I wonder if we can skip synchronously now in the network process
+T 1475076363 18<danw18>	in any sane case you'd be able to, but it's theoretically possible for the response to have a very large body
+T 1475082481 20*	Disconnected (20Connection timed out)
+T 1475082505 19*	Now talking on 22#webkitgtk+
+T 1475082505 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475082505 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
+T 1475091096 18<L1pe18>	hi guys
+T 1475091115 18<L1pe18>	I have a question about touch events for webkit 2 > 2.10
+T 1475091148 18<L1pe18>	How can I disable the "scroll behavior" when dragging on a touchscreen?
+T 1475094325 18<L1pe18>	I never get the touchend event :(
+T 1475144027 18<mcatanzaro18>	KaL, zdobersek: A couple more patches left in https://bugs.webkit.org/show_bug.cgi?id=142074
+T 1475145315 18<annulen18>	mcatanzaro: what do you think about port-independent collection of UA hooks? at least as a kind of "hall of shame" for website makers
+T 1475145338 18<annulen18>	not necessary as a code, maybe just wiki page
+T 1475145347 18<mcatanzaro18>	annulen: Actually somebody else asked me to make UserAgentGtk port-independent yesterday
+T 1475145369 18<mcatanzaro18>	The plan is to rename it to UserAgent.cpp since there's not actually anything GTK-specific in there
+T 1475145385 18<mcatanzaro18>	But I have three remaining patches that KaL or zdobersek need to r+ before I will move the file ;)
+T 1475145390 18<annulen18>	cool
+T 1475145396 18<mcatanzaro18>	Then different ports can use it or not as they please
+T 1475155533 18<tpopela18>	mcatanzaro, Hi Michael.. So the build is caused because I accidentally removed that define that in mentioned on the end of https://bugs.webkit.org/show_bug.cgi?id=72099#c26 .. But the thing is that like KaL I'm not sure why it is there at all.. Isn't that sendContextMenuEventForKey() is missing WEBKIT_EXPORT? So the linker can't find it? But it is probably missing it on purpose as they don't want to expose it, thus there's need to be a
+T 1475155533 18<tpopela18>	COCOA guard..
+T 1475155570 18<mcatanzaro18>	tpopela: If you need it in WebKit2 then you can add WEBCORE_EXPORT
+T 1475155683 18<tpopela18>	mcatanzaro, but the reason is whether we want to..
+T 1475155710 18<tpopela18>	mcatanzaro, are they applying some filters later as what to expose outside the shared library?
+T 1475155751 18<mcatanzaro18>	tpopela: I presume so. You can definitely use whatever WebCore symbols you need.
+T 1475155782 18<tpopela18>	ok I will export it..
+T 1475156478 18<tpopela18>	mcatanzaro, btw you didn't have any objections about centering the context menu yesterday ;)
+T 1475156584 18<tpopela18>	mcatanzaro, btw do you know what's this? https://git.gnome.org/browse/webkitgtk-tarball-releases/
+T 1475161881 18<mcatanzaro18>	tpopela: I did, but you were very focused on KaL's monitor :P
+T 1475161905 18<mcatanzaro18>	I don't know what that is, certainly it's obsolete.
+T 1475162023 18<annulen18>	I guess it's lightweight repo for those who don't want to clone whole webkit, I maintain similar for qtwebkit (though it has more snapshots than just releases)
+T 1475249043 18<msanchez18>	kov, philn: around?
+T 1475249201 18<msanchez18>	or yoon, whoever understands how the GStreamerGL stuff works, really :)
+T 1475249222 18<msanchez18>	My question is how this is supposed to work:  m_glDisplay = GST_GL_DISPLAY(gst_gl_display_egl_new_with_egl_display(downcast<PlatformDisplayWayland>(sharedDisplay).native())); (in https://github.com/WebKit/webkit/blob/master/Source/WebCore/platform/graphics/gstreamer/MediaPlayerPrivateGStreamerBase.cpp#L271)
+T 1475249231 18<msanchez18>	 
+T 1475249279 18<msanchez18>	gst_gl_display_egl_new_with_egl_display() expects an EGLDisplay (yes, even if the doc says something about an X11 display), but that .native() call returns an wl_display*. Am I missing something?
+T 1475249309 18<msanchez18>	Turns out that I make a similar mistake for the X11 path the other day (reason for bug 162669), that's why I noticed
+T 1475249311 18<msanchez18>	any idea?
+T 1475254943 18<msanchez18>	In case anyone is interested, I published some comments on cross-building for ARM, based on what I did during the web engines hackfest:
+T 1475254944 18<msanchez18>	https://trac.webkit.org/wiki/BuildingGtk#CrossCompilingforARMdevices
+T 1475255069 18<annulen18>	msanchez: CMAKE_VERBOSE_MAKEFILE=ON is excessive as anyone can use make VERBOSE=1
+T 1475255075 18<annulen18>	when needed
+T 1475255124 18<msanchez18>	Probably, this is what I used for myself, but it's probably too much. I'll remove it
+T 1475255153 18<msanchez18>	ha, turns out I remove it from the README.md in the repo already
+T 1475255681 18<annulen18>	msanchez: -O0 for development, srsly? you must have fast hardware
+T 1475255707 18<annulen18>	I prefer O2 for debug instead
+T 1475255847 18<msanchez18>	annulen: yes, it's fast hardware, and when I build for ARM I normally want to be able to debug later, that's why I put that
+T 1475255879 18<msanchez18>	granted, this is just a recipe coming out of my particular personal use, but as I haven't found anything like this I thought I'd better share what I have. People can adapt
+T 1475255910 18<msanchez18>	I'm happy to put -O2 or even -O3 for the release flags though, for the more general case
+T 1475256143 18<msanchez18>	annulen: fixed, thanks
+T 1475256170 18<msanchez18>	you can pass CMAKE_BUILD_TYPE=DEBUG anyway
+T 1475256271 18<msanchez18>	if you try it, please let me know. It definitely worked and saved me a ton of time but I'm sure it's not perfect :)
+T 1475258233 18<msanchez18>	off for the weekend, cheers
+T 1475500513 19*	Now talking on 22#webkitgtk+
+T 1475500513 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.14.0, unstable: 2.13.92 | Homepage: http://webkitgtk.org/ | http://ews-watcher.kov.eti.br/ |  http://trac.webkit.org/wiki/WebKitGTK/2.12.x | http://trac.webkit.org/wiki/WebKitGTK/2.14.x | "HTML is useful for a web content rendering engine.
+T 1475500513 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@25.red-79-146-240.dynamicip.rima-tde.net (24Tue Sep 20 03:47:35 2016)
