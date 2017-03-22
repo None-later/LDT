@@ -1,0 +1,43 @@
+T 1481296877 18<scela>	hi
+T 1481296884 20<lufimtse>30	hullo
+T 1481296899 18<scela>	https://git.eclipse.org/r/#/c/86259/
+T 1481296914 20<lufimtse>30	yea
+T 1481296917 20<lufimtse>30	thoughts?
+T 1481296941 18<scela>	so this methods you're adding are only supposed to be used 'internally' and externals should use the color registry?
+T 1481296962 20<lufimtse>30	welll
+T 1481296969 20<lufimtse>30	I'd like it to be used in many places
+T 1481296978 20<lufimtse>30	but Sergey suggests to keep it internal
+T 1481296980 20<lufimtse>30	so there is that.
+T 1481297003 20<lufimtse>30	I have to update the comment, the ID of the property will change in future.
+T 1481297008 20<lufimtse>30	Thoughts?
+T 1481297018 20<lufimtse>30	that color is very useful, works on light and dark theme
+T 1481297027 20<lufimtse>30	can be used to fix lots of color issues.
+T 1481297032 20<lufimtse>30	And not everything has to be stylable. 
+T 1481297176 20<lufimtse>30	Maybe I should make a pitch suggesting it to be public rather than internal
+T 1481297239 18<scela>	it's not ideal to have operating system conditionals in jface level
+T 1481297265 20<lufimtse>30	Well, my initial submission was for SWT: https://git.eclipse.org/r/#/c/86106/
+T 1481297273 20<lufimtse>30	And people declined it.
+T 1481297284 20<lufimtse>30	I'd like to have it in SWT also.
+T 1481297332 20<lufimtse>30	But at present, the argument is that SWT doesn't define Hovers, thus color logic for hovers should not be in SWT.
+T 1481297333 20<lufimtse>30	meh
+T 1481297459 20<lufimtse>30	Thoughts?
+T 1481297642 18<scela>	what is the root problem you're trying to solve here?
+T 1481298035 18<scela>	org.eclipse.ui.workbench.HOVER_(FOREGROUND|BACKGROUND) is themeable and defined on p.ui level
+T 1481298045 18<scela>	the COLOR_* stuff in SWT level and unthemeable
+T 1481298126 18<scela>	now why would people on p.ui level and above ever need to use the COLOR_* (or your corresponding methods)
+T 1481298134 18<scela>	i'm aware that this already happens in p.ui
+T 1481298192 18<scela>	but i suppose the solution here would be to gradually convert this misuse of SWT api and go through the p.ui-defined properties
+T 1481298718 20<lufimtse>30	Hover has complexities. Like you need to implement change listeners. And not everything needs to be stylable.
+T 1481298728 20<lufimtse>30	ex heap status or things trivial things like that.
+T 1481298768 20<lufimtse>30	Also, COLOR_LIST works well with themes, ex on white theme it's white, on Gtk3 dark theme it's dark.
+T 1481298795 20<lufimtse>30	It's something that works well and it makes color issues much easier to fix.
+T 1481298833 20<lufimtse>30	in general, people shouldn't be using SWT.TOOL_TIP
+T 1481298844 20<lufimtse>30	this is a better replacement for it.
+T 1481298858 20<lufimtse>30	And then if people want things stylable, they can use HOVER
+T 1481298952 20<lufimtse>30	Also note, that api does not conflict with HOVER, you can have the new API as default color, but still style it with HOVER in the higher level components.
+T 1481298987 20<lufimtse>30	An example of that: https://bugs.eclipse.org/bugs/show_bug.cgi?id=508776#c11
+T 1481299239 18<scela>	it looks like you're having your share of fun with markus :)
+T 1481299684 18<scela>	why not add these colors to the color registry
+T 1481299694 18<scela>	and have a key in JFacePrefernces to pick them up
+T 1481299720 18<scela>	and then control how these colors are put in the registry somewhere else
+T 1481299850 20<lufimtse>30	Can you email me more about this? gotta run.

@@ -1,0 +1,73 @@
+Function properties:
+- Index : 1,2,3...
+- Token : random unique string.
+- Arg array.
+
+Notes:
+ - JS func: 'HandleWebKitEvent' special, used for Webkit1 evaluation.
+ - Webkit1 callJava:
+   - "extern" is registered as a class
+   - "extern.callJava" is a property. Initialized in JSObjectGetPropertyProc callback.
+   - JSObjectGetPropertyProc is linked to extern.getProperty() in create()
+   - JSObjectGetPropertyProc is only called once, first time a property is accessed.(probably)
+
+Tasks:
+
+
+WebBrowser:createFunction()
+if (!window.callJava) {
+    window.callJava = function callJava(index, token, args) {
+        return external.callJava(index, token, args);
+    }
+};
+HandleWebKitEvent = function HandleWebKitEvent() {
+    var result = callJava(1, 'f3861ae7f8a2bfe4ab6b9bd3753029', Array.prototype.slice.call(arguments));
+    if (typeof result == 'string' && result.indexOf('org.eclipse.swt.browser.error') == 0) {
+        var error = new Error(result.substring(29));
+        throw error;
+    }
+    return result;
+};
+var frameIds = null;
+for (var i = 0; i < frames.length; i++) {
+    try {
+        if (!frameIds || (frames[i].name && frameIds[frames[i].name])) {
+            if (!frames[i].callJava) {
+                frames[i].callJava = window.callJava;
+            }
+            frames[i].HandleWebKitEvent = function HandleWebKitEvent() {
+                var result = callJava(1, 'f3861ae7f8a2bfe4ab6b9bd3753029', Array.prototype.slice.call(arguments));
+                if (typeof result == 'string' && result.indexOf('org.eclipse.swt.browser.error') == 0) {
+                    var error = new Error(result.substring(29));
+                    throw error;
+                }
+                return result;
+            };
+        }
+    } catch (e) {}
+};
+
+
+
+BrowserFunction function = functions.get (key);
+                            ^- instance variable.
+
+
+
+
+
+function SWTExecuteTemporaryFunctionCLOSE(win) {
+var fn = win.onbeforeunload;
+if (fn != null) {
+    try {
+        var str = fn();
+    } catch (e) {}
+}
+try {
+    for (var i = 0; i < win.frames.length; i++) {
+        var result = SWTExecuteTemporaryFunctionCLOSE(win.frames[i]);
+        if (!result) return false;
+    }
+} catch (e) {}
+return true;
+};

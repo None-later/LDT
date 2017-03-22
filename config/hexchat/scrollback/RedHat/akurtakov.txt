@@ -1,32 +1,3 @@
-T 1469650032 18<akurtakov>	would you please point me to it?
-T 1469650048 20<lufimtse>30	Sec
-T 1469650069 20<lufimtse>30	So:...
-T 1469650082 20<lufimtse>30	https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/browser/WebKit.java
-T 1469650096 20<lufimtse>30	private static HashMap<Integer, Long> jsResults = new HashMap<Integer, Long>();
-T 1469650096 20<lufimtse>30	private static int jsCounter = 0;
-T 1469650106 20<lufimtse>30		private static Callback executeJavaScriptFinishedCallback;
-T 1469650111 20<lufimtse>30		executeJavaScriptFinishedCallback = new Callback(WebKit.class, "executeJavaScriptFinishedCallback", 3);
-T 1469650115 20<lufimtse>30	The the actual callback:
-T 1469650120 20<lufimtse>30	@SuppressWarnings("unused")
-T 1469650120 20<lufimtse>30	private static long /*int*/ executeJavaScriptFinishedCallback (long /*int*/ source_object, long /*int*/ res, long /*int*/ user_data){
-T 1469650120 20<lufimtse>30		long /*int*/[] error = new long /*int*/[1];
-T 1469650120 20<lufimtse>30		long /*int*/ result = OS.g_dbus_proxy_call_finish (dbus_proxy, res, error); // << I may have to hack this to be more like native result getter.
-T 1469650120 20<lufimtse>30		int counter = (int) user_data;
-T 1469650120 20<lufimtse>30		if (error[0] != 0){
-T 1469650120 20<lufimtse>30			SWT.error(SWT.ERROR_IO, new Throwable(Converter.getString(OS.g_error_get_message(error[0]))));
-T 1469650120 20<lufimtse>30			result = 0;
-T 1469650120 20<lufimtse>30		}
-T 1469650120 20<lufimtse>30		jsResults.put(counter, (long)result);  // Stuff is inserted into a counter, there is probably a spin-lock checking this counter's result somewhere...
-T 1469650120 20<lufimtse>30		return 0;
-T 1469650120 20<lufimtse>30	}
-T 1469650135 20<lufimtse>30	Then 
-T 1469650142 20<lufimtse>30	For the JS, he loops
-T 1469650148 20<lufimtse>30	till callback puts something back into hashtable
-T 1469650149 20<lufimtse>30	:
-T 1469650149 20<lufimtse>30	private boolean webkit_extension_execute_script (long pageId, String script, String url){
-T 1469650149 20<lufimtse>30		long /*int*/ args[] = { OS.g_variant_new_uint64(pageId),
-T 1469650149 20<lufimtse>30				OS.g_variant_new_string (Converter.wcsToMbcs(null, script, true)),
-T 1469650149 20<lufimtse>30				OS.g_variant_new_string (Converter.wcsToMbcs(null, url, true))};
 T 1469650149 20<lufimtse>30		final long /*int*/ argsTuple = OS.g_variant_new_tuple(args, args.length);
 T 1469650149 20<lufimtse>30		int currentCounter = jsCounter++;
 T 1469650149 20<lufimtse>30		OS.g_dbus_proxy_call (dbus_proxy,
@@ -505,3 +476,27 @@ T 1474382266 18<akurtakov>	feel free to provide the patch
 T 1474382277 18<akurtakov>	and let's hope that Lars will review it
 T 1474382287 20<lufimtse>30	Ah yea, kinda forgot that I don't have committer rights.
 T 1474382295 20<lufimtse>30	Ok, I'll submit patch.
+T 1475670413 18<akurtakov>	hey Leo
+T 1475670419 18<akurtakov>	how is webkit stuff going
+T 1475674255 20<lufimtse>30	morning
+T 1475674263 20<lufimtse>30	worked on it yesterday
+T 1475674267 20<lufimtse>30	working my way through the test cases
+T 1475674279 20<lufimtse>30	some of them show that they work on webkit2, but they don't actually
+T 1475674283 20<lufimtse>30	like browser9
+T 1475674311 20<lufimtse>30	I merged some patches where I refactored some of the test cases
+T 1475674315 20<lufimtse>30	and made them a bit faster
+T 1475674353 20<lufimtse>30	Was gonna check if they build well, but yesterday's build failed
+T 1475674354 20<lufimtse>30	hmm
+T 1475675029 18<akurtakov>	heh
+T 1475675046 18<akurtakov>	you tested on your "test farm" right?
+T 1475675073 20<lufimtse>30	Well, I don't have a farm :-), but on my computer
+T 1475675109 20<lufimtse>30	I upgraded to F25 on monday
+T 1475675116 20<lufimtse>30	now some test cases hang with webkit2
+T 1475675116 20<lufimtse>30	meh
+T 1475675119 18<akurtakov>	:)
+T 1475675145 18<akurtakov>	you would better finish it before gtk4 is out :)
+T 1475675158 20<lufimtse>30	X-D
+T 1475680664 20*	Disconnected (20Connection timed out)
+T 1475851177 20<lufimtse>30	testing irc
+T 1475851187 20<lufimtse>30	seems to be down for some people here.
+T 1475852292 18<akurtakov>	up here :)

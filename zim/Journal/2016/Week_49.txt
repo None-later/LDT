@@ -1,0 +1,154 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-12-06T13:51:07-05:00
+
+====== Week 49 2016 ======
+04 December to 10 December
+
+===== Day log =====
+
+=== Sunday 04 December ===
+
+=== Monday 05 December ===
+- Migrated to Wayland. (After installing stability patch)
+- Lots of testing of: Bug 508692 – [Wayland] Shells has wrong size under wayland
+
+- learned bash keymaps.
+Bug 508768 - Remove pocketPC snippets 
+ - Learned to clone from gerrit directly, for easier setup.. 
+
+=== Tuesday 06 December ===
+
+=== Wednesday 07 December ===
+
+=== Thursday 08 December ===
+Plan:
+- Javadoc 
+- Heapstatus
+- Browser function
+
+Actual:
+- Heapstatus fixed.
+- Javadoc fixed.
+- Browser function didn't happen.
+
+=== Friday 09 December ===
+Plan:
+- Organise 1 pomodoro max.
+- Browser function
+	- Try to implement calling of java from exec function, to re-use existing code.
+
+
+=== Saturday 10 December ===
+
+===== Weekly report: =====
+Weekly report:
+
+Highlights:
+###########
+- No major commits. Mostly small bits and work-in-progress on Wayland.
+
+Last Week:
+##########
+
+Webkit2 port:
+- (IN PROGRESS) Browser.evaluate()
+   Got preliminary array support working, (patch in progress)
+   This includes nested arrays inside arrays.
+   Needs further testing and I need to write/submit jUnit tests.
+   Eta: This week.
+- (IN PROGRESS) Browser.function:
+   In a native C snippet, got Javascript to callback C.
+   Investigated how to port functionality into SWT.
+   I see no road blocks at the moment. I just need to spend time on it.
+   Eta: 1-(3?) Weeks
+
+
+Color fixes:
+- Bug 507298 – Heap Status progress had inverted colors
+  - Fixed incorrect usage of TOOL_TIP (MERGED)
+  - Fixed setBackground bug and added theaming for dark theme. (IN REVIEW)
+
+- Bug 508498 – Add api to replace COLOR_INFO_* with a 'getInformationColor*()
+   method that will provide COLOR_LIST_ on Linux, COLOR_INFO_ on Win32/Cocoa.
+   This is to be used to replace 'COLOR_INFO_' default references in JFace.
+   Note:
+	- Higher level theamable widgets (e.g javadoc/etc...) can override with their
+	  own colors.
+	- COLOR_LIST_* works well on Gtk3 system themes. COLOR_LIST is dark on dark
+	  theme, and bright on bright theme.
+
+- Bug 507073 - Use fitting colors for Content assist's additional info pane
+   - Investigated inverted color issue in some dialogues in content assist.
+	 ex: https://bugs.eclipse.org/bugs/attachment.cgi?id=265206
+	 Fix depends on merge of #508498 (info color api)
+
+- Bug 508776 - Javadoc hover shows mix of Info and Javadoc colors
+  - Strip at the bottom of a Javadoc received colors from HOVER/INFO colors,
+	this could lead to inconsistent looks if user specified
+	different JAVADOC and INFO colors.
+	Ex: https://bugs.eclipse.org/bugs/attachment.cgi?id=265756
+	Submitted a set of preliminary fixes in JFace and JavaDocHover to address
+	the issue. (In Review)
+
+
+Other:
+- Bug 508768: Removed deprecated pocketPC snippets/HTML links
+- Testing: Alex's shell size path for Wayland. #508692. Patch is good!
+- Triage:  Bug 508916 – content-assist window causes freeze
+
+- Wrote python script to followup on Bugzilla snippets on/after a particular day.
+  * Eg: If I write "followup:2016-12-13" into bugzilla's "Whiteboard" field,
+	then later with my script I can list out bugs that need followup from
+	the command line, or open them in tabs in Firefox.
+  * Uses Red Hat's 'Bugzilla query' python framework.
+  * Used Eclipse Pydev :-).
+  * I might write a blog entry on "how to query Bugzilla programtically"
+  * Script:
+   https://github.com/LeoUfimtsev/python-eclipse-bugzilla-query/blob/master/bugzilla_open_followup.py
+
+Next Week:
+##########
+Webkit:
+- Finish Browser.evaluate() array support
+- Work on Browser.function() implementation
+
+
+
+SWT Long Term Goals:
+####################
+Note: '**' at the end means new/updated this week:
+
+Webkit2 port     #441568                          (2017 Q1?)   **
+  - [x] port execute ()  #430538                  [2016 Oct]
+  - [x] Improve Browser suite #499387             [2016 Oct]
+  - [x] evaluate () primitives #505418            [2016 Nov]
+  - [x] jUnit tests for evaluate() #505591        [2016 Nov]
+  - [ip] function(), Javascript callbacks #508217 (2016 Dec ?)
+  - [] resolve broken junits/crashers             (2016 Dec ?)
+  - [] make webkit2 default                       (2017 ?)
+  - [ip] evaluate () array support                (2016 Dec)
+
+Wayland support  #496923                          (2017 ?)
+  - [ip] Remove x11 calls/functions               (2017 ?)
+  - [ip] Drag and Drop/CTabfolder clicks  #503431 (2016 Dec)
+  - [x] Resolve title/menu bar issues and         [2016 Dec]    **
+		cut-off controls. #508692
+
+Gtk3 port, Stability, Features and Bugfixes
+  - [ip] Background/Foreground issues             (Dec 2016 / 2017 ?)
+		[ip]507072 [x]507062 [x]507067 [x] 507298
+		[ip]508498 [ip]507073                                   **
+		[ip]508776                                              **
+  - [] Dragging parts does not show rectanglee #498217 (TBD)
+  - [ip] Improve CSS styling support
+  - [] Gtk3 port should not use calls deprecated in Gtk2.       **
+  - [] Move thoward full Gtk3.22 support with                   **
+	   no calls to deprecated functions.
+
+Gtk4 port                                         (Later ... )
+  - Goal: Phase out Gtk2 support gradually.
+		  Move on to Gtk3/Gtk4 support
+  - [] Deprecate Gtk2. Potentially Gtk3.0 - Gtk3.14 also.       **
+  - [] Remove or make dynamic deprecated calls pre Gtk3.22      **
+  - [] Move on to support Gtk3 & Gtk4.

@@ -1,0 +1,6074 @@
+x#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="org.css" />
+
+For artist mode compatability ::
+#OFF: #+STARTUP: nofold 
+
+All my linux notes
+* About/links/Tutorials
+** Books
+Advanced Bash-Scripting Guide:
+http://tldp.org/LDP/abs/html/index.html
+# I seem to be comming across this business all the time.
+* RHSA                                                                :RHCSA:
+** Meta                          .
+Time Target: 80 Hours
+- Common links ::
+  [[File Folder Diagram]]
+
+RHEL Course website with videos:
+https://role.rhu.redhat.com  
+lufimtse@redhat.com
+   / !1..
+
+student/student
+root/redhat   << includes bootvm
+
+Exam prep list:
+http://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam
+
+*** Links to stuff
+**** Certification                                                   :noa:
+:PROPERTIES:
+:CREATED:  <2015-04-01 Wed 10:55>
+:EXPIRY:   <2020-04-01>
+:END:
+- Exam Certification preperation ::
+  https://mojo.redhat.com/docs/DOC-155671#jive_content_id_Red_Hat_Certified_Engineer__RHCE
+
+- Online Learning links ::
+  https://mojo.redhat.com/docs/DOC-176952
+
+- Red Hat Online Learning center :: 
+  https://role.rhu.redhat.com/
+
+- Oracle learning center :: (courses are here)
+     https://rsaebs.corp.redhat.com/
+** Introduction
+:LOGBOOK:
+CLOCK: [2015-03-25 Wed 09:48]--[2015-03-25 Wed 09:49] =>  0:01
+CLOCK: [2015-03-24 Tue 17:11]--[2015-03-24 Tue 17:23] =>  0:12
+:END:
+*** Red Hat VM config RHEL
+**** Downloading Iso images (img sources)
+REHL 7 WS:
+http://download.devel.redhat.com/released/RHEL-7/7.0/Workstation/x86_64/iso/
+(but Server edditions are available.)
+
+REHL 6 WS:
+http://download.devel.redhat.com/released/RHEL-6/6.6/Workstation/x86_64/iso/
+
+http://download.devel.redhat.com/released/RHEL-7/7.0/Server/x86_64/iso/
+
+or  mount vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2
+
+**** Vm config
+  1) mkdir: /mnt/engarchive2
+  2) sudo edit : /etc/fstab and add:
+   vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2 /mnt/engarchive2	nfs	ro,soft,intr,bg,noatime,nodiratime	0	0
+
+  3) refresh mount:
+    sudo mount -a
+    now you can browse the mount with ls.
+
+  4) make dir: ~/images
+  4.2) copy desired images from mnt ~/iso
+
+  5) make script like: my-makevirtmachine_REHL6_6 and put inside:
+    #+BEGIN_SRC sh
+    #! /bin/bash
+    name=$1   #First agument names the VM
+    imgDir="/home/lufimtse/images"  #note, this path should be absolute. ~/images wont work.
+    loc='/home/lufimtse/iso/RHEL-6.6-20140926.0-Workstation-x86_64-dvd1.iso'
+
+    if [ $# != 1 ]; then
+            echo "Usage : $0 [Image Name]"
+            exit 1
+    elif [ -e ${imgDir}/${name}.img ]; then
+            echo "Image already exists."
+            exit 1
+    fi
+
+    virt-install \
+    --connect="qemu:///system" \
+    --name="${name}" \
+    --disk path="${imgDir}/${name}.img",size=20 \
+    --ram=1500 \
+    --vcpu=4 \
+    --cdrom="${loc}" \
+    --network network=default
+    #+END_SRC
+
+  6) Edit the 'loc' variable of script to point to latest iso.
+
+  7) Make sure virt-manager and virt-install are installed.
+     sudo yum install virt-manager virt-install
+
+  8) Run script. It should fire up vms.
+**** Vm user/passwords  (RHEL/Fedora)
+RHEL vms:
+lufimtse with usual !1.. password.
+
+Fedora vm:
+lufimtse with usual !1.. pass
+*** International Language Support
+**** Stuff
+- system :: export LANG=fr_FR.utf8
+- per app :: exprot LANG=fr_FR.utf8 date
+- Configure system wide :: localect1 set-locale LANG=fr_FR.utf8
+
+
+Mnemonic :: man localect1 > 'set-local' show info. can use list-locales param to list all langs
+/etc/locale.conf
+
+- List available Languages on Yum :: yum langavailable
+- List installed packages :: yum langlist
+
+- to install a package :: yum langinstall [code]    //[code] = e.g [de] [ru] etc..
+**** Configure Colemak from command line
+- Configure colemak from cmd :: localectl set-keymap us-colemak
+
+**** Uni Code Input
+   ctrl+shift+u followed by unicode
+   e.g lambda = U+03bb
+   type combo + 03bb to get lambda.
+   //This doesn't work in all apps. But works in terminal and others.
+** DONE 1 Local/Remote Logins, ManPages, Getting Help from Red Hat
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+CLOCK: [2015-03-26 Thu 11:13]--[2015-03-26 Thu 11:26] =>  0:13
+CLOCK: [2015-03-26 Thu 09:52]--[2015-03-26 Thu 10:02] =>  0:10
+CLOCK: [2015-03-25 Wed 10:34]--[2015-03-25 Wed 11:04] =>  0:30
+CLOCK: [2015-03-25 Wed 09:49]--[2015-03-25 Wed 10:18] =>  0:29
+CLOCK: [2015-03-27 Fri 09:32]--[2015-03-27 Fri 10:02] =>  0:30
+CLOCK: [2015-03-26 Thu 11:26]--[2015-03-26 Thu 11:50] =>  0:24
+:END:
+:PROPERTIES:
+:Effort:   2:00
+:END:
+*** Local Login, man pages
+**** Bash Shell basics
+***** '$' vs '#'
+$ - regular user
+'# - root
+
+Display means 'output'
+***** Terminologies
+Display   (output sent to a ..)      TERM__
+rc  =  runcom = run commands   TERM__  [[http://unix.stackexchange.com/questions/3467/what-does-rc-in-bashrc-stand-for][src]]
+***** Exiting a shell
+Ctrl+D    BKEY__
+exit      BCMD__
+***** Environmental Variables (HOME PATH ...)
+:PROPERTIES:
+:ID:       66456bb5-8521-4270-8aaf-fec9b0febc61
+:END:
+$HOME  - home directory. /home/mike
+$PATH  - Colon seperated list of paths recognized by system. /path1:/path2
+**** Consoles
+Additional Consles:
+  RHEL runs on first console.
+  5 consoles are available.
+  Ctrl+Alt+F1 - Gui environment                 BKEY__
+  Ctrl+Alt+[F2..F6] Additional consoles         BCMD__
+  /Note/ linux 5's gui ran on console 7.
+**** References
+man 1 intro
+man 1 bash
+man 4 console
+man 4 pts
+man 7 man-pages    << man of man-pages.
+
+General convention:
+pts(4) == man 4 pts
+
+*** @ SSH login & operations
+**** Summary 
+So you don't have to type password:
+1) ssh-keygen 
+2) ssh-copy-id user@host 
+**** SSH Key-based authentication
+***** SSH key based authentication                                 :BCMD__:
+- SUMMARY ::
+  ssh-keygen  //Make your key.
+  ssh-copy-id -i your.pdb <USER>@server.com
+
+- ABOUT ::
+         Login without having to use a password.
+- THEORY ::
+        'private-key' kept secure on your machine. Your password.
+        'public-key' copied to server . Does not have to be secret.
+- GENERATE KEY ::
+        ssh-keygen  Location for generated key:
+                    ~/.ssh/id_rsa      Private Key (is kept local)
+                    ~/.ssh/id_rsa.pub   Public Key (is copied to server)
+- PASSPHASE ::
+  Makes it more secure, but need to type password.
+
+  Note:
+  If you want to use a passphase, but not type the password,
+  you can use
+  *ssh-agent*. You give your PASSPHASE once via 'ssh-add'
+
+  // Permission:
+  600 on private key
+  644 on public key
+
+- COPYING KEY TO SERVER ::
+        ssh-copy-id <USER>@serverXYZ
+                # this copies '~/.ssh/id_rsa.pub'
+        ssh-copy-id -i ~/.ssh/id_rsa.pub <USER>@server.y
+
+- ADDING KEY LOCALLY ::
+        ssh-add
+ssh-keygen
+ssh-copy-id
+***** References
+ssh-keygen(1)
+ssh-copy-id(1)
+ssh-agent(1)
+ssh-add(1)
+**** SSH Moving / Copying files in SSH via   SCP  BCMD__
+scp == secure copy
+
+scp user@host:/folder/file /localHome/
+Once in ssh, you cannot access local files.
+Instead, you need to open a 2nd terminal and
+use scp to move things around.
+http://www.hypexr.org/linux_scp_help.php
+**** SSH Server
+: sudo systemctl (enable|start) sshd
+*** Getting help from Red Hat
+**** Customer Portal
+***** My Username / password and Login Credentials (Customer portal)
+USER: lufimtse1@redhat.com  *note the '1' in addr*
+PASS: !1..
+EMAIl: lufimtse@redhat.com
+
+***** Web sites/Links
+https://access.redhat.com
+https://access.redhat.com/help
+***** Support phone
+814 4931  (works from internal phone)   PHONENUMBER__
+**** RH Support tool case management and kb search.
+For support case management and kb search.
+***** Running:
+redhat-support-tool  //goes into interactive mode
+redhat-support-tool <COMMAND> //EXECUTE any command that could have been run in intr.mode.
+***** Configure
+- config file ::
+  ~/.redhat-support-tool/redhat-support-tool.conf
+  This is where the tool stores credentials also.
+
+- '--global' option stores credentials here ::
+  /etc/.redhat-support-tool/redhat-support-tool.conf
+
+***** kb, search and open by id
+- Keyword searching ::
+  search <STRRING>
+
+- open kb article by id
+  kb id
+
+  e.g from command line with less
+  redhat-support-tool kb 253273 | less
+***** Opening a new case
+- Command ::
+opencase
+
+- Flags ::
+You can run with flags:
+Specify: product, version, summary, description, severity,
+ opencase --product="Red Hat Enterprise Linux" --version="7.0"
+
+- Support case urgency ::
+  1 - urgent //business down
+  2 - high   //functioning, but system is limited
+  3 - medium //workaround available
+  4 - low    // feature requset / very low impact
+***** Gathering support data
+****** Things to gather (overview)
+~sosreport~   //Diagnostic report
+~kdump~   //kernal stack trace for kernal problems
+
+Screenshot/picture of the issue if kernal crashed.
+****** sosreport
+1. Login as root:
+   : su -
+2. Run report:
+   : sosreport
+3. It will run, ask you some questions, then produce something like:
+   /var/tmp/sosreport-lUfimtsev.123456-20150327094918.tar.xz
+***** Attaching files
+Attach a file to a case by case-ID:
+~addattachment -c 01034421 <path to sosreport>~
+***** meh
+** DONE 2 File system Navigation
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:  
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+CLOCK: [2015-04-01 Wed 09:23]--[2015-04-01 Wed 09:40] =>  0:17
+CLOCK: [2015-03-31 Tue 10:16]--[2015-03-31 Tue 10:47] =>  0:31
+CLOCK: [2015-03-31 Tue 09:41]--[2015-03-31 Tue 10:07] =>  0:26
+CLOCK: [2015-03-30 Mon 10:38]--[2015-03-30 Mon 11:08] =>  0:30
+CLOCK: [2015-03-30 Mon 09:47]--[2015-03-30 Mon 10:17] =>  0:30
+CLOCK: [2015-03-27 Fri 10:11]--[2015-03-27 Fri 10:41] =>  0:30
+:END:      
+:PROPERTIES:
+:Effort:   3:00
+:END:
+*** The Linux File System Hierarchy
+**** System Hierarchy Diagram                           FILE__ FOLDER__ DIAGRAM__ 
+<<File Folder Diagram>>
+#+BEGIN_SRC dot :file ./img/img_2015_03_27__10_13_02.png :cmdline -Kdot -Tpng
+digraph {
+size="8.5";
+node [shape=folder width=.6 style=filled fillcolor=gold2]
+nodesep=.1
+
+slash [label="/"]
+
+subgraph layoutNodes {
+  node [shape=none, width=0, height=0, label=""] 
+  edge [dir=none,style=invis]  //ivisible edges
+  slash -> lvl0 -> lvl1 -> lvl2 ->lvl3
+}
+slash -> {rank=same; {bin;boot;dev;etc;home;root;run;sbin;tmp;usr;var}}
+
+ubin[label=bin]
+ulocal[label=local]
+usbin[label=sbin]
+utmp[label=tmp]
+
+vtmp[label=tmp]
+{rank=same; {vtmp;ubin;ulocal;usbin;utmp;lufimtse;lina;oksana;lvl1}}
+lufimtse,lina,oksana [fillcolor=yellow]
+home -> {lufimtse;lina;oksana}
+usr -> {ubin;ulocal;usbin;utmp}
+var -> vtmp
+
+bin -> ubin [style=dotted]
+sbin -> usbin [style=dotted]
+
+utmp -> vtmp [style=dotted]
+
+//Files 
+subgraph files {
+  node [shape=record,fillcolor=lightblue]
+  sudoers, group ,  shadow
+  logindefs [label="login.defs"]
+  etc -> {rank=same; {sudoers;group;shadow;logindefs;passwd}}
+  {rank=same; {sudoers;group;shadow;logindefs;passwd;lvl2}}
+}
+
+//Executables
+subgraph execs {
+ node [shape=record, fillcolor=blue, fontcolor=white]
+ nologin [label="nologin\n (shell)"]
+ sbin -> nologin
+{rank=same; {nologin;lvl2}}
+}
+
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_27__10_13_02.png]]
+
+**** Important Linux files
+:PROPERTIES:
+:ID:       d98768f7-c32a-4b62-a2c3-65969999e449
+:END:
+These are tagged #FILE__ across the system.
+
+[[id:95ea3b79-47d7-41b6-899a-f3e5cea8055c][/etc/passwd and /etc/shadow]]  - User's group/home dir/shell info and encryped password. 
+[[id:5c05a2e1-5930-41be-9aac-00f8598f806c][/egc/group]] - Groups are defined here.
+[[id:0c85f259-0fc9-4ebc-bff2-2fe7688c0f80][/etc/sudoers]] - Admin rights are defined here.
+
+Other:
+[[id:310430c3-bea4-430f-a4cf-627a2f2e2c56][/etc/login.defs]] - defaults for useradd and addgroup commands.
+**** Special Linux files 
+***** /dev/zero
+/dev/zero  provides unlimited zero's. useful for storage init.
+***** /dev/null
+Place that can sink anything you give it. Useful for squelching outputt.
+**** About file system & terminology
+Sorted by type & purpose.
+e.g /boot for boot files.
+- Terminology ::
+  - staic :: Unchanged 
+  - dynamic or varible :: changed by running process
+  - persistent :: config remain static after reboot 
+  - runtime :: proc or sys content cleared during reboot.
+**** Common Linux Folders 
+- /usr ::  
+      Installed software, shared libraries, include files, 
+      static read-only program data.
+  - /usr/bin ::  /User Commands/
+  - /usr/sbin :: /System admin commands/
+  - /usr/local :: Locally customized software
+- /etc ::  Configuration files specific to this system.
+- /var ::  *Variable data* that should persist between reboots. (e.g Logs).
+- /run ::  
+    *run time data* for procs started since last reboot.
+    Proc id's & lock files.
+    Content is re-created on reboot.
+    Consolidates /var/run and /var/lock from older REHL versions.
+- /home :: User's data & config 
+- /root :: home dir for admin.
+- /tmp ::
+         Global writable for temp files.
+         Files *older* than 10 days are deleted automatically.
+         /var/tmp keeps files for 30 days that are not *modified*
+- /boot :: ...
+- /dev :: special /device files/ used by system to access hardware.
+
+Rehl 7 Note:
+In previous versions, the below were /distinct/ directories. Now
+the '/' dirs are sym linked to /usr/* 
+/bin -> /usr/bin
+/sbin -> /usr/sbin
+/lib -> /usr/lib
+/lib64 -> /usr/lib64
+
+**** References
+hier (7)                 MAN__ File system hierarchy
+*** Managing Files Using Command-Line Tools
+**** Usage
+create, copy, link, move, remove files & subdirs.
+
+Reference : cp mv rm mkdir cp mv rm       BCMD__ 
+
+| Activity    | Single source   | Multiple sources   (note)          |
+|-------------+-----------------+------------------------------------|
+| Copy file   | cp file1 file2  | cp f1 f2 f3 dir (1)                |
+| Move file   | mv f1 f2        | mv f1 f2 f3 dir (1)                |
+| Remove file | rm f1           | rm -f f1 f2 f3 dir  (1)            |
+| create dir  | mkdir dir       | mkdir -p part1/par2/dir    (3)     |
+| copy dir    | cp -r dir1 dir2 | cp -r dir1 dir2 dir3 dirL (2)      |
+| move dir    | mv dir1 dir2    | mv dir1 dir2 dir3 dir4 (2)         |
+| Remove dir  | rm -r dir1      | rm -rf dir1 dir2 dir3              |
+|             |                 |                                    |
+|-------------+-----------------+------------------------------------|
+| Note        | 1               | 'dir' has to be a folder           |
+|             | 2               | last arg must be a dir.            |
+|             | 3               | use '-p' wiht caution. (see below) |
+
+- mkdir :: 
+  the '-p' auto generate missing folders. This can create undesired folders if
+  something is miss-typed. e.g you have ~/tmp/notes/ and you type:
+  : mkdir ~/tmp/note/uni/CSC309
+  It will not catch that 'note' was miss-spelled and will create a new folder 'note' for you
+  
+  multiple creation:
+  : mkdir ~/tmp/CSC309  ~/tmp/CS369 ~/tmp/CSC410
+
+- cp ::
+  When copying multiple files to a directory:
+  : cp a b c dir 
+  files retain their names and are just copied into that dir.
+
+- mv :: 
+  On same file system, re-links. (quick)
+  Between file system, does a copy & delete. (takes longer).
+
+- rm ::
+  - Needs '-r' (recursive) for directories.
+  - There is no trash/bin notions in cmd.
+  - '-i' = interactive ~rm -ri meh~
+  ~rmdir~ only removes directories if they are empty.
+**** References
+cp(1)
+ln(1)
+mkdir(1)
+mv(1)
+rm(1)
+rmdir(1)
+*** ln : Making Links Between Files   BCMD__ (1)
+**** Hard links Theory
+- Each file has 1 hard link by default.
+- POINT TO SAME FILE :: files have same permission/link count/user & group ownership/time stamp/file content.
+- Same file system :: 
+  - Must be on the same file-system.
+  - After creation, no way to tell which is link is the original.
+- REMOVAL :: to remove a file, remove all it's hard links.             LNOTE
+- List Reference Count :: 
+  - ~ls -l~ can show how many references there are to the file. E.g.
+  : ls -l
+  : -rw-rw-r--. 3 lufimtse lufimtse 3 Mar 31 10:12 MultiReferencedFile
+  :             ^ Number of references = 3.
+**** Soft Links Theory
+~ln -s~ 
+- A file :: file that points to another file.
+- To any file system :: Can point to a file that exists on another file system.
+- Dangling soft link :: 
+  If you delete the file that the softlink points to, the softlinks remains as a ...
+- Directories OK :: Softlinks can point to directories.
+**** Ln syntax
+ln [OPTION]... [-T] TARGET LINK_NAME   (1st form)  //Target being what to link to.
+ln [OPTION]... TARGET                  (2nd form)  //link created in curr folder.
+ln [OPTION]... TARGET... DIRECTORY     (3rd form)  
+ln [OPTION]... -t DIRECTORY TARGET...  (4th form)
+[OPTIONS]
+ -s  symbolic 
+ -r  make sym links relative.
+
+- Mnemonic :: 
+<LiNk (chain)> to <TARGET>, and the name of the chain is:
+[[./img/img_2015_04_01__09_31_23.png]]
+[[shell:kolourpaint ./img/img_2015_04_01__09_31_23.png][edit img]]
+**** Ln examples
+- Examples of forms :: 
+  1st: Example: make a '.emacs' link that points to 'mydotemacs.el'
+  : cd ~/ 
+  : ln -s ~/git/ldts/mydotemacs.el ~/.emacs
+
+  2nd: Example: Make a .emacs.d folder link in my working dir. (link name is same)
+  : cd ~/
+  : ln -s ~/git/ldts/.emacs.d
+
+  3rd: example, create links in current folder to all files in other-dir: 
+  : ln -s ../other-dir/* ./
+
+  4th: same as 3rd, but other way around:
+  : ln -s -t ./ ../other-dir/*
+
+- Further Examples ::
+  - Link two directories ::
+    : ln -s [existing_folder] [name of new link]
+    e.g create a symbolic 'g' shortcut pointing to ~/git:
+    : cd ~/
+    : ln -s ~/git g
+
+**** References 
+[[man:ln(1)]]
+** DONE 3 Users and Groups
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:  
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+- State "DONE"       from "OPEN"       [2015-07-14 Tue 13:38]
+- State "DONE"       from "OPEN"       [2015-05-25 Mon 10:39]
+CLOCK: [2015-05-25 Mon 10:06]--[2015-05-25 Mon 10:40] =>  0:34
+CLOCK: [2015-05-25 Mon 09:28]--[2015-05-25 Mon 10:04] =>  0:36
+CLOCK: [2015-04-21 Tue 09:26]--[2015-04-21 Tue 09:56] =>  0:30
+CLOCK: [2015-04-14 Tue 10:15]--[2015-04-14 Tue 10:35] =>  0:20
+CLOCK: [2015-04-14 Tue 09:57]--[2015-04-14 Tue 10:08] =>  0:11
+CLOCK: [2015-04-14 Tue 09:14]--[2015-04-14 Tue 09:44] =>  0:30
+CLOCK: [2015-04-13 Mon 10:09]--[2015-04-13 Mon 10:39] =>  0:30
+CLOCK: [2015-04-13 Mon 09:33]--[2015-04-13 Mon 10:03] =>  0:30
+CLOCK: [2015-04-10 Fri 09:55]--[2015-04-10 Fri 10:25] =>  0:30
+CLOCK: [2015-04-09 Thu 10:24]--[2015-04-09 Thu 10:54] =>  0:30
+CLOCK: [2015-04-09 Thu 09:28]--[2015-04-09 Thu 10:16] =>  0:48
+CLOCK: [2015-04-08 Wed 11:06]--[2015-04-08 Wed 11:36] =>  0:30
+CLOCK: [2015-04-08 Wed 09:38]--[2015-04-08 Wed 10:08] =>  0:30
+CLOCK: [2015-04-07 Tue 10:30]--[2015-04-07 Tue 11:00] =>  0:30
+CLOCK: [2015-04-07 Tue 09:53]--[2015-04-07 Tue 10:23] =>  0:30
+CLOCK: [2015-04-06 Mon 11:28]--[2015-04-06 Mon 11:58] =>  0:30
+CLOCK: [2015-04-06 Mon 10:39]--[2015-04-06 Mon 11:09] =>  0:30
+CLOCK: [2015-04-06 Mon 10:01]--[2015-04-06 Mon 10:31] =>  0:30
+CLOCK: [2015-04-02 Thu 10:00]--[2015-04-02 Thu 10:30] =>  0:30
+CLOCK: [2015-04-02 Thu 09:24]--[2015-04-02 Thu 09:54] =>  0:30
+CLOCK: [2015-04-01 Wed 10:02]--[2015-04-01 Wed 10:29] =>  0:27
+CLOCK: [2015-04-01 Wed 09:40]--[2015-04-01 Wed 09:53] =>  0:13
+:END:      
+:PROPERTIES:
+:Effort:   4:00
+:END:
+*** Overview diagram 
+#+BEGIN_SRC dot :file ./img/img_2015_04_21__09_34_28.png :cmdline -Kdot -Tpng
+digraph {
+size="9,5"
+ratio="compress"
+subgraph cmds {
+  node [shape=rect style=filled fillcolor=lightblue]
+  id 
+  ps
+  su  
+  sudash [label="su -"]
+  sudo
+  useradd
+  usermod 
+  userdel
+  passwd
+  
+  authconfig -> {authconfigtui [label="authconfig-tui"];
+                 authconfiggtk[label="authconfig-gtk"]} 
+}
+  Domain -> authconfig
+  Users -> {id ps su sudash sudo}
+  Users -> UserManagement [weight=3]
+  UserManagement -> {useradd usermod userdel passwd}
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_21__09_34_28.png]]
+
+*** About
+- Manage users and groups. 
+- Administer local password polocies.
+  (password aging policy..)
+- Centralized identity management.
+*** Users and Groups
+**** Theory
+- Every proccess runs under a certain user.
+- Proc has only access to user's files/dirs.
+**** Users
+:PROPERTIES:
+:ID:       95ea3b79-47d7-41b6-899a-f3e5cea8055c
+:END:      
+***** Id Command                                                 :BCMD__:
+:PROPERTIES:
+:ID:       a590fc9b-0ebf-43ae-ad66-e9aaf1233826
+:END:
+Displays info about current user.
+  man:id
+  : id    #Print info of current user, inc UID
+  : id [USER] #Print info for USER
+***** Files belonging to user [[id:2b6fa67c-ec39-4f47-ade0-7cfd9b569e76][Long listing (ln -l)]] shows user info for file in 3rd column
+  : ls -l
+  : drwxrwxr-x.  4 lufimtse lufimtse 4096 Mar 31 14:12 bundles
+  :                  ^-- User info.
+***** Proccess belonging to user : ps au
+  see [[id:f3c38fc6-5b64-41ab-a79a-721647038df1][ps]]
+***** passwd file 
+  Os stores UID in /etc/passwd, e.g:                              #FILE__
+  username: password : UID : GID : GECOS         : home dir     : shell
+  lufimtse: x          :1000:1000:Leo Ufimtsev:/ home/lufimtse  :/bin/bash
+ 
+  - Passwords now moved to /etc/shadow
+  - UID = User Id
+  - GID = Group ID
+  - GECOS = arbitrary text, usually includes user name.
+**** Group Info
+:PROPERTIES:
+:ID:       5c05a2e1-5930-41be-9aac-00f8598f806c
+:END:
+- Defined in: /etc/group                                       #FILE__
+
+- Primary groups :: 
+  - every user has one primary group.
+  - for users, p.g. defined in GID (above)
+  - normally, primary group owns file created by user.
+  - normally, primary group of newly created user is a newly created group with 
+    same name as user. User is only member of that UPG (User private Group)
+- Supplementary Groups :: 
+  - User can be in zero or more sup.groups.  
+  - Users that are supplentary to a group, are listed in /etc/group at the end, e.g: 
+    wheel:x:10:lufimtse
+    General syntax is: 
+    :   groupname:password:GID:(list of users in group)
+**** References
+man:id(1)
+man:passwd(5)
+man:group(5)
+man:info
+man:libc
+*** Managing Local User Accounts
+**** USERADD  (create/add users)                                       :BCMD__:
+:PROPERTIES:
+:ID:       310430c3-bea4-430f-a4cf-627a2f2e2c56
+:END:
+Note : this command is not listed with 'tab'. But exists.
+
+- Default ::
+  : useradd <UserName> 
+  - Sets resonable defaults for all fields in /etc/passwd. 
+  - No password by default.
+  - User cannot login till password is set.
+
+- Add user and join group :: 
+  : sudo useradd -G <group> <username>
+- make su2
+
+- list help ::
+  : useradd --help
+**** default file for new users (/etc/login.defs)
+- Defaults read from ::
+  : /etc/login.defs                #FILE__
+    Change in this file does not impact existing users.
+**** usermod (lock unlock user, move home dir)                       :BCMD__:
+See:
+: usermod --help
+man:usermod
+
+Commonly used:
+ -d, --home HOME_DIR   change home dir
+ -m, --move-home       move user home dir to new location. Used with-d.
+ -L, --lock
+ -U, --unlock
+ 
+
+ -p Change password. But use passwd instead as you can't see password there.
+e.g, change home-dir:
+: usermod -d /home/exampleusernew exampleuser
+
+See also: [[id:d78a482f-b6be-480c-ba64-3a8188bd376a][usermod   (alters group membership)]]
+See also: [[nid:6df049e8-814e-421d-ad49-7764856d1004][Account locking]]
+See also: [[id:f3fef8ce-4e43-4e0b-985e-3b8ca86b7400][nologin shell]]
+**** userdel                                                      :BCMD__:
+:PROPERTIES:
+:ID:       bd7f89b8-5c02-428d-857b-27b8f7b8b9ac
+:END:
+man:userdel
+- removes user from /etc/passwd, but leaves home dir ::
+  : userdel <username>
+- remove user + home dir :: 
+  : userdel -r <username> 
+
+(!) Warning: 
+  ~userdel~ can leave behind 'unowned' files. 
+  New users get assigned first available UID, which can be that of old user.
+  So new user could have access to files of old user. (Security issue).
+  Solutions:
+   - Delete all left overs, as root, find unowned files via: 
+     : find / -nouser -o -nogroup 2> /dev/null.
+   - Manually assign new UID's:  -u UID
+**** id  
+See [[id:a590fc9b-0ebf-43ae-ad66-e9aaf1233826][Id command]]                                
+**** passwd (set & change password)
+Set initial password or change user's password:
+: passwd <username> 
+Then password is prompetd on next line.
+Root can set any password. But has to re-type it.
+  :EG:
+  #+begin_src sh
+  [root@serverX ~]# passwd student
+  Changing password for user student.
+  New password: redhat123
+  BAD PASSWORD: The password fails the dictionary check - it is based on a dictionary
+  word
+  Retype new password: redhat123
+  #+end_src
+  :END:
+man:passwd
+**** UID ranges
+RHEL uses some UID's for special purposes.
+
+|     UID | puropse                                               |
+|---------+-------------------------------------------------------|
+|       0 | root                                                  |
+|   1-200 | system users, static asssigned                        |
+| 201-999 | system users, do not own files, assigned dynamically. |
+|   1000+ | regular users.                                        |
+
+Note:
+- Prior to REHL 7, UID 1-499 was for system users, 500+ for regular users.
+- Default ranges can be changed in /etc/login.defs
+**** References
+man:useradd(8)
+man:usermod(8)
+man:userdel(8)
+*** Managing Local Group Acounts
+**** groupadd  (creates group)                                    :BCMD__:
+- Add group ::
+  : groupadd <groupname>
+  Uses next available GID from range specified in /etc/login.defs
+- Options :: 
+  -g GID  =   custom GID
+  -r      =   system group. Mnemonic: '_Root group'
+:EG:
+: sudo groupadd -r appusers     #System group.
+: sudo groupadd -g 5000 ateam  
+:END:
+man:groupadd(8)
+**** groupmod  (modifies existing groups)                         :BCMD__:
+Change group name to a GID mapping.
+
+Syntax:
+: groupmod [options] GROUP
+
+
+Options:
+- name '-n' ::
+: sudo groupmod -n javaapp appusers 
+
+- GID with '-g' ::
+: sudo groupmod  -g 6000 team
+man:groupmod(8)
+**** groupdel  (deletes a group)                                  :BCMD__:
+: sudo groupdel javaapp
+
+Note:
+ - One cannot delete a group if it's the primary group of an existing user.
+ - As with [[id:bd7f89b8-5c02-428d-857b-27b8f7b8b9ac][userdel]] one should remove any remaining files.
+**** usermod   (alters group membership)                             :BCMD__:
+- Change user's primary group ::
+  usermod -g groupname
+ : sudo usermod -g newGroup user
+
+- Add user to supplementary group ::
+ : sudo usermod -aG wheel elvis
+
+(!) '-a' is append mode. Without it, user is 'moved' to another group.
+
+man:usermod(8)
+:PROPERTIES:
+:ID:       d78a482f-b6be-480c-ba64-3a8188bd376a
+:END:
+**** List available groups
+See the /etc/group var.
+e.g 
+: tail -5 /etc/group
+**** List groups user is in
+Use the id command. See: [[id:a590fc9b-0ebf-43ae-ad66-e9aaf1233826][Id Command]]
+: id user
+**** References
+man:group(5)
+man:groupadd(8)
+man:groudel(8)
+man:usermod(8)
+
+*** Gaining Superuser Access 
+**** The root user
+- overrides permissions.
+- Most devices controlled by root. 
+  With few exceptionse, .g usb devices, removable devices.
+
+(!) In general, it is not reccomended to log in as 'root'.
+    Better log in as normal user and use su,sudo or PolicyKit (like UAC for linux)
+    This way only the user account would get compromised and not the whole system.
+**** @ su :Switch users BCMD__
+*su* (switch user) allows you to switch to another account.
+if <username> is not specified, root is used as defaulti
+
+Syntax:
+: su [-] <username>
+
+Example:
+: su -
+
+- *su* vs *su -*
+  su = non-login shell. I.e, keep current [[id:66456bb5-8521-4270-8aaf-fec9b0febc61][Environmental Variables...]]
+  su - = login-shell. I.e new env as if it's that user. *normally prefered*
+*** Managing User Passwords
+**** Shadow passwords and password policy
+***** History of password files 
+  Encrypted passwords used to be stored in 
+  :  /etc/passwd. 
+   But due to dictionary attacks, they were moved to
+  :  /etc/shadow
+
+***** password has 3 components 
+  $1$gCjLa2/Z$6Pu0EK0AzfCjxjv2hoLOB/ 
+   ^1    ^2       ^3
+ 
+  1. '$1$' Algorithm. 1=MD5, 6=SHA-512  (see man:crypt(3))
+  2. gCjLa2/Z = the *salt* to encrypt password. Salt + password get combined. salt is random.
+     Prevents identical entries for users in /etc/shadow
+  3. 6Pu0../ = the encrypted hash
+
+  Note: * RHEL 6 & 7 support algo 5 (SHA-256) and algo 6 (SHA-512). Longer salt.
+        root can change via: authconfig --passalgo [md5|sha256|sha512]
+        * RHEL 7 defaults to 5 (sha-256)
+
+***** /etc/shadow format/syntax 
+  name:password:lastchange ... 
+  
+  password = encrypted. If starts with '!', it is locked.
+
+  for details, see man:shadow(3)
+**** Password aging (chage)                                          :BCMD__:
+man:chage
+Command is: chage as in with ommited 'n' 'Change-Age' (not 'change')
+Diagram:
+[[./img/img_2015_04_09__09_30_24.png]]
+
+E.g
+: chage -m 0 -M 90 -W 7 -I 14 <Username>
+0 minimum days
+90 Maximumd days
+7 Warning days
+14 Inactive days, then lock-out. When account is locked, it needs admin attention to fix it.
+
+- Force password change ::
+  Set last change date to be '0'.
+  : chage -d 0
+- List current user's password details ::
+  : chage -l
+- Expire password on specific date ::
+  : chage yyyy-mm-dd
+
+Note: 
+ Date command can be used to calculate days in the future:
+ : date -d "+45 days"
+**** Restricting access 
+***** Account locking [[elisp:(my/goto-parent)][(g2 link)]]
+:PROPERTIES:
+:ID:       6df049e8-814e-421d-ad49-7764856d1004
+:END:
+man:usermod
+- ~usermod~ can lock an account with '-L' option ::
+  : usermod -L jhon
+  Note, if you try to log into a locked account from a non-root user,
+  you get an 'authentication failure'. Which might be miss-leading.
+
+- Lock and expire account ::
+  : sudo usermod -L -e 1 jhon
+  This is the reccomended way to prevent access to an employee who left the company.
+  When he returns, you can unlock his account once again:
+  : usermod -U jhon
+***** No login shell [[elisp:(my/goto-parent)][(g2 link)]]
+:PROPERTIES:
+:ID:       f3fef8ce-4e43-4e0b-985e-3b8ca86b7400
+:END:
+Some users don't need access to the login shell.
+You can set login shell to '/sbin/nologin' for that.
+: usermod -s /sbin/nologin jhon
+
+Nologin simply closes the connection.
+
+(!) nologin does not prevent interactive use of system. Some apps (webaps etc.. )
+    could still gain access.
+**** References
+man:change(1)
+man:usermod(8)
+man:shadow(5)
+man:crypt(3)
+*** Using Itentity Management Services
+**** User information and authentication services
+SSO (Single Sign-on)                               TERM__
+(like domain).
+With SSO, you login once, then you get a token/cookie that you use to login to other places.
+
+<<C.I.M>>
+A *Centralized identity managment system* needs to provide two things:
+1. /Account Inforamtion/
+   username/homedir location/UID/GID/group member ship.
+   Popular: 
+     - LDAP (light weight Directory Access Protocol) [Active directory]
+     - IPA Server and Network Information Services (NIS)
+
+2. /Authentication Information/
+  Validate pass/account. cryptographic password.
+  Kerberos only provides SSO auth.services, typically used alongside LDAP user info.
+
+See also: [[id:bd6076d5-7aff-4e51-b3d0-f55685dd2415][Kerberos]]
+**** Attaching a system to centralized LDAP and Kerbos servers
+***** Authconfig                                                 :BCMD__:
+****** Raw files
+To make RHEL 7 join [[C.I.M]], you need to edit various files and configure some daemons.
+
+#+BEGIN_SRC dot :file ./img/img_2015_04_10__10_25_40.png :cmdline -Kdot -Tpng
+  digraph {
+  node [style=filled]
+
+  subgraph Folders {
+     node [shape=folder, width=.6, fillcolor=gold2]
+     nodesep=.1
+     pamd [label="pam.d"]
+     etc -> {sssd;pamd;openldap}
+
+  }
+
+  subgraph Files {
+    node [shape=record,fillcolor=lightblue]
+    ldap [label="{ldap.conf | LDAP settings}"]
+    krb5 [label="{krb5.conf|Kerberos}"]
+    sssdconf [label="{sssd.conf|Security daemon}"]  
+    nsswitch [label="{nsswitch.conf|Auth. selection}"]
+    o [label="{*|auth. handling}"] 
+    cacerts [label="{cacerts|CA to validate SSL cert.}"]
+
+    nsswitch -> o [label="(Auth selection)" arrowhead=nul style=dotted]
+  }
+
+  etc -> {ldap;krb5;nsswitch}
+  sssd -> sssdconf
+  pamd -> o
+  openldap -> cacerts
+  }
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_10__10_25_40.png]]
+
+- /etc/ldap.conf :: 
+  Info on central LDAP server and it's settings.
+- /etc/krb5.conf ::
+  Info on central Kerbos infrastructure
+- /etc/sssd/sssd.conf :: 
+  To configure the system securtiy services.
+  Deamon retrieves and chaches user info and auth. info.
+- /etc/nsswitch.conf :: 
+  To indicate to system which user info and auth. should be used.
+- /etc/pam.d/* :: 
+  Configure how authentication should be handled for var. services.
+- /etc/openldap/cacerts :: 
+  Store the root /certificate authoritiec (CA)/ that can validate the SSL certificates
+  used by identity LDAP servers.
+
+*sssd* deamon needs to be enabled before it can be used.
+****** Authentication configuration tools
+It's easy to confuse which file does what. RHEL 7 has tools:
+#+BEGIN_SRC dot :file ./img/img_2015_04_13__10_26_55.png :cmdline -Kdot -Tpng
+  digraph {
+          authconfig -> {authconfigtui [label="authconfig-tui\n(Interactive meuu)"];
+           authconfiggtk[label="authconfig-gtk\n(gui)"]} 
+
+  }
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_13__10_26_55.png]]
+
+- authconfig ::                                        BCMD__
+  cmd tool to automate configuration across many systems.
+  Commands tend to be very long with multiple options.
+  ∈ /authconfig/ package 
+
+- authconfig-tui :: 
+  Interactive version. Can be used over ssh.
+  ∈ /authconfig/ package.
+  
+- authconfig-gtk :: 
+  Gui version.
+  ∈ authconfig-gtk package.
+***** LDAP parms
+authconfig needs a number of settings to connect: 
+- host name of LDAP server(s)
+- base DN (Distinguished Name) of the part of the LDAP tree where the system should
+  look for users.
+  e.g dc=example, dc=com 
+      ou=People, o=PonyCorp
+- if SSL/TLS used, a root CA.
+
+*Note*: Also need sssd package (it will handle all dependencies)
+***** Kerbos paramaters
+For centralized authentication, authconfig will need:
+ - Name of kerberos /realm/ to use.
+ - (key distribution centers (KDC))+   host name of kerberos servers
+ - (host name of admin server)+  machine to talk to for changing passwords/user settings.
+DNS optional. 
+
+*krb5-workstation* = tool to troubleshoot kerberos issues.
+***** Using authconfig-gtk
+1. Install necessary packages:
+: sudo yum -y install authconfig-gtk sssd krb5-workstation
+2. launch authconfig-gtk 
+3. Configure
+***** Testing a configuration 
+To test LDAP+Kerberos configuration, admin can try to login over ssh using
+credentials of one of the users.
+~getent~ cmd can be used to get info about user. (get entry?)
+: getent passwd <USERNAME>
+
+*Important* In def.config, sssd will *not* enumerate network users when no username
+is specified to the getent cmd. (Remove clutter)
+**** Attaching a System to an IPA Server
+For LDAP & Kerberos config, RHEL provides: IPA (Identity Poliy and audit)
+
+IPA can centralize
+- *sudo* rules.
+- SSH public keys
+- SSH host keys 
+- TLS Certificates
+- automounter 
+
+- Using ipa-client ::
+  authconfig can be used to make RHEL use IPA server.
+  But a specialized tool also exists: *ipa-client-install*
+  ∈ ipa-client package. 
+
+ 
+  Benifits of ipa-client-install is that it uses DNS mostly.
+
+  ipa-client-install w/o args tries to use DNS, then prompts admin for info.
+  (e.g domain name/realm)
+
+e.g:
+  : sudo ipa-client-install --domain=serverX.example.com --no-ntp --mkhomedir
+
+  #+name: Example ipa- client install 
+  #+begin_src sh
+    [student@desktop ~]$ sudo ipa-client-install
+    Discovery was successful!
+    Hostname: desktop.domain0.example.com
+    Realm: DOMAIN0.EXAMPLE.COM
+    DNS Domain: server.domain0.example.com
+    IPA Server: server.domain0.example.com
+    BaseDN: dc=server,dc=domain0,dc=example,dc=com
+    Continue to configure the system with these values? [no]: yes
+    User authorized to enroll computers: admin
+    Synchronizing time with KDC...
+    Password for admin@DOMAIN0.EXAMPLE.COM: redhat123
+    Successfully retrieved CA cert
+    Subject:
+    CN=Certificate Authority,O=DOMAIN0.EXAMPLE.COM
+    Issuer:
+    CN=Certificate Authority,O=DOMAIN0.EXAMPLE.COM
+    Valid From: Thu Feb 27 13:31:04 2014 UTC
+    Valid Until: Mon Feb 27 13:31:04 2034 UTC
+    Enrolled in IPA realm DOMAIN0.EXAMPLE.COM
+    Created /etc/ipa/default.conf
+    New SSSD config will be created
+    Configured /etc/sssd/sssd.conf
+    Configured /etc/krb5.conf for IPA realm DOMAIN0.EXAMPLE.COM
+    Adding SSH public key from /etc/ssh/ssh_host_rsa_key.pub
+    Adding SSH public key from /etc/ssh/ssh_host_ecdsa_key.pub
+    SSSD enabled
+    Configured /etc/openldap/ldap.conf
+    Configured /etc/ssh/ssh_config
+    Configured /etc/ssh/sshd_config
+    Client configuration complete.
+  #+end_src
+***** Q: What does IPA stand for?                                 :drill:
+:PROPERTIES:
+:ID:       c36442ee-e892-4945-ad97-50d3d61744ad
+:DRILL_LAST_INTERVAL: 0.0
+:DRILL_REPEATS_SINCE_FAIL: 1
+:DRILL_TOTAL_REPEATS: 3
+:DRILL_FAILURE_COUNT: 2
+:DRILL_AVERAGE_QUALITY: 1.0
+:DRILL_EASE: 2.36
+:DRILL_LAST_QUALITY: 0
+:DRILL_LAST_REVIEWED: [2015-05-05 Tue 10:27]
+:END:
+[Identity Policy and Auditing]
+**** Joining a system to Active Directory
+Multiple methods:
+
+ - samba-windbind ::
+   Install package & configure through authconfig family of tools.
+ - sssd and realmd ::
+   Install packages & use sssd/realm cmd's.
+
+#+BEGIN_SRC sh
+ #disscover settings for domain:
+ sudo realm discover domain.example.com 
+
+ #join:
+ sudo realm join domain.example.com
+
+ #Logins to A.D are dissabled, to enable:
+ sudo realm permit --realm domain.example.com --all
+
+ #to allow only some users to login, replace --all with users: 
+ sudo realm permit --realm domain.example.com DOMAIN\\Itchy DOMAIN\\Scratchy
+
+ #by default, users need to use full login. user@domain.com. to dissable, 
+ #chagne use_fully_qualified_names settings in /etc/sssd/sssd.conf to false & restart sssd.
+
+#+END_SRC
+
+NOTE: 
+**** References
+man:ipa-client-install(1)
+man:authconfig(8)
+man:authconfig-tui(8)
+man:authconfig-gtk(8)
+man:sssd(8)
+man:sssd-ipa(8)
+man:sssd-conf(5)
+man:ssd-ad
+man:realm(8)
+** DONE 4 File Permissions
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+- State "DONE"       from "OPEN"       [2015-06-05 Fri 10:44]
+CLOCK: [2015-06-05 Fri 10:32]--[2015-06-05 Fri 10:44] =>  0:12
+CLOCK: [2015-06-05 Fri 09:55]--[2015-06-05 Fri 10:20] =>  0:25
+CLOCK: [2015-06-03 Wed 11:25]--[2015-06-03 Wed 11:50] =>  0:25
+CLOCK: [2015-06-02 Tue 10:14]--[2015-06-02 Tue 10:39] =>  0:25
+CLOCK: [2015-06-02 Tue 09:37]--[2015-06-02 Tue 10:02] =>  0:25
+CLOCK: [2015-06-01 Mon 11:50]--[2015-06-01 Mon 12:15] =>  0:25
+CLOCK: [2015-06-01 Mon 11:14]--[2015-06-01 Mon 11:39] =>  0:25
+CLOCK: [2015-05-29 Fri 11:44]--[2015-05-29 Fri 12:09] =>  0:25
+CLOCK: [2015-05-29 Fri 11:09]--[2015-05-29 Fri 11:37] =>  0:28
+CLOCK: [2015-05-28 Thu 10:03]--[2015-05-28 Thu 10:44] =>  0:41
+CLOCK: [2015-05-28 Thu 09:34]--[2015-05-28 Thu 09:59] =>  0:25
+CLOCK: [2015-05-28 Thu 09:23]--[2015-05-28 Thu 09:33] =>  0:10
+CLOCK: [2015-05-27 Wed 09:58]--[2015-05-27 Wed 10:23] =>  0:25
+CLOCK: [2015-05-27 Wed 09:30]--[2015-05-27 Wed 09:55] =>  0:25
+CLOCK: [2015-05-26 Tue 09:48]--[2015-05-26 Tue 10:24] =>  0:36
+CLOCK: [2015-05-26 Tue 09:08]--[2015-05-26 Tue 09:33] =>  0:25
+:END:
+*** Managing File System Permissions from the command line
+**** @ chmod (change mode)    BCMD__
+:PROPERTIES:
+:ID:       088d0576-0ee1-47cd-aef5-ad4155e848a9
+:END:
+Change Mod.
+: chmod [Option]...  mode,[Mode]... <FILE|DIRECTORY> ...
+
+e.g s
+:  chmod u+x hello.txt   //give user execute rights:
+:  chmod ugo=rwx hello.txt  //give user group other all rights.
+:  chmod u+x,g+r hello.txt goodbye.txt  //set multiple modes to multiple files.
+
+- Options :: 
+  -R  recursive (use with X below) 
+  -c  print only changes
+  -f  silent.
+
+- Mode ::
+  [ugo..][+-=][rwxXst] 
+
+  ugo - user group other  ('s' explained below)
+  +-= - add, remove, set
+  rwx - read write execute
+        X - execute only if file is a directory. Used with -R option.
+            i.e, not on regular files. e.g
+            : chmod -R g+rwX demodir
+See also: [[id:97b90610-24e8-4eb6-988a-5357b8d96a14][Managing default Permissions and file access]]  (for 's' permission and sticky)
+
+
+
+- Numeric method / Octal mode :: 
+  You can give a numeric instead.
+  u,g,o can have be a combination of:
+  r - 4
+  w - 2 
+  x - 1 
+  E.g 761 means u has all rights, group has r(4)+w(2) rights, o has only e(1) rights.
+  See also: [[id:14358f78-adad-4daa-b3b9-80931740a30e][Numerical setting of special permissions]]
+man:chmod(1)
+**** ls -l (ll) (Show/see file permissions)  BCMD__ 
+You can:
+: ls -l 
+to see file permissions.
+
+- Permissions string :: 
+ 
+  : -rw-rw-r--.  1 lufimtse mail      65943 Sep 17  2014 dead.letter
+  '  |   | |        |         |
+   User  | other    user     group
+        group
+
+- Directories ::
+  Directories have a 'd' prefix:
+  : drwxrwxr-x 
+  : ^-- directory
+
+man:ls(1)
+**** chown  (change ownership)    BCMD__
+By default, when a user creates a file, it is owned by that user and the group is
+the primary group of the user. 
+
+Give a file a new owner:
+: chown <new owner> <file>
+
+Give a file a new owner and set a new group:
+: chown <new owner>:<new group> file 
+
+Set only a new group for the file:
+: chown :<new group> file 
+Limitation is that the current user can only set the file to a group that the user is in.
+
+e.g:                                             .        .
+: chown leo:wheel file 
+
+Note: 
+- only root can change owner. But user can change group they belong to.
+- some users use ~chgrp~ which is same as ~chown~ with -R command.
+
+man:chown(1)
+man:chgrp(1)
+*** Managing default Permissions and file access
+:PROPERTIES:
+:ID:       97b90610-24e8-4eb6-988a-5357b8d96a14
+:END:
+**** Special File Permissions
+***** setuid 
+- about ::
+  ~setuid~ (or ~setgid~) permissions on an executable means that that file will be launched under the owner (or group) of the file, and not by the user who is launching this file.
+
+  E.g passwd, it is ran by users, by executed as root who owns the file.
+  : [student@desktopX ~]$ ls -l /usr/bin/passwd
+  : -rwsr-xr-x. 1 root root 35504 Jul 16  2010 /usr/bin/passwd
+  :    ^--'setuid' bit
+  Instead of an 'x', there is an 's'. 'S' if ower does not have exec permissions.
+  Note, proccess handles security in this case.
+***** setgid 
+  On folder, makes it so that files created in that folder inherit the group of the folder
+  and not that of the user.
+***** sticky bit 
+  Normally, one user can delete files from another user. With the sticky bit, you must own the file to delete it. (or be root). 
+
+  : drwxrwxrwt.
+  :          ^ 't' indicates sticky.
+  t = sticky.
+  T = owner does not have execute perm.
+***** Effects of special permissions on files & directories.
+| S.Perm | Effect on files          | Effect on directories                              |
+|--------+--------------------------+----------------------------------------------------|
+| u+s    | file exec as owner       | ---                                                |
+| g+s    | file exec as group owner | new files assigned group of directory              |
+| o+t    | ---                      | Users with *write* can only remove files they own, |
+|        |                          | cannot remove/save files owned by others.          |
+|--------+--------------------------+----------------------------------------------------|
+***** Numerical setting of special permissions 
+:PROPERTIES:
+:ID:       14358f78-adad-4daa-b3b9-80931740a30e
+:END:
+setuid=4
+setgid=2
+sticky=1
+combined can be the prefix. 
+e.g concat(setuid+setgid[2+4], all permissions[ 777]) -> 6777
+**** Default file permissions (umask  BCMD__)
+umask *removes* permissions.
+
+: umask                 //how current umask of the shell.
+: umask [0-7]+          //set mask to something new.
+
+E.g
+: umask 0002  //remove write from 'other'.
+: umask 0077  //remove all permissions from 'group' and 'other'.
+: umask 77 //same as above, '0's are assumed for ommited numbers.
+
+Notes:
+ - system defaults are defined in ~/etc/profile~ and ~/etc/bashrc~.
+ - umask = user file-creation mask. 
+
+Ref:
+man:umask(1)
+*** POSIX: Access Control Lists (ACLs)
+**** About
+- About ::
+  - List of users/groups that have access to a file.
+  - More granular than standard ls permissions.
+- Enablement :: 
+  - RHEL7 has ext4 alc enabled. RHEL6 needs enabling first.
+  - XFS has alc build in.
+- See if ACL is enabled on file ::
+  : -rwxrw----+
+  :           ^-- the plus at the end indicates that acl is enabled 
+- Other ::
+  - Directories can have default acl's
+  - output of getfacl can be used as input to setfacl. 
+    : getfacl -R /directory  > file 
+    : setfalc --set-file=file    #mass update.
+- Precedence :: 
+  - File Owner 
+  - ALC users 
+  - Groups (file or ALC) 
+  - Other in ACL.
+**** getfacl  BCMD__
+  : getfacl <file>
+- about ::
+     i.e, 'get file access control list'
+- for directory :: 
+  - add '.' at the end. Has default rights:
+  : getfacl .   
+  : .. 
+  : default:user:rwx     #etc...
+- mask ::
+  - maximum availalbe permissions
+    e.g 
+    : user:judie:rwx   #effective:rw-
+    : mask::rw-
+    User judie has rwx permissions, but mask limits to rw only.
+  - (mask is)Usually auto-calculated, but can be inherited from folder or set.
+    auto-calculated on update, acl added/modified/updated.
+**** References
+man:acl(5)
+man:getfacl(1)
+man:ls(1)
+*** Securing Files with ACLs
+**** setfacl  BCMD__
+ : setfacl <Options> <flags> <file>
+***** Input selector 
+-m    modify manually 
+  -M <file>  from file
+  -M-    '-' means from stdin 
+***** Adding/modifing an ACL 
+: setfacl -m u:name:rX file     #User.
+  : setfacl -m g:name:rw file     #Group.
+  : setfact -m o::- file          #other only accepts permissions
+  - If name is blank == file owner 
+  - name can be uid/gid.
+***** multiple options 
+: setfacl -m u::rwx,g:sodor:rX,o::- file 
+***** chomd vs setfacl 
+chomd impacts file owner in the same way as setfacl does.
+  but chmod on group set's the mask, not the group permissions.
+  chmod has no effect on named users.
+ - Using getfacl as input ::
+  - Piping 
+  : getfacl file-A | setfacl --set-file=- file-B 
+  or
+  : getfacl -c myfile | setfacl -M- myFile
+
+  - To/From file:
+  : getfacl -c myFile > perm.txt     #'-c' strips comments 
+  : setfacl -M perm.txt myFile       #capital 'M' 
+***** Setting an explicit ACL ~mask~ 
+: setfacl -m m::r file 
+  Limit max perm for named users, group owners and named groups. 
+  Doesn't impact file owner and other users.
+ 
+  getfacl will show '#effective' flag.
+
+  (!) ACL mask is recalculated upon changes. 
+      to avoid, use ~-n~ or include mask setting.
+***** Recursive ACL Mods 
+Use upper ~-R~ 
+  : setfacl -R -m u:name:rX directory.
+***** Deleting an ACL 
+Similar, but not specify 'permissions'. 
+  : setfacl -x u:name,g:name myfile 
+  -x and -m can be used together.
+  mask needs to be deleted last.
+***** Controling default ACL 
+  Similar, but use '-d'
+  : setfacl -m d:u:name:rX directory 
+  - Removing acl ::
+    : setfacl -k   #delete all default acls.
+    : setfacl -x -d
+  - Recursivley ::
+    : setfacl -R   //with 'X'
+  - Note about mask :: 
+    Mask overrides default permissions.
+***** References
+man:acl(5)
+man:setfacl(1)
+** DONE 5 SELinux Permissions
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+- State "DONE"       from "OPEN"       [2015-06-18 Thu 10:09]
+CLOCK: [2015-06-18 Thu 09:41]--[2015-06-18 Thu 10:06] =>  0:25
+CLOCK: [2015-06-17 Wed 10:34]--[2015-06-17 Wed 11:13] =>  0:39
+CLOCK: [2015-06-17 Wed 09:32]--[2015-06-17 Wed 09:57] =>  0:25
+CLOCK: [2015-06-16 Tue 10:02]--[2015-06-16 Tue 10:27] =>  0:25
+CLOCK: [2015-06-16 Tue 09:31]--[2015-06-16 Tue 09:56] =>  0:25
+CLOCK: [2015-06-15 Mon 10:07]--[2015-06-15 Mon 10:36] =>  0:29
+CLOCK: [2015-06-15 Mon 09:35]--[2015-06-15 Mon 10:00] =>  0:25
+CLOCK: [2015-06-12 Fri 10:44]--[2015-06-12 Fri 11:09] =>  0:25
+CLOCK: [2015-06-12 Fri 10:01]--[2015-06-12 Fri 10:26] =>  0:25
+CLOCK: [2015-06-11 Thu 09:56]--[2015-06-11 Thu 10:21] =>  0:25
+CLOCK: [2015-06-11 Thu 09:28]--[2015-06-11 Thu 09:53] =>  0:25
+CLOCK: [2015-06-10 Wed 10:02]--[2015-06-10 Wed 10:27] =>  0:25
+CLOCK: [2015-06-10 Wed 09:28]--[2015-06-10 Wed 09:53] =>  0:25
+CLOCK: [2015-06-08 Mon 10:17]--[2015-06-08 Mon 10:41] =>  0:24
+CLOCK: [2015-06-08 Mon 09:43]--[2015-06-08 Mon 10:08] =>  0:25
+CLOCK: [2015-06-05 Fri 10:44]--[2015-06-05 Fri 10:57] =>  0:13
+:END:
+*** About 
+  SE Linux is fine grained permission management of files/processes/users/ports 
+  to minimize impact of 'rough/hacked' services.
+
+  E.g Apache has access to /tmp and /etc/passwd. If apache is compromised,
+  hacker could fill /tmp folder or /etc/passwd could be displayed on a webpage.
+*** Enabling and Monitoring Security Enchanced Linux (SELinux)
+**** Targeted permissions 
+  Permissions are targeted to induvidual files 
+  - file1 
+  - file2  etc.. 
+  The goal is to containe them.
+  
+                     +------------+
+                     | Object     |  << contain object.
+                     +------------+
+
+**** Context : Type enforcing 
+Context determines if something has access to a resource.
++----------------+                 +-----------------------------------+
+| Labels/Context | =(applied to)=> |(files/processes/users/ports etc..)|
++----------------+                 +-----------------------------------+
+
+labels have several contexts:
+ - user
+ - role 
+ - type_t << targeted policy aims here.
+ - sensitivity 
+
+- types ::
+  Typically end with _t
+     e.g web-server == httpd_t
+         /var/www/html == httpd_sys_content_t 
+         /tmp and /var/tmp == tmp_t 
+         web-server ports == http_port_t
+**** Displaying context "-Z"
+Many commands have a "-Z" at the end to display context. 
+
+E.g
+ - Kernel processes 
+   : ps axZ | grep kernel_t
+   : system_u:system_r:kernel_t:s0       2 ?        S      0:00 [kthreadd]
+   : system_u:system_r:kernel_t:s0       3 ?        S      0:09 [ksoftirqd/0]
+                            ^ kernel type.
+
+ - home directory 
+  : ls -Z /home
+  : drwx------. root     root     system_u:object_r:lost_found_t:s0 lost+found
+  : drwx--x---+ lufimtse lufimtse unconfined_u:object_r:user_home_dir_t:s0 lufimtse
+                                                         ^- user_home_dir_t type
+
+**** Policy
+  There is a policy how two objects can interact with one another.
+        +--------+                 +---------+
+        | Object1+  <--  Policy -->| Object_2|
+        +--------+                 +---------+
+**** Modes 
+  - 1 Enforcing mode :: 
+    Limits permissions. Logs intrusions. By default, all is blocked unless it's permitted.
+  - 2 Permissive :: 
+    Allows all, but logs in-correct access. Useful to see what perm services need.
+    No reboot required.
+  - 3 Dissabled ::
+    For those days...
+    Reboot required with kernel paramaters.
+
+To display current mode, use: 
+: getenforce
+**** Booleans 
+Switches to control behaviour of SELinux policy.
+
+Listing all booleans :
+: getsebool -a 
+**** References
+man:selinux(8)
+man:getenforce(8)
+man:getsebool(8)
+*** Changing SELinux Modes
+- Objectives ::
+  - change current SELinux mode 
+  - Set default SELinux mode of a system.
+
+- Se config ::
+  :  /etc/selinux/config 
+  Change this to change the mode at boot time.
+
+  Has two variables:
+  SELINUX=enforcing | permissive | disabled
+  SELINUXTYPE= targeted | minimum | mlsn               # default policy 
+               
+  On older RHEL:
+  /etc/sysconfig/selinux  << on older files.
+
+- See current mode ::
+  getenforce  << see current mode 
+
+- Set other mode ::
+  setenforce 1   #1 = enforcing mode.
+  setenforce permissive  #words work also.
+
+- Dissable/ paramas at boot time ::
+  pass paramater at boot time:
+  /boot/grub/grub.conf 
+
+  enforcing=0    #permissive mode 
+  selinux=0      #dissabled.
+
+- Ref :: 
+ man:setenforce(1)
+ man:getenforce(1)
+ man:selinux_config(5)
+
+*** Changing SELinux Ccontexts
+**** Summary 
+  Moving preserves SELinux types of file moved. 
+  ~chcon~ can change types but is not reccomended as context
+  can be overwritten on reboot. Use ~restorecon~ instead.
+
+  Search types with ~semanage fcontext -l~.
+
+**** See types info 
+List type info of files:
+: ls -Z 
+:   ...    _u:  _r:  _t
+:       user   role  type 
+
+Find proccess running a certain type:
+: ps -Z | grep ..._t  
+
+**** restorecon :  Restoring context of moved file BCMD__ 
+Normally files get types of parent dir. 
+But if file moved into dir, it preserves it's original permisisons.
+In this case, you can use ~restorecon~ (restore context) to set it 
+to the context of the partent dir.
+
+: restorecon -v <file>                    #verbose.
+: restorecon -Rv /dir           #recursivley on all files in folder.
+
+This actually uses a database of definitions. E.g list http related bits:
+: semanage fcontext -l | grep http
+  
+This contains many regexe's e.g '/websites(/.*)?'. Most specific is applied.
+**** chcon : Manually set context     BCMD__ 
+Usually avoid, but can be used for troubleshooting.
+
+Useful to set it to a context of an existing file:
+: chcon --reference=FILE 
+: chcon -t newType FILE 
+
+e.g
+: chcon -t httpd_sys_content_t /virtual
+**** semanage : Adding new Context with     BCMD__ 
+: semanage fcontext -a -f "" -t http_sys_content_t '/websites(/.*)?'
+:                 add  ?     type                   regex.
+
+- Changing the SELinux context of a file ::
+
+- Defining SELinux default file context rules ::
+**** Example
+Appache server:
+: yum install -y httpd
+: mkdir /custom
+: echo 'This is serverX.' > /custom/index.html
+
+edit ~/etc/httpd/conf/httpd.conf~ and set:
+DocumentRoot "/custom"
+<Directory "/custom">
+
+Try starting: 
+: systemctl start httpd
+http://localhost/index.html 
+
+It will fail with persmissions. Now fix perm 
+: semanage fcontext -a -t httpd_sys_content_t '/custom(/.*)?'
+: restorecon -Rv /custom
+*** Changing SELinux Booleans
+**** About
+These are rules that can be enabled/dissabled. 
+e.g allow users to run FTP from their home dirs.
+**** Getting help.
+You need to install man pages 
+: selinux-policy-devel
+
+Search man pages. there are many _selinux pages.
+: man -k '_selinux'
+   /the selinux man pages didn't seem to show for me :-/   
+
+e.g:
+: man ftpd_selinux 
+
+See also ~semanage boolean -l~ as it shows description.
+**** getsebool : find out current state 
+e.g list all and grep:
+: getsebool -a | grep ftpd
+
+See current state for after reboot:
+: semanage boolean -l
+
+e.g: 
+: ftp_home_dir                   (off  ,  off)  Determine whether ftpd can read and write files in user home directories.
+**** setsebool : set boolean policy
+Persistent change '-P'
+: setsebool -P httpd_enable_homedirs on 
+
+1=on, 0=off.
+**** Ref 
+man:booleans(8)
+man:getsebool(8)
+man:setsebool(8)
+man:semanage(8)
+man:semanage-boolean(8)
+*** Troubleshooting SELinux
+**** General guidance
+- consider it might be a genuine compromise of the system  if service asks for more than it needs.
+- Most often files moved but context was not adjusted. use ~restorecon~.
+- sebooleans may need adjusted. (e.g ftd_anon_write allow anonomous ftp upload.)
+- (unlikley), but may be a bug in policy. 
+
+**** Install package first 
+  sudo dnf install setroubleshoot-server.x86_64
+**** Location of messages 
+ : /var/log/audit.log 
+  - SELinux violuations 
+  - "avc denied" indicates permission error.
+
+
+ : /var/log/messages 
+  - short summary 
+    - UUID
+    - command that caused issue
+    - path to file etc.. 
+
+**** Example messages 
+  [root@serverX ~]# tail /var/log/audit/audit.log
+  ...
+  type=AVC msg=audit(1392944135.482:429): *avc:  denied*  { getattr } for
+    pid=1609 comm="httpd" path="/var/www/html/file3" dev="vda1" ino=8980981
+    scontext=system_u:system_r:httpd_t:s0
+    tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file
+  ...
+  [root@serverX ~]# tail /var/log/messages
+  ...
+  Feb 20 19:55:42 serverX setroubleshoot: SELinux is preventing /usr/sbin/httpd
+    from getattr access on the file . For complete SELinux messages. run
+    sealert -l 613ca624-248d-48a2-a7d9-d28f5bbe2763
+
+**** Getting more info 
+  log/messages contains command to get more info: 
+  : sealert -l 613ca624-248d-48a2-a7d9-d28f5bbe2763
+
+  The "Raw Audit Messages" has more info on context.
+  See if the context 'belongs' there. E.g if a "admin_home" context is in 
+  a web-server folder, then it may not belong there.
+
+Usually ~restorecon -R /var/www~ will fix the issue.
+
+**** References 
+  man:sealert(8)
+** DONE 6 Process Management
+CLOSED: [2015-07-30 Thu 15:09]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:09]
+- State "DONE"       from "OPEN"       [2015-06-25 Thu 10:21]
+CLOCK: [2015-06-25 Thu 10:16]--[2015-06-25 Thu 10:21] =>  0:05
+CLOCK: [2015-06-25 Thu 09:46]--[2015-06-25 Thu 10:11] =>  0:25
+CLOCK: [2015-06-24 Wed 09:56]--[2015-06-24 Wed 10:25] =>  0:29
+CLOCK: [2015-06-24 Wed 09:30]--[2015-06-24 Wed 09:55] =>  0:25
+CLOCK: [2015-06-23 Tue 10:15]--[2015-06-23 Tue 10:45] =>  0:30
+CLOCK: [2015-06-23 Tue 09:36]--[2015-06-23 Tue 10:04] =>  0:28
+CLOCK: [2015-06-22 Mon 11:20]--[2015-06-22 Mon 12:09] =>  0:49
+CLOCK: [2015-06-22 Mon 10:45]--[2015-06-22 Mon 11:16] =>  0:31
+CLOCK: [2015-06-19 Fri 11:10]--[2015-06-19 Fri 11:35] =>  0:25
+CLOCK: [2015-06-19 Fri 09:43]--[2015-06-19 Fri 10:02] =>  0:19
+CLOCK: [2015-06-18 Thu 10:09]--[2015-06-18 Thu 10:34] =>  0:25
+:END:
+*** Killing Processes
+**** Signals 
+Better use name instead of number, as number may vary on linux OS's.
+
+1	HUP	Hangup	
+2	INT	Keyboard interrupt	 Ctrl-c
+3	QUIT	Keyboard quit	         Ctrl-\
+9	KILL	Kill, unblockable	
+15      TERM	Terminate	(polite way to kill)
+18	CONT	Continue	(if stopped) 
+19	STOP	Stop, unblockable (suspends proc).
+20	TSTP	Keyboard stop	Ctrl-z suspend.
+
+Send SIGTERM first, then SIGKILL if that fails.
+
+see: man:signals(7)
+also:
+: kill -l 
+**** pkill : Kill user's proccesses administrivley,  BCMD__ 
+Kill all his proccesses:
+: pgrep -l -u bob 
+: pkill -SIGKILL -u bob 
+
+
+: pkill -u bob 
+  kills all his processes but not his top lvl shell.
+**** @ w who is logged in    BCMD__ 
+pty = pseudo terimnal, emulated (e.g xterm/ssh).
+     pts is slave part of pty. (see man:pty)
+tty = native terminal. Hardware/kernel.
+
+-f shows 'FROM' to see remote users.
+**** References 
+kill(1), killall(1), pgrep(1), pkill(1), pstree(1), signal(7), and w(1) man pages
+*** Job management 
+**** jobs : listing tasks BCMD__ 
+: jobs 
+**** killing jobs 
+use kill with '%id' e.g %1
+: kill %2
+**** disown    BCMD__
+Removes jobs from job list.
+**** fg / bg
+Switch job into foreground 
+: fg
+
+Restarts a suspended job and runns it in background 
+: bg 
+
+If no job id provided, the above act on current job.
+**** wait
+Useful in scripts that do things in the background.
+
+Eg.
+Make as script wait until all it's background tasks are finished.
+
+See ref for example.
+**** Ref 
+http://www.tldp.org/LDP/abs/html/x9644.html
+*** Monitoring Process Activity 
+**** Load average
+active request = ready for IO (inc those waiting for disk). 
+load number = number of active requests, 5 second average 
+exponential moving average = math formula to smoothen out high/low.
+
+load average = calculation of load.
+- exponential 
+- 0-1 per CPU. Can be above 1 if there are too many requests. 
+- e.g 0-2 if there are 2 cpu's.
+
+- notes ::
+  Threads counted induvidually.
+**** @ top : list top processes  BCMD__ 
+***** main keys
+h - help
+s - set refresh rate 
+1 - toggle induvidual cpus 
+H - toggles threads 
+u - filter by user
+M - sort by memory usage
+P - sort by process utilization
+r - renice process 
+k - kill proc. (top in list is selected)  
+W  - write (save display for later re-use)
+***** Fields 
+VIRT = virtual memory (VSZ in ps) 
+RES = physical memory (resident and shared)
+SHR = sharable memory (libraries etc... ) 
+- Process state (s) ::
+   D - uninterruptable sleeping (e.g waiting for disk) 
+   R runinng 
+   S sleeping 
+   T stopped/traced
+   Z zombie
+***** Column management
+  F - sort order 
+  up/down to select item.  
+  s   set to sort according to that field. 
+  right = highlight item, up/down to move column. 
+  SPC add/remove column from view.
+***** Searching 
+o , then COLUMN=VALUE 
+ e.g COMMAND=foo
+**** Determine number of CPU's on the system 
+: grep "model name" /proc/cpuinfo | wc -l
+**** References
+Load average explained:
+http://blog.scoutapp.com/articles/2009/07/31/understanding-load-averages
+
+yelp help:gnome-system-monitor
+ps(1), top(1), uptime(1), and w(1) man pages
+*** Using nice and renice to Influence Process Priority
+**** About 
+- Linux Priorties range from 0-139. 
+- 0 is higest.
+- 0 - 99 is real time, 100 to 139 is user space.
+- User can increase nice, but only root can lower.
+- nice is inherited from parent proc.
+
+Niceness is an influence in priority 
+**** Mapping of nice to cpu priority
+  Priory   Nice    PRIORITY 
+  High     -20      100 
+  default   0       120 
+  Low       19      139
+**** Commands 
+: nice -n 5 <CMD>    #start command with lower priority 
+: nice <CMD>         #default nice = 10.
+
+: renice -n 10 <PID>  #renice an existing process.
+
+top -> select proccess, 'r' (renice). 
+
+List all prcosses according to their nice value:
+: ps axo pid,com,nice,pcpu sort=nice
+**** References 
+nice(1), renice(1), and top(1) man pages
+*** 100% cpu usage/utilization command, busy BCMD__
+: sha1sum /dev/zero 
+: cat /dev/zero > /dev/null &      #I like this.
+** DONE 7 Updating Software Packages
+CLOSED: [2015-07-30 Thu 15:33]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:33]
+- State "DONE"       from "OPEN"       [2015-06-29 Mon 09:50]
+CLOCK: [2015-06-29 Mon 09:30]--[2015-06-29 Mon 09:50] =>  0:20
+CLOCK: [2015-06-25 Thu 18:53]--[2015-06-25 Thu 19:18] =>  0:25
+CLOCK: [2015-06-25 Thu 18:17]--[2015-06-25 Thu 18:46] =>  0:29
+:END:
+*** Attaching Systems to subscriptions for Software Updates
+- gui ::
+  : subscription-manager-gui
+
+- cmds :: 
+  : subscription-manager --help 
+  per cmd help:
+  : subscription-manager remove --help 
+
+: subscription-manager register --username=yourusername --password=yourpassword
+: subscription-manager list --available | less
+: subscription-manager attach --auto
+: subscription-manager list --consumed
+: subscription-manager unregister
+
+**** References 
+subscription-manager-gui(8), subscription-manager(8), and rct(8) man pages
+
+Get Started with Red Hat Subscription Management - Red Hat Customer Portal
+https://access.redhat.com/articles/433903
+
+Red Hat Customer Portal
+https://access.redhat.com/documentation/en-US/Red_Hat_Subscription_Management/1/html-single/MigratingRHN/
+*** dnf (yum) BCMD__ 
+**** help
+**** list
+***** about
+- Show what's installed, then what's available. 
+- press tab to see info.
+- can be used with wild cards:
+: yum list vim*
+***** available - on remote repos 
+***** installed - on your system
+***** kernels on your system (seeing) 
+: yum list kernel
+**** info
+: dnf info packagename
+**** provides FILE/Library
+Useful to see which packages provide certain files or libraries.
+e.g 
+: dnf provides /etc/eclipse.ini 
+
+Works with wild cards:
+: E.g msg:  No package 'foo-2.0' found ->>
+: yum provides "*/foo-2.0.pc"
+**** search KEYWORD
+**** search all KEYWORD  #in description
+**** install
+-y : to agree
+**** update 
+: dnf update PACKAGENAME
+: dnf update   #update all packages.
+
+Kernel updates leave old kernel in boot menu. 
+See also [[id:f0c04bef-f80c-4dfe-8df8-2659b86829c1][uname]] for kernel version info.
+**** remove
+**** builddep   #get build dependencies
+:PROPERTIES:
+:ID:       9bee127b-2fb7-49bf-8f13-0cf62251a69d
+:END:
+To build packages you often need a bunch of development packages.
+This command can automatically pull the neccessary sources.
+
+e.g
+: dnf builddep emacs
+**** enable/dissable repositories temporarily
+: --enablerepo=PATTERN 
+: --disablerepo=PATTERN
+See also [[id:b1b4a13c-d3e8-4fcf-9449-edcc79a9b0ab][List repositories]]
+**** *group*
+***** list
+***** list hidden
+***** info 
+Marker	Meaning
+=	Package is installed, was installed as part of the group
++	Package isn't installed, will be if the group is installed or updated
+-	Package isn't installed, will not be if the group is installed or updated
+no marker	Package is installed, but was not installed through the group.
+***** install
+**** *Transaction history* 
+***** log location: /var/log/yum.log
+***** history 
+: dnf history 
+Provides a list of actions recently carried out.
+***** history undo 
+undo an previos action. ID is provided by history command.
+: dnf history undo ID
+***** history info ID
+**** Reference
+yum(1) and yum.conf(5) man pages
+http://docs.redhat.com/
+*** Software Repositories
+**** about 
+url's that contain a folder *repodata* are classed as repositories.
+**** List repositories
+:PROPERTIES:
+:ID:       b1b4a13c-d3e8-4fcf-9449-edcc79a9b0ab
+:END:
+yum repolist all
+**** Location of repositories
+: /etc/yum.repos.d/redhat.repo
+Repos end with .repo
+**** Enable repositories 
+: yum-config-manager --enable rhel-7-public-beta-debug-rpms
+**** Add repos 
+: yum-config-manager --add-repo="http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/"
+**** References
+Additional information may be available in the section on configuring yum and yum repositories in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+yum(1), yum.conf(5), and yum-config-manager(1) man pages
+** DONE 8 Creating and Mounting File Systems
+CLOSED: [2015-07-30 Thu 16:14]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 16:14]
+- State "DONE"       from "OPEN"       [2015-07-02 Thu 12:10]
+CLOCK: [2015-07-02 Thu 11:55]--[2015-07-02 Thu 12:10] =>  0:15
+CLOCK: [2015-07-02 Thu 11:26]--[2015-07-02 Thu 11:51] =>  0:25
+CLOCK: [2015-07-02 Thu 10:55]--[2015-07-02 Thu 11:21] =>  0:26
+CLOCK: [2015-07-02 Thu 10:30]--[2015-07-02 Thu 10:55] =>  0:25
+CLOCK: [2015-07-02 Thu 09:54]--[2015-07-02 Thu 10:19] =>  0:25
+CLOCK: [2015-06-30 Tue 12:54]--[2015-06-30 Tue 13:08] =>  0:14
+CLOCK: [2015-06-30 Tue 12:15]--[2015-06-30 Tue 12:46] =>  0:31
+CLOCK: [2015-06-30 Tue 11:30]--[2015-06-30 Tue 12:12] =>  0:42
+CLOCK: [2015-06-30 Tue 10:58]--[2015-06-30 Tue 11:23] =>  0:25
+CLOCK: [2015-06-30 Tue 10:30]--[2015-06-30 Tue 10:55] =>  0:25
+CLOCK: [2015-06-29 Mon 11:22]--[2015-06-29 Mon 11:47] =>  0:25
+CLOCK: [2015-06-29 Mon 10:36]--[2015-06-29 Mon 11:01] =>  0:25
+CLOCK: [2015-06-29 Mon 10:01]--[2015-06-29 Mon 10:26] =>  0:25
+CLOCK: [2015-06-29 Mon 09:50]--[2015-06-29 Mon 09:55] =>  0:05
+:END:
+*** Theory
+**** Overview
+To make a new disk accessible, you need to go through a bunch of steps:
+1) Make partition (fdisk) 
+  -> 2) Assign file system. (mkfs) 
+     -> 3) Mount (mount) & make persistent (/etc/fstab) 
+**** MBR / GPT Partitioning
+- MBR has limit :: 
+  BIOS. Max: 15 partitions, 2 TiB storage.
+
+- GPT :: 
+  EFII. Max: 128 partitions, 8 ZiB. 
+  Redundancy parittion table. (Start & end of disk).
+  128 bits GUID to uniqley identify sections.
+
+(!) MBR to GPT can cause data loss. (it is not sure why..) 
+**** Data Storage Unit Terminology (KiB, MiB, GiB etc..)
+KiB vs KB notion.
+
+KB is decimal storage.
+KiB is binary storage.
+
+e.g 
+   kilobyte KB = 10^3 bytes. 
+   kibibyte KiB = 2^10 bytes. (ki-po-bytes).
+
+   megabyte MB = 10^6
+   mebibyte MiB = 2^10 bytes.
+*** Adding Partitions, File Systems
+**** 1) fdisk / gdisk : partitioning commands   BCMD__
+***** fdisk vs gdisk
+fdisk for MBR volumes.
+gdisk is for GPT volumes.
+
+#(fdisk has some GPT support, but it's experimental. Not reccomended).
+***** Adding disk 
+Often used in conjunction with ~lsblk~ and ~blkid~ to see partitions.
+
+fdisk & gdisk can be used interchangingly.
+: # fdisk /dev/vdb 
+:    n        (new)
+:    p|e      (primary/extended. P usually does the job). 
+:    first/last sectors.   (e.g +512M.  or -512M means leave that space at end).
+:    (optional) t      (type -> 'L' to list types). 
+:    w        (write). 
+:
+: # partprobe /dev/vdb   #update kernel.
+***** Removing a disk 
+fdisk &  gdisk can be used interchangingly.
+: lsblk
+: ..
+: fdisk /dev/vdb 
+: d    #delete.
+: w    #write.
+:
+: partprobe /dev/vdb   #update kernel.
+**** 2) mkfs : Creating/Making a File System.  BCMD__
+Once partition is created, need to make a file system. 
+
+: mkfs -t xfs /dev/vdb 
+
+types:
+ - xfs (RHEL) > ext4.
+ - default is ext2.
+**** 3) mount 
+See below.
+**** References
+fdisk(8), gdisk(8), mkfs(8), mount(8), fstab(5) man pages
+*** Mounting and Unmounting File Systems
+**** mount :  BCMD__ 
+***** Temporary mount 
+: mount   #list all mounted devices.
+
+: mount FS  Target_Dir    #mount a specific 
+- Args ::
+  - FS ::
+    Can be either
+    - "/dev/*"  (partition directly).
+    - "UUID"   Universal Unique id of device.
+          use blkid to find id's for devices.
+  - Target_Dir :: 
+    -  Reccomended to put into /mnt/YourDir  
+    -  Make a dir first, then mount into it.
+
+- Example ::
+ : mkdir /mnt/myDisk
+ : mount /dev/vdb1 /mnt/myDisk
+ or
+ : blkid 
+ : #make note of UUID
+ : mount UUID="xyz...." /mnt/myDisk
+***** Persistent mount 
+mount info stored in: 
+: /etc/fstab   #file system table. 
+
+e.g 
+UUID=7a20315d-ed8b-4e75-a5b6-24ff9e1f9838  /  xfs  defaults  1 1
+1                                         2   3     4        5/6
+1 = id 
+2 = mount point 
+3 =  file system 
+4 = options. (see man:mount) 
+5 = dump flag (e.g 0)
+6 = fsck flag. (increment to set order of.) (e.g 2)
+
+*(!) messing with this can make machine unbootable.* 
+ After changing, verify with:
+ : mount -a
+
+
+E.g:
+: blkid /dev/vdb1  #find UUID 
+
+: vi /etc/fstab 
+: #add:
+: UUID=5fcb234a-cf18-4d0d-96ab-66a4d1ad08f5 /archive ext4 defaults 0 2
+
+: mount -a
+**** umount : (Unmount a fs) BCMD__
+: umount MOUNT_POINT 
+
+- Can only unmount directory that are not in use. 
+- Use ~lsof~ to find out which proc's are using dir.
+- Often your shell is in mount point, causing unmount issues.
+
+e.g
+: umount /mnt/myDisk
+**** blkid : (block id, lists UUID)   BCMD__ 
+- lists UUID for devices in the system.
+- lists type of fs
+**** lsblk : (list block devices) BCMD__
+Like ~blkid~ but more human-friendly.
+**** df :  (space/usage on disk file system)   BCMD__
+- Reports disk file system usage.
+- Size available on each on disk.
+: df -h   #h = human redale.
+**** lsof (List open files) BCMD__
+: lsof /yourDir
+: lsof         #list all open files by system.
+**** Removable Media (flash usb sticks) note 
+Flash sticks are usually mounted in:
+: /run/media/<user>/<label>
+It is best to unmount them prior to ejection.
+**** References
+mount(8), umount(8), and lsof(8) man pages
+*** Managing Swap Space
+Virtual memory = real + swap. 
+**** Summary
+Create a swap partition. Set type as swap.
+Mark as swap. Turn swap on. Make swap persistent.
+
+  lsblk
+  fdisk , t 82
+  mkswap /dev/dbv
+  swapon -a 
+  blkid   #make note of UUID
+  sudo vi /etc/fstab -> add UUID="..." swap swap 0 0 
+  mount -a   #test.
+**** create swap space 
+  - create partition (see fdisk)
+  - set type : 82 Linux swap 
+  - Format a swap signature on the device. 
+    Appply 'swap signature'. 
+    : mkswap /dev/vdb1
+  - Turn on swap space : 
+    : swapon /dev/vbd1   #on a device or
+    : swapon -a  #activate all listed in fstab.
+**** Make Persistent 
+  add to /etc/fstab
+  e.g
+  :   UUID=fbd7fa60-b781-44a8-961b-37ac3ef572bf  swap  swap  defaults  0 0 
+  - mount point is set to 'swap' as it's not accessible.
+  - default contains'auto', which auto-mounts swap space.
+**** Prioritizing swap spaces 
+- Persistent ::
+  in /etc/fstab, can set pri=1   
+  : UUID=af30cbb0-3866-466a-825a-58889a49ef33 swap swap pri=1 0 0
+
+- Temporary :: 
+  : swapon -p 1 /dev/vdb1 
+
+Note, swapspaces with equal priorities will get round-robin. 
+Otherwise written to highest priority till full, then onto next one.
+
+Range: [-1, 32k], default= -1
+
+**** turn off swap space 
+  : swapoff
+**** see available swap space 
+useful to see if you really added swap space.
+: swapon -s  #summary of each swap space
+: free   -h    #memory overview in genreal.
+**** References
+** DONE 9 Service Managment and Boot Troubleshooting
+CLOSED: [2015-07-30 Thu 21:13]
+mkswap(8), swapon(8), swapoff(8), mount(8), fdisk(8) man pages
+CLOSED: [2015-07-07 Tue 15:54]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 21:13]
+- State "DONE"       from "OPEN"       [2015-07-07 Tue 15:54]
+CLOCK: [2015-07-07 Tue 15:53]--[2015-07-07 Tue 15:54] =>  0:01
+CLOCK: [2015-07-07 Tue 15:08]--[2015-07-07 Tue 15:33] =>  0:25
+CLOCK: [2015-07-07 Tue 14:40]--[2015-07-07 Tue 15:05] =>  0:25
+CLOCK: [2015-07-07 Tue 13:04]--[2015-07-07 Tue 13:59] =>  0:55
+CLOCK: [2015-07-07 Tue 12:25]--[2015-07-07 Tue 12:50] =>  0:25
+CLOCK: [2015-07-07 Tue 11:50]--[2015-07-07 Tue 12:15] =>  0:25
+CLOCK: [2015-07-07 Tue 11:21]--[2015-07-07 Tue 11:28] =>  0:07
+CLOCK: [2015-07-06 Mon 15:45]--[2015-07-06 Mon 16:31] =>  0:46
+CLOCK: [2015-07-06 Mon 14:51]--[2015-07-06 Mon 15:16] =>  0:25
+CLOCK: [2015-07-06 Mon 14:21]--[2015-07-06 Mon 14:46] =>  0:25
+CLOCK: [2015-07-06 Mon 13:49]--[2015-07-06 Mon 14:14] =>  0:25
+CLOCK: [2015-07-06 Mon 13:32]--[2015-07-06 Mon 13:48] =>  0:16
+CLOCK: [2015-07-06 Mon 13:00]--[2015-07-06 Mon 13:25] =>  0:25
+CLOCK: [2015-07-06 Mon 12:59]--[2015-07-06 Mon 12:59] =>  0:00
+CLOCK: [2015-07-06 Mon 12:59]--[2015-07-06 Mon 12:59] =>  0:00
+CLOCK: [2015-07-06 Mon 11:30]--[2015-07-06 Mon 12:05] =>  0:35
+CLOCK: [2015-07-06 Mon 10:57]--[2015-07-06 Mon 11:28] =>  0:31
+CLOCK: [2015-07-06 Mon 10:22]--[2015-07-06 Mon 10:47] =>  0:25
+CLOCK: [2015-07-06 Mon 09:51]--[2015-07-06 Mon 10:16] =>  0:25
+CLOCK: [2015-07-03 Fri 11:58]--[2015-07-03 Fri 12:10] =>  0:12
+CLOCK: [2015-07-03 Fri 10:44]--[2015-07-03 Fri 11:22] =>  0:38
+CLOCK: [2015-07-03 Fri 10:03]--[2015-07-03 Fri 10:28] =>  0:25
+CLOCK: [2015-07-03 Fri 09:47]--[2015-07-03 Fri 10:03] =>  0:16
+CLOCK: [2015-07-02 Thu 12:15]--[2015-07-02 Thu 12:20] =>  0:05
+:END:
+*** View process info (boot time services etc)
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-07-07 Tue 11:58]
+- State "HOLD"       from "OPEN"       [2015-07-06 Mon 14:06]
+:END:
+Deamon processes by convention end with 'd'. systemd, bluetoothd etc..
+*service* = one or more daemons.
+
+- History :: 
+  Init was pid 1. Now systemd has pid1. 
+  Features:
+  - parallel launching 
+  - dependency resolution
+  - proccess groups, 
+  - on-demand starting 
+
+- meh ::
+  .service - system service. E.g webserver 
+  .sock - delay startup till socket opened by client 
+  .path - delay startup till file changed. E.g print spooler.
+
+- States ::
+  ... active(exited) : one time config complete
+  ... static : cannot be enabled, but started by enabled services.
+
+- Summary ::
+  systemctl 
+
+- Show only socket ::   
+  systemctl --type=socket --all
+
+- Boot time services ::
+  systemctl list-unit-files --type=service
+
+- Failed services ::
+  systemclt --failed type=service 
+ 
+- Show status ::
+  systemctl status rngd.service
+  systemctl status sshd 
+  systemctl status sshd.socket
+
+- active/enabled ::
+  systemctl is-active sshd
+  systemctl is-active sshd.socket  #more specific.
+  systemctl is-enabled sshd  #.socket 
+**** References 
+systemd(1), systemd.unit(5), systemd.service(5), systemd.socket(5), and systemctl(1) man pages
+Additional information may be available in the chapter on managing services with systemd in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** Controlling System Services
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-07-07 Tue 11:58]
+- State "HOLD"       from "OPEN"       [2015-07-06 Mon 14:06]
+:END:
+E.g On config changes, often want to reload a service.
+**** Starting / Stopping / Restarting a service
+:  systemctl (start|stop|restart|reload*1)  name.service  
+    1* reload doesn't stop/start, only loads config.
+**** Enabling / Dissabling a service
+En/Dis doesn't start/stop a service, but prevents loading on reboot.
+: systemctl (enable|disable) UNIT 
+**** Dependencies 
+- Starting ::
+  Starting .socket or .path starts the .service 
+
+- Dissabling ::
+  Dissabling .service dissables dependent .path and .socket. 
+
+- Stopping :: 
+  All services have to be stopped manually .service .path .socket.
+  Stopping .service does not stop .socket
+
+- List dependencies ::
+  : systemctrl ... --reserve    #not tested.
+**** Masking 
+To avoid conflict (e.g services that manage a firewall), we mask services.
+That makes them in-startable. 
+: systemctl (mask|unmask) network
+**** References
+systemd(1), systemd.unit(5), systemd.service(5), systemd.socket(5), and systemctl(1) man pages
+Additional information may be available in the chapter on managing services with systemd in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** The RHEL Boot Process
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-07-07 Tue 12:31]
+- State "HOLD"       from "OPEN"       [2015-07-06 Mon 14:06]
+:END:
+**** Boot Process 
+> grup2-install 
+> reads: 
+   /etc/grub.d/ 
+   /etc/default/grub 
+   /etc/grub2/grub.cfg (not manually) 
+
+> load (kernel + initramfs) 
+   initramfs  is a gzipped archive with kernel modules+init scripts.
+              configured with /etc/dracut.conf 
+
+> pass kernel paramas (linux16.. )
+> start: /sbin/init (which contains systemd) with pid=1.
+> mounts fs, inc /etc/fstab 
+> loads *default.target*
+**** System Targets 
+Tree-based structure, that instructs what to load.
+***** About
+Target files located in:
+/usr/lib/systemd/system 
+
+graphical.target    - all services.
+● └─multi-user.target   - text-based 
+●   ├─basic.target
+...
+rescue.target  - basic prompt 
+emergency.target - read-only 
+
+***** Show dependency tree 
+  : systemctl list-dependencies graphical.target | grep target
+***** Show all targets 
+  : systemctl list-units --type=target --all
+  : systemctl list-unit-files --type=target --all   #installed on disk.
+***** Isolate targets 
+  Select to load only certain services at run time. 
+This also means stopping non-related services.
+E.g below kills user interface:
+  : systemctl isolate multi-user.target
+  Note, only 'AllowIsolate=yes' (in unit file config) can be isolated.
+**** Setting default target 
+Default is usually a link to other target:
+: ll /etc/systemd/system/default.target
+: lrwxrwxrwx. 1 root root 36 May 13  2014 /etc/systemd/system/default.target -> /lib/systemd/system/graphical.target
+
+Can be get/set via:
+: [root@serverX ~]# systemctl get-default
+: multi-user.target
+: [root@serverX ~]# systemctl set-default graphical.target
+: rm '/etc/systemd/system/default.target'
+: ln -s '/usr/lib/systemd/system/graphical.target' '/etc/systemd/system/default.target'
+: [root@serverX ~]# systemctl get-default
+: graphical.target
+**** Selecting different target at boot time 
+- During boot, (e)dit boot option, 
+- find /linux16/ line,
+- append: *systemd.unit=rescue.target* 
+  or '1' 
+
+This config affects only a single boot.
+**** References
+bootup(7), dracut.bootup(7), systemd.target(5), systemd.special(7), sulogin(8), and systemctl(1) man pages
+info grub2 (GNU GRUB Manual)
+*** Reparing common Boot issues 
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-07-07 Tue 13:20]
+- State "HOLD"       from "OPEN"       [2015-07-06 Mon 14:06]
+- State "CANC"       from "PERSIST"    [2015-07-06 Mon 11:50]
+- State "WAIT"       from "HOLD"       [2015-07-06 Mon 11:50]
+- State "HOLD"       from "DONE"       [2015-07-06 Mon 11:50]
+- State "DONE"       from "OPEN"       [2015-07-06 Mon 11:46]
+:END:
+**** Reset root password (@ need to memorize this process).
+- reboot system`
+- change boot paramaters (e)dit. 
+- under 'linux16', append: *rd.break*  (ram disk break).
+- Ctrl+x 
+- Type commands :: 
+ : mount -o remount,rw /sysroot  
+ : chroot /sysroot 
+ : #1
+ : passwd root 
+ : touch /.autorelabel   #update SELinux labels.
+
+- ctrl+d *2 to continue boot.
+- SELinux will take a while to re-label things.
+**** Using journalctl to view boot log 
+- Enable persistent logging :: 
+  : [root@serverX ~]# mkdir -p -m2775 /var/log/journal
+  : [root@serverX ~]# chown :systemd-journal /var/log/journal
+  : [root@serverX ~]# killall -USR1 systemd-journald
+
+- Show log of previous boot (b-1) 
+  : journalctl -b-1 -p err
+**** Diagonse and repair system boot issues 
+***** Early debug shell 
+Spawn a new root shell on TTY9
+: systemctl enable debug-shell.service, 
+Switch to it:
+ Ctrl+Alt+F9
+(!) remember to exit it after boot.
+***** Emergency recsue target, 
+- in boot, edit boot config, 
+- after linux16, append 
+  systemd.unit=rescue.target  #basic 
+  systemd.unit=emergency.target #read only
+***** Stuck jobs 
+List stuck jobs:
+: systemctl list-jobs 
+seek 'waiting'
+***** "Failed to load SELinux Policy. Freezing"
+- Edit boot config, add 'selinux=0' to linux16 param list.
+- boot into systtem. Reinstall package:
+  : yum reinstall selinux-policy-targeted
+
+**** References
+dracut.cmdline(7), systemd-journald(8), journalctl(1), sushell(8), and systemctl(1) man pages
+/usr/lib/systemd/system/debug-shell.service
+*** Repairing File System Issues at Boot
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-07-07 Tue 15:54]
+- State "HOLD"       from "OPEN"       [2015-07-06 Mon 14:06]
+:END:
+Common issues that lead to "emergency shell"
+  - Corrupt fs 
+   systemd will appemt fsck. If too serious, user is prompted.
+  - non existing device/UUID/mount point/option in /etc/fstab  
+
+After editing /etc/fstab , reload daemon
+: systemctl daemon-reload
+
+Enabling debug shell might be useful. 
+: sudo systemctl enable debug-shell.service
+: (Optional) systemctl start debug-shell.service
+This enables a terminal on Ctrl+Alt+F9.
+Remember to disable it after.
+
+
+- E.g fix: 
+  - boot, edit param
+  - linux16 >> systemd.unit=emergency.target
+  - mount -o remount,rw / 
+  - mount -a   #find broken entry 
+  - vi /etc/fstab  #remove broken entry 
+
+- E.g 2 issue 
+  : [FAILED] to mount /extras 
+  : see systemctl status extras.mount for details
+  : # systemctl status -l extras.mount 
+  : ... issue on /dev/vdb1 
+  : blkid 
+  : edit /etc/fstab  to find issues 
+  : systemctl daemon-reload
+**** References
+systemd-fsck(8), systemd-fstab-generator(3), and systemd.mount(5) man pages
+*** Repairing Boot Loader Issues
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-06 Mon 16:14]
+:END:
+grub2 = grand unified boot loader.
+**** Edit grub config
+            ----- (readt from) - /etc/default/grub.cfg  (config file)
+            .    
+  grub2-mkconfig 
+    .       .
+    .       .... (Writte to)  /boot/grub2/grub.cfg   (auto-generated)
+    .      
+    .
+    (uses scripts from /etc/grub.d/)
+
+- After editing cfg, run ::
+  : grub2-mkconfig > /boot/grub2/grub.cfg
+**** (re) install grub / bootloader 
+Useful when grub was wiped from the system.
+: grub2-install
+**** References
+info grub2 (GNU GRUB Manual)
+Chapter 28: "Invoking grub2-install"q
+info grub2-install (GNU GRUB Manual)
+** DONE 10 Network Configuration
+CLOSED: [2015-07-30 Thu 21:15]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 21:15]
+- State "DONE"       from "OPEN"       [2015-07-08 Wed 12:09]
+CLOCK: [2015-07-08 Wed 11:40]--[2015-07-08 Wed 12:09] =>  0:29
+CLOCK: [2015-07-08 Wed 11:05]--[2015-07-08 Wed 11:38] =>  0:33
+CLOCK: [2015-07-08 Wed 10:21]--[2015-07-08 Wed 10:46] =>  0:25
+CLOCK: [2015-07-08 Wed 09:50]--[2015-07-08 Wed 10:15] =>  0:25
+CLOCK: [2015-07-07 Tue 16:38]--[2015-07-07 Tue 17:03] =>  0:25
+CLOCK: [2015-07-07 Tue 15:54]--[2015-07-07 Tue 16:29] =>  0:35
+CLOCK: [2015-07-06 Mon 16:43]--[2015-07-06 Mon 17:08] =>  0:25
+:END:
+*** Validating Network Configuration
+**** Show ip address 
+: ip addr 
+: ip addr show eth0
+**** Show gateway 
+: route -n
+**** Show usage 
+: ip -s link show eth0
+**** Diagnostics
+: ping 
+: traceroute / tracepath
+
+- socket :: 
+See which are in use, which are listed.
+: ss
+: ss -ta  #shows stats 
+: ss -lt  #listening TCP addresses.
+
+-n	Show numbers instead of names for interfaces and ports.
+-t	Show TCP sockets.
+-u	Show UDP sockets.
+-l	Show only listening sockets.
+-a	Show all (listening and established) sockets.
+-p	Show the process using the sockets.
+*** Configuring Networking with ~nmcli~
+*device* = eth port 
+*connection* = named settings.
+
+1 device can have many connections, but only 1 connection can be active at a time.
+
+~nmcli~ is a command line interface. 
+~nm-connection-editor~ is a gui for this.
+
+Command	Use
+nmcli dev status	List all devices.
+nmcli con show	List all connections.
+nmcli con up "<ID>"	Activate a connection.
+nmcli con down "<ID>"	Deactivate a connection. The connection will restart if autoconnect is yes.
+nmcli dev dis <DEV>	Bring down an interface and temporarily disable autoconnect.
+nmcli net off	Disable all managed interfaces.
+nmcli con add ...	Add a new connection.
+nmcli con mod "<ID>" ...	Modify a connection.
+nmcli con del "<ID>"	Delete a connection.
+
+e.g
+Add a connection.
+: nmcli con add con-name "default" type ethernet ifname eth0
+
+Modify a connectio
+: nmcli con mod "static" connection.autoconnect no
+Note, after changing settings, need to activate/reactivate connection:
+: nmcli con up "static"
+**** References
+nmcli(1), nmcli-examples(5), and nm-settings(5) man pages
+Additional information may be available in the section on using the NetworkManager
+ command line tool nmcli in the Red Hat Enterprise Linux Networking Guide 
+for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** Editing Network Configuration Files
+- Config files ::
+  : /etc/systconfig/network-scripts/ifcfg-name
+
+- Configuration Options for ifcfg File ::
+  Static
+  BOOTPROTO=none
+  IPADDR0=172.25.X.10
+  PREFIX0=24
+  GATEWAY0=172.25.X.254
+  DEFROUTE=yes
+  DNS1=172.25.254.254
+
+  Dynamic
+  BOOTPROTO=dhcp
+
+  Etheir 
+  DEVICE=eth0
+  NAME="System eth0"
+  ONBOOT=yes
+  UUID=f3e8dd32-3...
+  USERCTL=yes
+
+- After modifying, need to reload ::
+  : nmcli con reload 
+  : nmcli con down "eth0"
+  : nmcli con up "eth0"
+
+*** Configure Host Names and Name Resolution
+**** Hostname
+View host name:
+: hostname 
+
+TMP set hostname:
+: hostname meh
+
+
+Static host name defined in:
+: /etc/hostname 
+
+Modify via :
+: hostnamectl set-hostname redLeo.localdomain
+
+Info:
+: hostnamectl status
+**** dnf name resolution
+Config file:
+: cat /etc/hosts
+
+Get assiged entries:   <<more reliable than ~host~ 
+: getent hosts localhost
+This queries dns server if not found locally.
+Also :
+: host www.google.com
+
+Resolve file, (it is updated by nmcli).
+: /etc/resolv.conf 
+  domain search  nameserver 10.
+**** References
+nmcli(1), hostnamectl(1), hosts(5), getent(1), host(1), and resolv.conf(5) man pages
+Additional information may be available in the chapter on configuring host names in the Red Hat Enterprise Linux Networking Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+
+** DONE 11 System Logging and NTP
+CLOSED: [2015-07-30 Thu 22:06]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 22:06]
+- State "DONE"       from "OPEN"       [2015-07-09 Thu 18:20]
+CLOCK: [2015-07-09 Thu 17:56]--[2015-07-09 Thu 18:20] =>  0:24
+CLOCK: [2015-07-09 Thu 17:23]--[2015-07-09 Thu 17:48] =>  0:25
+CLOCK: [2015-07-09 Thu 16:25]--[2015-07-09 Thu 16:50] =>  0:25
+CLOCK: [2015-07-09 Thu 15:51]--[2015-07-09 Thu 16:16] =>  0:25
+CLOCK: [2015-07-09 Thu 15:21]--[2015-07-09 Thu 15:46] =>  0:25
+CLOCK: [2015-07-09 Thu 13:56]--[2015-07-09 Thu 14:21] =>  0:25
+CLOCK: [2015-07-09 Thu 13:29]--[2015-07-09 Thu 13:54] =>  0:25
+CLOCK: [2015-07-09 Thu 12:53]--[2015-07-09 Thu 13:18] =>  0:25
+CLOCK: [2015-07-09 Thu 12:18]--[2015-07-09 Thu 12:43] =>  0:25
+CLOCK: [2015-07-09 Thu 11:20]--[2015-07-09 Thu 11:45] =>  0:25
+CLOCK: [2015-07-09 Thu 10:50]--[2015-07-09 Thu 11:15] =>  0:25
+CLOCK: [2015-07-09 Thu 09:43]--[2015-07-09 Thu 10:08] =>  0:25
+CLOCK: [2015-07-08 Wed 18:31]--[2015-07-08 Wed 18:31] =>  0:00
+CLOCK: [2015-07-08 Wed 18:03]--[2015-07-08 Wed 18:28] =>  0:25
+CLOCK: [2015-07-08 Wed 15:30]--[2015-07-08 Wed 15:55] =>  0:25
+:END:
+*** Reading system Log files  FILE__
+Location:
+: /var/log/*
+
+- Theory ::
+  - Behaviour :
+    ~systemd-journald~  -> passes to -> ~rsyslog~
+    ~rsyslog~ then writes them to /var/log/messages 
+     and copies them to more specific log files like /debug
+
+- Log files, /var/log/... ::
+  - messages :  Most syslog messages, except more specific once.
+  - secure 
+  - maillog
+  - cron  
+  - boot.log  #not persistent after reboot (but can be set).
+
+- Viewing logs ::
+  Useful for live-tracking.
+  : tail -f log 
+
+- Log Priority levels ::
+  Debugging-level message.
+  Code	Priority	Severity	
+  0	emerg	System is unusable.	
+  1	alert	Action must be taken immediately.	
+  2	crit	Critical condition.	
+  3	err	Non-critical error condition.	
+  4	warning	Warning condition.	
+  5	notice	Normal but significant event.	
+  6	info	Informational event.	
+  7	debug	Debugging-level message.	
+  See man:syslog(3)
+
+**** References
+systemd-journald.service(8), rsyslogd(8), and rsyslog.conf(5) man pages
+Additional information may be available in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** rsyslog : Configure filters BCMD__ FILE__
+- Config file ::
+:  /etc/rsyslog.conf
+
+- Additional config files ::
+: /etc/rsyslog.d/* 
+
+- Rule Syntax ::
+:  (Name).(Level)    /var/log/LOG-NAME 
+ Name is :
+   user / debug/ mail etc..  >> see logger man page.
+ Level is : emerg / crit / alert etc..
+  (see logger '-p' option & facilities).
+
+Service to reload after adjusting config files:
+: systemctl restart rsyslog.service
+
+- logrotate ::
+  rotates log (default every 4 weeks)
+**** References
+logrotate(8)
+man:rsyslog.conf(5)
+Extensive docu:
+http://www.rsyslog.com/doc/master/index.html
+
+logger(1), tail(1), rsyslog.conf(5), and logrotate(8) man pages
+rsyslog Manual
+/usr/share/doc/rsyslog-*/manual.html provided by the rsyslog-doc package
+Additional information may be available in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** logger : Sending log messages manually BCMD__
+: logger "hello world"
+: logger -p local7.notice "boot log entry"
+*** journalctl : Systemd Journal Entries BCMD__
+- Limit entries ::
+  : journalctl -n    #list only last entries.
+  : journalctl -n 5 
+
+- Follow ::
+  : journalctl -f  #follow.
+
+- Filter by priority ::
+  : journalctl -p err  #show priority.
+
+- Since boot ::
+  : journalctl -b    #all messages since last boot.
+  : journalctl -b  -1   #previous boot with persisetent logs.
+
+- Since/until date ::
+  : journalctl --since (today|yesterday|YYYY-MM-DD HH:MM:SS) --until  (...) 
+   If date is ommited = today.  Time is optional with date.
+
+- Verbose / other fields (e.g pid) ::
+  : journalctl -o verbose #show details about each event.
+
+  We can use any option printed by verbose:
+   : journalctl --since today -o verbose _PID=1727
+  see man:systemd.journal-fields(7)
+**** References
+journalctl(1) and systemd.journal-fields(7) man pages
+
+Additional information may be available in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+*** Persistent journaling
+Normally, journald saves things to:
+: /run/log/journal 
+
+To make persistent:
+1) Make dir:
+: /var/log/journal
+2) Make root *owner*, systemd-journal *group owner*. 
+: chown root:systemd-journal /var/log/journal 
+3) Make users write, group have all perm, others read and execute
+: chmod 2755 /var/log/journal 
+4) Reboot or send USR1 signal 
+: killall -USR1 systemd-journald 
+5) Verify:
+: ll /var/log/journal
+*** Maintaining Accurate Time
+: datetimectl CMD 
+:   CMD:
+:    set-timezone 
+:    set-time "YYYY-MM-DD HH:MM:SS"   #can be either or both.
+:    set-ntp true|false
+
+: chronyd 
+
+Servers listed in
+: /etc/chrony.conf
+After adjusting, restart ~systemctrl restart chronyd~
+
+Command line interface 'c'
+: chronyc sources -v
+**** References
+timedatectl(1), tzselect(8), chronyd(8), chrony.conf(5), and chronyc(1) man pages
+Additional information may be available in the Red Hat Enterprise Linux System Administrator's Guide for Red Hat Enterprise Linux 7, which can be found at http://docs.redhat.com/
+NTP Pool Project
+Time Zone Database
+** DONE 12 LVM 
+CLOSED: [2015-07-30 Thu 18:04]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 18:04]
+- State "DONE"       from "OPEN"       [2015-07-10 Fri 15:04]
+CLOCK: [2015-07-10 Fri 15:02]--[2015-07-10 Fri 15:04] =>  0:02
+CLOCK: [2015-07-10 Fri 14:21]--[2015-07-10 Fri 14:46] =>  0:25
+CLOCK: [2015-07-10 Fri 13:39]--[2015-07-10 Fri 14:04] =>  0:25
+CLOCK: [2015-07-10 Fri 13:06]--[2015-07-10 Fri 13:31] =>  0:25
+CLOCK: [2015-07-10 Fri 11:55]--[2015-07-10 Fri 12:20] =>  0:25
+CLOCK: [2015-07-10 Fri 11:26]--[2015-07-10 Fri 11:51] =>  0:25
+CLOCK: [2015-07-10 Fri 10:54]--[2015-07-10 Fri 11:19] =>  0:25
+CLOCK: [2015-07-10 Fri 10:29]--[2015-07-10 Fri 10:54] =>  0:25
+CLOCK: [2015-07-09 Thu 19:49]--[2015-07-09 Thu 20:14] =>  0:25
+CLOCK: [2015-07-09 Thu 19:16]--[2015-07-09 Thu 19:41] =>  0:25
+CLOCK: [2015-07-09 Thu 18:42]--[2015-07-09 Thu 19:07] =>  0:25
+CLOCK: [2015-07-09 Thu 18:20]--[2015-07-09 Thu 18:21] =>  0:01
+:END:
+*** Theory of LVM
+Used to dynamically resize/move partitions. Live extending of partitions with hot-swap.
+E.g use 3 hard drives as a single volume.
+
+Concepts:
+- Physical Device :: Hard drive 
+- Physical Volume :: Volume on a hard drive 
+  - Phicial extent :: small strips of 1k/4k/64k bytes on P.V's.
+
+- Volume Group :: Made of one or many P.V's. Contains one or more L.V's.
+- Logical Volume :: a logical volume, host for partitions.
+
+Image:
+[[./img/img_2015_07_09__19_57_55.png]]
+
+- Snap shot :: read only image of volume 
+- Device mapper :: kernel module allowing use of LVM2.
+*** Managing
+**** Creating 
+1) Create Partitions with ~fdisk~. 
+     Then set those partitions to LVM type (8e).
+     : fdisk /dev/vdb 
+     : n ... p....   t   8e 
+  2) Create *physical volumes*
+     : pvcreate /dev/vdb1 /dev/vdb2
+  3) Create a *volume group*
+     : vgcreate alphagroup /dev/vdb1 /dev/vdb2 
+  4) Create a *Logical Volume*
+     : lvcreate  -n mylv -L 2G alphagroup              #n=name, L=size.
+
+  Now you can create fs, (note VG/LV path)
+  : mkfs -t xfs /dev/alphagroup/mylv 
+  And make it persitent 
+  : mkdir /mnt/meh
+  : vi /etc/fstab
+  : +: /dev/alphagroup/mylv    /mnt/meh    xfs   defaults 1 2
+  : mount -a   #check.
+
+**** Also useful 
+: fdisk -l /dev/vdb    #identify if LVM type was used.
+  : lsblk -f   #info on LVM blocks also. 
+  : df -h      #info on size on disks.
+
+**** Removing 
+: unmount /mnt/mylv 
+  : remove from /etc/fstab & check with 'mount -a'
+  : lvremove /dev/alphagroup/mylv
+  : vgremove alphagroup
+  : pvremove /dev/vdb1 /dev/vdb2 
+**** Displaying 
+(pv|vg|lv)display 
+e.g 
+: pvdisplay   [VOLUME] 
+**** References
+lvm(8), pvcreate(8), vgcreate(8), lvcreate(8), pvremove(8), vgremove(8), lvremove(8), pvdisplay(8), vgdisplay(8), lvdisplay(8), fdisk(8), gdisk(8), parted(8), partprobe(8), and mkfs(8) man pages
+*** Extending Logical Volumes
+- Extending Logical Volume :: 
+  1) ~fdisk~ >  create a new LVM partition. (8e).
+  2) ~pvcreate~ > create P.V 
+  3) ~vgextend myvg /dev/vbc1~   Extend your V.G
+  4) Extend Logical volume 
+    : lvextend /dev/myvg/mylv -l +100%FREE 
+    - notice '+' before 100%FREE. 
+    - '-l' indicate number of extends.
+    - '-L' indicates size, e.g -L 2G 
+  (!) remember to extend the xfs or ext4.
+
+- Extend xFs or ext :: 
+  for fs specify the mount point:
+  : xfs_growfs /mnt/myMount   
+  for ext4, specify device:
+  : resize2fs /dev/mygv/mylv    
+
+- Reduce Volume Group :: 
+  1) Move stuff off the pv.  (!) BACKUP FIRST.
+   : pvmove /dev/vdb2   
+  2) Reduce vg by pv
+   : vgreduce myvg /dev/vdb2 
+
+- See which VG P.V's are mounted on :: 
+  : pvdisplay    #lists the 'VG Name' property.
+
+- See which P.V an L.V is maped to ::
+  : lvdisplay -m /dev/myvg/mylv    #-m = mapped.
+
+- Useful ::
+  : df -h    #see sizes of disks.
+**** References
+lvm(8), pvcreate(8), pvmove(8), vgdisplay(8), vgextend(8), vgreduce(8), vgdisplay(8), vgextend(8), vgreduce(8), lvextend(8), fdisk(8), gdisk(8), parted(8), partprobe(8), xfs_growfs(8), and resize2fs(8) man pages
+*** Reference
+Excellent Presentation:
+http://www.slideshare.net/gnunify/storage-management-using-lvm
+** DONE 13 Cron jobs & temp files
+CLOSED: [2015-07-30 Thu 22:09]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 22:09]
+- State "DONE"       from "OPEN"       [2015-07-13 Mon 11:07]
+- State "DONE"       from "OPEN"       [2015-07-13 Mon 09:28]
+CLOCK: [2015-07-10 Fri 16:37]--[2015-07-10 Fri 17:23] =>  0:46
+CLOCK: [2015-07-10 Fri 15:32]--[2015-07-10 Fri 15:57] =>  0:25
+CLOCK: [2015-07-10 Fri 15:04]--[2015-07-10 Fri 15:27] =>  0:23
+:END:
+*** cron : Scheduling Cron Jobs BCMD__
+- Through config file ::
+: /etc/crontab
+E.g run every 2 minutes 
+  m    h  d  m  dow  usr    (day of week). 
+: */2  *  *  *  *    root echo "hello" >> /home/lufimtse/tmpf
+                   ^- (!) Observe that there is a user.
+Note: Cron re-reads the config file every minute.
+      Thus service doesn't need to be restarted after changes.
+
+- By putting your scripts into directories ::
+  : /etc/cron.* (daily|hourly|weekly|monthly)
+  Note, your scripts must be executable (+x).
+
+  Additional tasks are defined via files in:
+  : /etc/cron.d/* 
+*** Managing temporary files
+Can create tmp files/dirs. Empty dirs, re-create files.
+Re-apply SE permissions, make sym.links etc.
+
+- Cmd that creates/removes temp files ::
+  : systemd-tmpfiles  [--create | --remove] 
+  Usually runs 15 mis after boot & 1ce a day.
+
+- Config files ::
+  : /etc/tmpfiles.d/*.conf   # highest preceedence, admin configured.
+  : /run/tmpfiles.d/*.conf   # Volotile. Run-time used.
+  : /usr/lib/tmpfiles.d/*.conf   # used by rpm packages. Lowest preceedence.
+
+  Upon name conflict, etc/ is used first.
+
+  Type path              Mode UID GID   Age Argument
+  D   /run/systemd/seats 0755 root root 1d
+  D - wipe & make dir.
+  d - make if not exist etc.. 
+  see man:tmpfiles.d(5)
+
+- Tip ::
+  You often copy things form /usr/lib/tmpfiles.d/*.conf (e.g tmp.conf)
+  to /etc/tmpfiles.d/*.conf and adjust the values to what you desire.
+
+  Often need to refresh:
+  : sysdemd-tmpfiles --create my.conf 
+  : sysdemd-tmpfiles --clean my.conf
+**** References
+systemd-tmpfiles(8), *tmpfiles.d(5)* << , stat(1), stat(2), and systemd.timer(5) man pages
+** DONE 14 Mounting Network File Systems
+CLOSED: [2015-07-30 Thu 22:00]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 22:00]
+- State "DONE"       from "OPEN"       [2015-07-13 Mon 20:22]
+CLOCK: [2015-07-13 Mon 19:50]--[2015-07-13 Mon 20:15] =>  0:25
+CLOCK: [2015-07-13 Mon 18:17]--[2015-07-13 Mon 18:50] =>  0:33
+CLOCK: [2015-07-13 Mon 15:05]--[2015-07-13 Mon 15:30] =>  0:25
+CLOCK: [2015-07-13 Mon 14:27]--[2015-07-13 Mon 14:52] =>  0:25
+CLOCK: [2015-07-13 Mon 13:49]--[2015-07-13 Mon 14:14] =>  0:25
+CLOCK: [2015-07-13 Mon 13:10]--[2015-07-13 Mon 13:35] =>  0:25
+CLOCK: [2015-07-13 Mon 12:24]--[2015-07-13 Mon 12:49] =>  0:25
+CLOCK: [2015-07-13 Mon 11:07]--[2015-07-13 Mon 11:32] =>  0:25
+CLOCK: [2015-07-13 Mon 10:37]--[2015-07-13 Mon 11:02] =>  0:25
+CLOCK: [2015-07-13 Mon 10:08]--[2015-07-13 Mon 10:33] =>  0:25
+CLOCK: [2015-07-13 Mon 09:28]--[2015-07-13 Mon 09:53] =>  0:25
+:END:
+*** Mounting an NFS share
+: exportfs -s   #show shares on cur system.
+
+- One-off mounting ::
+  : mount server:/share /mnt/MyMountPoint
+  With security:
+  : mount -o sec=sys server0:/shares/manual /mnt/manual
+
+- Persitent mounting ::
+  : vi /etc/fstab
+  : vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2	/mnt/tmp	nfs	sync	0	0
+  Verify:
+  : mount -a
+
+- Security ::
+  Can enable security, useful for domain auth. 
+  none - 'nfsnobody' GID & UID. 
+  sys - default. 
+  krb5 - kerbos key.  (see keytab below)
+  krb5i - no tampering ensured.
+  krb5p - encryped, slows performance.
+
+- Keytab ::
+  Authentication key:
+  : /etc/krb5.keytab 
+  Should contain (host principal [xor|and] nfs principal)
+
+- kerbors requires service ::
+  : sudo systemctl enable nfs-secure 
+  : sudo systemctl start nfs-secure
+  (nfs-secure is part of default-installed 'nfs-utils package).
+*** autofs : (auto mount on demand). BCMD__ LR7 
+:PROPERTIES:
+:ID:       23da2bcc-3135-438d-b54d-5f360fd99f12
+:END:
+Automatically map NFS.
+
+- Benifits ::
+  - No root privildges required as for mount.
+  - reduces resource usage 
+  - auto mounts/unmounts mount points 
+  - wild card support /* 
+
+- Installation ::
+ -  ~autofs~ needs to be installed first.
+
+- Theory ::
+  - *Relative* mappings : "hello" may refer to /automnt/hello
+  - *Direct* mapping : may refer to any path, e.g /mnt/hello 
+
+- Usage ::
+ - 1) autofs config of configs ::
+   Can be any file name, but must end with *.autofs*
+   : vi /etc/auto.master.d/demo.autofs                
+
+   Entries map mnt points to config files:
+   : /automnt   /etc/auto.demo    #relative 
+   : #OR 
+   : /-  /etc/auto.direct         #direct mappings point to root '/-'
+
+ - 2) config files ::
+   Relative mapping: /etc/auto.demo
+   : hello	-r,sync	vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2
+   
+   Direct mapping: /etc/auto.direct
+   : /mnt/isos	-r,sync	vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2
+
+ - 3) Enable/start/restart autofs service ::
+   : systemctl (enable|start|restart) autofs.service 
+
+ - 4) Now you should be able to navigate to mount points and they will be auto-mounted.
+
+- Wild-card ::
+  E.g in auto.demo you can specify * and & to match any share on server:
+  : * -r,sync  serverX:/&
+**** References
+autofs(5), automount(8), auto.master(5), and mount.nfs(8) man pages
+*** smb (windows network)
+**** Setup
+- packages :: 
+  : cifs-utils   samba-client 
+**** mounting
+- identify ::
+  : smbclient -L //serverX
+
+- mount ::
+  : mount -t cifs -o guest //serverX/Share  /mountPt 
+
+- mount with credentials ::
+  - Ask for password:
+  : mount -t cifs -o username=watson //serverX/Share /mountPt
+  - Read credentials from file:
+  : mount -t cifs -o credentials=/secure/creds.smb //serverX/Share /mntPt 
+  : ..
+  : cat /secure/creds.smb
+  : username=meh
+  : password=mehPass
+  : domain=mehDomain     #see man 8 mount.cifs
+
+  Note, password file should be protected:
+  : chmod 600 /secure/creds.smb
+
+- Persistent mounting ::
+  /etc/fstab
+  : //serverX/share /mntPt  cifs guest 0 0
+  
+ : //serverX/share /mntPt  cifs credentials=/secure/creds 0 0    #NOT TESTED?
+
+ - note UID/GID ::
+   UID / GID numbers should match on server.
+**** Auto mounting smb with autofs
+Almost same as regular autofs, except you need to specify
+- *-fstype=cifs* 
+- credentials file
+- '://' (colon) in front of server.
+
+- Config of config ::
+  : /etc/auto.master.d/smb.autofs 
+  : cat smb.autofs
+  :   /autosmb/ /etc/auto.smb
+
+- Config auto.smb ::
+  Note the ':' in front of server name: 
+  : myShare -fstype=cifs,credentials=/secure/myCreds ://serverX/myShare 
+  : myShare -fstype=cifs,guest ://serverX/myShare
+
+- enable/restart 'autofs' service
+**** References
+mount(8), umount(8), fstab(5), mount.cifs(8), smbclient(1), autofs(5), automount(8), and auto.master(5) man pages
+** DONE 15 Firewall Configuration
+CLOSED: [2015-07-30 Thu 21:16]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 21:16]
+- State "DONE"       from "OPEN"       [2015-07-14 Tue 14:02]
+CLOCK: [2015-07-14 Tue 13:40]--[2015-07-14 Tue 14:02] =>  0:22
+CLOCK: [2015-07-14 Tue 11:19]--[2015-07-14 Tue 11:44] =>  0:25
+CLOCK: [2015-07-14 Tue 10:51]--[2015-07-14 Tue 11:16] =>  0:25
+CLOCK: [2015-07-14 Tue 10:41]--[2015-07-14 Tue 10:41] =>  0:00
+CLOCK: [2015-07-14 Tue 10:12]--[2015-07-14 Tue 10:37] =>  0:25
+CLOCK: [2015-07-14 Tue 09:42]--[2015-07-14 Tue 10:07] =>  0:25
+CLOCK: [2015-07-13 Mon 20:22]--[2015-07-13 Mon 20:47] =>  0:25
+CLOCK: [2015-07-13 Mon 17:25]--[2015-07-13 Mon 18:12] =>  0:47
+:END:
+*** Zones
+Default permitted:
+ - All incomming that were requested by system.
+ - All outgoing.
+
+- 3 Methods to interact with Firewall ::
+  - Edit config files /etc/firewalld/   (not covered) 
+  - ~firewall-config~ GUI tool. 
+  - ~firewall-cmd~ 
+
+
+- list of zones ::
+   man:firewalld.zones(5)
+   e.g  "drop"  drops all incomming packets.
+        "home"  permissive.. 
+
+- Services ::
+   man:firewalld.service(5)
+   (see for links to xml files)
+ 
+- GUI ::
+  : firewall-config 
+  If I forget, it's easy to find via man-pages:
+  apropos -a firewall gui`
+
+- firewall-cmd :: 
+  - add '--permenent' to apply to config.
+  - often have to to specify '--zone=<zone>' to apply to a zone.
+   man:firewall-cmd
+   : firewall-cmd --get-services
+
+  : --get-default-zone
+  : --set-default-zone
+  : --get-zones 
+
+  : --list-all # list all interfaces with zones applied to them.
+  
+  : --(add|remove)-(service|port)=(SERVICE|PORT)   #add/remove, use default zone if none specified.
+
+  : --reload  #drop run time, load persistent config.
+
+-  Example ::
+  All traffic from 192.. assigned to internal zone. Open port on internal zone.
+  : firewall-cmd --set-default-zone=dmz
+  : firewall-cmd --permenent --zone=internal --add-sonurce=192.168.0.0/24
+  : firewall-cmd --permenent --zone=internal --add-service=mysql
+  : firewall-cmd --reload 
+** DONE 16 Virtualization and Kickstart
+CLOSED: [2015-07-30 Thu 21:16]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 21:16]
+- State "DONE"       from "OPEN"       [2015-07-14 Tue 17:32]
+CLOCK: [2015-07-14 Tue 16:48]--[2015-07-14 Tue 17:25] =>  0:37
+CLOCK: [2015-07-14 Tue 16:16]--[2015-07-14 Tue 16:41] =>  0:25
+CLOCK: [2015-07-14 Tue 15:46]--[2015-07-14 Tue 16:11] =>  0:25
+CLOCK: [2015-07-14 Tue 15:02]--[2015-07-14 Tue 15:27] =>  0:25
+CLOCK: [2015-07-14 Tue 14:30]--[2015-07-14 Tue 14:55] =>  0:25
+:END:
+*** Kickstart 
+Kickstart is for automated installs for RHEL. 
+
+GUI Package:
+: system-config-kickstart
+
+Base config: 
+: /root/anaconda-ks.cfg 
+
+Validate a ks file :
+: ksvalidator /tmp/anaconda-ks.cfg
+
+Publish config to Anaconda:
+ - Far: FTP | NFS |HTTP
+ - Near: DHCP | TFTP
+ - Local: USB | CD | Local disk. 
+
+- Point anacondoa to location ::  
+  Need to append ~ks=LOCATION~ to linux kernel. 
+  
+  ks=http://server/dir/file 
+  ks=nfs:server:/dir/file
+  ks=hd:device:/dir/file
+*** Virtualization
+- GUI ::
+  : virt-manager
+- CMD tool ::
+  Does what gui tool does, but through the cmd.
+  : virsh   #enter inteactive prompt.
+
+  : virsh list   #list turned on/off vm's.
+  : virsh destory server 
+  : virsh start server
+** Study Checklist
+:LOGBOOK:
+CLOCK: [2015-07-30 Thu 21:02]--[2015-07-30 Thu 21:27] =>  0:25
+CLOCK: [2015-07-30 Thu 18:52]--[2015-07-30 Thu 19:17] =>  0:25
+CLOCK: [2015-07-30 Thu 15:33]--[2015-07-30 Thu 15:58] =>  0:25
+CLOCK: [2015-07-30 Thu 14:49]--[2015-07-30 Thu 15:14] =>  0:25
+CLOCK: [2015-07-30 Thu 14:02]--[2015-07-30 Thu 14:27] =>  0:25
+CLOCK: [2015-07-30 Thu 13:20]--[2015-07-30 Thu 13:45] =>  0:25
+CLOCK: [2015-07-30 Thu 12:19]--[2015-07-30 Thu 12:44] =>  0:25
+CLOCK: [2015-07-30 Thu 11:45]--[2015-07-30 Thu 12:10] =>  0:25
+CLOCK: [2015-07-30 Thu 10:58]--[2015-07-30 Thu 11:23] =>  0:25
+CLOCK: [2015-07-30 Thu 09:47]--[2015-07-30 Thu 10:12] =>  0:25
+CLOCK: [2015-07-30 Thu 09:15]--[2015-07-30 Thu 09:40] =>  0:25
+:END:
+*** DONE Understand and use essential tools 
+CLOSED: [2015-07-29 Wed 21:31]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-29 Wed 21:31]
+CLOCK: [2015-07-29 Wed 17:57]--[2015-07-29 Wed 18:16] =>  0:19
+CLOCK: [2015-07-27 Mon 21:00]--[2015-07-27 Mon 21:25] =>  0:25
+CLOCK: [2015-07-27 Mon 20:42]--[2015-07-27 Mon 20:52] =>  0:10
+CLOCK: [2015-07-27 Mon 20:10]--[2015-07-27 Mon 20:13] =>  0:03
+CLOCK: [2015-07-27 Mon 19:48]--[2015-07-27 Mon 20:10] =>  0:22
+:END:
+- [X] Access a shell prompt and issue commands with correct syntax
+- [X] Use input-output redirection (>, >>, |, 2>, etc.)
+- [X] Use grep and regular expressions to analyze text
+- [X] Access remote systems using ssh
+- [X] Log in and switch users in multiuser targets
+- [X] Archive, compress, unpack, and uncompress files using tar, star, gzip, and bzip2
+- [X] Create and edit text files
+- [X] Create, delete, copy, and move files and directories
+- [X] Create hard and soft links
+- [X] List, set, and change standard ugo/rwx permissions
+- [X] Locate, read, and use system documentation including man, info, and files in /usr/share/doc
+*** DONE Manage users and groups 
+CLOSED: [2015-07-29 Wed 21:31]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-29 Wed 21:31]
+CLOCK: [2015-07-29 Wed 20:07]--[2015-07-29 Wed 20:32] =>  0:25
+CLOCK: [2015-07-29 Wed 19:35]--[2015-07-29 Wed 20:00] =>  0:25
+CLOCK: [2015-07-29 Wed 18:16]--[2015-07-29 Wed 18:22] =>  0:06
+:END:
+- [X] Create, delete, and modify local user accounts
+- [X] Change passwords and adjust password aging for local user accounts
+- [X] Create, delete, and modify local groups and group memberships
+- [X] Configure a system to use an existing authentication service for user and group information
+*** DONE Manage security 
+CLOSED: [2015-07-30 Thu 15:12]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 15:12]
+:END:
+- [X] Configure firewall settings using firewall-config, firewall-cmd, or iptables
+- [X] Configure key-based authentication for SSH
+- [X] Set enforcing and permissive modes for SELinux
+- [X] List and identify SELinux file and process context
+- [X] Restore default file contexts
+- [X] Use boolean settings to modify system SELinux settings
+- [X] Diagnose and address routine SELinux policy violations
+*** DONE Operate running systems 
+CLOSED: [2015-07-30 Thu 20:46]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 20:46]
+CLOCK: [2015-07-30 Thu 20:02]--[2015-07-30 Thu 20:27] =>  0:25
+CLOCK: [2015-07-30 Thu 19:31]--[2015-07-30 Thu 19:56] =>  0:25
+:END:
+- [X] Boot, reboot, and shut down a system normally
+- [X] Boot systems into different targets manually
+- [X] Interrupt the boot process in order to gain access to a system
+- [X] Identify CPU/memory intensive processes, adjust process priority with renice, and kill processes
+- [X] Locate and interpret system log files and journals
+- [X] Access a virtual machine's console
+- [X] Start and stop virtual machines
+- [X] Start, stop, and check the status of network services
+- [X] Securely transfer files between systems
+*** DONE Configure local storage 
+CLOSED: [2015-07-30 Thu 18:04]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 18:04]
+CLOCK: [2015-07-30 Thu 17:22]--[2015-07-30 Thu 18:04] =>  0:42
+CLOCK: [2015-07-30 Thu 16:42]--[2015-07-30 Thu 17:07] =>  0:25
+:END:
+- [X] List, create, delete partitions on MBR and GPT disks
+- [X] Create and remove physical volumes, assign physical volumes to volume groups, and create and delete logical volumes
+- [X] Configure systems to mount file systems at boot by Universally Unique ID (UUID) or label
+- [X] Add new partitions and logical volumes, and swap to a system non-destructively
+*** DONE Create and configure file systems 
+CLOSED: [2015-07-30 Thu 22:19]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-30 Thu 22:19]
+:END:
+- [X] Create, mount, unmount, and use vfat, ext4, and xfs file systems
+- [X] Mount and unmount CIFS and NFS network file systems
+- [X] Extend existing logical volumes
+- [X] Create and configure set-GID directories for collaboration
+- [X] Create and manage Access Control Lists (ACLs)
+- [X] Diagnose and correct file permission problems
+*** Deploy, configure, and maintain systems 
+:LOGBOOK:
+CLOCK: [2015-07-30 Thu 22:00]--[2015-07-30 Thu 22:19] =>  0:19
+:END:
+- [X] Configure networking and hostname resolution statically or dynamically
+- [X] Schedule tasks using at and cron
+- [X] Start and stop services and configure services to start automatically at boot
+- [X] Configure systems to boot into a specific target automatically
+- [X] Install Red Hat Enterprise Linux automatically using Kickstart
+- [X] Configure a physical machine to host virtual guests
+- [X] Install Red Hat Enterprise Linux systems as virtual guests
+- [X] Configure systems to launch virtual machines at boot
+- [X] Configure network services to start automatically at boot
+- [X] Configure a system to use time services
+- [X] Install and update software packages from Red Hat Network, a remote repository, or from the local file system
+- [X] Update the kernel package appropriately to ensure a bootable system
+- [X] Modify the system bootloader
+** Test notes 
+-- CRITIAL:
+- Root password reset
+- start graphical.target from command line.(systemctl isolate graphical.target).
+- configure network, add new connection (nmcli), or (nm-cnonection-editor gui tool). 
+   still need to use (nmcli con up <connection>) to activate connection.
+
+-- In Addition:
+- add client to NTP server 
+- autofs, to auto mount user directories. 
+- new volume groups
+- new lvm 
+- lvm with extend of size 16 MiB
+- extend an lvm
+- set hostname
+- tar a directory 
+- cat file | grep STRING > /output/folder
+
+- find all files belonging to user.
+- user creation, password setting, adding to group (usermod -aG, not just -G).
+- create user with specific UID.
+- acl, give user rights, stop a user from accessing (mask?).
+- directory permissions, including 's' so that new files created are owned by parent dir's group.
+- chmod ^
+- SELinux, enable at boot.
+- create a swap partition. Add it to /etc/fstab. This includes fdisk.
+- add user to group (-aG)
+- adding a yum repository, gptcheck business? 
+- install neccessary package (e.g authconfig-gtk) from repo. I used '--nogpacheck' as I had gpa check issues.
+- find a package on a webpage, download it, do a local insatll/update. (kernel update)
+- authconfig-gtk (had to be installed from yum repository).
+- adding a cronjob.
+
+Not on exam:
+- logging rsyslog 
+- kickstart 
+- knowledge of special files /etc/(shadow|group|passwd) 
+- Firewall configuration
+- temporary files. 
+- ssh kegen and ssh connection. SCP not needed either. No transfer between systems.
+- Service management. Except you had to know 'systemctl isolate graphical.target'
+- Managing processes, nice, renice, killing 
+- updating software packages.
+- SELinux booleans and fcontext. (only enable selinux on systemboot).
+** Appendix
+*** Various Terms
+**** Kerberos (protocol)                                          :TERM__:
+:PROPERTIES:
+:ID:       bd6076d5-7aff-4e51-b3d0-f55685dd2415
+:END:
+Kerberos is a protocol with security.
+
+- *Protected* with symmetric key cryptography. Optionally with public-key.
+- Client <-> Server oriented
+- Protected against
+  * evesdropping
+  * replay attacks
+subscription-manager attach --auto* OS-Specific
+** References 
+*** All Red Hat Product documentation.
+https://access.redhat.com/documentation/en-US/
+** Intern summary
+# SSH-KEYS
+# keygen
+ssh-keygen
+# copying public key to a remote system
+ssh-copy-id [-i ~/.ssh/id_rsa.pub ] root@serverX.example.com
+# can then ssh into any
+
+
+# RED HAT CUSTOMER PORTAL
+# red hat support tool
+redhat-support-tool
+# to generate a report
+sosreport
+
+
+# LINKS
+# basic, hard link
+ln file hard_link_file
+# soft link
+ln -s file soft_link_file
+
+
+# USERS AND GROUPS
+# info about local users
+cat /etc/passwd
+# info about password
+cat /etc/shadow
+# info about permissions
+cat /etc/sudoers
+# adding a local user
+useradd [-u UID] USERNAME
+# modify user, can lock and unlock with this
+usermod [-g PRIMGROUP] [-G SUPPGROUPS] [-e EXPIRYDATE] [-a] [-d HOMEDIR] [-s SHELL] [-L|--lock] [-U|--unlock] USERNAME
+# delete user, -r for removing home dir
+userdel [-r] USERNAME
+# login definitions file
+cat /etc/login.defs
+# add a group
+groupadd [-g GID | -r] GROUPNAME
+# modify a group
+groupmod [-n NEWNAME] [-g NEWGID] GROUPNAME
+# delete a group, if it's not the primary group for any user
+groupdel GROUPNAME
+# change status for user
+chage [-E EXPDATE] [-m MINPWDAY] [-M MAXPWDAY] [-d LASTDAYCHANGED] [--list|-l] USERNAME
+# attaching a system to centralized LDAP and Kerberos
+yum -y install authconfig-gtk sssd krb5-workstation
+authconfig-gtk
+# using the GUI, make sure to set the home-dir thing in the advanced options tab
+# attaching system to ipa-server
+yum -y install ipa-client
+ipa-client-install [--domain=serverX.example.com] [--no-ntp] [--mkhomedir]
+# joining an Active Directory domain
+yum -y install realmd
+realm discover domain.example.com
+realm join domain.example.com
+realm permit --realm domain.example.com --all
+
+
+# FILE PERMISSIONS
+# stickies: u+s, g+s, o+t
+# u+s: file execs as the user that owns it
+# g+s: file execs as the group that owns it, newly created dirs have group owner set to match the group owner
+# mask to clear the permissions of a new file
+umask [SOMEVAL]
+# view the default umask settings
+cat /etc/profile
+
+
+# ACCESS CONTROL LISTS
+# display acl settings
+getfacl [-R] FILE
+# set acl (u == file owner, g == group owner if name not specified, otherwise named groups/users) (-b deletes all)
+setfacl [-R] [-m TYPE:NAME:PERMS] [-x u:NAME,g:name] [-b] FILENAME
+# types (u, g, m (mask), o)
+
+
+# SELINUX
+# get enforcing status 
+getenforce
+# set enforcing status (0 == permissive, 1 == enforcing)
+setenforce [0|1]
+# list the SELinux bools
+getsebool [-a ] [FILENAME|-P FILENAME on]
+# SELinux config, for changing the state, permissively
+cat /etc/selinux/config
+# if changing from disabled to enabled, or vice versa, then need to reboot
+# change the SELinux context
+chcon [-t TYPE] FILENAME
+# restore the default context, based on the fcontext, -F for force
+restorecon [-R] [-F] FILE_DIR
+# set a new context
+semanage fcontext [-a|-m|-d  [-t TYPE] REGEXPATHNAMETHING
+# an example, for deleting a context, replacing it with a default context
+semanage fcontext -d -t httpd_sys_content_t '/custom(/.*)?'
+# to list settings that differ from default
+semanage boolean -l -C
+#selinux messages from /var/log/audit/audit.log appear in /var/log/messages
+
+
+# PROCESS PRIORITY
+# setting niceness on a new command
+nice [-n NICELEVEL] CMD
+# set the niceness
+renice [-n NEWNICE] PID
+
+
+# YUM
+# enable a repo
+yum-config-manager --enable REPONAME
+# add a repo
+yum-config-manager --add-repo=REPOURL
+# or this
+vim /etc/yum.repos.d/REPONAME
+[updates]
+name=Red Hat Updates
+baseurl=URL
+enabled=1
+gpgcheck=0
+gpgkey=URL
+# installing the RHEL EPEL
+rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+yum install http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.1.noarch.rpm
+
+
+# FILE SYSTEMS
+# list existing partitons and the UUID
+blkid [DIR]
+# mounting a new fs
+mount FS LOCATION
+# unmount 
+unmount LOCATION
+# list open files
+lsof DIR
+# make a new partition with fdisk
+fdisk DISKDEVICE
+# make a new partition with gdisk
+gdisk DISKDEVICE
+# use default for the first 2, and can specify +2G for 2 gigs of space
+# don't forget to use w to write the changes. p will print out the partitions. and n makes a new one.
+# to get the kernel to reread the partition table, run after partitioning.
+partprobe [DEVICENAME]
+# apply a filesystem to block device (default is ext2)
+mkfs [-t TYPE] BLOCKDEVICE
+# edit fstab to permissively mount the block
+vim /etc/fstab
+UUID=HERE DIR TYPE [defaults| pri=NUM|sync] DUMP FSCKQSPOT
+# if dealing with swap, both dir and type are swap
+# make sure to mount to double check (mount all)
+mount -a
+# making the swap
+mkswap BLOCKDEV
+# activating swap ( -a == all)
+swapon [-a | -s | BLOCKDEV]
+# use free to check if swap got switched on
+
+
+# SERVICE MANAGEMENT
+# basic systemctl
+systemctl [start|status|enable|disable|stop|restart|mask|umask] NAME.TYPE
+# list active units
+systemctl list-units [--type=TYPE] [--all]
+# list all units
+systemctl list-unit-files [--type=TYPE] [-all]
+# selecting a target at runtime
+systemctl isolate NAME.target
+# graphical, multi-user (text-based, multi-user), rescue (sulogin, basic sys init), emergency (sulogin, sysroot mounted on / ro)
+# setting default target
+systemctl set-default NAME.target
+# setting it at boot
+systemd.unit=NAME.type
+# list running jobs
+systemctl list-jobs
+
+
+# RECOVERING ROOT
+# press e to get to interactive command line
+# in the interactive command line, at the end of the line linux16
+[set-console=tty0] rd.break
+# when it loads
+mount -oremount,rw /sysroot
+chroot /sysroot
+passwd root
+touch /.autorelabel
+# exit, and reboot
+
+
+# BOOT TROUBLESHOOTING
+# make journald persistent
+mkdir -p -m2775 /var/log/journal
+chown :systemd-journal /var/log/journal
+killall -USR1 systemd-journald
+# getting an early debug sheel on TTY9
+systemctl enable debug-shell.service
+# make sure to disbale later, as it provides a console with root access
+# to enter emergency mode during boot, append emergency to the end of the interactive command line
+# remaking grub, incase something was wrong with the boot loading
+grub2-mkconfig > /boot/grub2/grub.cfg
+systemctl reboot
+
+# reinstalling the bootloader
+grub2-install
+
+
+# NETWORK CONFIG
+# show device and address info
+ip addr show [CONNECTION]
+# show the network performance
+ip [-s] link show [CONNECTION]
+# show routing info
+ip route
+# trace the path to a remote host
+tracepath REMOTEHOST
+# display socket stats [for all sockets]
+ss [-ta]
+# display list of all connections
+nmcli con show [--active] [CONNECTIONID]
+# display device status
+nmcli dev status
+# display device info
+nmcli dev show [DEV]
+# adding connection
+nmcli con add con-name NAME type ethernet ifname eth0 [autoconnect [yes|no]] [ip4 IPADDR/24] [gw4 GATEWAY4]
+nmcli con mod CONNAME [ipv4.dns DNS] [+ipv4.addresses IPADDR/24]  [connection.autoconnect [yes|no]]
+# activate a connection (need to turn other ones on)
+nmcli con up [CONNECTIONID]
+# deactivate a connection (if autoconnect, will restart)
+nmcli con down [CONNECTIONID]
+# delete a connection
+nmcli con del [CONNECTIONID]
+# editing the the network config file
+cat /etc/sysconfig/network-scripts/ifcfg-NAME
+
+
+# HOSTNAME
+# to display the hostname
+hostname
+# show hostname info
+hostnamectl [status] [set-hostname HOSTNAME]
+# to see hostname stuff
+cat /etc/hosts
+
+
+# LOGGING
+# send a message to rsyslog
+logger [-p FACILITY.LEVEL] MSG
+#gets recorded in boot log
+# example of redirecting rsyslog
+echo "*.debug /var/log/messages-debug" >/etc/rsyslog.d/debug.conf
+systemctl restart rsyslog
+# make journald persistent
+mkdir -p -m2775 /var/log/journal
+chown :systemd-journal /var/log/journal
+killall -USR1 systemd-journald
+# time related system settings. 
+timedatectl [set-time TIME] [set-timezone TIMEZONE] [set-ntp true|false]
+# for the chrony config
+cat /etc/chrony.conf
+
+
+# LOGICAL VOLS
+#
+[pv|vg|lv][create|remove|display]
+[vg|lv][extend|shrink]
+# steps to make a logical vol
+fdisk DEVNAME
+partprobe
+pvcreate [DEVICES]
+vgcreate [GROUPNAME] [DEVICES]
+lvcreate -n NAME -L SIZE VOLGROUP
+mkfs -t TYPE DIR
+mkdir DIR
+vim /etc/fstab # include mount info, for it to be persistent
+mount -a
+# to remove a logical volume
+umount DIR
+lvremove LVNAME
+vgremove GROUPNAME
+pvremove PARTITIONNAMES
+# extending vg
+fdisk DEVNAME
+partprobe
+pvcreate DEVNAME
+vgextend GROUPNAME DEVNAME
+# cont, extending lv
+lvextend [-L SIZE|+ADDSIZE] -r LOGIVALVOL
+# if ext, don't need -r, instead
+resize2fs /dev/VGNAME/LVNAME
+
+
+# CRON
+# for unusually timed cron jobs :)
+cat /etc/cron.d/FILENAME
+# if putting file in cron.*, make them executable
+
+
+# TMP FILES
+# config file (takes precedence over other tmp files)
+cat /etc/tmpfiles.d/*.conf
+# for config, look at man tmpfiles.d
+
+
+# MOUNTING NFS
+
+# steps to mounting an nfs
+yum -y install nfs-utils
+systemctl start nfs-secure
+systemctl enable nfs-secure
+mkdir MOUNTPOINT
+mount SERVER:/ /MOUNTPOINT
+mkdir -p /MOUNTPOINT
+vim /etc/fstab # input the line below
+	SERVER:/share /MOUNTPOINT nfs sync[,sec=krb5p] 0 0
+# automounting nfs, indirect mounting
+# create the file that maps the parent directory to the file that will specify the mount
+# then specify the mounts in a different file
+yum -y install autofs
+vim /etc/auto.master.d/SOMEFILENAME.autofs # input the line below
+	/SHAREDDIR /etc/auto.FILENAME
+vim /etc/auto.FILENAME # input line below
+	NAME -rw,sync[,sec=krb5p] SERVER:/PATHONSERVER
+systemctl start autofs
+systemctl enable autofs
+# can specify PATHONSERVER/& with SHAREDDIR/*, for wildcards
+# automounting nfs, direct mounting
+# create the file that maps the parent directory to the file that will specify the mount
+# then specify the mounts in a different file
+yum -y install autofs
+vim /etc/auto.master.d/SOMEFILENAME.autofs # input the line below
+	/- /etc/auto.FILENAME
+mkdir ABSMOUNTPOINTONMYSYS
+vim /etc/auto.FILENAME # input line below
+	ABSMOUNTPOINTONMYSYS -rw,sync[,sec=krb5p] SERVER:/PATHONSERVER
+systemctl start autofs
+systemctl enable autofs
+
+
+# MOUNTING SMB, without auto
+yum -y install cifs-utils
+mkdir MOUNTPOINT
+mkdir CREDENTIALS
+vim /CREDENTIALS/FILE.smb # include lines below
+	username=USERNAME
+	password=PASSWORD
+	domain=DOMAIN
+chmod 770 CREDENTIALS
+chmod 600 CREDENTIALSFILE.smb
+vim /etc/fstab # insert line
+	//SERVER/USERNAME /MOUNTPOINT cifs credentials=CREDENTIALS/FILE.smb 0 0
+mount -a
+
+
+# MOUNTING SMB, with autofs
+yum -y install cifs-utils autofs
+# same a automounting nfs, except add in -fstype=cifs,credentials=CREDENTIALS and add in ://
+
+# FIREWALL
+# stick with the gui
+# remember to reload, and seti the mode to permanent
+# if using firewalld
+systemctl mask iptables
+systemctl mask ip6tables
+* RHEL
+** Activating optional repos
+Once you've attached a subscription (see [[*Activating%20DTS%20on%20system][attaching pool]]), you can enable the
+optional repo that has lots of useful packages:
+
+subscription-manager repos --enable rhel-7-workstation-optional-rpms
+** DTS
+CLOSED: [2015-02-17 Tue 18:05]
+:LOGBOOK:
+CLOCK: [2015-02-17 Tue 16:56]--[2015-02-17 Tue 17:21] =>  0:25
+CLOCK: [2015-02-17 Tue 16:28]--[2015-02-17 Tue 16:56] =>  0:28
+CLOCK: [2015-02-17 Tue 15:47]--[2015-02-17 Tue 16:12] =>  0:25
+CLOCK: [2015-02-17 Tue 14:53]--[2015-02-17 Tue 15:13] =>  0:20
+:END:
+*** About
+User guide:
+https://access.redhat.com/documentation/en-US/Red_Hat_Developer_Toolset/3/html/User_Guide/index.html
+*** Activating DTS on system
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Developer_Toolset/3/html-single/User_Guide/index.html#h5o-14
+- Find *Pool ID* via ::
+  subscription-manager list --available
+  e.g
+  8a85f9863f14fed3013f82b2c7b33615
+
+- Attach subscription ::
+  subscription-manager attach --pool=8a85f9863f14fed3013f82b2c7b33615
+
+- See available subscriptions ::
+  subscription-manager list --consumed
+
+*** Adding official repos
+- list current repos ::
+  subscription-manager repos --list
+
+- Enable the repo DTS ::
+  subscription-manager repos --enable <REPO_ID>
+
+  e.g
+  subscription-manager repos --enable rhel-workstation-rhscl-7-rpms
+  subscription-manager repos --enable rhel-7-workstation-optional-rpms   #Needed for DTS
+
+*** Adding custom repos
+**** Internal custom repo
+If connected to the internal network, it's easy enough to add internal repos:
+
+Note, the base URL's can be browsed in a web-browser.
+
+NOT TESTED:
+
+e.g
+- Adding dts repo ::
+[dts3]
+name=dts3
+gpgcheck=0
+baseurl=http://download.devel.redhat.com/brewroot/repos/devtoolset-3.1-rhel-7-build-x86_64/latest/x86_64
+enabled=0
+
+- Adding base repo:
+Add repo with base url:
+http://download.eng.bos.redhat.com/brewroot/repos/rhel-7-build/latest/x86_64/
+
+**** External epel custom repo
+:PROPERTIES:
+:ID:       eecec3ab-b25a-41a0-b4b3-0550026ede93
+:END:
+See [[http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/][How to enable epel repo for rhel]]
+
+wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+rpm -ivh epel-release-7-5.noarch.rpm
+
+Verify via:
+yum repolist
+
+~ may need to enable repo before use first.
+
+*** Installing DTS
+1) Update your system
+2) Install DTS:
+   yum install devtoolset-3
+
+   This installs Eclipse and all the tools.
+*** Updating DTS
+- Minor updates ::
+yum update
+
+- Major version update ::
+can install in parallel to current.
+
+*** Uninstalling DTS
+    sudo yum remove devtoolset-3\* libasan libatomic libcilkrts libitm liblsan libtsan libubsan
+* Fedora
+*** Upgrading fedora
+**** Fedora 20 to 21
+Things to know:
+    - must select product. (workstation/server/cloud/noproduct)
+    - update your system
+    - install fedup
+    - run command below
+    - reboot and select option to update from boot loader.
+
+sudo fedup --product=workstation --network 21 --instrepo=http://dl.fedoraproject.org/pub/fedora/linux/development/21/x86_64/os
+
+src:
+http://www.fedoraonline.se/how-to-upgrade-fedora-20-to-fedora-21/
+*** Rawhide : Install from latest fedora beta 
+get latest fedora
+: dnf install fedora-repos-rawhide
+: dnf update --enablerepo=rawhide
+* Red Hat Internal info
+** Mount point with RHEL isos's
+vtap-eng01.storage.rdu2.redhat.com:/vol/engarchive2
+* System
+** Troubleshooting System Log
+WWW__ syslog
+http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch05_:_Troubleshooting_Linux_with_syslog#.VFzlGHVdWV4
+
+Errors usually found here:
+/var/log/messages
+** Keyboard mappings
+- Fedora work setup ::
+  Ctrl = Ctrl
+  alt (middle) = Hyper (emacs)
+  Wiin (next to space) = Super (emacs)
+* Shell Theory and Config
+** .bashrc .profile start up scripts
+- .bashrc ::
+  This is loaded for terminal sessions only. E.g Alt+F2 will not have access.
+  Thus it's better to
+- .profile ::
+  This is loaded by the system for all applications.
+  This is a good place for [[id:eb5bed99-c350-4693-937b-0ff3899c53f9][path exports]].
+
+** Exporting path (adding a folder to path)
+:PROPERTIES:
+:ID:       eb5bed99-c350-4693-937b-0ff3899c53f9
+:END:
+make a path available globaly in bash.
+The ':' indicates that you are appending to the path.
+
+ PATH=$PATH:$HOME/Dropbox/Apps/Bash_path_linux/
+ export PATH
+** xmodmap
+*** Links
+[[http://xahlee.info/linux/linux_xmodmap_tutorial.html][xahlee tutorial]]
+
+Tool for X11 key mappings.
+*** Terminology
+  Scancode -> number that keyboard sends to computer      TERM__
+  Keycode  -> a number used by linux kernal to represent key (mouse button/wheel).  TERM__
+       Kernal translates scan code to KeyCode
+  Keysym -> a code word received by X11 applications.
+
+*** Finding Key Codes & Keysym (xev)
+  See *xev* utility.
+
+Can run the following to see just keycodes and name:
+xev | grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'
+
+*** See current keymod map
+  *xmodmap -pke* see current modmap. (each line can be fed back into xmodmap)
+
+*** Save/reload your mod map
+  Saving:
+  xmodmap -pke > ~/xmodmap_original
+
+  Loading:
+  xmodmap ~/xmodmap_orgiginal
+
+*** xmodmap list meaning
+  e.g:
+  keycode  57 = n N n N
+
+  right side shows mappings depending on modifiers.
+  1. <key> by it self
+  2. Shift + key
+  3. mode_switch + key
+  4. mode_switch + shift + key
+  5. AltGr + Key
+  6. AltGr + shift + key
+
+*** Reading expression
+xmodmap -e "keycode 67 = F2"     # (f1 now sends f2)
+*** Xmodmap on startup
+Add to your ~/.bash_profile or profile 'xmodmap ~/new_map'
+
+Usually also ~/.Xmodmap is loaded on startup by GNOME/KDE.
+*** Syntax of xmodmap
+! = comment
+*** mod meanings
+Maybe means:
+  Lock = caps lock
+  Mod1 = alt (aka meta)
+  Mod2 = number lock
+  Mod4 = super (aka windows)
+  Mod5 = level 3 shift (aka AltGr, Opt)
+** Installing themes 
+sugar-artwork                      #Gtk theme
+** Help and Documentation 
+*** @ APROPOS : Searching man pages BCMD__
+e.g
+: apropos syslog 
+
+Regex available by default NOTE: Regex searches (CMD name && Description) 
+: apropos ^system
+
+Anding available 
+: apropos -a signal overview
+
+Searching only command or only description can be done with grep:
+: apropos "" | grep -i "- firewall"  #search all descriptions starting with firewall.   (-i case insensitive).
+: apropos "" | grep -i "^system"     #search all cmd's starting with "system".  
+*** @ MAN : using man pages BCMD__
+**** Man pages theory (& man page syntax)
+CMD OPTIONS ARGS
+| Symbol | meaning                                      |
+|--------+----------------------------------------------|
+| [ ]    | optional paramater                           |
+| ...    | arbitrary-length list of items of that type. |
+| <TEXT> | variiable data. <filename>.                  |
+| TEXT   | same as above.                               |
+'|'     (pipe seperated) only one of them can be specified.
+:EG:
+- Date ::
+  date [OPTION]...  [+FORMAT]
+  Option/Format are optional. I.e date works without them.
+  '+' is just a literal indicating format.
+  date
+  date +%H
+  date +%H:%M
+:END:
+
+Man page can provide a *SYNOPSIS* section. It covers the command's *syntax*.
+
+For more details, see ~man 7 man-pages~
+***** References
+Excelent tutorial:
+http://www.cs.mcgill.ca/~guide/help/man.html
+**** Searching for stuff 
+: man -k  #same as appropos. '_keyword'.
+
+: man -K  # global search, open each find, one at time.
+: man -wK #list all files found.
+**** Under the hood
+Reside under:
+/usr/man 
+/usr/local/man 
+
+For X program:
+/usr/X11/man
+/usr/local/X11/man  etc..
+**** Finding man page for a command
+~whereis~ locates the binary.
+
+~type -t~ print type e.g 'alias'
+~which CMD~ useful to expose aliases. e.g ~which ll~
+*** References
+http://www.cs.mcgill.ca/~guide/help/man.html
+** Input redirection
+>   write to.  
+ : echo hello > ~/my.txt
+
+>> append to. 
+ : echo "append to end" >> ~/my.txt 
+
+2> stderr redirect 
+
+'|' pipe to other process. 
+: echo "hello\nWorld" | grep "hello"
+
+** Regex in Bash
+. match any singlne char 
+? preceding item is opitonal 
+ * preceding item will be matched zero or more times.
+ + one or more 
+ {N} matched n times.
+ {N,} n or more times.
+ {N,M} at least N, but no more than M times.
+ - represents range.
+ ^ matches empty string at the begging of a line; also reprseents the chars not in the range of a list.
+ $ matches empty string at beg. of line.
+ \b empty string at end of word
+ \B empty string, provided it's not at the edfe of a word.
+ \< empty string at beg. of word.
+ \> empty stinrg at end of word.
+* Bash scripting                                                      :SHELL:
+** debugging 
+See article:
+HowTo: Debug a Shell Script Under Linux or UNIX
+http://www.cyberciti.biz/tips/debugging-shell-script.html
+** File and folder ops
+*** Get file path : realpath  BCMD__
+realpath <FILE>
+useful for: realpath <FILE> | toclip
+*** Present working directory: pwd  BCMD__
+*** Size of directory                                               :drill:
+:PROPERTIES:
+:ID:       9ba9523b-80a6-4121-849a-ac1f6a2497f4
+:DRILL_LAST_INTERVAL: 0.0
+:DRILL_REPEATS_SINCE_FAIL: 1
+:DRILL_TOTAL_REPEATS: 7
+:DRILL_FAILURE_COUNT: 3
+:DRILL_AVERAGE_QUALITY: 2.428
+:DRILL_EASE: 2.32
+:DRILL_LAST_QUALITY: 0
+:DRILL_LAST_REVIEWED: [2015-05-05 Tue 10:27]
+:END:
+[du -h -s] BCMD__ size of dir.
+ Mnemonic: [-human -summary]
+*** Listing all files in a directory recursivley
+find           #shows ./... path
+find `pwd`     #shows abs path.
+** file name operations
+*** Strip extension from file name
+#+BEGIN_SRC sh
+file="hello.world.end"
+echo ${file%.*}
+hello.world
+#+END_SRC
+*** extract extension from file name
+#+BEGIN_SRC sh
+hellow="hello.world.end"
+echo ${hellow##*.}
+end
+#+END_SRC
+** subsets and substrings 
+: ${PARAMETER:OFFSET:LENGTH}
+- paramater == variable, can be "@" for pos-args like ${@:2:3}
+- length is optional 
+
+e.g 
+: $ x="Leo Ufimtsev"
+: $ echo ${x:1:2}  
+: 2 
+*** Reference
+http://www.ibm.com/developerworks/library/l-bash-parameters/index.html
+** pattern matching with vars and #, ##, %, %%, /, //
+Not quite regex of grep.
+
+- Remove from beggining '#' :: 
+  ${par#word} == remove *first* matching 'word', shortest match.
+  ${par##word} == as above, but longest.
+  Mnemonic: on keyboard, #(3) comes before %(5).
+
+- Remove from end ::
+  ${par%word} == remove *last* matching 'word', shortest match. 
+  ${par%%word == as above, but lognest.
+  Mnemonic: on keyboard, %(5) comes after #(3). 
+
+- Replace ::
+  ${par/pattern/string}  == in param, search for *first found* pattern and replace *it* with string. 
+     - Longest matching.
+     - prefix with # or % to match at start/end.
+     - if string is empty, trailing '/' can be ommited.  
+
+Examples:
+#+BEGIN_SRC sh
+x="Leo Ufimtsev"
+
+#trim out Leo:
+${x#Leo} #Ufimtsev
+
+#trim with wildcard:
+echo ${x#*eo}  #Ufimtsev
+
+
+y="leo leo meh leo meh"
+
+#Replace first found leo:
+${y/leo/neo}  #neo leo meh leo meh
+
+#Replace all leos
+${y//leo/neo} #neo neo meh neo meh
+
+#+END_SRC
+   
+*** Reference 
+http://www.ibm.com/developerworks/library/l-bash-parameters/index.html
+** Arguments
+*** Positional paramaters handling
+$0, $1, $2 ...   position arg
+$#    Number of args
+$*    All of the pos paramaters as a *single word*
+  -> "$*" should be quoted.
+
+$@  same as $* but each par is a quoted string. I.e each par is seprerate word.
+-> "$@" should be quoted.
+
+$?  - exit code from last command.
+$!  - pid of last command.
+
+[[http://www.tldp.org/LDP/abs/html/internalvariables.html#ARGLIST][Src]]
+*** getops (flags)
+:LOGBOOK:
+CLOCK: [2015-05-04 Mon 15:47]--[2015-05-04 Mon 18:24] =>  2:37
+:END:
+**** About 
+Handle *single letter* arguments like "-h" , "-g 2" out of order.
+**** Syntax 
+IBM code:
+#+BEGIN_SRC sh
+echo "OPTIND starts at $OPTIND"
+while getopts ":pq:" optname
+  do
+    case "$optname" in
+      "p")
+        echo "Option $optname is specified"  # script -a 
+        ;;
+      "q")
+        echo "Option $optname has value $OPTARG"  # script -f myFile.ini
+        ;;
+      "?")
+        echo "Unknown option $OPTARG"   # script mehl
+        ;;
+      ":")
+        echo "No argument value for option $OPTARG"  # script -f   ##missing file name.
+        ;;
+      *)
+      # Should not occur
+        echo "Unknown error while processing options"
+        ;;
+    esac
+    echo "OPTIND is now $OPTIND"
+  done
+#+END_SRC
+
+- OPTIONS explained ::
+  1. Colon business 
+    x:   - colon after letter == needs value 
+    :x   - leading colon == supress (/silent) normal error messsages. Script supplies it's own.
+
+  2. Unknown option 
+    case will be "?" 
+
+  3. Variables 
+     - optname (or any varname of your choice) == the name of the variable 
+     - $OPTARG the argument of the option. (e.g -x OPTARG) 
+ 
+  4. OPTIND 
+    Option index, starts at 1. Get's incremented.
+**** assign default value 
+${param:="meh"}  == Assign value to var if empty.
+       There are many variations to this. See ibm reference.
+
+**** getops vs getopt
+  - getops (bash build in) 
+  - getop (not build in, but handles long options like --help).
+**** References
+Advanced template:
+http://tuxtweaks.com/2014/05/bash-getopts/
+
+getopts overview:
+https://rsalveti.wordpress.com/2007/04/03/bash-parsing-arguments-with-getopts/
+
+Ibm reference:
+http://www.ibm.com/developerworks/library/l-bash-parameters/index.html
+** Booleans
+#+BEGIN_SRC sh
+
+   #define like this:
+   bool=true
+
+   #ALWAYS TEST, never go like if [ ! $bool ]
+   if [ "$bool" = true ]; then
+     ...
+   fi
+
+#+END_SRC
+*** References:
+http://stackoverflow.com/questions/2953646/how-to-declare-and-use-boolean-variables-in-shell-script
+** if else
+#+BEGIN_SRC sh
+  if [ "foo" = "foo" ]; then
+      echo expression evaluated as true
+  fi
+
+  if [ "foo" = "foo" ]; then
+      echo expression evaluated as true
+  else
+      echo expression evaluated as false
+  fi
+#+END_SRC
+** @ xargs                                                            :BCMD__:
+*** About
+Constructs argument lists based on input from pipe and execute another utility.
+*** Examples
+Examples:
+#+BEGIN_SRC sh
+#basic eg
+echo 1 2 3 | xargs echo
+
+#find all .bak and delete them:
+find . -name "*.bak" -type f -print | xargs /bin/rm -f
+
+#+END_SRC
+*** Limit to use only N args
+xargs -n 2
+
+Limit the number of args to be passed to a single execution of a utility.
+e.g
+#+BEGIN_SRC sh
+echo 1 2 3 | xargs -n 2
+
+#Prints:
+#1 2
+#3
+#+END_SRC
+*** {} as argument list maker
+Sometimes you need to use filename multiple times. E.g with 'mv' command.
+
+The flag:
+-I [DELIMITER]     specifies name of the delimiter.
+-0                 handles blank spaces better.
+
+#+BEGIN_SRC sh
+#use '{}' as delimiter.
+find . -name "*.bak" -print0 | xargs -0 -I {} mv {} ~/old.files
+#use 'file' as delimiter.
+find . -name "*.bak" -print0 | xargs -0 -I file mv file ~/old.files
+
+#+END_SRC
+*** References
+Blog about xargs
+http://www.cyberciti.biz/faq/linux-unix-bsd-xargs-construct-argument-lists-utility/
+** Proccess management                                         :APP:LINUX:BCMD__:
+*** top (Process Listing) BCMD__
+*** htop (Proccess Listing Fancy)                          
+**** About
+Requires manual install
+**** Usage
+Usage: 
+ SPC = select pro's
+ F9 = kill
+**** References
+http://www.thegeekstuff.com/2011/09/linux-htop-examples/
+*** ps (Process List all)       BCMD__
+:PROPERTIES:
+:ID:       f3c38fc6-5b64-41ab-a79a-721647038df1
+:END:
+man:ps
+- Show proccesses of current shell :: 
+  : ps 
+- Args  
+  a = all users
+  u = include user info.
+  : ps au
+
+
+    useful with grep.
+*** pstree (visiualise processes)  BCMD__
+    Useful to see which display manager spawned a proc.
+*** pgrep (Proccess Grep)   BCMD__
+    pgrep firefox  > 3795
+    kill $(pgrep firefox)
+*** kill [ID] (Kill a process)    BCMD__
+    use *kill -9 [ID]* for stubborn processes.
+*** pkill (killing a procces) BCMD__
+*** pkill & pkill all (Proccess kill)                              :BCMD__:
+    pkill firefox
+    killall firefox
+*** xkill (Mouse point on proccess to kill)                        :BCMD__:
+*** References
+http://www.howtogeek.com/107217/how-to-manage-processes-from-the-linux-terminal-10-commands-you-need-to-know/
+** Timing performance of a script or command
+2 methods. 
+
+- Run time with your command ::
+  : time your command
+
+- Run times after your command has executed ::
+: your_command
+: times
+
+[[https://unix.stackexchange.com/questions/52313/how-to-get-execution-time-of-a-script-effectively/52315#52315][Ref : S.E post]]
+** Exit Codes
+*** About/links
+Great article:
+http://bencane.com/2014/09/02/understanding-exit-codes-and-how-to-use-them-in-bash-scripts/
+*** Exiting shell manually
+Ctrl+d
+exit     CMD__
+*** 0 : Success         >=1 Failure
+   0 - success
+>= 1 - Failure
+*** Find out which exit code was returned
+'$?' holds output of last returned command.
+~echo $?~
+*** Not specifing exit code
+Exit code taken from last command.
+*** Testing for success in script
+Use exit code of a command in your script like so:
+#+BEGIN_SRC sh
+#!/bin/bash
+touch /root/test 2> /dev/null
+if [ $? -eq 0 ]
+then
+  echo "Successfully created file"
+else
+  echo "Could not create file" >&2
+fi
+#+END_SRC
+*** Return an exit status
+exit 0-255
+See Reserved Exit codes: [[http://www.tldp.org/LDP/abs/html/exitcodes.html]]
+#+BEGIN_SRC sh
+exit 0 #success
+exit 1 #or >1 error
+#+END_SRC
+*** List Constructs && ||  (exit code one-liners)
+*&&* means and
+'||' means  or
+( )  grouping
+
+
+CMD1 && CMD2    -- cmd 2 will only execute if cmd 1 succeeded.
+CMD1 || CMD2    -- cmd 2 will only execute if cmd 1 failed.
+(CMD1 || CMD2) && CMD3 -- paranthasese can be used for groupings.
+
+e.g
+#+BEGIN_SRC sh
+$ CMD1 && CMD2 || (CMD3 && CMD4  || echo "fail")
+  #CMD3+ will only execute if CMD1 fails.
+  #
+#+END_SRC
+
+** @ Aliasing
+- Alias ::
+  alias showall="find ."
+
+- Unaliase ::
+  unaliase showall
+
+- Alias in scripts ::
+  In general, use functions inside scripts.
+  http://tldp.org/LDP/abs/html/aliases.html
+** Searching history 
+history
+C-r 
+** References 
+[[http://teknixx.com/40-useful-linux-commands/][40 Useful Linux Commands]] http://teknixx.com/40-useful-linux-commands/
+* Shell BCMD__                                                 :SHELL:BCMD__:
+** @ DEBUGINFO-INSTALL (Debugging Information)
+:PROPERTIES:
+:ID:       fe0221f2-1b64-4759-8aab-81e531fb5307
+:END:
+Install debugging symbols for a package to be used for gdb.
+Part of yum-utils. 
+: debuginfo-install $pkg
+** @ FIND                                                            :BCMD__:
+
+*** Finding files
+find . -iname "*meh*"
+
+-iname = case insensitive
+"*meh*"  = the '*' are regex. Should keep.
+*** Finding large files and folders 
+
+Find files that are larger than:
+: find . -size +20M -exec ls -lh {} \;
+Nicer look:
+: find . -size +40M -exec ls -lh {} \;  | awk '{ print $NF ": " $5 }'  
+No dir.perm.errors:
+: find / -type f -size +20M -exec ls -lh {} \; 2> /dev/null | awk '{ print $NF ": " $5 }'
+
+Sort by size:
+: find . -type f -size +20M -exec ls -lh {} \; 2> /dev/null | awk '{ print $NF ": " $5 }' | sort -nrk 2,2
+
+Also---- 
+Large folders and file:n
+: du -a | sort -n -r | head -n 10
+
+
+Large files:
+: find . -printf '%s %p\n'| sort -nr | head -10
+**** Refrences 
+http://linuxlookup.com/howto/find_all_large_files_linux_system
+http://www.cyberciti.biz/faq/how-do-i-find-the-largest-filesdirectories-on-a-linuxunixbsd-filesystem/
+
+*** Find & exec
+Example:
+ find . -iname -exec CMD {} \;
+
+Meaning:
+ -exec    Execute. (don't confuse with bash native exec)
+ {}       substitution for found file.
+ \;       escaped ';'
+
+Note, can also use + at the end:
+ find . -iname -exec CMD {} +
+
+Example:
+#+BEGIN_SRC sh
+#Find a pdf with 'gnome' in the name and open in evince.
+find . -iname "*gnome*" -exec evince {} \;
+#+END_SRC
+
+*** References
+Regex/Or
+http://www.dzone.com/snippets/find-files-certain-extensions
+
+Find & multi exec:
+http://stackoverflow.com/questions/5119946/find-exec-with-multiple-commands
+
+Find/xarg reference: (gray/white/technical)
+http://tldp.org/LDP/abs/html/moreadv.html
+** @ GCC
+:PROPERTIES:
+:ID:       64e8abcd-4d44-4343-a5cd-8379719e8ee1
+:END:
+*** Flags 
+**** -Wall == Warnigns all           COOL__
+**** -g == produce debug info        COOL__
+Depending on OS that you're compiling on.
+**** -o <name> == name output        COOL__
+Usually ~a.out~ is produced. The -o flag names the output.
+**** -Werror == convert warnings to errors
+**** -E == preprossesor out only
+outputs to Std out. 
+**** -S == assembly only
+outputs to Std out.
+**** -l == link with shared libraries 
+: gcc  -Wall main.c -o main -lCPPfile
+The gcc command mentioned above links the code main.c with the shared library libCPPfile.so to produce the final executable ‘main’.
+**** -v == verbose
+**** -ansi == ISO C89 support
+e.g dissalow '//' comments. 
+**** -D == compile time macros
+e.g specify some macro in code (MY_MACRO)
+#+BEGIN_SRC c
+#include<stdio.h>
+
+int main(void)
+{
+#ifdef MY_MACRO
+  printf("\n Macro defined \n");
+#endif
+  char c = -10;
+  // Print the string
+   printf("\n The Geek Stuff [%d]\n", c);
+   return 0;
+}
+#+END_SRC
+
+During compile, it is printed:
+#+BEGIN_SRC sh
+$ gcc -Wall -DMY_MACRO main.c -o main
+$ ./main
+
+ Macro defined 
+
+ The Geek Stuff [-10]
+#+END_SRC
+**** @ == provide options as file 
+Specify arguments from a file:
+e.g ogt_file:
+: -Wall
+
+e.g command:
+: gcc main.c @opt_file
+**** -O O0 -O1 -O2 -O3 == Optimize 
+-O0 default. Expected for debugging 
+*** Examples 
+**** Basic a.out
+: gcc main.c 
+Produces a.out
+**** Name output
+#+BEGIN_SRC sh
+gcc main.c -o main
+#+END_SRC
+**** Enable warnings
+: gcc -Wall main.c -o main
+**** Basic named, with warnings and debug support  COOL__
+: gcc -Wall -g -o main main.c
+*** References
+http://www.thegeekstuff.com/2012/10/gcc-compiler-options/
+*** See also 
+[[id:41713989-262b-4205-bd1d-f2ecd43e71bb][make, makefiles]]
+** @ RSYNC
+*** Copy files with progress 
+: rsync --info=progress2 src dest
+*** References (and further reading)
+Two way syncing:
+http://stackoverflow.com/questions/2936627/two-way-sync-with-rsync
+** @ UNAME
+:Properties:
+:Id:       f0c04bef-f80c-4dfe-8df8-2659b86829c1
+:END:
+*** -a : all system info e.g system name, domain, fedora version 
+: uname -a
+: Linux unused-10-15-18-183.yyz.redhat.com 4.0.4-303.fc22.x86_64 #1 SMP Thu May 28 12:37:06 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+*** -r : Kernel Version
+: uname -r 
+: 4.0.4-303.fc22.
+** @ GBD
+*** Diagram
+#+BEGIN_SRC dot :file ./img/img_2015_04_23__17_20_06.png :cmdline -Kdot -Tpng
+  digraph {
+   node [shape=record]
+   comp [label="{compile your app|with -g flag}"]
+ 
+   gdb_terminal [label="{$ gdb|[In termina]}"]
+   gdb_state_loaded [label="{(gdb)|[Loaded state]}"]
+   gdb_start [label="{(gdb) start|(step throu..)}"]
+   gdb_run [label="{(gdb) run|(till break)}"]
+
+   comp -> gdb_terminal
+   comp -> gdbRunWithFile -> gdb_state_loaded
+ 
+   gdbRunWithFile [label="{$ gdb ./main|[In Terminal]}"]
+
+   gdb_state_loaded -> {gdb_start;b} -> gdb_state_debugging
+ 
+   gdb_load [label="(gdb) load [./main]"]
+   gdb_terminal -> gdb_load -> gdb_state_loaded
+ 
+   gdb_run -> gdb_state_debugging
+
+   gdb_state_debugging [label="{(gdb)|[Debug state]}"]
+
+   gdb_state_debugging -> {n;s;quit;b;continue;print;watch;segfault;where}
+   segfault [label="(Segmentation \nfault)"]
+   segfault -> backtrace
+   b [label="break"]
+   n [label="{next | [No subroutines]}"] 
+   s [label="{step | [W/ subroutines]}"]
+   b -> gdb_run
+
+  }
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_23__17_20_06.png]]
+*** About 
+Step through program.
+- inspect variables
+- Spot Segmentation faults 
+
+When inside gdb, '(gdb)' prefix is used for all commands.
+
+Note, 'Tab' completion available.
+*** Compiling for debugging (-g)
+Compile C/C++ programs with '-g' (debugging) flag to enable debugging.
+: gcc -g -o main main.c
+*** Running gdb
+**** Start gdb, then load program
+You start gdb, then you start your application from inside gdb.
+
+Startg gdb:
+: gdb
+
+Inside gdb, load the program you wish to debug:
+: (gdb) file ./main
+**** Starting gdb with your application
+You can also pre-start gdb with an application:
+: gdb <executable> 
+: # e.g:
+: gdb main
+
+Star your application
+: (gdb) start
+
+Once started, it should break at your "main" method somewhere.  
+There you can use "next/break/list.." commands below.
+**** attching onto running application via pid
+E.g to running gtk
+: gdb --pid=123
+*** TUI (Text User Interface) mode 
+- Initiating TUI ::
+  Starting in tui mode:
+  : gdb --tui ./main
+  
+  Starting tui when gdb launched: 
+  Ctrl+x a  
+  Ctrl
+*** Cmds
+When inside gdb:
+Note, you only need to type in parts of the comand. 
+e.g Continue -> c, start -> sta
+**** Running
+***** run == execute till break/segfault
+runs the program without stepping. E.g till next break point.
+Shows useful info if segfault occurs. e.g 
+  : Program received signal SIGSEGV, Segmentation fault.
+  : 0x0000000000400524 in sum array region (arr=0x7fffc902a270, r1=2, c1=5,
+  : r2=4, c2=6) at sum-array-region2.c:12
+***** start == step through program
+***** continue == (when running, continue to next breakpoint)
+***** step == next sonurce line, steps into functions.
+***** next == next source line, no entering of sub-routine.
+***** finish == till function ends
+**** Breaking
+***** break  (setting break points)
+- Break at line ::
+ : b 18  break at line 18
+
+- break at file at line ::
+  : break file1.c:6
+
+- break at function ::
+  e.g int my_func(int a, char *b);
+  : b my_func
+
+- break conditionally ::
+  : (gdb) break file1.c:6 if i >= ARRAYSIZE
+
+Now,
+-  *run* / *step*
+-  *continue* (to next break point)
+***** break at program counter
+When running program, one may get an error and it prints the address of the Program Counter  (EPC)
+: panic: Fatal exception 3 (TLB miss on store) in kernel mode
+: panic: EPC 0x8000f80c, exception vaddr 0xdc			//note EPC 0x8000f80c
+: panic: I can't handle this... I think I'll just die now...
+
+We can hook into this by setting a break point in that memory address:
+: (gdb) b *0x8000f80c
+
+A4:  0x80012618
+: (gdb) b *0x80012618
+***** disable / enable (break points) 
+Use with id of breakpoint 
+: (gdb) disable 2
+***** delete == deletes a break point
+by it's id
+: (gdb) delete 2
+***** info breakpoints == shows info about declared breakpoints
+**** Manipulating
+***** command == exec a command 
+Execute a command on a breakpoint. You can specify that a certain command, or a number of commands be executed at a breakpoint.
+For example, to specify that a certain string and a certain value are printed every time you stop at breakpoint 2, you could type:
+: (gdb) command 2
+: > printf "theString = %s\n", theString
+: > print /x x
+: > end
+***** set  == assign value to variable
+: set variable x = 15
+**** Variable Inspection
+***** print == printing variables
+: (gdb) print my_var
+: (gdb) print/x my_var    #print in hexadecimal
+: (gdb) "X = %d, Y = %d\n",X,Y
+***** watch == print var changes
+print changes to variable.
+This depends on scope.
+***** display == print expression on step
+Print expression after every step
+: (gdb) display x
+: (gdb) undisp x
+***** info == information about stuff 
+: info breakpoints 
+: info registers
+**** Ending
+***** quit
+***** detach == from proccess 
+***** kill == proccess
+**** Code Inspection
+***** list == list context 
+Shows lines above/below current line 
+l 101 == show this line 
+l os.c:101 
+l myFunc 
+***** backtrace == show stack after seg fault.
+***** where == show stack trac
+**** Various
+***** define == a macro to put into .gdbinit 
+Automate actions by defining macros
+: (gdb) define db
+: Type commands for definiton of "db"
+: End with al ine saying just "end".
+: > target remote unix :.sockets/gdb 
+: > end
+***** help [command]
+get help for commands.
+*** Working with pointers
+E.g we have struct like:
+: struct entry {
+:   int key;
+:   char *name;
+:   float price;
+:   long serial_number;
+: };
+
+Suppose we have line like: 
+: struct entry * e1 = <something>;
+
+We can do:
+ - See the value (memoy address) of pointer:
+   : (gdb) print e1
+ - see field poineter is referencing: 
+   : (gdb) print e1->key
+   : (gdb) print e1->name
+   : (gdb) print e1->price
+   : (gdb) print e1->serial
+   : number
+ - Use deference (*) and (.) ops in place of arrow
+   : (gdb) print e1->key
+   : (gdb) print e1->name
+   : (gdb) print e1->price
+   : (gdb) print e1->serial
+   : number
+ - see entire contents of the struct the pointer references  
+   : (gdb) print *e1
+ - follow pointers 
+   : (gdb) print list_prt->next->next->next->data
+*** Configuration file .gdbinit
+*** Examples
+**** Example .gdbinit file for 369 project.
+natigate to a certain dir, define 'db' connection.
+#+BEGIN_SRC sh
+# Start example .gdbinit file.
+dir ~/csc369/a2/src/kern/compile/ASST2
+# Above line tells the debugger the path to the location where the code was compiled. Remember to edit the path to match your source location!
+
+#Define a macro to connect to waiting kernel, to save typing on each startup
+define db
+target remote unix:.sockets/gdb
+# Above line connects debugger to the waiting kernel
+end
+
+
+define syscall_time
+# Defines a macro for GDB to use called "syscall_time"
+break syscall
+# Sets a breakpoint on a function called "syscall"
+#break sys___time
+end
+# End macro defiinition
+
+
+define a2p2
+target remote unix:.sockets/gdb
+break thread_exit
+break thread_fork
+break pid_exit
+break pid_join
+break pid_detach
+c
+end
+
+define interrupt_b
+break common_exception
+break mips_trap
+break mips_interrupt
+break exception_return
+end
+
+# End .gdbinit
+#+END_SRC
+*** Installing debug info for a package 
+Fedora has symbols for many packages. 
+Can be installed via:
+: debuginfo-install [PKG]
+*** References
+Gdb Manual:
+https://sourceware.org/gdb/current/onlinedocs/gdb/
+
+Lecture slides:                 COOL__
+http://www.cs.umd.edu/~srhuang/teaching/cmsc212/gdb-tutorial-handout.pdf
+
+Gdb connect to proccess ref:
+http://www.yolinux.com/TUTORIALS/GDB-Commands.html
+
+Remote debugging blog post.
+http://gbenson.net/
+** @ TMPFS (and RAMFS) Ram Disks 
+- tmpfs vs ramfs ::
+  ramdisk is older. Cannot limit in size, uses memory till full.
+  tmpfs newer, can be limited in size, can use swap. 
+
+- tmpfs usage ::
+  : mkdir -p /mnt/tmp
+  : mount -t tmpfs -o size=20m tmpfs /mnt/tmp
+
+*** References
+The Difference Between a tmpfs and ramfs RAM Disk | JamesCoyle.net
+http://www.jamescoyle.net/knowledge/951-the-difference-between-a-tmpfs-and-ramfs-ram-disk
+** @ GIT
+*** git (apps)
+:PROPERTIES:
+:ID:       11018575-f775-43c3-9cac-56c89a5d411f
+:END:
+**** gitk
+Graphical view of log/history.
+Tutorial: http://lostechies.com/joshuaflanagan/2010/09/03/use-gitk-to-understand-git/
+**** meld
+- Awesome for comparing two files
+- can be tied into 'git difftools'. See [[id:5c023700-8aad-4de6-91fc-b04eda2818a4][use git difftool]]
+*** git bisect (narrowing down)
+Allows you to narrow down to which commit caused failure. Typically 7 steps or less.
+**** About/Links
+http://webchick.net/node/99
+**** Usage
+***** Manually
+1. Find good/bad commit
+2. Start biscet'ing:
+   #+BEGIN_SRC shell
+   git bisect start
+   git bisect good fd0a623
+   git bisect bad 256d850
+   #+END_SRC
+3. Tell git if commit was good or bad till you find commit
+   #+BEGIN_SRC shell
+   git bisect good
+   ..
+   git bisect bad
+   #+END_SRC
+4. End git bisect
+   #+BEGIN_SRC shell
+   git bisect reset
+   #+END_SRC
+***** Automatically
+Use ~git bisect run MY-SCIPT args~
+#+BEGIN_SRC sh
+  $git bisect start {bad revision} {good revision}
+  $git bisect run {command to run unit tests or build your project}
+#+END_SRC
+http://www.clock.co.uk/blog/git-bisect-simple-examples-and-automatio
+*** git branch
+**** delete 
+: git branch -d <branch>
+*** git cherry-pick 
+Pick induvidual commits. 
+Add them as commits to your branch.
+: git checkout (your branch)
+: git cherry-pick A
+: git cherry-pick A B C    #multiple.
+http://think-like-a-git.net/sections/rebase-from-the-ground-up/cherry-picking-explained.html
+*** git clean
+**** Clean unstaged changes
+git clean -f -d      #force and directories.
+
+-n : dry run
+*** git config
+**** Remember username/passwords
+- Go to repo and execute ::
+git config credential.helper store
+
+- HTTP repos ::
+Can be configured to remember only username for HTTP repo.
+Inside .git/config:
+[remote "origin"]
+        url = https://LeoUfimtsev@github.com/LeoUfimtsev/csc488
+                      ^---------^
+                        Ur Name
+- SSH repos ::
+For SSH repos, need to use public keys.
+*** git diff
+**** Compare a file between two commits
+: git diff <Start_Commit> <End_commit> -- file
+**** Configure with meld
+***** use git difftool
+:PROPERTIES:
+:ID:       5c023700-8aad-4de6-91fc-b04eda2818a4
+:END:
+Git can be configured so that you can invoke meld via ~git difftool~
+#+BEGIN_SRC sh
+  #config
+  git config --global diff.tool meld
+
+  #usage
+  git difftool master..devel
+#+END_SRC
+
+src: http://stackoverflow.com/questions/2006032/view-differences-of-branches-with-meld
+***** Hacks
+in ~/.gitconfig , add:
+#+BEGIN_SRC sh
+[diff]
+	external = /home/lufimtse/Dropbox/Apps/Linux_scripts/diff.py
+#+END_SRC
+
+Content of diff.py is:
+#+BEGIN_SRC python
+#!/usr/bin/python
+import sys
+import os
+
+os.system('meld "%s" "%s"' % (sys.argv[2], sys.argv[5]))
+#+END_SRC
+
+*** git format-patch (Creating a patch)
+Sometimes needed for repos that don't have gerrit.
+
+1. Update master
+2. Create a commit.
+3. run cmd:
+git format-patch -1
+4. inside repo, it should create some file like 0001_...  this is your patch.
+*** git ignore file 
+touch .gitignore
+*.cached
+*.o
+*** git merge 
+**** Theory
+- merge into /current/ branch. Target branch unaffected.
+**** a branch 
+: git merge <branch>
+
+
+: git merge --no-ff <branch> 
+Always generate commit message. Useful for documenting merges.
+**** algorithms
+***** fast-forward
+No conflicts,just move HEAD.
+
+From / To:
+[[./img/img_2015_05_06__10_27_20.png]]
+***** 3-way 
+- When branches diverged. 
+- generates commit to tie branches together
+
+From / To:
+[[./img/img_2015_05_06__10_27_54.png]]
+
+**** resolve conflict
+1. upon 3 way merge, upon conflict, stops before commit.
+2. ~git status~ it will show files with conflict 
+  : # ...
+  : # both modified conflict.c
+3. @you : fix conflicting files
+4. then use ~git add~ on fixed file
+5. ~git commit~ 
+**** References
+https://www.atlassian.com/git/tutorials/using-branches/git-merge
+*** git rebase 
+**** Feature onto master
+Rebase feature onto master:
+: git checkout feature
+: git rebase master
+**** Golden rule of rebasing
+- never use on public branches, messes with other people.
+- but you can force push
+  : git push --force
+https://www.atlassian.com/git/tutorials/merging-vs-rebasing/the-golden-rule-of-rebasing
+
+*** git rebase vs merge 
+If you have something like:
+[[./img/img_2015_05_06__10_33_19.png]]
+
+- Merge :: .
+  Create new commit of combined branches:
+  [[./img/img_2015_05_06__10_33_50.png]]
+
+- Rebase :: . 
+  Put history of other branch onto your branch:
+  [[./img/img_2015_05_06__10_34_23.png]]
+
+  + Rebase leaves clean linear history without forks.
+  - can't see incorporation 
+  - can be catastrophic 
+**** References
+https://www.atlassian.com/git/tutorials/merging-vs-rebasing/conceptual-overview
+*** git log
+: git log origin/master      #see log of another branch
+**** all edits of a single line
+git log -L110,110:/lib/client.js
+
+src:http://stackoverflow.com/questions/9935379/git-show-all-of-the-various-changes-to-a-single-line-in-a-specified-file-over-t
+**** show commit by id
+See: [[id:90b5aee8-272d-4653-98cc-fc6b5d7d1861][git show]]
+*** git push
+**** Push all branches
+Push all local branches to remote.
+: git push --all origin
+***** Reference
+http://stackoverflow.com/questions/1914579/set-up-git-to-pull-and-push-all-branches
+**** TODO 
+*** git rm  
+Remove files from git index but not delete them
+- induvidual file ::
+  git rm --cached
+  
+- In directory :: [[so-git-rm]]
+  git ls-files | xargs git rm --cached
+[[http://stackoverflow.com/questions/936249/stop-tracking-and-ignore-changes-to-a-file-in-git][SO src]]
+*** git Submodule  (nested repos)
+**** Adding a sub-module 
+  git submodule add git://github.com/jquery/jquery.git externals/jquery
+  This adds a directory 'externals/jquery'
+**** Updating/Cloning added sub-module 
+  git submodule update --init --recursive
+**** Deleting sub/modules 
+  Edit: .gitmodules
+
+  Remove entry like:
+  [submodule "doctrine"]
+    path = doctrine
+    url = git://github.com/doctrine/doctrine2.git
+
+  Remove cache:
+  git rm --cached <path/to/submodule>    #no, *no trailing slash*
+**** References
+[[http://stackoverflow.com/questions/2140985/how-to-set-up-a-git-project-to-use-an-external-repo-submodule][S.O post]]
+*** git show 
+:PROPERTIES:
+:ID:       90b5aee8-272d-4653-98cc-fc6b5d7d1861
+:END:
+shows information of a commit given it's id.
+: git show 300ace8e3eaec6136b4861feec65efae8fe149fc
+*** References
+https://www.atlassian.com/
+http://think-like-a-git.net/sections/rebase-from-the-ground-up/cherry-picking-explained.html
+** @ GREP
+*** Grep                  BCMD__
+grep 'pattern' filename
+*** Grep OR               BCMD__
+- Option 0 :: 
+  : grep -e pattern1 -e pattern2 
+
+- Option 1 :: egrep
+egrep 'pattern1|pattern2' filename
+
+- Option 2 :: \|
+grep 'patttern\|pattern2' filename
+*** Grep NOT               BCMD__
+grep -v 'pattern' filename
+
+*** Grep AND   (sed and)   BCMD__
+- Option 0 ::
+  use multiple greps
+  : grep A | grep B | grep C
+
+- Option 1 :: 
+  : awk '/void/ && /get/'  atkversion.c 
+
+- Option 2 :: 
+  Or use sed like:
+  sed -e '/pattern1/!d' -e '/pattern2/!d'
+
+See also:
+http://unix.stackexchange.com/questions/55359/how-to-run-grep-with-multiple-and-patterns
+
+http://unix.stackexchange.com/questions/55359/how-to-run-grep-with-multiple-and-patterns
+*** Grep with context
+How lines _Before and _After a match.
+: man ls | grep -A 5 "\\-a"     #find info about '-a' paramater.
+
+'-C' (_Context) combines before/after.
+: grep -C 5
+
+Note, group-seperator optino might be useful to differentiate each group:
+--group-separator=@@@@ 
+
+*** References:
+src: [[http://www.thegeekstuff.com/2011/10/grep-or-and-not-operators/][7 Linux Grep OR, Grep AND, Grep NOT Operator Examples]]
+** @ LS 
+*** listing only symbolic links 
+: ls -la | grep "\->"
+** @ MAKE, MAKEFILES
+:PROPERTIES:
+:ID:       41713989-262b-4205-bd1d-f2ecd43e71bb
+:END:
+*** make and makefile Theory
+make looks for a file called 'makefile' in the directory.
+
+If you have multiple makefiles, you can choose using:
+~make -f makefile~
+*** Build proccess
+#+BEGIN_SRC dot :file ./img/img_2015_03_24__13_33_37.png :cmdline -Kdot -Tpng
+digraph {
+rankdir="LR"
+src [label="main.c"]
+obj [label="main.o"]
+out [label="main (executable)"]
+Compliler, Linker [shape="square"]
+src -> Compliler -> obj -> Linker -> out
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_24__13_33_37.png]]
+*** Core Syntax
+Syntax:
+#+BEGIN_SRC
+target: dependencies
+[tab] system command
+#+END_SRC
+
+Example:
+#+BEGIN_SRC
+all:
+    g++ main.cpp hello.cpp factorial.cpp -o hello
+#+END_SRC
+*** Targets
+- Single target ::
+  'all' is default target. It is called when no other target specified.
+
+- Dependencies ::
+  Dependencies are sepecified after target, e.g file1, file2, file3:
+  #+BEGIN_SRC makefile
+  all: hello
+
+  hello: file1.o file2.o file3.o
+
+  file1.o:
+        [COMPILE CMD]
+
+  file2.o:
+        [COMPILE CMD]
+  ..
+  #+END_SRC
+
+- Multiple targets ::
+  Useful if you modified only part of your program and don't want to recompile everything.
+  example:
+  #+BEGIN_SRC makefile
+    all: hello
+
+    hello: main.o factorial.o hello.o
+        g++ main.o factorial.o hello.o -o hello
+
+    main.o: main.cpp
+        g++ -c main.cpp
+
+    factorial.o: factorial.cpp
+        g++ -c factorial.cpp
+
+    hello.o: hello.cpp
+        g++ -c hello.cpp
+
+    clean:
+        rm *o hello
+  #+END_SRC
+
+*** Variables
+Vars are very bash-like.
+
+Define:
+  VAR=[VALUE]
+
+Use:
+  $(VAR)
+
+#+BEGIN_SRC makefile
+# I am a comment, and I want to say that the variable CC will be
+# the compiler to use.
+CC=g++
+# Hey!, I am comment number 2. I want to say that CFLAGS will be the
+# options I'll pass to the compiler.
+CFLAGS=-c -Wall
+
+all: hello
+
+hello: main.o factorial.o hello.o
+    $(CC) main.o factorial.o hello.o -o hello
+
+main.o: main.cpp
+    $(CC) $(CFLAGS) main.cpp
+
+factorial.o: factorial.cpp
+    $(CC) $(CFLAGS) factorial.cpp
+
+hello.o: hello.cpp
+    $(CC) $(CFLAGS) hello.cpp
+
+clean:
+    rm *o hello
+#+END_SRC
+*** Advanced Topics
+**** multile cores for make
+make -j 6
+
+Use x1.5 the cores you have to account for I/O
+Also try: make -j4
+*** Examples 
+**** gtk3 builder
+#+BEGIN_SRC makefile
+all:
+	gcc `pkg-config --cflags gtk+-3.0` -o main main.c `pkg-config --libs gtk+-3.0`
+run:
+	./main
+clean:
+	rm *o main
+#+END_SRC
+**** Common C make file 
+Builds the c file with:
+- "-g" debuG support
+- "-Wall" Warnings all.
+#+BEGIN_SRC makefile
+CC      = gcc
+CFLAGS  = -Wall -g
+RM      = rm -f
+
+default: all
+
+all: main
+
+main: main.c
+	$(CC) $(CFLAGS) -o main main.c
+clean veryclean:
+	$(RM) main
+#+END_SRC
+*** References
+Quick tutorial: http://mrbook.org/blog/tutorials/make/
+Manual: http://www.gnu.org/software/make/manual/make.html
+*** See also 
+[[id:64e8abcd-4d44-4343-a5cd-8379719e8ee1][gcc]]
+*** jni.h missing 
+Need to link to it first.
+export JAVA_HOME=/usr/lib/jvm/java/
+
+May need to install devel packages.
+** @ NANO
+Nice little terminal editor.
+
+Nano syntax highlighting:
+#+begin_src sh
+find /usr/share/nano/ -iname "*.nanorc" -exec echo include {} \; >> ~/.nanorc
+#+end_src
+as per:
+http://askubuntu.com/questions/90013/how-do-i-enable-syntax-highlighting-in-nano
+
+dex might be a nano replacement:
+https://github.com/tihirvon/dex
+
+** @ NOTIFY-SEND (notification)
+May need to install package: libnotify
+
+E.g
+notify-send -u normal -t 10000 -i info 'title msg' 'Body message'
+
+
+notify-send "Message Title" "The message body is shown here" -i /usr/share/pixmaps/idle.xpm -t 5000
+
+** @ QPDf
+*** remove password from pdf
+This has worked:
+qpdf --password=YOURPASSWORD-HERE --decrypt input.pdf output.pdf
+
+Can also use evince's print to file feature.
+
+Reference:
+http://www.cyberciti.biz/faq/removing-password-from-pdf-on-linux/
+** @ READLINK
+*** Find bin based on PID 
+readlink -f /proc/32279/exe
+** @ SED
+*** sed with grouping. (extact what matches)
+e.g, extact 'world' from below: (first group).
+echo "hello world" | sed -n 's/hello \(world\)/\1/p'
+
+Means:
+sed -n 's/Pattern (group1) /   \1    /p' +escape sequences for ( and ).   #CMD__ sed regex group
+** @ TAR (unpacking)
+ tar -xf FROM -C /opt/
+** @ TMUX
+*** References / Learning material
+Nice quick turoail and a guy's config:
+http://www.reddit.com/r/linux/comments/36d5r8/a_tmux_crash_course_tips_and_tweaks/
+** @ TAIL
+Shows end of file.
+*** dynamically output/print file content/ follow.
+Print new file content as it comes in.
+: tail -f file   
+
+** @ TR
+*** tr to repalce things
+replace all ) with ]:
+  tr ')' ']'
+*** truncating/deleting whitespaces
+pipe in:
+   tr -d '[[:space:]]'                     #CMD__ tr replace whitespace
+*** tr to delete things
+use the '-d' paramater.
+   tr -d ')'   #remove all instances of ')'
+** @ VI 
+*** Changing modes
+i - insert mode 
+ESC - command mode.
+v - visual mode (select stuff). y/x/p to copy/cut/paste. 
+*** Selecting text 
+change to visual mode. 'v', then y/x/p to copy/cut/paste. 
+*** Inserting text 
+  i - insert at point 
+  I - Insert at start of line. 
+  a - append after cursor 
+  A - append after line
+  o - open new line *after* current line (not moving text down)
+  O - open new line *before* 
+  r - replace single char 
+  R - replace many chars.
+*** Yanking 
+yy yank the current line 
+:y
+*** Searching 
+/  search forward 
+?  search backward 
+n  next instance 
+N  previous instance.
+*** Motion
+
+*1G* first line 
+                              *k* up            *w* next word (W blank delim.
+*0* beggingg of line    *h* left     *l* right     *$* end of line 
+                              *j* down          *e* end of word.
+*b* beggining of word (B) delim. 
+*G* last line 
+
+ *( )*  sentence navi. 
+ *{ }* para navi n
+*** Deletion
+  x - delete char 
+  dd - delete line.
+*** Saving & Quitting
+  :x  - exit saving changes.
+  ZZ  - exit & save changes if any made.
+  :wq - write and quit  
+  :w  - write 
+  :q  - quit without writing.
+  :q! - quit without saving.
+** @ XDOTOOL
+*** Sending key events
+xdotool key --clearmodifiers "$*"   #e.g "ctrl+v"
+
+Keylist:
+https://www.tcl.tk/man/tcl8.4/TkCmd/keysyms.htm
+
+up = uparrow
+BackSpace
+
+*** Activating a window by it's class
+xdotool search --onlyvisible --class <CLASS> windowactivate
+
+  e.g
+  xdotool search --onlyvisible --class emacs windowactivate
+** @ YAD  (progress bar utility)
+- Config file ::
+($HOME/.config/yad.conf)
+
+- Configure to show seconds timeout ::
+show_remain=true
+
+- Activate window by class ::
+sleep 0.1 #Often a good thing to do.
+xdotool search --onlyvisible --class emacs windowactivate
+* Server Tools
+** @ httpd : Apache Web Server  BCMD__
+*** Setting up basic server for testing
+: sudo dnf install httpd
+: sudo systemctl enable httpd   #after bootup.
+: sudo systemctl start httpd
+
+Ref:
+https://fedoraproject.org/wiki/Apache_HTTP_Server
+* Linux GUI Apps                                                        :APP:
+** Sources for apps
+[[http://linuxappfinder.com/all][Linux app finder]]
+
+** VNC
+*** tigervnc-server 
+Set a password:
+: vncpasswd
+
+Run server on 3rd display:
+: vncserver :3 &
+
+Connnect to server on 3rd display.
+: vncviewer localhost:3
+** Latex Apps 
+Emacs AUCtex 
+- 
+- 
+
+Texmaker
+- Navigation 
+- Macros
+- Live preview
+
+kile
+- no live preview?
+- Structure features. 
+
+Lyx
+- Doesn't support native 
+
+texworks
+- Live preview: maybe?
+
+** Drawing apps:
+Tested on linux:
+| App Name      | Remark          | text | Navigation                       |
+|---------------+-----------------+------+----------------------------------|
+| MyPaint       | Smooth          | no   | Good                             |
+|---------------+-----------------+------+----------------------------------|
+| Pinta         | Text + basics   | yes  | no horizonal scrolling           |
+|               |                 |      |                                  |
+|---------------+-----------------+------+----------------------------------|
+| krita         | Heavy           |      |                                  |
+|---------------+-----------------+------+----------------------------------|
+| *KolourPaint* | EXCELENT, fast. | yes  | Excelent. zoom in/out with mouse |
+|               | *winner*        |      | and horizontal scrolling.        |
+Articles:
+[[http://www.linuxplanet.com/linuxplanet/reviews/7059/1][8 great linux drawing apps]]
+** UML 
+*** PlantUML (text-driven)   APP__                                 :PLANTUML:
+**** General syntax
+***** Comments
+- Single line ::
+  ' comment 
+
+- Multi-line ::
+  /' multi line 
+  comment '/
+**** Class Diagrams
+[[http://plantuml.sourceforge.net/classes.html][www ref]]
+***** Arrows/Labels/Methods
+- Arrows ::
+  Extension:   <|--- 
+  Composition: *--
+  Aggregation: o-- 
+
+  Replace -- with .. for dotted line
+
+- Labels on relations ::
+  [OBJ] "obj_annot" [ARROW] "obj2_annot" [OBJ2] : Label >
+  e.g
+  sheppert "one" *-- "many" sheep : has >
+  
+  can also add arrows at end optionally, < or >
+
+- Adding methods :: 
+  One off:
+    Class: method (Int meh)
+ 
+  Grouping:
+    class Group {
+      flight : Int 
+      price  : Double
+    }
+
+Example:
+#+BEGIN_SRC plantuml :file ./img/img_2015.03.03_plantuml_class_eg.png
+class1 <|-- class2
+class1 *.. class3
+classZ o--* ClassY
+
+class1: method1 (int count)
+class class2 {
+ field 1 : bool
+ field 2 : Int
+}
+sheppert "one" *-- "many" sheep : has >
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015.03.03_plantuml_class_eg.png]]
+***** Visibility
+Private -
+Protected #
+Package private ~ 
+Public +
+***** Notes and stereotypes
+- Stereo types ::
+class object << interface >>
+
+- Notes ::
+  - Connect to something ::
+          note [DIR] of [OBJ] : <Note_body>
+          (Dir: top/bottom/left/right)
+
+  - Multi-line note ::
+     note [DIR] of [OBJ]
+       line1
+       line2..
+     end note 
+  
+  - Can use on last defined class ::
+    class obj1
+    note left : on last defined class
+
+  - Floating note ::
+    note "this is a floating note"
+
+  - Naming notes and using reference ::
+    note "Named note" as N1
+    object .. N1
+
+#+BEGIN_SRC plantuml :file ./img/img_2015.03.03_pl_notes.png
+object1 <<interface>> *-- object2
+note right of object1 : hello
+
+note "meh" as N1
+object2 .. N1
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015.03.03_pl_notes.png]]
+***** Notes on links
+#+BEGIN_SRC plantuml :file ./img/img_2015.03.03_note_on_links.png
+obj1 <|-- obj2
+note on link 
+  this is a note
+  on many lines
+end note
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015.03.03_note_on_links.png]]
+***** Packages
+Use *package* keyword. Html color tag is optional.
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_03__16_43_43.png
+package "Platform UI" #DDDDDD {
+ obj1 -- obj2
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_03__16_43_43.png]]
+***** Arrow directions
+single dash '-' means horizontal connection.
+double dash '--' means vertical connection.
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_03__16_48_35.png
+obj - obj_beside
+obj -- obj_below
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_03__16_48_35.png]]
+***** Seperators in Class Body
+Seperate bits of a class
+
+- Basic Seperators :: 
+  -- 
+  ..
+  ==
+  __
+
+- Named seperators ::
+  .. setters ..
+  -- getters --
+  etc.. 
+****** Examp
+les
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_27__12_32_12.png
+class seperators {
+two dashes -- 
+--
+under lines __
+__
+dots ..  
+.. 
+equal signs ==  
+==
+Named seperator
+-- I am named -- 
+}
+
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_27__12_32_12.png]]
+
+**** Sequence diagrams
+[[http://plantuml.sourceforge.net/sequence.html][www reference]]
+***** Basic
+#+BEGIN_SRC  plantuml :file ./img/img_2015_03_03__17_26_13.png
+alice -> bob : message
+bob --> alice : response
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_03__17_26_13.png]]
+***** Participants
+Can be one of
+ - actor
+ - boundary
+ - control
+ - entity
+ - database
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_03__17_31_41.png
+actor _actor
+boundary _boundary
+control _control
+entity _entity
+database _database
+_actor -> _boundary : To boundary
+_actor -> _control : To control
+_actor -> _entity : To entity
+_actor -> _database : To database
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_03__17_31_41.png]]
+***** Arrow Styles
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_03__17_37_41.png
+a -> b : normal ->
+a ->> b : thin >>
+a -x b : lost x
+a -\ b: top part only -\\
+a -/ b: bottom part only -/
+a \\- b : doubling \\\\- makes thin
+
+a ->o b : ->o adds circle/final mark.
+a <-> b : two way is possible
+
+a --> b : dotted line
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_03__17_37_41.png]]
+***** Continue...
+http://plantuml.sourceforge.net/sequence.html
+**** Activity Diagrams
+**** Version info
+run this snippet:
+#+BEGIN_SRC plantuml :file ./img/img_2015_03_05__15_04_45.png
+version
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_05__15_04_45.png]]
+*** Modelio (Open.s)
+Open source, 
+reccomended by [[http://blog.frankel.ch/developing-around-plantuml][folks]]
+*** ArgoUML
+*** StarUMl2 (paid)
+*** Pencil GUI mockup/wireframe
+Cross-platform, for mock-gui design.
+http://pencil.evolus.vn/
+** Virtual machine (VM) apps
+virt-manager  (linux)
+** Disk Utility
+*** gparted
+** Diagram
+*** Graphviz                                                             :GV:
+**** API References
+Node, Edge and Graph Attributes:
+http://www.graphviz.org/doc/info/attrs.html#d:edgeURL
+
+Color names:
+http://www.graphviz.org/doc/info/colors.html
+**** Comments
+//One liners
+
+/* multi 
+   Liners
+*/
+**** Syntax theory
+- Order of code matters ::
+  while elements can sometimes be defined out of order, (defined after used), 
+  there are some corner cases where order of the code makes a difference on rendering.
+  E.g if you first link to something then set the label, it might not get the correct label.
+
+- Node chaining ::
+  Just keep typing :
+    a -> b -> c -> d 
+
+  Works across lines: 
+    a -> b -> c
+    -> d
+
+  See [[id:3bc4a68f-a731-43c8-b39e-e8bc7d93cd81][Node Chaining Example]]
+
+- Apply properties to multiple notes ::
+a,b,c,d [PROPERTY_LIST]
+**** Graph Type
+***** Directed ::
+  : digraph {
+  : a -> b 
+  : }
+***** Undirected :: 
+  : graph {
+  : a -- b
+  : }
+**** Graph Properties
+***** Left to right (LTR) (instead of up to down)
+: rankdir="LR";
+***** Size 
+: size="9,9"   //in inches.
+***** Node Seperation
+: nodesep=.1
+***** ratio (compression)
+Make a graph smaller , e.g:
+: ratio="compress"
+**** Node Properties
+node [ ...]  //All Nodes
+mike [ ... ] //specific Node. 
+
+Default: shape=ellipse, width=.75, height=.5
+
+... can be:
+  shape=(box|triangle|oval|circle|rect|record|plaintext|point)
+      //point = minimum size.
+      //polygon-based and record-based 
+  width
+  height
+  style=filled       //filled goes with fillcolor.
+  fillcolor  
+  color
+  label
+
+  See [[all%20shapes%20with%20pictures][all shapes with pictures]]
+#+BEGIN_SRC dot :file ./img/img_2015_03_23__15_23_56.png :cmdline -Kdot -Tpng
+graph {
+
+/* Shapes */
+main [shape=box style=filled fillcolor=yellow]
+end [shape=oval]
+
+/* label */
+s[label=" In place far far away.."]
+
+/* Edges */
+main -- end
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_23__15_23_56.png]]
+
+**** Edge Properties
+edge [ ... ] //Apply to all edges
+a -> b [ ... ] //Apply to specific edge. 
+a -> {b;c} // link to many
+
+... can be:
+ color="red"
+ style=dotted|bold
+ label="name"
+ weight=1 (default) | 2 | 3 ... See [[id:52612b44-6eab-444e-a67f-cffa83e22042][Edge weight Example]] 
+#+BEGIN_SRC dot :file ./img/img_2015_03_23__15_26_49.png :cmdline -Kdot -Tpng
+graph {
+ main -- end [label=" hello world"]
+ main -- side_story [style=bold,style=dotted,label=" bold",color="red"]
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_23__15_26_49.png]]
+**** Grouping of nodes/styles = subgraph
+Grouping is useful for applying similar styles to a group.
+
+For example, assign red edge colors to a group:
+#+BEGIN_SRC plantuml
+digraph G {                                                                     
+  compound=true;
+  subgraph columns {
+    c0r0 -> c0r1;
+    ...
+  }
+  subgraph rows {
+    edge [color=red];
+    c0r0 -> c1r0;
+    ..
+  }
+}
+#+END_SRC
+
+**** Advance Node Properties 
+***** Secions/boxes in node labels (like class diagrams in UML)
+shape=record
+label="text|text2"   //Horizontal splitting
+label="{text|text2}" //'{ }' does vertical splitting.
+
+#+NAME: graphviz_boxing
+#+BEGIN_SRC dot :file ./img/img_2015_03_27__16_28_49.png :cmdline -Kdot -Tpng
+digraph {
+a [shape=record label="hello |...| (horizontal)"]
+b [shape=record label="{hello | ... | (vertical)}"]
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_27__16_28_49.
+**** Templates
+***** About..
+If I often copy from an Example, it migrates into template section.
+***** UML Class Diagram                                              :TP:
+#+BEGIN_SRC dot :file ./img/img_2015_04_10__10_35_26.png :cmdline -Kdot -Tpng
+digraph hierarchy {
+ size="5,5"
+ node[shape=record,style=filled,fillcolor=gray95]
+ edge[arrowhead=empty]
+ 
+ Control [label = "{Control | computeSize()}"]
+ Widget  [label = "{Widget | setData()}"]
+ Control -> Widget; //Extends
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_10__10_35_26.png]]
+**** Examples
+***** Directed graph
+#+BEGIN_SRC dot :file ./img/img_2015_03_23__15_22_04.png :cmdline -Kdot -Tpng
+digraph {
+a -> b 
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_23__15_22_04.png]]
+***** Undirected graph
+#+BEGIN_SRC dot :file ./img/img_2015_03_23__15_22_34.png :cmdline -Kdot -Tpng
+graph {
+a -- b
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_23__15_22_34.png]]
+***** Node Chaining
+:PROPERTIES:
+:ID:       3bc4a68f-a731-43c8-b39e-e8bc7d93cd81
+:END:
+#+BEGIN_SRC dot :file ./img/img_2015_03_23__15_43_40.png :cmdline -Kdot -Tpng
+digraph {a -> b -> c -> d}
+#+END_SRC
+***** Edge weights
+:PROPERTIES:
+:ID:       52612b44-6eab-444e-a67f-cffa83e22042
+:END:
+#+BEGIN_SRC dot :file ./img/img_2015_04_21__10_23_41.png :cmdline -Kdot -Tpng
+digraph {
+a -> {b;c;d}
+a -> e [weight=20] //Centers things around it.
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_21__10_23_41.png]]
+
+***** UML Diagram                                                    :EG:
+Note, putting { } around label turns side ways.
+
+As described here:
+https://fsteeg.wordpress.com/2006/11/17/uml-class-diagrams-with-graphviz/
+#+BEGIN_SRC dot :file ./img/img_2015_03_27__16_21_19.png :cmdline -Kdot -Tpng
+digraph hierarchy {
+size="5,5"
+node[shape=record,style=filled,fillcolor=gray95]
+edge[dir=back, arrowtail=empty]
+
+2[label = "{AbstractSuffixTree|+ text\n+ root|...}"]
+3[label = "{SimpleSuffixTree|...| + constructTree()\l...}"]
+4[label = "{CompactSuffixTree|...| + compactNodes()\l...}"]
+5[label = "{SuffixTreeNode|...|+ addSuffix(...)\l...}"]
+6[label = "{SuffixTreeEdge|...|+ compactLabel(...)\l...}"]
+
+2->3
+2->4
+5->5[constraint=false, arrowtail=odiamond]
+4->3[constraint=false, arrowtail=odiamond]
+2->5[constraint=false, arrowtail=odiamond]
+5->6[arrowtail=odiamond]
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_03_27__16_21_19.png]]
+
+***** Ranking (Assign level to a node)                               :EG:
+Sometimes you want to ensure that a node is on a specific level. 
+(e.g in a tree). 
+But by default, a node will place it self where it wants rather than on some level.
+You can force nodes to be together if you define a rank=same for them.
+
+E.g in the below, 'c5' would have been on the 'b' level, but because we
+defined them together, it is moved below.
+#+BEGIN_SRC dot :file ./img/img_2015_04_06__11_02_05.png :cmdline -Kdot -Tpng
+digraph {
+  a -> {b1;b2}
+  {rank=same; {c1;c2;c3;c4;c5}}
+  b1 -> {c1;c2}
+  b2 -> {c3;c4}
+  a -> c5
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_06__11_02_05.png]]
+***** Invisible nodes and edges for layout management.               :EG:
+Useful for layouts.
+
+For example, if you would like to draw 'c' below 'a', you could insert some invisible nodes:
+#+BEGIN_SRC dot :file ./img/img_2015_04_06__11_08_39.png :cmdline -Kdot -Tpng
+digraph {
+  a -> b
+  a -> c
+
+  subgraph layoutNodes {
+  node [shape=none, width=0, height=0, label=""]  //invisible nodes
+  edge [dir=none,style=invis]  //ivisible edges
+
+  a -> lvl1 -> lvl2
+  }
+
+  {rank=same; {lvl2;c}}  //put C on 2nd level.
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_06__11_08_39.png]]
+***** File and Folder Diagram                                        :EG:
+#+BEGIN_SRC dot :file ./img/img_2015_04_10__10_49_27.png :cmdline -Kdot -Tpng
+digraph {
+size="8.5";
+node [style=filled]  //for fill-color
+
+subgraph LayoutNodes { // use with {rank=same; {lvl0;nodeA;nodeB}
+  node [shape=none, width=0, height=0, label=""] 
+  edge [dir=none,style=invis]  //ivisible edges
+  slash -> lvl0 -> lvl1 -> lvl2 ->lvl3
+}
+
+subgraph Folders {
+   node [shape=folder, width=.6, fillcolor=gold2]
+   nodesep=.1
+
+   folderA [label="A"]
+   folderB [label="B (Special)", fillcolor=yellow]
+   folderA -> folderB
+   folderA -> folderC [label="Symlink", style=dotted, color=blue]
+
+  {rank=same; {lvl0;folderA}}
+  {rank=same; {lvl1;folderB}}
+  {rank=same; {lvl2;folderC}}
+}
+
+subgraph Files {
+  node [shape=record,fillcolor=lightblue]
+  emacs [label=".emacs"]
+  folderB -> emacs
+  {rank=same; {lvl2;emacs}}
+}
+
+subgraph Executables {
+ node [shape=record, fillcolor=blue, fontcolor=white]
+}
+
+}
+#+END_SRC
+
+#+results:
+[[file:./img/img_2015_04_10__10_49_27.png]]
+
+**** References
+Examples: http://graphs.grevian.org/example
+
+Graphviz Main Docu site: 
+http://www.graphviz.org/Documentation.php
+
+   Shape, style, 
+   http://www.graphviz.org/doc/info/shapes.html
+
+Pdf quick guide:
+http://www.graphviz.org/Documentation/dotguide.pdf
+
+Uml-diagrams in graphviz:
+https://fsteeg.wordpress.com/2006/11/17/uml-class-diagrams-with-graphviz/
+*** Yed
+<empty>
+** Screen shot tools 
+*** shutter                                                         :LINUX:
+** Screen(video) recording tools
+*** Kazam Screencaster
++ Light weight
++ select region
+*** Simple Screen Recorder
++ QT based
++ stop/resume
++ audio
+simplescreenrecorder
+*** *RecordMyDesktop* (The one I use) (__BCMD gtk-recordMyDesktop)
++ window/select region.
++ various formats.
++ pause/resume.
+- heavy, slow in a vm.
++ ogv format plays in Firefox.
+*** Vlc
+=> Capture -> desktop.
+- whole desktop only.
+*** istanbul (fedora reccomended)(seems buggy)
+Main article on it:
+http://fedoraproject.org/wiki/ScreenCasting
+*** Byzanz (to gif)
+** Text editors                                                       :TEXT:
+*** vi app notes                                                      :LINUX:
+**** About 
+Docu:
+http://www.lagmonster.org/docs/vi.html
+**** Searching 
+Searching: 
+/  - open search by keyword
+n  - next 
+N  - previous instance of word.
+** Pdf Reading                                                         :PDF:
+*** evince                                                          :LINUX:
+** Typing tutors
+ktouch (linux, good, shows charts).
+** WebBrowsers
+*** FireFox 
+C-k  Focus on search bar      KEY__ Firefox__
+C-l  Focus on Address bar     KEY__ Firefox__
+** Web Development Tools 
+*** Kompozer (sounds like composer)
+** @ i3 desktop manager
+:PROPERTIES:
+:CREATED:  [2015-05-29 Fri 15:28]
+:END:
+ Configure colemak:
+ : $setxbmap us -variant colemak
+* GUI utils                                                            :TOOL:
+** @ Yum Extendex
+in cmd: yumex
+Available on redhat via [[id:eecec3ab-b25a-41a0-b4b3-0550026ede93][External epel custom repo]]
+** @ Baobab  (Disk usage utility)
+Used to be part of
+** @ dmenu_run  (launcher utility)
+Launcher utility
+** @ gnome-schedule  (for cron jobs)
+Very good utility for managing cron job schedules.
+
+a
+rstsr
+rstsr rstsr rstsr
+* Desk top Managers
+** Mate 
+Make X use shell on startup:
+append 
+: exec mate-session
+to your
+: ~/.xinitrc
+** Gnomme Wayland
+: gnome-session --session gnome-wayland
+** Gnome
+*** keybindings command line
+Some keybindings cannot be found via control center gui. But can hack things via cmd:
+
+- Search for commands ::
+  : dconf dump / | grep -C 15 -e "move"
+  This will give you some path. 
+
+- Edit shortcut ::
+  Use ~dconf-editor~ tool to navigate to the path and change the value.
+**** References
+http://askubuntu.com/questions/169704/how-to-search-dconf-for-keys-or-values
+https://bugzilla.gnome.org/show_bug.cgi?id=752940
+
+* Footnotes
+
+
+

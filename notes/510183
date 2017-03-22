@@ -1,0 +1,74 @@
+Bug 510183 – [Webkit2] Internal browser hangs in WebKitGTK._swtWebkitEvaluateJavascript()
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=510183
+
+[] 32/64 bit int check.
+
+
+[] Move Evaluation logic into Java:
+  [X] Handle return values.
+  [] Handle errors.
+    [] Implement getter/setter for GError. (Find out how macros work..)
+  [] Improve idCounts logic. I.e, use some unique ID mechanism.
+
+[] Tidy up:
+  [] Make sure on webkit2, all eventFiring is done at end of signal call.
+
+
+REmoved from webkitgtk.java';
+ * @param gerror cast=(GError **), flags=no_out
+
+Removed from GError in Webkit:
+import org.eclipse.swt.internal.webkit.*;
+
+GError near OS.java:
+package org.eclipse.swt.internal.gtk;
+
+import org.eclipse.swt.internal.webkit.*;
+
+public class GError {
+
+	/** @field cast=(GQuark) **/
+	public int domain;
+	/** @field cast=(gint) **/
+	public int code;
+	/** @field cast=(gchar *) **/
+	public long /*int*/ message;
+
+	public static final int sizeof = WebKitGTK.GError_sizeof();
+}
+
+
+public static final native void _gdk_colormap_free_colors(long /*int*/ colormap, GdkColor colors, int ncolors);
+
+/** WebKitJavascriptResult *  webkit_web_view_run_javascript_finish (WebKitWebView *web_view, GAsyncResult *result, GError **error); **/
+ * @param GError cast=(GError **), flags=no_out
+
+[] Figure out situations where JS callback isn't called.
+  FIX:
+    [] I may have to turn off JS return for evaluation for some event handlers.
+      This could be a temp solution also...
+        Good: Only a few events require fix.
+        Bad: I could miss some, hidden freeze-ups.
+      OR
+    [] I could implement a timeout.
+      Good: Fairly universal fix.
+      Bad: Some evaluations wouldn't work. Will make it harder for
+    [] I could move the waiting logic to SWT & do a display.readAndDispatch()
+      Good: Could potentially solve all my deadlock issues.
+      Bad: time consuming fix, no guarantee for sucess. Need to implement mapping mechanism.
+
+[] Un-comment close() if(WEBKIT2)...
+
+
+[X] In native Webkit, does the callback fire on location change listeners?
+  load-changed -> WEBKIT_LOAD_COMMITTED -> handleLoadCommitted->LocationChanged
+  decide-policy -> DECIDE_POLICY->WEBKIT_POLICY_DECISION_TYPE_NAVIGATION_ACTION ->LocationChanging
+  => Fault in SWT logic somewhere. why the hang...
+
+Hard hangs if evaluate ran in following listeners:
+  openWindowListeners()
+  LocationChange compleated
+    locationListeners[i].changed (event);
+  progress compleated
+
+But best to make them all async.

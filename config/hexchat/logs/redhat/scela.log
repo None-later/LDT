@@ -1,0 +1,60 @@
+**** BEGIN LOGGING AT Wed Oct  5 11:52:34 2016
+
+[scela has address ~scela@vpn1-7-231.ams2.redhat.com]
+Oct 05 11:52:34 <scela>	https://www.eclipse.org/eclipse/news/4.6/M1/
+Oct 05 11:55:26 <lufimtse>	ah, thank you
+Oct 05 11:55:35 <scela>	np
+**** ENDING LOGGING AT Wed Oct  5 11:55:36 2016
+
+**** BEGIN LOGGING AT Wed Oct  5 11:55:47 2016
+
+[scela has address ~scela@vpn1-7-231.ams2.redhat.com]
+Oct 05 11:55:47 <scela>	it's one of the most popular features I developed recently :)
+**** ENDING LOGGING AT Wed Oct  5 17:09:12 2016
+
+**** BEGIN LOGGING AT Fri Dec  9 10:21:17 2016
+
+[scela has address ~scela@vpn1-6-104.ams2.redhat.com]
+Dec 09 10:21:17 <scela>	hi
+Dec 09 10:21:24 <lufimtse>	hullo
+Dec 09 10:21:39 <scela>	https://git.eclipse.org/r/#/c/86259/
+Dec 09 10:21:54 <lufimtse>	yea
+Dec 09 10:21:57 <lufimtse>	thoughts?
+Dec 09 10:22:21 <scela>	so this methods you're adding are only supposed to be used 'internally' and externals should use the color registry?
+Dec 09 10:22:42 <lufimtse>	welll
+Dec 09 10:22:49 <lufimtse>	I'd like it to be used in many places
+Dec 09 10:22:58 <lufimtse>	but Sergey suggests to keep it internal
+Dec 09 10:23:00 <lufimtse>	so there is that.
+Dec 09 10:23:23 <lufimtse>	I have to update the comment, the ID of the property will change in future.
+Dec 09 10:23:28 <lufimtse>	Thoughts?
+Dec 09 10:23:38 <lufimtse>	that color is very useful, works on light and dark theme
+Dec 09 10:23:47 <lufimtse>	can be used to fix lots of color issues.
+Dec 09 10:23:52 <lufimtse>	And not everything has to be stylable. 
+Dec 09 10:26:16 <lufimtse>	Maybe I should make a pitch suggesting it to be public rather than internal
+Dec 09 10:27:19 <scela>	it's not ideal to have operating system conditionals in jface level
+Dec 09 10:27:45 <lufimtse>	Well, my initial submission was for SWT: https://git.eclipse.org/r/#/c/86106/
+Dec 09 10:27:53 <lufimtse>	And people declined it.
+Dec 09 10:28:04 <lufimtse>	I'd like to have it in SWT also.
+Dec 09 10:28:52 <lufimtse>	But at present, the argument is that SWT doesn't define Hovers, thus color logic for hovers should not be in SWT.
+Dec 09 10:28:53 <lufimtse>	meh
+Dec 09 10:30:59 <lufimtse>	Thoughts?
+Dec 09 10:34:02 <scela>	what is the root problem you're trying to solve here?
+Dec 09 10:40:35 <scela>	org.eclipse.ui.workbench.HOVER_(FOREGROUND|BACKGROUND) is themeable and defined on p.ui level
+Dec 09 10:40:45 <scela>	the COLOR_* stuff in SWT level and unthemeable
+Dec 09 10:42:06 <scela>	now why would people on p.ui level and above ever need to use the COLOR_* (or your corresponding methods)
+Dec 09 10:42:14 <scela>	i'm aware that this already happens in p.ui
+Dec 09 10:43:12 <scela>	but i suppose the solution here would be to gradually convert this misuse of SWT api and go through the p.ui-defined properties
+Dec 09 10:51:58 <lufimtse>	Hover has complexities. Like you need to implement change listeners. And not everything needs to be stylable.
+Dec 09 10:52:08 <lufimtse>	ex heap status or things trivial things like that.
+Dec 09 10:52:48 <lufimtse>	Also, COLOR_LIST works well with themes, ex on white theme it's white, on Gtk3 dark theme it's dark.
+Dec 09 10:53:15 <lufimtse>	It's something that works well and it makes color issues much easier to fix.
+Dec 09 10:53:53 <lufimtse>	in general, people shouldn't be using SWT.TOOL_TIP
+Dec 09 10:54:04 <lufimtse>	this is a better replacement for it.
+Dec 09 10:54:18 <lufimtse>	And then if people want things stylable, they can use HOVER
+Dec 09 10:55:52 <lufimtse>	Also note, that api does not conflict with HOVER, you can have the new API as default color, but still style it with HOVER in the higher level components.
+Dec 09 10:56:27 <lufimtse>	An example of that: https://bugs.eclipse.org/bugs/show_bug.cgi?id=508776#c11
+Dec 09 11:00:39 <scela>	it looks like you're having your share of fun with markus :)
+Dec 09 11:08:04 <scela>	why not add these colors to the color registry
+Dec 09 11:08:14 <scela>	and have a key in JFacePrefernces to pick them up
+Dec 09 11:08:40 <scela>	and then control how these colors are put in the registry somewhere else
+Dec 09 11:10:50 <lufimtse>	Can you email me more about this? gotta run.

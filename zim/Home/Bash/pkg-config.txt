@@ -6,7 +6,8 @@ Creation-Date: 2016-07-06T15:44:07-04:00
 Created Wednesday 06 July 2016
 
 ===== Note: =====
---cflags and --libs differ.
+
+==== --cflags and --libs differ. ====
 CFLAGS are normally before libs in GCC command.
 
 ex:
@@ -15,11 +16,11 @@ ex:
 	 pkg-config --libs gtk+
 	-lgtk -lgdk -lXi -lXext -lX11 -lm -lglib
 
-Ex of order:
+**Ex of order:**
 CFLAGS=`pkg-config --cflags gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0` -g3 -Wall
 LIBS=`pkg-config --libs gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0`
 ...
-	$(CC) $(CFLAGS) -o $@-bin $@.c $(LIBS)
+	**$(CC) $(CFLAGS) -o $@-bin $@.c $(LIBS)**
 	
 
 ===== Package management =====
@@ -38,7 +39,7 @@ webkit2gtk-web-extension-4.0        WebKit2WebExtension - WebKit web process ext
 ====== Cflags and libs for gnome libraries ======
 
 ===== cflags =====
-gtk+-3.0 > gtk+-2.0 > gio-2.0 > glib-2.0
+webkit2gtk-4.0 **> **gtk+-3.0 > gtk+-2.0 > gio-2.0 > glib-2.0
 
 pkg-config --cflags **gtk+-3.0**
 -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libdrm -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 **-I/usr/include/glib-2.0** **-I/usr/lib64/glib-2.0/include**
@@ -66,6 +67,31 @@ pkg-config --libs-only-l **gio-2.0**
 pkg-config --libs-only-l **glib-2.0** 
 	-lglib-2.0
 	
+
+==== Webkit and Javascript core ====
+**webkit2gtk-4.0 >= javascriptcoregtk-4.0**
+However, in C file, both includes must be present:
+#include <webkit2/webkit2.h>
+#include <JavaScriptCore/JavaScript.h>
+
+**webkit2gtk-4.0 >= gtk+-3.0**
+
+Cflags comparison:
+{{./screenshot_2016-10-13-114212.png}}	
+
+Libs comparison:
+{{./screenshot_2016-10-13-114117.png}}
+
+
+Webkitgtk-4.0 vs gtk+-3.0 cflags
+{{./screenshot_2016-10-13-122435.png}}
+
+Webkitgtk-4.0 vs gtk+-3.0 libs
+{{./screenshot_2016-10-13-122520.png}}
+
+
+
+
 
 
 

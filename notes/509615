@@ -1,0 +1,73 @@
+Bug 509615 – [Webkit2] Test_BrowserSuite fails/hangs with tests.
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=509615
+
+[] testBrowser2 (fail)
+  - test1 fails
+  - test2 passes
+
+  Test1:
+  Webkit1:
+    Changing ....
+    Progress Changing ....
+    Progress Changing ....
+    Progress Changing ....
+    Changed !!!!
+    Progress Changing ....
+    Progress Completed !!!!
+  Webkit2:
+    Progress Changing ....
+    Changing ....
+    Progress Changing ....
+    Progress Completed !!!!  <<< Problem: 'Changed !!!!' never got triggered.
+
+
+  Webkit.java:
+
+  handleLoadCommitted (long /*int*/ uri, boolean top) ->
+  locationListeners[i].changed (event);
+
+
+
+
+Temp:
+W1:
+Changing ....
+Progress Changing ....
+HandleLoadCommitted
+Progress Changing ....
+Progress Changing ....
+HandleLoadCommitted
+Changed !!!!
+Progress Changing ....
+Progress Completed !!!!
+
+
+
+
+[] NEED TO put location change into async execution.
+
+
+
+
+
+
+
+[] testBrowser4 (fail)
+[] testBrowser5 (error)
+
+[x] browseTest9
+- browser9.html has script:
+    * document.bgColor = "yellow"; << deprecated in:
+        https://developer.mozilla.org/en-US/docs/Web/API/Document/bgColor
+        Not supported on default browser configurations:
+        http://www.w3schools.com/jsref/prop_win_status.asp
+      Use:
+      document.body.style.backgroundColor = 'yellow'
+    * window.status = txt; <<< no longer works in default configurations for browsers...
+
+- I tested addStatusTextListener(), works on W1 & W2
+- Sami asked about status-changed on webki2:
+https://lists.webkit.org/pipermail/webkit-gtk/2014-February/001779.html
+* Status bar changes:
+  - manually via window.status
+  - when mouse hovers over link

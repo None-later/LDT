@@ -5,10 +5,31 @@ Creation-Date: 2016-07-07T09:45:23-04:00
 ====== WebKitGtk ======
 Created Thursday 07 July 2016
 
+====== Who uses webkitgtk+ ======
+Gnome Browser (Epiphany)
+Midori
+DevHelp
+Evolution
+Gnome Shell
+Amazon Kindle
+
+====== Versions ======
+https://webkitgtk.org/releases/
+1.4 - 2013
+2.4 is the last webkit1 version.
+2.5 is webkit2.
+
+Stephan, think of webkit version as interface and webkitgtk as implementation (there are qt, win32, cocoa, android... implementations too). So when we speak of webkit1 or webkit2 it's a matter of the version of the interface implemented. When we speak of the webkitgtk version we speak of the actual version of the implementation. The whole confusion came due to support for both GTK2 and GTK3 for some time (that's never a good idea) so we had:
+* webkitgtk 1.x - webkit 1 implementation on gtk2
+* webkitgtk 2.0-2.4 - webkit1 implementation on gtk3
+* webkitgtk 2.5-... - webkit2 implementation on gtk3
+At the time when webkitgtk bumped to 2.0 for the gtk3 move I don't think webkit2 was a think and after that webkitgtk maintainers decided to not bump it to webkitgtk 3.x for webkit2 implementaion in order to keep the confusion here and not push it forward in the future with next webkit versions.
+
+
 ====== Repository ======
 Git hub mirror:
 	https://github.com/WebKit/webkit
-Cmd:
+Cmd:java
 	git clone git://git.webkit.org/WebKit.git WebKit
 
 Note: JHBuild doesn't seem to clone the whole thing, i.e, the source code in checkout/webkitgtk lacks some stuff in 'Tools/Scripts' like the build script.
@@ -26,10 +47,11 @@ jhbuild build WebKit    #(double check spelling).
 
 ====== Compiling applicaion with webkit ======
 Needs flags and libs:
-webkit2gtk-4.0 for any webkit related items. javascriptcoregtk-4.0 for any JS related calls.
+webkit2gtk-4.0 for any webkit related items. javascriptcoregtk-4.0 for any JS related calls. (But note, javascriptcoregtk-4.0 is a subset of webkit2gtk-4.0), see [[Home:Bash:pkg-config]]
 {{{code: lang="makefile" linenumbers="True"
 gcc `pkg-config --cflags gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0` -g3 -Wall -o main main.c `pkg-config --libs gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0`
 }}}
+
 
 
 ====== Includes for webkit ======
@@ -42,9 +64,6 @@ gcc `pkg-config --cflags gtk+-3.0 webkit2gtk-4.0 javascriptcoregtk-4.0` -g3 -Wal
 ====== Debugging ======
 See: [[Home:jhbuild:WebKitGtk jhbuild]]
 
-
-
-
 **Programming guide:**
 https://wiki.gnome.org/Projects/WebKitGtk/ProgrammingGuide
 
@@ -53,4 +72,31 @@ Line - association relationship, usually interact with properties via getter/set
 Dashed line - use relationship, one class uses the other in paramater of signal callback.
 
 {{./pasted_image.png}}
+
+
+====== Javascript core ======
+Webkit2 webextensions with custom Javascript injection:
+https://blogs.igalia.com/carlosgc/2013/09/10/webkit2gtk-web-process-extensions/
+-> Epiphany as an example.
+-> WebKitScriptWorld
+
+Webkit 1 and JS core blog:
+http://rvr.typepad.com/wind/2011/10/webkit-extending-javascript-1.html  // covers only webkit1 stuff.
+
+WebKitScriptWorld
+
+HELPFUL PPL on IRC:
+<mcatanzaro> - Michael Katanzaro
+tevaum - Samuel procpio Amaral?
+
+<tevaum> lufimtse: it's just a proof of concept actually... As I told you, I'm waiting for reply from KaL to really start working on it...
+<tevaum> You can check it for examples of JSC usage, though
+<tevaum> https://github.com/tevaum/jsc-bindings
+<tevaum> And it's what mcatanzaro already told you. In webkit2, JSC runs on the WebProcess. If you want to extend the Javascript available to your webpage only on the WebProcess, all you need is an Webextension.
+<tevaum> And if you need the WebExtension to talk to the UIProcess, use WebKitContentManager
+
+===== script message handler =====
+Potentially, to get JavaScript return evluation, I should consider using:
+https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitUserContentManager.html#webkit-user-content-manager-register-script-message-handler
+
 

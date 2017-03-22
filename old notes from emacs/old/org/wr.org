@@ -1,0 +1,1142 @@
+Weekly Report goes here.
+* Achivements 
+- Memory Leak blog post has 10,000 Views. (in the top 5 posts on Red Hat Blog this year).
+-
+* Week 8-19
+** DONE Week 8 
+CLOSED: [2015-03-27 Fri 17:11]
+*** Last Week
+VM config (finished)
+ - RHEL 7
+   - Removed DTS 3.0
+   - Installed latest DTS 3.1 from repo as per Alex's advise.
+   - It took a bit of time to build gtk3, there were missing dependencies.
+ - RHEL 6
+
+Bug 459487 - [GTK] Replace deprecated gtk_arrow_* with gtk_image
+ - Tested on RHEL 6/7 vm's.  Gtk2/Gtk3. All good.
+
+Triage/Testing:
+ - Tested if DND works in outline view in Mars (4.5) Build id: I20150217-0800
+ - Bug 460017 - [GTK2] Entries in combo overwrite each other when set via combo.add(String string, int index)
+
+Worked on:
+- GtkMenuItem directly instead of deprecated GtkImageMenuItem
+
+*** Next Week
+Replace deprecated functions:
+- GtkMenuItem directly instead of deprecated GtkImageMenuItem
+- GtkCellRender
+- GtkSettings
+- GtkMisc
+** DONE Week 9 2015.02.27
+CLOSED: [2015-03-27 Fri 17:11]
+
+Development Completed:
+ - Bug 461073 – {GTK3} Replace gtk_misc_set_alignment with gtk_widget_set_*align
+ - Bug 455671 – {GTK} Location of Shell gets reset after reparenting
+
+Testing & Configuration:
+ - Test if DND works in outline view in Mars (4.5) Build id: I20150217-0800 has outline view fixed (RHBZ#1012336).
+ - RHEL 6 VM SWT configuration for testing
+
+Investigated:
+ - GtkMenuItem directly instead of GtkImageMenuItem.  
+   Investigated options on how to replace deprecated GtkImageMenuItem. 
+
+In Progress: 
+ - Replace deprecated GtkCellRenderer:cell-background-gdk
+   
+General Work:
+ - Bugzilla Triage/Followup on previous commits like gtk_arrow.
+
+Documentation:
+ - Made a start on SWT Development Documenation.
+   It's still a bit rough around the edges , but it's up.
+   It's mark-down-like documentation (emacs org-mode) that I compile to html.
+   I host it on my git-hub repo where it is easy to fork & update in the future:
+   http://leoufimtsev.github.io./org/swt-dev.html
+
+ - Dynamic functions and custom functions to SWT
+   Added details about dynamic functinos, what they are, when to use them
+   and how to determine if they should be used:
+   http://leoufimtsev.github.io./org/swt-dev.html#sec-1-3-2-1
+ 
+ - Added details on custom functions:
+   http://leoufimtsev.github.io./org/swt-dev.html#outline-container-sec-2-2
+ 
+Learning:
+ - GtkEvents for Shell position fix 455671
+ - SWT Menu 
+ - GTK Menu
+
+
+Next week:
+ - Replace deprecated GtkCellRenderer:cell-background-gdk
+ - Replace deprecated GtkSettings
+ - Other.. 
+** DONE Week 10 2015.03.09 
+CLOSED: [2015-03-27 Fri 17:11]
+
+Dev
+ - Bug 461616 - [GTK3] Combo improvements in background/foreground for gtk3
+   - Fixed Foreground issue,  (gdk -> gkt)
+   - Investigated & fixed Background issue (that caused jUnit test case to fail). (this was tricky). 
+   ->  Ran into gtk2 build issues with integrating the gtk3 background fix.
+       There is a problem making "overloaded" functions dynamic. Spent time looking for a solution.
+
+- Investgiated other locations for replacing *-gdk with *-rgba. (Tree/Table)
+- Set up Fedora 20 vm for testing.
+
+Learning 
+ - GTK: GtkColor and GdkRGBA
+ - SWT: Learned aboub Combo widget's internals.
+ - UML: learned about Sequence diagrams and PlantUML sequence. 
+   Used what I learned to map out SWT's Combo box to help fix bug 461616
+   http://leoufimtsev.github.io./org/swt-dev.html#ID-a636a35d-6100-4f6a-974c-6bbeedc0f2a2
+** DONE Week 11 2015.03.13 
+CLOSED: [2015-03-27 Fri 17:10]
+This week:
+DEVELOPMENT:
+ Finished:
+ - Bug 461616 – {GTK3} Combo improvements in background/foreground for gtk3
+   - With help of Alex: resolved a Gtk2 build issue.
+     An overloaded function had an arguments that were both gtk2/gtk3.
+     SWT Tools can't make overloaded functions dynamic.
+     As such, there were build errors on gtk2 due to gtk3-only struct.
+     Had to write a bit of custom C code into os.c
+
+ Triage:
+ -  Analysed request: [[https://bugs.eclipse.org/bugs/show_bug.cgi?id=461767][Bug 461767 – Add an unsycnhronized Display.isCurrentThread() method]]    
+     Request from Platform UI folks about adding api to Display.java.
+     I read about volotile variables for in multi-threaded applications to understand the request:
+     http://www.ibm.com/developerworks/java/library/j-jtp06197/index.html#listing3
+     Provided technical response. (good with me).
+
+ In Progress:
+ - Bug 462009 – {Gtk3} Button background Color fix
+   - Fixed background color of button.  (Buttons will soon have background colors in Gtk3)
+   - Investigating why jUnit test case doesn't work. (in progress)
+ - Label miss-alignment issues on Gtk. Exposed by my earlier fix: 461073 
+     Label alignment broke after one of my previous patches.
+     Investigated and narrowed down to an issue in Gtk3.16<. 
+     Gtk folks deprecated a function in Gtk3.14 and did not provide alternate api:
+     https://bugzilla.gnome.org/show_bug.cgi?id=735841
+     But now is fixed in Gtk3.16. I'll add fix to SWT next week.
+
+CONFIGURATION:
+ - Learned about jFace standlone development.
+ - Set up personal repo for jFace Tests. 
+   I now use these to narrow down Platform.UI issues down to the SWT level. 
+   (as with label alignment issue)
+   https://github.com/LeoUfimtsev/LeojFaceTests 
+
+LEARNINING:
+- (~2 hours) Studied some UML.
+- (~5 hours) Gtk notions: 
+  - GtkStyleContext / Gtk3 Theming /
+  - Gtk3 Alignment, interesting article:
+    http://www.murrayc.com/permalink/2015/03/02/gtk-aligning-justification-in-text-widgets/
+
+
+Next Week:
+  - patch up SWT Label/Button to fix alignment issue as per gtk:
+    https://bugzilla.gnome.org/show_bug.cgi?id=735841
+  - Investigate jUnit gtk3 test failure on SWT Button backgroundcolor
+ 
+** DONE Week 12 2015.03.23 
+CLOSED: [2015-03-27 Fri 17:10]
+DEV DONE:
+ . Bug 461767 - Add an unsycnhronized Display.isCurrentThread() method 
+   - This received a lot of attention (9 people in cc)
+   - Implemented method for Gtk/Cocoa/Win32.
+   - Wrote jUnit test cases to verify multi-threading functionality for method.
+
+. Label miss-alignment issues on Gtk 461073
+   - Implemented fix for correct label assignment for single-line labels 
+   - Tested on newer Versions of Gtk (Fedora 22) 
+
+DEV IN PROGRESS:
+. Bug 462009 - [Gtk3] Button background Color 
+  - Issues with background color for the case when you have  
+    SWT Checkbox, SWT Radio, for certain themes.
+    (Checking a checkbox has no 'visible' effects on unthemed environments).
+  - Compiled and tested various gtk versions (gtk3.8, .10, .12, .13) to 
+    observe different behaviours.
+ 
+DEV GENERAL:
+ - Bugzilla Triage.
+
+LEARNING: 
+ . Gtk bisect 
+  - Automatically figure out which commit broke a test case. 
+    (or in my case, build the newest gtk my system is able to compile). 
+** DONE Week 13 2015.03.27 
+CLOSED: [2015-03-27 Fri 17:10]
+DEV DONE: 
+ - Bug 462009 - Gtk3 Button Background Color fix (#2)
+     Checkbox/Radio buttons were not visible for certain themes when background was filled.
+     (Ubuntu, plain Gtk)
+     Now they are visible again. 
+     Issue was use of 'background-image' instead of 'background' CSS property.
+
+- Bug 461767 - Add an unsycnhronized Display.isCurrentThread() method 
+   Investigated build issues with Gerrit : Api + test case issue. 
+
+DEV IN PROGRESS:
+ - Bug 462009 - Gtk3 Button Background Color fix (#3)
+     Further improve checkbox/radio. Currently they inherit theming from OS theme.
+     This casuses a clash if you use a bright OS theme and dark Eclipse theme:
+     https://bugs.eclipse.org/bugs/attachment.cgi?id=251938  (white checkboxes)
+
+     Ideally we want them to always go along with Eclipse theme to look like this:
+     https://bugs.eclipse.org/bugs/attachment.cgi?id=251937  (dark checkboxes)
+     
+     In Gtk, Checkbox does not seem to respect 'background' CSS property.
+     I'm investigating if this behaviour can be overriden somehow.
+     
+LEARN: 
+ - Gtk3 Theming 
+   Reading Api documentaion, Blogs, tutorials, trying out native snippets of code.
+   Seeking solution to 462009.
+
+   My Acumilated notes on GtkTheming:
+   http://leoufimtsev.github.io./org/gtk.html#ID-018c57bf-2db9-44d2-91dc-cda37fd6aa53   
+
+- RHCSA material 
+  - Chapter 1 : local/remote(ssh) login.
+
+NEXT WEEK:
+ - My effort is currently focused on fixing theme related issues. 
+   E.g read-only combobox, black background in javadoc etc...
+** DONE Week 14
+CLOSED: [2015-04-08 Wed 12:09]
+:LOGBOOK:  
+- Note taken on [2015-04-06 Mon 14:53] \\
+  Awaiting email from Martha. Ready for sending.
+:END:      
+DEV: 
+  - 461616 SWT Combo 'Read only' theaming issue:
+    Fixed the issue for SWT combo not getting the correct color if 'SWT.READ_ONLY' style used.
+    This was because SWT.Combo is composed of several nested Gtk widgets and the background
+    color did not perculate to the correct gtk widget.
+
+    Now I noticed that combo's menu's don't get proper background color. I am working on fixing that.
+
+  - 463733 Button background color for SWT.RADIO and SWT.CHECK:
+    Check/radio buttons were not visible under some themes as their border color was that of
+    background color of theme.  Made check/radio buttons to match the text font. 
+    Because themes are designed so that text foreground/backgrounds are visible, this ensures
+    that check/radio buttons should also be visible. (for themes that don't hard-code icons).
+
+  - Triage 
+    Bug 462059 - [CSS] [Dark] Active button does not look well.
+      - Appears to be an Ubuntu theaming issue. Not specifically SWT.
+    Bug 463620 - [CSS][Dark][Gkt3] No dark icons for Checkbox/Radio.
+      -> discussed notion of introducing icons into Eclipse CSS Theme. 
+      -> But after discussion, unfortunately this would not port well to Win32/Cocoa.
+      -> Thus dropped the idea in favor of using dark version of theme if one is available 
+         on Linux.
+
+LEARN:  t
+  RHCSA - chap 2, part of chap 3.
+
+DOCU:
+ - Documented 32/64 bit issue with using 'long' in method signatures and how to enable automatic reporting on those:
+   http://leoufimtsev.github.io./org/swt-dev.html#ID-c812a070-5fa0-4c43-aae4-2a88fcbd20d9
+** DONE Week 15
+CLOSED: [2015-04-16 Thu 10:36]
+WDEV
+ Bug 461616 - [GTK3] Combo improvements in background/foreground
+  - Improved menu drop down for combo as much as possible 
+  - Investigated possibilities of styling sub-widgets in GTK with CSS. 
+  - Wrote Blog entry explaining what's possible and what is not (see below).
+
+ Bug 457476 - [GTK3] DND issue with overlapping widgets w/ absolute positioning.
+   (formerly known as Fast-View DnD issue).
+   - Sopot pointed out that DnD's drop is not lost, but goes to underlying widget (thank you Sopot).
+   - Wrote snippet of code to reproduce issue. 
+   - Narrowed down to Draw & Drop precedence issue. 
+     I.e, in SWT, what is drawn first is on top. What is drawn after is on the bottom.
+     But with DnD gtk3, what is drawn last becomes the first drop target.
+   - Investigating possibility to revert this behaviour in Gtk3.
+
+ Bugzilla Triage.
+
+Blog:
+Making Eclipse Darker
+ - Explained the limits of GtkCSS and what we can do on the SWT level.
+https://coffeeorientedprogramming.wordpress.com/2015/04/07/eclipse-dark-theme-and-gtk-what-eclipse-can-theme-and-what-needs-to-be-themed-by-the-os/
+ => Got re-tweeted four times & favorited twice.
+ => ~120 views so far. Mostly from Germany. Sources were 60% Twitter, 30% Planet Eclipse, 10% other.
+
+LEARN:
+ - RHCSA (30mins/day) - Chap 3 (in progress)
+** DONE Week 16
+CLOSED: [2015-04-21 Tue 11:37]
+LAST WEEK:
+DEV (in Progress):
+- Bug 457476 - [GTK3] DND issue with overlapping widgets w/ absolute positioning. 
+  - Investigating possibilities on how to fix the issue.
+  - Read SWT code base on DnD -> no direct changes we can do.
+  - Read Gtk public api -> no public api to change behaviour.
+  - Tested with native GtkFixed, issue does not occur. 
+  - Only occurs with SWT's custom SWTFixed container.
+  - Read SwtFixed custom container C code. -> it re-layers it's child widgets manually.
+
+- Discussion with Gtk folks about how to fix GtkComboBoxText styling:
+  GTK bug: Bug 74779 8- Cannot apply CSS to private members of GtkComboBox
+   - They will address drop-down button styling issue.
+   - Gtk dev's don't want to expose handles to private GtkTreeMenu, we are seeking alternate solution.
+
+DOCUMENTATION:
+ - Converted my SWT Notes into a comprehensive SWT Developer guide:
+   http://leoufimtsev.github.io./org/swt-dev.html
+   - Restructured for better reading order
+   - Added descripitons/explanations 
+   - Added missing sections 
+   - Rewrote confusing sections
+   - Broke big sections into smaller once and merged tiny sections together.
+   - Added diagrams and screenshots for complex workflows e.g http://leoufimtsev.github.io./org/swt-dev.html#sec-9
+   - Publishd on Twitter/Blog/PlanetEclipse.
+
+TRIAGE:
+ - Tested bugfix on various Gtk Versions:
+    Bug 459117 - [GTK3] [GTK3.14] Leaking text from list in target-platform preference page
+
+CONFIG: 
+ - Spent some time improving my C Development setup.
+   E.g jump to function definitions for Gtk code base, code completion for native Gtk.
+
+Other:
+- Red Hat 10K blogger:
+  Blog posts (Catching Memory Leaks in java & Eclipse+Clean Code)  suprassed 10,000k views.
+  
+
+THIS WEEK:
+ - Continue work on  Bug 457476 - [GTK3] DND issue with overlapping widgets w/ absolute positioning.
+ - Add SWT Dev guide to https://www.eclipse.org/swt/
+** DONE Week 17 - Dinosaurus
+CLOSED: [2015-05-04 Mon 09:21]
+DEV: 
+ Bug 465124 - Add link to SWT Gtk guide to SWT article list
+************ Wed After meeting 
+- Gtk inside eclipse, resolved all probjems by adding references and pulling projects (Roland thank You)
+- Eclipse Broadway 
+************ Thurs 
+- Eclipse Broad way (no success)
+- Learned C debugginig in Gcc+Eclipse (using the '-g' flag in makefiles).
+- Learning to debug running Gtk while eclipse running.
+** DONE Week 18 - T-Rex 
+CLOSED: [2015-05-04 Mon 09:21]
+************* 2015.04.30_Thu 
+- Broadway demo setup 
+- Tested Theme change plugin, (looks good)
+- Triage:Bug 223486 - Drag and drop fails for Linux/GTK with target in ExpandBar / ExpandItem
+- Learned GDB 
+- Experimented with attaching Eclipse to Gtk applications to debug SWT snippets, (limited success)
+- Learned how to attach GDB to running proccesses
+************* 2015.05.01_Fri 
+- Compiled Gtk-3-14 with debug flags. (Before showed "optimised away").
+- Tied Gtk Debugging into Eclipse 
+- Investigated DnD overlap issue by inspecting gtk code.
+************* Weekly Report 
+# include previous week
+Had PTO last friday. 
+Was ill Monday,Tuesday,Wednesday.
+
+DEV:
+ - Tied Gtk source code into Eclipse, figured out how to debug Gtk part of an SWT application inside Eclipse.
+   I.e, with this when I run an SWT application, I can set breakpoints in Gtk code and step between java and C code.
+   This was rather complicated, as I first had to learn about C debugging, Gdb, linking large C libraries together, 
+   figure out how to attach Eclipse to a running proccess, re-compile Gtk with debugging flags. (Roland helped a lot, thank you).
+   But it doesn't quite work for custom SWT_Fixed code yet. Investigating...
+ - Investigated DnD issue with overlapping widgets by stepping through gtk code. (In Progress). 
+
+ - Configured Broadway setup (Run Eclipse in browser) for demo.
+
+TRIAGE:
+ - Bug 223486 - Drag and drop fails for Linux/GTK with target in ExpandBar / ExpandItem
+
+LEARNED:
+ - C Debuggning (e.g adding '-g' to gcc to allow debugging).
+ - Gdb, command line interface and attaching to processes. 
+ - Makefiles
+ - C Debugging in Eclipse.
+* DONE May
+** DONE Week 19 - Sniper 
+CLOSED: [2015-05-11 Mon 10:27]
+*** Weekly Meeting summary:
+Meh:
+ - Broad way demo setup (Had some issues with Eclipse freezing)
+ - Tested Sopot's theme change plugin (looks good)
+ - Lars asked about dark buttons when they are active.
+  -> cross platform solution not possible, but I
+   wrote a snippet about making buttons darker with a listener.
+
+Other:
+ - Reviewed Gtk Monitor client area patch.
+ - Helped new SWT dev with his setup.
+  (he submitted a monitor patch similar to what I did)
+  (he was getting unsatisfied link errors)
+ - Clarified bits in the gudie 
+  - Made ToC dynamic.
+
+Dev:
+ - Need to see what's happening in Gtk.
+ - Learned C debbugging, compiling with debug flags.
+ - Learned GDB and tui.
+ - Figured out how to debug Gtk.
+ - Learned to attach to proccess with GDB, then with Eclipse.
+ - Troubleshooting with Eclipse layout (lines not highlighted) 
+   -> flush cache fixed issue.
+ - Issue: optimized away
+     -> recompiled Gtk without optimizations.
+ - Stepped through SWT's DnD. ISSUE: no Custom SWT symbols.
+ - Figured out how to compile SWT Custom code 
+     with debug flags (read build scrpit). 
+ - Updated my build script to handle paramaters. (Gtk3/debug)
+   -> learned about *getops*
+ - Debugged SWT Custom code 
+    -> Observed use of Gdk Window. (layer under gtk)
+ - STUCK: not much Gdk Info.
+    -> Found book from Red Hat guy about Gdk.  Gdk , Realized, mapped, showed, visible.
+
+*** Weekly Report:
+Triage:
+. [Bug 466112] SWT returns incorrect Monitor client area on GTK
+  - Reviewed and tested several patches.
+  - Provided feedback on improving some patches (fixing NPE, fixing related methods). 
+  - Helped new google guy with building SWT binaries. (I sent him my swtjni build script)
+
+Dev:
+. Bug 457476 - [GTK3] DND issue with overlapping widgets w/ absolute positioning.
+  - Figured out how to compile SWT Fixed with debug flags and how to debug SWT's custom C code.
+  - Learned how to handle mutiple arguments (-g -2) with bash script, updated my swt build script.
+  - Reading GDK & GTK+ code base, reading book on advanced GDK+ topics.
+  - Learned about Gtk+'s custom object oriented implementation.  
+  - Learned about Gdk's lowl level mechanisms (GdkWindows, GdkEvents, Realiztion/mapping/showing/visibility etc..) 
+  - Stepped through Gtk/SWT Custom code, identified a potential cause of the issue.
+    It appears that the custom SWT class in SWT is missing a function (find-window).
+    I.e, normally a sub-container definition overrides this class, but in SWT custom this method
+    is missing.
+ - Reading book on how GTK+ has implemented it's own Class system, so I could add the missing function.
+
+Docu:
+- Updated article on how to idetify if Eclipse runs on Gtk2 or Gtk3, as it's often found by google searches:
+ https://coffeeorientedprogramming.wordpress.com/2014/10/27/how-to-tell-if-you-are-running-eclipse-on-gtk2-or-on-gtk3/
+
+Other: 
+- Red Hat has a volunteering programme, where we send out interns do do volunteering work for 1 day. 
+  I found an event at which we can volunteer. (Good Shepherd Ministries, homeless shelter).
+** DONE Week 20 - Marathon  
+CLOSED: [2015-05-19 Tue 10:14]
+*** Weekly report
+DEV:
+. DnD Overlapping issue: (fix in progress).
+  - For the most part I was tracing and narrowing down the issue.
+  - Along the way I learned GDK resource management and how to understand 
+    memory pointers in C. In Gdk, (because of the lack of a native object 
+    hierarchy), it's tricky to figure out what on object variable sometimes
+    points to; so I used a combination of GtkInspector and printing out 
+    the handles in hex format to locate objects and read their properties. E.g: 
+    http://i.imgur.com/smdreds.png
+  - I now reached a point where I can effectively read/trace/debug Gdk/Gtk C level code.
+    After fixing DnD, I intend to document how to do this in the guide.
+  - I re-wrote the testing widget to narrow it down to a very basic test case, 
+    (just two overlapping labels). 
+  - Eventually I traced it down to swt_fixed_forall(), this function traverses 
+    the child objects of the container in a particular order.
+    I tested reversing the way the container traverses it's children;
+    while this does effectively fix DnD for overlapping for container using absolute positioning,
+    it also breaks all other layout mechanisms (Row/Column/Grid/FormAttach etc..). 
+
+OTHER:
+. Intern talks/presentations.
+. Helped new Intern with Eclipse set up.
+
+
+This week:
+ - I'm now looking for a way to fix DnD without breaking layout of non-absolute containers.
+** DONE Week 21 - Clensing 
+CLOSED: [2015-05-25 Mon 11:54]
+:LOGBOOK:
+- State "DONE"       from "HOLD"       [2015-05-25 Mon 11:54]
+- State "HOLD"       from "DONE"       [2015-05-25 Mon 11:54]
+- State "DONE"       from "OPEN"       [2015-05-25 Mon 11:54]
+:END:
+*** Weekly Report
+LAST WEEK:
+. Received Eclipse SWT committer rights. 
+
+. (FINISHED) Drag and Drop for overlapping widget issue.
+  - Improved previous patch, now doesn't break other behavior. (reverse list traversal only for internal widgets).
+  - I spent a day thoroughly testing it as it and then submitted it.
+  - It took a long time to figure out how to debug Gtk/ native C code in swtFixed,
+    and to get acquainted with Gtk's code base. With this learned, it is now easier/faster
+    for me to  debug and investigate low-level issues now.
+  - Currently awaiting patch to be merged to master.
+
+. (DONE) Bug 458820 - [GTK*][DND] MouseUp event has wrong x and y coordinates on Linux-GTK when drag is enabled 
+  - Traced behavior in SWT, narrowed down to values that we receive from Gtk.
+  - Wrote native Gtk code that reproduces issue without SWT involvement.
+  - This is a bug in Gtk itself rather than SWT. This is also not Gtk3 specific. It occurs on gtk2 also.
+  - Submitted bug to Gnome/Gtk, awaiting bugfix from them.
+
+. With the above two out of the way, this completes the Drag & Drop port of SWT to Gtk3.
+
+. (STARTED) Double click in Package explorer triggers incorrect sequence of events.
+  - Issue observed in Eclipse. (platformUI level).
+  - Reproduced issue on SWT level with small snippet.
+  - Now asked to clarify some ambiguity with reporter.
+
+THIS WEEK:
+. Document how to debug native Gtk/C code in an SWT/Java application with Eclipse.
+. JavaDoc is black issue.
+. (maybe) O(n^2) performance/UI freeze-up issue when adding children to tree.
+** DONE Week 22 - Ephemeral
+CLOSED: [2015-06-10 Wed 11:23]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-06-10 Wed 11:23]
+:END:
+*** 2015.05.25_Mon 
+**** SWT Documentation overhaul.
+*** 2015.05.26_Tue 
+**** Eric help / SWT intro.
+**** SWT Documentation overhal.
+*** 2015.05.27_Wed 
+**** SWT Dev guide
+*** 2015.05.28_Thu
+**** Releng, setup for testing. (troubles with target platform).
+**** Releng, slow due repository lookup.
+**** Eric support.
+*** 2015.05.29_Fri 
+**** Eric support. (Gtk setup, source code, gtk overview).
+**** Releng, traced the issue down to a call to jgit package.
+*** Weekly Report
+. Releng Copyright tool is slow.
+  - Spent sometime configuring environment to get newest Releng to work. 
+  - Narrowed down to slow performance when working with git-repositories with long commit histories.
+  - Narrowed down performance issue to a call in into jgit (this is an Eclipse plugin).
+  - Read & debugged jgit code base. Found that the call we make is very expensive.
+  - Will investigate if I can implement some notion of caching to avoid expensive call next week.
+
+. Eric (Intern) 
+  - Moved next to him for better communication.
+  - Found some tasks for him to work on.
+    - SWT  & GTK learning tasks (this week).
+    - Replace deprecated function calls in SWT (next week).
+  - Helped him configure SWT and Gtk environments.
+  - Explained fundamental SWT/Gtk concepts.
+  - Provided ad-hoc support.
+
+. SWT Developer guide  
+  - major overhaul
+  - (700 lines added/changed/updated). Guide is now ~2000 lines long.
+  - Added several sections on debugging native Gtk Code and swtCustom. 
+    (This includes diagrams for some complex bits.) E.g
+    http://leoufimtsev.github.io./org/swt-dev.html#orgheadline117
+  - Also added sections on including Gtk source code in Eclipse for api navigation
+    and how to make Gtk Applications in Eclipse.
+  - Reviewed/improved older sections.
+  - I think it is now more or less complete.
+
+. RHCSA (Red Hat Certification)
+  - Going through online conurse, ~50 mins a day.
+* Learned so far.
+** Productivity 
+*** [#A] Stay focused.
+*** [#A] Have clear, measurable goals.
+*** [#B] Stay Focused on What is important/significant.
+At the end of every pomodoro, I should ask myself if what I've done was significant.
+*** [#B] Do important things first, mail/rss etc later in the day.
+** Learning 
+*** [#B] Make learning plan 
+Before diving deep into details, make an outline of what you intend to learn.
+This way you avoid over-spending time on details that are not important.
+I.e, map out what is important to learn for the given problem at hand.
+** Notes making
+*** [#A] Keep entries short.
+:PROPERTIES:
+:CREATED:  <2015-05-11 Mon 10:27>
+:END:
+- Short notes are easier to refactor/search
+- I should keep notes very short, this makes it easier to re-write, merge and summarize them later.
+*** [#B] Rate entries. Remove/Ignore trivialities.
+:PROPERTIES:
+:CREATED:  <2015-05-11 Mon 10:27>
+:END:
+*** [#B] Figure out (small bits) on paper. Document digitally.
+- Pen & paper are great for figuring things out, extending working memory.
+- Good for understanding small, complex functions.
+- Then summarize digitally for later retrieval or adding to a larger map.
+** Health and Wellbeing
+*** [#A] Morning exercise is good for you.
+* June 
+** DONE Week 23 - Activia
+CLOSED: [2015-06-10 Wed 14:52]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-06-10 Wed 14:52]
+:END:
+*** Weekly report
+THIS WEEK:
+. Releng tools
+  - Investigated performance issue.
+  - Narrowed issue down to a section inside to jgit.
+  - This appears to be a limitation of the git technology.
+    To find out when a file was modified, one has to traverse the git commit history
+    until you find a commit with the file inside it. (1*)
+    In the worst case scenario run time is exponential:
+        O(files * length-of-git-history) ~= O(n^2) 
+  - native 'git log' has similar performance issue.
+  - Emailed jgit mailing list to en-quire if this is a known issue and if there
+    is some solution for it.
+
+. Help Eric with first assignment 
+  - Explained how SWT Tools work, how it copies & compiles native bindings.
+  - We worked on a function that has a variable number of arguments in 'C',
+    and as such needed special treatment. (Hand hard-coding in os_custom.c).
+    It took some time to figure out how to find & write the correct type conversation 
+    from java to 'C' and copying byte arrays from java to the OS/JVM.
+
+. SWT Docu 
+  - Small incremental updates. Usually when Eric get's stuck on something, I add missing info.
+
+. Learning: 
+  - RHCSA  (40 mins/day). 
+
+NEXT WEEK:
+. package explorer steals focus on double click. 
+
+(1*) http://stackoverflow.com/questions/7714434/how-does-git-file-log-internally-works
+*** Wed/Thurs/Fri
+. Releng 
+  - Performance analysis.
+. Package explorer double click 
+  - removed old workaround.
+  - now investigating eclipse package explorer.
+*** Learned 
+**** Be humble when teaching people.
+I was a bit too 'I know it all' on some occasion with Eric.
+It may cause some feeling of dissdain.
+I should be humble.
+** DONE Week 24 - Strower
+CLOSED: [2015-06-17 Wed 11:56]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-06-17 Wed 11:56]
+:END:
+Name: Strength + Power. (Started going to gym).
+*** Learned 
+**** Success is not just knowledge, but know also how to apply it.
+-> I should practice things more.
+*** WR (Wednesday)
+
+. (FINISHED) Analysis of Releng performance issue.
+  - Finished analysis of performance issue. 
+  - Found a method that could potentially speed things up from O(n^2) to O(n)
+    (build a hash-map/cache of the git-log prior to traversal)
+  - Posted findings into bugzilla 
+  - But implementation would take a long time. Moved on to more pressing SWT issues instead.
+
+. (IN PROGRESS) Package explorer double-click steals back focus issue
+  Focus was stolen by package-explorer due to two reasons:
+  1) I found an 11 year old workaround in the code that stole focus.
+     (In the past, Gtk(1?) would crash if focus was not returned to tree after a signal event)
+     This workaround is no longer relevant for Gtk2/Gtk3, thus I removed it.
+     I read the old commit and found that the workaround was introduced in 
+     List/Table as well as Tree widget. I removed the workaround from all widgets &
+     tested that nothing crashes on Gtk2/Gtk3.
+  2) Order of signal events has issues. Doubleclick event is sent after selection event.
+     I wrote a hacky proof-of-concept patch that changes the order and fixes the focus issue.  
+  
+  I need to further investigate if order of events can be changed on GDK/Gtk level, and if
+  absolutley not, then write a thread-wait mechanism to postpone DefaultSelection event in 
+  Tree/List/Table widget. (as currently I only do a 50ms thread wait).
+
+. (ON GOING) Eric support 
+   - Helped Eric with patches. (GTK_STOCK_OK, gtk_container_resize_children). 
+     (this took some time :-D).
+   - Assigned some GDK readings to Eric, so that he understands the underlying 
+     infrastructure that SWT is build on, so that he develops a 'feel' for 
+     which code base to look in during bug hunting.
+
+. Tuseday 
+  Away on Volunteering event at Good Shepherd. We helped homeless people.
+
+. Red Hat Certified System Administrator Course
+  50 mins/daily. 
+  Completed Chp4 (File permissions) now working on Chp5 (SELinux).
+
+
+NEXT:
+ - Fix up Package exlporer issue.
+ - PixBuf warnings 
+ - Find more things to do for Eric.
+*** Wednesday
+**** Current : Package explorer.
+- Improve my patch
+**** Cannot change order of events in GDK/Gtk. (clarified on gtk+ irc, hergertme)
+*** Thurs 
+**** P.E Send signal manually implementation.
+Signal has to be sent for Space/Shift+space/Return.
+*** Friday
+**** Eric Lesson on Gtk CSS.
+**** P.E Finished
+ - Send for Space , shift+space, return.
+ - Ported code to Table/List.
+ - Tests/clean up.
+ - Note:
+   - Bug has 17 Votes, (among top-5 voted SWT Bugs).
+   - Bug submitted 5 years ago.
+ 
+ -
+** DONE Week 25 - RHCSA 
+CLOSED: [2015-06-17 Wed 11:56]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-06-17 Wed 11:56]
+:END:
+This week I want to focus on RHCSA. 
+**** Worked on replacing deprecated CellRenderer background property 
+ - learning GtkTree
+ - Mappings between GdkColor  / gdkRGBA / swt COLOR.
+*** WR
+. (FINISHED) Package explorer double-click steals back focus issue
+  - Completed patch that fixes issue for Eclipse on both Gtk2 & Gtk3. 
+  - Bug was among top 5 voted bugs in STW, open 5 years ago with 17 up votes.
+  - Implementation details (see [1])
+
+. (IN PROGRESS) Researched pixman_region32_init_rect warning in logs. 
+    -> could not reproduce (F23 w/ latest eclipse). 
+    -> in contact with Alex about details. 
+
+. (IN PROGRESS) replace deprecated: GtkCellRenderer:cell-background-gdk.
+   - Community reports a lots crashes in theaming engines when they 
+   read background. (e.g highest voted bug in SWT bugzilla 421073 w/ 31 votes).
+   - In Fedora 23, there are many background related glitches as non-css 
+     methods for setting background are getting removed.
+   - I suspect that our current use of deprecated background color properties
+     and functions is causing this. As such I'm working on removing these deprecated calls.
+
+. (ON GOING) Help Eric.
+  - gave lesson on GtkCSS, GdkColor vs GdkRGBA & SWT Color and other.
+  - helped him with general tasks / questions.
+  - Reviewed his patch:  [gtk3] Replace deprecated gdk_cursor_new
+
+. RHCSA  50mins/day.
+
+[1]: Implementation details (if interested..):
+    - Issue caused by in-correct order of signals (& an 11 year old workaround).
+    - Clarified order-of-events details with Gtk+ community on irc.
+       (order of events cannot be changed on Gdk level). 
+    - Rewrote sections of SWT (Tree/Table/List) so that instead of handling 
+      a row-activation GdkSignal, SWT generates the signal manually.
+      so as to implement correct order of signals.
+    - There were some tricky bits, e.g DefaultSelection is sent 
+      for "Space", "Shift+space", "return", but not for things like "Ctrl+return",
+      I.e, I had to make sure that our emulated signal behaves exactly as the
+      former row-activation signal behaved in Gdk.
+    - I found mapping out signal behaviour was very helpful. E.g diagram I made 
+      in the proccess: 
+      http://i.imgur.com/qk2iTTH.png
+** DONE Week 25-26 RHCSA Harder
+CLOSED: [2015-07-01 Wed 18:05]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-01 Wed 18:05]
+:END:
+*** Wednesday 
+**** Reviewed some of Eric's patches.
+**** Eric: lesson on mylyn. 
+**** Eric: Showed: Some functions take stucts as paramaters that exist only in Gtk3.
+Showed him how to hard code them in os.h by reading the generated os.c
+*** Monday 
+**** atk_role bits - clarify with gnome folks 
+**** my debug setup wasn't working.
+- gdb had persmission error : pthread access denied 
+- manually changed permission of gdb. 
+- also had to install new debug information.
+- will document in guide.
+**** Figuring out how to stop SWT on warnings 
+gtk_init() method called without passing cmd args. 
+thus "--fatal-warnings" wasn't passed along.
+*** Weekly Report 
+ . Working on replacing deprecated functions:
+   - GtkCellRenderer:cell-background-gdk
+   - atk_role_register (in touch with Gtk developers) 
+
+. Triage 
+  .  Bug 470403 - [GTK] Tabel content not visible if EditingSupport is used
+    - Lars Vogella submitted a critical bug that table-cells are not propertly 
+      visible when editing. He pointed to an jFace snippet.
+    - Investigated issue. Haven't been able to reproduce on lower level SWT snippet, 
+      and other similar jFace snippets do not expose the behaviour either. 
+      It might be specific to that jFace snippet.
+    - Awaiting feedback from Vogella, but he is away on Vaccation now.
+
+. Fix/Improve setup:
+  - Fixed my Gtk debug setup (it broke on F22 upgrade due to permissions).
+  - Working on finding a method to break & debug upon warnings in Eclipse console. 
+    This would allow us to locate the sourse of many mysterious console warnings.
+  - I will document the above in the SWT guide later on.
+
+. Eric suppor:
+ - Reviewed some of Eric's patches & provided feedback (Color Dialog etc.. ) 
+ - Outlined tasks involved in replacing image menu.
+ - Assigned some gtk readings to help Eric get a better grasp of some 
+   gtk concepts like containers, to help him with Image-menu project. 
+ - Ad-hoc support with various tasks/questions.
+
+. RHCSA
+  - 50m/day.
+  - Finished ch5 (SELinux) 
+  - Nearly finished ch6 (Process management).
+** DONE Week 26-27 
+CLOSED: [2015-07-01 Wed 18:05]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-01 Wed 18:05]
+:END:
+*** Learned 
+**** Unplanned interruptions in software development 
+https://novicearshad.wordpress.com/2012/01/24/unplanned-interruptions-in-software-development/
+- 5 peolpe in a room max.
+- Assign single task to person at a time.
+*** Thu 
+**** RHCSA 3 poms.
+**** Eric review of Color dialogue again : 32/64 bit business
+**** Adding dynamic support to ATK.
+*** Tue 
+**** researched why gdb wouldn't work in my eclipse.
+ -> known Fedora bug:
+https://bugzilla.redhat.com/show_bug.cgi?id=1209492
+*** Wed 
+**** Ping Sravan/Marc about Equinox know-how.
+*** Weekly report
+This week:
+. (FINISHED) Bug 470629 [ATK] Replace deprecated atk_role_register
+   - Replaced deprecated call with values advised by atk maintainers.
+   - This involved adding support for calling functions dynamically in the
+     ATK custom C code (for version checking).
+   - Tested with orca screen reader and accerrciser. All works well. 
+   - This was a warning that showed up for both gtk2 & gtk3.
+     Now Gtk2 (finally) compiles without any deprecation warnings.
+   (And Gtk3 with one less warning).
+
+. (FINISHED) Bug 471477 - Add SWT_FATAL_WARNINGS environmental variable.
+   - Wrote a patch so that we can make eclipse break/debug when there is a 
+     console warning.
+     Debugging can be done via 'gdb --pid=1234' or from inside Eclipse.
+   - This can be enabled via: SWT_FATAL_WARNINGS=1 variable now.
+   - Will write up more through documentation once patch is in master.
+
+. (STARTED) Equinox launcher port from xlib to wayland. 
+  ~ Figuring out what I have to do ~
+    - Reading source code, researching what is xlib/wayland. 
+    - Investigating how to compile, compile with debug and running launcher.
+    - Pinged Marc/Sravan for tips/advice. Will ping Arun later also.
+      Marc replied with good info on how to compile with debug support.
+
+. (ONGOING) Help Eric 
+    - Reviewed & tested ColorDialog patch. 
+    - Helped with gtk_image_menu project.
+    - Ad-Hoc support, e.g showed how to enable 32/64 bit checks etc.. 
+
+. (ALSO IN THE NEWS) 
+  - Spent time figuring out why my gdb would no longer debug native SWT C code
+    on fedora 22. Nothing would start in Eclipse. In GDB I got an error:
+    "ptrace : operation not permitted"
+    Eventually narrowed down to known issue:
+    https://bugzilla.redhat.com/show_bug.cgi?id=1209492
+    In touch with RHEL/Fedora maintainers.
+    They started a build with bugfix that I could test.
+
+  - Took day off on Friday, work on Canada-Day (wednesday) instead. 
+    I'm the only guy in the office, ~> very productive. 
+
+Next Week: 
+. Continue with Equinox launcher port.
+** DONE Week 27-28
+CLOSED: [2015-07-08 Wed 16:59]
+:LOGBOOK:
+- State "DONE"       from "OPEN"       [2015-07-08 Wed 16:59]
+:END:
+*** Wednesday
+**** Learned about X & Wayland  
+**** set up vm to test gdb permissions issue.
+*** Thursday
+**** X/Wayland learning 
+**** Got an SWT snippet running on Wayland.
+*** Tues
+- Package explorer double click & DnD pushed to master.
+*** Weekly Report
+This week:
+. (IN PROGRESS) Equinox launcher X to Wayland Migration.
+  - Set up wayland environment for testing
+  - found method to tell if an app runs on 
+     X or wayland backend (Gnome's looking glass)
+  - Got SWT snippets running on wayland. (Looks mostly ok). 
+  - Compiled launcher. (had some jni dependencies issues).
+
+. (FINISHED) Tested systemd Fedora patch (CDT debugging broke in F22).
+   - Gdb error: "ptrace : operation not permitted".
+   - Testing this was important because it could affect many CDT users.
+   - This took some time as I had to set up a fresh vm.
+   - Patch works, reported to fedora maintainers.
+   - Awaiting patch to be merged. Workaround available in the meantime:
+     sudo chmod +s /usr/bin/gdb
+
+. (IN PROGRESS) RHCSA
+  - Concentrating more on RHCSA at the moment
+     as my Online-access will expire on july 15th.
+  - Spent Mon/Tues/Wed on it and came in on Saturday to study it some more.
+    (finished Chp 8,9,10).
+
+. (ON GOING) Eric Support
+
+Next week:
+. Complete RHCSA 
+. Continue with Equinox port.
+** OPEN Week 28-29
+*** Wednesday 
+**** RHCSA chap 10,11.
+**** SWT Formatter
+**** Doubleclick followup refactor patch.
+*** Thurs
+**** Eric help with making macro not be compiled on Gtk3.
+** OPEN Week 29-30
+*** Daily Log entries.
+[2015-07-17 Fri 13:14]:  learned about wayland, libre office and firefox are migrating to wayland.
+[2015-07-17 Fri 14:42]:  ATK Macros require a min versino also. Cant use them.
+[2015-07-17 Fri 14:43]:  checking against GTK version instead as it has min atk versions
+[2015-07-17 Fri 16:48]:  made a start on SWT wiki page https://wiki.eclipse.org/SWT/Devel/Gtk/Atk
+[2015-07-17 Fri 16:48]:  finished atk patch, used GTK versions instead.
+[2015-07-20 Mon 11:20]:  Tested a complaint for Double-click in package explorer on mars, downloaded newest MARS eclipse for the purpose.
+[2015-07-20 Mon 12:16]:  Gerrit dependencies can be seen, added to wiki.
+[2015-07-20 Mon 15:38]:  mylyn troubleshooting https://bugzilla.redhat.com/show_bug.cgi?id=1244934
+[2015-07-20 Mon 15:49]:  Wiki: code review inside eclipse
+[2015-07-20 Mon 16:33]:  Eric review: Toolbars too large
+[2015-07-20 Mon 17:45]:  I now do much more reviewing. Set up Mylyn and Gerrit integration. This is a very nice combo
+[2015-07-20 Mon 17:59]:  reviewed Eric's stock-ok patch
+[2015-07-20 Mon 18:04]:  Changing workflows takes time to adjust
+[2015-07-21 Tue 10:09]:  Eric: set up mylyn with Gerrit review, showed him how to use it
+[2015-07-21 Tue 14:31]:  Eric: reviewed toolbar image patch, took a while
+[2015-07-21 Tue 14:58]:  wiki: Added info on Wayland
+[2015-07-21 Tue 15:45]:  wiki: Troubleshooting child Eclipse Instances
+[2015-07-21 Tue 16:21]:  Dark theme issue troubleshooting. Buggy focus behaviour. Made sure that my patch didn't break the behaviour.
+[2015-07-21 Tue 16:40]:  Dark theme: Issue not reproducible on SWT+Gtk Dark theme, may be a platform u.i thing. Asked if people could test on win/cocoa.
+[2015-07-21 Tue 16:54]:  Way: Inspecting SWT port to Wayland, to make similar on Equinox
+[2015-07-22 Wed 10:35]:  Double click issue: Tested across various gtk versions. Right click broken everywhere, Double click in Gtk3.14 onwards
+[2015-07-22 Wed 12:25]:  wild disscussion on Ptrace business. Access of one proc to the other is security issue but not giving access breaks gdb
+[2015-07-22 Wed 12:52]:  Submitted bug on attach-to-remote process issue: https://bugzilla.redhat.com/show_bug.cgi?id=1245759
+*** Weekly Report.
+SWT:
+This Week:
+. (IN PROGRESS) Equinox x11 to Wayland Port.
+  - Reading related bugs, e.g SWT port from X11 to Wayland.
+  - Contacted author (Josh Barkovic) for insights. 
+    Insights are very useful:
+    E.g Wayland doesn't fully replace 'X'. 
+      X is getting deprecated beacuse it's too big.
+      Wayland only provides the interface to the graphics, 
+      Gtk/Cairo handle much of what X used to do. 
+      For instance Gtk handles keyboard/mouse, Cairo handles drawings.
+      This means the migration is not so much about X to Wayland, 
+      but more from X to various libraries like Waynad/Gtk/Cairo/etc...
+  - Investigating realted projects. (Libre Office & FF Wayland ports).
+
+. (FYI)  Bug 1245759 – Attach-process does not work. "ptrace: Operation not permitted"
+   - In F22, in Eclipse-CDT, attaching to processes no longer works. 
+   - This is due to a change in SELinux that affects Eclipse.
+   - There is an active discussion between Security and Usibility advocates.
+   - They asked to see who is actually affected by the change, 
+     I submitted a bug in RHEL Bugzilla to provide them with info:
+     https://bugzilla.redhat.com/show_bug.cgi?id=1245759
+
+. (FIXED) atk_role_register broke build issue. See [1]
+. (INVESTIGATED) Double click doesn't work on dark theme issue. See [2] 
+
+. (LEARNED) How to use Mylyn for Gerrit reviews & tracking SWT Bugs.
+            Now my workflow for Bugs & Gerrit reviews is inside Eclipse
+            as oppose to using a browser.
+            Taught Eric the above.
+. (INVESTIGATED) Mylyn Query issue on Fedora.  See [3]
+
+. (NEW) SWT Documentation now in Eclipse Wiki. See [4]
+
+. (COMPLETED) Reviewing Eric's outstanding Patches [5]
+
+Next Week:
+. Continue with Equinox port 
+. Test MyLyn on Rawhide with Alexe's latest patches 
+
+
+
+Details if interested:
+[1] ATK  https://bugs.eclipse.org/bugs/show_bug.cgi?id=470629
+  - Previous patch broke the build on older OS's. 
+  - Wrote patch that works across any OS now.
+  - It checks for Gtk version instead of Atk version as 
+    Gtk has minimum Atk version requirements.
+
+[2]  473093: [Gtk 3.14] Selection of items in lists need focus on view first
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=473093
+  - User submitted bug report, where it was believed that my previous 
+    "double-click to focus" patch broke dark theme (bug 312568).
+  - Investigated, tested with/without my patch. 
+    Tested across several GTK versions and determined
+    that it was not related to my patch. 
+  - Pointed out it may be related to Platform.U.I.
+  - Sopot narrowed issue down to Eclipse's CSS.
+
+[3] Bug 1244934 – 'Task List Indexer has encountered a problem' - document contains at least one immense term..
+  - Querying SWT bugs in mylyn produces an error.
+  - Narrowed it down to Mylyn specific in Fedora, 
+    (doesn't occur upstream).
+  - Submitted bug report.
+https://bugzilla.redhat.com/show_bug.cgi?id=1244934
+
+[4] - Me & Eric now add new articles to the Eclipse Wikipedia under SWT:
+    https://wiki.eclipse.org/SWT/Devel/Gtk
+  - This is to replace the original SWT-Dev guide in my Git-repo, 
+    http://leoufimtsev.github.io./org/swt-dev.html
+    Mainly because it's easier to collaborate on the Eclipse wiki.
+  . New Articles:
+    - Wayland Development.
+    - Atk Development.
+
+[5] . Color Dialog patch. 
+    . Stock OK Patch.
+    . Toolbars too large patch
+    . Icons for menus patch.
+      - Several review cycles 
+      - Reviewing this took a long time. Big patch. (5 hours...))
+      - Outlined issues that would cause crashes and made suggestions
+        to deduplicate sections of code.
+** OPEN Week 30-31
+*** Daily Log Entries.
+[2015-07-23 Thu 15:31]:  Reading equinox source code
+[2015-07-23 Thu 17:24]:  Eric: quick review of Menu_item patch
+[2015-07-27 Mon 10:57]:  Eclipse Incredibly slow :-|
+[2015-07-27 Mon 12:11]:  Eclipse trouble still. Downgraded to Luna, reinstalled plugins
+[2015-07-27 Mon 15:05]:  Eclipse: Tried to upgrade eclipse from Rawhide, blank Eclipse with my Workspace
+[2015-07-27 Mon 16:07]:  Eclipse fixed: I set Java to Debug
+[2015-07-27 Mon 16:32]:  Tested Mylyn on Rawhide, now works
+[2015-07-27 Mon 16:32]:  Wrote blog on how to update Eclipse to bleeding edge
+[2015-07-27 Mon 19:35]:  Mylyn: Noticed someone added me as reviewer, I did not see before
+[2015-07-28 Tue 09:33]:  Triage : Alt+f5 https://bugs.eclipse.org/bugs/show_bug.cgi?id=473562
+[2015-07-28 Tue 14:42]:  Guided Eric to work on black javadoc
+[2015-07-28 Tue 16:34]:  Finished Presi
+[2015-07-28 Tue 17:20]:  eric patch review on Toolbars
+[2015-07-29 Wed 10:19]:  Helped Eric with Toolbar patch
+*** Weekly Report
+This Week:
+(IN PROGRESS) Equinox X to Wayland port 
+  - Read through source code
+     Learned about the dynamic loading of libraries.
+     (loads X/Gtk dynamically in c).
+  - Listed out functions that I need to replace 
+    and reading up about alternatives.
+    Looked through related Bugzilla bugs for clues.
+  - Learned about GDK structures
+     (GdkDisplay/GtkScreen/GdkDeviceManager/GdkDisplayManager)
+  - Mapping out things to get a better overview:
+     http://i.imgur.com/pCVrL3q.png
+
+(COMPLETED) Bug 1244934: Mylyn 'Task List Indexer has encountered a problem' 
+  - I updated my Eclipse to Rawhide.
+    (This included lucene 5, as per Alex's patch).
+  - Tested things, this fixed the indexer error. (Thank you Alex for patch). 
+  - Documented how to upgrade Eclipse to Rawhide: https://coffeeorientedprogramming.wordpress.com/2015/07/27/how-to-update-eclipse-to-bleeding-edge-rawhide/
+  - Showed Eric. Eric is now also on Rawhide.
+
+(ON GOING) Eric patch reviews/support. 
+  - (Menu_item/Toolbar etc..) 
+  - Reviewing patches I found takes quite a bit of time.
+  - I have to read each line of code and think of all the different ways
+    it could break Eclipse. This is a creative process.
+  - Testing takes time... 
+  - Helped Eric find bug in Toolbar patch etc... 
+
+(COMPLETED) Intern Presentation.
+
+. General Triage
+
+Also in the news 
+- Had issues with Eclipse & child Eclipse running extremely slowly.
+ > My suspicion was MyLyn.
+ > But then discovered that I accidentally had set my system to use
+     *debug* version of java. Investigation unfortunately killed some time.
+
+
+Next Week:
+ - Equinox Port.
+ - Eric patch reviews.
+ - Some other incoming patch reviews.
+** OPEN Week 31-32
+*** Daily Log entries.
+[2015-07-29 Wed 17:24]:  466499 Garbled text patch review + testing
+[2015-07-31 Fri 14:20]:  Eric toolbar review. - warnings are generated, still a little code clean up to do
+[2015-07-31 Fri 14:40]:  Eric patch review #2
+[2015-07-31 Fri 14:41]:  RHCSA exam, Prep on Thursday till 10pm. Wednesday till 10pm
+[2015-07-31 Fri 15:47]:  Reviewed: Bug 472743 - [GTK2] Shell.setBounds() with specific values crashes JVM + suggested to limit shell size to that of combined monitors
+[2015-07-31 Fri 15:53]:  Atk role merged. Once again no warnings on Gtk2 builds
+[2015-07-31 Fri 15:53]:  We should get rid of warnings on gtk3 also, so that we can pick up newly introduced warnigns quicker
+[2015-07-31 Fri 18:09]:  SEPolicy is getting reverted, Eclipse attach debug will continue to work BUG: Yama blocks ptrace'ing my own process
+[2015-08-04 Tue 11:16]:  Documenting Equinox as I go along. E.g how to compile and test it: https://wiki.eclipse.org/Equinox/dev
+[2015-08-04 Tue 11:49]:  Equinox added info on how to debug
+[2015-08-04 Tue 14:27]:  Migrated to Gmail. Set up filters
+[2015-08-04 Tue 16:41]:  Tied in XLib source code
+[2015-08-04 Tue 17:04]:  Reading X source code
+[2015-08-04 Tue 17:26]:  Instead of swapping functions, make new with Gtk
+[2015-08-05 Wed 12:04]:  atk non-ascii char. Wrote script to check for such issues, added wiki article
+*** Weekly Report 
+- (IN PROGRESS) Equinox X11 to Wayland port 
+  - Making steady progess. 
+  - Learned some X11 to understand existing functions better.
+    (e.g check out source code). 
+  - Figured out how to inject compiled Equinox/SO files into 
+    existing Eclipse, how to debug compiled Equinox etc.. 
+  - Spent some time researching what X11 functions map onto, 
+    but it doesn't look like they map onto Gdk that well. 
+    Instead I plan to do a split and use seperate logic for Gtk3.
+  - Documenting what I learn about Equinox development as I go along: 
+    (Compiling/debugging etc..)
+    https://wiki.eclipse.org/Equinox/dev
+
+- Patch reviews 
+  - Eric Toolbar patch, observed warnings in console 
+  - & other Eric's pathes. 
+  - Reviewed patch for:  Bug 472743 - [GTK2] Shell.setBounds()
+     > Made a suggestion to improve patch further.
+
+- Testing 
+  - Garbled text in commit plane
+
+. non-Ascii char issue 
+  - One of my patches contained a non-ascii character, 
+  - Alex pointed out it issued a build warning.
+  - Wrote a script to find non-ascii characters in code base 
+    in the future, documented it:
+    https://wiki.eclipse.org/SWT/Devel/Gtk/NonAsciiCharacters
+
+- FYI:
+  . "1209492: BUG: Yama blocks ptrace'ing my own process"
+    - Patch that broke gdb attach-proccess is getting reverted.
+    - The 'loosening of security' will become a seperate package. 
+    - Now Mark and Paul argue about package naming (+20 comments) (~BZ now 80 Comments long).
+    - Awaiting till they make a decision and patch is ready so I can test it.
+
+- Migrated from Zimbra to Gmail.
+** OPEN Week 32-33
+*** Daily log entries
+[2015-08-06 Thu 10:52]:  Documented how to debug equinox in Eclipse
+[2015-08-06 Thu 11:31]:  Reviewed Verified Shell.setBounds() bug. (shell already limited in size) Bug 472743
+[2015-08-06 Thu 16:07]:  EQ: forks and spawns child Eclipse, need to learn how to fork
+[2015-08-07 Fri 09:53]:  wiki: pi article
+[2015-08-07 Fri 10:38]:  X Root window call causes crash from SWT/Java side
+[2015-08-07 Fri 12:08]:  Backported DND to R4_5_maintenance
+[2015-08-07 Fri 12:08]:  wiki: Documented how to backport https://wiki.eclipse.org/SWT/Devel#Backporting_Patches
+[2015-08-07 Fri 15:38]:  Eclipse Starts on Wayland, not sure why
+[2015-08-07 Fri 16:42]:  Reviewed Alex's Patch, found text color issues:  Bug 470165 - [Gtk] Main menu color not updated in dark theme
+[2015-08-07 Fri 17:21]:  Patch review / Eric: Bug 393409: Tooltip background black on black
+[2015-08-10 Mon 18:17]:  pushed focus after double click 312568
+[2015-08-10 Mon 18:17]:  Narrowed equinox issue down to jFace snippet
+[2015-08-10 Mon 18:20]:  DnD backported, DnD to Gtk3 port complete

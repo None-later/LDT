@@ -1,0 +1,95 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-01-24T11:29:54-05:00
+
+====== Week 04 2017 ======
+22 January to 28 January
+
+==== Day Logs ====
+
+
+==== Weekly Report ====
+
+Highlights:
+###########
+- Webkit2: Completed (part 1) of browser function. # 508217
+- Found/implemented a solution to evaluate() hang/freeze issue. # 510183
+
+This Week:
+##########
+Webkit2 port:
+- Completed (part 1) of browser function. # 508217
+  * This covers most use cases for browser.function()
+  * Users can register custom javascript function and triggering them leads
+	  to the correct java callback. Arguments are correctly passed along.
+  * Only functionality that isn't supported is for the java callback to 
+	  return a value back to javascript. This is because Webkit2's api is async
+	  and doesn't support a return value for that callback. 
+	  Implementing this would require a custom webextension.
+  * This fixes a bunch of jUnits test cases.
+
+- Found/implemented a solution to evaluate() hang/freeze issue. # 510183
+  * There was a corner case in Browser.evluate() that caused a deadlock.
+	(If a signal from javascript triggered an SWT event which calls evaluate() 
+	while webkit2 is doing something (ex page loading), then evaluate is
+	not ran because it's waiting for webkit signal to be processed first.
+	But signal is not finishing because evaluate is being ran).
+	Solution was to post-pone SWT event's that were initiated by webkit2 signals
+	via asyncExe(), to allow webkit2 signals to finish before SWT events get triggered.
+  * This also fixes  *510694: [Webkit2] Implement 'close' for webkit2)
+
+Found/investigated new webkit2 troubles:
+- Bug 510972 [Gtk3][Webkit2] Port webkit_window_object_cleared to webkit2.
+- Bug 511228 [Webkit2] Ensure proper settings are used for webkit2.
+I will work on those. (these are not as big thou, should take less time).
+
+
+Next Week:
+##########
+- Continue with fixing various webkit2 bits. (jUnits, port settings/signals)
+
+
+# SWT Long Term Goals
+# 2017-01Jan-30Mon
+Webkit2 port     #441568                          (2017 Q1?)
+  - [x] port execute ()  #430538                  [2016 Oct]
+  - [x] Improve Browser suite #499387             [2016 Oct]
+  - [x] evaluate () primitives #505418            [2016 Nov]
+  - [x] evaluate () array support  #505418,#505591[2016 Dec]
+  - [x] jUnit tests for evaluate() #505591        [2016 Nov]
+  - [x] function(), Javascript callbacks #508217  [2017 Jan] **
+  - [] Various ports of webkit1 signals/options:  (2017 Feb ?) ** 
+	   510972, 511228
+  - [] Resolve broken junits/crashers             (2017 Feb ?) **
+  - [] Verify Eclipse works well on Webkit2.
+  - [] Make webkit2 default                       (2017 ?)
+
+Wayland support  #496923                          (2017 ?)
+  - [ip] Remove x11 calls/functions               (2017 ?)
+  - [ip] Drag and Drop/CTabfolder clicks  #503431 (2016 Dec)
+  - [x] Resolve title/menu bar issues and         [2016 Dec]
+		cut-off controls. #508692                 
+
+Gtk3 port, Stability, Features and Bugfixes 
+  - [ip] Background/Foreground issues             (2017 Q1 ?)
+		[ip]507072 [x]507062 [x]507067 [x] 507298 
+		[ip]508498 [ip]507073 [ip]508776
+  - [] Dragging parts does not show rectangle #498217 (TBD)
+  - [] Gtk3 port should not use calls deprecated in Gtk2/Pre Gtk3.22
+  - [x] Default selection event #508245 fixes.    [2016 Dec]
+
+Gtk3 new features
+  - [] Implement APIs for multi-touch events and gestures #482018 
+
+Gtk4 port                                         (Later ... )
+  - Goal: Phase out Gtk2 support gradually.
+		  Move on to Gtk3/Gtk4 support
+  - [] Deprecate Gtk2. Potentially Gtk3.0 - Gtk3.14 also.
+  - [] Remove or make dynamic deprecated calls pre Gtk3.22
+  - [] Move on to support Gtk3 & Gtk4. 
+
+Note:
+* [ip] = in progress
+* "**" = updated/new this week.
+* (Planned date),  [completed date]
+* Source code: http://eclipse.etherpad.corp.redhat.com/30

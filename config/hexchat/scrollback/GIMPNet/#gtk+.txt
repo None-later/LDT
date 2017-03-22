@@ -1,530 +1,527 @@
-T 1475160407 18<baedert18>	https://github.com/elvismt/slope
-T 1475160409 18<baedert18>	ha.
-T 1475164707 18<bugbot18>	mclasen@redhat.com changed the Status on bug 771963 from NEW --- to RESOLVED FIXED.
-T 1475164707 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=771963 .General, normal, gtk-bugs, RESOLVED FIXED, GtkPaned warning in gtk_paned_realize
-T 1475166376 18<bugbot18>	richard@hughsie.com changed the Status on bug 772120 from ASSIGNED --- to RESOLVED FIXED.
-T 1475166377 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772120 .General, enhancement, gtk-bugs, RESOLVED FIXED, Please add GDK_AVAILABLE_IN_3_24
-T 1475166493 18<hughsie18>	mclasen, for https://bugzilla.gnome.org/show_bug.cgi?id=772121#c1 -- which naming do you like?
-T 1475166494 18<bugbot18>	Bug 772121: Widget: Other, enhancement, gtk-bugs, NEW , add ability to change the delay timeout in GtkSearchEntry
-T 1475166507 18<hughsie18>	i agree it's not awesome they're different
-T 1475166919 18<mclasen18>	dunno. just call it delay ?
-T 1475167031 18<Company18>	meeeeehhhhh
-T 1475167036 18<Company18>	i need a good idea
-T 1475167045 18<Company18>	I've been looking into getting rid of root windows
-T 1475167060 18<Company18>	and root windows are required in gdk_window_new() currently
-T 1475167067 18<Company18>	which made me look at that function
-T 1475167074 18<Company18>	and it's a mess
-T 1475167080 18<Company18>	so what do i do with it?
-T 1475167160 18<Company18>	also, about foreign windows:
-T 1475167166 18<Company18>	can i delete GtkPlug/GtkSocket?
-T 1475167210 18<Company18>	i've also had another thought that I wanted to throw at alex 
-T 1475167239 18<Company18>	alex: what's speaking against being able to "show" any widget?
-T 1475167311 18<Company18>	alex: ie being able to show(), size_allocate(), map() a widget without a toplevel (which would allow you to draw it manually, which glade might find interesting)
-T 1475167350 18<mclasen18>	Company: add a new constructor for toplevels that doesn't take a parent ?
-T 1475167385 18<Company18>	mclasen: I could - but if I did that, I could just split it into 2 or 3 separate constructors
-T 1475167411 18<mclasen18>	doesn't thatmake sense ?
-T 1475167415 18<Company18>	one for toplevels, one for override_redirect, one for child windows and one wayland-specific one for subsurfaces?
-T 1475167436 18<Company18>	dunno
-T 1475167447 18<Company18>	would i handle those constructors separately?
-T 1475167466 18<Company18>	or would i make them all call the current gdk_window_new()?
-T 1475167504 18<mclasen18>	whatever is the most practical
-T 1475167531 18<Company18>	the most practical right now is just adding a GdkDisplay* argument to gdk_window_new()
-T 1475167539 18<Company18>	it's also the most stupid solution ;)
-T 1475167588 18<Company18>	mclasen: Also, can I remove https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n2394
-T 1475167614 18<Company18>	mclasen: the docs say "Do not use this function" - but there might be some old thing that needs it?
-T 1475167642 18<Company18>	asking because that's 2 arguments of GdkWindowAttr I could get rid of
-T 1475167715 18<mclasen18>	if we want to keep those at all, they belong in the x11 backend api
-T 1475167742 18<Company18>	true
-T 1475167773 18<Company18>	I could just add a gdk_x11_window_new_full() that takes those and a Visual
-T 1475167840 18<Company18>	that would kinda require making toplevel creation call into backends though
-T 1475167849 18<Company18>	hrm...
-T 1475167855 18<Company18>	oh, also
-T 1475167874 18<Company18>	mclasen, alex, ebassi: Can I remove gdk_window_ensure_native() from the public API?
-T 1475167975 18<mclasen18>	looks like we're still calling it in a few plaes ?
-T 1475167984 18<Company18>	inside GDK, yes
-T 1475167991 18<Company18>	but no calls from GTK
-T 1475167999 18<mclasen18>	hmm, true
-T 1475168041 18<Company18>	i'm also not sure why we insist on calling ensure_native() on selections
-T 1475168046 18<Company18>	that feels very bad
-T 1475168077 18<mclasen18>	because X needs window ids for selection owners, I guess ?
-T 1475168119 18<Company18>	yes
-T 1475168138 18<Company18>	but does that mean we make random windows native once you press ctrl-c ?
-T 1475168330 18<ricotz18>	hmm, better to branch gtk+ before adding 3.90 stuff ;)
-T 1475168350 18<Company18>	we do make random widgets native
-T 1475168372 18<Company18>	but we take care in GTK code that those random widgets are GtkWindows that we create for just those operations
-T 1475168413 18<ricotz18>	https://git.gnome.org/browse/gtk+/commit/?id=13e00b70c08d85750784ea014080d1ce52604dac
-T 1475168466 18<Company18>	do we even want GDK_AVAILABLE_IN_3_90 ?
-T 1475168477 18<Company18>	shouldn't that be GDK_AVAILABLE_IN_4_0 ?
-T 1475168507 18<ricotz18>	better branch and change the library name at first
-T 1475168540 18<Company18>	no idea why hughsie added that
-T 1475168552 18<Company18>	he certainly didn't seem to need it
-T 1475168657 18<Company18>	oh wow
-T 1475168669 18<Company18>	those wmclass properties aren't even construct properties
-T 1475168677 18<Company18>	anyone can just call XSetClassHint() manually
-T 1475168681 18<mclasen18>	Company: if we do .90, .92, etc. then having version markers to go along with that seemed to make sense to me ?
-T 1475169340 18<ricotz18>	mclasen, hi, does this mean there will be no hard cut to transition to a new library name?
-T 1475169437 18<bugbot18>	gpoo@gnome.org changed the Component on bug 766457 from general to Class: GtkApplication.
-T 1475169438 18<bugbot18>	gpoo@gnome.org changed the Product on bug 766457 from evince to gtk+.
-T 1475169438 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=766457 Class: GtkApplication, normal, gtkdev, NEW , Ctrl+F1 accel doesn't work
-T 1475170946 18<Company18>	mclasen: dunno, they're not parallel installable and we break API
-T 1475170982 18<Company18>	mclasen: so if you run against 3.92 it doesn't matter if something was introduced in 3.90 because we might have changed the function prototype in 3.92
-T 1475171056 18<mclasen18>	hmm
-T 1475171107 18<Company18>	to be clear: i don't have a strong opinion, but I suspect the differentiation isn't worth it
-T 1475171127 18<Company18>	there is (hopefully) nobody going "lemme try to develop a 3.90 app against 3.92"
-T 1475171530 18<mclasen18>	thats true
-T 1475171902 18<heftig18>	i see the monitor/window scale factor code was touched recently
-T 1475171925 18<heftig18>	i think i'm seeing firefox misplace windows because of this (they act as if the top-left quadrant is the entire screen)
-T 1475172137 18<heftig18>	fiddling with xrandr (say by using --reflect x then --reflect normal) while firefox is running is enough to trigger the bug
-T 1475172155 18<heftig18>	should i first post this in the gnome or the mozilla bugtracker?
-T 1475172247 18<Company18>	heftig: i've heard more people complain, so i suspect it's a gtk bug
-T 1475172269 18<Company18>	heftig: but you better poke the person that did touch the code
-T 1475172342 18<heftig18>	mclasen just quit :)
-T 1475172344 18<heftig18>	since i can reliably reproduce it now it might be bisection time
-T 1475172806 18<heftig18>	Company: were the complaints all about firefox?
-T 1475172903 18<Company18>	heftig: i just saw them scroll by in here and don't remember details
-T 1475174474 18<bugbot18>	New gtk+ bug 772198 filed by bloop93@gmail.com.
-T 1475174475 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772198 Accessibility, normal, gtk-bugs, NEW , toggle switch (on/off) widget not accessible without a pointer device
-T 1475175190 18<heftig18>	oh, I think I got it
-T 1475175217 18<muhannad_18>	Hi, I just finished learning GObject, but I don't have clear idea about _dispose and _finalize 
-T 1475175218 18<heftig18>	gdk_screen_width is half of what it should be
-T 1475175363 18<muhannad_18>	_finalize seems clear a bit , it's for freeing Objects that have been created by g_object_new()
-T 1475175390 18<muhannad_18>	but  _dispose a bit confusing me 
-T 1475175510 18<djb18>	muhannad_: i presume you've read this https://developer.gnome.org/gobject/stable/howto-gobject-destruction.html so it would help if you explained what you don't understand about it, i.e. that the 2 phases are mostly useful to break ref-counting cycles
-T 1475175565 18<muhannad_18>	I read _dispose is for unref the member objects 
-T 1475175591 18<muhannad_18>	but in the example here :
-T 1475175599 18<muhannad_18>	https://paste.gnome.org/phmlhtzpf
-T 1475175693 18<muhannad_18>	viewer_file_dispose() .. cleard priv->input_stream 
-T 1475175716 18<halfline18>	g_clear_object does an unref followed by setting the pointer to NULL
-T 1475175728 18<heftig18>	Company: got this now: https://paste.xinu.at/WaRR/
-T 1475175754 18<muhannad_18>	why we didn't set filename to null ?
-T 1475175759 18<muhannad_18>	NULL*
-T 1475175824 18<halfline18>	muhannad_: that would have been fine.  could have put g_clear_pointer (&priv->filename, g_free);
-T 1475175869 18<heftig18>	wtf; with GDK_SCALE=1 it works, with GDK_SCALE=anythingelse it's consistently wrong, even before the xrandr
-T 1475175874 18<halfline18>	could also have put everything in finalize tbh
-T 1475175885 18<muhannad_18>	so my undrstand about _dispose is fine ?
-T 1475175895 18<halfline18>	you really only have to use dispose if there's the risk of ref cycles (like one object refing another object and that object refing the first)
-T 1475175941 18<muhannad_18>	good
-T 1475175950 18<muhannad_18>	it's more clear now
-T 1475176004 18<muhannad_18>	but is it fine if we write the function _dispose() and didn't write _finalize() ?
-T 1475176022 18<halfline18>	yup
-T 1475176036 18<muhannad_18>	aha 
-T 1475176043 18<muhannad_18>	when we do that ?
-T 1475176051 18<muhannad_18>	if there is no object to free ?
-T 1475176078 18<muhannad_18>	member object*
-T 1475176097 18<halfline18>	if you have no objects to free then finalize is probably marginally better
-T 1475176098 18<heftig18>	dispose might be called before the refcount is actually zero (and then again once it drops to zero)
-T 1475176105 18<bugbot18>	bloop93@gmail.com changed the Status on bug 772198 from NEW --- to RESOLVED NOTABUG.
-T 1475176105 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772198 Accessibility, normal, gtk-bugs, RESOLVED NOTABUG, toggle switch (on/off) widget not accessible without a pointer device
-T 1475176116 18<halfline18>	because of what heftig just said
-T 1475176127 18<halfline18>	dispose has the gotcha that it can be called more than once
-T 1475176137 18<halfline18>	so if you free you have to nullify too
-T 1475176158 18<muhannad_18>	thank you , you make things clear now :D
-T 1475176176 18<heftig18>	g_clear_pointer and g_clear_object ensure you won't free things twice
-T 1475176258 18<bugbot18>	db0451@gmail.com changed the Resolution on bug 772198 from NOTABUG to FIXED.
-T 1475176273 18<djb18>	wut
-T 1475176288 18<bugbot18>	db0451@gmail.com changed the Resolution on bug 772198 from FIXED to NOTABUG.
-T 1475176288 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772198 Accessibility, normal, gtk-bugs, RESOLVED NOTABUG, toggle switch (on/off) widget not accessible without a pointer device
-T 1475176345 18<djb18>	nice to see bugbot back to full health though :D
-T 1475176798 18<bugbot18>	bloop93@gmail.com marked bug 772198 as a duplicate of unknown bug.
-T 1475176798 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772198 Accessibility, normal, gtk-bugs, RESOLVED DUPLICATE, toggle switch (on/off) widget not accessible without a pointer device
-T 1475177897 18<Hussam18>	https://git.gnome.org/browse/gtk+/commit/?id=13e00b70c08d85750784ea014080d1ce52604dac shouldn't 3.22 branch first?
-T 1475178625 18<djb18>	should a GtkButton with just a text label always contain a Label child? it should, right?
-T 1475178711 18<baedert18>	yes
-T 1475178759 18<djb18>	hmm, the famous blank IRC network button in Empathy and g-o-a only shows a gesture child in the inspector
-T 1475178777 18<djb18>	the label property is set but not shown
-T 1475178855 18<heftig18>	egads
-T 1475178863 18<djb18>	but gtk_button_set_label() should create everything required via construct_child() if it's not already there
-T 1475178882 18<heftig18>	shouldn't the geometry of a monitor be prescaled?
-T 1475178917 18<heftig18>	i.e. I'd expect on a scale=2 monitor to get half the width it actually has
-T 1475179137 18<halfline18>	if a monitor is hidpi, certain elements get pixel doubled, but other things shouldn't (for instance images)
-T 1475179317 18<Company18>	heftig: you mean a 4k monitor should report itself as 1920x1080 when hidpi is set?
-T 1475179352 18<hergertme18>	mine certainly doesn't
-T 1475179390 18<Company18>	i think that'd be tricky
-T 1475179400 18<hergertme18>	oh wait, but mine isn't "hidpi", because its a tv
-T 1475179410 18<Company18>	though the docs seem to indicate that it indeed should be the case
-T 1475179433 18<Company18>	but you want screen coordinates for the geometry
-T 1475179465 18<Company18>	ie if i have 2 monitors, the hidpi one at 0x0x3840x2160
-T 1475179477 18<Company18>	and the normal one at 3840x0x1920x1080
-T 1475179503 18<Company18>	wouldn't you want the first one to return 0x0x3840x2160 instead of 0x0x1920x1080 ?
-T 1475179660 18<Company18>	actually, no, you wouldn't
-T 1475179744 18<Company18>	though it gets really confusing if the monitors are the other way
-T 1475179764 18<Company18>	you'll get one with 0x0x1920x1080
-T 1475179770 18<Company18>	and one with 960x0x1920x1080
-T 1475179785 18<Company18>	and they don't overlap
-T 1475179806 18<Company18>	¯\_(ツ)_/¯ 
-T 1475181015 18<bugbot18>	New gtk+ bug 772202 filed by jan.steffens@gmail.com.
-T 1475181015 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772202 .General, major, gtk-bugs, NEW , Handling of scaled monitors is broken
-T 1475181059 18<Company18>	garnacho: do you know if the unconditional call to gdk_window_set_cursor() in gdk_window_new() is necessary - or could we just omit it if the cursor isn't set?
-T 1475181091 18<Company18>	it does some per-seat cursor stuff, and I'm not sure if it's required to do that upon creating a window
-T 1475181121 18<heftig18>	Company: I wrote a bug (see above)
-T 1475181141 18<heftig18>	I'm just following the docs, which say gdk_monitor_get_geometry is supposed to be in "app pixels"
-T 1475181190 18<Company18>	yup, app pixels is weird if you compare monitors (because different scale will lead to nonsensical coordinate comparisons)
-T 1475181202 18<heftig18>	why?
-T 1475181208 18<Company18>	but it's the right thing if you actually care about the monitor when placing windows
-T 1475181230 18<Company18>	heftig: put a normal monitor left of a 4k monitor with hidpi
-T 1475181242 18<Company18>	heftig: normal monitor is 0x0x1920x1080
-T 1475181245 18<heftig18>	so, you have one at 1920x1080+0+0
-T 1475181249 18<Company18>	heftig: hidpi monitor is 960x0x1920x1080
-T 1475181259 18<heftig18>	and one at 1920+1080+1920+0
-T 1475181272 18<Company18>	no, it's 960
-T 1475181276 18<Company18>	not 1920
-T 1475181282 18<Company18>	for the X coordinate
-T 1475181285 18<heftig18>	no, we're in app pixels
-T 1475181306 18<Company18>	exactly, it's scaled down by a factor of 2
-T 1475181318 18<Company18>	device pixels is 1920x0x3840x2160
-T 1475181335 18<heftig18>	hm
-T 1475181345 18<heftig18>	one reason i guess wayland doesn't have global coords
-T 1475181376 18<Company18>	it gets really funky if you create a window that spans monitors ;)
-T 1475181392 18<Company18>	I think GdkMonitor shouldn't have advertised x/y coordinates in the first place
-T 1475181422 18<Company18>	though GTK3 needs that feature because GTK3 thinks you can gdk_window_move() toplevels
-T 1475181462 18<Company18>	i wonder what happens if you gdk_window_move(960,0) in my example
-T 1475181565 18<Company18>	this is actually complete bullshit
-T 1475181588 18<Company18>	in GTK3
-T 1475181611 18<Company18>	even if you gdk_window_get_position()
-T 1475181628 18<Company18>	if it tells you 1000,0 - what monitor are you on?
-T 1475181660 18<garnacho18>	Company: yeah, the call could probably be avoided if there is no cursor set
-T 1475181664 18<heftig18>	Company: gdk wayland doesn't scale the coordinates at all
-T 1475181675 18<heftig18>	or the sizes, for that matter
-T 1475181694 18<Company18>	heftig: that's definitely wrong
-T 1475181696 18<hergertme18>	if i set GtkScrolledWindow:hscrollbar-policy to EXTERNAL and have a pan gesture on the viewport, should that be something that works? :)
-T 1475181702 18<heftig18>	i.e. a 3840x2160 scale 2 monitor has 3840x2160 app pixels
-T 1475181729 18<Company18>	heftig: its especially wrong because X11 and Wayland do different things...
-T 1475181745 18<heftig18>	well, look at the bug for the terrible details
-T 1475181967 18<Company18>	I also wonder what's going on with the workarea
-T 1475181994 18<Company18>	oh right, we're halving the value twice, so we get rounding issues only because we're buggy
-T 1475182007 18<Company18>	hrm no, actually not
-T 1475182017 18<Company18>	we're rounding 55 => 27
-T 1475182088 18<Company18>	heftig: why is the panel 55px, is the panel not hidpi?
-T 1475182101 18<Company18>	or does gnome-shell fuck up panel size on hidpi?
-T 1475182371 18<heftig18>	Company: the panel looks fine
-T 1475182392 18<Company18>	heftig: is the panel hidpi?
-T 1475182396 18<heftig18>	yes, it is
-T 1475182408 18<Company18>	heftig: why does it report 27.5 pixels height?
-T 1475182433 18<Company18>	55 device pixels = 27.5 hidpi/panel pixels
-T 1475182477 18<Company18>	do we blame fmuellner here? ofourdan? Or who'd doing that work in gnome-shell?
-T 1475182484 18*	Company no idea about gnome-shell maintenance
-T 1475182485 18<heftig18>	Company: 55 device pixels is accurate
-T 1475182495 18<Company18>	heftig: it's not
-T 1475182505 18<Company18>	heftig: on hidpi everything should be divisible by 2
-T 1475182508 18<heftig18>	well, i mean i just took a screenshot and measured it
-T 1475182533 18<Company18>	so the shell should probably do something abnout it
-T 1475184095 18<muelli18>	I'm confused with the HeaderBar. Can I set it via glade for my applicationwindow or do I have to call set_titlebar?
-T 1475184121 18<djb18>	set_titlebar just sets property "titlebar", so glade should be able to do it fine
-T 1475184133 18<baedert18>	you'd be surprised
-T 1475184146 18<djb18>	do tell!
-T 1475184225 18<muelli18>	hrm
-T 1475184257 18<djb18>	oh, maybe you need to add it via     <child type="titlebar">
-T 1475184270 18<muelli18>	hrm.
-T 1475184280 18<muelli18>	does Glade expose that somehow?
-T 1475184306 18<muelli18>	currently, I can add the headerbar to any container, it seems. And that produces strange results...
-T 1475184325 18<djb18>	yes, it's just another widget in reality
-T 1475184347 18<djb18>	i think the other uses are quite limited but they do exist, e.g. for overlay controls in totem fullscreen mode
-T 1475184390 18<djb18>	(albeit with pesky rounded corners that show the video underneath)
-T 1475184584 18<muelli18>	ah. I could cut and paste the headerbar now.  weird. that didn't work before...
-T 1475184607 18<djb18>	so far i can get glade to show the child type="titlebar" attribute but haven't seen how to add it
-T 1475184960 18<muelli18>	djb: With a headerbar-less window, I put the headerbar in some random box, then cut it, select the window in the widget tree in the upper right, and paste.
-T 1475184996 18<djb18>	yeah, i can do that, but then it just gets added as a regular child widget
-T 1475185091 18<djb18>	anyway, i was wrong, GtkWindow does not have a property_titlebar
-T 1475188445 18<bugbot18>	New gtk+ bug 772215 filed by bugzilla@victortoso.com.
-T 1475188445 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772215 .General, normal, gtk-bugs, NEW , icon-theme: Fix leaks on error
-T 1475196042 18<Company18>	fun fact: almost nom widget handles cursors correctly
-T 1475196055 18*	Company fixing up cursor code
-T 1475196265 18<LRN18>	om-nom-nom widget?
-T 1475196286 18<Company18>	nah
-T 1475196304 18<Company18>	just getting rid of GdkWIndowAttributesType
-T 1475196314 18<Company18>	trying to at least
-T 1475196369 18<Company18>	and one of the things that can go away is GDK_WA_CURSOR
-T 1475196520 18<Company18>	man, gdk_window_new() is a function that exemplifies the 1980s
-T 1475196630 18<Company18>	we only have 4 or 5 widgets that actually change the cursor
-T 1475196663 18<Company18>	entry, textview, label, paned and gtkwindow for the decoration windows
-T 1475196699 18<hergertme18>	treeview
-T 1475196730 18<hergertme18>	scrolledwindow of course
-T 1475196741 18<hergertme18>	(treeviewcolumn)
-T 1475196884 18<Company18>	right, treeview
-T 1475196888 18<Company18>	but not scrolledwindow
-T 1475196927 18<Company18>	or rather: not by default
-T 1475196943 18<Company18>	you get an indicator if you start an action, but no change on hover
-T 1475196949 18<hergertme18>	install_scroll_cursor()
-T 1475196955 18<Company18>	which is what setting the cursor in gdk_window_new() is about
-T 1475196962 18<hergertme18>	yeah
-T 1475197159 18<Company18>	seriously...
-T 1475197256 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gdk/x11/gdkwindow-x11.c#n793
-T 1475197291 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gdk/win32/gdkwindow-win32.c#n502
-T 1475197324 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gdk/quartz/gdkwindow-quartz.c#n459
-T 1475197364 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkwindow-wayland.c#n397
-T 1475197386 18<hergertme18>	fun
-T 1475197415 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gdk/mir/gdkmirwindowimpl.c#n157
-T 1475197442 18<Company18>	only broadway doesn't care
-T 1475197685 18<Company18>	zxdg_toplevel_v6_set_title()
-T 1475197719 18<Company18>	wayland is shooting itself with unreadable function names
-T 1475197777 18<hergertme18>	exciting 
-T 1475197789 18<hergertme18>	that's got to be a real word in german
-T 1475197897 18<Company18>	german doesn't use underscores
-T 1475197899 18<Company18>	!
-T 1475197907 18<hergertme18>	yet
-T 1475197908 18<Company18>	wewriteeverythingtogetherwithoutcapsoranything
-T 1475197938 18<Company18>	https://twitter.com/GeorgeTakei/status/781223088113520640
-T 1475198149 18<hergertme18>	hah
-T 1475205662 18<Company18>	aaaaaaarrrrggh
-T 1475205667 18<Company18>	sooooo
-T 1475205695 18<Company18>	how's the scale factor on a GdkWindow determined?
-T 1475205788 18<Company18>	because there's 100s of proeprties involved that all override each other
-T 1475205930 18<jadahl18>	Company: at least on wayland its 'max (scales of outputs the surface is viewed on)'
-T 1475205964 18<Company18>	but that's just because wayland doesn't support GDK_SCALE
-T 1475205975 18<Company18>	and has no WaylandSettings object
-T 1475205980 18<jadahl18>	whats GDK_SCALE?
-T 1475205996 18<jadahl18>	some kind of override thing?
-T 1475205996 18<Company18>	an env var to override the system scale
-T 1475206007 18<Company18>	yeah, so you can test hidpi on a regular monitor
-T 1475206009 18<jadahl18>	well, no reason for such a thing to exist on wayland
-T 1475206040 18<jadahl18>	I can that, but I start a nested wayland compositor with fake scale set
-T 1475206040 18<Company18>	unless you want it for testing
-T 1475206057 18<jadahl18>	then i start the gtk app in that
-T 1475206066 18<Company18>	ah, so you have a command line arg instead of an env var
-T 1475206094 18<jadahl18>	no, I have a mode the compositor can run in to test things
-T 1475206101 18<jadahl18>	it can fake a scale = 2 environment
-T 1475206124 18<jadahl18>	if I start the gtk app to run on that display server, it'll be drawn with scale I configured the nested compositor to fake
-T 1475206140 18<jadahl18>	meaning no special override path needed in gtk/gdk
-T 1475206151 18<Company18>	yeah
-T 1475206184 18<Company18>	the problem with GTK is that people always go "i don't understand what should happen, so I'll add another way to do it"
-T 1475206187 18<Company18>	:/
-T 1475206192 18<jadahl18>	\o/
-T 1475206211 18<Company18>	font sizes are fun
-T 1475206229 18<Company18>	because first you need to understand scale
-T 1475206236 18<Company18>	then you need to add dpi to that
-T 1475206243 18<jadahl18>	yea
-T 1475206264 18<jadahl18>	then some people want different font sizes depending on what output the window is on
-T 1475206264 18<Company18>	which can be set in pango, cairo, GtkSettings, xsettings and via env var
-T 1475206277 18<Company18>	and then there's stuff like GDK_DPI_SCALE to unbreak GTK2 apps
-T 1475206303 18<Company18>	we don't have that yet
-T 1475206321 18<Company18>	mostly because we don't have API to query what output a window is on
-T 1475206346 18<Company18>	well, we do have the API, but it looks at window.x/y and output.x/y, so...
-T 1475206366 18<jadahl18>	the api is on the wrong level so to speak
-T 1475206390 18<Company18>	yeah, it's generic and should be per-backend
-T 1475206402 18<Company18>	but to do such things right, it'd also handle notification
-T 1475206409 18<Company18>	*need to handle
-T 1475206420 18<Company18>	so we can queue a resize once the output changes
-T 1475206425 18<jadahl18>	it should be higher level as in gdk_window_where_on_earth_am_i()
-T 1475206450 18<Company18>	there should just be a Window::monitor property
-T 1475206480 18<jadahl18>	what if its half half on two monitors?
-T 1475206492 18<Company18>	then the windowing system figures it out
-T 1475206534 18<jadahl18>	what if it cant? its two 1920 wide monitors. the window is maximized to cover both. they are exactly the same amount of "on" on both
-T 1475206542 18<Company18>	in particular, the windowing system not just figures it out, it also tells us when it changes
-T 1475206569 18<Company18>	then the windowing system figures it out
-T 1475206597 18<jadahl18>	either rand() or "whatever came first" then I suppose
-T 1475206605 18<Company18>	yeah, probably
-T 1475206662 18<Company18>	if we need a "this window belongs on output" property for ie scale or dpi, then the windowing system will need to make sure one exists
-T 1475206702 18<jadahl18>	well, there are two things about outputs we might care about. scale for choosing buffer scale, and scale for choosing font size
-T 1475206727 18<jadahl18>	those may be different. one is "output with highest scale" and the other is more likely "output which window is mostly on"
-T 1475206731 18<Company18>	there's also stuff WMs care about, like fullscreening behavior
-T 1475207330 18<bugbot18>	New glib bug 772221 filed by piotrdrag@gmail.com.
-T 1475207330 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772221 general, normal, gtkdev, NEW , Take advantage of Unicode
-T 1475211841 18<baedert18>	jadahl: *nobody* knows how to test different scale factors in wayland, I've never heard about that before and it happend a few times that people in here asked and we didn't have a real answer :P
-T 1475213978 18<wozgeass_18>	quit
-T 1475214437 18<bugbot18>	New gtk+ bug 772225 filed by jadahl@gmail.com.
-T 1475214437 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772225 Backend: Wayland, normal, gtk-bugs, NEW , GtkOverlay above a GtkClutterEmbed broken on Wayland
-T 1475215928 18<jadahl18>	baedert: yea, it could be better documented. it requires starting mutter with magic environment variables set
-T 1475215973 18<jadahl18>	*nested* mutter, that is
-T 1475216680 18<schaeferpp18>	hey there! i'm trying to give an GObject a date property, but neither GDate nor GDateTime inherit GObject. Do you have a solution for defining datetime properties?
-T 1475216933 18<baedert18>	jadahl: can you write it down for mee somewhere?
-T 1475218080 18<bugbot18>	New gtk+ bug 772226 filed by jake.anq@gmail.com.
-T 1475218080 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772226 .General, normal, gtk-bugs, NEW , GDK Assertion Fail with Logitech G300 mouse
-T 1475218266 18<jadahl18>	baedert: any suggestion where?
-T 1475218278 18<jadahl18>	I can add it to some wiki page for example, if you'd tell me which one
-T 1475218586 18<baedert18>	jadahl: I'd have written a simple howdoi page later
-T 1475218604 18<baedert18>	aas soon as this doctor releases me
-T 1475218638 18<TingPing18>	schaeferpp, either use a boxed type or just a 64bit time_t
-T 1475218701 18<schaeferpp18>	TingPing: ah, didnt know about g_value_*_boxed, thank you!!
-T 1475219089 18<jadahl18>	baedert: where do I do that?
-T 1475219206 18<baedert18>	wiki.gnome.org/HowDoI
-T 1475219211 18<baedert18>	I think
-T 1475219792 18<jadahl18>	baedert: https://wiki.gnome.org/HowDoI/HiDpi
-T 1475220084 18<baedert18>	jadahl: cool, thanks
-T 1475227426 18<mclasen18>	ofourdan: where do we stand with those content positioning issues - still a problem, or fixed ?
-T 1475227628 18<ofourdan18>	mclasen: I reckon it's been fixed
-T 1475227655 18<ofourdan18>	at least the regression introduced by my patch for the min/max issue
-T 1475227666 18<ofourdan18>	might be others, but those are unrelated
-T 1475227672 18<mclasen18>	great, I'll do a .1 release today
-T 1475227739 18<baedert18>	mclasen: Can you include the last patch in https://bugzilla.gnome.org/show_bug.cgi?id=770388 ?
-T 1475227740 18<bugbot18>	Bug 770388: .General, normal, gtk-bugs, REOPENED , GtkTreeView: attempt to underallocate GtkTreeView's child GtkButton
-T 1475228129 18<mclasen18>	you mean christoph's patch ?
-T 1475228151 18<baedert18>	yes
-T 1475229102 18<jadahl18>	mclasen: another menu placement fix https://bugzilla.gnome.org/show_bug.cgi?id=771516 (harder to reproduce)
-T 1475229103 18<bugbot18>	Bug 771516: Backend: Wayland, normal, gtk-bugs, NEW , wayland: Only 'moved-to-rect' if move_to_rect() was used
-T 1475229462 18<mclasen18>	baedert: do underallocation warnings happen that much due to our own fault ?
-T 1475229487 18<mclasen18>	I thought those are generally useful to point out actual application bugs
-T 1475229607 18<baedert18>	mclasen: not that I know of, I know a few places
-T 1475229623 18<baedert18>	but treeview columns doing that everywhere shows up a lot if the app uses that I guess
-T 1475229694 18<mclasen18>	I see
-T 1475229716 18<mclasen18>	in that case, the underallocation is kinda intentional
-T 1475231383 18<heftig18>	mclasen: is monitor geometry supposed to be in device pixels or in scaled pixels?
-T 1475231468 18<mclasen18>	what do the docs say ?
-T 1475232063 18<bugbot18>	mclasen@redhat.com changed the Status on bug 771516 from NEW --- to RESOLVED FIXED.
-T 1475232063 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=771516 Backend: Wayland, normal, gtk-bugs, RESOLVED FIXED, wayland: Only 'moved-to-rect' if move_to_rect() was used
-T 1475237890 18<sphalerite18>	Is it possible to use async things like lookup_records_async from GResolver through GI in python?
-T 1475237908 18<sphalerite18>	I tried just passing a python function as a callback, but that segfaulted :)
-T 1475238054 18<pwithnall18>	sphalerite: should be possible; can you paste your code somewhere, plus the backtrace?
-T 1475238114 18<sphalerite18>	Oh, actually maybe it's because I was doing it in an interactive shell and hadn't initialised GObject/started a main loop or anything
-T 1475238162 18<pwithnall18>	sphalerite: you would need a main loop to get the async result back, but it shouldn’t be crashing
-T 1475238370 18<sphalerite18>	pwithnall: https://paste.debian.net/847728/ I'll run it in a debugger now
-T 1475238440 18<sphalerite18>	it seems to be calling a null function pointer
-T 1475238450 18<sphalerite18>	in g_resolver_lookup_service_async
-T 1475238470 18<pwithnall18>	sphalerite: I don’t know if lambdas are supported for it
-T 1475238479 18<pwithnall18>	Try a normal function/method
-T 1475238508 18<pwithnall18>	You may also want to ask on #python on this server; people there know more about PyGObject than me :)
-T 1475238545 18<sphalerite18>	I was using a named function earlier when I noticed this, I just used a lambda to have a minimal test case
-T 1475238555 18<sphalerite18>	and even if lambdas aren't supported, it should complain rather than segfaulting, no? :)
-T 1475238562 18<pwithnall18>	yup
-T 1475238626 18<TingPing18>	lambdas behave the same as functions btw
-T 1475238631 18<sphalerite18>	This is a fairly old version of GLib I'm using, 2.42.1 (in debian stable), so it might be fixed by now
-T 1475238640 18<TingPing18>	sphalerite, i can repro with the latest of everything
-T 1475238670 18<sphalerite18>	ok
-T 1475238690 18<sphalerite18>	gdb says it's on this line https://git.gnome.org/browse/glib/tree/gio/gresolver.c?h=2.42.1#n729
-T 1475238736 18<sphalerite18>	it then segfaults on jumping to 0x0
-T 1475238741 18<pwithnall18>	aah
-T 1475238749 18<pwithnall18>	sphalerite: you need to use the default resolver
-T 1475238757 18<TingPing18>	yea, Gio.Resolver.get_default()
-T 1475238774 18<sphalerite18>	ooh, ok
-T 1475238850 18<pwithnall18>	I wonder why GResolver isn’t defined as abstract
-T 1475239767 18<sphalerite18>	are there any cases where one wouldn't want to get the default resolver?
-T 1475239817 18<pwithnall18>	typically no
-T 1475239832 18<sphalerite18>	Proxies come to mind, but I'm guessing that would usually be handled at a lower level
-T 1475241692 18<bugbot18>	New glib bug 772255 filed by bugzilla@tecnocode.co.uk.
-T 1475241693 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772255 network, normal, gtkdev, NEW , gresolver: Mark GResolver as an abstract class
-T 1475242455 18<baedert18>	Hmm so I have this case where I call gtk_widget_destroy on a GtkApplicationWindow and apparently it gets immediately unrealized, so when the child widgets get unrealized, a call to gtk_widget_get_frame_clock accesses an unrealized toplevel window and later an assertion (window != NULL) fails.
-T 1475242481 18<baedert18>	The widget it fails for is a custom widget impl, but it doesn't override realize() or unrealize() and has no window
-T 1475242499 18<baedert18>	Does anyone know what's going on?
-T 1475246234 18<Company18>	baedert: it's probably an ordering problem in GTK
-T 1475246258 18<Company18>	baedert: generally widgets should (1) destroy their children and then (2) destroy themselves
-T 1475246291 18<Company18>	baedert: but lots of widgets don't do that and instead rely on gtk_container_destroy() which they only chain up to after they destroyed themselves
-T 1475246322 18<Company18>	if you combine that with unrealize() and hide() doing similar things...
-T 1475249787 18<Company18>	owen: do you remember what https://bugzilla.gnome.org/show_bug.cgi?id=733076 and https://git.gnome.org/browse/gtk+/tree/gdk/x11/xsettings-client.c#n472 were about?
-T 1475249788 18<bugbot18>	Bug 733076: Backend: X11, normal, gtk-bugs, RESOLVED FIXED, Handle resolution changes in the GDK backend code
-T 1475249823 18*	Company grepped mutter source and it doesn't seem to call gdk_screen_get_resolution(), so there's no obvious cause
-T 1475249886 18<Company18>	context: I'm trying to remove gdk_screen_get_resolution() in favor of just using GtkSettings directly
-T 1475249939 18<owen18>	Well, the problem that the resolution won't be right until the main loop runs will persist...
-T 1475249976 18<owen18>	I don't know everything that has gone on since with the mutter resolution code
-T 1475250057 18<Company18>	yeah, it sounds like a problem that would be resurrected by moving to GTK
-T 1475250088 18<Company18>	but I suppose it requires knowledge about mutter and my mutter knowledge is very nonexistent
-T 1475250253 18<Company18>	owen: is there a better person to poke about this?
-T 1475250318 18<owen18>	Company: jadahl (.tw time) is the expert in mutter resolution handling these days
-T 1475250318 18<Company18>	owen: and while you're here: I figured out yesterday that gnome-shell creates a 55 device pixels high panel on hidpi, which seems unfortunate (as it's 27.5px in user coordinates) - who's be the right person to poke about that?
-T 1475250351 18<owen18>	Company: panel seems right here on a hi-dpi display - but again, jadahl
-T 1475250401 18<Company18>	owen: it's not wrong that it's doing that - it's just that things go weird if a maximized hidpi window is 1052.5px high
-T 1475250423 18<Company18>	s/go weird/may go weird/
-T 1475250491 18<Company18>	and then lapo shouts at me because we have a line somewhere that shouldn't be there
-T 1475252263 18<mclasen18>	garnacho: is bug 772226 about a mouse that looks like a keyboard ?
-T 1475252264 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772226 .General, normal, gtk-bugs, NEW , GDK Assertion Fail with Logitech G300 mouse
-T 1475252323 18<owen18>	Company: Oh, ah, so the problem is that it's an odd height - yeah, it would be better if it limed up to be an exact number of logical pixels
-T 1475252371 18<garnacho18>	mclasen: yeah, fishy...
-T 1475252459 18<owen18>	Company: fmuellner is probably the person to poke about that. Or it may be fixable at the jimmac level of what's in the gnome-shell css
-T 1475252550 18<garnacho18>	mclasen: I think the driver itself is confused somehow
-T 1475253625 18<Company18>	mclasen: I need another idea: What do we do with gdk_screen_get_setting() ?
-T 1475253688 18<Company18>	there's a few problems here: (1) nobody knows which settings exist (2) do we want to turn those settings into real getter functions or just keep get_settings and (3) do we put settings on a separate object or add them all to GdkDisplay?
-T 1475253716 18<Company18>	note that (4) GTK allows overriding them all by layering GtkSettings on top
-T 1475255277 18<mclasen18>	Company: merge the sos and make it private ?
-T 1475255314 18<Company18>	mclasen: hrm
-T 1475255339 18<Company18>	mclasen: that doesn't solve the "what does a backend need to provide" question
-T 1475255352 18<Company18>	we could certainly move GtkSettings to GDK
-T 1475255365 18<Company18>	we'd avoid GdkSettingsEvent and all that mess
-T 1475255445 18<mclasen18>	whats the particular problem with 'nobody knows which settings exist'  ? the only people who need to know are gdk backend writers ?
-T 1475255465 18<Company18>	mclasen: they are the most important
-T 1475255483 18<Company18>	mclasen: but also actual people that want to use gdk_screen_get_setting()
-T 1475255497 18<Company18>	mclasen: which would probably be mostly things like inspector, glade or builder
-T 1475255498 18<mclasen18>	I doubt those exist
-T 1475255556 18<Company18>	i mostly started thinking about that because of the FIXME in https://developer.gnome.org/gdk3/stable/GdkScreen.html#gdk-screen-get-setting
-T 1475255602 18<mclasen18>	avoiding events for settings would be nice
-T 1475255697 18<Company18>	we'd get notify signals instead
-T 1475255705 18<Company18>	and they'd be immediate
-T 1475255719 18<Company18>	not sure what kind of fun bugs we'd get from that
-T 1475255881 18<Company18>	it's also weird to debug code that does all this string comparison stuff for properties
-T 1475255907 18<Company18>	ie figuring out if and how backends handle the "gtk-xft-dpi" setting is harder than I thought
-T 1475255996 18<Company18>	I think win32 and quartz do not allow querying gtk-xft-dpi for example
-T 1475256016 18<Company18>	they just gdk_screen_set_resolution() in screen_init()
-T 1475256799 18<sphalerite18>	Would this be the place to ask about jh-build/compiling GNOME or parts of it?
-T 1475256957 18<sphalerite18>	I'll just go ahead and ask: I'm trying to build pango (end goal being building empathy) through jh-build from the moduleset gnome-apps-3.8, on debian stable. It's failing because it can't find hb-glib.h even though it's right there in /usr/include/harfbuzz.
-T 1475257098 18<Company18>	sphalerite: I suspect you'll be on your own on that one
-T 1475257123 18<Company18>	sphalerite: people tend to use jhbuild to build current software, not stuff that's 3.5 years old
-T 1475257741 18<sphalerite18>	wait, gnome-apps-3.8 is 3.5 years old?
-T 1475257753 18<sphalerite18>	ooooh. oops :)
-T 1475257767 18<sphalerite18>	I wanted to build the latest and that was the latest I could find in the jhbuild repo
-T 1475257810 18<sphalerite18>	silly character-wise sort...
-T 1475258032 18<LiamW18>	getting stderr-spammed with messages along these lines:
-T 1475258034 18<LiamW18>	gtk_widget_size_allocate(): attempt to underallocate SPButton's child GtkImage 0x42b8700.
-T 1475258065 18<LiamW18>	so I changed the get_preferred_height/get_preferred_width functions of SPButton to return 1 greater
-T 1475258069 18<LiamW18>	and it shuts it up
-T 1475258123 18<LiamW18>	the question is, why was this not a problem before and given a function like this what avoids the "magic number" (because it's not always 1) https://gist.github.com/liamwhite/79240459c494c65ed9d131e95c35bc74
-T 1475258373 18<LiamW18>	https://git.gnome.org/browse/gtk+/tree/gtk/gtkbin.c#n183 doesn't look too different…
-T 1475258432 18<baedert18>	What's that padding and border stuff doing there?
-T 1475258502 18<LiamW18>	actually if I just take those methods out of the vtable it seems to work fine
-T 1475258565 18<sphalerite18>	Company: now trying with gnome-apps-3.24, same problem
-T 1475259005 18*	LiamW grumbles about debian sid
-T 1475259647 18<bugbot18>	mclasen@redhat.com changed the Status on bug 772215 from NEW --- to RESOLVED FIXED.
-T 1475259647 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772215 .General, normal, gtk-bugs, RESOLVED FIXED, icon-theme: Fix leaks on error
-T 1475259739 18<mclasen18>	Company: do you have an opinion on neutering underallocation warnings ?
-T 1475259806 18<mclasen18>	ie the last patch in bug 770388
-T 1475259807 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=770388 .General, normal, gtk-bugs, REOPENED , GtkTreeView: attempt to underallocate GtkTreeView's child GtkButton
-T 1475260626 18<Company18>	mclasen: I'd put it in stable releases, but not in amster
-T 1475260637 18<mclasen18>	hamster ?
-T 1475260693 18<Company18>	h↶
-T 1475260699 18<mclasen18>	ok, we can bring it back once we branch
-T 1475260709 18<Company18>	yeah, that sounds fine to me
-T 1475260761 18<Company18>	why do we have so many of those anyway? Did we only enable them for 3.22?
-T 1475260767 18<Company18>	I don't remember those warnings from 3.20
-T 1475260816 18<baedert18>	we already do a gtk_minor_version%2==0 check for setting GLIB_DISABLE_DEPRECATION_WARNINGS btw
-T 1475260835 18<mclasen18>	not sure. there was complaints about treeview headers doing it on purpose
-T 1475261162 18<bugbot18>	mclasen@redhat.com changed the Status on bug 771560 from NEW --- to RESOLVED WONTFIX.
-T 1475261162 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=771560 Widget: Other, normal, gtk-bugs, RESOLVED WONTFIX, Support for Icon Theme Specification animation
-T 1475262061 18<Hussam18>	hi. is current gtk+ trunk going to turn into 3.22.1 or will patches be cherry picked to 3.22.0 tag for a 3.22.1 release?
-T 1475262091 18<Company18>	mclasen: you should also WONTFIX bug 310327
-T 1475262092 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=310327 Widget: GtkTreeView, normal, gtktreeview-bugs, NEW , GtkCellRenderPixbuf should support animations
-T 1475262105 18<Company18>	I think?
-T 1475262265 18<mclasen18>	maybe
-T 1475262311 18<bugbot18>	mclasen@redhat.com changed the Status on bug 310327 from NEW --- to RESOLVED WONTFIX.
-T 1475262312 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=310327 Widget: GtkTreeView, normal, gtktreeview-bugs, RESOLVED WONTFIX, GtkCellRenderPixbuf should support animations
-T 1475262805 18<mclasen18>	baedert: saw my comment in bug 770388 ?
-T 1475262805 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=770388 .General, normal, gtk-bugs, REOPENED , GtkTreeView: attempt to underallocate GtkTreeView's child GtkButton
-T 1475262842 18<baedert18>	mclasen: hm, what comment?
-T 1475262916 18<mclasen18>	err, wrong bug
-T 1475262929 18<mclasen18>	I meant the gtkbuilder performance patches
-T 1475262935 18<baedert18>	yep
-T 1475262956 18<baedert18>	just busy atm, I can look at them tomorrow morning
-T 1475263110 18<mclasen18>	no rush
-T 1475264429 18<baedert18>	Company: hmm so the container my widget is in is also a custom one and with just a GtkBox, it seems to work fine. but both my container and GtkBox don't do anything special to clean up their children
-T 1475264531 18<Company18>	baedert: i've just shot the most common reason I know at you for things go wrong there
-T 1475264537 18<Company18>	baedert: it might be something else entirely
-T 1475266384 18<baedert18>	So a widget being realized always implies the parent being realized? Or just the toplevel being realized?
-T 1475266400 18*	baedert sees commented-out check in gtk_widget_verify_invariants
-T 1475268437 18<garnacho18>	baedert: all parents recursively
-T 1475268454 18<hergertme18>	are tooltips broken?
-T 1475500502 19*	Now talking on 22#gtk+
-T 1475500502 22*	Topic for 22#gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto 2017 GTK+ Hackfest
-T 1475500502 22*	Topic for 22#gtk+ set by 26Company (24Fri Aug 19 18:16:57 2016)
-T 1475500571 18<Company18>	JeanLuc: GTK's icon machinery implements symbolicness when loading the image
-T 1475500617 18<JeanLuc18>	=/ okay, so that means no symbolic-icons from gresource
-T 1475500619 18<Company18>	JeanLuc: so you need an SVG to get it to be treated as symbolic
-T 1475500653 18<Company18>	JeanLuc: if the gresources are SVGs and you register them to the icon theme: sure
-T 1475500683 18<JeanLuc18>	they are svgs, but how would I register them to the icon theme?
-T 1475500715 18<Company18>	JeanLuc: https://wiki.gnome.org/HowDoI/ThemedIcons might explain it
-T 1475500736 18<JeanLuc18>	thx, I'll take a look :)
-T 1475500743 18<Company18>	if not: I know that some gnome apps do it, but I don't know a concrete example
-T 1475500801 18<baedert18>	or use symbolic pngs!
-T 1475501634 18<JeanLuc18>	Company: works! thank you :) just have to cut out "hicolor" from the icon-path register the resource path to Gtk.IconTheme and then I can load them just like normal icons with from_icon_name
-T 1475502794 18<Company18>	JeanLuc: if something needs changes, edit the page. It's a Wiki!
-T 1475502841 18<JeanLuc18>	Company: no, I think the page explains it pretty clearly :) One just has to know that it exists
-T 1475505624 18<Company18>	sooo
-T 1475505661 18<Company18>	let's assume I want to have a vfunc for "dear clipboard user, please hand over your data"
-T 1475505678 18<Company18>	do i make the clipboard user give me an inputstream I can read from?
-T 1475505691 18<Company18>	or do i hand the clipboard user an outputstream he can write to?
-T 1475505699 18*	Company looks at alex
-T 1475505965 18<alex18>	Company: an input stream is better i think, because it lets us block the producer if the destination is slow at reading
-T 1475505976 18<alex18>	instead of having to buffer up a lot
-T 1475505994 18<ndufresne18>	o
-T 1475506003 18<alex18>	well, i guess an output stream can block the writes too
-T 1475506024 18<alex18>	but it seems a bit less obvious
-T 1475506073 18<owen18>	For almost everyhting you just want a blob - the clipboard provider needs to *snapshot* the data and make it immune to later edits
-T 1475506129 18<Company18>	owen: yeah, 99% of cases you just write a buffer and be done with it
-T 1475506140 18<Company18>	owen: but you can implement that on top of streams quite easily
-T 1475506177 18<owen18>	Company: that woudl argue for an input stream, I think so you could justuse gmemoryinputstream
-T 1475506208 18<owen18>	while for an output stream, you'd have to create a gmemoryinputstream, then splice that to the provided output stream
-T 1475506304 18<owen18>	Once you have to deal with blocking and make it async, it's not like you can use an outputstream api to simply walk over a data structure and write to the output stream so I don't think it's that useful
+T 1476102536 18<bugbot18>	ofourdan@redhat.com changed the Product on bug 771900 from totem to gtk+.
+T 1476102536 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=771900 .General, normal, gtk-bugs, NEW , Returning from fullscreen on Wayland causes window decorations and navigation bar to disappear
+T 1476103605 18<supra18>	hello mates, after updating gtk+:2 and 3 + gtkmm on my Gentoo, my themes got crashed everywhere, could you look into it and give me detailed info what should you give to inspect a problem?
+T 1476103617 18<supra18>	example: http://i.imgur.com/eMxttku.png
+T 1476103909 18<supra18>	i tried to fall back to default theme, but with no luck
+T 1476103911 18<supra18>	http://i.imgur.com/66MRbm2.png
+T 1476106590 18<csoriano18>	supra: you probably need to update the theme to the latest changes. Most probably the class renames from e.g. GtkWindow to .window . You can read more information in the gtk+ documentation of each widget
+T 1476106788 18<bugbot18>	mclasen@redhat.com changed the Status on bug 772511 from NEW --- to RESOLVED FIXED.
+T 1476106788 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772511 general, critical, gtkdev, RESOLVED FIXED, g_log_default_handler crashes windows apps with "Unspecified fatal error encountered, aborting."
+T 1476106884 18<supra18>	csorlano: you're right, updating my theme resolved the problem
+T 1476106902 18<supra18>	but it's strange that even greybird (really popular theme) is not updated
+T 1476107824 18<bugbot18>	ofourdan@redhat.com changed the Component on bug 767713 from Movie player to .General.
+T 1476107824 18<bugbot18>	ofourdan@redhat.com changed the Product on bug 767713 from totem to gtk+.
+T 1476107824 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=767713 .General, major, gtk-bugs, NEW , Fullscreen in wayland is buggy
+T 1476108731 18<mclasen18>	Company: master should now be ready for gtk4 stuff, if you feel like merging some of the cleanups
+T 1476108848 18<Company18>	mclasen: do we have a policy for pushing API breakage to master?
+T 1476108866 18<Company18>	mclasen: about cleaning up the apps that use GTK4?
+T 1476108880 18<Company18>	s/have a policy/need or want a policy/
+T 1476108985 18<mclasen18>	no apps use gtk4 atm
+T 1476109052 18<mclasen18>	what would the policy be ? "make sure your app works with gtk4 before using it" ?
+T 1476109054 18<Company18>	that's a good excuse!
+T 1476109085 18<Company18>	sth like "make sure apps still compile when changing API"
+T 1476109087 18<mclasen18>	we should proably write something on the gtk blog once the initial cleanups have landed
+T 1476109138 18<Company18>	for example, I removed the state argument from gtk_style_context_get_foo()
+T 1476109157 18<Company18>	which will probably break every app, but be rather simple to fix
+T 1476109177 18<mclasen18>	we probably need to start keeping some docs / notes somewhere, for a porting guilde
+T 1476109218 18<mclasen18>	do we want to just keep going the same way, and add it as a chapter to the api docs ?
+T 1476109231 18<mclasen18>	the advantage of that is that its easy to link to api docs
+T 1476109244 18<mclasen18>	the disadavantage is that it gets bigger and bigger
+T 1476109263 18<Company18>	we had the GTK2=>3 porting guide
+T 1476109268 18<Company18>	no idea if people read it
+T 1476109293 18<Company18>	oh wow
+T 1476109297 18*	Company discovers https://git.gnome.org/browse/gtk+/tree/gtk/gtkmenu.c#n1340
+T 1476109325 18<Company18>	writing GTK code in the 90s - back when compilers didn't help
+T 1476109443 18<Company18>	mclasen: I also did https://git.gnome.org/browse/gtk+/commit/?h=wip/otte/gtk4&id=d2f6bf1ae36ffcff9a9ce593eff6b7940f7f8496
+T 1476109467 18<Company18>	mclasen: It turned out lots of code still used border-width
+T 1476109520 18<Company18>	and i learned people used border width of 5, 6, 8, 10 and 12 interchangeably
+T 1476109593 18<Company18>	mclasen: so I'm not sure we really want to remove border-width
+T 1476109602 18<owen18>	Company: that's the funky style I was talking about yesterday
+T 1476109615 18<mclasen18>	how to things look without border-width ?
+T 1476109616 18<owen18>	and why g_object_connect() exists
+T 1476109643 18<Company18>	mclasen: most of those are tests that probably look shitty either way
+T 1476109660 18<Company18>	mclasen: but widget-factory's window for example lost its padding
+T 1476109670 18<mclasen18>	that should be fixable
+T 1476109688 18<mclasen18>	but its an indicator of what to expect in the wild
+T 1476109695 18<Company18>	mclasen: and shortcuts windows definitely need lapo to make them look neat again
+T 1476109729 18<Company18>	mclasen: essentially, border-width was used like a cheap way to add spacing - which should be done by the theme but isn't today
+T 1476109736 18<baedert18>	but now you need tons of different style classes for different window(s|types)?
+T 1476109753 18<Company18>	mclasen: like, there's no way to say "add some spacing to the toplevel"
+T 1476109859 18<Company18>	we clearly could have a gtk_window_set_spacy(TRUE); API
+T 1476109872 18<Company18>	or tell people to add a "spacious" style class
+T 1476109932 18<Company18>	fwiw, GtkWidget::margin is used for the same purpose
+T 1476109957 18*	Company wonders if lapo has an opinion
+T 1476110528 18<lapo18>	about?
+T 1476110530 18*	lapo reads
+T 1476110565 18<lapo18>	Company: it's pretty common to see border-width widget prop (ab)used as a spacer
+T 1476110591 18<lapo18>	Company: so all the spacing done in css or not you mean?
+T 1476110623 18<lapo18>	Company: atm it's a bit of a frankenstein thing while something is done with widget properties and something with css
+T 1476110666 18<Company18>	lapo: i was wondering mostly how you'd imagine spacing to work in an ideal world
+T 1476110716 18<lapo18>	Company: in an ideal world it should be like html I think, content separated from layout
+T 1476110734 18<lapo18>	Company: not sure how this model applies to css
+T 1476110742 18<lapo18>	ehm gtk+ not css
+T 1476110779 18<Company18>	lapo: so who decides if a window needs spacing for the content and how much?
+T 1476110800 18<mclasen18>	it is not that clear-cut. if you use spacing to separate sections, is that content or layout ?
+T 1476110832 18<lapo18>	mclasen: that's the problem
+T 1476110872 18<lapo18>	mclasen: on the web everything is content, "ui" included
+T 1476110878 18<mclasen18>	you can always solve it via an indireciton
+T 1476110884 18<lapo18>	content as content on html
+T 1476110887 18<Company18>	rofl
+T 1476110892 18<lapo18>	s/on/as in/
+T 1476110899 18*	Company just started testgtk after removing border-width
+T 1476110935 18<lapo18>	apart from the theory atm dealing with all the spacing with margins would be kind of painfull
+T 1476110950 18<lapo18>	s/kind of/pretty much/
+T 1476110961 18<Company18>	lapo: if i get my way, widget margins should die anyway
+T 1476110967 18<lapo18>	also we don't really have a dom
+T 1476110984 18<lapo18>	Company: speaking about css margins, yep overlapping props should die
+T 1476111010 18<lapo18>	doing a parallel with html, gtk+ atm works mostly like tables
+T 1476111032 18<lapo18>	a window is a big table, with other tables nested
+T 1476111119 18<Company18>	yeah, that's because GTK's layout is different from web layout
+T 1476111129 18<lapo18>	it's a table layout
+T 1476111133 18<lapo18>	which is ok
+T 1476111146 18<Company18>	you can't really flow content the way you do on the web if you're not forced into a viewport
+T 1476111271 18<lapo18>	Company: it could be made like a table for the css
+T 1476111295 18<lapo18>	Company: so you'll have things like border-collapse (YAY!) and border-spacing
+T 1476111304 18<Company18>	lapo: it's a bit tricky because it's not a table but often a table of tables
+T 1476111307 18*	lapo looks for tables specific props
+T 1476111315 18<Company18>	lapo: but I definitely want to add border-spacing
+T 1476111318 18<lapo18>	Company: yep nested tables
+T 1476111323 18<Company18>	border-collapse might be harder
+T 1476111371 18<lapo18>	Company: well if you think in terms of tables you won't have frames but cell borders
+T 1476111499 18<lapo18>	border spacing would be the distance between border cells, which is kind of like spacing in a gtkbox
+T 1476111640 18<lapo18>	https://www.w3.org/TR/CSS22/tables.html
+T 1476111644 18<lapo18>	Company: ^ sigh
+T 1476111653 18<lapo18>	Company: that's quite a bit of madness there
+T 1476111659 18<lapo18>	there's^
+T 1476111832 18<lapo18>	Company: border-spacing is a property of the childs of the table, I thought it was a table itself prop
+T 1476111839 18<lapo18>	better for gtk+ model
+T 1476111884 18<Company18>	lapo: yeah, tables have lots of crack
+T 1476111897 18<Company18>	lapo: unfortunately, so has flexbox
+T 1476111906 18<Company18>	lapo: so I never know what to try to follow...
+T 1476111985 18<lapo18>	not to mention css3 table layout
+T 1476112027 18<lapo18>	Company: uhm, probably better to go after tables, to my ignorant eyes that describes the gtk+ model pretty accuratelly
+T 1476112065 18<Company18>	the first neat issue is that GtkBox is 1-dimensional
+T 1476112082 18<Company18>	but you can set_orientation() it to flip the dimension
+T 1476112097 18<lapo18>	kind of like a flexbox
+T 1476112100 18<lapo18>	uhmph
+T 1476112102 18<Company18>	plus, tables have <tr> and <td>
+T 1476112107 18<Company18>	and GtkGrid doesn't
+T 1476112139 18<Company18>	but then, vertical borders are collapse between <td> elements across <tr>s
+T 1476112152 18<Company18>	it's crack all the way down
+T 1476112173 18<lapo18>	it's not totally crack, but it's a nice example of additional design :-)
+T 1476112195 18<Company18>	I guess I'll just wait until somebody files a bug to treat GtkWindow titles like <th> instead of <tr>
+T 1476112201 18<Company18>	before suiciding
+T 1476112204 18<lapo18>	it's a bit overengineered
+T 1476112245 18<lapo18>	a tiny bit
+T 1476112324 18<Company18>	<table><tr><td>Absolutely</td></tr></table>
+T 1476112334 18<lapo18>	ok, a gtkbox works pretty much exactly like a flexbox, no?
+T 1476112351 18<Company18>	until you start with the crack
+T 1476112374 18<Company18>	and flexboxes can flow, kinda like GtkFlowBox
+T 1476112401 18<lapo18>	yep
+T 1476112420 18<lapo18>	justify-content prop would be neat
+T 1476112493 18<Company18>	justify-content: blame-app-developer;
+T 1476112534 18<Company18>	lapo: we do that same thing with align and expand flags
+T 1476112555 18<lapo18>	indeed
+T 1476112567 18<lapo18>	as widgets props not in css tho
+T 1476112575 18<Company18>	yeah
+T 1476112583 18<Company18>	i think it makes sense as widget props though
+T 1476112589 18<Company18>	because it's layout and not style
+T 1476112598 18<lapo18>	layout is style
+T 1476112607 18<lapo18>	at least on the web
+T 1476112616 18<Company18>	yeah
+T 1476112622 18<Company18>	but not in GTK
+T 1476112638 18<lapo18>	where do you draw a line?
+T 1476112645 18<lapo18>	spacing is layout as well
+T 1476112649 18<lapo18>	AND style
+T 1476112652 18<Company18>	i try not to be too strict about it
+T 1476112677 18<Company18>	but it's my differentiation between "what the app developer should do" and "what's better left to lapo"
+T 1476112687 18<Company18>	app developers do layout, you're all about style
+T 1476112719 18<lapo18>	it's more about what the app developer should do with css
+T 1476112727 18*	Company just for fun opened https://www.google.de/search?q=lapo+style&tbm=isch now
+T 1476112742 18<Company18>	lapo: the app developer IMNSHO should ideally never touch css ever
+T 1476112757 18<lapo18>	I guess you'll end up with elkan
+T 1476112762 18<lapo18>	pretty sure about it
+T 1476112766 18<lapo18>	indeed
+T 1476112773 18<mclasen18>	whats elkan ?
+T 1476112794 18<lapo18>	mclasen: lapo elkann
+T 1476112798 18<Company18>	mclasen: http://www.theconfuseddasher.com/wp-content/uploads/2014/11/Lapo-Elkann-Fashion-Icon.jpg
+T 1476112834 18<lapo18>	mclasen: you know agnellis, owner of fiat-crysler, ferrari, juventus and some other stuff
+T 1476112844 18<Company18>	mclasen: he's also a fedora fan apparently: http://irenebrination.typepad.com/.a/6a00e55290e7c48833017c350bc64a970b-320wi
+T 1476112879 18<Company18>	jasper needs that hat
+T 1476112910 18<lapo18>	a member of that family which ended up on the newspapers over here, since got paparazzed wasted on coke with three transsexual whores
+T 1476112921 18<lapo18>	or something like that
+T 1476112927 18<mclasen18>	oh, I missed the query
+T 1476112976 18<lapo18>	he drives a camouflage painter ferrari, which is blasphemous at least
+T 1476112984 18<lapo18>	painted
+T 1476113024 18<bugbot18>	otaylor@redhat.com changed the Status on bug 747540 from RESOLVED OBSOLETE to REOPENED ---.
+T 1476113024 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=747540 gio, normal, gtkdev, REOPENED , g_unix_mounts_get() ignores btrfs subvolumes
+T 1476123473 18<bugbot18>	mclasen@redhat.com changed the Status on bug 772415 from NEW --- to RESOLVED FIXED.
+T 1476123473 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772415 Backend: Wayland, normal, gtk-bugs, RESOLVED FIXED, Avoid calling eglGetDisplay
+T 1476123494 18<phako18>	ehm. anyone seen Negative repeat count does nothing at /usr/bin/gtkdoc-mkdb line 3812, <INPUT> line 88. ?
+T 1476126141 18<Company18>	huh?
+T 1476126151 18<Company18>	so GDK_WINDOW_SUBSURFACE windows are toplevels?
+T 1476126304 18<Company18>	no, they are not
+T 1476126311 18<Company18>	but somehow GDK pretends they are
+T 1476126330 18<Company18>	we apparently also make transient toplevels subsurfaces
+T 1476126335 18<Company18>	what's up with that?
+T 1476126366 18<Company18>	git blame says ofourdan and jadahl know about that
+T 1476126414 18<Company18>	this code looks very brittle
+T 1476126513 18<Company18>	if (impl->transient_for && !impl->transient_for->impl->mapped) { g_warning ("I'll create a different window now. Whatever"); do_something_else(); }
+T 1476126570 18*	Company goes elsewhere to not have to rant about the duct tape backend
+T 1476126572 18<Company18>	again
+T 1476126873 18<bugbot18>	mclasen@redhat.com changed the Status on bug 772348 from NEW --- to RESOLVED FIXED.
+T 1476126874 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772348 Widget: GtkFileChooser, normal, gtk-bugs, RESOLVED FIXED, placesviewrow: busy_spinner when visible offsets the rest of the widgets on the row
+T 1476127332 18<aleb18>	I call tree_view.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, [EFFECT_TARGET_ENTRY], Gdk.DragAction.COPY). The problem is that when I drag elements out of the treeview, the elements disappear. This should not happen because I specify only DragAction.COPY. Why is this happening? Should I file a bug?
+T 1476132516 18<bugbot18>	christian@hergert.me changed the Component on bug 772695 from general to .General.
+T 1476132517 18<bugbot18>	christian@hergert.me changed the Product on bug 772695 from gnome-builder to gtk+.
+T 1476132517 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772695 .General, normal, gtk-bugs, NEW , Show the keyboard shortcuts from left to right even in RTL
+T 1476133037 18<heftig18>	GLib:ERROR:timer.c:38:test_timer_basic: assertion failed (micros == ((guint64)(elapsed * 1e6)) % 1000000): (1 == 0)
+T 1476133046 18<heftig18>	what is this? rounding error?
+T 1476134974 18<aleb18>	http://lazka.github.io/pgi-docs/#Gtk-3.0/functions.html#Gtk.drag_finish "del"?!
+T 1476135032 18<gregier18>	aleb: must be a problem with the docs, however the prototype is correct (del_)
+T 1476135072 18<gregier18>	pygobject keeps a list of keywords and adds an '_' if required 
+T 1476135111 18<aleb18>	no, see above why I'm surprised
+T 1476135130 18<aleb18>	I have the feeling I specify "COPY" everywhere and then at the end a boolean flag overrides that and makes the operation MOVE instead of COPY.
+T 1476137676 18<bugbot18>	christian@hergert.me changed the Status on bug 772695 from NEEDINFO --- to RESOLVED FIXED.
+T 1476137676 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=772695 .General, normal, christian, RESOLVED FIXED, Show the keyboard shortcuts from left to right even in RTL
+T 1476138381 18<Company18>	ebassi: what do we do with https://git.gnome.org/browse/gtk+/tree/gdk/gdkwindow.c#n4280 going forward?
+T 1476138398 18<Company18>	ebassi: does it even work with GSK/GGL?
+T 1476146563 18<robert_18>	so is there a way I can tell one GdkEvent from another?
+T 1476146590 18<robert_18>	like if I have two or three events being handled by the same event handler
+T 1476151143 18<Company18>	robert_: what kind of event are we talking here?
+T 1476161088 18<xor18>	Hello. Does anyone know if there is a shortcut for expanding a node in a treeview? I'm looking at the gedit file browser sidebar, and I'd like to work on it with just the keyboard, but I can seem to expand folders without using the mouse.
+T 1476161121 18<xor18>	... but I *can't* seem to expand folders...
+T 1476162278 18<xor18>	The_gull> xor: <shift>right for expand all (and <shift>left to collapse all)
+T 1476162598 18<The_gull18>	“and looks like + and - should expand/collapse, but usually trigger other things (like a zoom) ; I remember notably that these chars are handled by default by the searchbar, if there’s one”
+T 1476175113 20*	Disconnected (20Connection reset by peer)
+T 1476175127 19*	Now talking on 22#gtk+
+T 1476175127 22*	Topic for 22#gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto 2017 GTK+ Hackfest
+T 1476175127 22*	Topic for 22#gtk+ set by 26Company (24Fri Aug 19 18:16:57 2016)
+T 1476180141 18<tomtryf18>	Hello, there's a bug in the Greek translation of evolution that a string breaks the window width of the application. https://bugzilla.gnome.org/show_bug.cgi?id=577530
+T 1476180173 18<tomtryf18>	Can i find the specific string(s) using the Gtk inspector?
+T 1476183517 18<swilmet18>	no This Week in GTK+ ?
+T 1476183618 18<swilmet18>	last one was 3 weeks ago
+T 1476183705 18<mclasen18>	I guess we should set up a schedule and do it round robin
+T 1476183718 18<timj18>	ebassi: why does extract_objects help with your unit tests? you can simply link the unit tests against the library you're developing...
+T 1476183865 18<ebassi18>	timj: I'm testing an internal API
+T 1476183877 18<ebassi18>	timj: The symbols I'm using are not exported in the shared library
+T 1476183928 18<ebassi18>	timj: I'd have to create a separate, static, non-installed library, and then link the tests against it
+T 1476183943 18<ebassi18>	swilmet: Not much happened until last week
+T 1476184292 18<ebassi18>	(and I was kind of busy yesterday, so I forgot even if I wanted to write it)
+T 1476185333 18<swilmet18>	ok
+T 1476185347 18<swilmet18>	another thing, at https://blog.gtk.org/2016/09/01/versioning-and-long-term-stability-promise-in-gtk/
+T 1476185358 18<swilmet18>	"More details about these plans, including specifics for library developers and distribution packagers, will follow in subsequent blog posts."
+T 1476185442 18<swilmet18>	I suppose the subsequent blog posts are in the pipeline
+T 1476185507 18<ebassi18>	The will be, if they are needed, or if somebody writes them
+T 1476185617 18<swilmet18>	ok, it's still a bit too early
+T 1476187894 18<mclasen18>	I was planning on writing something when Company lands his big cleanup branch
+T 1476188985 18<mclasen18>	ebassi: how is your layout work coming along ?
+T 1476190906 18<ebassi18>	mclasen_afk: Pretty nicely; I'm adding a custom GtkBuildable parser, and writing the visual layout language one
+T 1476190919 18<ebassi18>	mclasen: Resizing is still a bit meh
+T 1476190951 18*	ebassi needs to figure out better priorities for all the basic constraints
+T 1476190981 18<mclasen18>	is there a branch to play with, somewhere ?
+T 1476191073 18<ebassi18>	mclasen: Oh, it's not integrated in GTK because we kind of needed it in our apps
+T 1476191091 18<ebassi18>	mclasen: But it's pretty much a pass of sed
+T 1476191100 18<ebassi18>	https://github.com/ebassi/emeus
+T 1476191126 18<baedert18>	Company: How do we handle e.g. the style properties in GtkScrollbar?
+T 1476191170 18<ebassi18>	For integration inside GTK, it would be interesting to get it into GtkWidget itself, and replace GtkSizeGroup, for instance, instead of being a separate layout manager
+T 1476191189 18<mclasen18>	ebassi: no problem, playing with it outside is a bit nicer anyway
+T 1476191191 18<ebassi18>	But I honestly don't know whether or not it's a good idea
+T 1476191289 18<mclasen18>	did we ever discuss separating out layout managers, clutter-style ?
+T 1476191367 18<ebassi18>	mclasen: Not seriously, no; though I still think it'd be a good thing to do, to avoid having to implement GtkContainer just to lay out children
+T 1476191484 18<ebassi18>	Apropos of things to put on the 4.0 pile: I'd like to propose we start using C99
+T 1476191516 18<ebassi18>	API break is a good time as any
+T 1476191961 18<mclasen18>	that still requires us to bet on msvc adopting clang ?
+T 1476192137 18<ebassi18>	MSVC kind of supports C99. Ish.
+T 1476192171 18<alex18>	What would it give us exactly?
+T 1476192173 18<alex18>	 // comments
+T 1476192173 18<ebassi18>	Not all of it, because of course, who would support a 17 years old ISO standard.
+T 1476192199 18<ebassi18>	declarations interleaved with statements, mostly
+T 1476192208 18<ebassi18>	Fewer undefined behaviours
+T 1476192211 18<alex18>	designated initializers
+T 1476192227 18<ebassi18>	Initializers, yes. Except MSVC doesn't support all of those
+T 1476192265 18<ebassi18>	Would be nice if we could get rid of the glib types, but those will have to stay for backward compat
+T 1476192284 18<alex18>	http://stackoverflow.com/questions/24090739/possible-compiler-bug-in-msvc12-vs2013-with-designated-initializer
+T 1476192311 18<alex18>	Seems to be there, but there is at least one bug in vs2013 fixed in 2015
+T 1476192357 18<ebassi18>	compound literals are actually my favourites
+T 1476192383 18<mclasen18>	yeah, those are nice
+T 1476192408 18<alex18>	Seems pretty sane
+T 1476192413 18<alex18>	Lets go with that
+T 1476192434 18<mclasen18>	can we write down a definition of the C99 subset we allow somewhere ?
+T 1476192447 18<alex18>	Possibly with some limitations wrt MSVC, but i think we can require a pretty recent msvc
+T 1476192473 18<ebassi18>	We use a bunch of stuff from math.h that is kind of defined for C99
+T 1476192497 18<ebassi18>	We already need to fall back to reimplementations for older MSVC, would be nice to drop that code
+T 1476192525 18<alex18>	https://msdn.microsoft.com/en-us/library/hh409293(v=vs.120).aspx
+T 1476192533 18<alex18>	Supports these ISO C99 language features:
+T 1476192533 18<alex18>	    _Bool
+T 1476192533 18<alex18>	    Compound literals.
+T 1476192533 18<alex18>	    Designated initializers.
+T 1476192533 18<alex18>	    Mixing declarations with code.
+T 1476192543 18<alex18>	So, lets require msvc 2013?
+T 1476192586 18<alex18>	Things that are still missing:
+T 1476192586 18<alex18>	    Variable length arrays (optional in C11).
+T 1476192586 18<alex18>	    Support for the inline keyword (you can use __inline, but semantics might be slightly different).
+T 1476192586 18<alex18>	    Support for the restrict keyword (you might be able to use __restrict).
+T 1476192586 18<alex18>	    Type-generic math functions from tgmath.h.
+T 1476192588 18<alex18>	    _Complex type (optional in C11).
+T 1476192598 18<alex18>	so, lets not use those
+T 1476192727 18<ebassi18>	We could use `bool` internally, but not in public API because `bool` has a different size than `gboolean`
+T 1476192742 18<ebassi18>	We don't use VLAs; we already have inline/__inline
+T 1476192747 18<ebassi18>	And we don't use _Complex
+T 1476192780 18<ebassi18>	So I guess the subset is: mixed declarations; designated initializers; compound literals; single-line comments
+T 1476192816 18<mclasen18>	yeah, thats a good list
+T 1476192837 18<mclasen18>	desrt: how do you feel about doing the same in glib ?
+T 1476192906 18<ebassi18>	doing things like `typedef gint64 int64_t;` unconditionally would also be nice…
+T 1476192917 18<desrt18>	compound literals are cool
+T 1476192926 18<desrt18>	almost everything else is not that useful
+T 1476192945 18<desrt18>	for example, i think using a weird mix of gboolean/bool would only be confusing and lead to problems
+T 1476192982 18<mclasen18>	thats true
+T 1476192983 18<desrt18>	designated initialisers are also quite useful for readability, of course
+T 1476192990 18<desrt18>	so i wouldn't mind starting to use those
+T 1476193016 18<desrt18>	typedef bool gboolean; is on my 3.0 list
+T 1476193018 18<tpm18>	ebassi, I think it'd be alright to just require MSVC 2015
+T 1476193044 18<desrt18>	GVariant boolean is ABI compatible with 'bool', not gboolean, and it would be cool to resolve that   (i planned for the future on that one... future is a bit slow coming, though)
+T 1476193255 18<alex18>	descender: designated initializers are kinda nice
+T 1476193261 18<alex18>	eh, desrt
+T 1476193263 18<desrt18>	poor descender :)
+T 1476193287 18<alex18>	for (int i = 0; ...
+T 1476193289 18<alex18>	also kinda nice
+T 1476193295 18<desrt18>	also kinda crack :)
+T 1476193303 18<alex18>	single like comments, sorta nice
+T 1476193319 18<desrt18>	woh.  single line comments?!?  take it easy now...
+T 1476193325 18<alex18>	crazy eh!
+T 1476193349 18<pwithnall18>	!!!
+T 1476193350 18<desrt18>	single-line comments is one of those C++ feature that nobody really understands and leads to spaghetti code!
+T 1476193369 18<alex18>	 some code(); // blah
+T 1476193372 18<alex18>	is kind nice
+T 1476193378 18<alex18>	/ for blocks, not so
+T 1476193379 18<alex18>	 // for blocks, not so
+T 1476193397 18<desrt18>	i don't like it
+T 1476193405 18<alex18>	Its the most useful for commenting out lines
+T 1476193418 18<alex18>	but thats not generally a problem, because they don't end up in the final resulöt
+T 1476193418 18<desrt18>	i use single-line comments when i'm hacking on stuff to make "// TODO: clean this up" sort of comments
+T 1476193429 18<desrt18>	that way it's easy to find all of those cases before pushing :)
+T 1476193430 18<baedert18>	Who doesn't have a shortcut for (un)comment lines or blocks anyway?
+T 1476193446 18<alex18>	shorter than // ?
+T 1476193473 18<baedert18>	using // on a 200 line block of code is pretty long
+T 1476193489 18<alex18>	yeah, for those its different
+T 1476193492 18<baedert18>	I can use cc here to comment a line or a block
+T 1476193500 18<csorianoi18>	baedert: #if 0....#endif
+T 1476193503 18<desrt18>	we're not saying to get rid of /* */ entirely
+T 1476193512 18<csorianoi18>	best way to "comment" lines
+T 1476193527 18<desrt18>	in fact, i imagine that /* */ would still be the preference
+T 1476193534 18<desrt18>	but for quick one-offs like alex just mentioned...
+T 1476193536 18<baedert18>	Why is there no tests/testlabel?
+T 1476193543 18<desrt18>	basically, any comment where /* and */ would have been on the same line
+T 1476193594 18<baedert18>	Or, in other words, can I just assume that https://paste.xinu.at/s7Iw/ will work? :)
+T 1476193612 18<alex18>	of course, what we actually want from the compiler is constructors, and g_auto*
+T 1476193617 18<alex18>	:/
+T 1476193634 18<desrt18>	but single-line comments!!
+T 1476193639 18<ebassi18>	baedert: No, it wouldn't
+T 1476193654 18<alex18>	baedert: tests/testgtk has all sorts of test
+T 1476193668 18<alex18>	of course, its complete shit, so you have to "know" what its supposed to do
+T 1476193671 18<ebassi18>	baedert: GdkRGBA uses [0,1] values; Pango still expects [0,255] values
+T 1476193713 18<ebassi18>	baedert: So you cannot just replace GdkColor with GdkRGBA
+T 1476193998 18<mclasen18>	also, pango supports alpha now, so if you switch to rgba, you may want to add that
+T 1476194360 18<Company18>	ebassi: what do we do with https://git.gnome.org/browse/gtk+/tree/gdk/gdkwindow.c#n4280 going forward?
+T 1476194362 18<Company18>	ebassi: does it even work with GSK/GL?
+T 1476194422 18<Company18>	I was thinking about just nuking it, but I suppose we want to keep redraw hilighting as a debug feature
+T 1476194517 18<Company18>	baedert: min-slider-length is min-width, fixed-slider-length shouldn't be a style property - that keeps the visibility toggles for the stepper buttons
+T 1476194543 18<ebassi18>	Company: No, it doesn't; and yes, I'd nuke it
+T 1476194571 18<ebassi18>	Company: But it's probably something that needs to be done inside GSK or GTK, since GdkWindow doesn't really handle drawing any more
+T 1476194592 18<Company18>	baedert: we can either add display: none; support or just hardcode things
+T 1476194647 18<Company18>	ebassi: so I'll nuke it for now, but I don't have a nice place to put it
+T 1476194685 18<Company18>	ebassi: so I'm open for ideas
+T 1476194861 18<ebassi18>	Company: That code just draws over every window that received an invalidation, right?
+T 1476194901 18<ebassi18>	It would be possible to add a bunch of render nodes to GtkWindow that just rendered a rectangle for each gtk_widget_queue_draw() call
+T 1476194917 18<ebassi18>	Though it may need some more internal API to intercept it
+T 1476194927 18<Company18>	ebassi: yeah, that's my best idea so far
+T 1476194958 18<Company18>	ebassi: save { timestamp, invalid_region } tuples and fade them out over a few seconds
+T 1476194985 18<ebassi18>	Heat maps! :-)
+T 1476194991 18<ebassi18>	But, yes: seems like a good plan
+T 1476195017 18<Company18>	now we just need a good place to store the setting
+T 1476195032 18<Company18>	because if it's in GTK, we can't store it on the GdkDisplay...
+T 1476195125 18<Company18>	and we can't store it on the GtkWindow, because we want to toggle it on for future windows, too
+T 1476195262 18<baedert18>	Company: yeah, same for the stepper properties in gtknotebook
+T 1476195420 18<Company18>	baedert: do we have more examples where a display: none; might be useful?
+T 1476195625 18<baedert18>	Company: Don't think so
+T 1476195718 18<Company18>	baedert: the hackish version would be to make the arrows request a size of min-width x min-height
+T 1476195732 18<Company18>	baedert: and then that would be 0x0 and everything would just work
+T 1476196032 18<baedert18>	Company: isn't that the size request for them anyway?
+T 1476196119 18<Company18>	baedert: I thought someone hardcoded 16x16 or so
+T 1476196213 18<mclasen18>	Company: keep the inspector in mind - those debug features need ideally to be tied to a display so they don't affect the inspector
+T 1476196234 18<Company18>	mclasen: yeah, that's why I'm wondering where to put them
+T 1476196244 18<baedert18>	heh GtkBuiultinIcon checks for min-size > 0.0
+T 1476196247 18<Company18>	mclasen: I want per-display features inside GTK (not GDK)
+T 1476196309 18<baedert18>	I guess so they aren't invisible if themes don't set a min size?
+T 1476196346 18<baedert18>	Oh I didn't delete default_size_property from there
+T 1476196355 18<Company18>	baedert: that check is because of backwards compat
+T 1476196371 18<Company18>	min-width overrides style property overrides default value
+T 1476196390 18<alex18>	Company: that ugly flash thing doesn't work on wayland anyway i think
+T 1476196401 18<alex18>	it just overdraws and then sync waits
+T 1476196405 18<Company18>	baedert: and because I can't check for "is it set", I just check for 0
+T 1476196405 18<alex18>	that can't ever wokr
+T 1476196406 18<alex18>	work
+T 1476196418 18<alex18>	needs to be a proper part of the redraw machinery
+T 1476196424 18<Company18>	yeah
+T 1476196425 18<mclasen18>	yeah, doesn't work on wayland
+T 1476196431 18<mclasen18>	so nuke it
+T 1476196449 18<alex18>	of course, the point of the thing is to show how each lowlevel frame is drawn
+T 1476196466 18<mclasen18>	I did put some other debug draw stuff directly into the gadget drawing code
+T 1476196468 18<alex18>	so, queueing a new frame for the flashing make things... interesting...
+T 1476196479 18<Company18>	alex: that reminds me: I intend to remove the ability to call gdk_window_invalidate() on client-side windows
+T 1476196491 18<alex18>	anyway, with gsk based drawing we'll not do that kind of partial updates anyway
+T 1476196499 18<Company18>	alex: and make sure queue_draw() calls travel inside the widget hierarchy
+T 1476196519 18<alex18>	Company: i posted something about this in the gsk threads
+T 1476196557 18<alex18>	https://mail.gnome.org/archives/gtk-devel-list/2016-July/msg00002.html & co
+T 1476196606 18<alex18>	I think this may have changed a bit with how ebassi wants to do caching
+T 1476196625 18<alex18>	but yeah, we definately want to rethink invalidation
+T 1476196703 18<Company18>	i'm just realizing that invalidation still does clipping
+T 1476196727 18<Company18>	to GdkWindow
+T 1476196771 18<alex18>	Its nice that invalidating an scrolled-away widget does nothing
+T 1476196789 18<alex18>	but that is assuming a trivial mapping of widgets to the final rendering
+T 1476196790 18<Company18>	yes, that is definitely an important feature to keep
+T 1476196833 18<alex18>	Things may be more complex in a gsk world
+T 1476196841 18<Company18>	i think for now I want GtkContainerClass.queue_draw_on_child(widget, child); vfunc
+T 1476196867 18<Company18>	and call that from queue_draw()
+T 1476196952 18<oholy18>	msanchez: hey, can you please take a look at Bug 747540 ?
+T 1476196964 18*	msanchez looks
+T 1476196966 18<Company18>	and then make sure GtkWindow overrides queue_draw() to actually invalidate on the GDK window
+T 1476196993 18<Company18>	and override queue_draw_on_child() on widgets that need clipping
+T 1476197005 18<alex18>	Company: Make sure to check it with ebassi
+T 1476197210 18<Company18>	there goes my X server
+T 1476197290 18<Company18>	can anybody else nuke their X server by running tests/print-editor and going File => Preview ?
+T 1476197303 18<Company18>	or is that just me?
+T 1476197422 18<Company18>	*boom*
+T 1476197425 18<Company18>	works very reliable
+T 1476197792 18<ofourdan18>	mclasen: only one attachment from bug 772415 has been pushed and the bug is closed, did we forget to push attachment 337345 or is it intentional?
+T 1476197843 18<ofourdan18>	I dunno if ajax has the right to push to gtk+ git
+T 1476198446 18<mclasen18>	ofourdan: I pushed a build fix on top of the first patch. I believe it is all taken care of
+T 1476198487 18<ofourdan18>	ah all right then
+T 1476198572 18<msanchez18>	oholy: replied
+T 1476198586 18<oholy18>	msanchez: thanks
+T 1476198630 18<msanchez18>	sorry I did not see the email yet  
+T 1476198783 18<mclasen18>	Company: didn't crash here
+T 1476198840 18<Company18>	mclasen: Wayland or X?
+T 1476198956 18<mclasen18>	tried both with wayland and X (xwayland)
+T 1476199014 18<Company18>	then it's probably jsut creating a too-big window or so and metacity can't deal with it
+T 1476199053 18<ofourdan18>	unlikely, metacity craashing won;t bring the whole session on X
+T 1476199088 18<ofourdan18>	what does journalctl says about Xorg backtrace at the time of the problem?
+T 1476199268 18<mclasen18>	that was my guess, big texture / window
+T 1476199434 18<Company18>	metacity gdk_x_error()s
+T 1476199503 18<Company18>	due to request_code 129 (SHAPE) giving a BadMatch
+T 1476199584 18<ofourdan18>	on X, gnome-session will automatically respawn metacity i ncases it terminates unexpectedly, so that won;t make you lose your entire session, at worst you'll see the windows being redicorated when metacity restarts
+T 1476199626 18<ofourdan18>	but you shouldn;t lose your xsession - the only case where you'd lose your xsession is when Xorg itself crashes or if gnome-session dies
+T 1476199740 18*	ofourdan whishes we could say the same about gnome-shell on Wayland :)
+T 1476199798 18<Company18>	well, my setup is a bit screwed up
+T 1476199807 18<Company18>	so it might just be that X terminates when metacity dies
+T 1476199844 18<Company18>	when I login, I get an empty screen and need to start gnome-panel manually...
+T 1476199851 18<ofourdan18>	oh
+T 1476199891 18<Company18>	but yeah, gnome-session restarts metacity
+T 1476199896 18<Company18>	you're right
+T 1476199909 18<Company18>	metacity then decides to recreate decorations for the too large window and crashes again
+T 1476199916 18<Company18>	and then gnome-session restarts metacity
+T 1476199919 18<Company18>	metacity then decides to recreate decorations for the too large window and crashes again
+T 1476199924 18<ofourdan18>	lol
+T 1476199932 18<Company18>	that happens a few times and then gnome-session calls it quits
+T 1476199957 18<ofourdan18>	it should start twm as a fallback :p
+T 1476199960 18*	ofourdan hides!
+T 1476199966 18<ofourdan18>	j/k
+T 1476200003 18<Company18>	it should not crash asa fallback!
+T 1476200029 18<Company18>	ofourdan: while you're here, we need to talk about wayland and subsurfaces
+T 1476200077 18<Company18>	because (a) GDK creates subsurfaces for toplevel windows when they are set as transient for other windows and that feels wrong
+T 1476200087 18<ofourdan18>	nah
+T 1476200095 18<ofourdan18>	it doesn't - oly for popup
+T 1476200099 18<ofourdan18>	*only
+T 1476200133 18<ofourdan18>	if it does, then yeah, it feels wrong - but I don;t think it does, does it?
+T 1476200139 18<Company18>	and (b) GDK_WINDOW_SUBSURFACE windows are created as toplevels that then need to be marked as transient for something
+T 1476200178 18<Company18>	you're right
+T 1476200181 18<Company18>	only for popups
+T 1476200217 18<Company18>	why are popups mapped as subsurfaces?
+T 1476200221 18<ofourdan18>	iirc, a GTK_POPUP_WINDOW (ie equivalent of a o-r in X11) will be mapped as a subsurface *if* there is no active grab and if it's a transient - it doesn't make all regular toplevel windows transient as subsurface 
+T 1476200278 18<ofourdan18>	because there is no equivalent of override redirect windows in Wayland, the closest is subsurface, these can be placed relativeley to their ttoplevel (thus the need for a transient relationship)
+T 1476200320 18<Company18>	so it's used for menus, combobox dropdowns etc?
+T 1476200339 18<ofourdan18>	those which have an active grab will use an xdg_popup instead
+T 1476200368 18<ofourdan18>	but as nto all gtk popup windows use an actve grab, those who don't will translate as a subsurface
+T 1476200384 18<ofourdan18>	so that apps using gtk popup windows still work in wayland
+T 1476200411 18<Company18>	i feel that differentiation should be more explicit
+T 1476200431 18<Company18>	now that we break API...
+T 1476200433 18<ofourdan18>	there is no gtk equivalent to subsurface
+T 1476200438 18<ofourdan18>	but if we had ...
+T 1476200440 18<baedert18>	grabless popup windows are broken on wayland :(
+T 1476200465 18<ofourdan18>	baedert: not if they have a transient relationship
+T 1476200483 18<Company18>	ofourdan: we could create one
+T 1476200518 18<ofourdan18>	Company: yeah, we could, but I wouldn't want to model gtk4 after Wayland like we modeled the previous versions after X
+T 1476200528 18<Company18>	ofourdan: especially because I'm currently taking apart gdk_window_new() and adding specific constructors for all the subtypes
+T 1476200552 18<ofourdan18>	I mean, subsurfaces are Wayland specific, how much of that actually applies to other backends
+T 1476200552 18<baedert18>	ofourdan: mine has a transient parent set and I'm pretty sure so has the gsv one
+T 1476200568 18<ofourdan18>	baedert: I would need a simple rproducer :)
+T 1476200588 18<Company18>	ofourdan: and I consider Wayland the main guideline for desiging GDK's API
+T 1476200608 18<baedert18>	tests/test-completion in gtksourceview
+T 1476200621 18<baedert18>	But there's even a bug open against gtk+ now iirc
+T 1476200639 18<Company18>	ofourdan: with X, win32, quartz and Mir being the backends that must be able to also implement whatever feature we come up with
+T 1476200640 18<ofourdan18>	baedert: that's aregression then, because I fixed it circa 3.20 iirc
+T 1476200672 18<Company18>	ofourdan: subsurfaces for example should be easy in X if you just make them regular override_redirect toplevels and move them in sync with their parent
+T 1476200684 18<garnacho18>	ofourdan: zxdg-shell v6 maybe?
+T 1476200700 18<ofourdan18>	garnacho, possibly, I dunno
+T 1476200767 18<Company18>	ofourdan: one of the differences between GDK1 and GDK4 for me is that early GDK tried to be just a wrapper - ie you were able to just use X calls and GDK would deal with those fine
+T 1476200803 18<Company18>	ofourdan: while current GDK assumes control and if you fiddle directly with the backend, you're responsible for it - GDK will make very little effort to sync up
+T 1476200829 18<Company18>	(both Mozilla and Eclipse used to be heavy users of that early behavior)
+T 1476200847 18<ofourdan18>	yeah, and that bites hard :)
+T 1476200863 18<Company18>	right
+T 1476200901 18<Company18>	but if we assume full control over X, we can create override_redirect toplevels for subsurfaces or things like that
+T 1476200936 18<Company18>	(might still be hard because of X window stacking rules, but it's possible at least)
+T 1476200989 18<ofourdan18>	yes, I understand and mostly agree, my only concern is to design gdk4 after a specific backend (being Wayland in this case) while previous version was designed after X, a different backend, but still designed after one specific implementation
+T 1476201041 18<ofourdan18>	if that's the way forward, then yes, subsurfaces should be somehting in gdk more than Wayland backend alone
+T 1476201074 18<ofourdan18>	and yes, it;s probably easier to simulate subsurfaces in X than o-r in Wayland
+T 1476201359 18<Company18>	ofourdan: i wouldn't use the term "designed after" but "design guided by"
+T 1476201383 18<Company18>	ofourdan: we don't need to have every Wayland feature in GDK, but every GDK feature should be implementable in Wayland without hacks
+T 1476201402 18<ofourdan18>	yes, completely agree
+T 1476201446 18<Company18>	clearly, our feature decisions should be made by what GTK needs
+T 1476201451 18<Company18>	not by what Wayland offers
+T 1476201475 18<Company18>	ie we won't add a subsurface window type to GDK if no GTK widget wants it
+T 1476201552 18<baedert18>	ofourdan: https://bugzilla.gnome.org/show_bug.cgi?id=771694
+T 1476201568 18<baedert18>	GtkEntryCompletion works because it explicitly requests a subsurface fwiw
+T 1476201580 18<baedert18>	Or at least that what I think is the reason
+T 1476201836 18<ofourdan18>	baedert: I don't see any completion window with testentrycompletion
+T 1476201845 18<ofourdan18>	so  it's broken as well
+T 1476201883 18<Company18>	I think we should really fix our window types
+T 1476201898 18<Company18>	the exisiting ones don't make sense in a Wayland world
+T 1476201915 18<Company18>	and they don't represent GTK's requirements well anyway
+T 1476201981 18<Company18>	I don't even know what the difference between a TEMP and a TOPLEVEL is
+T 1476201998 18<Company18>	let alone if you mix that with the override_redirect flag
+T 1476202161 18<Company18>	oh also
+T 1476202170 18<Company18>	what do we do with offscreen windows?
+T 1476202186 18<Company18>	does anything real (outside of clutter-gtk) use that?
+T 1476205475 18<heftig18>	eDP1 is suddenly named eDP-1. the heck happened? 
+T 1476205495 18<heftig18>	(the latter actually matches the kms name)
+T 1476205576 18<heftig18>	ooh, right.
+T 1476205583 18<heftig18>	intel driver vs modesetting driver
+T 1476220402 19*	Now talking on 22#gtk+
+T 1476220402 22*	Topic for 22#gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto 2017 GTK+ Hackfest
+T 1476220402 22*	Topic for 22#gtk+ set by 26Company (24Fri Aug 19 18:16:57 2016)
+T 1476222169 18<hergertme18>	desrt, is this crack? https://bugzilla.gnome.org/show_bug.cgi?id=772775
+T 1476281793 20*	Disconnected (20Connection timed out)
+T 1476281807 19*	Now talking on 22#gtk+
+T 1476281807 22*	Topic for 22#gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto 2017 GTK+ Hackfest
+T 1476281807 22*	Topic for 22#gtk+ set by 26Company (24Fri Aug 19 18:16:57 2016)
+T 1476281846 18<owen18>	meh: It might be possible to improve the fallback heuristics, or it might not. I dont' think they've been worked on since the very first versions of Pango ~15 years ago - which had to deal with bdf fonts because that's all there was
+T 1476281871 18<owen18>	(not in the world, but for X)
+T 1476282199 18<meh18>	owen, yeah, can confirm it's broken with any BDF font, bummer
+T 1476282303 18<meh18>	owen, wouldn't it just need to draw it above the same glyph tho? I don't get why it's going all the way above
+T 1476282328 18<owen18>	meh: probably because it thinks that the combining mark is that tall?
+T 1476282371 18<owen18>	meh: can you try the same string in chrome or firefox that use harfbuzz but not pango and see what you get?
+T 1476282379 18<meh18>	owen, it works on firefox
+T 1476282383 18<meh18>	kinda
+T 1476282386 18<owen18>	meh: odd
+T 1476282391 18<meh18>	it puts the combining character on the next glyph
+T 1476282400 18<owen18>	meh: that doesn't sound like working
+T 1476282405 18<meh18>	it works in rxvt-unicode, but I think that uses Xft
+T 1476282703 18<owen18>	meh: unfortunately, I really don't know what is expected to work or not these days and where the code lives. Feel free to look around, but really, bdf fonts are best left on the shelf with 5.25" inch floppy disks :-)
+T 1476282718 18<meh18>	owen, but I like my BDF fonts :(
+T 1476282722 18<meh18>	but yeah, I'm looking into it
+T 1476285418 20*	Disconnected (20Connection timed out)
+T 1476285432 19*	Now talking on 22#gtk+
+T 1476285432 22*	Topic for 22#gtk+ is: #gtk+ is proud to announce its selection as the official IRC channel of the Toronto 2017 GTK+ Hackfest
+T 1476285432 22*	Topic for 22#gtk+ set by 26Company (24Fri Aug 19 18:16:57 2016)
+T 1476288256 18<ricotz18>	Company, hi :), could you rebase your gtk4 on git master?

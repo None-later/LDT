@@ -5,5 +5,346 @@ Creation-Date: 2016-08-09T16:10:49-04:00
 ====== JNI ======
 Created Tuesday 09 August 2016
 
+====== Inbox ======
+
+===== Links =====
+See my github : jnisnippets 
+
+===== References: =====
+Function references:
+https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/functions.html#GetStringUTFChars
+
 Book on JNI bindings:
 https://web.archive.org/web/20120728074805/http://java.sun.com/docs/books/jni/
+Oracle:
+http://docs.oracle.com/javase/8/docs/technotes/guides/jni/index.html   
+
+
+Tutorials:
+https://www3.ntu.edu.sg/home/ehchua/programming/java/JavaNativeInterface.html#zz-8.
+
+====== Getting started ======
+
+===== Compiling manually from command line =====
+Chap 2:
+javac myClass.java
+javah -jni myClass    # generate header file to be used by your C file.
+
+#compiliation was tricky: (had to modify)
+gcc **-fPIC** -I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux HelloWorld.c -o libHelloWorld.so **-shared**
+
+LD_LIBRARY_PATH=.
+export LD_LIBRARY_PATH
+// can also use VMarg... "-Djava.library.path=."
+
+java HelloWorld
+
+====== Primitive types ======
+
+===== Overview of types =====
+jboolean - 8 bit. Careful about truncation. 
+jstrings - Native Java stringms. Don't mess with them in C land. Convert to C type (unicode/UTF-8) string first.
+jchar - Unicode representation of java string. (NOT same as char. Doesn't have '\0' terminator). Must use //GetStringLength//(..)"
+jobject - Java object.
+JNIEnv - pointer to JNI functions.
+
+jintArray - JAVA representation of int array. Do not use in C code. Translate into jint[] via GetIntArrayRegion(...).
+jint [] - C representation of a jintArray.
+
+JNI_TRUE, JNI_FALSE to be used 
+
+jclass - java class pointer
+jfieldID - pointer to field of a java class.
+jmethodID  - pointer to a java method.
+
+
+===== Strings =====
+** SWT NOTE: we convert to byte[] manually.
+Cannot use "jstring" from java as regular string in C. (3.2)
+
+**Unicode strings** - 16bit char values 'jchar' -> unsigned short (16 bits).2 i
+	- Not terminated in '\0'. Use: "//GetStringLength//(..)"
+		**const jchar *GetStringChars**(..)
+		**ReleaseStringChars**//(..)//
+	- VM's usually represent strings internally in Unicode. (#Bk43)
+	
+**UTF-8 strings -** 1-3(4?) byte strings. (not always 1 byte).
+	- Used by C programs. **WE LIKE THIS. But be careful if using internationally. **
+	- we can use standard C string functions (ex strlen(..)), (or use GetStringUTFLength(..)
+	- Like null-terminated C strings, even thou they contain non-ascii chars.
+	-  compatible with 7=bit ASCII strings. (may break if contains unicode strings)
+		**const char*  GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy);**
+	  isCopy : in/out param. JNI_TRUE if string is a copy. JNI_FALSE if it's a direct pointer to object in VM (don't mess with it).
+				   Normally we pass 'NULL'.
+	   > ALWAYS call **ReleaseStringUTFChars**(..) after finishing (frees or unpins memory). Otherwise you have leack.
+
+**Webkit notes:**
+Now it looks like webkit uses gchar, which translates to char, which translates to 8 bits:
+[[Home:c development:Data types]]
+I.e, we should be safe to convert Java to UTF-8.
+
+NOTE:
+UTF-8
+
+ Refs: 
+  - Book: 12.3.1,  
+  - Tutorial: https://www3.ntu.edu.sg/home/ehchua/programming/java/JavaNativeInterface.html#zz-4.2
+
+=== Ambiguity on how to convert strings in SWT/JNI ===
+1) **GetStringUTFChars ** <<< uses modified UTF-8, which is problematic.
+2) Convert to bytes[] but stop at first embedded null, and pass to java land.
+3) Convert to bytes[] including all embedded nulls, and pass to java land.
+
+		String ContainsNulls = new String(new char [] {'h', 'e', '\0', 'l', 'o', ' ', 'w', '\0', 'r', 'l','d'});
+		byte [] getBytesBytes = (noNulls + '\0').getBytes(StandardCharsets.UTF_8); // embedded nulls: [104, 101, 0, 108, 111, 0] 
+		byte [] wcsToMbcsbytes = Converter.wcsToMbcs(noNulls, true);   // no embedded nulls: [104, 101, 0]
+
+	// Replace all embeded nulls with "";
+	String noNulls = ContainsNulls.replaceAll("\0", "");
+        
+Java to byte:
+public static byte [] wcsToMbcs (String string, boolean terminate) {
+	int nullPos = string.indexOf('\0');
+	if (nullPos != -1) {
+		string = string.substring(0, nullPos);
+	}
+	if (terminate) {
+		string = string + '\0';
+	}
+	return string.getBytes(StandardCharsets.UTF_8);
+}
+
+
+
+Literature:
+
+Java byte[] to C:(Conversion on C side)
+- Explanation of JNI/UTF and how to work around: http://stackoverflow.com/questions/32205446/getting-true-utf-8-characters-in-java-jni
+
+Java byte[] to C: (Conversion on java side)
+- Example of how to use bytearray: http://banachowski.com/deprogramming/2012/02/working-around-jni-utf-8-strings/
+
+- Ex byte 2: http://stackoverflow.com/questions/17491752/converting-jbytearray-to-a-character-array-and-then-printing-to-console
+
+- Example JNI project: https://github.com/crazymaik/bitbrothers-jnistringencoding
+Potentiall example of C: str to byte back to java:
+	https://github.com/crazymaik/bitbrothers-jnistringencoding/blob/master/jni/jnistrings.cpp
+
+- guy who complained about it: http://bitbrothers.org/blog/2013/08/jni-strings-modified-utf8-oh-my/
+- wiki on modified UTF-8: https://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8
+- gtk converter: https://developer.gnome.org/gtk3/stable/gtk-question-index.html
+
+
+====== Objects ======
+Cannot copy all objects in an array. Can only access by index.
+Use:
+	- Get/SetObjectArrayElementmm
+
+Class descriptors: 12.3.2 #183
+- String: "java/lang.String"
+- Array classes formed via "[" followed by field descriptor.
+	- ex: "[I" = int []
+	- ex: "[[[D" = double[][][]
+- Note, thee sare found in 'jni.h' under jvalue. ex "...jint    i"    "jboolean   z"
+	ref: http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/types.html
+	
+Ref: Bk 3.3.5
+
+====== 4 Fields and methods ======
+
+To find signatures, use javap. Ex:
+	javac HelloJNI.java 
+	javap -s -p HelloJNI.class
+
+4.3 Constructors -> pg65.
+
+Caching:
+ jfieldID and jmethodID can be cached into static variables. (Bk 4.4) 
+
+
+====== 5 References (Local, Global, Weak global) ======
+Local - automatically freed. No need to free manually (but can do optionally via DeleteLocalRef(.). #Bk 77).
+Global/Weak global - remain until manually freed
+
+Local/Global - stops garbage collector.
+Weak global - allows garbage collector to clean.
+
+Local ref's are created by most functions..
+
+Use JVM arg to check excess local ref's creation:   -verbose:jni
+
+===== Local refs =====
+Freed automatically, but you should free if you create many. Ex parsing large number of strings. bk81.
+	for (i = 0; i < len; i++) {
+		jstring jstr = (*env)->GetObjectArrayElement(env, arr, i);
+		... /* process jstr */
+		(*env)->DeleteLocalRef(env, jstr);
+	}
+
+
+===== Global refs =====
+Only function that makes these is:
+  NewGlobalRef(..)
+
+===== Weak global refs. 5.1.3 =====
+Created via:
+	NewGlobalWeakRef(..)
+Freed via:
+	DeleteGlobalWeakRef(..)
+
+Useful to cache custom classes that could be unloaded if not used.
+While objects can be garbage collected, the reference itself needs to be freed manually via //DeleteWeakGlobalRef//().
+
+===== Getting JVM pointer or JNIEnv* pointers from other methods =====
+See:
+http://stackoverflow.com/questions/12900695/how-to-obtain-jni-interface-pointer-jnienv-for-asynchronous-calls
+(2nd reply...)
+Given JNIEnv, you can acquire JavaVM pointer (which can be made global).
+From JavaVM pointer, you can get the pointer to the current thread.
+
+====== Exceptions ======
+choices:
+- Return
+- Clear exception,(ExceptionClear) m throw it's own exception 
+
+ExceptionOccurred - returns pointer to exception. Null if no exceptions occured.
+ExceptionCheck - Returns JNI_TRUE when exception occured. JNI_FALSE if not.
+
+====== Dynamic linking 7.2.2 ======
+For example, dynamically load SO file to work with any JVM implementation.
+
+/* Solaris version */
+void *JNU_FindCreateJavaVM(char *vmlibpath)
+{
+	void *libVM = dlopen(vmlibpath, RTLD_LAZY);
+	if (libVM == NULL) {
+	return NULL;
+	}
+	return dlsym(libVM, "JNI_CreateJavaVM");
+}
+
+====== 8 Additional ======
+
+===== Threads =====
+Don't pass JNIEnv around between threads. Don't cache it.
+
+===== Sync =====
+MonitorEnter and MonitorExit (env, obj)
+- work on: jclass, jstring, jarray
+- 
+
+====== 9 Using existing libraries ======
+
+===== Structs =====
+In general we don't map C structs to  classes in Java due to difference in layout in memory.
+
+====== 10 pitfalls ======
+- Field and method IDS != references. Don't name them references, don't try to free them.
+
+
+====== JNI and Eclipse ======
+
+===== <jni.h> includes: =====
+[[/usr/lib/jvm/java/include]]
+	^- contains jni.h
+[[/usr/lib/jvm/java/include/linux]]
+	 ^- contains jni_md.h
+	
+
+===== Configuration of project =====
+http://www3.ntu.edu.sg/home/ehchua/programming/java/JavaNativeInterface.html
+-> Related StackOverflow post:
+	http://stackoverflow.com/questions/23612450/how-to-create-a-makefile-for-jni-configuration-in-linux-and-eclipse
+
+http://www.bogotobogo.com/cplusplus/eclipse_CDT_JNI_MinGW_64bit.php
+
+===== Things to note =====
+
+==== Library naming ====
+The *.so library 'file' must have a "lib" prefix, ex "libhello.so" instead of "hello.so".
+The reason is that 'System.loadLibrary("hello")' will automatically prefix "lib" and postfix ".so" when looking for the library.
+References:
+- http://stackoverflow.com/questions/11378725/unable-to-load-so-in-jni-project
+- See Javadoc & Source code for System.loadLibrary(..)."
+
+
+====== Jni.h and jni_md.h ======
+typedef DEFINITION ALIAS
+
+[[/usr/lib/jvm/java/include/jni.h]]
+	typedef unsigned char   jboolean;
+	typedef unsigned short  jchar;
+	typedef short           jshort;
+	typedef float           jfloat;
+	typedef double          jdouble;
+	typedef jint            jsize;
+	
+	struct _jobject;
+	typedef struct _jobject *jobject;
+	typedef jobject jclass;
+	typedef jobject jthrowable;
+	typedef jobject jstring;
+	typedef **jobject jarray;**  <<<<<
+	typedef jarray jbooleanArray;
+	typedef jarray jbyteArray;
+	typedef jarray jcharArray;
+	typedef jarray jshortArray;
+	typedef jarray jintArray;
+	typedef jarray jlongArray;
+	typedef jarray jfloatArray;
+	typedef jarray jdoubleArray;
+	typedef jarray jobjectArray;
+	
+	typedef jobject jweak;
+	typedef union **jvalue** {
+		jboolean z;
+		jbyte    b;
+		jchar    c;
+		jshort   s;
+		jint     i;
+		jlong    j;
+		jfloat   f;
+		jdouble  d;
+		jobject  l;
+	} jvalue;
+	#define JNI_FALSE 0
+	#define JNI_TRUE 1
+
+[[/usr/lib/jvm/java/include/linux/jni_md.h]]
+	typedef int jint;   **<< jint maps to int** 
+	typedef long long jlong;
+	typedef signed char jbyte;
+
+
+====== Observations from SWT code ======
+
+===== Data to string: =====
+**WebKit.java**
+public String getText () {
+	long /*int*/ data = WebKitGTK.webkit_web_data_source_get_data (source);
+	int length = OS.strlen (encoding);
+	byte[] bytes = new byte [length];
+	OS.memmove (bytes, encoding, length);
+	length = OS.GString_len (data);
+	bytes = new byte[length];
+	long /*int*/ string = OS.GString_str (data);
+	C.memmove (bytes, string, length);
+	try {
+		return new String (bytes, encodingString);
+	} catch (UnsupportedEncodingException e) {}
+	return new String (Converter.mbcsToWcs (null, bytes));
+
+public String getUrl () {
+	long /*int*/ uri = WebKitGTK.webkit_web_view_get_uri (webView);
+	/* WebKit auto-navigates to about:blank at startup */
+	if (uri == 0) return ABOUT_BLANK;
+	int length = OS.strlen (uri);
+	byte[] bytes = new byte[length];
+	OS.memmove (bytes, uri, length);
+	String url = new String (Converter.mbcsToWcs (null, bytes));
+
+
+
+
+
+

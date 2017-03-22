@@ -1,0 +1,44 @@
+Bug 510694 – [Webkit2] Implement 'close' for webkit2
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=510694
+
+Continue in:
+Bug 505418 – [GTK3][webkit] Support Javascript 'evalute()' in Webkit2
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=505418
+
+
+tasks:
+[] g_object_set
+  [] is it ok to use it on webkit2? (ask on irc?)
+[] go through all webkit1/2 settings. Make sure they are ported properly to webkit2.
+
+Info:
+- state DISPOSE_SENT > may be useful. Don''t run exec if this state is set?
+
+
+try {
+  callBackStackCount.incrementAndGet();
+
+
+} finally {
+callBackStackCount.decrementAndGet();
+}
+
+
+
+Snippet326
+
+function SWTExecuteTemporaryFunctionCLOSE(win) {
+    var fn = win.onbeforeunload;
+    if (fn != null) {
+        try {
+            var str = fn();
+        } catch (e) {}
+    }
+    try {
+        for (var i = 0; i < win.frames.length; i++) {
+            var result = SWTExecuteTemporaryFunctionCLOSE(win.frames[i]);
+            if (!result) return false;
+        }
+    } catch (e) {}
+    return true;
+};

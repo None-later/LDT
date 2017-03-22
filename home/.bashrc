@@ -47,6 +47,21 @@ export LESS="-eirMX"
 # Add color to gcc:
 export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
 
+
+##############
+## Key bindings
+##############
+# use 'ctrl-v' press KEY to find keycode.
+# substitute ^[ with \e
+# bind 
+# bind -x  for executing commands.
+
+bind -x '"\eOP":"ll -a"'                  # F1 = ls -a
+bind '"\eOQ": "| grep -i -I -s "'         # F2 = grep -i -I -s
+bind -x '"\eOR":" cd ~/ && pwd"'          # F3 = cd ~/
+bind -x '"\eOS":" cd ~/git/ && pwd"'      # F4 = cd ~/git
+bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no output.
+
 ##############
 ## Aliases
 #############
@@ -67,12 +82,13 @@ alias a="alias"
 alias ag="alias | g"
 # b
 #alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
-
 # c 
 alias cd-swtbuild.sh="cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
 alias cd.="cd $(pwd)"
 alias cut1="cut -f1 -d ' '"
 alias lez="less -E"
+
+alias cr='printf "\033c"'
 
 # d - dnf
 alias sdi="sudo dnf install" #Sudo dnf install
@@ -100,6 +116,7 @@ alias make=colormake
 # o
 # p
 # q
+alias quiet="&> /dev/null "
 # r
 alias rc="referenceGenerator.sh | toclip"
 alias rcp="rsync -azh --info=progress2 "
@@ -118,6 +135,21 @@ alias v="vim"
 #################
 ## User functions
 #################
+
+# https://github.com/bahmutov/git-branches#adding-to-bash_profile
+gitb () {
+    branch=""
+    branches=`git branch --list`
+    while read -r branch; do
+    clean_branch_name=${branch//\*\ /}
+    description=`git config branch.$clean_branch_name.description`
+    printf "%-35s %s\n" "$branch"  "$description"
+    done <<< "$branches"
+}
+gbd () {
+	git branch --edit-description 
+}
+
 
 gp () {
 	git add .

@@ -1,0 +1,134 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-01-16T14:11:02-05:00
+
+====== Week 03 2017 ======
+15 January to 21 January
+
+==== Day Logs ====
+
+=== Monday 16 January ===
+[*] GQueues today
+[ ] Emails
+[ ] Due Bugslava 
+[ ] GQueues clear inbox
+
+
+=== Tuesday 17 January ===
+[*] GQueues today
+[ ] Emails
+[ ] Due Bugs
+[ ] GQueues clear inbox
+
+
+=== Wednesday 18 January ===
+[*] GQueues today
+[*] Emails
+[*] Due Bugs
+[ ] GQueues clear inbox
+
+
+=== Thursday 19 January ===
+[ ] GQueues today
+[ ] Emails
+[ ] Due Bugs
+[ ] GQueues clear inbox
+
+
+=== Friday 20 January ===
+[ ] GQueues today
+[ ] Emails
+[ ] Due Bugs
+[ ] GQueues clear inbox
+
+
+=== Saturday 21 January ===
+[ ] GQueues today
+[ ] Emails
+[ ] Due Bugs
+[ ] GQueues clear inbox
+
+
+==== Weekly Report ====
+[*] Sent
+Away due to broken collarbone 9th to 13rd January.
+
+Highlights:
+###########
+- Bug 510538 - [GTK] Add Callback constructor for custom method signatures
+  (Was needed for Ian's gesture patch).
+
+Last Week:
+##########
+- Bug 510538 - [GTK] Add Callback constructor for custom method signatures [0->100%]
+  - Investigated why Ian's gesture callback was providing garbage data.
+  - Found the issue to be inconsistent method signature in JNI callback mechanism,
+	(arguments were not shifted correctly if method signature was inconsistent).
+  - To solve the problem, Ian's gesture patch required a callback mechanism with
+	a custom method signature.
+  - Implemented a mechanism that converts a java signature into a JNI equivalent one.
+  - This took several iterations. (Version 1, version2, version3..) until an
+	efficent and elegant solution was merged.
+
+- Bug 508217 - [GTK3][Webkit] Implement webkit2 support for browser function [30->90%]
+  - Implemented mechanism to register javascript to java callback.
+  - Implemented logit to link callback to correct Java instance function.
+	 (this took a long time...)
+
+Testing/Patch review:
+- Bug 510647 - Non-resizable Shells open with wrong size (200x200)
+  - Tested issue against old gtk builds.
+  - Compiled ancient Gtk3.04 for testing. Took a bit longer due to missing legacy libraries.
+
+Triage:
+- Bug 466515 - [GTK3] Tool item buttons switch to whiter background if dialogue is opened
+- Bug 510183 - [Webkit2] Internal browser hangs in WebKitGTK._swtWebkitEvaluateJavascript()
+  - Investigated freeze up in Javadoc hover on webkit2.
+  - Cause due to mix of deprecated Webkit1 mechanism being used in webkit2.
+  - Turned off redundant functions on webkit2 for time being.
+- Bug 509411 - [Webkit 1] Crash during Test_*_Browser evaluate() tests
+  - New Browser.evaluate() tests were causing webkit1 crashes. Investigated and
+	turned off some on webkit1 for time being.
+
+	# SWT Long Term Goals
+	# 2017-01Jan-23Mon
+	Webkit2 port     #441568                          (2017 Q1?)
+	  - [x] port execute ()  #430538                  [2016 Oct]
+	  - [x] Improve Browser suite #499387             [2016 Oct]
+	  - [x] evaluate () primitives #505418            [2016 Nov]
+	  - [x] evaluate () array support  #505418,#505591[2016 Dec]
+	  - [x] jUnit tests for evaluate() #505591        [2016 Nov]
+	  - [ip] function(), Javascript callbacks #508217 (2017 Jan ?)  **
+	  - [] Resolve broken junits/crashers             (2017 Jan/Feb ?) **
+	  - [] Verify Eclipse works well on Webkit2.
+	  - [] Make webkit2 default                       (2017 ?)
+
+	Wayland support  #496923                          (2017 ?)
+	  - [ip] Remove x11 calls/functions               (2017 ?)
+	  - [ip] Drag and Drop/CTabfolder clicks  #503431 (2016 Dec)
+	  - [x] Resolve title/menu bar issues and         [2016 Dec]
+			cut-off controls. #508692                
+
+	Gtk3 port, Stability, Features and Bugfixes
+	  - [ip] Background/Foreground issues             (2017 Q1 ?)
+			[ip]507072 [x]507062 [x]507067 [x] 507298
+			[ip]508498 [ip]507073
+			[ip]508776
+	  - [] Dragging parts does not show rectangle #498217 (TBD)
+	  - [ip] Improve CSS styling support
+	  - [] Move thoward full Gtk3.22 support with
+		   no calls to deprecated functions.
+	  - [] Gtk3 port should not use calls deprecated in Gtk2.
+	  - [x] Default selection event #508245 fixes.    [2016 Dec] **@fixed
+
+	Gtk3 new features
+	  - Implement APIs for multi-touch events and gestures #482018
+
+	Gtk4 port                                         (Later ... )
+	  - Goal: Phase out Gtk2 support gradually.
+			  Move on to Gtk3/Gtk4 support
+	  - [] Deprecate Gtk2. Potentially Gtk3.0 - Gtk3.14 also.
+	  - [] Remove or make dynamic deprecated calls pre Gtk3.22
+	  - [] Move on to support Gtk3 & Gtk4.
+
+	Note:

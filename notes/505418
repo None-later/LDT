@@ -1,0 +1,52 @@
+Bug 505418 – [GTK3][webkit] Support Javascript 'evalute()' in Webkit2
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=505418
+
+hang issue:
+
+Need to investigate if I can use evaluate in these callbacks:
+[] JSDOMEventProc
+[] Proc long long x2
+[] Proc long long long x3
+[] Proc long long long long x4
+    [] HOVERING_OVER_LINK: return webkit_hovering_over_link (handle, arg0, arg1);
+    [] MOUSE_TARGET_CHANGED: return webkit_mouse_target_changed (handle, arg0, arg1);
+
+    (!) DECIDE_POLICY: return webkit_decide_policy(handle, arg0, (int)arg1, user_data);
+      This hangs in LocationListener triggering.
+
+[] Proc long long long long long x5
+[] Proc long long long long long long x6
+
+[] can I postpone events instead of running them right away?
+
+[] eval in a functino callback?
+
+
+
+Code snippets:
+try {
+  callBackStackCount.incrementAndGet();
+
+
+} finally {
+callBackStackCount.decrementAndGet();
+}
+
+
+
+With async execution:
+  changing...Returned: Changing eval...
+  Finished location change.Returned: finished callback
+  changing...Returned: Changing eval...
+
+  changing...Error scanning plugin /usr/lib64/mozilla/plugins/libevbrowserplugin.so, /usr/libexec/webkit2gtk-4.0/WebKitPluginProcess returned 256 exit status
+  Returned: Changing eval...
+
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  changing...Returned: Changing eval...
+  ...

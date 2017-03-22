@@ -1,0 +1,53 @@
+T 1478555587 18<jkang>	I searched online about the JNI UTF-8 thing. Seems like a pretty old design choice but kind of funny now. I don't think there's much you can do to change it :\
+T 1478555603 20<lufimtse>30	hmmm
+T 1478555605 20<lufimtse>30	Life sucks
+T 1478555619 18<jkang>	I think the best way to handle it is not use JNI for passing Strings around. Leave it as bytes and then encode/decode when you need it.
+T 1478555643 20<lufimtse>30	Yea, I've been gravitating into that direction. Now I'm fiddling around on how to best convert to bytes and back.
+T 1478555655 18<jkang>	Java side it's pretty easy... C side iunno
+T 1478555669 20<lufimtse>30	I found a git repo 
+T 1478555669 20<lufimtse>30	https://github.com/crazymaik/bitbrothers-jnistringencoding/blob/master/jni/jnistrings.cpp
+T 1478555677 18<jkang>	I'm sure there's libraries around to handle this hahah
+T 1478555679 20<lufimtse>30	The guy talks about it
+T 1478555679 20<lufimtse>30	http://bitbrothers.org/blog/2013/08/jni-strings-modified-utf8-oh-my/
+T 1478555744 18<jkang>	It's not too hard to write a few helper methods for this... but I guess it would be nice if JNI didn't use modified utf-8
+T 1478555800 20<lufimtse>30	Yea, it's like I've spent a fair bit of time learning how to deal with strings in JNI. then I've found that the modified JNI-UTF-8 screws people over, then I've learned that you have to hack around it via bytes[] etc...
+T 1478555803 20<lufimtse>30	like why...
+T 1478555821 18<jkang>	Hahah...
+T 1478555822 20<lufimtse>30	there doesn't seem to be a good reason for having a custom utf
+T 1478555883 18<jkang>	here it explains a bit about the format: http://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/types.html#wp16542
+T 1478555906 18<jkang>	"This means that modified UTF-8 strings never have embedded nulls."
+T 1478555919 18<jkang>	If normal UTF-8 strings have embedded nulls it would simply not work in C
+T 1478555933 18<jkang>	when using standard libraries that rely on null terminators
+T 1478555963 18<jkang>	Well... Iunno hahah
+T 1478555979 20<lufimtse>30	"This means that modified UTF-8 strings never have embedded nulls."  <<<< meh?
+T 1478555980 18<jkang>	I may be misthinking null means null terminator
+T 1478556056 18<jkang>	https://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8
+T 1478556058 18<jkang>	yeah I was right
+T 1478556073 18<jkang>	it's also significantly faster
+T 1478556188 18<jkang>	e.g. strlen computes length of string up to but not including first null character
+T 1478556205 18<jkang>	a modified utf-8 string with embedded nulls would not have the correct length output by strlen
+T 1478556208 18<jkang>	er
+T 1478556212 18<jkang>	a standard utf-8 string
+T 1478556222 18<jkang>	a modified utf-8 string doesn't have this issue
+T 1478556230 18<jkang>	there are never null characters in the middle of the string
+T 1478556257 20<lufimtse>30	hmmm
+T 1478556261 20<lufimtse>30	I c
+T 1478556269 20<lufimtse>30	but why not support the 4th byte
+T 1478557420 18<jkang>	Because then there would be the possibility of a String having null inside it.
+T 1478618856 20<lufimtse>30	hey
+T 1478618868 20<lufimtse>30	nm
+T 1478708292 20*	Disconnected (20Connection timed out)
+T 1479756242 20<lufimtse>30	forward the email to the rest of the team. :-D
+T 1479756636 18<jkang>	er what email?
+T 1479756664 20<lufimtse>30	It was a question on the security quizz
+T 1479756674 20<lufimtse>30	what to do with an email that looks dodgy
+T 1479756689 20<lufimtse>30	and links to /specification.exe 
+T 1479756699 20<lufimtse>30	the above was one possible answer.
+T 1479756731 18<jkang>	ah
+T 1479756733 18<jkang>	right
+T 1479756733 18<jkang>	hahah
+T 1479917884 20*	Disconnected (20Connection timed out)
+T 1480104005 18<jkang>	https://fedoraproject.org/wiki/Packaging:Guidelines
+T 1480104069 20<lufimtse>30	thank you
+T 1480104070 20<lufimtse>30	found list
+T 1480104071 20<lufimtse>30	https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing#SoftwareLicenses

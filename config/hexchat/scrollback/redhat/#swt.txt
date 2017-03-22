@@ -1,0 +1,426 @@
+T 1476288538 19*	Now talking on 22#swt
+T 1476366245 19*	Now talking on 22#swt
+T 1476711882 19*	Now talking on 22#swt
+T 1476722433 19*	Now talking on 22#swt
+T 1476799242 18<ericwill18>	ipun what are you working on these days
+T 1476799246 18<ericwill18>	wayland stuff?
+T 1476799445 18<ipun18>	yeah
+T 1476799451 18<ipun18>	its a pain
+T 1476799618 18<ipun18>	ericwill theres an issue with cTab in wayland where it thinks its drag and dropping
+T 1476799622 18<ipun18>	everytime you click on it
+T 1476799636 18<ipun18>	i found the problem im just trying to diagnose if its GTK or us
+T 1476799658 18<ipun18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431
+T 1476800307 18<ericwill18>	ipun ah yeah
+T 1476800313 18<ericwill18>	lots of Wayland work to be done I am sure
+T 1476800408 18<ipun18>	mmhm
+T 1476801365 19<ericwill>	lufimtse http://www.eclipse.org/swt/triage.php
+T 1476802964 19<ipun>	lufimtse: played around with using different GTK versions to see if i can get it running, looks like GTK2 works 
+T 1476802970 18<ipun18>	but im not sure if GTK2 even supports wayland
+T 1476802980 20<lufimtse>30	:-)
+T 1476802984 18<ipun18>	considering i cant use GTK inspector, im not sure if my snippet is running in wayland or just defaulted to x11
+T 1476802987 20<lufimtse>30	Gtk2 has no wayland support.
+T 1476802992 18<ipun18>	ah.
+T 1476802995 18<ipun18>	hm.
+T 1476803000 20<lufimtse>30	Waynand was not around back then.
+T 1476803274 18<ipun18>	well, this annoys me.
+T 1476803304 18<ericwill18>	ipun this is what makes Wayland work more tricky
+T 1476803334 18<ipun18>	i cant replicate gdk_event_get() behavior on a GTK snippet which annoys me even more
+T 1476803368 20<lufimtse>30	Interesting... 
+T 1476803370 18<ipun18>	i have a good feeling its a GTK problem but its taking me some time to prove it
+T 1476803680 18<ericwill18>	this is interesting: https://bugs.eclipse.org/bugs/show_bug.cgi?id=78971
+T 1476807465 19<ipun>	lufimtse ericwill, i dont actualyl think gdk_event_get() has been updated to work with wayland
+T 1476807478 20<lufimtse>30	hey
+T 1476807482 18<ipun18>	older references about gdk_event_get imply it works on X servers
+T 1476807497 18<ipun18>	but, doing some git blame the method calls behind it hasnt been updated for many years now
+T 1476807566 20<lufimtse>30	hmm
+T 1476807628 20<lufimtse>30	ipun, checkout display.java:826
+T 1476807635 20<lufimtse>30	checkIfEventProc(...)
+T 1476807640 20<lufimtse>30	line 835
+T 1476807646 20<lufimtse>30	and 836
+T 1476807664 20<lufimtse>30	if (window == 0) return 0;
+T 1476807671 20<lufimtse>30	Try removing that line.
+T 1476807672 18<ipun18>	hmmmm....
+T 1476807674 18<ipun18>	oaky
+T 1476807674 20<lufimtse>30	See woot happens.
+T 1476807696 20<lufimtse>30	Does that code run on regular gtk3?
+T 1476807704 20<lufimtse>30	Does it even initiate on Wayland?
+T 1476807726 18<ipun18>	checkEventProc only runs in X11
+T 1476807733 18<ipun18>	neverr gets called in Wayland
+T 1476807844 20<lufimtse>30	I think it's a callback
+T 1476807858 18<ipun18>	as in?
+T 1476807858 20<lufimtse>30	related to expose flashing.
+T 1476807868 20<lufimtse>30	expose event I think is when widget is 'visible' to user
+T 1476807873 20<lufimtse>30	or visibility changes.
+T 1476807874 20<lufimtse>30	hmmmmmmmmmmmm
+T 1476807892 20<lufimtse>30	What if you comment out the content of that call and run in X11, does the same issue occur?
+T 1476807906 20<lufimtse>30	or dose it magically work well on X11 still
+T 1476807957 20<lufimtse>30	Also, does the native GTK snippet work on Gtk3, but not on Wayland, or not work in any situation? 
+T 1476807990 18<ipun18>	commetning out the contents leads to it working in X11 still
+T 1476808009 18<ipun18>	the proble, with the GTK snippet is that i cant get gdk_event_get() to work correctly in both wayland and X11
+T 1476808015 18<ipun18>	its not getting any events in the first place
+T 1476808029 18<ipun18>	when i run it it returns null even with a while loop timeout
+T 1476808150 20<lufimtse>30	I see
+T 1476808151 20<lufimtse>30	hmmm
+T 1476808173 20<lufimtse>30	hmmm
+T 1476808187 18<ipun18>	from the looks of how SWT implements it, it doesnt seem to do any hacky "gdk_put_event()" stuff
+T 1476808197 18<ipun18>	so that event shouldve been generated from GTK, which it didnt
+T 1476808217 20<lufimtse>30	I found I had similar issue with DnD
+T 1476808225 20<lufimtse>30	the motion event was no longer being generated.
+T 1476808241 20<lufimtse>30	I should have drilled down to native Gtk level. Instead I implemented DnD on java level
+T 1476808246 20<lufimtse>30	lol
+T 1476808248 20<lufimtse>30	X-D
+T 1476808257 20<lufimtse>30	that was on Gtk3
+T 1476808266 20<lufimtse>30	Try with Gtk3.6
+T 1476808268 20<lufimtse>30	or Gtk3.3
+T 1476808270 20<lufimtse>30	or Gtk3.4
+T 1476808276 20<lufimtse>30	I mean the native snippet... 
+T 1476808289 20<lufimtse>30	I wonder if something broke going up from older versions
+T 1476808291 18<ipun18>	yeah motion isnt being geenrated iether
+T 1476808304 20<lufimtse>30	Do other events get generated?
+T 1476808306 20<lufimtse>30	like expose?
+T 1476808311 18<ipun18>	i havent tested
+T 1476808318 20<lufimtse>30	Maybe get it to work for some events
+T 1476808323 20<lufimtse>30	like once we know and love
+T 1476808326 20<lufimtse>30	like button down
+T 1476808332 20<lufimtse>30	and mouse movement events
+T 1476808333 18<ipun18>	currently from my swt snippet, X11 generates motion and gtk_button_release
+T 1476808348 20<lufimtse>30	what about movement events while button not pressed.
+T 1476808354 18<ipun18>	doesnt seem so 
+T 1476808362 20<lufimtse>30	does it work on gtk2?
+T 1476808366 18<ipun18>	the movement event seems to generate on x11 when im not clicking on it 
+T 1476808402 20<lufimtse>30	sekunde... 
+T 1476808994 20<lufimtse>30		while (*JsCallFinished == FALSE) {
+T 1476808994 20<lufimtse>30			g_main_context_iteration(0, FALSE);
+T 1476808994 20<lufimtse>30		}
+T 1476883228 19*	Now talking on 22#swt
+T 1476890004 20*	Disconnected (20Connection timed out)
+T 1476893106 19*	Now talking on 22#swt
+T 1476900602 19<ipun>	lufimtse my fix seems to fix the issue + have D&D working
+T 1476900709 18<ipun18>	but, it still relies on MOTION_NOTIFY instead of the click event
+T 1476901874 20<lufimtse>30	hmm
+T 1476901879 20<lufimtse>30	we kinda want motion notify
+T 1476901895 20<lufimtse>30	I wrote the fix because motion notify wasn't being sent
+T 1476901912 20<lufimtse>30	take my fix out. Should fix dnd 
+T 1476901928 20<lufimtse>30	add mainloop read thing
+T 1476901943 20<lufimtse>30	oh, you mean instead*
+T 1476901944 20<lufimtse>30	I see
+T 1476901962 20<lufimtse>30	so u not getting button release at all?
+T 1476971782 19<ipun>	lufimtse, it seems that running g_main_context_iteration () processes the events, but then the vents dont show up in event_get anymore
+T 1476971803 18<ipun18>	and i cant seem to find a way to grab the even that is being processed by g_main_context_iteration
+T 1476975306 19*	Now talking on 22#swt
+T 1476978688 19<ipun>	lufimtse ping got a question for you
+T 1476978716 18<ipun18>	im thinking about mergig gtk_button_press_event with _release_event
+T 1476978726 18<ipun18>	but im not exactly sure the best way to do with without causing huge conflict
+T 1476990007 20<lufimtse>30	as discussed... 
+T 1476990303 19<ipun>	lufimtse doesnt look like you can get mouse status, im going to try another way potientally
+T 1476990327 20<lufimtse>30	did gtk folks say?
+T 1476990430 20<lufimtse>30	Have a look:
+T 1476990430 20<lufimtse>30	https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#gdk-window-get-device-position
+T 1476990437 20<lufimtse>30	 GdkModifierType *mask);
+T 1476990442 20<lufimtse>30	-->>> mask
+T 1476990453 20<lufimtse>30	GDK_BUTTON1_MASK
+T 1476990453 20<lufimtse>30		
+T 1476990453 20<lufimtse>30	the first mouse button.
+T 1476990466 20<lufimtse>30	in SWT, we use that call: org.eclipse.swt.widgets.Display.getCursorLocationInPixels()
+T 1476990495 20<lufimtse>30	Actually, this is better: org.eclipse.swt.widgets.Display.gdk_window_get_device_position(long, int[], int[], int[])
+T 1476990505 20<lufimtse>30	the last paramater is mask
+T 1476990513 20<lufimtse>30	No hard labour needed
+T 1476990529 20<lufimtse>30	just use that call, check if that mask contains the BUTTON1 mask.
+T 1476990534 20<lufimtse>30	job done.
+T 1476990540 20<lufimtse>30	Hopefully :-P
+T 1476990572 20<lufimtse>30	I was thinking of going to the cat rescue this weekend maybe.
+T 1476990703 18<ipun18>	hmm wow
+T 1476990707 18<ipun18>	thanks for helping out
+T 1476990722 18<ipun18>	yeah do it!
+T 1476990734 18<ipun18>	lemme know how it goes
+T 1477056411 19*	Now talking on 22#swt
+T 1477316248 19*	Now talking on 22#swt
+T 1477401974 19*	Now talking on 22#swt
+T 1477408880 19<ipun1>	lufimtse do you happen to know if theres something similar to this hierarchy grpah for Swing or GTK? https://wiki.eclipse.org/File:Swt-hiearchy.gif
+T 1477408897 20<lufimtse>30	hey
+T 1477408921 20<lufimtse>30	hmm
+T 1477408949 20<lufimtse>30	Try "Swing UML diagram"
+T 1477409047 20<lufimtse>30	I don't see anything for GTK thou...
+T 1477409079 20<lufimtse>30	actually: "gtk widget hierarchy"
+T 1477409084 20<lufimtse>30	shows promising images
+T 1477409106 20<lufimtse>30	https://docs.adacore.com/gtkada-docs/gtkada_ug/_build/html/_images/hierarchy.jpg
+T 1477409156 20<lufimtse>30	https://www3.ntu.edu.sg/home/ehchua/programming/java/images/Swing_JComponentClassDiagram.png
+T 1477409159 20<lufimtse>30	Hope it helps.
+T 1477409861 18<ipun118>	awesome thanks!
+T 1477490227 19*	Now talking on 22#swt
+T 1477922314 19*	Now talking on 22#swt
+T 1477923294 19<ipun>	hey lufimtse for https://git.eclipse.org/r/#/c/83639/
+T 1477923318 18<ipun18>	i edited the changes on git itself, i don't think it gave you another email about it
+T 1477923532 20<lufimtse>30	hey
+T 1477923581 20<lufimtse>30	did you submit your changes?
+T 1477923584 20<lufimtse>30	I see no changes.
+T 1477923592 20<lufimtse>30	you mean gerrit not git?
+T 1477923608 20<lufimtse>30	ipun, <<
+T 1477923639 19<ipun>	i mean gerrit lufimtse 
+T 1477923647 18<ipun18>	i did it a while back, i just did it on the website
+T 1477923649 20<lufimtse>30	yea, doesn't show for me
+T 1477923655 20<lufimtse>30	you probably did not submit
+T 1477923657 20<lufimtse>30	?
+T 1477923659 20<lufimtse>30	ipun, 
+T 1477923666 18<ipun18>	well the comment was changed 
+T 1477923680 18<ipun18>	all i did was change the wording of the comment, and then commented on your own comment
+T 1477923735 18<ipun18>	anyways, for your second comment, 2nd/3rd click mouse buttons dont need to be checked as those are not normal buttons used for drag and drop; not used in chrome or any other tab-type applcaitions from my experience
+T 1477927458 19<ipun>	lufimtse let me know if the gerrit change is good so i can close it
+T 1477939357 18<ipun18>	tested on wayland, its all good
+T 1478009275 20<lufimtse>30	ipun, I think the comment didn't get updated... https://git.eclipse.org/r/#/c/83639/
+T 1478009282 20<lufimtse>30	did you publish the comment?
+T 1478010187 18<ipun18>	i couldnt find it, so i just redid it
+T 1478029853 19<ipun>	lufimtse could you explain to me cherry picking a little bit?
+T 1478029875 18<ipun18>	im basically trying to get an older file (revert my changes), i see it in the git histoy and pressed cherry pick
+T 1478029892 18<ipun18>	but it didnt override my current branch file with the cherry picked files
+T 1478030633 20<lufimtse>30	ipun, hey
+T 1478030644 20<lufimtse>30	come find me.
+T 1478091788 19*	Now talking on 22#swt
+T 1478091982 19*	Now talking on 22#swt
+T 1478099793 20*	Disconnected (20Connection timed out)
+T 1478102844 19*	Now talking on 22#swt
+T 1478103932 19*	Now talking on 22#swt
+T 1478105157 20*	Disconnected (20Connection reset by peer)
+T 1478105168 19*	Now talking on 22#swt
+T 1478105719 19*	Now talking on 22#swt
+T 1478105937 19*	Now talking on 22#swt
+T 1478106647 19*	Now talking on 22#swt
+T 1478181516 20<lufimtse>30	ipun, I invite you to sign up for presenting something at DemoCamp: https://wiki.eclipse.org/Eclipse_DemoCamps_November_2016/Toronto
+T 1478181521 20<lufimtse>30	ex dark theme
+T 1478181529 20<lufimtse>30	you can always change the topic after
+T 1478181545 20<lufimtse>30	I just want to have minimum critical mass, so that other people would be interested in joining.
+T 1478181548 20<lufimtse>30	or attending.
+T 1478181574 18<ipun18>	sure i can do that
+T 1478181589 18<ipun18>	i dont know how to edit the page tho
+T 1478181691 18<ipun18>	nevermind i found it
+T 1478182214 20<lufimtse>30	nice.
+T 1478204038 19<ipun>	lufimtse shit i updated my system and now my java 1.8 is unbound
+T 1478204045 18<ipun18>	cant compile anything with java
+T 1478204091 18<ipun18>	nvm i seem to have fixed it
+T 1478204098 18<ipun18>	sometimes eclipse can be very glitchy
+T 1478204669 20<lufimtse>30	unbound?
+T 1478204671 20<lufimtse>30	mehl?
+T 1478204675 20<lufimtse>30	what goes.
+T 1478204679 20<lufimtse>30	Smash?
+T 1478205156 18<ipun18>	hmmmmmm
+T 1478205162 18<ipun18>	okay
+T 1478269723 19<ipun>	hey lufimtse after putting a new method in os.java and clean+building, its still giving me this error
+T 1478269730 18<ipun18>	java.lang.UnsatisfiedLinkError:
+T 1478269744 18<ipun18>	also tried "brb" ing
+T 1478271536 20<lufimtse>30	hey
+T 1478271549 20<lufimtse>30	k.
+T 1478279922 20<lufimtse>30	ipun, btw, have you investigated, is there any way to get 
+T 1478279923 20<lufimtse>30	Bug 503431 - [wayland] CTabFolder slow when switching tabs (DnD logic issue on wayland
+T 1478279926 20<lufimtse>30	to work without context iteration?
+T 1478283243 18<ipun18>	I did. From my investigation its not possible since the event cannot be moved on without it
+T 1478287107 19<ipun>	lufimtse how do you backport again?
+T 1478287117 18<ipun18>	i remember you said there was something written on it, i just couldnt find it
+T 1478367639 20*	Disconnected (20Connection reset by peer)
+T 1478367649 19*	Now talking on 22#swt
+T 1478532824 19*	Now talking on 22#swt
+T 1478618849 19<ipun>	hey lufimtse, do you think its viable to close https://bugs.eclipse.org/bugs/show_bug.cgi?id=501420
+T 1478618864 18<ipun18>	last comment basically is the issue, but its been solved (i believe)
+T 1478618871 18<ipun18>	doesnt look like anyone followed up with closing the bug
+T 1478618871 20<lufimtse>30	hey
+T 1478619055 20<lufimtse>30	It seems that the related bug 505923 was fixed. So maybe this bug is fixed also. You could post into the bug suggesting to close it and close it in a week if no one replies.
+T 1478619160 18<ipun18>	okay sounds good
+T 1478633946 18<ipun18>	hey
+T 1478633948 19<ipun>	lufimtse https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431
+T 1478633983 18<ipun18>	was fully tested from your comments on gerrit
+T 1478633987 18<ipun18>	responded on bugzilla
+T 1478634529 20<lufimtse>30	hullo
+T 1478634580 20<lufimtse>30	I think last time I asked if it's possible to get this done without use of context_iteration?
+T 1478634596 20<lufimtse>30	what happens if you remove that context iteration, but still check status of mouse in the loop?
+T 1478634611 20<lufimtse>30	does that work at all or is context iteration absolutley neccessary?
+T 1478634612 18<ipun18>	yeah i did that
+T 1478634618 18<ipun18>	i thought i told you already here on this channel
+T 1478634620 18<ipun18>	it doesnt work
+T 1478634623 20<lufimtse>30	I ese
+T 1478634628 20<lufimtse>30	I see
+T 1478634632 18<ipun18>	if you dont have a context iteration the event never moves on 
+T 1478634638 18<ipun18>	it times out pretty much
+T 1478634659 20<lufimtse>30	Lemme see patch
+T 1478634701 20<lufimtse>30	The comment is still off
+T 1478634714 20<lufimtse>30	Bug 503431: Wayland does not put GDK_BUTTON_RELEASE event into the gdk_event.
+T 1478634718 20<lufimtse>30	It does
+T 1478634737 20<lufimtse>30	>_>
+T 1478634739 20<lufimtse>30	<_<
+T 1478634750 20<lufimtse>30	We updated it last time?
+T 1478634757 20<lufimtse>30	did you push the updated comment?
+T 1478636037 18<ipun18>	soirry about the constant delay of that :X
+T 1478636234 20<lufimtse>30	ipun, could you rebase?
+T 1478636241 20<lufimtse>30	It's like far behind I think
+T 1478636262 20<lufimtse>30	then let me know.
+T 1478636319 20<lufimtse>30	oh,
+T 1478636321 20<lufimtse>30	never mind.
+T 1478636471 18<ipun18>	kk
+T 1478704569 20<lufimtse>30	ipun, fyi: https://bugzilla.gnome.org/show_bug.cgi?id=774148
+T 1478704609 18<ipun18>	??
+T 1478704618 18<ipun18>	noted
+T 1478704626 18<ipun18>	do we use this command at alL?
+T 1478705843 20<lufimtse>30	dunnow
+T 1478708292 20*	Disconnected (20Connection timed out)
+T 1478711382 19*	Now talking on 22#swt
+T 1478727527 19<ipun>	lufimtse can you show me how to do that classpath thing again?
+T 1478727579 20<lufimtse>30	ipun, hey
+T 1478727585 20<lufimtse>30	sec
+T 1478727588 18<ipun18>	kk
+T 1478728135 Python interface unloaded
+T 1478791705 19*	Now talking on 22#swt
+T 1478793653 19*	Now talking on 22#swt
+T 1479137079 19*	Now talking on 22#swt
+T 1479312930 20*	Disconnected (20Connection timed out)
+T 1479322639 19*	Now talking on 22#swt
+T 1479748625 20*	Disconnected (20Connection timed out)
+T 1479754758 19*	Now talking on 22#swt
+T 1479917884 20*	Disconnected (20Connection timed out)
+T 1479928852 19*	Now talking on 22#swt
+T 1480028734 20*	Disconnected (20Connection timed out)
+T 1480086686 19*	Now talking on 22#swt
+T 1480089688 19*	Now talking on 22#swt
+T 1480340881 19*	Now talking on 22#swt
+T 1480947497 19*	Now talking on 22#swt
+T 1481034704 19*	Now talking on 22#swt
+T 1481035896 19*	Now talking on 22#swt
+T 1481058631 19*	Now talking on 22#swt
+T 1481059052 19*	Now talking on 22#swt
+T 1481059123 19*	Now talking on 22#swt
+T 1481059237 19*	Now talking on 22#swt
+T 1481059624 19*	Now talking on 22#swt
+T 1481127597 20*	Disconnected (20Connection timed out)
+T 1481128245 19*	Now talking on 22#swt
+T 1481292868 19*	Now talking on 22#swt
+T 1481552979 19*	Now talking on 22#swt
+T 1481559363 20*	Disconnected (20Connection timed out)
+T 1481564385 19*	Now talking on 22#swt
+T 1481584234 19*	Now talking on 22#swt
+T 1481642157 19*	Now talking on 22#swt
+T 1482164093 20*	Disconnected (20Connection timed out)
+T 1482164893 19*	Now talking on 22#swt
+T 1482175075 19*	Now talking on 22#swt
+T 1482177076 18<ipun18>	can one of you guys try this patch when you have time?
+T 1482177078 18<ipun18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431
+T 1482177080 18<ipun18>	thank uuuuuuuuuuu
+T 1482177091 18<ipun18>	i just want to see if its getting the same error as I am
+T 1482268322 19*	Now talking on 22#swt
+T 1483457139 19*	Now talking on 22#swt
+T 1483641515 19<ericwill>	lufimtse ping
+T 1483641523 18<ericwill18>	also, happy new year everyone
+T 1483643609 20<lufimtse>30	ericwill, you too
+T 1483643612 18<ipun18>	happy new year ericwill 
+T 1483643630 18<ericwill18>	:)
+T 1483643652 18<ericwill18>	I am having an issue with launching snippets
+T 1483643672 18<ericwill18>	none of them will launch all of sudden, Eclipse is complaining: "Error: Could not find or load main class org.eclipse.swt.examples.controlexample.ControlExample"
+T 1483643685 18<ericwill18>	have either of you encountered this recently?
+T 1483643907 18<ipun18>	nope
+T 1483643928 18<ipun18>	clean -> rebuild?
+T 1483643978 18<ericwill18>	tried that
+T 1483643983 18<ericwill18>	classpath looks okay too
+T 1483643988 19<ipun>	also lufimtse it looks like styledtext DnD issue needs to be fixed by modelling how multiselection is done...fawkkkkkk
+T 1483644014 20<lufimtse>30	ipun, mleh
+T 1483644021 20<lufimtse>30	hmmm
+T 1483644021 18<ipun18>	wait ericwill you are running other snippets and eclipse is complaining about controlexample?
+T 1483644038 18<ericwill18>	ipun seems to be any snippet I run
+T 1483644048 18<ericwill18>	I just used controlexample as an example
+T 1483644109 18<ipun18>	hmmm, only times ive had that issue was with classpath problems
+T 1483644453 18<ericwill18>	I'll look at it more later, thought it might be a quick fix
+T 1483644459 18<ericwill18>	I'll be on next week sometime
+T 1483644461 18<ericwill18>	see ya!
+T 1483645056 18<yzhang18>	bye eric
+T 1483645080 18<ipun18>	who you yzhang 
+T 1483645107 18<yzhang18>	an active contributor to the eclipse foundation*
+T 1483645124 18<yzhang18>	*(by providing entertainment to other members of the community)
+T 1483645197 18<ipun18>	active contributor of me-mes
+T 1483651267 20*	Disconnected (20Connection reset by peer)
+T 1483651277 19*	Now talking on 22#swt
+T 1484593815 19*	Now talking on 22#swt
+T 1484845052 19*	Now talking on 22#swt
+T 1485186049 19*	Now talking on 22#swt
+T 1485188202 20*	Disconnected (20Connection timed out)
+T 1485189973 19*	Now talking on 22#swt
+T 1485295921 19*	Now talking on 22#swt
+T 1485295978 19*	Now talking on 22#swt
+T 1485296040 19*	Now talking on 22#swt
+T 1485353714 19*	Now talking on 22#swt
+T 1485371460 19*	Now talking on 22#swt
+T 1485372345 19<ipun>	lufimtse: 
+T 1485443005 20*	Disconnected (20Connection reset by peer)
+T 1485443015 19*	Now talking on 22#swt
+T 1485529581 19*	Now talking on 22#swt
+T 1485786877 19*	Now talking on 22#SWT
+T 1485883799 20*	Disconnected (20Connection timed out)
+T 1485960174 19*	Now talking on 22#SWT
+T 1486142662 20*	Disconnected (20Connection timed out)
+T 1486142941 19*	Now talking on 22#SWT
+T 1486391737 19*	Now talking on 22#SWT
+T 1486397795 20*	Disconnected (20Connection timed out)
+T 1486399988 19*	Now talking on 22#SWT
+T 1486479042 19*	Now talking on 22#SWT
+T 1486652849 18<ipun18>	testing
+T 1486673653 19*	Now talking on 22#SWT
+T 1486739601 20*	Disconnected (20Connection reset by peer)
+T 1486739612 19*	Now talking on 22#SWT
+T 1486994900 19*	Now talking on 22#SWT
+T 1487002485 20*	Disconnected (20Connection timed out)
+T 1487019994 19*	Now talking on 22#SWT
+T 1487020630 18<ipun18>	hey 
+T 1487020636 18<ipun18>	are you on going on vacataion?
+T 1487020647 19<ipun>	lufimtse ^
+T 1487020653 18<ipun18>	forgot to msg you private
+T 1487020654 20<lufimtse>30	hey
+T 1487020668 20<lufimtse>30	ipun, friday I'll be off till 6th of march
+T 1487020671 20<lufimtse>30	forgot to mention
+T 1487020677 18<ipun18>	ah okay no problem
+T 1487020688 18<ipun18>	consdering flying back sometime, ill get someone to watch my cat
+T 1487182295 20*	You are now known as 18lufimtse|lunch
+T 1487187505 20*	You are now known as 18lufimtse
+T 1487261605 19*	Now talking on 22#SWT
+T 1488809890 19*	Now talking on 22#SWT
+T 1488817094 20*	Disconnected (20Connection timed out)
+T 1488818312 19*	Now talking on 22#SWT
+T 1488896852 19*	Now talking on 22#SWT
+T 1488991719 19*	Now talking on 22#SWT
+T 1489418197 20*	Disconnected (20Connection timed out)
+T 1489420149 19*	Now talking on 22#SWT
+T 1489606462 19*	Now talking on 22#SWT
+T 1489705611 19*	Now talking on 22#SWT
+T 1490015649 19*	Now talking on 22#SWT
+T 1490023144 20*	Disconnected (20Connection timed out)
+T 1490024008 19*	Now talking on 22#SWT
+T 1490117739 19<ipun>	query lufimtse 
+T 1490117740 18<ipun18>	oops
+T 1490117746 19<ipun>	ping lufimtse 
+T 1490119401 18<ericwill18>	sup ipun 
+T 1490119405 18<ericwill18>	how's EclipseCon?
+T 1490119446 18<ipun18>	ericwill: its good, currently at Devoxx
+T 1490119475 18<ipun18>	pulled in a bigger audience than last time ( got around ~20 people) 
+T 1490119528 18<ericwill18>	nice
+T 1490119534 18<ericwill18>	did you meet Lars?
+T 1490119541 18<ericwill18>	and did you meet any of the IBM guys?
+T 1490121547 20<lufimtse>30	hey
+T 1490121548 20<lufimtse>30	sup
+T 1490122243 19<ipun>	lufimtse:did you find the root of the dnd problem? 
+T 1490122251 20<lufimtse>30	yah
+T 1490122253 20<lufimtse>30	2 memory leack
+T 1490122254 20<lufimtse>30	s
+T 1490122259 18<ipun18>	ah okay
+T 1490122261 18<ipun18>	thanks for finding it!
+T 1490122265 20<lufimtse>30	fixed one, fix for other I'm about to push
+T 1490122275 20<lufimtse>30	I kinda didn't know Callback.java had to be disposed
+T 1490122283 20<lufimtse>30	so I kinda helped you introduce those memory leaks lol.
+T 1490122288 18<ipun18>	hopefully thats the most major problems we'll see with my dnd patch
+T 1490122295 18*	ipun shrugs
+T 1490122314 20<lufimtse>30	There's still some kinda derp going on. After a while, view-parts dnd stops working.
+T 1490122315 20<lufimtse>30	derp
+T 1490122367 18<ipun18>	realy?
+T 1490122372 18<ipun18>	never had that issue on my end
+T 1490122384 18<ipun18>	must be some gesture callback problem
+T 1490122921 19<ipun>	lufimtse ericwill : where can i check if my patches were in M6 or not?
+T 1490122945 20<lufimtse>30	If they're older than when M6 was released, they're part of M6.
+T 1490122956 18<ericwill18>	yeah if they were merged before the freeze date, it's in
+T 1490123087 18<ipun18>	where can i find the freeze date
+T 1490123168 18<ericwill18>	ipun https://wiki.eclipse.org/Oxygen/Simultaneous_Release_Plan#Schedule
+T 1490123177 18<ipun18>	thank you
+T 1490123254 18<ipun18>	ericwill: date says march 17, does that mean everything committed to master before the 17th is in m6?
+T 1490123311 18<ericwill18>	ipun I think so?
+T 1490123391 18<ipun18>	okay

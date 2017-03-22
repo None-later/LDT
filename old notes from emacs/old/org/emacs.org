@@ -1,0 +1,3023 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="org.css" />
+Emacs Note
+* About
+** Manuals:
+Unofficial (very good) Emacs Manual: http://ergoemacs.org/emacs_manual/emacs/index.html
+Official Emacs Manual: http://www.gnu.org/software/emacs/manual/html_node/emacs/index.html#Top
+Org Mode manual: https://www.gnu.org/software/emacs/manual/html_node/org/index.html#Top
+
+[[http://www.masteringemacs.org/][Mastering Emacs]]
+
+** Articles 
+Org-Mode Quick overview:
+http://orgmode.org/worg/org-tutorials/orgtutorial_dto.html
+
+Org-Mode Long real life experience (include dia, task states etc...)
+http://doc.norang.ca/org-mode.html
+** Blogs
+Emacs Fu : http://emacs-fu.blogspot.ca/   (e.g [[http://emacs-fu.blogspot.ca/2009/11/showing-pop-ups.html][notification]] post)
+
+Sascha chua's blog : http://sachachua.com/blog/
+
+Emacs Redux (e.g uptime post) http://emacsredux.com/
+
+Consolidation of all the blogs:
+http://planet.emacsen.org/
+
+** Getting Help 
+   In general: C-h  //'help' with stuff...
+   C-h l  List commands that I ran. (command history)  KEY__
+   f1-w  where-is  list all keys bound to a function.
+   C-h ?  list of helps available. 
+*** KEY__ C-h f  <func-name>  //Help for function
+*** KEY__ C-H k  <Key_combo>  //Help for Keyboard shortcut see what key combo does.
+   see also:
+   [[*Man Pages for Keyboard shortcuts]]
+   [[*Man pages for functions]]
+
+*** KEY__ C-h m  Help for Current mode
+
+*** KEY__ C-h b  List of all key _bindings_ for current buffer.
+
+*** KEY__ C-h c  (select menue item) show what command the menue item is bound to [d]
+Also accepts key bindings.
+*** KEY__ C-h v  list of *variables* (for customizing variables) <<setting variables>>
+This is useful for customizing variables with emac's
+customizer. (point and click to set a variable).
+*** KEY__ C-h a  (command apropos) search commands via regex, list what ever matches.
+*** KEY__ C-h i  GNU core utils. Info pages.  (like man pages) [d]
+    Press '?' to get information about info mode. 
+    Press 'h' to see man page for info itself.
+
+    Navigation is like:
+    n   Next page
+    p   previous page. 
+    u   up 
+    q   quit to buffer.
+
+    SPC move down
+    DEL move up
+
+    e.g Emacs -> dired   (directory info)
+    Emacs has a long manual... 
+
+
+
+*** Video:
+    https://www.youtube.com/watch?v=B6jfrrwR10k
+    
+*** Text-tie tutorial:
+    http://www.gnu.org/software/emacs/tour/
+    
+*** Awesome_things_with_emacs
+    http://emacsrocks.com
+*** Colemak_support 
+    Seems colemak is emacs friendly. 
+    
+    But there are mappings:
+    http://forum.colemak.com/viewtopic.php?id=612
+    https://code.google.com/p/ergoemacs/downloads/list
+* Configuration 
+** Loading of .emacs .emacs.el  .init.el etc...
+Initially, when emacs starts, it'll look for the following in order:
+~/.emacs
+~/.emacs.el
+~/.emacs.d/init.el
+
+Note, if it finds .emacs, then it won't try to load .emacs.d/init.el , i.e, they can't live concurrently.
+
+** Activation
+Reccomended shortcuts:
+     (global-set-key "\C-cl" 'org-store-link)
+     (global-set-key "\C-cc" 'org-capture)
+     (global-set-key "\C-ca" 'org-agenda)
+     (global-set-key "\C-cb" 'org-iswitchb)
+
+** Clean View
+*** Hide stars
+   Make leading stars invisable 
+   Either configure global var:
+   org-hide-leading-stars
+
+   or per file setting:
+    #+STARTUP: hidestars
+    #+STARTUP: showstars
+*** Auto indent
+Put this into file:
+;#+STARTUP: indent 
+
+also org-indent-mode   activatates this behaviour all over.
+
+*** Odd/even levels only
+Per file basis:
+ ' #+STARTUP: odd
+ ' #+STARTUP: oddeve
+
+
+Convert existing document:
+ org-convert-to-odd-levels
+ org-convert-to-oddeven-levels
+** Launching_Emacs_in_terminal 
+   emacs -nw  //no window, aka --no-window-system
+** Moving .emacs files somewhere else 
+
+   I tried soft-links, but it didn't work.
+   So instead I hard-linked it in my dropbox:
+   cd ~/Dropbox/appData/emacs
+   touch .emacs  #or move your .emacs here.
+   ln ./.emacs ~/.emacs
+** KEY__ C-x f   Set new column margin  <<Margin_setting_key>>
+** AutoSave functionality
+I like to use save-all on focus out.
+See [[http://www.emacswiki.org/emacs/AutoSave][auto save wiki article]]
+** Starting in full screen
+emacs -
+* Key mapping/binding
+** Terminologies
+*keymap* - internal datastructure 
+** Commands 
+*** Define Key
+(define-key KEYMAP KEY DEF)
+    Defines a key against a keyboard map. Use this if you want to change a keymap that isn’t the current buffer map.
+*** Local Set key
+(local-set-key KEY COMMAND)
+    Binds a key to the local keymap used by the active buffer, unlike define-key which takes an explicit keymap to bind a key against.
+*** local unset key
+(local-unset-key KEY)
+    Removes KEY from the active, local keymap.
+*** global set key
+(global-set-key KEY COMMAND)
+    Binds a key to the global keymap, making it available in all buffers (with a caveat – see below.)
+*** global unset key
+(global-unset-key KEY)
+    Removes KEY from the global keymap
+** Keys in code (use kbd macro)
+Key can be represented in string/vector. But we use kbd macro.
+
+Normal keys can be typed like so:
+(kbd "C-c p")
+
+*function and navigation* keys *must* be surrounded by < and >, like so:
+(kbd "C-<f12>")
+** Remapping commands/functions
+Re-route all calls to a command to a different one. 
+
+(define-key KEYMAP [remap ORIGINAL-FUNCTION] 'MY-OWN-FUNCTION)
+
+e.g, remap kill-line to my-homemade-kill-line
+#+begin_src emacs-lisp
+  (define-key (current-global-map) [remap kill-line] 'my-homemade-kill-line)
+#+end_src
+** Reserved keys
+Reserved for user:
+  C-c ?   - /Note, often used by packages/
+  F5-F... 
+  super/hyper  - s-?, H-?   this varies depending on desktop.
+                            on Mate, winKey = s, on Gnome winKey= h
+** Key lookup order
+*Note*, minor modes often override major modes.
+ 
+1. overriding-terminal-local-map for terminal-sepific-key binds
+2. overriding-local-map  keys (CAREFUL)
+3. Keymap char property at point
+4. emulation-mode-map-alist 
+5. minor-mode-overriding-map-alist
+6. minor-mode-map-alist
+7. Keymap at point 
+8. current-local-map
+9. current-global-map
+** (interactive) keyword
+This makes functions appear in the M-x list.
+Key-bindings can only invoke interactive functions.
+** Display 'complex' commands with C-x ESC ESC         KEY__ 
+Complex commands are those with multiple paramaters.
+
+E.g, find-file -> dev.org, C-x ESC ESC gives us;
+(find-file "/home/lufimtse/git/LeoUfimtsev.github.io/org/dev.org" t)
+
+For non-complex commands, use C-h v or C-h f.
+** Mode maps
+*** Modes
+There are:
+ - mode-maps (defined before mode loads) -> end in *xxx-mode*
+ - mode-map-hooks (upon load) -> end in *xxx-mode-hook*
+*** Listing/finding mode Maps
+Either:
+M-x apropos-variable -> -mode-map$
+or 
+C-h v & search for -mode-map [something] (e.g org)
+*** define key based on mode map
+(define-key [MODE-MAP] (kbd "[KEY COMBO]") 'FUNCTION)
+** Mode hooks
+*** Hooks
+Has zero or more functions when activated.
+*** Listing hooks
+M-x apropos-variable RET -mode-hook$ RET
+
+See also: [[id:6f66711c-5d5b-454d-a6fb-5f269c85a1f5][Add-hook has build-in deduplication.]]
+*** Hook example
+#+begin_src emacs-lisp
+(defun my/add-python-keys ()
+  (local-set-key (kbd "C-c q") 'shell))
+
+(add-hook 'python-mode-hook 'my/add-python-keys)
+#+end_src
+** Global key bindings
+(global-set-key (kbd "key-bind-here") 'interactive-command-here)
+** Getting all keys to work in terminal                           :TERMINAL:
+See: http://www.emacswiki.org/emacs/LinuxConsoleKeys#toc1
+Also related reddit:
+http://www.reddit.com/r/emacs/comments/30017l/getting_all_keys_working_on_the_linux_console/
+** References
+Good article:
+http://www.masteringemacs.org/article/mastering-key-bindings-emacs
+
+Function to list all maps at point:
+http://emacs.stackexchange.com/questions/653/how-can-i-find-out-in-which-keymap-a-key-is-bound/654#654
+* Navigation and editing.
+** Key Definitions
+C-<chr> = Control <chr>
+M-<chr> = Meta/Alt <chr>  //midle button for me.
+also 'ESC' press/relese then <chr> works.
+Key__
+
+<DEL> = Backspace 
+   <SPC> = Spacebar 
+** Unsorted.
+   Key__C_h___t___Tutorial 
+   Key__C_h___r___Manual
+*** KEY__ C-x C-c  end or quit the session.
+*** KEY__ C-g Quit Parcially entered command. (Esc Esc Esc also works)
+    Note, C-g cannot be used to get out of recursive editing levels as it's used inside them.
+*** KEY__ Esc Esc Esc  Universal 'quit what you're donig'
+** Words 
+M-f M-b M-d M-<DEL>    KEY__ word manipulations
+M-@  Mark word at point KEY__  
+** Sentences in emacs 
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Sentences.html][Emacs manual on sentences]]
+A  ends:  (follows American typist convention)
+ - '.'
+ - '?'
+ - '!'
+ - two spaces   (recommended)  
+ - inline: '.  '  (dot and two spaces).
+
+M-a  backwards-sentence     KEY__ move to front of sentence.   
+M-e  forward-sentence   KEY__ move to end of sentence.   
+M-k  kill-sentence   KEY__ kill sentence backwards.  
+C-x <DEL>  backwards-skill-sentence  KEY__ kill sentence backwards.
+** Paragraphs
+- Definition ::
+  Seperated by one or more blank lines. (empty or have only spaces/tabs)
+
+- Keys ::
+  M-{   backward-paragraph    KEY__ 
+  M-}   forward-paragraph     KEY__ 
+  M-h   mark-paragraph        KEY__
+** Pages
+Pagebreaks look like this:
+ 
+
+C-q C-l  insert pagebreak    KEY__
+M-x what-page 
+C-x [    Move point to previous page KEY__  
+C-x ]    Move point to next page    KEY__  
+C-x C-p  Mark this page
+C-x l    count lines on this page.  
+** Navigation.
+*** Page navigation
+    Key__C_v___Next_page ; aka view next screen.
+    Key__M_v___Previous_page 
+    Key__C_l___Toggle_view_aruond_cursor ;Seems useful.
+    
+    Key__M_<___Start_of_File
+    Key__M_>___End_of_file
+*** Line Navigtaion
+    C a Beggining_of_Line
+    C e End of line
+    
+*** Paragraph Navigation 
+**** KEY__ M-{  Back to previous paragraph  (works in org mode for headers)
+**** KEY__ M-}  Move to next paragraph  (-> org mode : headers)
+
+
+
+
+ 
+Paraprastrsat
+rastarstras
+
+rastartart
+arstrts
+
+*** Sentence 'point'
+    Key__M_a___Beginning_of_Sentence
+    Key__M_e___End_of_Sentences
+*** Cursor Navigation 
+    //  Single Char
+    Key__C_p___Previous_Line__UP    //UP = previous 
+    Key__C_n___Next__DOWN           //DOWN = next
+    Key__C_b___Back__LEFT			//LEFT = back 
+    Key__C_f___Forward__RIGHT       //RIGHT = forward
+    
+    //  By words 
+    Key__M_f___Next_Word 
+    Key__M_b___Previous_Word
+*** Back / forward navigation
+C-x C-SPC  pop-global-mark    Go back emacs KEY__ 
+See also:
+helm-global-mark-ring
+*** Jumping around
+Opening an indirect buffer to view something. Then go back to previous place.  
+
+C-c C-j org-goto    KEY__ jump around.   USEFULL__
+** Marking
+*** KEY__ M-h  mark next paragraph. 
+** Editing 
+*** Killing  
+    <DEL> Delete char before ucrsor
+    C-d   Delete char after cursor
+    
+    C-<DEL> Kill till beginning of a word
+    
+    M-<DEL> Kill word before cursor
+    M-d 	kill word after cursor
+    C-k 	Kill till EOF
+    C-S-backspace  Kill whole line.     KEY__ Line editing
+    M-k 	Kill tiill end of current sentence.
+*** Killing and yanking 
+    killed (unlike deleted) text can be pasted (aka yanked) back.
+    C-y  // 'Yanking'.
+
+    Everything that is 'killed' is accumilated in a buffer. 
+    Yanking brings it all back. e.g press C-k several times, then C-y to get all back.
+*** Inserting 
+**** KEY__ C-o Insert new line below, (open line).
+**** KEY__ C-j new line.
+*** Selecting 
+    C-<SPC> Activate/deactivate marking.
+    Select some text, then press C-W
+*** Undo Key 
+    C-/ 
+*** Yank/pasting toggling through history 
+    after a yank, press 
+    M-y  to toggle through the previous copied items.
+*** Duplicating / Copy lines
+Use 'duplicate-line function mentioned in this [[http://stackoverflow.com/questions/88399/how-do-i-duplicate-a-whole-line-in-emacs#answer-998472][S.O answer]]
+*** Indentation (and indent region)
+- Build in indent options ::
+  M-j  C-M-j  indent-new-comment-line 
+  
+- Auto indent :: 
+  This method indents things to what it 'thinks' indentation should be:
+  C-M-\   indent-region   KEY___
+
+- Manually Indent ::
+  - Mark your region
+  - C-x TAB  indent-rigidly         #KEY__  indent region
+  - Now you'll be able to move via left/right  S-left/S-right
+*** Merging lines 
+M-^  merge line to line above it. #KEY__ editing
+C-u M-^  merge line below to current. (like del)  #KEY__ editing
+** Searching
+  C-s   isearch-forward
+  C-r   isearch-backward
+
+*** I-Search, not search invisable 
+You can configure i-search not to search for invisable text. 
+this is useful in searching narrowed-down bits e.g from a tag-search. 
+
+search-invisible option can be configured to search only visable text.
+
+or during search, press:
+M-s i  toggle hidden text search.
+
+=> [[http://emacs.stackexchange.com/questions/3929/make-isearch-skip-folded-content-in-org-mode][S.O answer with details]]
+
+Can add a variable to customizer's list:
+'(search-invisible nil)
+
+** KEY__ C u 20 Repeat n times
+   // Type C-u, then number of times to repeat, then command to repeat. 
+   //e.g type '=' 20 times:
+   C u 20 =
+** KEY__ C-x z (z z z..)   Repeat previous command. (then press z to repeat it further)  
+** Man Pages for Keyboard shortcutS
+   C-h k <key combo>  
+** Man pages for functions
+   C-h f <function name>
+** Windows
+*** KEY__   C-x 1  //one window. Kill other windows (split views)
+*** KEY__   C-x 2  Split current view Horizonally
+*** KEY__   C-x 3  Split current view Vertically
+*** KEY__   C-x 4 C-f   Find file in other window.
+*** KEY__   C-x 0  Delete current Window. (for unsplitting)
+*** KEY__   C-x o  switch to _Other window.
+   Window = like tab. 
+   Many Windows = Frame
+*** CMD__ make-frame    create a new frame (i.e new window)  [d]
+    In a terminal, only one frame can be shown at a time.
+    In GUI mode, a new window pops up.
+*** CMD__ delete-frame  delete the newly created frame.
+*** KEY__ C-M-v  (C-S-M-V) page up/down in other window.
+** Defining Custom shortcuts
+1) In general, find the help for command:
+   C-h k <KEY COMBO>
+
+2) It will tell you the exact way that emacs sees it in the mini buffer
+   (if not defined) or in the help buffer. e.g *C-H-l is undefined*
+
+3) Define your keyboard shortcut with what you see like:
+   (global-set-key (kbd "<C-H-l>") 'function) ;observe angle brackets used < > 
+
+See Also:
+   kbd keys:
+   C-a   ;regular keys
+   C-<f11>  ;keys that are more than 1 char long are <embraced>. e.g <up>
+
+   Tutorial
+   http://ergoemacs.org/emacs/keyboard_shortcuts.html
+
+   kbd examples:
+   http://ergoemacs.org/emacs/keyboard_shortcuts_examples.html
+** Keyboard Macros 
+[[http://www.emacswiki.org/emacs/KeyboardMacros#keyboard_macro][src]]
+- Quick macros ::
+  F3 or  C-x (   kmarco-start-macro     KEY__   start a macro 
+  F3 or  C-x )   end macro   
+  C-x e   repeat macro
+
+- Name macros ::
+  Once a macro has been defined, it can be named:
+  M-x name-last-kbd-macro     CMD__  
+  
+  Once named, (e.g my/macro/space-by-2), can be used from M-x. 
+  But these dissapear when emacs closes.
+
+- Saving Macros to .emacs file ::
+  Open .emacs file. use:
+  M-x insert-kbd-macro     KEY__  insert keyboard macro into .emacs file.
+  
+  Now can be used by keyboard definitons:
+  (global-set-key (kbd "C-c a") 'my-macro)
+
+- Editing macro ::
+  Also possible, need to set 'kmacro t property. (see ref for details). 
+
+- more ::
+  see ref for things like:
+  - execute macros programatically,
+  - query user 
+  - keyboard macro timer.. 
+** Commenting out line
+Since emacs 25.1
+C-x C-;  Comment out line  CMD__ 
+* dired & file management
+http://ergoemacs.org/emacs/file_management.html
+
+  C-x d dired    KEY__
+  Now select a ndirectory to open.
+
+Common actions:
+RET open file
+q   quit 
+  C   copy file
+  R   Rename/move
+  D   Delete a file
+  +   create a new dir.
+  Z   compress/decompress a file.
+  
+- multi file ::
+  m   mark a file
+  u   unmark a file
+  U   unmark all selected.
+  %   mark by pattern regex.
+  
+- Navi ::
+  g refresh dir list 
+  ^ go to parent dir.
+  
+- Often used with shell :: 
+  when inside dire, can invoke some shell command with 'M-!'. 
+  Output then visible on right plane.
+
+- Sort by size: 
+ C-u s  then type -lS
+
+
+http://ergoemacs.org/emacs/dired_sort.html
+
+* Buffers
+** KEY__ C-x C-B Swch to Buffer
+** KEY__ C-x B Open Buffer List
+** KEY__ C-x C-s Save buffer 
+** KEY__ C-x s Save some buffers
+* Bookmarks 
+[[http://ergoemacs.org/emacs/bookmark.html][ergo emacs article]]
+
+** KEY__ C-x r m   bookmark set  (add file to bookmark) (Mnem: @ register @ mark)
+** KEY__ C-x r l   List bookmarks    (@register list)
+** KEY__ C-x r b   jump to bookmark. (@register b is used for jumps.
+
+** Removing bookmarks:
+Open bookmark file:
+d - mark for removal 
+x - remove all marked 
+r - rename current file 
+s - save cahnges. 
+
+* regex in emacs
+http://ergoemacs.org/emacs/emacs_regex.html
+* Session management 
+** KEY__ C-z hide/emacs temporarily, (use 'fg' or '%emacs' cmd to bring back in terminal)
+* Todo keyword mangagement 
+customize var: org-todo-keywords     VAR__
+@ - note 
+! - time stamp 
+X/Y - X at entering state, Y on leaving
+
+e.g
+WAIT(w@/!) - record a note when entering, a timepstamp when leaving.
+[[https://www.gnu.org/software/emacs/manual/html_node/org/Tracking-TODO-state-changes.html][ref]]
+* String Commands
+** CMD replace-string <Enter> Original <Enter> New string
+* Auto Save and File recover.
+  Auto saved file have # at beggining and end. #hello.c#
+  Once saved, this file is deleted.
+
+  If computer crashed, load hello.c (not auto save) and then type:
+  *recover-file*
+  then: *yes*
+* Folding on start up (auto collapse/expand)
+see VAR__ org-startup-folded 
+
+* Package Mangement 
+** Setup
+   Awesome Emacs has a lot of packages:
+   https://github.com/emacs-tw/awesome-emacs
+   
+   Most packages can be installed viam MELPA
+   https://github.com/milkypostman/melpa
+** Installing packages
+   Once Melpa is installed:
+   M-x package-list-packages
+   browse/search packages. Click on them, click on the 'install' button.
+** Uninstalling (_deleting /removing ) packages 
+1. list packages: package-list-packages
+2. mark package 'd'  (package-menue-mark-delete)
+3. execute 'x'  (package-menue-execute)
+** Updating packages
+- List packages (package-list-packages)
+- U x
+
+** Auto Install missing packages.
+Some day, follow [[http://stackoverflow.com/questions/10092322/how-to-automatically-install-emacs-packages-by-specifying-a-list-of-package-name][this]] guide.
+
+* @ Hacking Emacs
+** Evaluate commands interactivley
+*** Selected Region
+   http://www.gnu.org/software/emacs/manual/html_node/emacs/Lisp-Eval.html
+   M-x eval-region     Evaluate selected region
+*** KEY C-x C-e Evaluate Left of cursor [d]
+   http://ergoemacs.org/emacs/elisp_eval_lisp_code.html  
+*** Evaluate typed in expression:
+    eval-expression
+    M-:     //i.e, with shift 
+*** Interactive shell
+    ielm
+** Interactive scrolling
+http://www.emacswiki.org/emacs/Scrolling
+** See also:
+   [[*Org Save Actions]]
+** Debugging .emacs file 
+2 ways of doing it:
+1) set debug-on-error to true. load .emacs  *I find more useful.
+2) Start emacs with -debug-init 
+* Mode Theory
+** file-modes
+To load file-level modes, use 'eval :' in -*- brackets.
+
+Example:
+; -*- eval: (auto-fill-mode 1) -*-
+
+[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Choosing-Modes.html][further reading]]
+** Finding the hook for a mode.
+In most cases, you have 'mode-hook', e.g eww-mode-hook.
+
+Then you can tie actions to hooks like so:
+
+#+BEGIN_SRC elisp
+(add-hook 'eww-mode-hook
+      (lambda ())
+         (local-set-key (kbd "Q") 'my-Function)
+   )) 
+#+END_SRC
+
+To find a mode hook:
+ - Look at the name of the major mode. (Working in bash, it’s “Shell-script.”
+ - Type C-h v, for variable help.
+ - Start typing the name of the major mode.
+ - Hit “?”, and look for something that ends with “hook.” That’s probably it.
+  [[http://www.emacswiki.org/emacs/ModeHooks][src_ref]]
+
+* @ Major Modes of usefulness
+** @ Outline mode
+*** Tutorials:
+    http://www.emacswiki.org/emacs/OutlineMode
+    
+    Notes with outline mode:
+    http://sachachua.com/blog/2008/01/outlining-your-notes-with-org
+    /
+    M-x outline-mode   //To enter.
+*** Navigation 
+    C-c C-a  show all 
+    C-c C-t  show tree (headings)
+    C-c C-s  show subtree at location. 
+    C-C C-d  hide subtree at location.
+    C-c o    ?? Focus on current section and shrink others.
+     
+*** BUG mehl3
+**** Notes (using outline for notes)
+    Searching:
+ - Start search with '*' to search headers.
+*** auto-fill-mode
+   Breaks up long inserts when pressing enter. 
+   Must have spaces to seperate words.
+
+   M-q   refill paragraph to fit margin. 
+   also see [[Margin_setting_key]]
+** @ Drag Stuff Mode
+Drag line or regions around via M-<up/down/left/right>
+
+See:
+[[https://github.com/rejeep/drag-stuff.el][git hub page]] as linked to from [[https://github.com/emacs-tw/awesome-emacs#user-content-editing][awesome emacs page]]
+** @ ToDoChiKu (= "nothing" in japanese")
+Cross-platform notification system.
+
+Config instructions:
+http://www.emacswiki.org/emacs/ToDoChiKu
+
+todochiku-in A little reminder that pops up in minutes given.  CMD__
+
+- Configure timeouts ::
+appt-message-warning-Time    VAR__ time notification
+see also the -interval var.
+
+* @ Org Mode    :org:
+** About
+   Tutorial: Outlining with Orgmode:
+   http://sachachua.com/blog/2008/01/outlining-your-notes-with-org/#h5o-16
+   C-c / r   Sparse tree search.
+
+
+   In-depth tutorial with diagrams:
+http://doc.norang.ca/org-mode.html
+
+** Enablig Org Mode                                             
+*** Globally in .emacs:
+    (require 'org)
+    (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+    
+*** On a per file-basis
+    put this into first line of file:
+    -*- mode: org -*- 
+    
+*** Orgmode In other files
+    Use 'orgstruct-mode'
+    
+    Also see:
+    http://orgmode.org/worg/org-tutorials/org-outside-org.html
+** Document Structure bits .
+*** Do not insert blank lines for new headers
+customize:
+org-blank-before-new-entry   VAR__ blank line spaces headings and tasks.
+Set to never.
+*** KEY__ C-c C-j org-goto  (jump) navigate headers. [d]
+set *org-goto-auto-isearch* to off, to dissable automatic search
+in this mode.
+**** org-goto key?                                                    :drill:
+SCHEDULED: <2015-07-24 Fri>
+:PROPERTIES:
+:ID:       3369114b-e9c2-4eaf-957e-e64fc2ed761a
+:DRILL_LAST_INTERVAL: 4.1979
+:DRILL_REPEATS_SINCE_FAIL: 2
+:DRILL_TOTAL_REPEATS: 7
+:DRILL_FAILURE_COUNT: 2
+:DRILL_AVERAGE_QUALITY: 2.857
+:DRILL_EASE: 2.22
+:DRILL_LAST_QUALITY: 4
+:DRILL_LAST_REVIEWED: [2015-04-20 Mon 16:48]
+:END:
+The key is [C-c C-j]
+But I made my own clone-buffer-swoop all also, tied it to [s-f5]
+***** Mnemonic? 
+Think of jumping.
+*** Visibility cyling 
+C-u C-u C-u <TAB>  unrolls everything, inc drawers.
+*** Doc structure navigation 
+C-c C-n next heading 
+C-c C-p Previous heading 
+C-c C-f Next heading same level 
+C-c C-b Previous heading, same level.
+
+*** Sparse Trees 
+M-<RET>  Insert new heading as current.
+C-x n s/w  _Narrow buffer to current _subtree/_widen *USEFUL*    KEY__
+
+org-M-RET-may-slipt-line  split line when return/enter    VAR__  #new line
+  Set this to default/off, so that lines can't be split unless you press C-j.
+  Very convienient for inserting sub-headings without breaing current heading
+  including list items.
+  
+** Initial visibility (expand/fold on startup)
+[[http://orgmode.org/manual/Initial-visibility.html][src]]
+*** VAR__ org-startup-folded   
+*** Per-file markers:
+ #+STARTUP: overview
+ #+STARTUP: content
+ #+STARTUP: showall
+ #+STARTUP: showeverything
+
+** Links 
+:PROPERTIES:
+:ID:       88933e64-79bf-421a-850b-4e59ce10a58c
+:END:
+[ [ link][Name of link]] ;;but no spaces between [ [
+    
+link can be to anchor:
+<<my anchor>>
+
+or to some heading.
+or to a file/url/lisp/shell command. 
+For complete list, see
+[[http://orgmode.org/manual/External-links.html][the reference]]
+- Keys ::
+  C-c C-l  Create a link (asked for address and name) KEY__
+  C-u C-c C-l   Create file link (tab predicts file name)  KEY__
+  
+  C-c C-l  (on a link) to edit the link. KEY__
+  C-c C-o follow links KEY__ 
+
+- Configs ::
+  org-return-follows-link    RET follows links.
+
+  See 
+
+*** External links. [[http://orgmode.org/manual/External-links.html][see ref]]
+*** Storing a link  (org-store-link)
+C-C l  (org-store-link)  (needs to be configured manually)  KEY__
+store a link to the current file/header for later use 
+with insert link.
+
+[[https://www.gnu.org/software/emacs/manual/html_node/org/Handling-links.html][ref]]
+
+*** See also: 
+[[link security]]
+** Drawers 
+- Customize *org-drawers* for custom drawers
+- Customize *org-export-with-drawers* to specify which drawers to ignore durign export.  
+  /(usually only LOGBOOK by default)/
+- Per file level via: #+DRAWERS: HIDDEN STATE
+*** CMD__ org-insert-drawer C-c C-x d Interactivley insert drawers. 
+I remapped this to C-:  (C-S-;) 
+This works on a selection. Selected text will be put into the drawer.
+** Tags                                                                 
+:LINKS:
+Nice article: http://doc.norang.ca/org-mode.html#sec-11
+:END:
+*** About tags:
+- Useful for categorizing todos. (:work: :action: etc..)
+- Tags are inherited. So a subheading can have multiple tags based on inheritence.
+*** Tag keys:
+C-c C-q  Insert tag
+nC-c C-c  on heading, also inserts a tag.
+C-c \  find all headings matching tag
+
+C-c \  (or  C-c / m)  org-match-sparse-tree
+
+*** Tags tags for all headings in file:
+  #+FILETAGS: :Peter:Boss:Secret:
+*** Global tags (across files)
+**** VAR__ org-tag-alist global tag list.
+
+
+*** File tags 
+   #+TAGS: @work @home @tennisclub
+   #+TAGS: laptop car pc sailboat
+*** Tag groups
+define like: #+TAGS: { @read : @read_book  @read_ebook }
+[[http://orgmode.org/guide/Tag-groups.html#Tag-groups][ref]]
+*** Tag Searches 
+**** Tag search keys KEY__ Tag search keys
+C-c \  
+C-c / m
+  Create sparse tree with heaings matching a tag-search.
+
+C-c a m
+  Global list of tag matches from all agenda files. 
+C-c a M 
+  As above, but only match against todo items.
+ 
+C-c C-c  cancle search. 
+**** Tag search syntax Boolean logic 
+- Inclusion or exclusion :: + - 
+- Or   ::  |
+- And  ::  &
+
+e.g:
+  GTK2+GTK3-SWT
+  GTK|SWT  
+
+*** Appendix:
+=> Tag Groups available.
+
+** Keyboard  Shortcuts
+   <backtab> Collapse all sections.
+   
+   C-c / r   Sparse tree regex search.
+   
+   M-S <left/right> demote/promote trees.
+   M <up/Down>    Move subtree up/down. (also works for paragraphs)
+    
+   TAB   Expand/Colapse a node 
+   S-TAB Expand/Colapse everythig
+** Plain Lists 
+*** List types 
+Unordered:
+- + *
+
+- 
+- 
+- 
+
+Ordered:
+1. 1).  
+
+Descriptive: 
+- Jhon :: plays piano 
+*** To Do Lists 
+**** keys
+   S-left/right    Toggle keywords: todo/done/<no tag>..
+   C-c t           Toggle keywords todo etc.. <SPC> to clear any keyword.
+   C-c / t         Todo Tree
+**** Custom todo tags
+:LINKS:
+http://orgmode.org/guide/Multi_002dstate-workflows.html#Multi_002dstate-workflows
+:END:
+***** Global custom tags
+   (setq org-todo-keywords
+           '((sequence "TODO(t)" "|" "DONE(d)")
+             (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
+             (sequence "|" "CANCELED(c)")))
+
+***** File-speicif todo tags:
+Add like this into file, reload org-mode:
+     #+TODO: REPORT(r) BUG(b) KNOWNCAUSE(k) | FIXED(f)
+**** Closing items
+***** Adding a time stamp when closing items:
+     (setq org-log-done 'time)
+**** Priorities 
+***** KEY__ C-c , LISTS -  A/B/C  set priorities. Or use S-up/down
+*** Check lists  [0/0]
+**** Example
+- [-] Task 1 [1/2]
+  - [ ] peter 
+  - [X] sarah 
+- [ ] Task 2
+- [-] Task 3 [1/2]
+  * [ ] task
+  * [X] mel
+- [ ] 
+**** TOnDO Check list keys
+C-c C-c  (C-c c works also) Check/uncheck. Update parent.
+M-S-<RET>   Create new task. 
+https://git.eclipse.org/r/#/c/39416/
+(setq org-todo-keyword-faces
+           '(("TODO" . org-warning) ("STARTED" . "yellow")
+             ("CANCELED" . (:foreground "blue" :weight bold))))
+
+=Not so much used=
+C-c #    Update list 
+c-u C-c #   Global update. Or use command: 
+(org-update-checkbox-count t)
+*** Toggling check list 
+Use org-mouse to check them with the mouse. 
+
+C-c C-c  (org-toggle-checkbox) 
+C-c C-x C-b  Toggle checkboxes in a region. (C-c x b) seems to work also. KEY__
+
+[[http://orgmode.org/manual/Checkboxes.html#Checkboxes][ref]]
+*** Navigation 
+C-j  newline-and-indent  checklist new line and indent   KEY__
+C-M-j  indent-new-comment-line like above for checklist, but bigger indent for comment KEY__
+*** Customizing plain lists 
+org-list-empty-line-terminates-plain-lists   only require one line to end a plain list VAR__
+  normally needs 2 lines.
+
+** Footnotes
+:LINKS:
+[[http://orgmode.org/manual/Footnotes.html][Org manual reference]]
+:END:
+SUMMARY:
+- Useful commands :: 
+  - Foot note action :: 
+    C-c C-x f  org-footnote-action (insert/follow/removal with prefix)    KEY__
+    Inserts foot note
+    Follows foot note, 
+    With prefix, allows you to select options (delete/sort)
+  - Follow footnotes :: 
+    C-c C-c   follow/jump to footnote ref/def  KEY__ 
+
+- Useful variable ::
+   org-footnote-auto-adjust  can be set to auto sort and re-order. This deletes unreferenced footnotes  VAR_
+
+DETAILS
+- Numbered :: [ fn: 1]  #no spaces.  
+- Named :: [fn : name]  #no spaces.
+** Tables  @@
+*** About Tables 
+| name  | phone | age |
+|-------+-------+-----|
+|       |       |  23 |
+|       |       |  24 |
+| Leo   | 123   |  27 |
+|-------+-------+-----|
+|       | rstrs |  21 |
+|       |       |     |
+|-------+-------+-----|
+| rstrs |       |  24 |
+|       |       |     |
+|-------+-------+-----|
+|       |       |     |
+|-------+-------+-----|
+
+- Start table :: '|'
+- Line break like '|--+--|' :: '|-<TAB>'    also: C-c <Ret>       KEY__ table 
+- Realigning :: C-c C-c   or TAB                                  KEY__ table 
+- New row :: <RET>   (S-<RET> tries to predict)                   KEY__ table
+- Convert region to table :: C-c |       #space/comma seperated.  KEY__ table
+     Delimiters:
+       - If there is TAB, uses tab
+       - commas
+       - C-u forces CSV, C-u C-u TAB.
+
+*** Table Column/Row Editing           
+**** Alignment
+TAB  Table: Align, go forward.
+S-TAB  Table: Re-align, go back
+**** Navigation
+M-a   Previous field.               KEY__ Table
+M-e   Next Field.                   KEY__ Table
+**** Editing (moving/killing/inserting)
+M-<left>/<right>   Table: Move column left/right    KEY__
+M-<up>/<down>      Table: Row up/down          KEY__
+
+M-S-<left>    Table: Kill current column            KEY__
+M-S-<up>      Table: Kill current row               KEY__
+
+M-S-<right>   Table: Insert a new column, left of position.           KEY__
+M-S-<down>    Table: Insert a new Row, belw.                          KEY__
+**** Horizontal Lines
+C-c -     Table Insert line break below. (C-c <Ret> insert line break above).        KEY__
+C-c ^     Table Sort rows in region, column selected by current cursor pos.          KEY__
+C-c RET   Insert hline and go to next line.         KEY__ table 
+**** Copy/Pasting
+C-c C-x  (M-w | C-w | C-y)
+**** Calculations 
+C-c + (org-table-sum) calculate total of column.   KEY__ Table
+      can use yank to insert into buffer then.
+
+S-<RET> (org-table-copy-down)  Copies first non-empty value.     KEY__ Table
+        Continues a sequence. (numbers, dates..)
+**** Miscellaneous
+C-c `   edit field in seperate window. (for non visible fields, also shows coordinate).  KEY__ Table
+
+M-x (org-table-export), export as tab-pererated file.
+    Properties: org-table-export-default format.  
+*** Width and alignment
+**** Fixed width
+Insert <N> into column somewhere. Then press C-c C-c to trim things.
+You will see '=>'. Use C-c ` to edit hidden fields.
+
+Mose over field to see tooltip of text.
+
+| name  |
+| <5>   |
+| Leo   |
+| Jhonston Jeffery |
+
+Alignment happens manually, but can be configured on a per-file basis:
+ #+STARTUP: align
+ #+STARTUP: noalign
+ org-startup-align-all-tables     VAR__ Table alignment.
+**** Left/center/right alignment
+Similar to above,  but use <l>/<c>/<r>
+
+Can combine <l10> for instance.
+
+Centering doesn't work in emacs, but affects html export.
+*** Column grouping on export 
+Normally columns are not seperated when exported. 
+But can force. 
+\  - indicate grouping
+<  - start grouping
+>  - end groupping (optional)
+<> - one column group
+
+e.g 
+    | N | N^2 | N^3 | N^4 | sqrt(n) | sqrt[4](N) |
+    |---+-----+-----+-----+---------+------------|
+    | / |   < |     |   > |       < |          > |
+    | 1 |   1 |   1 |   1 |       1 |          1 |
+    | 2 |   4 |   8 |  16 |  1.4142 |     1.1892 |
+    | 3 |   9 |  27 |  81 |  1.7321 |     1.3161 |
+    |---+-----+-----+-----+---------+------------|
+     #+TBLFM: $2=$1^2::$3=$1^3::$4=$1^4::$5=sqrt($1)::$6=sqrt(sqrt(($1)))
+*** Org-table outside org mode
+[[http://orgmode.org/manual/Orgtbl-mode.html#Orgtbl-mode][see ref]]
+*** Spreadsheet functionality
+[[http://orgmode.org/worg/org-tutorials/org-spreadsheet-intro.html][Spread sheet tutorial]]
+**** Referencing
+[[http://orgmode.org/manual/References.html#References][ref]]
+***** Finding Reference
+C-c ?   Message reference to this field.  KEY__ Table 
+C-c    turn on display of grid           KEY__ Table 
+***** Reference Format
+'B2' like is possible, but better:
+@row$Column 
+***** Absolute/Relative
+$1,@1   Absolute 
+$+1,  Relative    
+$<  $>   first/last column.
+$>>> Third column from the right.
+
+Relative to hline 
+@I first row to hline
+@II second row to hline
+@+I first such line below current.
+
+@0$0  current row/column.
+***** Range References
+use .. 
+e.g $1..$3  first three fields.
+
+Examples:
+ $1..$3        first three fields in the current row.
+ $P..$Q        range, using column names (see under Advanced).
+ $<<<..$>>     start in third column, continue to the one but last.
+ @2$1..@4$3    6 fields between these two fields (same as A2..C4).
+ @-1$-2..@-1   3 fields in the row above, starting from 2 columns on the left.
+ @I..II        between first and second hline, short for @I..@II.
+***** Field coordinates in formulas 
+$# and @#  denote where result goes.
+***** Named references 
+$name 
+
+org-table-formula-constants  global constants    VAR__ Tables
+
+per-file:
+#+CONSTANTS: c=299792458. pi=3.14 eps=2.4e-6
+
+Properties can be searched, e.g for:  :Xyz: use:
+$PROP_Xyz  
+
+constants.el package has extra constants.n
+
+Column naming is possible. See adv features.
+***** Remote refernces 
+remote(NAME-OR-ID, REF)
+
+NAME can name of table:
+#+NAME: Name
+
+Can be ID of an entry. (even in different file)
+
+REF is a refernce to first table in entry. $3@3 or $somename.
+**** Formula syntax for Calc
+***** About
+[[http://orgmode.org/manual/Formula-syntax-for-Calc.html#Formula-syntax-for-Calc][ref]]
+Uses emacs Calc package.
+
+Note:
+'/' has lower preceedence than '*'
+
+Vectors can be fed into calc formulas. (vmean, vsum)
+***** Flags (for calc) 
+Flags can be set after semi colon, e.g Time Flag 'T':
+#+TBLFM: @2$3=$1+$2;T
+
+T,t  Duration and time. [[http://orgmode.org/manual/Durations-and-time-values.html#Durations-and-time-values][ref]]
+     [HH:mm[:SS]]
+     T = HH:MM:SS format
+     t = as per org-table-duration-custom-format  (default = fraction of hours)
+D,R  Degree/Radian
+F,S  Fraction and symbolic modes
+
+E    Empty field handling.
+     W/o, empty fields are supressed.
+     W/ , empty fields are kept. 
+
+N    Interpret all fields as numbers. (higher precceedence than E).0 for non-numbers.
+
+L    Literals, for lisp formulas only.
+***** Outptu formatting:
+Man use the *printf* style formatting.
+
+Examples:
+  $1+$2                Sum of first and second field
+  $1+$2;%.2f           Same, format result to two decimals
+  exp($2)+exp($1)      Math functions can be used
+  $0;%.1f              Reformat current cell to 1 decimal
+  ($3-32)*5/9          Degrees F -> C conversion
+  $c/$1/$cm            Hz -> cm conversion, using constants.el
+  tan($1);Dp3s1        Compute in degrees, precision 3, display SCI 1
+  sin($1);Dp3%.1e      Same, but use printf specifier for display
+  taylor($3,x=7,2)     Taylor series of $3, at x=7, second degree
+***** Examples 
+****** Computing column totals.
+[[http://orgmode.org/worg/org-tutorials/org-spreadsheet-intro.html][src]]
+Take a table like this:
+| Student  | Maths | Physics | Mean      |
+|----------+-------+---------+-----------|
+| Bertrand |    13 |      09 | [Formula] |
+| Henri    |    15 |      14 |           |
+| Arnold   |    17 |      13 |           |
+
+Replace [formula] with :=vmean($2..$3)  and press C-c C-c.
+Then you get:
+| Student  | Maths | Physics | Mean |
+|----------+-------+---------+------|
+| Bertrand |    13 |      09 |   11 |
+| Henri    |    15 |      14 |      |
+| Arnold   |    17 |      13 |      |
+#+TBLFM: @2$4=vmean($2..$3)
+***** Emacs Calc syntax
+****** Operator precedence 
+^ * / + -
+**** Formula syntax for elisp 
+[[http://orgmode.org/worg/org-tutorials/org-spreadsheet-intro.html][src]]
+like:
+$5='(substring (number-to-string $pi) (round $4) (1+ (round $4)));N
+
+**** Editing formula fields 
+C-c =   edit current field formula   #KEY__ table spreadsheet 
+C-c '   edit in dedicated buffer.
+**** Updating table 
+C-u C-c *   update whole table. 
+
+... more updating possible.
+**** Debugging formulas [[http://orgmode.org/worg/org-tutorials/org-spreadsheet-intro.html][src]]
+Turn on debugging:
+C-c {
+Then:
+1) Hit C-c C-c in a field
+or
+2) C-u C-c *  for whole table.
+
+*** Table Plotting
+[[http://orgmode.org/manual/Org_002dPlot.html#Org_002dPlot][src ref]]
+
+Need: gnuplot & gnuplot-mode packages.
+
+E.g call: org-plot/gnuplot on below:
+#+PLOT: title:"Citas" ind:1 deps:(3) type:2d with:histograms set:"yrange [0:]"
+| Sede      | Max cites | H-index |
+|-----------+-----------+---------|
+| Chile     |    257.72 |   21.39 |
+| Leeds     |    165.77 |   19.68 |
+| Sao Paolo |     71.00 |   11.50 |
+| Stockholm |    134.19 |   14.33 |
+| Morelia   |    257.56 |   17.67 |
+
+See ref for plot options.
+** Properties 
+*** Property keys
+C-c C-x p   Set a property.
+C-c C-c d   remove a property from current entry.
+C-M-i  (pcomplete) complete property. e.g :ES -> :EST:
+*** Property inheritance 
+:PROPERTIES:
+:CUSTOM_ID: meh
+:mehl_ALL: 1 2 3
+:END:
+appenging _ALL to a propery triggers inheritence,  (see above property for example)
+
+also per file:
+#+PROPERTY: NDisks_ALL 1 2 3 4
+*** Property Searching
+C-c / p   (simmilar to sparse tree search). 
+*** Special Properties
+[[https://www.gnu.org/software/emacs/manual/html_node/org/Special-properties.html#Special-properties][ref]]
+
+ID 
+TODO        TODO/OPEN/HOLD/DONE
+TAGS 
+ALLTAGS
+CATEGORY
+PRIORITY
+DEADLINE
+SCHEDULED
+CLOSED
+TIMESTAMP    first keywordless timestamp
+TIMESTAMP_IA inactive time stamp
+CLOCKSUM     (org-clock-sum) should be first ran to compute time in buffer.
+CLOCKSUM_T   for today. (org-clock-sum-today) must be run first.
+BLOCKED    't' if child/sibling is blocking it. 
+ITEM        headline         
+
+** Date, Time and 
+*** Time Stamp Format 
+**** Basic 
+Date time stamp, (maybe with range).e.g
+‘< 2003-09-16 Tue>’ or #no spaces at < 2
+‘< 2003-09-16 Tue 09:39>’ or
+‘< 2003-09-16 Tue 12:00-12:30>’. 
+
+Advance time stamps are available via sexp entries.(e.g every 2nd day of month..) google this.
+
+Adding stamp below heading assings a date/time to an item. Timestamps don't have to 
+be immediatley below heading. Can be at end of heading also.
+
+
+**** /Repeater Interval/  time Stamps (reocurring tasks)
+Look for the '+w' like: < 2007-05-16 Wed 12:30 +1w>
+
+- Day :: d
+- Week :: w
+- Months :: m
+- Year :: y
+
+Use '.' to reschedule /after it was completed/.
+e.g .+2d 
+
+
+**** Range for Time/Date 
+two time stamps connected by -- 
+<stamp1>--<stamp2>
+**** Inactive Time Stamps 
+in brackets, like:
+[2006-11-01 Wed]
+*** Creating time stamps KEY__ inserting time stamps
+
+C-c .  Insert/edit date.  Press again to insert range.
+-  Formats :: +1d, +1w, Fri, March work
+-  Adding time stamp :: use prefix C-u 
+
+C-c !  like above, but in [ ] brackets. (not listed in agenda).
+
+S-<left>/<rigth>  Change date by one day.
+S-<up>/<down>   changes selected field (year/month hour etc..)
+*** _Deadlines and _Scheduling   KEY__ C-c d/s
+- DEADLINE :: task should be finished on this date.
+  - KEY :: C-c C-d   Insert deadline keyword
+  - On deadline, task will be listed in agenda.
+  - /today/ will carry warning or missed deadline 
+    starting (org-deadline-warning-days) before due date.
+    Stays in agenda till task is done.
+
+- SCHEDULED :: start on that day  [fn:sched]
+  - KEY :: C-c C-s insert _Scheduled keyword.
+  - Task will be listed under given date. 
+  - Reminder present in /compilation for today/ 
+  - Still appears even when done. To change: org-agenda-skip-scheduled-if-done
+ 
+[fn:sched] This is different than an untagged time stamp. 
+A task with a timestamp will dissapear after that date (like a meeting). I think?
+** Clocking 
+*** Time Stamping things. (clocking in/out)  KEY__ C-c C-x  C-i/o/e/q/j/r  (_In/_Out/_Effort/_Quit/_Jump/_Report/  C-c C-c Update)
+C-c C-x .. 
+  C-i Clock _In. (with C-u prefix, select from recent list).
+  C-o Clock _Out
+  C-e Update _Effort  (hh:mm or mm)
+  C-w _Quit current clock
+  C-j _Jump to entry with current clock. (with C-u prefix, select from recent list)
+  C-r Inserts _Report block (aka *Dynamic block*) [[http://orgmode.org/manual/Clocking-work-time.html#Clocking-work-time][details]]
+
+C-c C-x C-d (org-clock-display)  display time spent on each task in current buffer.  KEY__  CLOCK__ 
+   remove with C-c C-c or some edit. (see org-remove-highlights-with-change VAR__)
+
+C-c C-c Update Dynamic block. Curser must be at #+BEGIN line. 
+*** Tuck clocked entries into LOGBOOK drawer
+[[https://www.gnu.org/software/emacs/manual/html_node/org/Clocking-commands.html#Clocking-commands][ref]]
+
+Clocked entries can quickly spam an entry. They can be tucked away into a drawer by adjusting:
+org-clock-into-drawer   put clocks into LOGBOOK drawer VAR__
+
+see also:
+org-log-into-drawer   to put away state changes into LOGBOOK drawer. VAR__
+
+*** Various Settings
+org-clock-out-remove-zero-time-clocks   remove '0' clock times
+*** Limiting time spent on tasks
+ref: [[http://doc.norang.ca/org-mode.html#LimitingTimeSpentOnTasks][Org Mode - Organize Your Life In Plain Text!]]
+
+Can make Effort & Time spent combine intelligently.
+
+e.g:
+Task-property:
+ CLOCK_MODELINE_TOTAL : today
+
+VAR__  org-clock-mode-line-total    (current/today/repeat...)
+
+** Clock report   (aka clocktable report)
+*** Activation 
+Activated via 'R' in Agenda. 
+
+Customized via:
+Org Agenda Clockreport Parameter Plist   VAR__ 
+[[http://orgmode.org/worg/org-tutorials/org-customize.html][Tutorial on how to get to clockreport customization]]
+
+[[https://www.gnu.org/software/emacs/manual/html_node/org/The-clock-table.html#The-clock-table][Reference on the actual clocktable syntax]]
+
+Of interest:
+:narrow     make headline bigger/smaller.
+*** Exporting 
+
+- Into Excel :: 
+  Copy from org, paste special into excel with delimiter '|'
+
+*** Customizing 
+- Mode line (today/total) ::
+  org-clock-mode-line-total  set if to show today's or total or etc.. time in mode line. VAR__
+  Can be set customized locally via task property: CLOCK_MODELINE_TOTAL  see [[https://www.gnu.org/software/emacs/manual/html_node/org/Clocking-commands.html][ref]]
+
+- Formatting ::
+  Formatting such as (day/hour/minutes) can be set via:
+  org-time-clocksum-format time formatting option (dd:hh:mm)     VAR__
+
+- Skipping files with 0 time ::
+  Add property: ":fileskip0" or (:fileskip0 t) 
+
+*** Further reading
+By day.. 
+http://sachachua.com/blog/2007/12/clocking-time-with-emacs-org/
+
+*** in agenda view.. 
+ 
+** Effort Estimates 
+[[https://www.gnu.org/software/emacs/manual/html_node/org/Effort-estimates.html#Effort-estimates][Ref]]
+
+- keys ::
+C-c C-x e  (org-set-effort)   Set an effort for an entry  KEY__
+C-c C-x C-e  (org-clock-modify-effort-estimate) Modify estimate for currently clocked task KEY__
+
+- setting quickly in column view ::
+  edit: org-global-properties   VAR__ effort column quick selection 
+  set: 
+   Effort_ALL . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00"
+   "STYLE_ALL" . "habit"
+** Capture / Refile / Archive 
+*** Configure Capture
+- Set location for notes :: 
+   1. Define var: org-directory 
+   2. Write into .emacs:
+   (setq org-default-notes-file (concat org-directory "/notes.org"))
+- Define global hotkey ::
+   (define-key global-map (kbd "C-c n") 'org-capture)
+   See also [[http://orgmode.org/guide/Capture-templates.html#Capture-templates][template customizations]]
+*** Using Capture KEY__ C-c n  (org-capture)
+C-c c (C-c n in my case) Start a note capture 
+*** Configure Refile 
+Normally, refile only shows the top level headings.  
+I'd like to drill into sub-levels and be able to re-file into any
+of my org mode files. For this I use:
+
+#+BEGIN_SRC emacs-lisp
+(setq myvar/org-dir "~/git/LeoUfimtsev.github.io/org/")
+(setq myvar/org-files (file-expand-wildcards (concat myvar/org-dir "*.org")))
+//..Inside customize..:
+'(org-refile-targets
+(quote
+((org-agenda-files :maxlevel . 10)
+(nil :maxlevel . 10)
+(myvar/org-files :maxlevel . 10))))
+#+END_SRC
+
+Then:
+C-c C-w  Refile entry at point. Customize target via: org-refile-target
+
+*** Archiving KEY__ C-c C-x C-a  (or C-c $ to archive tree)
+
+C-c C-x C-a  Archive current entry 
+C-c C-x C-s (C-c #)  archive current subtree.
+
+Puts into ${filename}_archive file
+
+Location can be customized:
+org-archive-location 
+
+Also:
+org-archive-default-command  (to customize archive behaviour (to file/sibling etc..) 
+** TODo Items 
+*** States
+C-c C-t   toggle states.
+S-<left>/<right> toggle states 
+C-c / t   show todos in sparse tree search.
+S-M-<RET> insert new todo below current one
+
+Changing states can change tags. See
+org-todo-state-tags-triggers
+*** Sequences [[http://orgmode.org/guide/Multi_002dstate-workflows.html#Multi_002dstate-workflows][link]]
+*** DONe Progress logging  
+:LINKS:
+See list of tasks that you worked on in the week:
+http://stackoverflow.com/questions/22394394/orgmode-a-report-of-tasks-that-are-done-within-the-week
+:END:      
+****  Log time when task is done:
+   (setq org-log-done 'time)
+   or: #+STARTUP: logdone   (in-buffer)
+****  Add note when task is done:
+  (setq org-log-done 'note)
+  or:  #+STARTUP: lognotedone  (in-buffer)
+  
+  Can be configured to tuck note into drawer via:
+org-log-into-drawer 
+[[http://orgmode.org/guide/Tracking-TODO-state-changes.html#Tracking-TODO-state-changes][ref]]
+
+****  VAR__ to customize task close logging:: org-log-done
+
+*** Todo priorities 
+S-<up>/<down>  Toggle priorities.
+*** todo cookies: [0%] [0/0]
+Add cookies to heading, to see progress of sub-tasks.
+*** todo colours (faces)
+Customize:
+org-todo-keyword-faces
+
+e.g 
+keyword: OPEN
+Face: orange
+[[http://emacs.stackexchange.com/questions/4104/how-to-put-todo-faces-in-the-file][see S.O post for file-specifics]]
+*** todo dependencies 
+- All dependencies are only hierarchical. (parent <-> child) or siblings <>.
+  I.e, no dependencies outside of child/parent/sibling (like cousin etc) are possible. 
+
+  Dependencies between trees can be achievd via org-depend.el
+
+First vars have to be enabled:
+- org-enforce-todo-dependencies :: Blocks parent from being completed so long as TODO children exist.  VAR__
+- org-enforce-todo-checkbox-dependencies :: Blocks checkbox '* TODO' entries if they have open [ ] tasks.  VAR__
+
+- Ordering siblings :: 
+  if parent has property *:ORDERED: t*  then siblings have to be completed in order.
+  
+  Hot key for this is:
+  C-c C-x o  (org-toggle-ordered-property)     KEY__
+
+- Force finish task :: C-u C-u C-u C-c C-t
+
+- dim/hide un-do-able items ::
+ org-agenda-dim-blocked-tasks  VAR__
+
+
+:LINKS:
+http://orgmode.org/manual/TODO-dependencies.html
+:END:
+
+** Calendar Entries 
+Calendar integration works with agenda view.
+
+Example: (daily reminder. 
+ ' * * * Triage Bugzilla Entries 09:00-10:00 ~#without ' and spaces at start~
+   < %%(memq (calendar-day-of-week date) '(1 2 3 4 5))>
+[[http://stackoverflow.com/questions/28369833/emacs-org-mode-repeat-tasks-m-f-but-not-weekends/28459330#answer-28459330][src]]
+
+:FURTHER_READING:
+Org appointments/Diary
+http://orgmode.org/worg/org-faq.html#Appointments/Diary
+
+Sexpr Diary entries
+http://www.gnu.org/software/emacs/manual/html_node/emacs/Sexp-Diary-Entries.html
+
+
+:END:
+** Agenda Views
+*** About
+[[http://orgmode.org/manual/Agenda-commands.html][reference ]]
+
+*** Agenda files 
+VAR__ org-agenda-files
+
+C-c [ org add file to agenda file list. (org-agenda-file-to-front) KEY__
+C-c ] remove file from agenda list.    KEY__
+C-,   cycle through agenda files.      KEY__
+*** Activating 
+After [[http://orgmode.org/guide/Activation.html#Activation][configuring]] .emacs, my current hotkey is: C-c a 
+
+Then: 
+a  Agenda 
+t  global todo list 
+T  global todo list (but select which tag)
+
+m  Match tags 
+M  Match tags, but only for TODO items.
+   Usual [[*Tag%20search%20syntax%20Boolean%20logic][search syntax]] appies.
+
+*** Agenda opening links KEY__
+<TAB> go to entry in other buffer
+<RET> open entry in this buffer (closing agenda view)
+C-c C-x b  open subtree in new buffer.
+C-c C-o  (org-agenda-open-link)  follow a link in header. 
+*** Agenda modes
+F  Follow mode  (links open as you traverse your list)
+l (aka v l) log mode. (show/hide DONE items)
+
+v a  toggle view archived tasks (archived property)   KEY__ AGENDA__
+v A  toggle view archievd tasks, inc in archive file  KEY__ AGENDA__
+
+G  toggle time grid.
+R  (org-agenda-clockreport-mode)  Show report for this view.
+v c show overlapping clock entries. (for debugging)
+
+- Show task context/summary in Agenda/Timeline ::
+  v E (or E) Entry Mode   (show context/task summary) KEY__
+   Note: number of lines to show:  org-agenda-entry-text-max-lines   VAR__
+
+
+Only show first instance of a repeating task in agenda: see:
+Org Agenda Repeating Timestamp Show All   VAR__
+
+*** Agenda View Customizations 
+- Do not show prewarning if scheduled :: org-agenda-skip-deadline-prewarning-if-scheduled   VAR__
+- Do not show DONE scheduled items. :: org-agenda-skip-scheduled-if-done   VAR__
+- Customize when pre-warninings show :: org-deadline-warning-days    VAR__
+
+*** Agenda view navigaton KEY__
+f/b  forward back week/month etc.
+.   go to today 
+
+n  next line (like C-n)
+N  Next item.  
+
+r/g  reload (recompile) agenda buffer.
+s    save all org buffers.
+
+d day view  (aka v d)
+w week view  (aka v w)
+y year view. (aka v y)
+
+j  prompt for date, go there.
+J  go to currently clocked in task in agenda view.
+
+v t (org-agenda-fornight-view) (next week)
+v m (org-agenda-month-view) 
+v y (org-agenda-year-view)
+v SPC (org-agenda-reset-view)
+o  delete other window.
+
+<numeric prefix> (d w) jump to ..
+ e.g  8 w  jump to 8th week
+      200712 w jump to 12th week of 2007th year
+
+
+C-c C-x C-c  (org-agenda-columns) show columns view. (with priority showing)
+
+*** Agenda view Filtering 
+/ filter with respect to ... tag etc.. see mini buffer. 
+\ add an additional. 
+/ / remove filter.
+
+org-agenda-log-mode-items  VAR__ do not show closed items in log mode. 
+
+*** Agenda task editing KEY__
+Useful keys:
+$  archive selected 
+C-k kill a task.
+,  set priority of task.
++ - (mod priority)
+
+z  add a note.
+C-c C-s  schedule item. 
+C-c C-d  schedule deadline for item.
+
+S-<right> change timestamp to future.   (org-agenda-do-date-later)
+  works with numeric arg. 7 S-<right> changes by a week. 
+*** Agenda Clocking KEY__
+I clock in 
+O clock out 
+X Cancle currently running clock 
+J Jump to running clock in other window.
+
+(see also above to hide logged items in agenda view)
+*** Agenda Clock report view 
+v c to see clocking gaps   KEY__ agenda 
+
+*** Agenda Bulk Actions
+- 1. Marking :: 
+m  mark 
+ *  mark all visable for bulk action
+% mark regex 
+u  unmark 
+U  unmark all
+
+- 2. Bulk ops :: 
+B  bulk action 
+   s schedule 
+   d deadline q
+   t toggle todoq
+*** Agenda Calendar 
+c  (org-agenda-goto-calendar) 
+c  open agenda for that rage
+*** Custom agenda views 
+[[http://orgmode.org/guide/Custom-agenda-views.html#Custom-agenda-views][tutorial]]
+
+This is the things seen when pressing: C-c a 
+customized via VAR__ *org-agenda-custom-commands*
+
+[[http://orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][this]] site shows how to customize agendas, (e.g show only certain tags)
+*** Global Todo List 
+[[http://orgmode.org/manual/Global-TODO-list.html][ref]]
+
+**** Do not show sub-items 
+org-agenda-todo-list-sublevels VAR__ global todo list don't show subitems.
+
+**** Do not show scheduled items
+org-agenda-todo-ignore-scheduled  VAR__ global todo list ignore scheduled.
+
+**** Customize columns
+- Add indentation to items in this list ::
+Add '%l' to 'todo' in var:
+org-agenda-prefix-format    VAR__ global todo list indentation.
+[[http://emacs.stackexchange.com/questions/5900/how-can-i-view-the-hierarchy-of-todo-keywords-in-org-agenda-mode][SO answer]]
+
+****  Agenda Sorting Strategy :: 
+org-agenda-sorting-strategy  VAR__
+
+*** Agenda bulk archive old tasks
+C-c a m 
+type: CLOSED<"<-60d>"
+
+Then, in the agenda window, to archive them all:
+Press '%' to mark regexp.
+Press '.' to select all.
+Press 'B' for 'bulk action'.
+Press '$' for archive.
+[[http://gnuru.org/article/1639/org-mode-find-all-done-items-older-than-2-months][src]]
+
+** Column view 
+*** Column view basics
+C-c C-x C-c activate column view (for current section, or all file if at beggining of file)
+q  quit column view.
+left/right/up/down  navigation 
+S-<left>/<right> change value.
+r  reload 
+e  edit property 
+> <  wider/narrower columns
+
+[[http://orgmode.org/manual/Using-column-view.html#Using-column-view][detailed reference of all keys]]
+*** Customizing column view
+You have to mess with VAR__ org-columns-default-format
+
+e.g display the scheduled property:
+%30ITEM %10SCHEDULED %TODO %3PRIORITY %TAGS 
+
+ (See the [[https://www.gnu.org/software/emacs/manual/html_node/org/Column-attributes.html#Column-attributes][syntax of properties]])
+e.g %EST{:}  will sum times HH:MM, planin numbers are hours.
+
+Properties can be shown in any column. [[*Special%20Properties][Special Properties]] can also be shown.
+
+You can add your own properties also. E.g %EST{:} in column var, and :EST: 20:20 in property
+field of an entry.
+
+See [[http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html][tutorial]]
+
+
+
+*** Column view in agenda
+Ref:
+https://www.gnu.org/software/emacs/manual/html_node/org/Agenda-column-view.html
+
+VAR__ to customize format of columns in agenda view: org-columns-default-format
+
+** Hacks
+*** Org Save Actions
+;Define save hook for 
+(defun custom_org_auto_check()
+  (org-update-checkbox-count t)
+  )
+
+(add-hook 'org-mode-hook 
+          (lambda () 
+          (add-hook 'after-save-hook 'custom_org_auto_check nil
+          'make-it-local)))
+** Markup elements for font faces
+ORG__ MARKUP__ 
+   To turn off, see: http://goo.gl/kqAups
+*Bold*                                 ORG__ MARKUP__
+/Italic/                               ORG__ MARKUP__
+_Underline_ (In between underscores)   ORG__ MARKUP__
+=Verbatim=  means 'exact words as used originally'  see *1                    ORG__ MARKUP__
+~code~       See *1                    ORG__ MARKUP__
++Strike Through+                       ORG__ MARKUP__
+
+ *1 NOTE: not proccessed for functionality by org, but used in exports.
+
+See [[http://orgmode.org/manual/Emphasis-and-monospace.html#Emphasis-and-monospace][web src]] for info on customizing these.
+
+To change faces (color/background), see: [[id:7c8b8fc0-fdf9-4846-83f6-e3566506430e][Customizing Font-faces]]
+- Can be customized via org-emphasis-alist  VAR__ MARKUP__
+- Per file level can be done [[http://stackoverflow.com/questions/22491823/disable-certain-org-mode-markup][See SO post]]
+** Customizing Font-faces
+:PROPERTIES:
+:ID:       7c8b8fc0-fdf9-4846-83f6-e3566506430e
+:END:
+run: ~M-x list-faces-display~ , find the font face, adjust as needed.
+Note: background/foreground might not appear. To fix, uncheck/check inheritance.
+** In line images 
+e.g [ [./img/Progressbar.png]]  ;no spaces. 
+[[./img/Progressbar.png]]
+
+You can toggle inline image preview:
+[[elisp:org-toggle-inline-images][Toggle Inline Images]]
+
+I.e: like this without space at [ [
+elisp:org-toggle-inline-images
+** Security (shell and elisp link following) <<link security>>
+By default, org-mode prompts for yes/no when attempting to follow an
+elisp or shell link.
+This is annoying if you use them a lot.
+
+It can be configured through options:
+org-confirm-shell-link-function
+org-confirm-elisp-link-function
+
+Like:
+[[elisp:(expr)][meh] ]   Elisp command link.
+
+See [[setting variables]]
+
+See also: [[http://orgmode.org/manual/Code-evaluation-security.html][Code evaluation security]]
+** Exporting 
+- Export dispatcher :: 
+  C-c C-e  Export dispatcher.   KEY__
+  Can be used to export to all the different formats, inc project exports.
+** Diary 
+1. Set up diary file: org-agenda-diary-file
+~/git/LeoUfimtsev.github.io/org/diary.org
+
+2. Add the diary file to be an emacs agenda file. (C-c [  )
+   This is useful for day entries to be visible in agenda. 
+   Now open agenda, add diaries 
+
+3. Open agenda, select some day, press 'i'. 
+ - Day (Mark as single day)
+ - Aniversary (*careful about year*, to display entry in the same year, (e.g aq birthday), 
+   make it start the year before.
+ - block (for several days).
+
+- *Caution* ::  
+   There is the old diary:
+     diary-file            //used by calendar
+   and org-diary:
+     org-agenda-diary-file   //used by org-mode.
+
+  Don't use old diary.
+** Appointments (notifications)
+There are appoinments and org-appoinment integration. 
+
+** org latex preview
+[[http://orgmode.org/worg/org-tutorials/org-latex-preview.html][main article]]
+
+Insert:
+\[
+e^{i\pi} = -1
+\]
+
+Press:
+C-c C-x C-l  (latex preview)
+C-u ...  (all in subtree)
+C-u C-u ... (all in buffer)
+
+To turn off:
+C-c C-c
+** Module: Habits 
+*** Config 
+Habits need to be enabled before use. (org-modes).
+*** Making a habit
+[[http://orgmode.org/manual/Tracking-your-habits.html][Reference]]
+
+For my config:
+- Task should have property: "STYLE" set to 'habit'. (C-c C-x p)
+
+Can have date range like: .2d/3d. In range shows as scheduled, after shows as due.
+
+Then it will show in agenda only on day it's scheduled.
+
+In general:
+- Need to enable state changes etc.. see ref.
+*** Habit consitency graph
+- blue :: Task wasn't to be done on that day. 
+- green ::  Task could have been done on that day.
+- yellow :: Task would be overdue the next day.
+- red :: task was overdue on that day.
+ *  ==  task was done on that day
+ !  == current day
+
+K - Toggle habits in Agenda view.   KEY__ 
+** Module: checklist 
+Auto clear checklist of reoccuring tasks. 
+
+Config: 
+1) Configure load path in .emacs:
+   (add-to-list 'load-path "~/Dropbox/appData/emacs/mypackages/")
+
+2) Put org-checklist.el into folder above. [[http://orgmode.org/w/?p%3Dorg-mode.git%3Ba%3Dblob_plain%3Bf%3Dcontrib/lisp/org-checklist.el%3Bhb%3DHEAD][src_file]]
+
+3) Add to .emacs:
+  (require 'org-checklist)
+
+To make task clear it's checkboxes, set property:
+RESET_CHECK_BOXES  t 
+
+[[http://orgmode.org/worg/org-contrib/org-checklist.html][original reference]]
+** Module: org-eww 
+Copy links for org mode. 
+
+src file: http://orgmode.org/w/?p=org-mode.git;a=blob_plain;f=contrib/lisp/org-eww.el;hb=HEAD
+
+put into path and require with org-eww
+then call: org-eww-copy-for-org-mode
+
+Copies selected region or whole page if no region selected.
+** Module: org-pomodoro 
+Cutomized: 
+- show yad on finish :: 
+  (add-hook 'org-pomodoro-finished-hook
+  (lambda ()
+    (interactive)
+    (call-process "yadBreakTime")
+    ))
+- Enable ticking sounds ::
+  org-pomodoro-play-ticking-sounds 
+
+- don't ask for y-or-n ::
+Org Pomodoro Ask Upon Killing  VAR__
+
+
+[[https://github.com/lolownia/org-pomodoro/blob/master/org-pomodoro.el][src code]]
+** Module: org-mouse
+*** Config:
+- It is inside contrib folder. 
+- Add to emacs ::
+(require 'org-mouse)
+
+- restart emacs (reloading is not enough)
+*** Usage: 
+- Headline ** click to expand
+- check list click to check
+- click bullet '-' to indent it.
+- right click headline for context 
+- Customize: org-mouse_features   VAR__ 
+  to enable C-mouse-1 drag to move trees. (prmotoe/demote and move around)
+*** See also
+https://github.com/tkf/org-mode/blob/master/lisp/org-mouse.el
+** Module: org-id
+:PROPERTIES:
+:ID:       c493282d-48a2-4682-959a-87c8871c88a2
+:END:
+make custom id's when storing links to entires. 
+- Customize :: org-id-link-to-org-use-id    changes store-link action behaviour. VAR__
+  -  create-if-interactive-and-no-custom-id  ::
+       [[id:88933e64-79bf-421a-850b-4e59ce10a58c][Store Links]] will auto generate an ID if a custom ID is not provided for the entry.
+       If entry has CUSTOM_ID, then a file reference + id will be copied to the link buffer instead, 
+       (this is useful for cross-file linking)
+[[https://github.com/tkf/org-mode/blob/master/lisp/org-id.el][git hub page]]
+** Module: org-drill   :orgdril__:
+*** About/links
+http://orgmode.org/worg/org-contrib/org-drill.html
+*** Functionality
+- Heading must have tag of: ~org-drill-question-tag~ which is *:drill:* by default.
+- Drill item can have children.
+- Unscheduled items are considered 'new'
+
+- child headings are hidden till you practiced them.
+- comments are generally not visible.
+*** Card types
+**** Simple topics
+With simple items, child-headings are hidden.
+
+  * Item   :drill: 
+  What is the capital of germany?
+  ** the answer 
+  Berlin 
+**** Cloze deletion 
+- Example ::
+ * Item :drill:
+ The capital city of Estonia is [Tallinn].
+
+- Hints ::
+  Use  '||',  e.g: [text||hint]
+**** Two-sided cards
+- enabling :: 
+  set a property like:
+    :DRILL_CARD_TYPE: twosided 
+
+- Functionality ::
+  *Only one* of the first two sub-headings will be shown. (selection is random). 
+  This means either one or the other. It won't show one then the other.
+
+
+- Example :: 
+  * Two sided card example practice                               :drill:
+ : PROPERTIES:
+ : DRILL_CARD_TYPE: twosided
+ : END: 
+  ** Word
+   Esoteric
+  **  Word definition
+   Likley to be understood only by a small number of people.
+**** Multi-sided cards
+Like two sided, but any subheading can randomly be shown. Useful for pictures. 
+
+: DRILL_CARD_TYPE: multisided
+
+ * word 
+ * french word 
+ * picture
+**** Multi-cloze cards
+a sentence can have [multiple] words [hidden||hint: not seen]
+
+Can make only clozure appear at a time. 
+
+*DRILL_CARD_TYPE*  can be:
+hide1cloze - one cloze hidden, all else visible. Cloze selected at random.
+show1cloze - only one cloze visible. 
+hide2cloze - hide 2
+show2cloze - show 2
+
+For foreign language words, useful: 
+hide1_firstmore  - one card hidden. 75% of time the first is hidden. (e.g first word is foreign)
+show1_firstless  - only one piece visible, 25% the last piece will be visible.
+show1_lastmore  - only one will be visible, 75% the last will be visible.
+**** Empty cards
+These get skipped.
+This allows you to paste 'skeletons'.
+*** Running drill 
+org-drill &scope    CMD__ 
+  for scope [[id:9309a32c-776a-4113-96c6-0f5135ed3b79][see below]]
+
+Meaning of org drill rating:
+| Quality | Super mem lbl | Fail? | Meaning                                  |
+|---------+---------------+-------+------------------------------------------|
+|       0 | Null          | yes   | Wrong answer, unfamiliar when you see it |
+|       1 | Bad           | yes   | Wrong answer,                            |
+|       2 | Fail          | yes   | Almost, but not correct                  |
+|       3 | Pass          | No    | Correct answer, but with much effort     |
+|       4 | Good          | No    | Correct answer, with little thought      |
+|       5 | Bright        | No    | Correct answer, effortless               |
+|---------+---------------+-------+------------------------------------------|
+
+Can press '?' at the prompt to see this list.
+
+?   KEY__ drill__ to get help for 0-5 keys
+q   KEY__ drill__ to quit session.
+s   KEY__ drill__ skip wihtout viewing answer
+e   KEY__ drill__ edit, can resume after.
+
+org-drill-resume   CMD__ to continue drill. 
+   major edits (deleting/moving items) can make it loose it's spot.Start over.
+*** Multiple sequential drill sessions
+org-drill-again  CMD__ DRILL__ resume from pool of remaining due items.
+*** Cramming
+org-drill-cram &scope  CMD__ DRILL__ 
+  Revise all of your cards unless you reviewed them in last 12 hours. 
+
+org-drill-cram-hours   VAR__  to change hours.
+*** Leeches
+Cards that you keep on forgetting.
+
+org-drill-leech-failure-threshold (15 by default)
+
+After, given ':leech:' tag
+
+handling (as defined in: org-drill-leech-method ) 
+nil - tagged 
+skip - not included in drill
+warn - included, but warning msg presented. 
+
+Best to split/delete such cards.
+*** Scope (sources for drill sessions)
+:PROPERTIES:
+:ID:       9309a32c-776a-4113-96c6-0f5135ed3b79
+:END:
+Default: current buffer only. 
+
+~org-drill-scope~    VAR__ decides what to search:
+file  :: (default) (no hidden)
+tree  :: (with entry at cursor) 
+file-no-restriction :: curr buffer w/ hidden.
+agenda 
+agenda-with-archives 
+directory :: all files with the '.org' extension in the same directory as current file.
+(file1 file2)  list of filues... 
+*** Customizations
+**** Hide headings 
+(setq org-drill-hide-item-headings-p t)
+**** Duration of drill session
+By default, session ends at:
+30 reviews 
+20 passes
+
+(setq org-drill-maximum-items-per-session 40)    
+(setq org-drill-maximum-duration 30)   ; 30 minutes
+
+Setting those to nil makes drill continue. 
+If both are set to till, review will continue till all outstanding cards were reviewed.
+**** Not save buffers at the end
+Not be prompted about saving buffers:
+(setq org-drill-save-buffers-after-drill-sessions-p nil)
+*** Definition of old and overdue items
+Prioritisation;
+1) Overdue
+2) young   (recently learned) (inter-repetition intevral < 10.)
+  can be altered via: (setq org-drill-days-before-old 7)
+*** Repetition algorithm 
+**** Noise 
+Add noise to distribute review: (spreads out more evenly)
+(setq org-drill-add-random-noise-to-intervals-p t)
+**** Learn fraction
+default: 0.5
+More: intervals grow faster
+Less: intervals grow slower
+(setq org-drill-learn-fraction 0.45)  
+See website for details.
+
+*** Per file customizations
+At the bottom:
+# Local Variables:
+# org-drill-maximum-items-per-session:    50
+# org-drill-spaced-repetition-algorithm:  simple8
+# End:
+
+At the top:
+# -*- org-drill-maximum-items-per-session: 50; org-drill-spaced-repetition-algorithm: simple8 -*-
+
+** Source code in orgmode (begin_src and end_src)
+You can have source code inside org mode.
+*** Syntax
+3 ways
+- inline ::
+  Inline is between '~' .   ~This is inline code~
+
+- colon start :: 
+  Lines starting with a colon are code.
+  : public static void aFunction() {
+  : }
+
+- src_begin block ::
+  blocks of src_begin/end
+  #+begin_src java
+  public static void aFunction()
+  #+end_src
+*** Examples:
+**** Begin src lisp example:
+#+BEGIN_SRC emacs-lisp
+       (defun org-xor (a b)
+          "Exclusive or."
+          (if a (not b) b))
+#+END_SRC
+**** Begin src java example
+#+BEGIN_SRC java
+int j = 2;
+public static void (mehl) {
+}
+#+END_SRC
+*** Configure syntax highlithting inside source blocks
+By default, the font is gray. 
+You can configure syntax to be highlighted thou. 
+Set option:
+*org-src-fontify-natively t*  see [[setting%20variables][setting variables]]
+
+You can also set specific font blocks via:
+*org-src-fontify-block*
+*** org-code highlighting
+You can change the away inline and colon code looks like. Customize ~org-code~ font face.
+See: [[id:7c8b8fc0-fdf9-4846-83f6-e3566506430e][Customizing Font-faces]]
+*** Inserting begin_src
+to insert a begin block quickly, press:
+<s TAB     
+*** Editing source code block
+To edit the src block in a seperate buffer with the correct
+major mode activated for that language, press:
+C-c '    (org-edit-special) see also [[http://orgmode.org/manual/Easy-Templates.html][Easy Templates]]  editing source code  KEY__
+*** Customizing templates
+edit org-structure-template-alist VAR__   source code block templates
+** Source code evaluation using Babel
+*** Configure 
+[[http://orgmode.org/worg/org-contrib/babel/languages.html#configure][ref]]
+1. edit: org-babel-load-languages VAR__
+2. Activate languages, (e.g Ditaa).
+*** Executing Source code.
+C-c C-c  Execute source code block.  KEY__
+
+E.g press on snippet below to get result:
+**** Example: elisp
+#+BEGIN_SRC elisp
+(message "Hello rtrs")
+#+END_SRC
+
+#+RESULTS:
+=Hello rtrs
+
+
+**** Example: shell
+#+begin_src sh
+  echo "This file takes up `du -h emacs.org |sed 's/\([0-9k]*\)[ ]*emacs.org/\1/'`"
+#+end_src
+
+#+RESULTS:
+: This file takes up 60K
+
+
+**** Example: ditta 
+#+begin_src ditaa :file img/ditaa_example_output.png :cmdline -r -s 0.8
+    +-----------+        +---------+  
+    |    meh    |        |         |                
+    |  Network  +<------>+   PLC   +<---=---------+ 
+    |    Leo    |        |  c707   |              | 
+    +-----------+        +----+----+              | 
+                              ^                   | 
+                              |                   | 
+                              |  +----------------|-----------------+
+                              |  |                |                 |
+                              v  v                v                 v
+      +----------+       +----+--+--+      +-------+---+      +-----+-----+       Windows clients
+      |          |       |          |      |           |      |           |      +----+      +----+
+      | Database +<----->+  Shared  +<---->+ Executive +<-=-->+ Operator  +<---->|cYEL| . . .|cYEL|
+      |   c707   |       |  Memory  |      |   c707    |      | Server    |      |    |      |    |
+      +--+----+--+       |{d} cGRE  |      +------+----+      |   c707    |      +----+      +----+
+         ^    ^          +----------+             ^           +-------+---+
+         |    |                                   |                        
+         |    +--------=--------------------------+                    
+         v                                                             
++--------+--------+                                                         
+|                 |                                                         
+| Millwide System |            -------- Data ---------                      
+| cBLU            |            --=----- Signals ---=--                      
++-----------------+
+#+end_src
+
+#+RESULTS:
+[[file:img/ditaa_example_output.png]]  
+**** Example: Graphviz 
+#+BEGIN_SRC dot :file ./img/img_2015_03_10__12_14_44.png :cmdline -Kdot -Tpng
+graph { 
+		a -- b; 
+		b -- c; 
+		a -- c; 
+		d -- c; 
+		e -- c; 
+		e -- a; 
+	} 
+#+END_SRC
+#+results:
+[[file:./img/img_2015_03_10__12_14_44.png]]
+**** Example: PlantUml
+#+begin_src plantuml :file ./img/img_2015.03.03.png
+Object1 <|-- Object2
+Object1: someVar22
+Object1: execute()
+Object2: getState()
+Object2: setState()
+Object2: state
+#+end_src
+
+#+results:
+[[file:./img/img_2015.03.03.png]]
+** graphviz integration
+* @ Helm Mode 
+** About Helm Mode
+Has useful goodies like searching only headers.
+helm-org-in-buffer-headings
+[[http://tuhdo.github.io/helm-intro.html][Great introduction tutorial]]
+** Install Helm Mode
+To configure:
+   1) configure melpa, install helm. see [[*Installing packages]]
+   2) add to .emacs: (require 'helm-config)
+https://github.com/emacs-helm/helm
+** Help in Helm Mode 
+When searching in helm mode, you can help: 
+*** KEY__ C-h m  Helm General help
+*** KEY__ C-c ?  Helm specific help (e.g in 'helm M-x')
+** Helm Buffer list search:
+*** CMD__ helm-buffers-list
+**** Searching regex
+type *org  to search all org files.  
+**** Searching for words in files:
+type *@word* 
+and you get a list of files that contain that word.
+** Helm keys
+C-c ?   help in minibuffer   KEY__ helm 
+C-c C-k  kill and quit  KEY__ helm 
+C-c C-TAB   copy cmd to buffer   KEY__ helm
+TAB   help for command. (toggle)  KEY__ helm
+
+C-t   helm,  move to other window  KEY__ helm 
+M-a   Helm select all   KEY__ helm 
+C-SPC Helm select canidate   KEY__ helm 
+** Helm find-files
+*** CMD__ helm-find-files   
+C-l up folder
+C-z  (or tab if configured) 
+** Helm google 
+
+Opening in eww:
+
+eww:
+`helm-browse-url-default-browser-alist'.
+
+
+** Helm Swoop
+[[https://github.com/ShingoFukuyama/helm-swoop][git page]]
+
+Configure swoop not to use what's under cursor:
+https://github.com/ShingoFukuyama/helm-swoop#user-content-configure-pre-input-search-query
+
+(setq helm-swoop-pre-input-function
+      (lambda () ""))
+* hydra
+** About/links
+https://github.com/abo-abo/hydra
+** Template for usage
+#+begin_src emacs-lisp
+  (global-unset-key (kbd "<f12>"))
+  (global-set-key (kbd "<f12>") 'my/hydra-pomodoro/body) ;NOTE '/BODY/ postfix
+  (defhydra my/hydra-pomodoro (:color blue)
+    ("<f12>" my/function "Description")   ;NOTE no quote on function.
+    ("o" (lambda () (interactive) (org-todo-list "OPEN")) "OPEN items!") ;Define your own inline function.
+  )
+#+end_src
+** Basic usage
+Basic example of hydra that exits:
+*Note*:
+ - the binding appends a '/body' to the defined hydra.
+
+General syntax is as following:
+: (defhydra <hydra name> (<properties>) 
+: "Title"
+: ("KEY" <FUNCTION> "<Annotation>"))
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<f10>") 'my/hydra-todo-list-nav/body)
+  (defhydra my/hydra-todo-list-nav (:color blue)
+      "
+      Org Todo items:
+      "
+      ("h" (lambda () (interactive) (org-todo-list "HOLD")) "HOLD items!")
+      ("o" (lambda () (interactive) (org-todo-list "OPEN")) "OPEN items!")
+      ("t" (lambda () (interactive) (org-todo-list "TODO")) "TODO items!")
+      ("d" (lambda () (interactive) (org-todo-list "DONE")) "DONE items!")
+      )
+#+end_src
+** Theory
+The KEY-MAP & kbd can be ommited, to keep only the PLIST.
+
+#+begin_src emacs-lisp
+(defhydra HYDRA-NAME (KEY-MAP (kbd "BINDING")  PLIST)
+  docstring
+  head-1
+  head-2
+  head-3
+  ...)
+#+end_src
+
+** Examples 
+*** Shorthand hydra (mapped to a key)
+#+NAME: Short-hand-hydra
+#+begin_src emacs-lisp
+(defhydra hydra-zoom (global-map "<f2>")
+  "
+Press _g_ to zoom in.
+"
+  ("g" text-scale-increase nil)
+  ("l" text-scale-decrease "out"))
+#+end_src
+
+*** Define & map a hydra 
+#+NAME: Long-hand-hydra
+#+begin_src emacs-lisp
+    (global-set-key (kbd "<f10>") 'my/hydra-todo-list-nav/body)
+    (defhydra my/hydra-todo-list-nav (:color blue)
+        "
+        Org Todo items:
+        "
+        ("n"  (lambda () (interactive) (message "mehl")) "ilambda testing") ; in line function.
+        ("a" my/testtest "test nested") ;link to a function
+        )
+#+end_src
+** Nested hydras
+Nesting works, but you have to append a '/body' at the end.
+E.g put this into the body of a hydra to link to another hydra.
+: ("m" (lambda () (interactive) (my/hydra/nested-test/body)) "nested hydra4!")
+* Guide key
+- Install ::
+  #+BEGIN_SRC lisp
+  (require 'guide-key)
+  (setq guide-key/guide-key-sequence '("C-x r" "C-x 4"))
+  (guide-key-mode 1)  ; Enable guide-key-mode
+  #+END_SRC
+
+- Making it global ::  /if you like/
+  set to true:
+  : guide-key/guide-key-sequence t
+
+- highlight stuff :: 
+  Single:
+  :  (setq guide-key/highlight-command-regexp "rectangle")
+
+  Many Groups:
+  (setq guide-key/highlight-command-regexp
+      '("rectangle"
+        ("register" . font-lock-type-face)
+        ("bookmark" . "hot pink")))
+
+- Idle delay :: 
+  (setq guide-key/idle-delay 0.1)
+
+- Recursive flag ::
+  (setq guide-key/guide-key-sequence '("C-x"))
+  (setq guide-key/recursive-key-sequence-flag t)
+
+- local to mode ::
+  use hook
+  #+BEGIN_SRC lisp
+  (defun guide-key/my-hook-function-for-org-mode ()
+    (guide-key/add-local-guide-key-sequence "C-c")
+    (guide-key/add-local-guide-key-sequence "C-c C-x")
+    (guide-key/add-local-highlight-command-regexp "org-"))
+  (add-hook 'org-mode-hook 'guide-key/my-hook-function-for-org-mode)
+  #+END_SRC
+
+  Or bind to modes like:
+  #+begin_src emacs-lisp
+  (setq guide-key/guide-key-sequence
+      '("C-x r" "C-x 4"
+        (org-mode "C-c C-x")
+        (outline-minor-mode "C-c @")))
+  #+end_src
+* bind key
+https://github.com/emacsattic/bind-key
+- Bind a global key :: 
+  (bind-key "C-c x" 'my-ctrl-c-x-command)
+
+- override all minor modes :: 
+  (bind-key* "<C-return>" 'other-window)
+
+- only for particular mode ::
+  (bind-key "C-c x" 'my/command mode-map)
+
+- unbind key ::
+  (unbind-key "C-c x" some-other-mode-map)
+
+- See al personal bindings ::
+M-x describe-personal-keybindings
+* Diminish
+For example put at end of .emacs.
+But I use with use-package.
+  (require 'diminish)
+  (diminish 'abbrev-mode "Abv")
+  (diminish 'jiggle-mode)
+  (diminish 'mouse-avoidance-mode "M")
+* CEDET (C Development Tool Set)
+
+
+
+** References
+* Use-package
+https://github.com/jwiegley/use-package
+** Basics ::
+  (use-package foo)
+
+** Pre-load commands 'init' 
+  Accepts one or more forms till next keyword.
+  (use-package foo
+   :init
+   (setq foo-variable t))
+
+** config 
+  Use config for config after loading. 
+  Config can be ran lazily.
+   (use-package foo
+   :init
+   (setq foo-variable t)
+   :config
+   (foo-mode 1))
+
+** Key bindings 
+  - Use with bind-key
+  - defers loading until it is used.
+  (use-package ace-jump-mode
+  :bind ("C-." . ace-jump-mode))
+
+  Multiple bindings:
+  (use-package hi-lock
+  :bind (("M-o l" . highlight-lines-matching-regexp)
+         ("M-o r" . highlight-regexp)
+         ("M-o w" . highlight-phrase)))
+** defer loading with ':commands' 
+  Defer command loading till used.
+  Syntax is similar to :bind.
+** Modes and interpreters
+You can set which interpretrs to use for which modes.
+#+begin_src emacs-lisp
+(use-package ruby-mode
+  :mode "\\.rb\\'"
+  :interpreter "ruby")
+
+;; The package is "python" but the mode is "python-mode":
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+  :interpreter ("python" . python-mode))
+#+end_src
+** Lazy loading note
+Normally lazy loads when :bind/:mode/:interpreter is sude.
+
+can override: 
+ :defer t
+
+Or force active load:
+ :demand
+** Info about package loads
+- Extra info on package load ::
+  (setq use-package-verbose t)
+
+- long-loading packages ::
+  If package takes more than 0.1 ms, msg appears in buffer.
+  In general, keep :init simple, offload most into :config
+** Conditional loading
+E.g when in window mode, load one thing, when in terminal, anothre
+(use-package edit-server
+  :if window-system
+  :init
+  (add-hook 'after-init-hook 'server-start t)
+  (add-hook 'after-init-hook 'edit-server-start t))
+** Dissable a module
+(use-package ess-site
+  :disabled t
+  :commands R)
+** Add loadpath for library
+Adds path for this loading. 
+If path is *relative*, uses user-emacs-directory
+(use-package ess-site
+  :load-path "site-lisp/ess/lisp/"
+  :commands R)
+
+Cautino about usign with compiled code. 
+See https://github.com/jwiegley/use-package#extending-the-load-path
+** Diminishing minor modes
+(use-package abbrev
+  :diminish abbrev-mode
+  :config
+  (if (file-exists-p abbrev-file-name)
+      (quietly-read-abbrev-file)))
+** package.el users (auto install/melpa/melpa-stable)
+*** Ensuring package installed
+:ensure keyword auto-installs
+
+(use-package magit
+  :ensure t)
+*** Different ensure name from inclue name
+(use-package tex-site
+  :ensure auctex)
+*** Emacs 24.4 pin melpa/melpa-stable
+E.g prefer melpa-stable over melpa.
+
+- Examples ::
+#+begin_src emacs-lisp
+(use-package company
+  :ensure t
+  :pin melpa-stable)
+
+(use-package evil
+  :ensure t)
+  ;; no :pin needed, as package.el will choose the version in melpa
+
+(use-package adaptive-wrap
+  :ensure t
+  ;; as this package is available only in the gnu archive, this is
+  ;; technically not needed, but it helps to highlight where it
+  ;; comes from
+  :pin gnu)
+
+(use-package org
+  :ensure t
+  ;; ignore org-mode from upstream and use a manually installed version
+  :pin manual)
+#+end_src
+* Webbrowsing in Emacs 
+** Ewww 
+*** Eww basics
+Good tutorial:
+http://ergoemacs.org/emacs/emacs_eww_web_browser.html
+
+Start with 'ewww' + search term.
+
+l   eww-back-url  previous URL KEY__ 
+r   eww-forward-url   KEY__
+H   eww-list-histories   KEY__
+
+b   eww-add-bookmark    KEY__
+B   eww-list-bookmarks   KEY__
+
+&   eww-browse-with-external-browser   KEY__
+
+w   eww-copy-page-url  KEY__
+g   eww-reload   KEY__
+*** Customizing search url 
+set:
+eww-search-prefix   (to google lucky for instance_    VAR__
+
+//Original:
+https://duckduckgo.com/html/?q=
+
+//generic google search: (may need to hack out the 'jp' part.)
+https://www.google.com/search?rls=jp&q=
+
+//Feeling lucky
+http://www.google.com/search?btnI&q=
+*** Configure Emacs to open links in EWW
+Change to eww:
+(setq browse-url-browser-function 'eww-browse-url)
+
+Change to default browser:
+(setq browse-url-browser-function 'browse-url-default-browser)
+*** Auto refresh pages 
+see: http://emacs.stackexchange.com/questions/2426/how-do-i-auto-refresh-eww-pages
+
+see: http://www.google.com
+
+*** Further... 
+Fancy numbering.. 
+https://github.com/m00natic/eww-lnum
+* Company mode notes
+to enable:
+M-x company-mode 
+M-n & M-p to select 
+RET complete 
+TAB complete common part.
+
+Search completion:
+ C-s
+ C-r 
+ C-o
+
+company-complete  CMD__ to initiate it manually.
+
+F1 to get doc string.
+C-W to see it's source.
+
+VAR: company-backends
+
+* Org mode 'for' UML
++ Highly searchable/foldable.
++ Narrowing allows me to limit to a sub-tree.
+- Single hierarchy, no links to interfaces.
+  -> can link manually via "Implements <link1, link2>"
+- No good for sequence diagrams?
+
+BINDINGS
+  + can make hydra on f4? 
+  + maybe use key-chords for uber-quick navi.
+
+
+- Customize Org mode ::
+  +org-show-entry-below -> default : On+
+  In emacs 25.1 org-show-context-detail 
+   context:occur-tree
+   Detail level: local
+
+
+- Narrowing ::
+  - Narrow buffer to see only certain segment of tree 
+  
+- class property :: 
+  - Give headings that are classes property 'UML = class'
+  - Similar for interfaces. 'UML = interface' 
+  - Now can do C-c / p  (property search -> class) to show all class hierarchy.
+
+- Tags ::
+  - Tag fields/methods headings.  @UML  FI METH.
+  - Then do a tag search to reveal all UML bits, or just fields/methods
+* w3m
+** My configuration:
+My config: [[id:53215cd1-fa83-43ae-a63d-db1d80ebbd0f][w3m Browser]]
+** Usage 
+:PROPERTIES:
+:ID:       a829f3b5-a612-4c91-8e2d-e53c58d54777
+:END:
+tab / S-TAB  - jump to links                           KEY__ w3m__
+h l k j - movement                          KEY__ w3m__
+G  - open link in new tab                          KEY__ w3m__
+SPC / S-SPC   scroll pages                          KEY__ w3m__
+B - back page                           KEY__ w3m__
+
+C-SPC - mark/unmark                          KEY__ w3m__
+
+t - toggle image under cursor                          KEY__ w3m__
+T - Toggle all images                           KEY__ w3m__
+
+{ } jump between images                          KEY__ w3m__
+[ ] jump between forms                          KEY__ w3m__
+Tab/ S- Tab  jump between anchors               KEY__ w3m__
+
+- submitting forms :: 
+  press RET , type in mini buffer, then C-c C-c
+
+- lnum mode :: 
+activate w3m-lnum-mode and then press 'f' and navigate via numbers.
+
+- Not so useful :: 
+d - download url under cursor
+
+* Shell in Emacs
+:LINKS:
+[[http://ergoemacs.org/emacs/emacs_unix.html][Ergo Emacs tutorial]]
+:END:
+
+- Run shell in emacs ::
+  shell     CMD__ 
+
+- Run a shell cmd :: 
+  M-!  shell-command    CMD__   KEY__
+  tip: use C-x 1 to remove window that appears.
+  tip: useful for things like ls
+
+- Shell cmd on region ::
+  M-| on selection. Shell command on region  KEY __
+  Useful for doing a bash op on a region. e.g grep chaning or exetuing 
+  
+  Replace region with result: 
+    use 'C-u' prefix
+    Very useful for things like 'sort | uniq' 
+
+* Backup of files 
+- Backup files end in '~'. 
+- you can compare curr version to previous version, but not restore prev versions.
+- If you have version control, you can turn them off via:
+make-backup-files      VAR__
+* Adding Custom Toolbar Items 
+** Links
+S.O
+http://stackoverflow.com/questions/20917411/how-to-add-item-to-toolbar-in-emacs
+** Simple code to add a toolbar item:
+Hi i found a simple solution to add a toolbar button "spell" is the image 
+in /usr/share/emacs/23.4/etc/images/
+#+BEGIN_SRC emacs-lisp
+;http://stackoverflow.com/questions/20917411/how-to-add-item-to-toolbar-in-emacs#answer-28326863
+(defun omar-hotel ()
+ "another nonce menu function"
+ (interactive)
+ (message "hotel, motel, holiday inn"))
+
+(tool-bar-add-item "spell" 'omar-hotel
+              'omar-hotel
+              :help   "Run fonction omar-hotel")
+#+END_SRC
+* server/client
+Emacs can be started as a server, so that it shared memory between instances. 
+
+E.g 
+(server-start)
+then in terminal:
+emacsclient FILE 
+
+
+S.O post with details:http://unix.stackexchange.com/questions/9152/script-for-opening-a-file-in-an-already-existing-emacs-process
+
+* Elisp  :ELISP:
+** About
+Quick intro:
+http://ergoemacs.org/emacs/elisp_basics.html
+** defun and calling defun before defun
+defun defines functions. You can have function definitions that have code that calls functions before they are defined.
+#+begin_src emacs-lisp
+(defun my/A ()
+  (interactive)
+  (my/B) ;B called before defined.
+  )
+
+(defun my/B ()
+  (interactive)
+  (message "B"))
+#+end_src
+** Add-hook has build-in deduplication.
+:PROPERTIES:
+:ID:       6f66711c-5d5b-454d-a6fb-5f269c85a1f5
+:END:
+add-hook checks for duplication. It is good practice to link add-hook to a function pointer, 
+so that if you update the function content, there is only one instance of the function after an .emacs reload.
+#+begin_src emacs-lisp
+(add-hook 'org-pomodoro-finished-hook 'my/pomodoro-finished-action)
+(defun my/pomodoro-finished-action ()
+    (interactive)
+    ...
+)
+#+end_src
+Detailed S.O post: http://emacs.stackexchange.com/questions/10150/how-to-deal-with-add-hook-in-emacs-when-its-reloaded-more-than-once
+
+** Inserting Text [[http://ergoemacs.org/emacs/elisp_examples.html][Text Insertion reference]]
+** Setting Global Variables
+use let. E.g:
+#+BEGIN_SRC lisp
+(defmacro helm-find-note (dir)
+  `(defun ,(intern (format "helm-find-note-%s" dir)) ()
+     (interactive)
+     (let ((default-directory ,dir))   ;<<<< Define a var used by helm-find.
+       (helm-find nil))))
+
+(global-set-key (kbd "C-M-3") (helm-find-note "~/Downloads"))
+#+END_SRC
+[[http://stackoverflow.com/questions/28175154/emacs-ow-can-i-helm-find-with-default-directory-pre-specified][src]]
+** Variable Conversion 
+See [[https://www.gnu.org/software/emacs/manual/html_node/elisp/String-Conversion.html][String conversion]]
+Example:
+(number-to-string 25)  
+
+** Variables that are useful 
+default-directory   ; current dir like: /home/ufimtse/   EVAR__
+** common functions
+Moving cursors / searching
+text editing/inserting
+file management /deleting text region
+buffers 
+http://ergoemacs.org/emacs/elisp_common_functions.html
+** Running external processes 
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Asynchronous-Processes.html][reference]]
+- Starting a process Async ::
+(start-process "yad break timer" nil "yadBottomProgressBar" "25" "")
+
+- Shell ASYNC cmd from shell ::
+Useful for using wild-cards.. 
+ 
+;NAME BUFFER CM
+(start-process-shell-command "yadBreakTime" nil "yadBreakTime")
+- Synced cmd ::  
+  (call-process "yadKill")
+** Timers 
+*** Repeating timers
+You can define a timer:
+AT REPEAT(seconds)  FUNCTION
+ (run-at-time (current-time) 5 'func)   ;returns a timer object. 
+
+Canceling a timer is done via
+ cancle-timer TIMER-REF
+:EG:
+#+BEGIN_SRC elisp
+;-- Timer to update title of emacs during a pomodoro.
+(defun my/pomodoro-start-title-update-timer ()
+  (interactive)
+  (setq pomodoro-title-update-timer    (run-at-time (current-time) 5
+                 'my/set-title-to-mode-line)))
+
+;-- I don't use the below, but useful:
+(defun my/kill-pomodoro-timer ()
+  (interactive)
+  (cancel-timer pomodoro-title-update-timer )
+)
+
+(defun my/set-title-to-mode-line ()
+  "Sets the title of the emacs window to the mode line. Used by pomodoro timer."
+  (interactive)
+  (set-frame-parameter nil 'title (concat "*GNU EMACS* " (format-mode-line mode-line-format)))
+)
+
+;-- Start the timer. TODO: change this to be a hook for when the mode-line changes.
+(my/pomodoro-start-title-update-timer)
+#+END_SRC
+:END:
+*** one-off (run-at-time) timers
+e.g:
+(run-at-time "06:00" 86400 '(lambda () (setq org-habit-show-habits t)))
+** Universal Prefix Arguments 
+ '(4) - one prefix arg (4)
+ '(16) - two prefix args (4 * 4)
+ '(64) - three prefix args (4 * 4 * 4)
+#+begin_src emacs-lisp
+
+; Insert into call itself:
+(org-time-stamp '(16) t)
+
+; define before call:
+(defun my/timenow (&optional arg) 
+ (interactive) 
+ (let ((current-prefix-arg 4)) ;; emulate C-u
+ (org-time-stamp arg 'inactive)
+ )
+)
+
+#+end_src
+** Major mode checking
+
+E.g check if org-agenda mode
+#+BEGIN_SRC elisp
+ (if (eq major-mode 'org-agenda-mode)
+   (org-agenda-clock-in)
+   (org-clock-in)
+  ) 
+#+END_SRC
+** Notifications (Desktop)
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Desktop-Notifications.html][Emacs manual reference]]
+
+Prior to use, should make it require:
+(require 'notifications)
+
+Then create notifications with callback like:
+#+BEGIN_SRC elisp
+(defun my-on-action-function (id key)
+            (message "Message %d, key \"%s\" pressed" id key))
+
+(defun my-on-close-function (id reason)
+            (message "Message %d, closed due to \"%s\"" id reason)) 
+           ;e.g Message 1, closed due to "dissmissed"
+           ;e.g closed due to "expired"
+
+;returns notification id.
+(notifications-notify
+           :title "Title"
+           :body "This is <b>important</b>."
+           :actions '("OK_KEY" "okay" "NOT_OK_KEY" "not ok")
+           :on-action 'my-on-action-function
+           :on-close 'my-on-close-function)
+#+END_SRC
+
+You can also close notification:
+(notifications-close-notification 22)
+
+
+*** Example : Notification for pomodoro timer
+#+BEGIN_SRC elisp
+(defun my-on-close-function (id reason)
+            (message "Message %d, closed due to \"%s\"" id reason)
+            ;Kill pomodoro break timer.
+) 
+
+(message (number-to-string
+(notifications-notify
+           :title "Pomodoro Completed"
+           :body "Task completed"
+           :timeout 300000
+           :urgency 'low
+           :actions '("OK_KEY" "okay")
+           :on-action 'my-on-action-function
+           :on-close 'my-on-close-function)))
+
+#+END_SRC
+** Compiling and Testing
+*** Building
+**** Loading files, libraries (load, load-file, load-path, load-library)
+***** load    ECMD__ 
+:PROPERTIES:
+:ID:       9c06690f-b01e-46c9-a671-182fc37fc396
+:END:
+E.g
+(load "~/emacs/foo")
+loads:
+ - foo.elc   (compiled, preffered)
+ - foo.el
+***** load-path   VAR__
+Lists diretories where emacs should 'look' for libraries.
+http://emacswiki.org/emacs/LoadPath
+E.g:
+  ;;; Emacs Load Path
+  (setq load-path (cons "~/emacs" load-path))
+
+.elc  (compiled) are preffered over .el
+
+***** load-library
+Interactive version of [[id:9c06690f-b01e-46c9-a671-182fc37fc396][load]]
+** Command loop
+*** Interactive call
+https://www.gnu.org/software/emacs/manual/html_node/elisp/Interactive-Call.html
+
+You can make calls to functions interactive programtically via:  
+(call-interactively 'foo)
+** x vs Terminal 
+*** How to know if one is loaded in X or terminal (-nw)
+See the ~window-system~ VAR__ 
+it is 'x' for gui, 'nil' for terminal.
+src: http://emacs.stackexchange.com/questions/10155/how-to-tell-if-nw-no-window-is-in-args/10156#10156
+** Macros (elisp macros)
+*** Core syntax 
+(defmacro FROM (arg1 arg2 &rest arg3 ...)
+   elisp-logic...
+   `(function ,arg1 ,arg2 ,@arg3))
+
+`  Macro expansion starts with backquote, as ',arg1' is copied into it.
+
+,param   comma before a value indicates that paramater should be copied into it.
+
+@  splices input paramater.
+   Useful for turning an argument into a list. See [[id:dc2315e1-4032-418a-9d99-bc579a23cbd6][example]]
+
+&rest  regular function argument.
+*** Examples
+**** the ++ macro
+A macro that increments a value.
+#+begin_src emacs-lisp
+(defmacro ++ (x)
+      `(setq ,x (1+ ,x)))
+#+end_src
+
+*Note*:
+ - there is a backquote  ` before setq.
+   this means ,x is evaluated.  (normally list ' don't evaluate)
+
+So the following:
+#+begin_src emacs-lisp
+(setq foo 5)
+    (++ foo)
+#+end_src
+
+Sets foo to 6, because it expands to:
+(setq foo (1+ foo)
+**** interactive lambda 
+Define a shortform for interactive lambda
+#+begin_src emacs-lisp
+  (defmacro iλ (x)
+    `(lambda () (interactive) ,x))
+
+  (defmacro iλd (x y)
+       `(lambda () ,x (interactive) ,y))
+
+  (global-set-key (kbd "<f8>") (iλ (message "hello lambdas")))
+  (global-set-key (kbd "<f7>") (iλd "Func Docu" (message "hello lambda with docus")))
+#+end_src
+**** interactive lambda with logic
+:PROPERTIES:
+:ID:       dc2315e1-4032-418a-9d99-bc579a23cbd6
+:END:
+The previous example defines two macros. It is cleaner to have a single macro that looks
+for a string instead. E.g:
+#+begin_src emacs-lisp
+  (defmacro iλ (x &rest y) 
+    (if (and (stringp x) y) 
+        `(lambda () ,x (interactive) ,@y) 
+      `(lambda () (interactive) ,x ,@y)))
+;Example usage:
+; (global-set-key (kbd "<f8>") (iλ "A message that prints a hello" (message "hello 2")))
+; (global-set-key (kbd "<f9>") (iλ  (message "hello 1")))
+#+end_src
+**** interactive defun
+Similar to above,
+#+begin_src emacs-lisp
+  (defmacro idefun (name para  &rest body) 
+    `(defun ,name ,para
+       (interactive)
+       ,@body))
+
+  (defmacro idefun2 (name para docOrBody &rest body)
+    (if (and (stringp docOrBody) body)
+    `(defun ,name ,para
+       ,docOrBody ;body1 is function documentation string in this case.
+       (interactive)
+       ,@body)
+    `(defun ,name ,para
+       (interactive)
+       ,docOrBody ,@body))
+    )
+
+  (idefun2 my/id2 ()
+           (message "it works"))
+  (idefun2 my/id2-with-docu ()
+           "Function documentation"
+           (message "it works with docu"))
+
+  (idefun2 my/id2-args (a)
+          (message a))
+#+end_src
+*** References
+Ref/Docu
+http://www.emacswiki.org/emacs/MacroBasics
+
+My S.O post:
+http://emacs.stackexchange.com/questions/10194/macro-with-optional-paramaters-that-checks-for-whether-an-optional-paramater-is/10198#10198
+* Building (rebuilding/compiling) Emacs on fedora 
+
+1) Get build-dependencies:
+   sudo yum-builddep emacs
+2) Get sources: http://savannah.gnu.org/git/?group=emacs 
+   CMD:  
+   git clone git://git.savannah.gnu.org/emacs.git
+3) execute:
+   CMD:
+   ./autogen.sh
+
+4)  It will produce a ./configure.  
+   CMD:  
+   ./configure  
+
+5) then:
+   CMD:  
+   make         #This took ~5 mins on my system.
+
+6) now your emacs will live in :/src/emacs, you can run in there.
+
+
+See also: building emacs on Ubuntu: http://ergoemacs.org/emacs/building_emacs_on_linux.html
+
+* External files
+** Opening png files in shutter 
+edit ~Org-File-Apps~, add:
+ \.png\' 
+ shutter "%s"
+ 

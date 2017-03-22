@@ -63,3 +63,69 @@ Sep 30 09:33:22 <lufimtse>	hmm
 Sep 30 09:33:27 <lufimtse>	nice
 **** ENDING LOGGING AT Fri Sep 30 17:54:22 2016
 
+**** BEGIN LOGGING AT Mon Nov  7 16:53:07 2016
+
+[jkang has address ~jkang@unused-10-15-17-134.yyz.redhat.com]
+Nov 07 16:53:07 <jkang>	I searched online about the JNI UTF-8 thing. Seems like a pretty old design choice but kind of funny now. I don't think there's much you can do to change it :\
+Nov 07 16:53:23 <lufimtse>	hmmm
+Nov 07 16:53:25 <lufimtse>	Life sucks
+Nov 07 16:53:39 <jkang>	I think the best way to handle it is not use JNI for passing Strings around. Leave it as bytes and then encode/decode when you need it.
+Nov 07 16:54:03 <lufimtse>	Yea, I've been gravitating into that direction. Now I'm fiddling around on how to best convert to bytes and back.
+Nov 07 16:54:15 <jkang>	Java side it's pretty easy... C side iunno
+Nov 07 16:54:29 <lufimtse>	I found a git repo 
+Nov 07 16:54:29 <lufimtse>	https://github.com/crazymaik/bitbrothers-jnistringencoding/blob/master/jni/jnistrings.cpp
+Nov 07 16:54:37 <jkang>	I'm sure there's libraries around to handle this hahah
+Nov 07 16:54:39 <lufimtse>	The guy talks about it
+Nov 07 16:54:39 <lufimtse>	http://bitbrothers.org/blog/2013/08/jni-strings-modified-utf8-oh-my/
+Nov 07 16:55:44 <jkang>	It's not too hard to write a few helper methods for this... but I guess it would be nice if JNI didn't use modified utf-8
+Nov 07 16:56:40 <lufimtse>	Yea, it's like I've spent a fair bit of time learning how to deal with strings in JNI. then I've found that the modified JNI-UTF-8 screws people over, then I've learned that you have to hack around it via bytes[] etc...
+Nov 07 16:56:43 <lufimtse>	like why...
+Nov 07 16:57:01 <jkang>	Hahah...
+Nov 07 16:57:02 <lufimtse>	there doesn't seem to be a good reason for having a custom utf
+Nov 07 16:58:03 <jkang>	here it explains a bit about the format: http://docs.oracle.com/javase/1.5.0/docs/guide/jni/spec/types.html#wp16542
+Nov 07 16:58:26 <jkang>	"This means that modified UTF-8 strings never have embedded nulls."
+Nov 07 16:58:39 <jkang>	If normal UTF-8 strings have embedded nulls it would simply not work in C
+Nov 07 16:58:53 <jkang>	when using standard libraries that rely on null terminators
+Nov 07 16:59:23 <jkang>	Well... Iunno hahah
+Nov 07 16:59:39 <lufimtse>	"This means that modified UTF-8 strings never have embedded nulls."  <<<< meh?
+Nov 07 16:59:40 <jkang>	I may be misthinking null means null terminator
+Nov 07 17:00:56 <jkang>	https://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8
+Nov 07 17:00:58 <jkang>	yeah I was right
+Nov 07 17:01:13 <jkang>	it's also significantly faster
+Nov 07 17:03:08 <jkang>	e.g. strlen computes length of string up to but not including first null character
+Nov 07 17:03:25 <jkang>	a modified utf-8 string with embedded nulls would not have the correct length output by strlen
+Nov 07 17:03:28 <jkang>	er
+Nov 07 17:03:32 <jkang>	a standard utf-8 string
+Nov 07 17:03:42 <jkang>	a modified utf-8 string doesn't have this issue
+Nov 07 17:03:50 <jkang>	there are never null characters in the middle of the string
+Nov 07 17:04:17 <lufimtse>	hmmm
+Nov 07 17:04:21 <lufimtse>	I c
+Nov 07 17:04:29 <lufimtse>	but why not support the 4th byte
+Nov 07 17:23:40 <jkang>	Because then there would be the possibility of a String having null inside it.
+Nov 08 10:27:36 <lufimtse>	hey
+Nov 08 10:27:48 <lufimtse>	nm
+Nov 09 11:18:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Nov  9 16:48:55 2016
+
+**** BEGIN LOGGING AT Mon Nov 21 14:23:56 2016
+
+[jkang has address ~jkang@unused-10-15-17-134.yyz.redhat.com]
+Nov 21 14:24:02 <lufimtse>	forward the email to the rest of the team. :-D
+Nov 21 14:30:36 <jkang>	er what email?
+Nov 21 14:31:04 <lufimtse>	It was a question on the security quizz
+Nov 21 14:31:14 <lufimtse>	what to do with an email that looks dodgy
+Nov 21 14:31:29 <lufimtse>	and links to /specification.exe 
+Nov 21 14:31:39 <lufimtse>	the above was one possible answer.
+Nov 21 14:32:11 <jkang>	ah
+Nov 21 14:32:13 <jkang>	right
+Nov 21 14:32:13 <jkang>	hahah
+Nov 23 11:18:04 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Nov 24 11:35:51 2016
+
+**** BEGIN LOGGING AT Fri Nov 25 15:00:05 2016
+
+[jkang has address ~jkang@vpn-58-43.rdu2.redhat.com]
+Nov 25 15:00:05 <jkang>	https://fedoraproject.org/wiki/Packaging:Guidelines
+Nov 25 15:01:09 <lufimtse>	thank you
+Nov 25 15:01:10 <lufimtse>	found list
+Nov 25 15:01:11 <lufimtse>	https://fedoraproject.org/wiki/Licensing:Main?rd=Licensing#SoftwareLicenses

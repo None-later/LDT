@@ -1,0 +1,67 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-03-06T15:07:17-05:00
+
+====== Win32 setup ======
+Created Monday 06 March 2017
+
+===== Windows 10 setup: =====
+- Download java 8
+- Download nightly Eclipse Win32
+
+===== Eclipse setup: =====
+- Eclipse plugins:
+— Eclipse/Gerrit integration (aka EGerrit)
+— Git Integration for Eclipse
+— Mylyn Reviews Connector: Gerrit
+— API Tools Execution Environment Descriptions
+
+- Add views: Task Repositories, Git Repositories, History, Staging
+
+- In "Task Repositories" add Eclipse Reviews
+- In "Git Repositories", clone a repo, Gerrit, refresh, clone:
+  - platform/eclipse.platform.swt (Import all projects)
+  - platform/eclipse.platform.swt.binaries  (Import only project with your architecture)
+  (I search for "*swt" to find them)
+  - Note: If SSH error occurs, try selecting "https://USER@git..." from dropdown.
+
+- In Command line: 
+   cd c:\Users\YOUR_USER\git\eclipse.platform.swt\bundles\org.eclipse.swt
+   copy .classpath_win32 .classpath
+   (Note, "/build/" contains a classpath, but we ignore it)
+
+- Close/reopen swt project, this fixes "The type java.lang.Object cannot be resolved".
+
+- In  git\*swt\examples\*snippets  do  copy .classpath_cocoa .classpath
+  this should fix snippet project.
+
+- swt test project needs performance. Clone repo:
+  platform/eclipse.platform.releng  (Import only org.eclipse.test.performance)
+
+Now you should be able to:
+- Run snippets
+- Modify SWT source code. (changes that require binary rebuild are separate)
+- Run SWT tests.
+
+**Api baseline**
+- Add a new Api baseline based on current setup
+- in SWT project, go to API section, go through *all* the tabs and set to "ignore"
+
+===== Getting binaries to build: (Not tested, but someone mentioned) =====
+	Conrad Groth <info@conrad-groth.de>
+
+Hi,
+I recently configured my windows 10 laptop, to rebuild the SWT binaries.
+I started with the steps from list item 6 on https://www.eclipse.org/swt/jnigen.php
+Unfortunately these steps don’t work without these additional measures:
+-  Start you eclipse with an environment variable JAVA_HOME pointing to your JDK folder. I created a cmd file with this contents:
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_45
+start c:\eclipse\eclipse.exe
+-  Create a folder C:\BUILD\swt-builddir (it has to be exactly named like this)
+-  Install the “Windows Server 2003 SP1 SDK” (https://www.microsoft.com/en-us/download/details.aspx?id=6510 ) to “C:\BUILD\swt-builddir\MSSDKs\Windows Server 2003 SP1 SDK”
+-  Make a symbolic link “C:\BUILD\swt-builddir\ibm-sdk50-x86_64”, that points to your JDK (alternatively install the JDK to that folder)
+Inside that folder you have the folders bin, include, jre…
+-  Copy the file jawt.lib from the lib subfolder to jre\bin
+With these steps I managed to build the SWT binaries locally, but without the XULRUNNER. That build step had an error, but as I didn’t need those artefacts, I was happy.
+Have fun,
+Conrad

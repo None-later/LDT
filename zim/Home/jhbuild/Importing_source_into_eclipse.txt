@@ -32,8 +32,36 @@ Then refresh eclipse project, rebuild index etc...
 ===== Generated code through 'configure' =====
 
 ==== Ex: gsize in glib ====
-Some headers are generated when you run 'configure'. For example if you use gsize anywhere like:
+Some headers are generated when you run 'configure' (./autogen.sh). For example if you use gsize anywhere like:
 	gsize       str_length;
+
+
+=== Notes ===
+- glib might require 'libmount-devel.x86_64" package to be auto generated.
+- Eclipse launcher:
+	#!/bin/bash
+	export C_INCLUDE_PATH=$C_INCLUDE_PATH:/home/lufimtse/git/LDT/**include**
+	[[~/apps/eclipse/eclipse]]
+- In the include path, link relevant headers:
+	ln -s ~/jhbuild/checkout/glib/gio gio
+	ln -s ~/jhbuild/checkout/glib/gio/gio.h gio.h
+	ln -s ~/jhbuild/checkout/glib/glib glib
+	ln -s ~/jhbuild/checkout/glib/glib/glib.h 
+	ln -s ~/jhbuild/checkout/glib/glib/glib-object.h glib-object.h
+	ln -s ~/jhbuild/checkout/glib/glib/glibconfig.h glibconfig.h
+	ln -s ~/jhbuild/checkout/glib/gmodule gmodule
+	ln -s ~/jhbuild/checkout/glib/gmodule/gmodule.h gmodule.h
+	ln -s ~/jhbuild/checkout/glib/gobject gobject
+	ln -s ~/jhbuild/checkout/glib/gobject gobject 
+	ln -s ~/jhbuild/checkout/glib/gobject/gobject.h gobject.h
+	ln -s ~/jhbuild/checkout/glib/gthread gthread
+	ln -s ~/jhbuild/checkout/glib/gthread/gthread.h gthread.h
+	# for 'gsize', you link to the generated glibconfig.h.
+- Re-indexing inside eclipse doesn't require you to close eclipse. 
+
+Note, jhbuild runs configure like: **(untested)**
+/home/lufimtse/jhbuild/checkout/glib/autogen.sh --prefix /home/lufimtse/jhbuild/install --disable-Werror --enable-installed-tests --disable-libmount --disable-static --disable-gtk-doc
+
 The indexer might throw an error complaining that it's not defined.
 If you grep around for it "grep -r 'gsize;' | grep typedef;" you may observe that it's in some 'configure.ac' file where the type is a bash variable:
 	configure.ac:typedef unsigned $glib_size_type_define gsize;
