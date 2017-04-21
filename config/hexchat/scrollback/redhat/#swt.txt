@@ -1,264 +1,3 @@
-T 1476288538 19*	Now talking on 22#swt
-T 1476366245 19*	Now talking on 22#swt
-T 1476711882 19*	Now talking on 22#swt
-T 1476722433 19*	Now talking on 22#swt
-T 1476799242 18<ericwill18>	ipun what are you working on these days
-T 1476799246 18<ericwill18>	wayland stuff?
-T 1476799445 18<ipun18>	yeah
-T 1476799451 18<ipun18>	its a pain
-T 1476799618 18<ipun18>	ericwill theres an issue with cTab in wayland where it thinks its drag and dropping
-T 1476799622 18<ipun18>	everytime you click on it
-T 1476799636 18<ipun18>	i found the problem im just trying to diagnose if its GTK or us
-T 1476799658 18<ipun18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431
-T 1476800307 18<ericwill18>	ipun ah yeah
-T 1476800313 18<ericwill18>	lots of Wayland work to be done I am sure
-T 1476800408 18<ipun18>	mmhm
-T 1476801365 19<ericwill>	lufimtse http://www.eclipse.org/swt/triage.php
-T 1476802964 19<ipun>	lufimtse: played around with using different GTK versions to see if i can get it running, looks like GTK2 works 
-T 1476802970 18<ipun18>	but im not sure if GTK2 even supports wayland
-T 1476802980 20<lufimtse>30	:-)
-T 1476802984 18<ipun18>	considering i cant use GTK inspector, im not sure if my snippet is running in wayland or just defaulted to x11
-T 1476802987 20<lufimtse>30	Gtk2 has no wayland support.
-T 1476802992 18<ipun18>	ah.
-T 1476802995 18<ipun18>	hm.
-T 1476803000 20<lufimtse>30	Waynand was not around back then.
-T 1476803274 18<ipun18>	well, this annoys me.
-T 1476803304 18<ericwill18>	ipun this is what makes Wayland work more tricky
-T 1476803334 18<ipun18>	i cant replicate gdk_event_get() behavior on a GTK snippet which annoys me even more
-T 1476803368 20<lufimtse>30	Interesting... 
-T 1476803370 18<ipun18>	i have a good feeling its a GTK problem but its taking me some time to prove it
-T 1476803680 18<ericwill18>	this is interesting: https://bugs.eclipse.org/bugs/show_bug.cgi?id=78971
-T 1476807465 19<ipun>	lufimtse ericwill, i dont actualyl think gdk_event_get() has been updated to work with wayland
-T 1476807478 20<lufimtse>30	hey
-T 1476807482 18<ipun18>	older references about gdk_event_get imply it works on X servers
-T 1476807497 18<ipun18>	but, doing some git blame the method calls behind it hasnt been updated for many years now
-T 1476807566 20<lufimtse>30	hmm
-T 1476807628 20<lufimtse>30	ipun, checkout display.java:826
-T 1476807635 20<lufimtse>30	checkIfEventProc(...)
-T 1476807640 20<lufimtse>30	line 835
-T 1476807646 20<lufimtse>30	and 836
-T 1476807664 20<lufimtse>30	if (window == 0) return 0;
-T 1476807671 20<lufimtse>30	Try removing that line.
-T 1476807672 18<ipun18>	hmmmm....
-T 1476807674 18<ipun18>	oaky
-T 1476807674 20<lufimtse>30	See woot happens.
-T 1476807696 20<lufimtse>30	Does that code run on regular gtk3?
-T 1476807704 20<lufimtse>30	Does it even initiate on Wayland?
-T 1476807726 18<ipun18>	checkEventProc only runs in X11
-T 1476807733 18<ipun18>	neverr gets called in Wayland
-T 1476807844 20<lufimtse>30	I think it's a callback
-T 1476807858 18<ipun18>	as in?
-T 1476807858 20<lufimtse>30	related to expose flashing.
-T 1476807868 20<lufimtse>30	expose event I think is when widget is 'visible' to user
-T 1476807873 20<lufimtse>30	or visibility changes.
-T 1476807874 20<lufimtse>30	hmmmmmmmmmmmm
-T 1476807892 20<lufimtse>30	What if you comment out the content of that call and run in X11, does the same issue occur?
-T 1476807906 20<lufimtse>30	or dose it magically work well on X11 still
-T 1476807957 20<lufimtse>30	Also, does the native GTK snippet work on Gtk3, but not on Wayland, or not work in any situation? 
-T 1476807990 18<ipun18>	commetning out the contents leads to it working in X11 still
-T 1476808009 18<ipun18>	the proble, with the GTK snippet is that i cant get gdk_event_get() to work correctly in both wayland and X11
-T 1476808015 18<ipun18>	its not getting any events in the first place
-T 1476808029 18<ipun18>	when i run it it returns null even with a while loop timeout
-T 1476808150 20<lufimtse>30	I see
-T 1476808151 20<lufimtse>30	hmmm
-T 1476808173 20<lufimtse>30	hmmm
-T 1476808187 18<ipun18>	from the looks of how SWT implements it, it doesnt seem to do any hacky "gdk_put_event()" stuff
-T 1476808197 18<ipun18>	so that event shouldve been generated from GTK, which it didnt
-T 1476808217 20<lufimtse>30	I found I had similar issue with DnD
-T 1476808225 20<lufimtse>30	the motion event was no longer being generated.
-T 1476808241 20<lufimtse>30	I should have drilled down to native Gtk level. Instead I implemented DnD on java level
-T 1476808246 20<lufimtse>30	lol
-T 1476808248 20<lufimtse>30	X-D
-T 1476808257 20<lufimtse>30	that was on Gtk3
-T 1476808266 20<lufimtse>30	Try with Gtk3.6
-T 1476808268 20<lufimtse>30	or Gtk3.3
-T 1476808270 20<lufimtse>30	or Gtk3.4
-T 1476808276 20<lufimtse>30	I mean the native snippet... 
-T 1476808289 20<lufimtse>30	I wonder if something broke going up from older versions
-T 1476808291 18<ipun18>	yeah motion isnt being geenrated iether
-T 1476808304 20<lufimtse>30	Do other events get generated?
-T 1476808306 20<lufimtse>30	like expose?
-T 1476808311 18<ipun18>	i havent tested
-T 1476808318 20<lufimtse>30	Maybe get it to work for some events
-T 1476808323 20<lufimtse>30	like once we know and love
-T 1476808326 20<lufimtse>30	like button down
-T 1476808332 20<lufimtse>30	and mouse movement events
-T 1476808333 18<ipun18>	currently from my swt snippet, X11 generates motion and gtk_button_release
-T 1476808348 20<lufimtse>30	what about movement events while button not pressed.
-T 1476808354 18<ipun18>	doesnt seem so 
-T 1476808362 20<lufimtse>30	does it work on gtk2?
-T 1476808366 18<ipun18>	the movement event seems to generate on x11 when im not clicking on it 
-T 1476808402 20<lufimtse>30	sekunde... 
-T 1476808994 20<lufimtse>30		while (*JsCallFinished == FALSE) {
-T 1476808994 20<lufimtse>30			g_main_context_iteration(0, FALSE);
-T 1476808994 20<lufimtse>30		}
-T 1476883228 19*	Now talking on 22#swt
-T 1476890004 20*	Disconnected (20Connection timed out)
-T 1476893106 19*	Now talking on 22#swt
-T 1476900602 19<ipun>	lufimtse my fix seems to fix the issue + have D&D working
-T 1476900709 18<ipun18>	but, it still relies on MOTION_NOTIFY instead of the click event
-T 1476901874 20<lufimtse>30	hmm
-T 1476901879 20<lufimtse>30	we kinda want motion notify
-T 1476901895 20<lufimtse>30	I wrote the fix because motion notify wasn't being sent
-T 1476901912 20<lufimtse>30	take my fix out. Should fix dnd 
-T 1476901928 20<lufimtse>30	add mainloop read thing
-T 1476901943 20<lufimtse>30	oh, you mean instead*
-T 1476901944 20<lufimtse>30	I see
-T 1476901962 20<lufimtse>30	so u not getting button release at all?
-T 1476971782 19<ipun>	lufimtse, it seems that running g_main_context_iteration () processes the events, but then the vents dont show up in event_get anymore
-T 1476971803 18<ipun18>	and i cant seem to find a way to grab the even that is being processed by g_main_context_iteration
-T 1476975306 19*	Now talking on 22#swt
-T 1476978688 19<ipun>	lufimtse ping got a question for you
-T 1476978716 18<ipun18>	im thinking about mergig gtk_button_press_event with _release_event
-T 1476978726 18<ipun18>	but im not exactly sure the best way to do with without causing huge conflict
-T 1476990007 20<lufimtse>30	as discussed... 
-T 1476990303 19<ipun>	lufimtse doesnt look like you can get mouse status, im going to try another way potientally
-T 1476990327 20<lufimtse>30	did gtk folks say?
-T 1476990430 20<lufimtse>30	Have a look:
-T 1476990430 20<lufimtse>30	https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#gdk-window-get-device-position
-T 1476990437 20<lufimtse>30	 GdkModifierType *mask);
-T 1476990442 20<lufimtse>30	-->>> mask
-T 1476990453 20<lufimtse>30	GDK_BUTTON1_MASK
-T 1476990453 20<lufimtse>30		
-T 1476990453 20<lufimtse>30	the first mouse button.
-T 1476990466 20<lufimtse>30	in SWT, we use that call: org.eclipse.swt.widgets.Display.getCursorLocationInPixels()
-T 1476990495 20<lufimtse>30	Actually, this is better: org.eclipse.swt.widgets.Display.gdk_window_get_device_position(long, int[], int[], int[])
-T 1476990505 20<lufimtse>30	the last paramater is mask
-T 1476990513 20<lufimtse>30	No hard labour needed
-T 1476990529 20<lufimtse>30	just use that call, check if that mask contains the BUTTON1 mask.
-T 1476990534 20<lufimtse>30	job done.
-T 1476990540 20<lufimtse>30	Hopefully :-P
-T 1476990572 20<lufimtse>30	I was thinking of going to the cat rescue this weekend maybe.
-T 1476990703 18<ipun18>	hmm wow
-T 1476990707 18<ipun18>	thanks for helping out
-T 1476990722 18<ipun18>	yeah do it!
-T 1476990734 18<ipun18>	lemme know how it goes
-T 1477056411 19*	Now talking on 22#swt
-T 1477316248 19*	Now talking on 22#swt
-T 1477401974 19*	Now talking on 22#swt
-T 1477408880 19<ipun1>	lufimtse do you happen to know if theres something similar to this hierarchy grpah for Swing or GTK? https://wiki.eclipse.org/File:Swt-hiearchy.gif
-T 1477408897 20<lufimtse>30	hey
-T 1477408921 20<lufimtse>30	hmm
-T 1477408949 20<lufimtse>30	Try "Swing UML diagram"
-T 1477409047 20<lufimtse>30	I don't see anything for GTK thou...
-T 1477409079 20<lufimtse>30	actually: "gtk widget hierarchy"
-T 1477409084 20<lufimtse>30	shows promising images
-T 1477409106 20<lufimtse>30	https://docs.adacore.com/gtkada-docs/gtkada_ug/_build/html/_images/hierarchy.jpg
-T 1477409156 20<lufimtse>30	https://www3.ntu.edu.sg/home/ehchua/programming/java/images/Swing_JComponentClassDiagram.png
-T 1477409159 20<lufimtse>30	Hope it helps.
-T 1477409861 18<ipun118>	awesome thanks!
-T 1477490227 19*	Now talking on 22#swt
-T 1477922314 19*	Now talking on 22#swt
-T 1477923294 19<ipun>	hey lufimtse for https://git.eclipse.org/r/#/c/83639/
-T 1477923318 18<ipun18>	i edited the changes on git itself, i don't think it gave you another email about it
-T 1477923532 20<lufimtse>30	hey
-T 1477923581 20<lufimtse>30	did you submit your changes?
-T 1477923584 20<lufimtse>30	I see no changes.
-T 1477923592 20<lufimtse>30	you mean gerrit not git?
-T 1477923608 20<lufimtse>30	ipun, <<
-T 1477923639 19<ipun>	i mean gerrit lufimtse 
-T 1477923647 18<ipun18>	i did it a while back, i just did it on the website
-T 1477923649 20<lufimtse>30	yea, doesn't show for me
-T 1477923655 20<lufimtse>30	you probably did not submit
-T 1477923657 20<lufimtse>30	?
-T 1477923659 20<lufimtse>30	ipun, 
-T 1477923666 18<ipun18>	well the comment was changed 
-T 1477923680 18<ipun18>	all i did was change the wording of the comment, and then commented on your own comment
-T 1477923735 18<ipun18>	anyways, for your second comment, 2nd/3rd click mouse buttons dont need to be checked as those are not normal buttons used for drag and drop; not used in chrome or any other tab-type applcaitions from my experience
-T 1477927458 19<ipun>	lufimtse let me know if the gerrit change is good so i can close it
-T 1477939357 18<ipun18>	tested on wayland, its all good
-T 1478009275 20<lufimtse>30	ipun, I think the comment didn't get updated... https://git.eclipse.org/r/#/c/83639/
-T 1478009282 20<lufimtse>30	did you publish the comment?
-T 1478010187 18<ipun18>	i couldnt find it, so i just redid it
-T 1478029853 19<ipun>	lufimtse could you explain to me cherry picking a little bit?
-T 1478029875 18<ipun18>	im basically trying to get an older file (revert my changes), i see it in the git histoy and pressed cherry pick
-T 1478029892 18<ipun18>	but it didnt override my current branch file with the cherry picked files
-T 1478030633 20<lufimtse>30	ipun, hey
-T 1478030644 20<lufimtse>30	come find me.
-T 1478091788 19*	Now talking on 22#swt
-T 1478091982 19*	Now talking on 22#swt
-T 1478099793 20*	Disconnected (20Connection timed out)
-T 1478102844 19*	Now talking on 22#swt
-T 1478103932 19*	Now talking on 22#swt
-T 1478105157 20*	Disconnected (20Connection reset by peer)
-T 1478105168 19*	Now talking on 22#swt
-T 1478105719 19*	Now talking on 22#swt
-T 1478105937 19*	Now talking on 22#swt
-T 1478106647 19*	Now talking on 22#swt
-T 1478181516 20<lufimtse>30	ipun, I invite you to sign up for presenting something at DemoCamp: https://wiki.eclipse.org/Eclipse_DemoCamps_November_2016/Toronto
-T 1478181521 20<lufimtse>30	ex dark theme
-T 1478181529 20<lufimtse>30	you can always change the topic after
-T 1478181545 20<lufimtse>30	I just want to have minimum critical mass, so that other people would be interested in joining.
-T 1478181548 20<lufimtse>30	or attending.
-T 1478181574 18<ipun18>	sure i can do that
-T 1478181589 18<ipun18>	i dont know how to edit the page tho
-T 1478181691 18<ipun18>	nevermind i found it
-T 1478182214 20<lufimtse>30	nice.
-T 1478204038 19<ipun>	lufimtse shit i updated my system and now my java 1.8 is unbound
-T 1478204045 18<ipun18>	cant compile anything with java
-T 1478204091 18<ipun18>	nvm i seem to have fixed it
-T 1478204098 18<ipun18>	sometimes eclipse can be very glitchy
-T 1478204669 20<lufimtse>30	unbound?
-T 1478204671 20<lufimtse>30	mehl?
-T 1478204675 20<lufimtse>30	what goes.
-T 1478204679 20<lufimtse>30	Smash?
-T 1478205156 18<ipun18>	hmmmmmm
-T 1478205162 18<ipun18>	okay
-T 1478269723 19<ipun>	hey lufimtse after putting a new method in os.java and clean+building, its still giving me this error
-T 1478269730 18<ipun18>	java.lang.UnsatisfiedLinkError:
-T 1478269744 18<ipun18>	also tried "brb" ing
-T 1478271536 20<lufimtse>30	hey
-T 1478271549 20<lufimtse>30	k.
-T 1478279922 20<lufimtse>30	ipun, btw, have you investigated, is there any way to get 
-T 1478279923 20<lufimtse>30	Bug 503431 - [wayland] CTabFolder slow when switching tabs (DnD logic issue on wayland
-T 1478279926 20<lufimtse>30	to work without context iteration?
-T 1478283243 18<ipun18>	I did. From my investigation its not possible since the event cannot be moved on without it
-T 1478287107 19<ipun>	lufimtse how do you backport again?
-T 1478287117 18<ipun18>	i remember you said there was something written on it, i just couldnt find it
-T 1478367639 20*	Disconnected (20Connection reset by peer)
-T 1478367649 19*	Now talking on 22#swt
-T 1478532824 19*	Now talking on 22#swt
-T 1478618849 19<ipun>	hey lufimtse, do you think its viable to close https://bugs.eclipse.org/bugs/show_bug.cgi?id=501420
-T 1478618864 18<ipun18>	last comment basically is the issue, but its been solved (i believe)
-T 1478618871 18<ipun18>	doesnt look like anyone followed up with closing the bug
-T 1478618871 20<lufimtse>30	hey
-T 1478619055 20<lufimtse>30	It seems that the related bug 505923 was fixed. So maybe this bug is fixed also. You could post into the bug suggesting to close it and close it in a week if no one replies.
-T 1478619160 18<ipun18>	okay sounds good
-T 1478633946 18<ipun18>	hey
-T 1478633948 19<ipun>	lufimtse https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431
-T 1478633983 18<ipun18>	was fully tested from your comments on gerrit
-T 1478633987 18<ipun18>	responded on bugzilla
-T 1478634529 20<lufimtse>30	hullo
-T 1478634580 20<lufimtse>30	I think last time I asked if it's possible to get this done without use of context_iteration?
-T 1478634596 20<lufimtse>30	what happens if you remove that context iteration, but still check status of mouse in the loop?
-T 1478634611 20<lufimtse>30	does that work at all or is context iteration absolutley neccessary?
-T 1478634612 18<ipun18>	yeah i did that
-T 1478634618 18<ipun18>	i thought i told you already here on this channel
-T 1478634620 18<ipun18>	it doesnt work
-T 1478634623 20<lufimtse>30	I ese
-T 1478634628 20<lufimtse>30	I see
-T 1478634632 18<ipun18>	if you dont have a context iteration the event never moves on 
-T 1478634638 18<ipun18>	it times out pretty much
-T 1478634659 20<lufimtse>30	Lemme see patch
-T 1478634701 20<lufimtse>30	The comment is still off
-T 1478634714 20<lufimtse>30	Bug 503431: Wayland does not put GDK_BUTTON_RELEASE event into the gdk_event.
-T 1478634718 20<lufimtse>30	It does
-T 1478634737 20<lufimtse>30	>_>
-T 1478634739 20<lufimtse>30	<_<
-T 1478634750 20<lufimtse>30	We updated it last time?
-T 1478634757 20<lufimtse>30	did you push the updated comment?
-T 1478636037 18<ipun18>	soirry about the constant delay of that :X
-T 1478636234 20<lufimtse>30	ipun, could you rebase?
-T 1478636241 20<lufimtse>30	It's like far behind I think
-T 1478636262 20<lufimtse>30	then let me know.
-T 1478636319 20<lufimtse>30	oh,
-T 1478636321 20<lufimtse>30	never mind.
-T 1478636471 18<ipun18>	kk
-T 1478704569 20<lufimtse>30	ipun, fyi: https://bugzilla.gnome.org/show_bug.cgi?id=774148
-T 1478704609 18<ipun18>	??
-T 1478704618 18<ipun18>	noted
-T 1478704626 18<ipun18>	do we use this command at alL?
-T 1478705843 20<lufimtse>30	dunnow
 T 1478708292 20*	Disconnected (20Connection timed out)
 T 1478711382 19*	Now talking on 22#swt
 T 1478727527 19<ipun>	lufimtse can you show me how to do that classpath thing again?
@@ -424,3 +163,338 @@ T 1490123177 18<ipun18>	thank you
 T 1490123254 18<ipun18>	ericwill: date says march 17, does that mean everything committed to master before the 17th is in m6?
 T 1490123311 18<ericwill18>	ipun I think so?
 T 1490123391 18<ipun18>	okay
+T 1490627824 20*	Disconnected (20Connection timed out)
+T 1490631609 19*	Now talking on 22#SWT
+T 1491225339 19*	Now talking on 22#SWT
+T 1491232386 20*	Disconnected (20Connection timed out)
+T 1491235416 19*	Now talking on 22#SWT
+T 1491333994 20*	Disconnected (20Connection timed out)
+T 1491349828 19*	Now talking on 22#SWT
+T 1491354586 20*	Disconnected (20Connection timed out)
+T 1491400649 19*	Now talking on 22#SWT
+T 1491419860 19*	Now talking on 22#SWT
+T 1491495317 20<lufimtse>30	Welcome Alex.
+T 1491495332 18<akurtakov18>	ipun: so are you going to revert everything ?
+T 1491495337 19<akurtakov>	lufimtse: hey :)
+T 1491495358 18<ipun18>	akurtakov: trust me, i have no choice
+T 1491495367 20<lufimtse>30	note:
+T 1491495368 18<ipun18>	but after the revert, i plan on adding the changes
+T 1491495371 18<ipun18>	https://git.eclipse.org/r/#/c/94497/
+T 1491495386 18<ipun18>	this changeset basically includes the full revert + some development ive done that may solve this
+T 1491495417 18<akurtakov18>	ok
+T 1491495429 19<akurtakov>	I trust lufimtse for proper review
+T 1491495443 20<lufimtse>30	akurtakov, the idea here is to keep DnD as part of MouseDown. It's not neccessarily what Gtk does, but it preserves Cocoa/Win32 compatability.
+T 1491495459 20<lufimtse>30	And thus custom widgets would not have to be changed.
+T 1491495507 18<akurtakov18>	this would not affect the gestures supprot, right?
+T 1491495516 20<lufimtse>30	you mean swiping?
+T 1491495517 18<ipun18>	akurtakov: no it wont
+T 1491495518 18<akurtakov18>	it shouldn't but I want to be sure
+T 1491495523 18<akurtakov18>	ok
+T 1491495529 18<ipun18>	the way i implemented it wont affect this
+T 1491495592 18<ipun18>	there should be a dragGesture set on it nonetheless
+T 1491495612 18<ipun18>	but for consistency ill test it on my laptop
+T 1491495686 18<akurtakov18>	ok
+T 1491495709 18<akurtakov18>	the patch is not ready for test yet, right?
+T 1491495720 18<ipun18>	its ready for testing for x11/wayland
+T 1491495848 18<akurtakov18>	http://blog.dustinkirkland.com/2017/04/thank-you-note-to-hackernews.html
+T 1491495929 18<ipun18>	what a great day
+T 1491496021 18<akurtakov18>	https://www.theregister.co.uk/2017/04/06/canonical_cuts_jobs_with_unity_bullet/
+T 1491496027 18<akurtakov18>	ubuntu seems to be sinking
+T 1491496208 18<ipun18>	akurtakov: confirmed that gestures is working
+T 1491496212 18<akurtakov18>	ok
+T 1491496644 18<ipun18>	akurtakov: https://git.eclipse.org/r/#/c/94497/
+T 1491496647 18<ipun18>	thats the reverted changes
+T 1491496666 18<ipun18>	did you want me to do another commit that shows the additional patch on top of that revert?
+T 1491496675 18<akurtakov18>	ipun: exactly
+T 1491496685 18<akurtakov18>	so when I fetch the second one I get everything in shape 
+T 1491496729 18<ipun18>	akurtakov: did you want it in a different gerrit review or as a new patchset?
+T 1491496746 18<akurtakov18>	another review on top of the revert one
+T 1491497018 18<ipun18>	https://git.eclipse.org/r/#/c/94597/
+T 1491497023 18<ipun18>	akurtakov ^
+T 1491497348 18<akurtakov18>	ipun: still when full line selection dnd is activated instead deselection
+T 1491497356 18<akurtakov18>	but not always tbh
+T 1491497404 18<akurtakov18>	for both x11 and wayland
+T 1491497431 18<akurtakov18>	if everything is reverted why break x11 ?
+T 1491497483 18<akurtakov18>	I insist on leaving x11 on being in the way it is currently
+T 1491497501 19<ipun>	akurtakov: because lufimtse said to do it for x11 too :)
+T 1491497506 19<akurtakov>	lufimtse: NO
+T 1491497509 20<lufimtse>30	hmmm
+T 1491497520 18<ipun18>	akurtakov: i insisted no
+T 1491497524 18*	ipun shrugs
+T 1491497540 18<akurtakov18>	any chance of potential breakage now should be reduced
+T 1491497565 19<akurtakov>	lufimtse: please take this seriously, we can not afford more X11 regressions
+T 1491497595 18<akurtakov18>	no matter you like it or not - it stays how it is until wayland proven tobe stable
+T 1491497658 18<akurtakov18>	once wayland is stable we can speak of unifying 
+T 1491497666 18<akurtakov18>	we are almost at M7 and everything is broken
+T 1491497667 20<lufimtse>30	May I suggest to leave things as is until Oxygen is released and then work on things?
+T 1491497684 18<akurtakov18>	for x11 yes 
+T 1491497693 18<akurtakov18>	for wayland - it has to work in Oxygen
+T 1491497712 19<ipun>	lufimtse: we can still include the fix i did and guard it with isX11
+T 1491497774 18<akurtakov18>	ipun: +1
+T 1491497794 19<ipun>	lufimtse: ill even comment it with // Wayland for you :)
+T 1491497797 18<akurtakov18>	further more on x11 the new patch doesn't switch ctabs with first click but with secon
+T 1491497800 20<lufimtse>30	In the sense I wasn't planning on the new DnD changes to take place until after Oxygen.
+T 1491497812 20<lufimtse>30	./forgot to mention. 
+T 1491497828 20<lufimtse>30	We're ok with having a bunch of !x11 guards
+T 1491497833 20<lufimtse>30	so long as current code stays same.
+T 1491497882 18<akurtakov18>	btw with the new code
+T 1491497913 18<akurtakov18>	I end up with the old funny bug of moving around ctabs instead of switching them on wayland
+T 1491497930 18<ipun18>	akurtakov: yeah i just noticed that
+T 1491497937 18<ipun18>	sigh 
+T 1491497948 18<ipun18>	this really sucks 
+T 1491497953 18<akurtakov18>	that's worse than current master which has only StyledText broken on wayland
+T 1491497957 20<lufimtse>30	It might be because MouseRelease is fired before MouseDown is finished.
+T 1491497987 20<lufimtse>30	Not sure thou. 
+T 1491498216 18<akurtakov18>	so guys, let's make things clear on one thing - x11 stays as it is and everything regarding wayland is guarded with if !x11
+T 1491498233 18<akurtakov18>	for at least 2 milestones once we put it int
+T 1491498238 20<lufimtse>30	akurtakov, We initially started moving DnD logic into MouseMovement, because that's the 'gtk' method of doing it and is more sound. However, after time we discovered that this approach causes breakage in Custom widgets.    -> As such we are now seeking to get DnD logic to work in MouseDown for wayland.
+T 1491498249 18<akurtakov18>	until even thinking of unifying it
+T 1491498269 20<lufimtse>30	I have no objections against if !x11 guard for now.
+T 1491498317 18<akurtakov18>	so are we saying we go with MouseMove for wayland and MouseDown for x11 for Oxygen?
+T 1491498332 20<lufimtse>30	No,
+T 1491498336 20<lufimtse>30	hmm
+T 1491498341 20<lufimtse>30	sec.
+T 1491498352 18<akurtakov18>	this is what we have in master, right?
+T 1491498363 18<akurtakov18>	fwiw, it's the best thing I have seen so far
+T 1491498388 20<lufimtse>30	X11 will be same as is now in oxygen, no changes
+T 1491498392 20<lufimtse>30	for Wayland .... 
+T 1491498401 20<lufimtse>30	1) We will work on mouseDown solution
+T 1491498406 20<lufimtse>30	2) In mean time leave mouseMove
+T 1491498422 20<lufimtse>30	if mouseDown solution is good to go, use that in Oxygen. If not, leave mouse move.
+T 1491498428 20<lufimtse>30	does that make sense?
+T 1491498453 18<akurtakov18>	ok, when do we put the deadline for that decision?
+T 1491498495 20<lufimtse>30	I think deadline is dependent on if MouseMove method will be up and running in time. I propose to keep things in patches and out of master for now.
+T 1491498529 20<lufimtse>30	At least until Oxygen release.
+T 1491498554 20<lufimtse>30	This should ensure consistent behaviour until we are ready for switch. 
+T 1491498568 20<lufimtse>30	For the switch, we will be doing extensive testing to make sure all reported regressions do not occur.
+T 1491498644 20<lufimtse>30	Thoughts?
+T 1491498778 18<akurtakov18>	well, I still want wayland + oxygen in better shape
+T 1491498815 20<lufimtse>30	Can you define "better", do you mean functioning styledText?
+T 1491498853 18<akurtakov18>	yes if possible
+T 1491498863 18<akurtakov18>	or at least what we can get 
+T 1491498869 20<lufimtse>30	This would require us to get MouseDown solution working.
+T 1491498870 18<akurtakov18>	even if it's baby steps 
+T 1491498875 20<lufimtse>30	on wayland
+T 1491498879 18<akurtakov18>	or improve on the MouseMove
+T 1491498891 20<lufimtse>30	MouseMove has architectural problem,
+T 1491498909 18<akurtakov18>	for which I want a deadline - how much time do we give MouseDown to see it's working
+T 1491498916 20<lufimtse>30	I see.
+T 1491498919 20<lufimtse>30	Hmmm.
+T 1491498927 20<lufimtse>30	Let me think.
+T 1491498932 18<akurtakov18>	it may have arch problem but it is smth that we will release in June
+T 1491498947 18<akurtakov18>	and will live with us for the next 14-16 months
+T 1491498958 20<lufimtse>30	Is "IS_GTK" accetable in styled text?
+T 1491498971 20<lufimtse>30	and CTabFolder?
+T 1491498993 18<akurtakov18>	no, because IS_GTK solution would do changes for x11 too - which is unwanted
+T 1491499006 18<akurtakov18>	and this is jsut the tip of the iceberg
+T 1491499007 20<lufimtse>30	Then we have a problem with MouseMove approach.
+T 1491499025 20<lufimtse>30	MouseMove + Stayled text requires IS_GTK. 
+T 1491499042 20<lufimtse>30	As such, we have to push for MouseDown.
+T 1491499051 20<lufimtse>30	hmmm
+T 1491499062 20<lufimtse>30	Please give me a few minutes to think.
+T 1491499081 18<akurtakov18>	or it requires if (!x11 && control instanceof StyledText) kind of hacks in Drag*
+T 1491499156 18<akurtakov18>	ipun: do you think you can enhance StyledText after trippleclick on wayland with current master
+T 1491499183 20<lufimtse>30	Interesting...
+T 1491499209 18<akurtakov18>	and we continue fighting wayland that way as we find issues
+T 1491499229 20<lufimtse>30	BTW, can we modify things until RC3 Friday, June 09?
+T 1491499315 19<akurtakov>	lufimtse: with each next step you need one more additional +1
+T 1491499318 18<akurtakov18>	first one more committer
+T 1491499328 18<akurtakov18>	next +project lead
+T 1491499334 18<akurtakov18>	next + PMC approval
+T 1491499490 18<akurtakov18>	see here from last year
+T 1491499545 18<akurtakov18>	https://www.eclipse.org/eclipse/development/plans/freeze_plan_4_6.php#FixPassAfterRC0 specifically
+T 1491499636 19<akurtakov>	lufimtse: this year will be pretty much the same
+T 1491499789 20<lufimtse>30	I see.
+T 1491499823 20<lufimtse>30	So basically we have until May 4th to make changes freely, after that it's difficult?
+T 1491499840 20<lufimtse>30	akurtakov, is that correct?
+T 1491499849 18<akurtakov18>	yes
+T 1491499865 20<lufimtse>30	In that case, I have the following suggestion:
+T 1491499879 20<lufimtse>30	- We stick to current MouseMove and try to hack things via instanceOf
+T 1491499889 20<lufimtse>30	- THEN, work on MouseDown architecture
+T 1491499893 18<akurtakov18>	works for me
+T 1491499920 18<akurtakov18>	THEN might be delayed  though
+T 1491499930 20<lufimtse>30	I see.
+T 1491499946 18<akurtakov18>	as we need also Webkit2 finished early in Photon too
+T 1491499963 20<lufimtse>30	feasible.
+T 1491500016 20<lufimtse>30	So my understanding ME:  DnD polish && Webkit2 polish -> Oxygen release -> Webkit2 Browser function && DnD MouseDown architecture
+T 1491500020 20<lufimtse>30	that correct?
+T 1491500032 20<lufimtse>30	akurtakov, 
+T 1491500064 18<akurtakov18>	after Oxygen release -> + ton of other things :)
+T 1491500069 20<lufimtse>30	X-D
+T 1491500070 20<lufimtse>30	ok.
+T 1491500075 20<lufimtse>30	Fair game.
+T 1491500089 20<lufimtse>30	I'm off to lunch.
+T 1491500096 20<lufimtse>30	I'll chat with Ian in a bit.
+T 1491500164 18<akurtakov18>	ok
+T 1491503379 18<ipun18>	akurtakov: I'm going to dive deeper into what i've done with motion drags and see ifi can get this working with styledtext using instanceOf
+T 1491503393 18<akurtakov18>	ipun: good
+T 1491503405 18<ipun18>	i much prefer the mouse movement stuff anyways
+T 1491503425 20<lufimtse>30	ipun, sendDragEvent (gdkEvent.button, gdkEvent.state, (int) gdkEvent.x, (int) gdkEvent.y, false); << delay execution of that guy.
+T 1491503429 20<lufimtse>30	basically.
+T 1491503449 19<ipun>	lufimtse: i figured you were talking about that
+T 1491503453 18<ipun18>	ill work something around it now
+T 1491503455 18<akurtakov18>	only thing I prefer is the working one :)
+T 1491503468 20<lufimtse>30	akurtakov, he he :-)
+T 1491505266 18<ipun18>	can you allow  (IS_GTK) additions to styledText?
+T 1491505270 18<ipun18>	if it all works that is
+T 1491505280 18<ipun18>	akurtakov: 
+T 1491505349 18<akurtakov18>	ipun: wouldn't that change x11 behavior too ?
+T 1491505370 18<ipun18>	akurtakov: if i could figure out a solution to not change x11 behavior, could i do it?
+T 1491505416 18<akurtakov18>	in general I don't like the idea but if there is no other way and you can make it to not change x11 we can speak about it
+T 1491505426 18<akurtakov18>	but note that I'll question it heavily
+T 1491505439 18<ipun18>	okay sounds good 
+T 1491512413 20*	Disconnected (20Connection timed out)
+T 1491584322 19*	Now talking on 22#SWT
+T 1491832604 19*	Now talking on 22#SWT
+T 1491834017 19<ipun>	lufimtse: https://git.eclipse.org/r/#/c/94703/
+T 1491834021 18<ipun18>	all ready for testing at this point
+T 1491834028 20<lufimtse>30	kewl
+T 1491834037 20<lufimtse>30	Will start testing this business after meeting
+T 1491837312 20*	Disconnected (20Connection timed out)
+T 1491839311 19*	Now talking on 22#SWT
+T 1491919773 19*	Now talking on 22#SWT
+T 1491996829 19*	Now talking on 22#SWT
+T 1492001646 19*	Now talking on 22#SWT
+T 1492009191 19*	Now talking on 22#SWT
+T 1492011416 19*	Now talking on 22#SWT
+T 1492013490 18<ipun18>	akurtakov: regarding the GtkText fix, I don't seem to be running into the crash on X11
+T 1492013499 18<ipun18>	are you doing a Text -> label transfer on DnDExample?
+T 1492013800 18<akurtakov18>	ipun: yes
+T 1492013818 18<akurtakov18>	ipun: I make it crash one out of 3 tries
+T 1492013873 18<ipun18>	wierd... I cant seem to do it
+T 1492013891 18<ipun18>	let me check out my logic again and maybe it screwed up the x11 passages
+T 1492013902 18<akurtakov18>	do you use this patch on top of your queue patch or on top of master ?
+T 1492014572 18<ipun18>	akurtakov: the patch was only off of master
+T 1492014590 18<ipun18>	are you doing it off of my queue patch as well?
+T 1492014821 18<akurtakov18>	yes
+T 1492015209 18<ipun18>	hmm okay ill play around with that as well then
+T 1492015795 18<ipun18>	i havent been able to replicate the crash but I do notice it being slower. Ill see what i can do
+T 1492015841 18<ipun18>	also seems to be completely broken in Wayland on text
+T 1492016405 18<ipun18>	could you try with the latest patch when you have time?
+T 1492090569 18<ipun18>	akurtakov: did you get a chance to see if https://git.eclipse.org/r/#/c/94861 works?
+T 1492090578 18<akurtakov18>	doing it now
+T 1492090582 18<ipun18>	kk thanks
+T 1492090733 18<akurtakov18>	ipun: sorry , happens again
+T 1492090748 18<akurtakov18>	ipun: double click to select a word
+T 1492090751 18<akurtakov18>	dnd - works
+T 1492090763 18<akurtakov18>	repeat with another word - crash
+T 1492090774 18<ipun18>	ah i can reproduce it now
+T 1492090775 18<ipun18>	thank you
+T 1492090804 18<akurtakov18>	ipun: np, sorry if I wasn't clear the first time :)
+T 1492090844 18<ipun18>	akurtakov: its okay. With that I should be able to get to the bottom of this. My fix inherinently shouldnt cause any harm to x11 but it is, so this is important
+T 1492090924 18<ipun18>	okay the problem actually started with 510446, not 515035
+T 1492090952 18<akurtakov18>	?
+T 1492091170 18<akurtakov18>	I have to run now, happy easter :)
+T 1492091172 18<ipun18>	akurtakov: actually i lied
+T 1492091176 18<ipun18>	its not working on master
+T 1492091189 18<ipun18>	anyways ill figure it out :)
+T 1492091191 18<ipun18>	have a good easter!
+T 1492094872 20*	Disconnected (20Connection timed out)
+T 1492097348 19*	Now talking on 22#SWT
+T 1492098980 19*	Now talking on 22#SWT
+T 1492520035 19*	Now talking on 22#SWT
+T 1492525816 19*	Now talking on 22#SWT
+T 1492525904 19*	Now talking on 22#SWT
+T 1492527827 19*	Now talking on 22#SWT
+T 1492612026 19<akurtakov>	lufimtse: ipun: if Ian is not busy with dnd stuff 
+T 1492612037 20<lufimtse>30	akurtakov, 
+T 1492612039 20<lufimtse>30	hey
+T 1492612040 20<lufimtse>30	sup
+T 1492612047 18<akurtakov18>	let him move to the launchbar
+T 1492612052 20<lufimtse>30	ok
+T 1492612055 20<lufimtse>30	bt
+T 1492612056 20<lufimtse>30	btw
+T 1492612063 20<lufimtse>30	can I get you to test a patch briefly
+T 1492612070 18<akurtakov18>	sure
+T 1492612087 20<lufimtse>30	Can you checkout and see if DnD works on your machine with this guy:
+T 1492612087 20<lufimtse>30	https://git.eclipse.org/r/#/c/95207/
+T 1492612093 20<lufimtse>30	It's based on SWT code that's 1 year old
+T 1492612098 20<lufimtse>30	so eclipse is buggy on it
+T 1492612109 20<lufimtse>30	but i just want to know if dnd works on your machine 
+T 1492612112 20<lufimtse>30	with that guy
+T 1492612116 20<lufimtse>30	tests:
+T 1492612124 20<lufimtse>30	1) StyledText, select text, drag
+T 1492612129 20<lufimtse>30	2) Package explorer
+T 1492612132 20<lufimtse>30	3) Staging area
+T 1492612136 20<lufimtse>30	3) DnD example
+T 1492612170 20<lufimtse>30	There's a quirck with StyledText DnD backwards selection & moving forward, but that's to be investigated later. For now Just want to know if basic dnd works.
+T 1492612208 20<lufimtse>30	akurtakov, let me know once done
+T 1492613230 19<akurtakov>	lufimtse: DnD example seems to be fine
+T 1492613239 18<akurtakov18>	but eclipse is not starting for me
+T 1492613247 20<lufimtse>30	akurtakov, fair enough.
+T 1492613249 20<lufimtse>30	thank you.
+T 1492613264 18<akurtakov18>	it is just stuck on startup
+T 1492617443 20<lufimtse>30	akurtakov, yea, it's swt from a year ago. Maybe something's flaky.
+T 1492620144 19*	Now talking on 22#SWT
+T 1492621101 18<akurtakov18>	guys I'll not find time to test the dnd this week
+T 1492621116 18<akurtakov18>	so please test/push yourself
+T 1492621208 20<lufimtse>30	ipun, akurtakov I encourage you guys to use the rebuild_swt_natives.sh script. Automates bunch of mundate tasks.
+T 1492621211 20<lufimtse>30	cd ~/bin/
+T 1492621216 20<lufimtse>30	ln -s ~/git/eclipse.platform.swt/bundles/org.eclipse.swt.tools/gtk/rebuild_swt_natives.sh swtb
+T 1492621224 20<lufimtse>30	ex ^ sim-link to it.
+T 1492621233 20<lufimtse>30	but note, I pushed a change just now so that it works when symlinked.
+T 1492621255 20<lufimtse>30	with above you can use via 'swtb'
+T 1492621279 18<akurtakov18>	will this create git noise ?
+T 1492621289 18<akurtakov18>	ah it's in bin sorry :)
+T 1492621309 20<lufimtse>30	this is for personal machine
+T 1492621341 19<akurtakov>	lufimtse: well, there is mail from Martin asking for building swt natives on the mailing list
+T 1492621349 18<akurtakov18>	and getting confused with the wiki
+T 1492621352 20<lufimtse>30	let me check
+T 1492621574 18<akurtakov18>	looks like some cleanup in the content is needed
+T 1492621588 18<akurtakov18>	simpler howto maybe with less conditions :)
+T 1492621612 18<akurtakov18>	doh of the webpage I mean
+T 1492621679 18<akurtakov18>	sigh, we should really automate this inside eclipse
+T 1492631053 20<lufimtse>30	akurtakov, ipun the DnD patch for manually managing outging SWT.Mouse* events is in. I.e, DnD in external widgets like styledText and CTabFolder should be functional.
+T 1492631104 19<akurtakov>	lufimtse: cool, can't wait for tomorrow's build :)
+T 1492631538 20<lufimtse>30	akurtakov, btw do you know: If you have a 'dltk' buildCommand in the .project (I.e, shelled support), but you don't have shelled installed, are there any problems?
+T 1492631544 20<lufimtse>30	or is it silently installed?
+T 1492631566 18<akurtakov18>	it is silently ignored
+T 1492631568 20<lufimtse>30	yay
+T 1492631586 18<akurtakov18>	well, not build command but nature :)
+T 1492631660 19<akurtakov>	lufimtse: there is wip to make marketplace client proposing to install though 
+T 1492631662 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=513306
+T 1492631668 18<akurtakov18>	hopefully for oxygen
+T 1492631808 20<lufimtse>30	interesting
+T 1492631816 20<lufimtse>30	is it working atm? only with the ini setting?
+T 1492631826 20<lufimtse>30	lemme ping Mickael
+T 1492631888 18*	akurtakov feels like walking organizer for the release train :)
+T 1492632038 18<ipun18>	akurtakov: where did you get any of the information about XSetInputFocus and such from SHell.java | line 573 and below?
+T 1492632055 18<akurtakov18>	ipun: let me open swt :)
+T 1492632077 18*	akurtakov jumps from p2 to swt :)
+T 1492632121 18<akurtakov18>	ipun: the comment iis in the wrong place
+T 1492632133 18<akurtakov18>	it should be in the if X11 block
+T 1492632156 18<akurtakov18>	XSetInputFocus is xlib function so makes no sense outside of it
+T 1492632234 18<ipun18>	it is inside the x11 block im just curious how you got this information on how to handle override redirects
+T 1492632276 18<akurtakov18>	ipun: no idea 
+T 1492632293 18<akurtakov18>	this is from the very first kept commit in the repo :)
+T 1492632508 18<ipun18>	DANG
+T 1492632542 18<akurtakov18>	ipun: so gtk_window_present that is commented does nothing ?
+T 1492632550 18<ipun18>	does nothing
+T 1492632595 18<akurtakov18>	same for .gdk_window_focus (window, OS.GDK_CURRENT_TIME); ?
+T 1492632768 18<ipun18>	it was giving us that "gtk window_present_with_time" failure, and we tried using the proper time with it and it still failed
+T 1492633047 18<akurtakov18>	no idea :)
+T 1492633332 18<ipun18>	thanks anyways akurtakov :)
+T 1492633390 18<akurtakov18>	ipun: sorry for not helping much but simply it's impossible :)
+T 1492633485 18<ipun18>	its okay ill work at it
+T 1492697495 19*	Now talking on 22#SWT
+T 1492698346 18<ipun18>	akurtakov: sigh gtk team has not been very helpful with the gtk_popup issue
+T 1492705434 20<lufimtse_>30	bin
+T 1492705541 18<akurtakov18>	ipun: well, time for you to find it out on your own :)
+T 1492705546 19<akurtakov>	lufimtse_: bin ?
+T 1492705562 20<lufimtse_>30	akurtakov, meh?
+T 1492705570 19<akurtakov>	lufimtse_: ‎[19:23] ‎<‎lufimtse_‎>‎ bin 
+T 1492705584 20<lufimtse_>30	akurtakov, now that was suppose to go to a terminal
+T 1492705592 20<lufimtse_>30	I blame wayland
+T 1492705594 20<lufimtse_>30	X-D
+T 1492708438 19<akurtakov>	lufimtse_: do you mind closing https://bugs.eclipse.org/bugs/show_bug.cgi?id=503431 
+T 1492708459 18<akurtakov18>	and opening a new one for your future work that doesn't target 4.7 
+T 1492708476 18<akurtakov18>	unless you plan some more work for it
+T 1492711345 20<lufimtse_>30	akurtakov, done
+T 1492711356 20<lufimtse_>30	akurtakov, ok
+T 1492711917 18<ipun18>	akurtakov: good news is i found the problem and i think i can fix it without GTK help :)
+T 1492711957 18<ipun18>	i got the focusing of it working now in wayland/X11, but theres just some x/y coordinates which are having issues at the moment
+T 1492711958 18<akurtakov18>	ipun: sounds good
+T 1492712505 19*	Now talking on 22#SWT
+T 1492777416 19*	Now talking on 22#SWT
+T 1492779289 19*	Now talking on 22#SWT
+T 1492780881 19*	Now talking on 22#SWT

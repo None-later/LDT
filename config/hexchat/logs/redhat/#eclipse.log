@@ -8291,3 +8291,1770 @@ Mar 22 10:53:04 <akurtakov>	can you do in this timeframe ? also you should final
 Mar 22 10:55:11 <mbenitez>	yes, payback time ;)
 Mar 22 10:56:12 <nboldt1>	mbenitez: payback/turnaround/education time
 Mar 22 10:57:09 <mbenitez>	nboldt1, I of course meant education time :D
+Mar 22 14:16:38 *	scox is away: pto
+Mar 23 08:33:52 <scela>	mistria: hey
+Mar 23 08:34:38 <scela>	mistria: fyi just verified with last night's build that the template is fully working now and generate a working application with error reporting, autocomplete, hover and syntax highlighting
+Mar 23 08:37:30 <akurtakov>	scela: mistria: have you considered adding word completion to the generic editor
+Mar 23 08:37:37 <akurtakov>	does it sound like a good idea to you?
+Mar 23 08:38:46 <scela>	akurtakov: not sure what you mean with 'word' completion
+Mar 23 08:39:06 <akurtakov>	scela: completing word that already exist in the document
+Mar 23 08:39:57 <scela>	akurtakov: regardless off any kind of semantics?
+Mar 23 08:40:09 <akurtakov>	scela: yes
+Mar 23 08:40:22 <akurtakov>	it would need a way to be disabled though
+Mar 23 08:41:03 <scela>	akurtakov: it would yes
+Mar 23 08:41:09 <scela>	akurtakov: not very thrilled by this idea
+Mar 23 08:41:36 <scela>	akurtakov: any specific usecase you have in mind where it would be useful?
+Mar 23 08:42:19 <akurtakov>	well, it's useful in the case where you don't have any more meaningful completion
+Mar 23 08:42:50 <akurtakov>	scela: e.g. when editing js in kwrite
+Mar 23 08:43:08 <akurtakov>	if I do line 1: var dummyVar = 1;
+Mar 23 08:43:30 <akurtakov>	and on line 3 I start typing dumm I get the proposal to autocomplete it to dummyVar
+Mar 23 08:43:40 <akurtakov>	It's dump if you have full tooling
+Mar 23 08:43:48 <akurtakov>	but if you don't it's quite useful
+Mar 23 08:44:08 <scela>	i see
+Mar 23 08:44:31 <scela>	we could use it as default if no other kind of autocompletion is registered
+Mar 23 08:44:39 <akurtakov>	smth like this yea
+Mar 23 08:44:48 <scela>	akurtakov: what do you define as a word though
+Mar 23 08:45:25 <akurtakov>	sequence of chars limited by whitespace chars on both sides :)
+Mar 23 08:45:55 <akurtakov>	scela: ^
+Mar 23 08:45:59 <scela>	<tag>bla</tag> would show up whole as an autocompletion though
+Mar 23 08:46:31 <akurtakov>	hmm, I haven't thought of markup
+Mar 23 08:47:05 <scela>	it usually involves such stuff unless you're writing poems :)
+Mar 23 08:47:24 <akurtakov>	well, I don't consider js/python/ruby poems :)
+Mar 23 08:47:52 <scela>	yeah but still you have stuff like v1=v2
+Mar 23 08:48:13 <scela>	which means you'd get all that on a v_
+Mar 23 08:48:29 <scela>	or v2){
+Mar 23 08:48:58 <scela>	we could delimit on anything non-alphanumeric though
+Mar 23 08:49:09 <akurtakov>	yeah, sounds good idea
+Mar 23 08:49:25 <akurtakov>	perl people are on their own :)
+Mar 23 08:49:37 <mbooth>	Or what about auto-completing based on words from the dictionary, so I can use it when writing comments in my own language
+Mar 23 08:50:06 <scela>	mbooth: you mean natural language or programming language?
+Mar 23 08:50:29 <akurtakov>	mbooth: that's another thing that mistria has slightly started
+Mar 23 08:50:39 <mbooth>	Natural language -- based on the dictionary configured in "Text Editors"->"Spelling"
+Mar 23 08:50:56 <akurtakov>	if we ever get the notion of __natural_language partition enabling such things for this partitions would make perfect sense
+Mar 23 08:51:38 <akurtakov>	s/if/when/ :)
+Mar 23 08:52:01 <scela>	mbooth: i always found quite awkward when thinking about autocompletion on natural language
+Mar 23 08:52:25 <scela>	mbooth: i think it's usually faster to type it rather than to scroll through alternatives
+Mar 23 08:52:29 <scela>	but maybe that's just me
+Mar 23 08:53:05 <mbooth>	scela: I sometimes find myself typing Ctrl+Space in LibreOffice or something and then remembering, "Oh right, this is not my IDE"
+Mar 23 08:53:21 <mistria>	If you know enough about your language to decide where to put word completion, that would work
+Mar 23 08:53:28 <akurtakov>	scela: well, or you're like me and have grammar issues so autocomplete saves me time wondering what the spelling was :P
+Mar 23 08:53:36 <mistria>	the LSP demos I have done involve such a natural language and a dictionary
+Mar 23 08:55:07 <scela>	we could do something like this:
+Mar 23 08:55:09 <akurtakov>	mistria: yeah, it's about providing more building blocks easily/by default
+Mar 23 08:55:25 <scela>	if no autocomplete registered, we autocomplete on natural words and tokens delimited by non-alphanumerics
+Mar 23 08:57:01 <nboldt>	mbooth: so I have two accounts w/ FAS... the old one (nickboldt) is also associated with redhat bugzilla, apparently, and dates back to 2008. The new one (nboldt) is about 10 mins old. :D
+Mar 23 08:57:31 <mbooth>	D'oh
+Mar 23 08:57:42 <mbooth>	nboldt: Which one are you going to use?
+Mar 23 08:57:58 <nboldt>	yeah, created a new one because I couldn't get into the old one... then found the email/pwd associated w/ the old one
+Mar 23 08:58:12 <nboldt>	so might as well use the old one as it's got more SLAs already signed
+Mar 23 08:58:37 <nboldt>	and it's already got RH bugzilla attached to it; the new one not so much
+Mar 23 08:59:03 <mbooth>	Cool
+Mar 23 09:02:06 <nboldt>	mbooth: unfortunately this means I'll have a 3rd email address to associate w/ git repos :(
+Mar 23 09:02:37 <nboldt>	... one for Eclipse.org, one for github.com, and another for fedoraproject.org
+Mar 23 09:02:46 <nboldt>	*le sigh*
+Mar 23 09:03:13 <mbooth>	nboldt: I don't the email address you use for git makes any difference since the auth is done with pubkeys
+Mar 23 09:03:40 <nboldt>	ah, was reading thru the https://fedoraproject.org/wiki/Join_the_package_collection_maintainers#Install_the_developer_client_tools doc and it talks about setting git config globals
+Mar 23 09:04:05 <nboldt>	which I can't do because I have a different email address for most of the stuff I do (@redhat.com for github)
+Mar 23 09:04:42 <mbooth>	I think these instructions are for people new-to-git
+Mar 23 09:05:11 <mbooth>	I just use @redhat.com for all git repos, even if my user account has something different associated with it
+Mar 23 09:05:16 <mbooth>	Git doesn't care
+Mar 23 09:06:42 <nboldt>	ok. for eclipse, gerrit reviews need signoffs in commit msgs, and signoffs have to match with the email address assoc'd with the committer agreements... so for Eclipse PRs I DO have to worry about it. Glad fedora doesn't gaf.
+Mar 23 09:12:05 <akurtakov>	mistria: ^ what do you think about scela proposal
+Mar 23 09:12:39 <mistria>	akurtakov scela: I don't have an opinion, what do you think?
+Mar 23 09:13:18 <mistria>	akurtakov: first we'd need a dictionaryContentAssistProcessor, which AFAIK doesn't exist yet
+Mar 23 09:13:33 <akurtakov>	I'm not sold on the dictionary complete by default - there would be too many options in too many places , being opt-in somehow sounds better to me
+Mar 23 09:14:10 <mistria>	akurtakov: ok, in that case, we can try to provide the content assist processor which does that, and let people use it
+Mar 23 09:14:18 <mistria>	akurtakov: but that'd mean making it an API
+Mar 23 09:14:33 <mistria>	akurtakov: so they can reference it in their plugin.xml or editor
+Mar 23 09:15:00 <mbooth>	nboldt: I locally built a specfile once that contained "git config user.email something@someplace.com" which clobbered my git config and the next commit I made to Fedora had that email address.... And that's when I started religiously using mock....
+Mar 23 09:15:04 <scela>	akurtakov: mistria we could start small with non-alphanumeric delimiters
+Mar 23 09:15:11 <scela>	and see where that goes
+Mar 23 09:15:13 <akurtakov>	mistria: or we auto attach it to __natural_language partition as you mentioned in some other bug
+Mar 23 09:15:52 <akurtakov>	and request adapters to have it for it to auto-enable 
+Mar 23 09:15:56 <akurtakov>	wdyt?
+Mar 23 09:16:07 <mistria>	akurtakov: yeah, but we'd need to define that partition somewhere. It hsould be an API (but since it's just a string symbol, it's OK to not have it api but still let people use it)
+Mar 23 09:16:27 <mistria>	akurtakov: then the job of adopters would become to set the partition type where it makes sense
+Mar 23 09:16:32 <akurtakov>	yup
+Mar 23 09:16:36 <mistria>	akurtakov: writing a document provider and so on
+Mar 23 09:16:56 <akurtakov>	regarding the autocomplete of words existing in the document by default
+Mar 23 09:16:57 <mistria>	akurtakov: it's adding an (optional) layer of complexity to the generic editor approach though
+Mar 23 09:17:36 <scela>	mistria: yeah I'm more looking at it from a direct user POV and the benefits there, rather than developers through API
+Mar 23 09:17:41 <scela>	akurtakov: cc^
+Mar 23 09:18:55 <akurtakov>	scela: my issue with dictionary being enabled everywhere by default is typing "un" and pressing ctrl+space and getting hundred+ proposals 
+Mar 23 09:19:25 <scela>	akurtakov: fair point
+Mar 23 09:20:01 <scela>	that's why i said we could just start with non-a/n delimiters on existing text in the file
+Mar 23 09:20:05 <mistria>	akurtakov: IIRC the spelling service already has an option to limit its results for quick assist
+Mar 23 09:20:37 <akurtakov>	scela: that one I like and use in simpler text editors
+Mar 23 09:21:00 <akurtakov>	and if no other completion is enabled it makes sense for me
+Mar 23 09:22:48 <akurtakov>	fwiw, I would like to get it in shelled :)
+Mar 23 09:23:31 <scela>	akurtakov: wdym shelled?
+Mar 23 09:23:44 <mistria>	akurtakov: when you say no other completion is enabled, you mean "editors doesn't know any other processor" or "none of the available processors return a proposal" ?
+Mar 23 09:24:05 <scela>	mistria: i'd say the first is safer
+Mar 23 09:24:08 <akurtakov>	scela: https://marketplace.eclipse.org/content/shell-script-dltk#group-metrics-tab
+Mar 23 09:24:45 <scela>	akurtakov: ah ok :)
+Mar 23 09:25:01 <akurtakov>	scela: it's my new test plugin 
+Mar 23 09:25:12 <mistria>	akurtakov: ranking #26, not bad at all!
+Mar 23 09:25:42 <akurtakov>	improving dltk api, starting use of tm4e fro now, once moved to oxygen even genericediotr :)
+Mar 23 09:25:55 <mistria>	It's way higher than Docker tools
+Mar 23 09:26:09 <akurtakov>	mistria: it's amazing that this plugin which I spend less than a week per year on is so high
+Mar 23 09:26:33 <akurtakov>	that's one of the proofs that what is missing is basic tooling
+Mar 23 09:26:43 <akurtakov>	parser/highlighting/etc. is crap
+Mar 23 09:26:50 <akurtakov>	but it's better than nothing :)
+Mar 23 09:28:10 <akurtakov>	mistria: it's not surprising - there are way more people edigint *.sh files than running docker
+Mar 23 09:28:33 <akurtakov>	probably every software product have at least one such file in it
+Mar 23 09:30:30 <mistria>	akurtakov: it's not that basic if you compare to most editors
+Mar 23 09:30:30 <mistria>	akurtakov: it has some completion, some hover...
+Mar 23 09:30:30 <mistria>	akurtakov; that's why I use it over vim most of the time
+Mar 23 09:30:30 <mistria>	akurtakov: however, it does a lot of work in the ui thread apparently ;)
+Mar 23 09:32:21 <akurtakov>	mistria: for and ide editor it's the bare minimum IMHO :)
+Mar 23 09:32:47 <mistria>	akurtakov: right, but it's much more that syntax highlighting ;)
+Mar 23 09:32:47 <akurtakov>	and overall time spend on it over last 5 years is probably less than 2 months
+Mar 23 09:33:09 <akurtakov>	which I would like to replace with tm4e as that's exactly quite broken
+Mar 23 09:34:43 <akurtakov>	mistria: btw, feel free to open bugs for UI thread work if you spot it
+Mar 23 09:35:02 <akurtakov>	I'm not going to look for it but when someone opens bug I try to fix it
+Mar 23 09:35:19 <scela>	mbooth: quick q: what's regex for 'any non-alphanumerical character'?
+Mar 23 09:35:39 <mbooth>	scela: Probably something like [^a-zA-Z]
+Mar 23 09:35:53 <mbooth>	scela: Oh, alphanumeric? [^a-zA-Z1-9]
+Mar 23 09:36:09 <mbooth>	(The ^ is "not")
+Mar 23 09:36:45 <scela>	mbooth: so String[] props = text.split("^a-zA-Z1-9");
+Mar 23 09:37:05 <scela>	would give me all strings between non alphanumericals right?
+Mar 23 09:37:43 <mbooth>	scela: You need the square brackets [ ] (to signify character class)
+Mar 23 09:37:58 <mbooth>	Otherwise the ^ means start of line
+Mar 23 09:39:18 <scela>	mbooth: right ok
+Mar 23 09:39:40 *	scela uses bad language towards regexp but acknowledges it does the job
+Mar 23 09:39:47 <mbooth>	That will match any non-alphanumeric char... To get a whole string, you may need something like: [^a-zA-Z0-9]+
+Mar 23 09:40:06 <mbooth>	(Note I am not testing these before I type them in here :-)
+Mar 23 09:40:44 <scela>	mbooth: sure that's quite above my level which is copy-paste-test what you give me :)
+Mar 23 09:41:23 <mbooth>	And it may not capture the fancy ç in your name -- if you care for that sort of thing :-) 
+Mar 23 09:42:21 <scela>	mbooth: http://www.reactiongifs.com/r/angtft.gif
+Mar 23 09:42:30 <mbooth>	Hah
+Mar 23 09:43:11 <akurtakov>	what about \w ?
+Mar 23 09:43:37 <mbooth>	akurtakov: \w also captures underscore _
+Mar 23 09:43:58 <akurtakov>	perfect :)
+Mar 23 09:44:24 <akurtakov>	so test_value will be one word :)
+Mar 23 09:45:02 <mbooth>	For eg, [^\w] is equivilent to [^a-zA-Z0-9_]
+Mar 23 09:45:33 <akurtakov>	hmm, that simple ? I thought it takes care of catchin non-latin chars
+Mar 23 09:46:15 <mbooth>	akurtakov: IIRC I looked this up before and it was that simple :-(
+Mar 23 09:46:26 <akurtakov>	so much for my hopes
+Mar 23 09:46:28 <akurtakov>	:)
+Mar 23 09:51:46 <scela>	mbooth: another problem which might be solved with regexp
+Mar 23 09:52:10 <scela>	i have as big text which ends with <bla
+Mar 23 09:52:34 <scela>	i need to find the last occurence of a non-alphanumeric character before a given offset
+Mar 23 09:52:54 <scela>	in this case cursor is after 'a' and I want to get index of '<'
+Mar 23 09:53:41 <mbooth>	scela: You'll probably need to use "lookahead" feature... Let me look up syntax, I don't use it often
+Mar 23 09:54:37 <scela>	so imagine a method int askMat(String s, int offset) which returns the index of the last non-a/n *character* before 'offset'
+Mar 23 09:55:03 <scela>	mbooth: ^
+Mar 23 10:02:59 <mbooth>	scela: 
+Mar 23 10:03:03 <mbooth>	That was hard
+Mar 23 10:03:04 <mbooth>	[^\w](?!.*[^\w])
+Mar 23 10:03:40 <mbooth>	Assuming you can truncate the string at the offset, that should give you the "last occurance" of a non-alphanumeric
+Mar 23 10:04:33 <mbooth>	The "?!" is the negative lookahead
+Mar 23 10:05:06 <mbooth>	"Any of this character class, not followed by the same character class"
+Mar 23 10:21:50 <scela>	mbooth: so I do a match on that regexp?
+Mar 23 10:27:25 <mbenitez>	eclipse-team: monthly RHDeveloper call in ~3min https://primetime.bluejeans.com/a2m/live-event/mk60957
+Mar 23 10:29:05 <mbooth>	scela: Yeah, I assume you can get the index of the match from the java Matcher object or something like that
+Mar 23 12:06:24 <lufimtse>	hey ya. https://git.eclipse.org/c/ seems broken. If I click on a repository (e.g platform/eclipse.platform.swt.git), then it just reloads the same page. Seems like linking is broken because if I enter url: https://git.eclipse.org/c/platform/eclipse.platform.swt.git  then the related page loads.
+Mar 23 12:06:30 <lufimtse>	Does anyone else get this?
+Mar 23 12:09:38 <lufimtse>	akurtakov,  ^ do you get that as well?
+Mar 23 12:10:06 <akurtakov>	lufimtse: works for me
+Mar 23 12:10:30 <akurtakov>	but considering that even google was down for me yesterday everything can happen :)
+Mar 23 12:11:13 <lufimtse>	hmmm
+Mar 23 12:14:44 <lufimtse>	akurtakov, ok, never mind. Works again for me. Must have been a glitch in the matrix.
+Mar 24 08:33:30 *	scox is back (gone 00:00:14)
+Mar 24 11:12:19 <nboldt>	jjohnstn: question for you re: Docker tooling deps... why do you depend on org.apache.http 4.4.1 and not 4.4.x? 
+Mar 24 11:17:53 <nboldt>	jjohnstn: I'm trying to add docker tools feature org.eclipse.linuxtools.docker.feature_2.3.0.201703072040 to our JBT TP, and it's looking for package o.apache.http 4.4.1
+Mar 24 11:18:07 <nboldt>	re: https://issues.jboss.org/browse/JBIDE-23963?focusedCommentId=13383921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13383921
+Mar 24 11:23:39 <nboldt>	... way have found a workaround
+Mar 24 11:46:23 <jjohnstn>	nboldt: dependencies are set by docker-client pom file deps (i.e. what has been tested)...rgrunberg occasionally tests higher deps and pushes them forward to match current versions to eliminate issues such as this
+Mar 24 11:47:09 <nboldt>	jjohnstn: yeah, seems like you moved up a lot of deps and added new ones ... so I'm just forcing our TP to use 0.0.0 versions so it'll automatically pull the latest 
+Mar 24 11:47:21 <nboldt>	... and iterating through all the new packages on which you depend :(
+Mar 27 06:45:07 <mistria>	scela: hey, wassup?
+Mar 27 10:23:35 <mbenitez>	eclipse-team: status reports due in ~30 min by the weekly call
+Mar 27 11:17:04 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 27 11:17:04 2017
+
+**** BEGIN LOGGING AT Mon Mar 27 12:20:09 2017
+
+Mar 27 12:20:09 *	Now talking on #eclipse
+Mar 27 12:20:09 *	Topic for #eclipse is: Eclipse discussions
+Mar 27 12:20:09 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 27 14:14:01 <rgrunber>	nboldt: have you ever had to deal with the Authenticator API ? .. NetAuthenticator.. ? UserValidationDialog ?..
+Mar 27 14:14:21 <nboldt>	rgrunber: nope, nope, hells no
+Mar 27 14:15:22 <rgrunber>	heh.. fair enough..
+Mar 27 15:02:41 <nboldt>	rgrunber: is it possible to have a @REDHAT and @FEDORAPROJECT kerberos ticket simultaneously? 
+Mar 27 15:02:52 <rgrunber>	nboldt: should be
+Mar 27 15:03:07 <nboldt>	but when I kinit the first one it kills the second one
+Mar 27 15:03:07 <rgrunber>	just gotta do 'kinit user@..'
+Mar 27 15:03:10 <rgrunber>	and all are stored in klist
+Mar 27 15:05:10 <rgrunber>	hmm i see what you mean
+Mar 27 15:05:38 <rgrunber>	one sec.. i'm not convinced it's acutally gone
+Mar 27 15:05:42 <nboldt>	can I use different cache files than /tmp/krb5cc_1000 ?
+Mar 27 15:06:30 <jkang|wfh>	klist -A might be useful to see everything
+Mar 27 15:06:45 <nboldt>	shows only the most recent ticket
+Mar 27 15:06:51 <rgrunber>	^ ++
+Mar 27 15:07:02 <nboldt>	same as -a or -f flags
+Mar 27 15:08:43 <nboldt>	ah, seems you can use -c to set a different filename :)
+Mar 27 15:11:13 <rgrunber>	apparently a known issue ? https://groups.google.com/forum/#!topic/comp.protocols.kerberos/IjtK9Mo39qc ..
+Mar 27 15:13:02 <rgrunber>	from other searches : "The problem is that Kerberos today does not allow you to store credentials for more that one principal in a credentials cache at one time. If you try to add credentials for a second principal to a cache already containing credentials for a principal, the credentials for the first principal will be overwritten."
+Mar 27 16:19:34 <nboldt>	rgrunber: yeah, that's from >6 yrs ago
+Mar 27 16:19:49 <nboldt>	but I can apparently use two different cache files, so \o/ #solved
+Mar 28 02:32:58 <mistria>	scela: hi
+Mar 28 02:33:10 <mistria>	scela: ping me when you're ready to have fun on Windows ;)
+Mar 28 03:00:21 <scela>	mistria: too early for that now :)
+Mar 28 03:01:08 <scela>	mistria: will ping you
+Mar 28 05:39:30 <akurtakov>	latest I-build stopped asking for workspace at astartup
+Mar 28 05:39:36 <akurtakov>	anyone else seeing it ?
+Mar 28 06:25:44 <scela>	mistria: there?
+Mar 28 06:26:00 <mistria>	yes
+Mar 28 06:26:15 <scela>	mistria: shall we take a look at what i have on win?
+Mar 28 06:26:20 <mistria>	akurtakov: didn't try it, but it reminds me of an old issue some time ago
+Mar 28 06:26:24 <mistria>	scela: go
+Mar 28 06:26:43 <mistria>	scela: do you have a bluejeans URL ?
+Mar 28 06:27:04 <scela>	mistria: https://bluejeans.com/4594613629
+Mar 28 06:28:18 <scela>	mistria: joining?
+Mar 28 06:30:07 <mistria>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=478054
+Mar 28 06:34:14 <akurtakov>	mistria: I see it with platform only
+Mar 28 06:34:23 <akurtakov>	can someone try it out ?
+Mar 28 06:35:28 <mistria>	akurtakov: I'm downlaoding it, I'll report ASAP
+Mar 28 06:35:32 <akurtakov>	thanks
+Mar 28 06:35:41 <mistria>	akurtakov: is the preference set to prompt for workspace?
+Mar 28 06:35:47 <akurtakov>	mistria: yes
+Mar 28 06:38:58 <mistria>	akurtakov: 1h to download the SDK
+Mar 28 06:39:03 <akurtakov>	haha
+Mar 28 06:39:07 <mistria>	akurtakov: it's Tuesday morning, you know ;)
+Mar 28 06:39:14 <akurtakov>	doh
+Mar 28 06:39:43 <mistria>	akurtakov: On the bug, Denis said the issue should be fixed
+Mar 28 06:44:52 <mistria>	akurtakov: but I think he fails at realizing that millions of Eclipse instances are still asking for updates at the same time
+Mar 28 10:24:56 <scela>	mistria: yeah I'm trying many things :)
+Mar 28 10:25:02 <scela>	mistria: the open type one got nice traction
+Mar 28 10:25:16 <scela>	mistria: let's see how breadcrumb goes
+Mar 29 08:26:31 <scela>	akurtakov: i'm going ahead with https://bugs.eclipse.org/bugs/show_bug.cgi?id=514397
+Mar 29 08:28:53 <akurtakov>	scela: ok
+Mar 29 09:25:54 <akurtakov>	scela: how is epp +lucene going ?
+Mar 29 09:32:33 <scela>	akurtakov: i fired up my ide with the migrated bundles, waited as mbooth instructed and no exception came up
+Mar 29 09:32:40 <akurtakov>	good
+Mar 29 09:32:47 <akurtakov>	sending it to gerrit?
+Mar 29 09:32:55 <scela>	akurtakov: i filed a bug yesterday to ping the upstream people
+Mar 29 09:33:25 <scela>	akurtakov: the thing is that on the client side it's mostly creating tasks (lucene entries)
+Mar 29 09:33:40 <akurtakov>	scela: were you in touch with them before for the issue?
+Mar 29 09:33:47 <scela>	akurtakov: no
+Mar 29 09:33:56 <scela>	akurtakov: depend on what you mean by 'issue'
+Mar 29 09:34:13 <scela>	akurtakov: but the point is I have no information on the server side of things
+Mar 29 09:34:24 <scela>	akurtakov: and how that would play with a lucene 6 client side of things
+Mar 29 09:34:40 <scela>	akurtakov: maybe it would work better if I directly ping marcel
+Mar 29 09:34:42 <akurtakov>	ok, let's wait and see :)
+Mar 29 09:35:22 <scela>	akurtakov: i could send him an email that I've done the client side of things and see what he thinks
+Mar 29 09:39:25 <akurtakov>	scela: please do so
+Mar 29 09:39:44 <akurtakov>	we would rather not delay to not miss M7 
+Mar 29 09:39:49 <akurtakov>	if possible
+Mar 29 09:40:06 <scela>	i see
+Mar 29 09:40:13 <scela>	akurtakov: on it now then
+Mar 29 09:49:56 <scela>	akurtakov: done
+Mar 29 09:50:00 <scela>	akurtakov: will keep you up to date
+Mar 29 09:52:03 <scela>	akurtakov: btw, it seems I have an all tests passed on the aCute mvn clean verify on windows 10
+Mar 29 09:52:43 <akurtakov>	scela: does it work in the ide ?
+Mar 29 09:52:48 <akurtakov>	tests complete for me too
+Mar 29 09:52:59 <akurtakov>	but in the browser I don't get autocomplete and etc.
+Mar 29 09:53:43 <scela>	akurtakov: did not try. just set it up for mvn clean verify for now as  that's what I was asked :)
+Mar 29 09:53:51 <akurtakov>	ok
+Mar 29 09:53:53 <scela>	akurtakov: i need to work on some other stuff before I switch again to win
+Mar 29 09:53:54 <akurtakov>	I have to run now
+Mar 29 09:53:56 <akurtakov>	ttyl
+Mar 29 09:53:59 <scela>	ok ttyl
+Mar 29 11:00:45 <mbenitez>	PSA: Quarterly Company meeting time
+Mar 29 11:01:17 <nboldt1>	PSA 2: mbooth gets 15yr RH Service Award in the video today
+Mar 29 11:01:52 <mbenitez>	nboldt1, that's not our mbooth :)
+Mar 29 11:02:08 <nboldt1>	damnit. again with the overloaded tech terms
+Mar 29 11:02:22 <nboldt1>	*smh*
+Mar 29 11:02:30 <mbenitez>	yes, it happens
+Mar 29 11:03:10 <nboldt1>	spekaing of, you missed a lively discussion today about developer tools vs. toolset vs. toolkit. :D
+Mar 29 11:03:22 <nboldt1>	speaking*
+Mar 29 11:03:37 <mbenitez>	too bad! but was fully double booked :(
+Mar 29 11:09:25 <mbooth>	nboldt1: Don't think I'm old enough to have 15yrs of service!
+Mar 29 11:13:53 <scela>	mistria: so i did a git pull and hard reset on master on aCute and the mvn clean verify seems to work with all tests passed
+Mar 29 11:14:10 <mistria>	scela: ok, perfect
+Mar 29 11:14:16 <mistria>	scela: thanks for checking!
+Mar 29 11:14:22 <scela>	mistria: do you want me to try anything else?
+Mar 29 11:27:15 <mistria>	scela: no thanks
+Mar 29 11:29:07 <mistria>	scela: did you check the abstract proposal?
+Mar 29 11:29:22 <scela>	mistria: i did
+Mar 29 11:29:26 <scela>	made some small corrections
+Mar 29 11:29:30 <scela>	mistria: lgtm
+Mar 30 06:03:22 <dhorak>	mbooth: hi, I've used devel11 from https://platform.lab.eng.brq.redhat.com/dhorak/sec-arch-machines for my local build of eclipse-cdt
+Mar 30 06:03:44 <mbooth>	dhorak: Hey
+Mar 30 06:05:21 <mbooth>	dhorak: I guess we should try giving maven more memory
+Mar 30 06:07:51 <mbooth>	dhorak: I wonder if you can try with a patch like this: https://paste.fedoraproject.org/paste/lhvnWW0U5WHFltY0EPCIuV5M1UNdIGYhyRLivL9gydE=
+Mar 30 06:08:20 <dhorak>	mbooth: yup
+Mar 30 06:19:19 <dhorak>	mbooth: it's after the org.eclipse.cdt.core build, and still running ...
+Mar 30 06:19:30 <mbooth>	\o/
+Mar 30 06:22:54 <mbooth>	dhorak: I'll make the change in dist-git
+Mar 30 06:24:26 <dhorak>	mbooth: ok
+Mar 30 09:40:04 <scela>	mbooth: https://git.eclipse.org/c/epp/org.eclipse.epp.logging.git/commit/?id=e9fcb38b6e4bfa680434ea85298ef1714739e814
+Mar 30 09:40:22 <scela>	mbooth: no need to worry anymore for epp and lucene stuff
+Mar 30 09:40:52 <scela>	mbooth: includes client/server/download whatever issues
+Mar 30 09:41:03 <mbooth>	\o/
+Mar 30 09:41:07 <mbooth>	scela: Nice work
+Mar 30 09:41:35 <akurtakov>	mbooth: when is the party ? :)
+Mar 30 09:46:46 <nboldt>	mbooth: I think I might have a working solution for eclipse-jgit... had to remove one entire patch after a valiant (but failed) attempt to port it to the latest jgit 4.6.1 on jetty 9.4.1
+Mar 30 09:47:00 <nboldt>	HOWEVER... I get stuck running your instructions:
+Mar 30 09:47:14 <nboldt>	$ fedpkg scratch-build
+Mar 30 09:47:23 <nboldt>	Could not execute scratch_build: /home/nboldt/3/eclipse-jgit.rpm has uncommitted changes.  Use git status to see details
+Mar 30 09:47:24 <nboldt>	Try option --srpm to make scratch build from local changes.
+Mar 30 09:47:27 <nboldt>	so... I then:
+Mar 30 09:47:41 <nboldt>	fedpkg scratch-build --srpm
+Mar 30 09:47:41 <nboldt>	Wrote: /home/nboldt/3/eclipse-jgit.rpm/eclipse-jgit-4.6.1-1.fc27.src.rpm
+Mar 30 09:47:41 <nboldt>	Kerberos authentication fails: Ticket expired
+Mar 30 09:47:41 <nboldt>	Could not execute scratch_build: Could not login to https://koji.fedoraproject.org/kojihub
+Mar 30 09:47:54 <mbooth>	D'oh
+Mar 30 09:48:11 <nboldt>	do I need @REDHAT or @FEDORA kerb ticket active?
+Mar 30 09:48:13 <nboldt>	or both?
+Mar 30 09:48:33 <mbooth>	nboldt: A Fedora one.
+Mar 30 09:49:16 <nboldt>	hmm. looks like my "try to have both tickets active" approach is fail
+Mar 30 09:50:07 <nboldt>	ah, there we go. fedpkg only sees the kerb ticket in the default filename
+Mar 30 09:50:14 <mbooth>	nboldt: I usually have no problem having both tickets... Output of "klist -A" on my machine is: https://da.gd/wPoG
+Mar 30 09:50:25 <mbooth>	I wonder if my config is different
+Mar 30 09:50:40 <nboldt>	I'm not using a keyring
+Mar 30 09:50:46 <nboldt>	maybe that's the problem
+Mar 30 09:54:01 <nboldt>	mbooth: how do you set up the keytab / keyring so you can have more than one key at a time?
+Mar 30 09:56:47 <mbooth>	nboldt: TBH I don't recall doing anything specific to support it
+Mar 30 09:56:56 <nboldt>	hm
+Mar 30 09:57:14 <nboldt>	well, anyway koji is doing something...
+Mar 30 09:57:32 <nboldt>	https://koji.fedoraproject.org/koji/taskinfo?taskID=18682187
+Mar 30 09:57:52 <nboldt>	oh, it's done
+Mar 30 09:58:24 <nboldt>	so... now I install it and [some kind of smoke test] ?
+Mar 30 09:59:54 <mbooth>	nboldt: Yes, you can download the output of a koji task, e.g.: "koji download-task 18682188"
+Mar 30 10:01:50 <nboldt>	rather than installing the stuff I built locally?
+Mar 30 10:02:14 <mbooth>	nboldt: Ah if you built it locally then sure :-)
+Mar 30 10:02:38 <mbooth>	nboldt: For eclipse plugins, I just like to see if the bundles resolve by looking in Eclipse's OSGi console, and for jgit in particular it's worth checking that the jgit command line tool doesn't immediately barf
+Mar 30 10:02:40 <nboldt>	isn't that what `fedpkg prep` and `fdpkg mockbuild` do?
+Mar 30 10:03:00 <nboldt>	define: barf
+Mar 30 10:03:07 <nboldt>	do you have automated barf tests?
+Mar 30 10:04:26 <mbooth>	No, but if you something like "jgit daemon /var/lib/git" then there shouldn't be classpath errors
+Mar 30 10:05:47 <nboldt>	is there a way to mock install these? or do you install them into your dev machine directly?
+Mar 30 10:06:22 <mbooth>	nboldt: Yeah e.g., mock -r ... --install /path/rpm 
+Mar 30 10:06:27 <mbooth>	To install into mockroot
+Mar 30 10:07:10 <mbooth>	then you can execute commands in the mockroot with, e.g.:
+Mar 30 10:07:13 <mbooth>	mock -r fedora-rawhide-x86_64 --shell "ls -l"
+Mar 30 10:07:28 <rgrunber>	if you're interested in an automated way.. i remember either Mikolaj or Stanislav created a spec that could test a full eclipse install at runtime.. https://github.com/rgrunber/eclipse-test/blob/master/test.spec ..
+Mar 30 10:07:56 <rgrunber>	i added some extra stuff, never found time to get back to it and put it anywhere.
+Mar 30 10:09:37 <mbooth>	That's interesting
+Mar 30 10:10:21 <rgrunber>	i guess it wasn't that much better than a mock -r $config --shell and run eclipse headless.. since that is the major test case.
+Mar 30 10:18:54 <nboldt>	mbooth: 
+Mar 30 10:18:58 <nboldt>	$➔ mock -r fedora-rawhide-x86_64 --shell "jgit daemon /var/lib/git"
+Mar 30 10:18:58 <nboldt>	INFO: mock.py version 1.3.3 starting (python version = 3.5.2)...
+Mar 30 10:18:58 <nboldt>	Start: init plugins
+Mar 30 10:18:58 <nboldt>	INFO: selinux disabled
+Mar 30 10:18:58 <nboldt>	Finish: init plugins
+Mar 30 10:18:59 <nboldt>	Start: run
+Mar 30 10:18:59 <nboldt>	Start: chroot init
+Mar 30 10:19:00 <nboldt>	INFO: calling preinit hooks
+Mar 30 10:19:00 <nboldt>	INFO: enabled root cache
+Mar 30 10:19:01 <nboldt>	INFO: enabled dnf cache
+Mar 30 10:19:01 <nboldt>	Start: cleaning dnf metadata
+Mar 30 10:19:02 <nboldt>	Finish: cleaning dnf metadata
+Mar 30 10:19:02 <nboldt>	Finish: chroot init
+Mar 30 10:19:03 <nboldt>	Start: shell
+Mar 30 10:19:03 <nboldt>	/usr/bin/build-classpath: Could not find xz-java Java extension for this JVM
+Mar 30 10:19:04 <nboldt>	/usr/bin/build-classpath: error: Some specified jars were not found
+Mar 30 10:19:04 <nboldt>	Exporting /var/lib/git
+Mar 30 10:19:05 <nboldt>	Listening on 0.0.0.0/0.0.0.0:9418
+Mar 30 10:19:14 <nboldt>	does that look right? the classpath errors seem problematic
+Mar 30 10:19:39 <rgrunber>	hmm xz-java installed ?
+Mar 30 10:19:54 <nboldt>	on my machine sure. in the mock? possibly not
+Mar 30 10:20:14 <rgrunber>	in mock.. i don't see requires from jgit -> xz-java.. at least in f25 jgit
+Mar 30 10:20:50 <nboldt>	installed it and error went away
+Mar 30 10:21:00 <rgrunber>	platform requires it.. maybe that's why ?..
+Mar 30 10:21:05 <nboldt>	mock -r fedora-rawhide-x86_64 --install xz-java
+Mar 30 10:21:05 <nboldt>	mock -r fedora-rawhide-x86_64 --shell "jgit daemon /var/lib/git"
+Mar 30 10:21:15 <nboldt>	so I should add this dep to eclipse-jgit?
+Mar 30 10:21:21 <mbooth>	Hmm, I'm surprised that requires is not auto-generated
+Mar 30 10:21:48 <mbooth>	nboldt: Yes jgit should definitely have this dep
+Mar 30 10:21:49 *	nboldt makes a shrugging gesture and noise
+Mar 30 10:22:04 <nboldt>	in the spec file there's 
+Mar 30 10:22:06 <nboldt>	BuildRequires:  xz-java >= 1.1-2
+Mar 30 10:22:07 <rgrunber>	mbooth: i think platform has xz-java.. so it falls under the "the platform will do it case".. but jgit is a "library" so can exist outside eclipse ecosystem
+Mar 30 10:22:18 <nboldt>	but no Requires
+Mar 30 10:22:37 <mbooth>	rgrunber: Yeah, but I thought there'd be a mvn() req generated
+Mar 30 10:22:50 <mbooth>	(For jgit the lib, if not eclips-jgit the plugin)
+Mar 30 10:23:03 <nboldt>	dunno guys, I'm following your instructions for the first time here :D
+Mar 30 10:24:02 <mbooth>	nboldt: In general, maven-built packages should get all the correct deps auto-generated so we don't have to manage Requires in the spec file.... Obviously it's not perfect :-)
+Mar 30 10:24:15 <nboldt>	do I add something to the eclipse-jgit.spec or try to find the spec for jgit itself?
+Mar 30 10:24:40 <mbooth>	nboldt: Add the req under "%package -n     jgit"
+Mar 30 10:24:51 <mbooth>	(jgit is a subpackage from eclipse-jgit)
+Mar 30 10:25:42 <mbooth>	rgrunber: Oh wait it must be a transitive dep of commons-compress
+Mar 30 10:25:46 <rgrunber>	actually.. does jgit even need.. xz-java ?
+Mar 30 10:25:49 <rgrunber>	^^ ye!
+Mar 30 10:25:53 <rgrunber>	just grepped sources
+Mar 30 10:26:06 <rgrunber>	jgit uses org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
+Mar 30 10:26:29 <nboldt>	me is adding "Requires: 		xz-java >= 1.1-2" to eclipse-jgit.spec
+Mar 30 10:26:30 <mbooth>	I wonder if it because optional in commons-compress package...
+Mar 30 10:26:52 <nboldt>	well, jgit daemon started ok above but ... tossed minor error
+Mar 30 10:26:56 <nboldt>	so maybe it IS optional
+Mar 30 10:28:35 <nboldt>	so what's the easiest way to share my workinprogress on eclipse-jgit so you can see the changes to patches, sources, and spec file?
+Mar 30 10:28:59 <nboldt>	also not sure if I should just remove the jetty 9.4.0 patch since jgit's on 9.4.1 now
+Mar 30 10:29:06 <nboldt>	or if I need to modify the patch
+Mar 30 10:29:22 <nboldt>	so want to share so someone can review *cough* mbooth */cough*
+Mar 30 10:30:41 <nboldt>	can I push it to a broken-as-heck branch instead of rawhide or master or f26 ?
+Mar 30 10:30:48 <nboldt>	mbooth: rgrunber: ^
+Mar 30 10:31:18 <mbooth>	nboldt: Yes a branch is fine; as I say, there's no formal peer review process in Fedora for package updates
+Mar 30 10:31:43 <nboldt>	mbooth: yes but I'm saying a) I don't know how to make fedpkg push to a randomly named branch
+Mar 30 10:32:03 <nboldt>	b) I'm not confident in my solution and need a review, be it formal or otherwise
+Mar 30 10:32:20 <mbooth>	Plain git works :-)
+Mar 30 10:32:29 <rgrunber>	nboldt: bug + patch review i would think is the standard way.
+Mar 30 10:33:16 <nboldt>	ok sure but I'm only familiar with the github and gerrit review processes... what's the one for pkgs.fedoraproject.org ?
+Mar 30 10:33:36 <nboldt>	that is, what do I type to push my changes into some branch on that server so you can see it?
+Mar 30 10:34:34 <nboldt>	do I push to my own fork?
+Mar 30 10:36:56 <nboldt>	ugh, I was afraid this would happen... seems I pushed a branch to the origin, https://src.fedoraproject.org/cgit/rpms/eclipse-jgit.git/log/?h=move-to-eclipse-jgit461
+Mar 30 10:37:24 <rgrunber>	good to know that's possible :P
+Mar 30 10:37:36 <nboldt>	lol, I guess
+Mar 30 10:37:41 <nboldt>	https://src.fedoraproject.org/cgit/rpms/eclipse-jgit.git/diff/?h=move-to-eclipse-jgit461 shows my patch
+Mar 30 10:38:31 <nboldt>	are the fedora pacakges mirrored to github? I could fork and work in my own topic branch there instead of cluttering origin (and having to delete topic branches later)
+Mar 30 10:38:40 <rgrunber>	nboldt: iirc there really isn't a review server for patches into fedpkg.. it's either attach the patch to a bug or send directly to maintainer.. i guess you could 'clone' and push to github and upload there...
+Mar 30 10:38:52 <mbooth>	nboldt: I was gonna suggest that anyway (there's nothing wrong with having dev branches in fedora), or if you don't want to push branches you can pipe the patch into fpaste for a URL to share, or as rgrunber says, attach a patch to a bug
+Mar 30 10:39:23 <nboldt>	creating patches seems like the '90s approach when we're in 2017
+Mar 30 10:39:25 <mbooth>	Such is life without a formal peer review mechanism
+Mar 30 10:39:52 <nboldt>	at least with topic branches you can just pull out my branch to review it locally w/o having to apply a patch by hand or look through pastes
+Mar 30 10:40:08 *	nboldt seeks the least clickety-whackedy way to do reviews :D
+Mar 30 10:40:08 <mbooth>	nboldt: Yep, be glad we moved away from CVS :-p
+Mar 30 10:40:32 <rgrunber>	nboldt: quite living in the present
+Mar 30 10:40:34 <rgrunber>	quit*
+Mar 30 10:42:07 <rgrunber>	they do have pagure.io.. so reviews are possible that way.. maybe that's the end goal.. eventually get all fedora git repos under there.. ?
+Mar 30 10:42:20 <nboldt>	rgrunber: seems like this is the reason for Fedora's "we have no formal review process" mantra: https://i2.wp.com/imgs.xkcd.com/comics/startling.png
+Mar 30 10:42:27 <mbooth>	rgrunber: Oh maybe, that would be really good
+Mar 30 10:43:11 <mbooth>	nboldt: I'm with dropping the jetty patch if not needed. Can you please check it still also builds on F25?
+Mar 30 10:43:30 *	nboldt asks the obvious question "sure, but how?"
+Mar 30 10:44:35 <nboldt>	re: dropping the patch ... well since i have no idea what the patch does / why it was applied in jetty 9.4.0 it's difficult to decide if it's useful or not for 9.4.1
+Mar 30 10:44:47 <nboldt>	tips on how to make such a decision would be useful here :D
+Mar 30 10:45:24 <mbooth>	nboldt: Usually such patches are because of API change
+Mar 30 10:45:56 <mbooth>	I happen to know that API changed between jetty 9.3 and 9.4 because I wrote this patch
+Mar 30 10:46:41 <nboldt>	aha. so then the patch is possibly obsolete if similar fixes were done after 9.4?
+Mar 30 10:46:56 <mbooth>	Yes
+Mar 30 10:47:49 <nboldt>	well, it built here. I koji built it and downloaded those rpms. installed into a new mock, and ran the jgit daemon. Saw the above problem. Am rebuilding now to verify I fixed that
+Mar 30 10:48:27 <nboldt>	after that I can attempt to koji build it in F25 but I'll need to know the syntax to ask for that
+Mar 30 10:49:39 <nboldt>	should I be doing these smoke tests BEFORE fedpkg commit -c && git push ?
+Mar 30 10:50:02 <nboldt>	my cheatsheet in progress is here, based on mbooth's original howto: https://gist.github.com/nickboldt/f7b2bdb00c6f2307941fdeaa9065b604
+Mar 30 10:50:22 <mbooth>	nboldt: You can specify which target you wish to build for: "fedpkg scratch-build --target f25 --srpm"
+Mar 30 10:50:36 <nboldt>	ah, thansk
+Mar 30 10:50:38 <nboldt>	thanks*
+Mar 30 10:52:11 <nboldt>	so target = rawhide by default, but can specify f25 or f26 too? cool
+Mar 30 10:53:28 <mbooth>	nboldt: Yes, I think the default might even be defined by the current branch (where master=rawhide)
+Mar 30 10:54:02 <rgrunber>	nboldt: can even specify a particular arch.. with --arch . Tends to be useful to avoid hitting arm on a noarch package when you're totally sure change isn't arch-specific and just want to build faster.
+Mar 30 10:54:52 <mbooth>	rgrunber: Good point particularly on F25, where there are no fast aarch64 builder
+Mar 30 10:55:30 <rgrunber>	nboldt: for noarch packages, build chooses a builder at random, because as specified it should be able to build on anything.
+Mar 30 10:56:25 <akurtakov>	nboldt: looks like you really enjoy Fedora way :)
+Mar 30 10:56:44 <akurtakov>	I think I can answer the no formal review
+Mar 30 10:57:11 <akurtakov>	usually you have single person dealing with 100+ packages and not vice-versa so the need for it hasn't arised :)
+Mar 30 10:57:29 <akurtakov>	aka too few people do things as direct as possible :)
+Mar 30 10:57:35 <nboldt>	I'm not looking for a formal approach
+Mar 30 10:58:05 <nboldt>	I'm just looking for a way to share my experiments w/ experts so they can nod approval before I push to master and break shit & need to back it out
+Mar 30 10:58:23 <nboldt>	pushing to topic branch seems the most simple / benign way
+Mar 30 10:58:37 <nboldt>	rgrunber: so I should use --arch noarch ?
+Mar 30 10:58:48 <nboldt>	or --arch x86_64 ?
+Mar 30 11:01:58 <mbooth>	nboldt: --arch x86_64
+Mar 30 11:05:27 <rgrunber>	yup.. --arch is to force building on a machine with that architecture.
+Mar 30 11:05:36 <nboldt>	ok, cool. this time xz-java was installed ootb into mock
+Mar 30 11:06:11 <nboldt>	so... what other smoke tests should I do on jgit before `fedpkg commit -c` ?
+Mar 30 11:07:06 <nboldt>	do we assume that the unit tests cover changes to the patched/not-patched AppServer, so that dropping the patch is safe?
+Mar 30 11:07:15 <nboldt>	mbooth: ^
+Mar 30 11:08:01 <nboldt>	you said "For eclipse plugins, I just like to see if the bundles resolve by looking in Eclipse's OSGi console, and for jgit in particular it's worth checking that the jgit command line tool doesn't immediately barf"
+Mar 30 11:08:20 <nboldt>	so... fire up Eclipse inside the mock and look in console for jgit?
+Mar 30 11:10:10 <nboldt>	seems that eclipse-jgit doesn't depend on eclipse being installed either
+Mar 30 11:10:15 <nboldt>	so that's ... a thing.
+Mar 30 11:11:19 <mbooth>	nboldt: Yes, usually I would do "eclipse -console -consoleLog" and then "ss -s INSTALLED" to print all unresolved bundles
+Mar 30 11:11:35 <nboldt>	!ENTRY org.eclipse.equinox.http.jetty 4 0 2017-03-30 11:11:04.338
+Mar 30 11:11:35 <nboldt>	!MESSAGE FrameworkEvent ERROR
+Mar 30 11:11:35 <nboldt>	!STACK 0
+Mar 30 11:11:35 <nboldt>	org.osgi.framework.BundleException: Could not resolve module: org.eclipse.equinox.http.jetty [94]
+Mar 30 11:11:35 <nboldt>	  Unresolved requirement: Import-Package: org.eclipse.jetty.server.handler; version="[9.0.0,10.0.0)"
+Mar 30 11:11:36 <nboldt>	    -> Export-Package: org.eclipse.jetty.server.handler; bundle-symbolic-name="org.eclipse.jetty.server"; bundle-version="9.4.3.v20170317"; version="9.4.3"; uses:="javax.servlet,javax.servlet.descriptor,javax.servlet.http,org.eclipse.jetty.http,org.eclipse.jetty.io,org.eclipse.jetty.server,org.eclipse.jetty.util,org.eclipse.jetty.util.annotation,org.eclipse.jetty.util.component,org.eclipse.jetty.util.log,org.eclipse.jetty.util.resource"
+Mar 30 11:11:36 <nboldt>	       org.eclipse.jetty.server [143]
+Mar 30 11:11:37 <nboldt>	         Unresolved requirement: Import-Package: org.eclipse.jetty.http; version="[9.4.3,9.4.4)"
+Mar 30 11:11:37 <nboldt>	           -> Export-Package: org.eclipse.jetty.http; bundle-symbolic-name="org.eclipse.jetty.http"; bundle-version="9.4.3.v20170317"; version="9.4.3"; uses:="org.eclipse.jetty.io,org.eclipse.jetty.util,org.eclipse.jetty.util.component,org.eclipse.jetty.util.log,org.eclipse.jetty.util.resource"
+Mar 30 11:11:38 <nboldt>	              org.eclipse.jetty.http [140]
+Mar 30 11:11:38 <nboldt>	                Unresolved requirement: Require-Capability: osgi.extender; filter:="(osgi.extender=osgi.serviceloader.processor)"; resolution:="optional"
+Mar 30 11:11:39 <nboldt>	                Unresolved requirement: Require-Capability: osgi.extender; filter:="(osgi.extender=osgi.serviceloader.registrar)"
+Mar 30 11:11:39 <nboldt>	  Unresolved requirement: Import-Package: org.eclipse.jetty.http; version="[9.0.0,10.0.0)"
+Mar 30 11:11:40 <nboldt>	    -> Export-Package: org.eclipse.jetty.http; bundle-symbolic-name="org.eclipse.jetty.http"; bundle-version="9.4.3.v20170317"; version="9.4.3"; uses:="org.eclipse.jetty.io,org.eclipse.jetty.util,org.eclipse.jetty.util.component,org.eclipse.jetty.util.log,org.eclipse.jetty.util.resource"
+Mar 30 11:11:40 <nboldt>	  Unresolved requirement: Import-Package: org.eclipse.jetty.server; version="[9.0.0,10.0.0)"
+Mar 30 11:11:41 <nboldt>	    -> Export-Package: org.eclipse.jetty.server; bundle-symbolic-name="org.eclipse.jetty.server"; bundle-version="9.4.3.v20170317"; version="9.4.3"; uses:="javax.net.ssl,javax.security.auth,javax.servlet,javax.servlet.http,org.eclipse.jetty.http,org.eclipse.jetty.io,org.eclipse.jetty.io.ssl,org.eclipse.jetty.server.handler,org.eclipse.jetty.server.session,org.eclipse.jetty.util,org.eclipse.jetty.util.annotation,org.eclipse.jetty.util.component,
+Mar 30 11:11:41 <nboldt>		at org.eclipse.osgi.container.Module.start(Module.java:444)
+Mar 30 11:11:42 <nboldt>		at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1620)
+Mar 30 11:11:42 <nboldt>		at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.incStartLevel(ModuleContainer.java:1599)
+Mar 30 11:11:43 <nboldt>		at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.doContainerStartLevel(ModuleContainer.java:1571)
+Mar 30 11:11:43 <nboldt>		at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1514)
+Mar 30 11:11:44 <nboldt>		at org.eclipse.osgi.container.ModuleContainer$ContainerStartLevel.dispatchEvent(ModuleContainer.java:1)
+Mar 30 11:11:44 <nboldt>		at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:230)
+Mar 30 11:11:45 <nboldt>		at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:340)
+Mar 30 11:11:45 <nboldt>	oops that was longer than I expected
+Mar 30 11:12:49 <nboldt>	mbooth: https://paste.fedoraproject.org/paste/XYsaC0CzmRA5Xt9-1Vajjl5M1UNdIGYhyRLivL9gydE= ... on startup of Eclipse eclipse-jgit is looking for jetty 9.4.3 but it's built with 9.4.1
+Mar 30 11:12:54 <mbooth>	nboldt: Ah, ignore these jetty errors in rawhide for now, this is something I am working on
+Mar 30 11:13:07 <nboldt>	*mutter*
+Mar 30 11:13:38 <nboldt>	how do you avoid the SWTError inside mock?
+Mar 30 11:13:44 <nboldt>	org.eclipse.swt.SWTError: No more handles [gtk_init_check() failed]
+Mar 30 11:13:55 <nboldt>	... and eclipse craps out before I can poke at the ss console
+Mar 30 11:16:02 *	nboldt installs jetty ... anything else I need to get mock happy? swt? X? 
+Mar 30 11:18:04 <akurtakov>	rgrunber: jjohnstn: please read the latest post to cross -project blaming linuxtools for Neon.3 update failures
+Mar 30 11:18:13 <akurtakov>	please react ASAP
+Mar 30 11:18:40 <akurtakov>	even if it means respining x.y.z+1 linuxtools and requesting agregation
+Mar 30 11:19:15 <mbooth>	nboldt: I've some success running graphical apps in mock using the method detailed here: https://fedoraproject.org/wiki/PackagingDrafts/Testing#Testing_graphical_packages_with_mock_and_Xnest
+Mar 30 11:19:19 <nboldt>	ruh roh :(
+Mar 30 11:19:52 <mbooth>	There's probably better ways, but it basically involves setting up an X display for it to use
+Mar 30 11:21:52 <jjohnstn>	akurtakov: looking at it
+Mar 30 11:35:03 <jjohnstn>	akurtakov: problem was orbit repo was pointing S20161205 which was Oxygen M4 :( ... trying out the recommended Neon.3 repo
+Mar 30 11:35:19 <jjohnstn>	rgrunber: ^
+Mar 30 11:35:42 <rgrunber>	yeah , we should have updated to Oxygen M6 that would have had the fixed httpclient.
+Mar 30 11:41:31 <jjohnstn>	rgrunber: is that the recommended solution?  I don't know if we can back-pedal to an earlier version...looking at our RC3 release...no http plug-ins are in our repo..but this changes RC4
+Mar 30 11:44:23 <rgrunber>	jjohnstn: back-pedal? we don't need to though, we can just take the M6 orbit build or the neon.3.
+Mar 30 11:44:51 <rgrunber>	yeah we can't downgrade httpclient without taking back docker-client 3.6.8
+Mar 30 11:45:03 <nboldt>	mbooth: ok, got Xnest working for xclock and other local things but rawhide mock install of eclipse still crapping out with swt no more handles
+Mar 30 11:45:22 <jjohnstn>	rgrunber: so we have to take the M6 orbit build...I'll change my patch
+Mar 30 11:45:29 <nboldt>	trying again in f25 mock instead as I can't find webkitgtk3 in rawhide 
+Mar 30 11:45:44 <mbooth>	nboldt: Weird, did you "export DISPLAY=:1" or whatever number you gave it?
+Mar 30 11:45:48 <nboldt>	yes
+Mar 30 11:46:02 <nboldt>	from within the mock
+Mar 30 11:46:34 <nboldt>	bear in mind I'm running in a virtual machine F24 on host windows 10... so sometimes UI things go awry
+Mar 30 11:55:03 <jjohnstn>	rgrunber: can you confirm that the M6 version is fixed?
+Mar 30 11:55:28 <rgrunber>	jjohnstn: yes the M6 version of httpclient contains the missing packages.
+Mar 30 12:10:12 <jjohnstn>	rgrunber: did the docker client version also go up in M6??  I am seeing errors with compiling docker code
+Mar 30 12:11:39 <rgrunber>	yes.. 3.6.8 is still in the repo though.
+Mar 30 12:13:32 <jjohnstn>	rgrunber: so I need to specify 3.6.8 instead of 0.0.0 in the target file...do I need to explicitly version anything else?
+Mar 30 12:14:56 <rgrunber>	jjohnstn: you could put an upper limit on 3.6.8 in the docker.core manifest. i don't think it should be necessary since you're unlikely to find 6.1.1 in any of the aggregation repos.. but better to be safe.
+Mar 30 12:16:12 <jjohnstn>	rgrunber: I am getting errors in docker.core regarding com.spotify classes
+Mar 30 12:20:20 <rgrunber>	jjohnstn: what kind of errors ?
+Mar 30 12:27:06 <jjohnstn>	rgrunber: missing classes...I guess they obsoleted some spotify classes...trying a build with docker-client version 3.6.8 specified in docker.core MANIFEST
+Mar 30 12:28:42 <rgrunber>	thsi shoudl just be a rebuild to pick up an update httpclient by the build.. nothing has changed about the spotify classes themselves.
+Mar 30 12:32:40 <jjohnstn>	rgrunber: see https://hudson.eclipse.org/linuxtools/job/linuxtools-gerrit/11586/consoleFull
+Mar 30 12:33:18 <rgrunber>	jjohnstn: i think the build is using 6.1.1
+Mar 30 12:33:33 <rgrunber>	in 6.1.1 a lot of the exception classes moved into a separate subpackage.
+Mar 30 12:34:18 <jjohnstn>	rgrunber: that's what I meant...I tried [3.6.8, 3.6.9) in docker.core MANIFEST.MF  but it can't satisfy this
+Mar 30 12:34:43 <rgrunber>	you also need to specify 3.6.8 in the target file.
+Mar 30 12:35:03 <rgrunber>	0.0.0 will drag in the latest it can find.
+Mar 30 12:36:06 <jjohnstn>	rgrunber: trying.....
+Mar 30 14:40:42 <jjohnstn>	rgrunber: did a build and I have org.apache.httpcomponents.httpclient_4.5.2.v20170210-0925.jar and org.apache.httpcomponents.httpcore_4.4.6.v20170210-0925.jar
+Mar 30 14:40:50 <jjohnstn>	rgrunber: can you confirm those jars are ok?
+Mar 30 14:42:28 <rgrunber>	yes, those are correct.
+Mar 30 14:47:01 <jjohnstn>	rgrunber: ok, I will copy into update, update-docker, update-5.3.1 and update-docker-2.3.1
+Mar 30 15:07:56 <jjohnstn>	rgrunber: is there anything else I need to worry about being dragged in from the Oxygen M6 repo?  Are all packages CQ'd?  The update and update-docker repos have been updated.
+Mar 30 15:08:15 <jjohnstn>	rgrunber: if everything is ok, I'll post to the list
+Mar 30 15:11:25 <rgrunber>	jjohnstn: one sec..
+Mar 30 15:13:53 <rgrunber>	it looks like the following have changed :
+Mar 30 15:14:25 <rgrunber>	guava 18 -> 21, httpcore 4.4.4 -> 4.4.6, asm 5.1 -> 5.2
+Mar 30 15:14:57 <rgrunber>	though we should have uses cqs filed for all of these but wouldn't hurt to check
+Mar 30 15:17:07 <rgrunber>	i don't see a cq for guava 21.0.
+Mar 30 15:17:13 <rgrunber>	*uses-cq
+Mar 30 15:28:18 <jjohnstn>	rgrunber: I just opened a piggyback CQ for it
+Mar 30 15:29:43 <rgrunber>	and httpclient 4.4.6 seems needed..looks like same for the asm 5.2 ones..
+Mar 30 15:35:16 <jjohnstn>	rgrunber: you mean httpclient 4.5.2 right?
+Mar 30 15:37:33 <jjohnstn>	rgrunber: done
+Mar 30 15:45:00 <jjohnstn>	rgrunber: as well, did you see the note from Carsten Reckord?  Can we switch to use the Neon.3 repo which has 3.6.8 and drop the http plugin reqs?
+Mar 30 15:57:01 <rgrunber>	k
+Mar 30 15:58:46 <rgrunber>	jjohnstn: we depend on newer httpclient through docker client 3.6.8 so i don't think we can drop those deps
+Mar 30 16:06:01 <jjohnstn>	rgrunber: ah, I just noticed that the httpclient and httpcore in Neon.3 orbit repo are the same as we are bringing in anyways
+Mar 30 16:12:33 <jjohnstn>	nboldt: I committed a pull request 13 days ago for Docker N&N but to the wrong JBIDE...do I cancel the pull request and create a new branch or can I mention it in the new JBIDE?
+Mar 30 16:14:40 <nboldt>	jjohnstn: as long as the code is pushed into the correct repo, the jira number in the commit message isn't as important
+Mar 30 16:14:54 <nboldt>	if you want you can edit the commit and fix the msg but *shrug* 
+Mar 30 16:15:25 <nboldt>	bigger isssue is the fact that Neon.3 may need a respin?
+Mar 30 16:18:31 <jjohnstn>	nboldt: I just put together a 5.3.1 release which is in update and update-docker which uses the Oxygen M6 repos with http fixes...not sure if they will respin Neon.3 in general
+Mar 30 16:19:50 <nboldt>	ok, but for devstudio 10.4 we can pick up that new version and include it OOTB instead of making users update ... right?
+Mar 30 16:20:05 <nboldt>	we can ==> we should
+Mar 30 16:20:44 <jjohnstn>	nboldt: yes...regarding the pull request, I am able to edit the title but the commit remains pushed with the original comment..ok?
+Mar 30 16:21:20 <nboldt>	jjohnstn: unless you force-push it back to your fork then yes, the message won't change
+Mar 30 16:21:45 <nboldt>	I'm sure jmaury doesn't care what the commit message contains as long as the N&N document itself is accurate
+Mar 30 16:22:37 <jjohnstn>	nboldt: will the automation find the pull-request or do I have to manually do something?  I am new to this process as well as pull-requests in general since we use gerrit
+Mar 30 16:25:56 <nboldt>	jjohnstn: I'm not sure if the commit messages are used in any way other than to automatically resolve or close JIRAs (assuming you have your email address for JIRA & github set to the same value, and your commit message includes #resolve or #close in it, as noted in these instructions: https://issues.jboss.org/browse/JBIDE-24089
+Mar 30 16:28:40 <jjohnstn>	nboldt: I do, but it references the wrong JIRA...the top task instead of the sub-task...does that cause problems or can I just let Jeff know that I specified the wrong JIRA in the commit message?
+Mar 30 16:29:16 <nboldt>	I'm sure it's fine. If you don't believe me, ask him. I don't monitor the N&N and don't merge the PRs for them
+Mar 30 16:29:22 <nboldt>	https://github.com/jjohnstn/jbosstools-website/blob/18b86da12a5d9f8a4f906664bc77e76fae9710c3/documentation/whatsnew/docker/docker-news-2.3.0.Neon3.sprint129.adoc looks fine
+Mar 30 16:29:45 <nboldt>	though to be honest I'm not sure if the FILENAME could be a problem
+Mar 30 16:31:22 <nboldt>	can't see any of your N&N content in http://tools.jboss.org/documentation/whatsnew/jbosstools/4.4.4.AM1.html or earlier pages
+Mar 30 16:31:32 <nboldt>	I see http://tools.jboss.org/documentation/whatsnew/jbosstools/4.3.1.Final.html#docker
+Mar 30 16:32:21 <nboldt>	last one that appears seems to be https://github.com/jjohnstn/jbosstools-website/blob/18b86da12a5d9f8a4f906664bc77e76fae9710c3/documentation/whatsnew/docker/docker-news-1.2.0.Mars2.adoc --> http://tools.jboss.org/documentation/whatsnew/jbosstools/4.3.1.Final.html#docker
+Mar 30 16:32:23 <jjohnstn>	nboldt: a N&N wasn't created for Neon.2 stuff as Xavier was handling this before and the ball was dropped when he moved off of Docker Tools
+Mar 30 16:33:04 <nboldt>	ok, that explains it. thought maybe there was an issue with filename not being seen by the website yaml magic
+Mar 30 16:33:33 <jjohnstn>	nboldt: I take it we can't add one after the fact
+Mar 30 16:33:35 <nboldt>	for example I see more forge updates and they all have filenames that match with JBT releases
+Mar 30 16:33:38 <nboldt>	https://github.com/jjohnstn/jbosstools-website/tree/18b86da12a5d9f8a4f906664bc77e76fae9710c3/documentation/whatsnew/forge
+Mar 30 16:33:41 <nboldt>	sure you can
+Mar 30 16:33:47 <nboldt>	you can be all retroactive all you want
+Mar 30 16:33:57 <nboldt>	but I can't guarantee people will read it :D
+Mar 30 16:45:42 <nboldt>	jjohnstn: just realized you meant a different JIRA when asking about dupe... so yes, the new one I opened is 100% a dupe of the older one
+Mar 30 16:45:56 <nboldt>	meanwhile I've opened https://issues.jboss.org/browse/JBIDE-24173  to ask about the N&N naming problem
+Mar 31 10:25:54 <nboldt>	hey jjohnstn does docker tooling have to depend on slf4j 1.7.10 instead of 1.7.2? seems to be causing a conflict in that both versions can't co-exist ... see JBDS-4342
+Mar 31 10:48:17 <nboldt>	hey jjohnstn does docker tooling have to depend on slf4j 1.7.10 instead of 1.7.2? seems to be causing a conflict in that both versions can't co-exist ... see JBDS-4342 [resending in case my vpn crashed and this didn't go out]
+Mar 31 10:49:03 <rgrunber>	nboldt: no it can use slf4j 1.7.2
+Mar 31 10:50:06 <nboldt>	ok... but com.spotify.docker.client 3.6.8.v20161117-2005 requires 'package org.slf4j 1.7.10'
+Mar 31 10:50:26 <nboldt>	and org.eclipse.linuxtools.docker.feature.feature.group 2.3.0.201703072040 requires com.spotify.docker.client 3.6.8.v20161117-2005
+Mar 31 10:50:45 <nboldt>	so... by transitive property, I'm screwed :(
+Mar 31 10:52:18 <rgrunber>	there was a fix to it so it would require only 1.7.2. http://download.eclipse.org/tools/orbit/downloads/drops/S20170306214312/repository could you take it from there.. ?
+Mar 31 10:52:25 <rgrunber>	*eat least
+Mar 31 10:52:26 <rgrunber>	at*
+Mar 31 11:06:35 <nboldt>	rgrunber: ah, yes. I could
+Mar 31 11:07:31 <nboldt>	rgrunber: why is the "new" orbit site older than the latest R release?
+Mar 31 11:07:43 <nboldt>	S20170306214312 vs. R20170307180635
+Mar 31 11:08:01 <nboldt>	you fixed something in the 03/06 release S build but not the 03/07 R build?
+Mar 31 11:08:50 <rgrunber>	they are slightly different. The S-build had some bundles removed while the R-build retained those but they are based off of the same bundles in orbit-recipes
+Mar 31 11:15:52 <akurtakov>	lufimtse: ipun: I'm leaving for the weekend, please prepare me a nice surprise for monday :)
+Mar 31 11:15:59 <nboldt>	rgrunber: so I want to pull docker.client and slf4j.api from this S build, but take the rest from the R build?
+Mar 31 11:16:15 <ipun>	akurtakov: you know it
+Mar 31 11:16:18 <ipun>	:)
+Mar 31 11:17:18 <nboldt>	rgrunber: um, http://download.eclipse.org/tools/orbit/downloads/drops2/S20170306214312/repository/ only has org.slf4j.api 1.7.10. there's no 1.7.2 in there
+Mar 31 11:18:31 <rgrunber>	it wouldn't 1.7.2 exists in the old repository.. but the drops2 you're referencing is one child of the composite which should also reference a repo from 'drops' folder which does contain 1.7.2
+Mar 31 11:18:43 <nboldt>	but I see there's a newer docker.client 3.6.8 in there from 2017/02 rather than 2016/11
+Mar 31 11:19:01 <nboldt>	oh, ok. 
+Mar 31 11:19:58 <nboldt>	mirror failed. trying again. :(
+Mar 31 11:20:06 <rgrunber>	log ?
+Mar 31 11:20:12 <nboldt>	https://dev-platform-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/jbosstoolstargetplatformrequirements-mirror-matrix/label_exp=rhel7-devstudio-releng,triple=orbit%3BS20170306214312/18/console
+Mar 31 11:20:28 <rgrunber>	service unavailabel..
+Mar 31 11:20:38 <rgrunber>	i actually just got this as well.. and i noticed download sites were responding quite slow
+Mar 31 11:21:01 <nboldt>	fetching http://download.jboss.org/jbosstools/updates/requirements/orbit/S20170306214312/ to download.jboss.org so our builds don't crap out because of intermittent failures at eclipse.org 
+Mar 31 11:21:44 <nboldt>	respinning... https://dev-platform-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/jbosstoolstargetplatformrequirements-mirror-matrix/label_exp=rhel7-devstudio-releng,triple=orbit%3BS20170306214312/19/console (build #19)
+Mar 31 12:04:53 <rgrunber>	nboldt: seems to have succeeded ? let me know if it fixes things..
+Mar 31 12:05:46 <nboldt>	woot, thanks. I'll update hte .target files and see what happens now
+Mar 31 12:09:36 <nboldt>	rgrunber: seems the old orbit site contains <unit id="com.spotify.docker.client" version="6.1.1.v20170301-1624"/> but iirc docker tools needs 3.6.8
+Mar 31 12:10:15 <nboldt>	aaaand jjohnston's offline :(
+Mar 31 12:18:52 <rgrunber>	nboldt: old orbit site ? yes 6.1.1 should be in now, but iirc Jeff should have made a fix on the Neon.3 branch to fix this.
+Mar 31 12:21:55 <rgrunber>	jjohnstn: https://issues.jboss.org/browse/JBIDE-4278
+Mar 31 12:35:32 <nboldt>	well, seems to be provisioning OK so far. I'm just suprised to see a dependency jump between Neon.2 and .3 from 3.6.8 to 6.1.1... that's a lot of changes to API for an update release ;D
+Mar 31 12:35:38 <nboldt>	rgrunber: jjohnstn: ^
+Mar 31 12:36:16 <nboldt>	jjohnstn: should I be pulling a new version of Docker Tools than was in the Neon.3 site last week?
+Mar 31 12:36:24 <nboldt>	if so, URL and feature version please
+Mar 31 12:36:50 <rgrunber>	nboldt: 6.1.1 isn't used by our neon.3.. any chance the target platform is just using 0.0.0 or something and getting latest ?
+Mar 31 12:37:07 <nboldt>	it's using whatever it found in the S20170306 orbit site
+Mar 31 12:37:17 <nboldt>	should I force it to an older version?
+Mar 31 12:37:22 <rgrunber>	yes
+Mar 31 12:37:39 <nboldt>	back to 3.6.8 then?
+Mar 31 12:37:57 <nboldt>	com.spotify.docker.client	3.6.8.v20170223-1848 instead of old version com.spotify.docker.client	3.6.8.v20161117-2005 ?
+Mar 31 12:38:17 <nboldt>	rgrunber: ^
+Mar 31 12:38:18 <rgrunber>	nboldt: yes
+Mar 31 12:38:23 <nboldt>	ok thanks
+Mar 31 12:40:22 <jjohnstn>	nboldt: I have updated Linux Tools with a point release (5.3.1)...downloads/linuxtools/update-docker-2.3.1 contains the latest and matches downloads/linuxtools/update-docker
+Mar 31 12:41:17 <nboldt>	ok... so next problem...
+Mar 31 12:41:37 <nboldt>	org.slf4j.impl.log4j12 1.7.2 is dragging in slf4j.api 1.7.2 even if I ask for 1.7.10 in the TP
+Mar 31 12:41:49 *	nboldt doesn't know whta reqiures org.slf4j.impl.log4j12 though
+Mar 31 12:41:52 <nboldt>	what*
+Mar 31 12:47:04 <rgrunber>	nboldt: can you just not have 1.7.10 in the TP ? it shouldn't be needed by docker tooling any longer...
+Mar 31 12:47:19 <nboldt>	rgrunber: hmm. that could work
+Mar 31 12:47:32 <nboldt>	meanwhile http://download.eclipse.org/linuxtools/update-docker/ is Service Unavailable'd
+Mar 31 13:11:48 <nboldt>	jjohnstn|lunch: you sure about that URL? I can't see it on http and build.eclipse.org is refusing to let me in on ssh... timing out
+Mar 31 13:13:10 <nboldt>	oh, managed to resolve http://download.eclipse.org/linuxtools/update-docker-2.3.1/features/?d :D
+Mar 31 15:00:21 <nboldt>	rgrunber: dumb question
+Mar 31 15:00:27 <nboldt>	$➔ fedpkg new-sources egit-4.6.1.201703071140-r.tar.xz 
+Mar 31 15:00:27 <nboldt>	Could not execute new_sources: Request is unauthorized.
+Mar 31 15:04:06 <nboldt>	ah, kerberos problem. nm, fixed
+Mar 31 15:42:58 <rgrunber>	:)
+Mar 31 15:44:56 <nboldt>	rgrunber: so... trying to koji scratch build eclipse-egit 4.6.1 (which depends on eclipse-jgit 4.6.1)
+Mar 31 15:45:18 <nboldt>	and it keeps failing because it can't resolve eclipse-jgit 4.6.1 ... how do I get around that ?
+Mar 31 15:45:18 <rgrunber>	ah.. you can do a chain build for that one sec..
+Mar 31 15:46:08 <rgrunber>	hmm might not be possible to chain scratch builds..
+Mar 31 15:46:33 <nboldt>	*grumble*
+Mar 31 15:46:50 <nboldt>	so I submit the topic branch and you review and merge to master?
+Mar 31 15:47:02 <nboldt>	you being you or mbooth or someone ?
+Mar 31 15:47:13 <rgrunber>	nboldt: you could build locally in mock to confirm it would likely work.
+Mar 31 15:47:20 <nboldt>	did that
+Mar 31 15:47:41 <nboldt>	and it worked
+Mar 31 15:48:01 <nboldt>	but didn't try installing it as that step is supposed to come after koji scratch build (according to mbooth's HOWTO)
+Mar 31 15:48:11 <nboldt>	but I guess I can use the local bits instead
+Mar 31 15:49:43 <rgrunber>	nboldt: was mbooth fine with you just creating a topic branch on the repo ?
+Mar 31 15:49:55 <nboldt>	kinda but seems I can't delete them later
+Mar 31 15:50:11 <nboldt>	so the alternative is... dump a patch into fpaste ?
+Mar 31 15:50:22 <rgrunber>	yeah.. sounds fine.
+Mar 31 15:50:24 <nboldt>	ok
+Mar 31 15:51:50 <nboldt>	ugh. so colourless and 1990s. https://paste.fedoraproject.org/paste/eF71a8gR9SpHPkVtH4xbCF5M1UNdIGYhyRLivL9gydE=
+Mar 31 15:53:53 <rgrunber>	nboldt: https://paste.fedoraproject.org/paste/Tvho4HAZJN0b3q92vCKyCl5M1UNdIGYhyRLivL9gydE= :)
+Mar 31 15:54:06 <rgrunber>	there was a dropdown at the top for type of content.
+Mar 31 15:54:23 <nboldt>	ah, I see. #learningIsFun
+Mar 31 16:41:55 <rgrunber>	jjohnstn: http://download.eclipse.org/staging/neon/buildInfo/reporeports/reports/licenseConsistency.html .. 
+Mar 31 16:42:05 <rgrunber>	no one was paying attention.
+Mar 31 18:26:59 FiSHLiM plugin unloaded
+Mar 31 18:26:59 Python interface unloaded
+**** ENDING LOGGING AT Fri Mar 31 18:26:59 2017
+
+**** BEGIN LOGGING AT Mon Apr  3 09:15:39 2017
+
+Apr 03 09:15:39 *	Now talking on #eclipse
+Apr 03 09:15:39 *	Topic for #eclipse is: Eclipse discussions
+Apr 03 09:15:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 03 09:56:31 *	mbooth sighs
+Apr 03 09:56:45 <mbooth>	Java is uninstallable on Fedora? "nothing provides nss(x86-64) >= 3.29.3 needed by java-1.8.0-openjdk-headless-1:1.8.0.121-10.b14.fc26.x86_64"
+Apr 03 09:56:56 <nboldt>	mbooth: oh, lovely
+Apr 03 09:57:20 <mbooth>	nboldt: Koji builds won't work until it is fixed :-(
+Apr 03 09:57:42 <nboldt>	awesome. did you see my patch for eclipse-egit? 
+Apr 03 09:59:16 <nboldt>	fwiw, on F24 I get offered an older version: 1:1.8.0.121-8.b14.fc24
+Apr 03 09:59:27 <mbooth>	nboldt: No, did you push to a branch?
+Apr 03 09:59:35 <nboldt>	no, I sent you an email
+Apr 03 10:00:00 <nboldt>	with details re: why I couldn't push (didn't feel comfortable as koji wouldn't build it)
+Apr 03 10:00:31 <nboldt>	mbooth: title: "eclipse-egit patch to move to 4.6.1" from 3 days ago
+Apr 03 10:01:00 <mbooth>	nboldt: "No messages matched your search"
+Apr 03 10:01:08 <mbooth>	nboldt: Did you send to the right mbooth? :-)
+Apr 03 10:01:12 <nboldt>	aw, shit
+Apr 03 10:02:00 <nboldt>	check again, resent to correct address
+Apr 03 10:02:04 <nboldt>	mbooth: ^
+Apr 03 10:02:15 <mbooth>	nboldt: Ta :-)
+Apr 03 10:06:24 <mbooth>	nboldt: Looks okay to me -- If I notice before you that koji starts working again, shall I ping you to fire a build?
+Apr 03 10:12:38 <nboldt>	mbooth: I've merged to master and f26; kicked a couple builds too
+Apr 03 10:12:45 <mbooth>	Cool
+Apr 03 10:12:58 <nboldt>	https://koji.fedoraproject.org/koji/taskinfo?taskID=18765562 and https://koji.fedoraproject.org/koji/taskinfo?taskID=18765552
+Apr 03 10:13:30 <nboldt>	... and have verified that `fedpkg commit -c` works if I haven't already committed to a topic branch :D
+Apr 03 10:14:08 <nboldt>	also verified that I can install the locally built stuff if I install it along with the locally-build eclipse-jgit stuff too
+Apr 03 10:31:36 <mbenitez>	eclipse-team: weekly status reports due in~30 min at team call
+Apr 03 10:38:46 <scela>	rgrunber: hey
+Apr 03 10:38:54 <rgrunber>	scela: hey
+Apr 03 10:39:52 <scela>	rgrunber: https://dev.eclipse.org/recommenders/committers/aeri/v2/#!/problems/588a3fa1e4b03c550d6fcedd
+Apr 03 10:40:21 <scela>	rgrunber: was wondering if you remembered whether this was similar to the issue which we handled some time ago regarding some funky bundle wiring
+Apr 03 10:40:52 <rgrunber>	looks similar.. Lucene50PostingsFormat..
+Apr 03 10:42:44 <scela>	rgrunber: ok
+Apr 03 10:42:55 <scela>	do you remember how/if we resolved that?
+Apr 03 10:43:22 <rgrunber>	i can confirm later.. i should have chat logs from way back then and can see if we were talking about the same stuff..
+Apr 03 10:44:00 <rgrunber>	mm i dont' remember anything about solving it.. iirc i went as far as diagnosing the issue.. and even then not quite sure what it was because it should have worked..
+Apr 03 10:48:35 <rgrunber>	scela: https://bugs.eclipse.org/bugs/show_bug.cgi?id=509363
+Apr 03 10:48:49 <scela>	rgrunber: right
+Apr 03 10:48:52 <scela>	rgrunber: same issue
+Apr 03 10:49:04 <scela>	akurtakov: ^
+Apr 03 10:49:22 *	scela needs to write the weekly email
+Apr 03 10:49:41 <rgrunber>	feel free to re-open if reproduced consistently.. or just add to the bug. maybe something will stand out..
+Apr 03 11:13:06 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr  3 11:13:06 2017
+
+**** BEGIN LOGGING AT Mon Apr  3 12:03:36 2017
+
+Apr 03 12:03:36 *	Now talking on #eclipse
+Apr 03 12:03:36 *	Topic for #eclipse is: Eclipse discussions
+Apr 03 12:03:36 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 03 12:06:47 <nboldt>	mbooth: yes, about as ironic (or not) like rain on your wedding day
+Apr 03 12:22:22 <mbenitez>	eclipse-team: sprint planning etherpad http://eclipse.etherpad.corp.redhat.com/sprint-planning
+Apr 03 12:27:45 <rgrunber>	nboldt: just remembered, the jboss tools project with the sketchy licensing was bpmn2 https://bugs.eclipse.org/bugs/show_bug.cgi?id=514579 (can't remember if you were asking about this)
+Apr 03 12:29:33 <nboldt>	rgrunber: I wasn't but it's worth noting that bbrodt is leaving the project (and Red Hat too, I believe)
+Apr 03 12:30:17 <nboldt>	so rgrunber that might have to fall into another person's lap ... I'm not sure who Bob's passing the reins to when he leaves. Me? You? Some other unlucky recipient?
+Apr 03 12:31:00 <rgrunber>	nboldt: i hope my filing the bug doesn't make me the lucky volunteer
+Apr 03 12:32:19 <nboldt>	I can't recall if I ever had commit rights on that project but I've definitely helped Bob w/ builds in the past... and updating license files and other metadata kinda falls into "build guy" territory as I'm periodically the guy who notices that copyright dates are expired (dev and QE rarely notice)
+Apr 03 12:35:28 <nboldt>	rgrunber: "> I just wanted to let you all know that, as of 31 March, 2017 I will be
+Apr 03 12:35:28 <nboldt>	> hanging up my (Red) hat and taking early retirement."
+Apr 03 12:35:39 <nboldt>	> In order to ensure continued maintenance of the the BPEL, BPMN2 metamodel
+Apr 03 12:35:39 <nboldt>	> and BPMN2 Modeller projects I suppose the SOA PMC or Eclipse Planning
+Apr 03 12:35:39 <nboldt>	> Council should consider finding suitable replacements for project leads.
+Apr 03 12:35:39 <nboldt>	> Please let me know if I can help.
+Apr 03 12:35:58 <nboldt>	send Mar 20th to cross-project-issues-dev@
+Apr 03 12:36:01 <nboldt>	sent*
+Apr 03 12:49:54 <nboldt>	mbooth: need me to do any more eclipse-*.rpm updates?
+Apr 03 12:52:47 <mbooth>	nboldt: Would you like to update eclipse-pydev?
+Apr 03 12:53:03 <nboldt>	mbooth: could try sure
+Apr 03 12:53:09 <mbooth>	Awesome, thanks
+Apr 03 12:53:56 <nboldt>	gotta say, after years of being beaten for doing so, it's weird gong back to working without an issue tracker number. :)
+Apr 03 12:54:01 <nboldt>	going*
+Apr 03 13:02:45 <mbooth>	nboldt: There is a system that will file bugs when new releases of upstream projects are released, but I don't seem to be able to turn it on eclipse-pydev
+Apr 03 13:03:14 <mbooth>	Maybe only akurtakov can do it, since he is the administrative contact for this package
+Apr 03 13:04:02 <mbooth>	nboldt: Feel free to file your own bugs though if you'd like the additional bureaucracy ;-)
+Apr 03 13:04:54 <nboldt>	mbooth: nah, every time I look at bugzilla a die a little inside
+Apr 03 13:05:51 <nboldt>	rgrunber: apparently pleacu is being handed the controls for bpel/bpmn stuff. but doesn't have rights yet
+Apr 03 13:06:50 <rgrunber>	i c
+Apr 04 07:05:03 <scela>	mistria: the gerrit seems ok
+Apr 04 07:05:22 <scela>	mistria: i'll make some further tests and +1 it
+Apr 04 07:05:24 <scela>	mistria: btw, how do you feel about the word completion?
+Apr 04 07:06:05 <mistria>	scela: it's nice, but I have to admit it's not something that I feel as "good" in an IDE
+Apr 04 07:06:15 <mistria>	scela: what I mean is that if I get this, I'm disappointed
+Apr 04 07:06:26 <mistria>	scela: it's better than nothing, but not much IMHO
+Apr 04 07:07:02 <mistria>	scela: but it's definitely something nice to have as fall-back
+Apr 04 07:07:25 <mistria>	scela: many languages are ad-hoc (such as properties), and in this case, this does help
+Apr 04 07:11:18 <scela>	mistria: yeah always nicer to get ad-hoc completion for a given content-type
+Apr 04 07:11:39 <scela>	mistria: and if it isn't there this looks as a sort of half-baked attempt at it
+Apr 04 07:11:50 <scela>	mistria: but still it is better than nothing I think
+Apr 04 07:12:01 <mistria>	scela: of course
+Apr 04 07:16:58 <mistria>	scela: is there somewhere where I could already report feature request for the WordCompletion?
+Apr 04 07:20:06 <scela>	mistria: there is already a bug for it yes
+Apr 04 07:20:22 <scela>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=514397
+Apr 04 07:21:40 <scela>	mistria: i reviewed the gerrit
+Apr 04 07:21:55 <scela>	mistria: if you've already made sure it doesn't break other stuff I'd merge it
+Apr 04 07:23:18 <mistria>	scela: I'm using it right now while testing word processor and working on web-based LS, and the tests seem to be working. So AFAIK, it shouldn't break anything.
+Apr 04 07:23:45 <mistria>	scela: moreover, the code change isn't much impacting the "outside" and seems like a real bugfix
+Apr 04 07:28:04 <scela>	mistria: ok
+Apr 04 07:28:18 <scela>	mistria: i don't get what you mean in the bug comment
+Apr 04 07:28:34 <scela>	mistria: if you have ec^ and there is an 'eclipse' proposal
+Apr 04 07:28:50 <scela>	mistria: the completion will stay there if you type l then i etc.
+Apr 04 07:28:53 <scela>	mistria: is this what you mean?
+Apr 04 07:29:19 <mistria>	scela: ok, I was looking at the code you gave me for testing, maybe this changes
+Apr 04 07:29:49 <mistria>	scela: I've been mixing the LSP completion and word completion and the popup was hidden on type
+Apr 04 07:31:13 <mistria>	scela: completionProposalPopup, it went to line 1534 and then stopped the completion session
+Apr 04 07:32:40 <mistria>	scela: it's probably more an issue on my side though
+Apr 04 07:33:03 <mistria>	scela: but anyway, if you can implement the ICompletionProposalExtensionX interfaces, it usually gives nicer results
+Apr 04 07:33:07 <scela>	they are not supposed to be mixed
+Apr 04 07:33:21 <mistria>	scela: finer filtering without re-parsing the file, highlight matching strings...
+Apr 04 07:33:44 <scela>	mistria: i'll put a condition similar to 'if no other processor is registered, register this one'
+Apr 04 07:34:07 <scela>	mistria: it's not a good idea to have the word processor alongside other processors
+Apr 04 07:44:17 <mistria>	scela: I think it's better to be ready for having it mixed with others
+Apr 04 07:44:43 <mistria>	scela: just in case some people want to reuse it (with some filters), or if we happen to have another good idea of another default processor
+Apr 04 07:51:40 <scela>	mistria: i think it's wrong to enable it everywhere. in a big diverse file the number of proposals would be quite big, and probably hide the best ones
+Apr 04 07:52:03 <scela>	akurtakov: any opinion on ^
+Apr 04 07:52:04 <scela>	?
+Apr 04 07:52:15 <scela>	technically is really easy to change anyway
+Apr 04 07:52:32 <scela>	so if in the future we have a bright idea we can refine it
+Apr 04 07:54:40 <akurtakov>	scela: to have wordcompletion always on ?
+Apr 04 07:58:20 <scela>	akurtakov: i guess that's what mistria means by 'having it mixed with others'
+Apr 04 07:58:25 <scela>	akurtakov: or maybe i misread it
+Apr 04 07:58:42 <scela>	akurtakov: so say we have word completion also on TP editor
+Apr 04 07:59:00 <scela>	akurtakov: and this would be 'mixed' i guess
+Apr 04 08:17:46 <mistria>	scela: anyway, please just make the proposals implement the ICompletionProposalExtension2 interface, it will save CPU cycles by filtering rather than recomputing
+Apr 04 08:18:51 <mistria>	scela: and if it happens to be mixed with other proposals at some time (for any good or bad reason), it would improve the state
+Apr 04 08:28:12 <scela>	mistria: ok. you're worried about the validate method right?
+Apr 04 08:28:48 <mistria>	scela: yes, with the snippet you gave me earlier, this method is not honored because the proposals aren't implementing the right interface
+Apr 04 08:29:15 <mistria>	scela: so it ends up reparsing the file on every keystroke
+Apr 04 08:29:40 <mistria>	scela: with a proper validate and the right interface, it reuses computed proposals when possible
+Apr 04 08:42:20 <scela>	mistria: i was using the default CompletionProposal class, rather than defining my own and extending more interfaces that's why
+Apr 04 08:43:27 <mistria>	scela: What would be great would be to have this class implement the various extensions
+Apr 04 08:43:35 <mistria>	scela: so some nice features would be on by default
+Apr 04 08:44:58 <scela>	mistria: that's a must if I want to respect the ICompletionProposalExtension2 contract
+Apr 04 08:45:45 <mistria>	scela: can't you create your own subtype of completionProposal ?
+Apr 04 08:46:36 <scela>	mistria: CP is final
+Apr 04 08:46:49 <mistria>	scela: damn
+Apr 04 08:47:18 <mistria>	scela: you can still copy it... but that really sucks
+Apr 04 08:47:20 <scela>	mistria: so I'd have to go from implementing ICP from scratch
+Apr 04 08:47:28 <scela>	mistria: indeed
+Apr 04 08:47:46 <mistria>	scela: but I don't think we're still allowed to add interfaces to CompletionPropsal. Are we?
+Apr 04 08:48:14 <scela>	mistria: CP is API no?
+Apr 04 08:48:20 <scela>	mistria: i think we're too late for that
+Apr 04 08:48:23 <mistria>	scela: yes, I think so
+Apr 04 08:50:21 <mistria>	scela: actually, if it's final, it's not that a breaking change to add an interface...
+Apr 04 08:50:38 <mistria>	scela: it's indeed a change, but not a too risky one
+Apr 04 08:58:52 <scela>	mistria: still qualifies as a change though and it would require quite some testing if we were to merge at this time
+Apr 04 08:59:00 <scela>	mistria: time which frankly i don't want to spend on this topic
+Apr 04 10:14:48 <akurtakov>	ipun: here?
+Apr 04 10:15:06 <ipun>	akurtakov: hey alex, read your email
+Apr 04 10:15:27 <akurtakov>	so can you revert only StyledText ?
+Apr 04 10:17:18 <ipun>	akurtakov: trying to, says the cotributor must "sign off"
+Apr 04 10:18:00 <akurtakov>	ipun: wait
+Apr 04 10:18:28 <akurtakov>	ipun: I mean if you revert only StyledText change
+Apr 04 10:18:41 <akurtakov>	how broken would that leave it with the gesture patch landed in
+Apr 04 10:19:29 <akurtakov>	I remember it was a prereq
+Apr 04 10:19:55 <akurtakov>	so if we revert StyledText only and keep the dnd patch in will it mean styledtext will be totally broken ?
+Apr 04 10:20:13 <ipun>	akurtakov: i don't believe the gesture patch has to do with the styledText, it was just for the main DnD
+Apr 04 10:20:29 <ipun>	akurtakov: styledtext wouldnt be totally broken...just dnd would not work correctly
+Apr 04 10:20:44 <akurtakov>	on both x11 and wayland?
+Apr 04 10:21:26 <ipun>	i believe only wayland
+Apr 04 10:21:38 <ipun>	i would have to test, i forgot the state of it before
+Apr 04 10:21:48 <akurtakov>	ipun: please revert locally and try it
+Apr 04 10:22:07 <akurtakov>	lufimtse: ^ 
+Apr 04 10:22:15 <lufimtse>	hey
+Apr 04 10:22:41 <akurtakov>	ipun: lufimtse: can we do the instanceof + !isX11 in gtk specific classes to change implementation for wayland only?
+Apr 04 10:24:54 <lufimtse>	hmm
+Apr 04 10:25:50 <lufimtse>	akurtakov, will disscuss with Ian.
+Apr 04 10:26:19 <akurtakov>	lufimtse: ipun: note that I'm looking for a solution that doens't change anything for x11
+Apr 04 10:27:25 <akurtakov>	let's discuss it again in an hour? ok?
+Apr 04 10:42:05 <ipun>	akurtakov: okay
+Apr 04 10:48:14 <ipun>	akurtakov, lufimtse it doesnt look like reverting that patch will fix it. Of anything it breaks styledtext further for x11/wayland
+Apr 04 10:48:40 <akurtakov>	ipun: so we will go big revert 
+Apr 04 10:48:46 <akurtakov>	styledtext + dnd patch
+Apr 04 10:48:50 <akurtakov>	java parts only
+Apr 04 10:49:23 <akurtakov>	ipun: aka revert to state where x11 works
+Apr 04 10:49:36 <akurtakov>	and figure new way for wayland if needed
+Apr 04 10:53:41 <akurtakov>	ipun: ok ?^
+Apr 04 10:55:17 <mbenitez>	eclipse-team: sprint demo session in ~5min
+Apr 04 10:55:30 <mbenitez>	with our own Jeff starring
+Apr 04 10:55:48 <akurtakov>	mbenitez: are we going to be last ?
+Apr 04 10:56:02 <akurtakov>	I have pmc meeting at same time but will join after that
+Apr 04 10:56:07 <mbenitez>	https://redhat.bluejeans.com/6300487397
+Apr 04 10:56:23 <mbenitez>	akurtakov, I think so, at least after the Che demos
+Apr 04 10:56:29 <akurtakov>	ok
+Apr 04 10:56:33 <akurtakov>	so I should be in time
+Apr 04 10:57:00 <mbenitez>	sounds good
+Apr 04 10:59:02 <ipun>	akurtakov: yup
+Apr 04 10:59:24 <ipun>	in that case, we really need to push forward with a IS_WAYLAND call
+Apr 04 10:59:37 <ipun>	i forgot about what we discussed about why it wasnt feasible...
+Apr 04 11:00:13 <akurtakov>	ipun: no we will use !IS_X11
+Apr 04 11:01:01 <ipun>	akurtakov: ah okay
+Apr 04 11:01:28 <akurtakov>	ipun: in order to have proper IS_WAYLAND we need wayland backend compiled in and this is not the case on rhel 7
+Apr 04 11:03:44 <nboldt>	mbooth: dumb question... how can you make a patch ignore line endings so it doesn't fail to apply? Or, how do you make the patch itself updated to match the line endings of the source file? Seems someone changed the line endings of plugins/org.python.pydev.debug/META-INF/MANIFEST.MF so now the simple one line change won't apply
+Apr 04 11:06:02 <akurtakov>	lufimtse: would you please take care of prepping single revert of the java parts only
+Apr 04 11:06:08 <akurtakov>	without OS.java
+Apr 04 11:06:15 <akurtakov>	for both commits
+Apr 04 11:06:20 <lufimtse>	akurtakov,  for the dnd patch?
+Apr 04 11:06:58 <lufimtse>	akurtakov, btw
+Apr 04 11:07:03 <lufimtse>	is_wayland
+Apr 04 11:07:15 <lufimtse>	we could write a bit of custom code, that tries to call the function dynamically
+Apr 04 11:07:27 <lufimtse>	if function pointer fails to load, it means wayland not installed.
+Apr 04 11:07:32 <akurtakov>	lufimtse: NO, we go safe this time
+Apr 04 11:07:47 <lufimtse>	meaning we could try later?
+Apr 04 11:08:11 <lufimtse>	or stick to !is_x11?
+Apr 04 11:08:35 <akurtakov>	for now we stik to !is_x11
+Apr 04 11:08:42 <lufimtse>	ok.
+Apr 04 11:08:55 <akurtakov>	until we build on platform with wayland backend compiled in
+Apr 04 11:22:47 <mbenitez>	REMINDER: please fill in your goals for the sprint http://eclipse.etherpad.corp.redhat.com/sprint-planning
+Apr 04 11:24:05 <mbenitez>	ipun, mbooth, mistria, scela, ^
+Apr 04 12:01:04 <akurtakov>	lufimtse: ipun: so reverting StyledText changes 
+Apr 04 12:01:19 <akurtakov>	and changing all the other dnd changes to if !x11
+Apr 04 12:01:30 <akurtakov>	we should be in a state where x11 is fine 
+Apr 04 12:01:46 <akurtakov>	and StyledText is broken under wayland 
+Apr 04 12:01:57 <akurtakov>	?
+Apr 04 12:06:02 <ipun>	akurtakov: ill have leo test it as we ll
+Apr 04 12:13:32 <patrickm>	jjohnstn: how is the LLVM/Clang support in the eclipse desktop?
+Apr 04 12:15:03 <jjohnstn>	patrickm: haven't played with it...in theory it should just be the toolchain so everything else should just work
+Apr 04 12:17:04 <patrickm>	jjohnstn: ok, with Clang + LLDB support on the horizon, we may need to dig a little deeper 
+Apr 04 12:18:08 <jjohnstn>	understood
+Apr 04 12:22:48 <akurtakov>	patrickm: what is the priority of this work ?
+Apr 04 12:23:07 <akurtakov>	and how deep we should go 
+Apr 04 12:23:43 <patrickm>	akurtakov: we're looking at providing a tech preview of LLVM/LLDB in a DTS-like offering in the fall 
+Apr 04 12:25:42 <patrickm>	akurtakov: we'll need to sit down and see where this work is priority wise with all the other work
+Apr 04 12:26:16 <patrickm>	where "we" == you / jeff / mbenitez 
+Apr 04 12:26:48 <akurtakov>	ok
+Apr 04 12:32:52 <patrickm>	akurtakov: just add it to the list ;)
+Apr 04 13:02:26 <akurtakov>	lufimtse: ipun: should we push the patch?
+Apr 04 13:02:34 <akurtakov>	my test shows it's fine
+Apr 04 13:03:04 <akurtakov>	ipun: please update it pointing to https://bugs.eclipse.org/bugs/show_bug.cgi?id=510446
+Apr 04 13:46:13 <akurtakov>	ipun: lufimtse: if I'm not around when you get back, please merge the patch today an
+Apr 04 13:47:34 <akurtakov>	d hangle bzs properly
+Apr 04 14:30:59 <lufimtse>	akurtakov, sec...
+Apr 04 14:31:07 <lufimtse>	akurtakov, we're thinking...
+Apr 04 14:31:51 <lufimtse>	akurtakov, it seems that some event is lost and a state flag is not being set, which is causing the breakage. We're looking for a flag-less solution or why flags are not returned.
+Apr 04 14:50:14 <akurtakov>	lufimtse: for today?
+Apr 04 15:03:57 <lufimtse>	akurtakov, we're working on it. When's the dead-line?
+Apr 04 15:04:28 <akurtakov>	well, I would like to see x11 fixed tomorrow
+Apr 04 15:04:48 <lufimtse>	Is it ok to break wayland?
+Apr 04 15:04:48 <akurtakov>	or at least comment on the bug with clear timeline for deliveing the fix
+Apr 04 15:04:54 <akurtakov>	not more than 1-2 days
+Apr 04 15:05:38 <lufimtse>	The styled text is somewhat delicate, if we revert the patch wayland's Styled text will break from what I gather,
+Apr 04 15:05:44 <akurtakov>	lufimtse: not in general but styledtext dnd on wayland could be left for next round
+Apr 04 15:05:54 <lufimtse>	ok
+Apr 04 15:06:18 <lufimtse>	We'll try to get something in today, if not we'll set expectations, latest in 1-2 days the styled changes will be undone.
+Apr 04 15:06:29 <lufimtse>	would that work?
+Apr 04 15:07:34 <lufimtse>	akurtakov, ok, I'm moving my laptop to Ian's desktop. I may lose irc as I don't have vpn setup. Feel free to ping Ian, I'll be near his desk.
+Apr 04 15:26:34 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Apr  4 15:26:34 2017
+
+**** BEGIN LOGGING AT Tue Apr  4 19:50:28 2017
+
+Apr 04 19:50:28 *	Now talking on #eclipse
+Apr 04 19:50:28 *	Topic for #eclipse is: Eclipse discussions
+Apr 04 19:50:28 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 04 21:09:46 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Apr  4 21:09:46 2017
+
+**** BEGIN LOGGING AT Wed Apr  5 09:57:29 2017
+
+Apr 05 09:57:29 *	Now talking on #eclipse
+Apr 05 09:57:29 *	Topic for #eclipse is: Eclipse discussions
+Apr 05 09:57:29 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 05 09:57:37 <scela>	nboldt: yeah some editors try to get smart and fix line endings > git doesn't like it
+Apr 05 09:58:55 <nboldt>	well, I have   autocrlf = input in my ~/.gitconfig so it should be respectin' my authoritah 
+Apr 05 09:59:18 <nboldt>	... though much like Cartman in police attire... it's not :(
+Apr 05 09:59:57 <scela>	nboldt: so basically while changing from 5.5 to 5.6 you removed ^M in the process?
+Apr 05 10:00:10 <scela>	can't you just vim in and just change the 5->6?
+Apr 05 10:01:54 <mbooth>	It's $current_year, why are line endings still a thing that we have to think about? :-(
+Apr 05 10:08:18 <nboldt>	scela: vim messed it up too. I went with sed inplace replacement :D
+Apr 05 10:08:40 <nboldt>	mbooth: Because there's still no linux on the desktop :)
+Apr 05 10:09:20 <nboldt>	\o/ fedpkg prep exited with 0 (finally)
+Apr 05 10:09:37 <mbooth>	nboldt: It's the great irony of Linux, that it is everywhere *except* the desktop :-p
+Apr 05 10:10:04 <nboldt>	mbooth: note: to make prep pass I had to install more java dep rpms packages. Should those be added to the spec file?
+Apr 05 10:10:23 <nboldt>	# dnf install antlr32-java.noarch jnr-netdb.noarch jython.noarch netty
+Apr 05 10:11:06 <nboldt>	eg., as BuildRequires?
+Apr 05 10:11:10 <mbooth>	Only if it fails in mock, IIRC these are pulled in transitively by jython
+Apr 05 10:11:36 <nboldt>	it just fails in `fedpkg prep` unless I install them
+Apr 05 10:12:14 <mbooth>	nboldt: Right, but BRs are not processed for fedpkg prep
+Apr 05 10:12:22 <nboldt>	ah ok
+Apr 05 10:12:52 <nboldt>	feh. mockbuild failed .... compilation errors
+Apr 05 10:38:01 <nboldt>	mbooth: so riddle me this. The 5.6 pydev sources, patched, compile fine by hand with maven. But they crap out due to compile failure inside a mockbuild?
+Apr 05 10:38:49 <mbooth>	nboldt: What is the error?
+Apr 05 10:39:26 <mbooth>	Pastebin the log: $ fpaste /var/lib/mock/fedora-rawhide-x86_64/result/build.log 
+Apr 05 10:44:57 <nboldt>	mbooth: running again hang on
+**** ENDING LOGGING AT Wed Apr  5 10:48:28 2017
+
+**** BEGIN LOGGING AT Wed Apr  5 15:17:39 2017
+
+Apr 05 15:17:39 *	Now talking on #eclipse
+Apr 05 15:17:40 *	Topic for #eclipse is: Eclipse discussions
+Apr 05 15:17:40 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 05 18:35:42 <jjohnstn>	nboldt: that will have to be a question for rgrunberg...I used the M6 build which is the one he said had the fix
+Apr 06 04:46:14 <akurtakov>	mbooth: here ?
+Apr 06 04:46:31 <mbooth>	Hi
+Apr 06 04:48:31 <akurtakov>	mbooth: https://bugzilla.redhat.com/show_bug.cgi?id=1439195
+Apr 06 04:48:49 <akurtakov>	mbooth: can you sneak one more rebuild ?
+Apr 06 04:51:08 <mbooth>	akurtakov: I'll see what I can do
+Apr 06 04:51:14 <akurtakov>	mbooth: thanks
+Apr 06 04:51:43 <akurtakov>	not seeing debug console by default is a major issue IMHO
+Apr 06 04:52:32 <akurtakov>	sorry for not replying earlier but I managed to get to it just this morning
+Apr 06 04:53:36 <mbooth>	scela, akurtakov: How does Eclipse look in Ubuntu's Unity these days? Looks like it's going away: http://www.omgubuntu.co.uk/2017/04/ubuntu-18-04-ship-gnome-desktop-not-unity
+Apr 06 04:53:48 <akurtakov>	mbooth: ugly :)
+Apr 06 04:54:16 <mbooth>	So that's one less problem then :-)
+Apr 06 05:01:57 <akurtakov>	mbooth: definetely
+Apr 06 05:07:23 <akurtakov>	mbooth: https://bugs.eclipse.org/bugs/show_bug.cgi?id=466515 :)
+Apr 06 05:07:42 <akurtakov>	and prefer-dark-theme setting being noop is enough said
+Apr 06 05:10:48 <akurtakov>	mbooth: ruby patch is in master now
+Apr 06 05:14:18 <akurtakov>	next - Ian's patch :)
+Apr 06 05:24:03 <akurtakov>	I get timeout for git pull from eclipse.org?
+Apr 06 05:24:14 <akurtakov>	scela: mistria: ^ works for you
+Apr 06 05:25:04 <mistria>	akurtaov: works from Gerrit URLs 
+Apr 06 05:25:50 <akurtakov>	yeah, but what about committer ssh urls
+Apr 06 05:47:14 <akurtakov>	mistria: scela: http://download.eclipse.org/eclipse/downloads/drops4/I20170405-2000/testresults/html/org.eclipse.ui.genericeditor.tests_ep47I-unit-cen64-gtk3_linux.gtk.x86_64_8.0.html
+Apr 06 05:47:31 <akurtakov>	related to yesterday code ?
+Apr 06 05:48:01 <mistria>	akurtakov scela: tests passed on Gerrit...
+Apr 06 05:48:20 <mistria>	akurtakov: we often have the case of tests ok on Gerrit and failing on actual build with this tests
+Apr 06 05:48:31 <mistria>	akurtakov: it's a bit annoying
+Apr 06 05:48:41 <mistria>	akurtakov: we need to reinvestigate everytime...
+Apr 06 05:48:54 <akurtakov>	yeah, obviously tests are not really stable
+Apr 06 06:08:42 <akurtakov>	mbooth: btw, bluejeans works with firefox again on f26 :)
+Apr 06 06:11:22 <scela>	akurtakov: we usually wait for the next build to make sure it's not a temp thing
+Apr 06 06:11:33 <scela>	akurtakov: very difficult to reproduce those
+Apr 06 06:14:54 <akurtakov>	scela: can't the tests be enhanced to provide some more data on failure so some guess what goes wrong could happen?
+Apr 06 06:15:00 <mistria>	akurtakov: did you have the opportunity to try sharing the whole desktop on Hangout?
+Apr 06 06:15:26 <akurtakov>	google hangout ?
+Apr 06 06:19:08 <akurtakov>	mistria: I can try with you if interested
+Apr 06 06:19:23 <mistria>	akurtakov: ok
+Apr 06 06:20:04 <mistria>	akurtakov: feel free to ping me at mickael.istria@gmail.com
+Apr 06 07:22:25 <akurtakov>	scela: btw, really nice on the default completion
+Apr 06 07:24:08 <akurtakov>	scela: maybe you should exclude 1 letter long proposals
+Apr 06 07:24:39 <akurtakov>	it's weird to see a/1/2 and similar
+Apr 06 07:35:52 <scela>	akurtakov: indeed
+Apr 06 07:36:00 <scela>	akurtakov: on it now
+Apr 06 07:36:27 <scela>	akurtakov: how does it look in general the usecases you thought of originally?
+Apr 06 07:36:35 <akurtakov>	quite good
+Apr 06 07:36:41 <akurtakov>	making use of it already
+Apr 06 07:37:13 <scela>	akurtakov: good to know
+Apr 06 07:38:00 <scela>	akurtakov: it works on any kind of file, unless another processor is registered
+Apr 06 07:41:48 <akurtakov>	yeah, I advertized it in twitter already
+Apr 06 07:46:13 <scela>	akurtakov: can you try to create a new eclipse launch config with latest i-build?
+Apr 06 07:46:24 <scela>	akurtakov: either via double-click or right-click->new
+Apr 06 07:46:28 <scela>	akurtakov: it breaks for me
+Apr 06 07:46:29 <akurtakov>	yes, already created few
+Apr 06 07:46:36 <akurtakov>	what's wrong for you
+Apr 06 07:47:43 <scela>	akurtakov: can you try this, delete all launch configs and click one project in ws
+Apr 06 07:47:55 <scela>	akurtakov: then click the run button (even though there are no launch configs)
+Apr 06 07:48:06 <scela>	akurtakov: after that try to create a new launch config
+Apr 06 07:48:12 <scela>	akurtakov: does it work for you?
+Apr 06 07:49:54 <akurtakov>	scela: failed
+Apr 06 07:50:02 <akurtakov>	Cannot create file ...
+Apr 06 08:04:37 <scela>	akurtakov: indeed
+Apr 06 08:11:09 <akurtakov>	scela: probably http://git.eclipse.org/c/platform/eclipse.platform.resources.git/commit/?id=607937d3eeafb995b5d9711e21683dc4934e0a96
+Apr 06 08:16:48 <scela>	akurtakov: ok
+Apr 06 08:16:54 <scela>	i'll comment there with steps to reproduce
+Apr 06 08:34:21 <scela>	akurtakov: done
+Apr 06 09:53:47 <akurtakov>	btw, I still can't pull from eclipse.org anyone else noticing it ?
+Apr 06 10:08:49 <scela>	akurtakov: works for me
+Apr 06 10:09:06 <akurtakov>	hmm, I wonder what's wrong on my side
+Apr 06 10:09:32 <scela>	akurtakov: what protocol are you trying to pull with
+Apr 06 10:09:33 <scela>	?
+Apr 06 10:09:37 <akurtakov>	ssh
+Apr 06 10:09:51 <scela>	akurtakov: tried https? or git?
+Apr 06 10:10:04 <akurtakov>	no, I don't want to reconfigure all my remotes
+Apr 06 10:10:47 <scela>	akurtakov: what's the error?
+Apr 06 10:11:01 <akurtakov>	time out
+Apr 06 10:11:17 <scela>	what repo?
+Apr 06 10:11:23 <scela>	all repos?
+Apr 06 10:11:40 <scela>	akurtakov: ^
+Apr 06 10:11:47 <akurtakov>	yes
+Apr 06 10:13:42 <scela>	akurtakov: how about through gerrit?
+Apr 06 10:13:43 <mistria>	akurtakov: Patrick will remain working on TraceCompass and SWTBot
+Apr 06 10:19:12 <scela>	akurtakov: once my ip got banned for some strange traffic reason. dennis took care of it at that time.
+Apr 06 10:19:32 <scela>	akurtakov: so if it doesn't fix itself and everyone else can pull, might be worth checking
+Apr 06 10:19:40 <akurtakov>	what have you done ?
+Apr 06 10:19:53 <scela>	akurtakov: wdym?
+Apr 06 10:20:01 <akurtakov>	to get it unblocked
+Apr 06 10:20:22 <scela>	akurtakov: ask dennis that I (ssh username) can't pull/push
+Apr 06 10:20:33 <scela>	akurtakov: want me to ask him for you? dennis roy
+Apr 06 10:20:41 <scela>	webmaster@eclipse.org might be best
+Apr 06 10:20:44 <scela>	as matt can also do it
+Apr 06 10:20:52 <akurtakov>	nah, I wondered about some procedure for that
+Apr 06 10:21:09 <scela>	akurtakov: no it's not automated
+Apr 06 10:21:42 <scela>	akurtakov: if it persists just check it out with webmaster i guess
+Apr 06 10:48:09 <akurtakov>	scela: you were right it was network block
+Apr 06 10:48:48 <scela>	akurtakov: cool
+Apr 06 10:49:03 <scela>	akurtakov: i guess you're pushing so often you're starting to look like spam ;)
+Apr 06 10:49:23 <akurtakov>	haha, I'll take that as compliment
+Apr 06 10:49:40 <akurtakov>	for the sake of truth I quite often start paralel pulls :)
+Apr 06 10:50:44 <scela>	akurtakov: yeah it's quite a handy feature in egit to do the multiple pull
+Apr 06 10:52:42 <scela>	nboldt: how did the lucene patch story go?
+Apr 06 10:57:26 <nboldt>	scela: worked until I pushed it to github... then git changed the line endings and it broke in koji
+Apr 06 10:58:04 <scela>	nboldt: hm ok
+Apr 06 10:58:35 <scela>	nboldt: why did you push it to github anyway?
+Apr 06 11:00:29 <nboldt>	because it worked locally
+Apr 06 11:00:43 <nboldt>	and because mbooth has said "we can fix things if they're broken in master" 
+Apr 06 11:00:53 <nboldt>	rather than "we should use gerrit reviews or PRs" :D
+Apr 06 11:05:08 <mbooth>	nboldt: Ah, it's a case of the file being patched has windows line endings but the patch itself was generated on linux, so the diff header has \n and the content has \r\n..? Maybe upstream would take a patch to rationalise line-endings in their project....
+Apr 06 11:06:56 <nboldt>	mbooth: perhaps. the patch from scela - https://patch-diff.githubusercontent.com/raw/fabioz/Pydev/pull/196.diff - has a mix of line endings
+Apr 06 11:07:21 <nboldt>	so the manifest.mf part is hard to apply
+Apr 06 11:09:03 <mbooth>	Yes, I see the "^M"s in vim for the MANIFEST.MF portion of the patch
+Apr 06 11:12:54 <mbooth>	I guess I never encountered this as a problem because I don't use git's autocrlf feature. It's totally reasonable to want a patch that touches files with different line endings
+Apr 06 11:13:42 <mbooth>	Although, I still consider it bad form for a project to use a mix :-)
+Apr 06 11:18:45 <nboldt>	mbooth: yeah, I've disabled autocrlf and I guess need to start over again :(
+Apr 06 11:23:59 <nboldt>	ok, looks like vim respects line endings and with autocrlf disabled... this time it might work. fingers crossed.
+Apr 06 11:32:48 <nboldt>	mbooth: what's the rule for backporting to f25? eg., should any of these Neon.3 changes go there too.? or just f26 and rawhide?
+Apr 06 11:33:19 <mbooth>	nboldt: Yes please for f25
+Apr 06 11:33:34 <nboldt>	for eclipse-egit and jgit and pydev? all three?
+Apr 06 11:34:18 <nboldt>	mbooth: I assume I therefore have to push the fix and trigger a koji build... any other testing required? or do we assume if it's green in koji we're golden?
+Apr 06 11:34:34 *	nboldt is happy to do diligence when it's due
+Apr 06 11:34:47 <nboldt>	(but have other things on fire today too.) :D
+Apr 06 11:36:48 <mbooth>	nboldt: I'm happy with koji being green for now :-) More testing will (should) happen when we submit updates through bodhi
+Apr 06 11:37:22 <nboldt>	ok cool
+Apr 06 12:09:17 <nboldt>	mbooth: what's the policy when pushing to old branches (f25) re: squashing vs. pushing the exact same sequence of commits
+Apr 06 12:09:19 <nboldt>	?
+Apr 06 12:09:41 <nboldt>	eg., I could squash and rebase the 3 commits in master down to 1 commit or leave it as 3
+Apr 06 12:11:34 <mbooth>	nboldt: I usually leave as is and do a simple fast forward merge
+Apr 06 12:12:11 <nboldt>	mbooth: ok, 3 commits it is :D
+Apr 06 12:15:03 <ipun>	akurtakov: https://git.eclipse.org/r/#/c/94419/ this commit is the main revert of DnD
+Apr 06 12:15:32 <nboldt>	*sigh* can't log into fedoraproject via kerberos again
+Apr 06 12:23:07 <nboldt>	mbooth: ok, I'm spamming koji with builds: https://koji.fedoraproject.org/koji/userinfo?userID=nickboldt
+Apr 06 12:23:48 <nboldt>	if I want to rebuild one of those (because new commits) how can I do that? tried with --skip-nvr-check but build fails with "GenericError: Build already exists"
+Apr 06 12:24:45 <mbooth>	nboldt: Any changes require a release bump
+Apr 06 12:24:55 <nboldt>	srly?
+Apr 06 12:24:59 <nboldt>	ugh, ok
+Apr 06 12:25:31 <nboldt>	so a "real build" means a release too, not just a CI that can be released later?
+Apr 06 12:25:43 <nboldt>	vs. a scratch build, which is a CI ?
+Apr 06 12:26:00 <mbooth>	Roughly yeah
+Apr 06 12:26:19 <nboldt>	ok
+Apr 06 12:26:56 <nboldt>	I've made a bit of a mess of the f26 git history for eclipse-pydev. Suppose force-pushing is bad, right?
+Apr 06 12:27:20 <mbooth>	nboldt: Never tried, but I'd be surprised if it's allowed
+Apr 06 12:27:34 <nboldt>	hehe, ok
+Apr 06 12:27:35 <mbooth>	History being a mess is no real problem
+Apr 06 12:27:42 *	mbooth shrugs
+Apr 06 12:28:14 <mbooth>	It's much easier to do archeology with git than cvs :-)
+Apr 06 12:30:41 <nboldt>	true
+Apr 06 12:38:42 <akurtakov>	nboldt: are you pushing egit/jgit 4.7 ?
+Apr 06 12:40:43 <akurtakov>	nboldt: https://dev.eclipse.org/mhonarc/lists/egit-dev/msg04316.html you might be on a track for fast new rebuild :)
+Apr 06 12:41:28 <mbooth>	D'oh
+Apr 06 12:41:41 <mbooth>	If only we'd waited another week
+Apr 06 12:42:30 <akurtakov>	nah, it's perfect - try how fast it will be the second time while comparison is still in memory :)
+Apr 06 13:09:14 <nboldt>	akurtakov: I grabbed 4.6.1 since that's what's in Neon.3
+Apr 06 13:09:51 <nboldt>	I would think we want the same version in Fedora as in RHSCL as in devstudio 10.4
+Apr 06 13:10:14 <akurtakov>	nope, fedora progresses on faster pace
+Apr 06 13:10:21 <nboldt>	akurtakov: ah, ok
+Apr 06 13:10:28 <nboldt>	but we need 4.6.1 in there AND 4.7?
+Apr 06 13:10:40 <nboldt>	otherwise where does RHSCL get 4.6.1 from ?
+Apr 06 13:10:43 <akurtakov>	rawhide should have gained oxgen 
+Apr 06 13:10:50 <nboldt>	oic
+Apr 06 13:10:51 <akurtakov>	already
+Apr 06 13:11:03 <nboldt>	so you want 4.6.1 in F25/F26, and 4.7 in rawhide?
+Apr 06 13:11:19 <nboldt>	yikes... working on too many parallel branches for my brain to keep up :D
+Apr 06 13:11:23 <akurtakov>	depends on how mbooth syncs for rhscl
+Apr 06 13:11:49 <nboldt>	akurtakov: well, you've lost me. I've no clue how that happens. I only know how to update a fedora eclipse-* rpm package so far 
+Apr 06 13:11:56 <nboldt>	#babysteps
+Apr 06 13:11:58 <akurtakov>	nboldt: ok
+Apr 06 13:12:26 <akurtakov>	mbooth: so you have 4.6.1 and Neon.3 in general in rhscl already, rigth?
+Apr 06 13:12:43 <mbooth>	RHSCL was synced (sunk?) from F26 more or less so it has all neon.3 stuff
+Apr 06 13:13:22 <mbooth>	I'm happy for jgit/egit 4.7 to go into F25+ 
+Apr 06 13:13:40 <akurtakov>	nboldt: ^ you have your answer
+Apr 06 13:13:49 <akurtakov>	rhscl is done so fedora can move on
+Apr 06 13:36:41 <akurtakov>	mbooth: and this jetty drives me nuts
+Apr 06 13:36:47 <akurtakov>	can't smth happen easily
+Apr 06 14:03:16 <nboldt>	akurtakov: mbooth: ok, so I can move egit/jgit up to 4.7 in F25+ for you
+Apr 06 14:03:22 <akurtakov>	thanks
+Apr 06 17:00:13 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Apr  6 17:00:13 2017
+
+**** BEGIN LOGGING AT Fri Apr  7 12:58:42 2017
+
+Apr 07 12:58:42 *	Now talking on #eclipse
+Apr 07 12:58:42 *	Topic for #eclipse is: Eclipse discussions
+Apr 07 12:58:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Apr  7 15:06:39 2017
+
+**** BEGIN LOGGING AT Mon Apr 10 09:56:44 2017
+
+Apr 10 09:56:44 *	Now talking on #eclipse
+Apr 10 09:56:44 *	Topic for #eclipse is: Eclipse discussions
+Apr 10 09:56:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 10 10:02:27 <scela>	akurtakov: did you manage to fix all filters?
+Apr 10 10:05:51 <mbenitez>	eclipse-team: weekly reports due by the team call in ~55 min
+Apr 10 10:07:59 <fbricon>	@mbooth @mbooth_ hi, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=511793#c13
+Apr 10 10:08:39 <mbooth_>	fbricon: Thanks, that's useful
+Apr 10 10:10:06 <akurtakov>	scela: I'm not even trying 
+Apr 10 10:10:13 <akurtakov>	I'll create them as mails arive :)
+Apr 10 10:13:36 <mbenitez>	that worked for me too
+Apr 10 10:25:29 <mbooth_>	akurtakov: Jetty release was restaged: https://dev.eclipse.org/mhonarc/lists/jetty-dev/msg02924.html
+Apr 10 10:25:43 <akurtakov>	mbooth_: yeah, saw it already - nice 
+Apr 10 10:26:01 <akurtakov>	mbooth_: have you tried with this release?
+Apr 10 10:26:20 <mbooth_>	Not yet
+Apr 10 10:26:36 <mbooth_>	I just looked at the proposed tag and it does contain my change
+Apr 10 10:31:49 <scela>	mbooth_: i remember you were talking about some filters limitation for gmail compared to zimbra
+Apr 10 10:31:54 <scela>	mbooth_: what was that specifically?
+Apr 10 10:32:17 <mbooth_>	Oh gosh
+Apr 10 10:32:36 <mbooth_>	I'm not sure I recall anymore
+Apr 10 10:32:59 <mbooth_>	I think it was to do email headers
+Apr 10 10:33:33 <mbooth_>	I think zimbra allowed you to create rules for arbitrary email headers in a way that gmail did not (at the time)
+Apr 10 10:33:57 <scela>	mbooth_: ok. never used that stuff in zimbra I think.
+Apr 10 10:34:04 <scela>	mbooth_: so hopefully there should be no surprises
+Apr 10 10:40:55 <scela>	mbenitez: forgot to mention. official holidays here on coming Fri and Mon
+Apr 10 10:53:05 <mbooth_>	scela, mbenitez: Same in UK (Easter bank holidays)
+Apr 10 10:53:21 <mbenitez>	yes, looks like everybody does
+Apr 10 11:15:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 10 11:15:12 2017
+
+**** BEGIN LOGGING AT Mon Apr 10 11:48:31 2017
+
+Apr 10 11:48:31 *	Now talking on #eclipse
+Apr 10 11:48:31 *	Topic for #eclipse is: Eclipse discussions
+Apr 10 11:48:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 10 12:43:24 <lufimtse>	hey ya, links here are not working for me again: https://git.eclipse.org/c/
+Apr 10 12:43:29 <lufimtse>	ex org.eclipse.dltk.sh.git
+Apr 10 12:43:41 <lufimtse>	it links to : https://git.eclipse.org/c/%0a%20SomeCustomInjectedHeader:injected_by_wvs/org.eclipse.cdt.old.git/diff/old2/cdt-home/developer/featurespec/2.0/contentassist.html/bpmn2-modeler/org.eclipse.bpmn2-modeler.git/cbi/org.eclipse.cbi.maven.plugins.git/babel/server.git/aether/aether-demo.git/aether/aether-update-site.git/acceleo/org.eclipse.acceleo.git/actf/org.eclipse.actf.visualization.git/chemclipse/org.eclipse.chemclipse.ba
+Apr 10 12:43:41 <lufimtse>	selinedetec.git/amalgam/org.eclipse.amalgam.git/cdo/cdo.infrastructure.git/amp/org.eclipse.amp.git/cdo/cdo.git/bpmnmodeler/.git/amp/org.eclipse.amp.git/bpel/org.eclipse.bpel.git/ajdt/org.eclipse.ajdt.git/bpel/org.eclipse.bpel.git/dltk/org.eclipse.dltk.sh.git/
+Apr 10 12:43:55 <lufimtse>	Tried on Firefox & chrome. 
+Apr 10 12:44:03 <lufimtse>	Does this work for other folks? akurtakov 
+Apr 10 12:44:45 <akurtakov>	lufimtse: ???
+Apr 10 12:44:56 <lufimtse>	akurtakov, try opening  https://git.eclipse.org/c/
+Apr 10 12:45:08 <lufimtse>	then click on a link, like: org.eclipse.dltk.sh.git
+Apr 10 12:45:12 <lufimtse>	does it open the repo?
+Apr 10 12:45:19 <lufimtse>	for me it links to broken page
+Apr 10 12:45:30 <lufimtse>	./s/links/redirects
+Apr 10 12:45:50 <akurtakov>	lufimtse: ah, not working open bug
+Apr 10 12:46:01 <lufimtse>	ok. I've seen this before.
+Apr 10 12:46:21 <akurtakov>	https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Community Git 
+Apr 10 12:52:49 <lufimtse>	Bug 515047 – (!) git.eclipse.org/c broken links 
+Apr 10 12:52:49 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=515047
+Apr 10 12:53:51 <mbooth_>	:-o
+Apr 10 12:54:03 <mbooth_>	"SomeCustomInjectedHeader:injected_by_wvs" -- security vuln in cgit?
+Apr 10 12:54:24 <mbooth_>	Looks pretty suspect
+Apr 10 14:45:43 <nboldt1>	anyone know the specfile syntax for "if jetty 9.4.0, apply patch; if >9.4.0, don't apply patch" 
+Apr 10 14:59:22 <mbenitez>	you'd do something like if version==9.4.0 %patch in the patch section
+**** BEGIN LOGGING AT Tue Apr 11 10:09:33 2017
+
+Apr 11 10:09:33 *	Now talking on #eclipse
+Apr 11 10:09:33 *	Topic for #eclipse is: Eclipse discussions
+Apr 11 10:09:33 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 11 14:29:42 <nboldt>	strykerawb: meet lufimtse
+Apr 11 14:29:47 <strykerawb>	o
+Apr 11 14:29:51 <strykerawb>	lufimtse,  hello. 
+Apr 11 14:30:10 <nboldt>	something something eclipse dark mode popups too dark to read something something
+Apr 11 14:30:12 <lufimtse>	hello strykerawb 
+Apr 11 14:30:13 <strykerawb>	my content assist is dark.  very dark.   black even.   can never read it.  
+Apr 11 14:30:15 <strykerawb>	im not in dark mode
+Apr 11 14:30:18 <strykerawb>	im in normal mode
+Apr 11 14:30:22 <nboldt>	oic
+Apr 11 14:30:31 <nboldt>	Fedora 25?
+Apr 11 14:30:35 <strykerawb>	f24
+Apr 11 14:30:36 <lufimtse>	strykerawb, sec
+Apr 11 14:30:55 <strykerawb>	my content assist window comes up fine, with a correct color from settings, but,  when you click on one of the options, the 2nd content assist window that pops up to the right... has black bg
+Apr 11 14:31:07 <strykerawb>	like the one that lists javadoc 
+Apr 11 14:31:19 <strykerawb>	or validation on a field marked invalid 
+Apr 11 14:31:21 <nboldt>	have you tried...  export GDK_NATIVE_WINDOWS=true
+Apr 11 14:31:22 <nboldt>	or... export SWT_GTK3=0
+Apr 11 14:31:25 <lufimtse>	strykerawb,  try http://download.eclipse.org/eclipse/downloads/drops4/S-4.7M6-201703082000/download.php?dropFile=eclipse-SDK-4.7M6-linux-gtk-x86_64.tar.gz
+Apr 11 14:31:34 <nboldt>	those used to work in earlier Fedoras
+Apr 11 14:31:52 <lufimtse>	akurtakov, ah
+Apr 11 14:31:55 <nboldt>	ah, even better. cutting edge Oxygen builds :)
+Apr 11 14:31:59 <lufimtse>	strykerawb, ^ SEC
+Apr 11 14:32:03 <lufimtse>	strykerawb, KNOWN bug.
+Apr 11 14:32:04 <lufimtse>	sec
+Apr 11 14:32:12 <akurtakov>	lufimtse:  ?
+Apr 11 14:32:23 <lufimtse>	akurtakov, << was suppose to be strykerawb 
+Apr 11 14:32:28 <lufimtse>	sec
+Apr 11 14:32:28 <akurtakov>	ah ok
+Apr 11 14:33:23 <nboldt>	mbooth_: egit/ejgit updated to 4.7. Got any more eclipse-*.rpm for me to chew on?
+Apr 11 14:33:43 <nboldt>	if not I can totally find other fires to put out :D
+Apr 11 14:34:02 <lufimtse>	strykerawb, 
+Apr 11 14:34:02 <lufimtse>	Bug 507073 – [content assist] Use fitting colors for Content assist's additional info pane 
+Apr 11 14:34:02 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=507073
+Apr 11 14:34:25 <lufimtse>	it's on my todolist
+Apr 11 14:34:32 <lufimtse>	at the moment working on Drag and Drop
+Apr 11 14:34:34 <lufimtse>	for wayland
+Apr 11 14:34:37 <lufimtse>	and webkit2
+Apr 11 14:34:44 <lufimtse>	but the plan is to get to it...
+Apr 11 14:34:59 <strykerawb>	oh ok... ... cuz im also noticing this issue in an editor?  when i use ControlDecoration on a text field
+Apr 11 14:35:53 <strykerawb>	is that same issue?
+Apr 11 14:35:54 <strykerawb>	lufimtse, 
+Apr 11 14:36:16 <strykerawb>	i mean,  im using it in a weird error where i draw widgets and crap
+Apr 11 14:36:23 <strykerawb>	but lts just say whenever i use the control decorator
+Apr 11 14:36:29 <strykerawb>	and i mouse-over the little 'x' 
+Apr 11 14:36:40 <strykerawb>	shit's dark... super dark... is it same issue?
+Apr 11 14:37:04 <lufimtse>	strykerawb, at the moment there's a bunch of stuff that still uses SWT.INFO, so that kinda causes breakage here and there
+Apr 11 14:37:15 <lufimtse>	strykerawb, solution is to use an alternative colour defined in jFace
+Apr 11 14:37:32 <lufimtse>	strykerawb, but I just haven't got around to replacing these bits and pieces
+Apr 11 14:38:04 <lufimtse>	strykerawb, but thank you for pointing it out, if it comes to my attention more, then I'll probably be more likley to work on it more :-)
+Apr 11 14:38:12 <lufimtse>	strykerawb, after webkit2/DnD...
+Apr 11 14:38:44 <strykerawb>	public Color getSystemColor (int id) {
+Apr 11 14:38:44 <strykerawb>		checkDevice ();
+Apr 11 14:38:44 <strykerawb>		GdkColor gdkColor = null;
+Apr 11 14:38:44 <strykerawb>		switch (id) {
+Apr 11 14:38:44 <strykerawb>			case SWT.COLOR_LINK_FOREGROUND: 					gdkColor = COLOR_LINK_FOREGROUND; break;
+Apr 11 14:38:45 <strykerawb>			case SWT.COLOR_INFO_FOREGROUND: 					gdkColor = COLOR_INFO_FOREGROUND; break;
+Apr 11 14:38:47 <strykerawb>			case SWT.COLOR_INFO_BACKGROUND: 					gdkColor = COLOR_INFO_BACKGROUND; break;
+Apr 11 14:39:05 <strykerawb>	in Display class ;) 
+Apr 11 14:41:12 <strykerawb>	lufimtse,  is there no setting i can change to fix this? in the meantime?
+Apr 11 14:41:56 <lufimtse>	hmmmm
+Apr 11 14:42:20 <lufimtse>	theoretically if you feed some gtk3-css that re-defines the systemcolor SWT.INFO is based on...
+Apr 11 14:42:53 <lufimtse>	that would change look of regular tooltips also
+Apr 11 14:42:57 <lufimtse>	but I guess that would be ok.
+Apr 11 14:43:07 <lufimtse>	hmmm
+Apr 11 14:43:13 <strykerawb>	COLOR_INFO_BACKGROUND  is coming up black. 
+Apr 11 14:43:29 <strykerawb>	:( 
+Apr 11 14:43:30 <strykerawb>	so sad
+Apr 11 14:45:39 <akurtakov>	strykerawb: that's correct
+Apr 11 14:46:05 <akurtakov>	COLOR_INFO_BACKGROUND represents the native theme color for tooltips
+Apr 11 14:46:53 <akurtakov>	issue comes when one uses COLOR_INFO_BACKGROUND without COLOR_INFO_FOREGROUND
+Apr 11 14:47:27 <akurtakov>	that's when one gets black-on-black 
+Apr 11 14:47:33 <lufimtse>	tooltip.background  or @define-color tooltip_bg_color  can re-define it in a gtk3-css
+Apr 11 14:47:36 <lufimtse>	sec
+Apr 11 14:48:11 <akurtakov>	from theming POV - there is no way one can let one color be system and the other be userdefined and not hit same-on-same color issue with some theme
+Apr 11 14:48:38 <akurtakov>	one either specifies all colors or lets the system handle them all
+Apr 11 14:51:21 <strykerawb>	i dont recall changing any colors ;) 
+Apr 11 14:51:31 <strykerawb>	or customizing my theme
+Apr 11 14:57:35 <lufimtse>	strykerawb, lemme check if one can load eclipse with a gtk3.css
+Apr 11 14:57:51 <lufimtse>	btw, anyone know how to do that atm?
+Apr 11 14:58:08 <strykerawb>	you know what? i think i can wait for next milestone =P 
+Apr 11 14:58:15 <akurtakov>	strykerawb: well, it can be your system theme and some color that some eclipse plugin sets 
+Apr 11 14:58:21 <akurtakov>	strykerawb: btw, what is your gtk theme ?
+Apr 11 14:58:24 <lufimtse>	One would have to override tooltip.background {      tooltip * {  
+Apr 11 14:58:30 <strykerawb>	akurtakov,  how do i check? 
+Apr 11 14:58:45 <strykerawb>	im using mate... f24 mate.  no idea what else to say 
+Apr 11 14:59:03 <akurtakov>	strykerawb: look for org.eclipse.swt.internal.gtk.theme in configuration tab on about dialog
+Apr 11 14:59:52 <strykerawb>	org.eclipse.swt.internal.gtk.theme=BlueMenta
+Apr 11 15:12:14 <akurtakov>	strykerawb: no idea what that is
+Apr 11 15:12:47 <akurtakov>	please start eclipse with GTK_THEME=Adwaita env variable
+Apr 11 15:21:28 <strykerawb>	tried running GTK_THEME=Adwaita ./eclipse  but didnt seem to help ;)   
+Apr 11 15:21:44 <strykerawb>	not sure how to do it in eclipse.ini?
+Apr 11 15:21:49 <akurtakov>	strykerawb: is there any visual change ?
+Apr 11 15:22:23 <akurtakov>	the question is do you even have adwaita installed
+Apr 11 15:22:45 <akurtakov>	although it should be by default
+Apr 11 15:24:19 <strykerawb>	gnome-themes-standard is installed... 
+Apr 11 15:28:13 <strykerawb>	trying to change my theme says adwaita isn't installed
+Apr 11 15:28:14 <strykerawb>	:|
+Apr 11 15:28:51 <strykerawb>	and yet its still listed there
+Apr 11 15:34:13 <lufimtse>	strykerawb, well, I sort of found a workaround. But it entails compiling your own gtk from sources.
+Apr 11 15:35:24 <lufimtse>	i.e, I changed the tooltip css in the Adwaina base theme, then compiled gtk with changes and run eclipse with the compiled gtk.
+Apr 11 15:39:00 <strykerawb>	yeah im not doing that ;)  i dont even change my gtk themes off my default =P 
+Apr 11 15:39:14 <strykerawb>	i appreciate the effort
+Apr 11 15:39:28 <strykerawb>	as long as it'll be fixed by you guys eventually i'm happy ;) 
+Apr 11 15:48:43 <lufimtse>	strykerawb, I suggest you add yourself as CC to this guy:
+Apr 11 15:48:44 <lufimtse>	Bug 507073 – [content assist] Use fitting colors for Content assist's additional info pane 
+Apr 11 15:48:44 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=507073
+Apr 11 15:48:51 <lufimtse>	when things are fixed, you'll get notified.
+Apr 11 15:50:03 <strykerawb>	lufimtse,  thanks for the help
+**** ENDING LOGGING AT Tue Apr 11 18:11:47 2017
+
+**** BEGIN LOGGING AT Wed Apr 12 07:33:49 2017
+
+Apr 12 07:33:49 *	Now talking on #eclipse
+Apr 12 07:33:49 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 07:33:49 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Apr 12 08:54:06 2017
+
+Apr 12 08:54:06 *	Now talking on #eclipse
+Apr 12 08:54:06 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 08:54:06 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Apr 12 10:59:51 2017
+
+Apr 12 10:59:51 *	Now talking on #eclipse
+Apr 12 10:59:51 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 10:59:51 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Wed Apr 12 11:10:35 2017
+
+**** BEGIN LOGGING AT Wed Apr 12 11:36:56 2017
+
+Apr 12 11:36:56 *	Now talking on #eclipse
+Apr 12 11:36:56 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 11:36:56 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 12 14:55:27 <strykerawb>	lufimtse,  i dont know what i did yesterday, but im now getting white on black 
+Apr 12 14:55:47 <strykerawb>	so... :D  
+Apr 12 14:55:50 <strykerawb>	thnx :D 
+Apr 12 14:56:12 <lufimtse>	strykerawb, X-D
+Apr 13 02:56:04 <scela>	akurtakov: morning
+Apr 13 02:56:16 <akurtakov>	scela: hey, what's up
+Apr 13 02:56:27 <scela>	akurtakov: slow morning
+Apr 13 02:56:35 <scela>	akurtakov: making coffee
+Apr 13 02:56:38 <scela>	akurtakov: http://download.eclipse.org/eclipse/downloads/drops4/I20170412-2000/testResults.php
+Apr 13 02:56:44 <scela>	so the jdt team fixed their bug
+Apr 13 02:56:51 <scela>	and i also fixed the warnings
+Apr 13 02:56:56 <akurtakov>	scela: nice
+Apr 13 02:56:58 <akurtakov>	thanks for that
+Apr 13 02:57:02 <scela>	np
+Apr 13 02:57:21 <scela>	akurtakov: took a while but it needed changes elsewhere
+Apr 13 02:57:30 <akurtakov>	yeah as always
+Apr 13 02:57:35 <scela>	akurtakov: was tempted to suppress but glad i got in touch with stephan
+Apr 13 02:57:53 <akurtakov>	we should do the right thing even if it takes longer
+Apr 13 02:58:10 <akurtakov>	except for cases where it breaks users immediately :)
+Apr 13 02:58:46 <scela>	akurtakov: yeah there are always exceptions
+Apr 13 02:59:36 <akurtakov>	mistria: what is the relation between tm and atom grammars 
+Apr 13 02:59:59 <akurtakov>	e.g. is https://github.com/atom/language-shellscript/tree/master/grammars anything usable from tm4e
+Apr 13 03:00:03 <mistria>	akurtakov: I don't know
+Apr 13 03:00:17 <akurtakov>	mistria: https://github.com/atom/language-shellscript/blob/master/grammars/shell-unix-bash.cson ?
+Apr 13 03:00:42 <akurtakov>	or only xml format
+Apr 13 03:01:40 <mistria>	akurtakov: only xml and json format apparently https://github.com/eclipse/tm4e/tree/0dc22fa65e131e3bb019818f5d7112530038ae83/org.eclipse.tm4e.core/src/main/java/org/eclipse/tm4e/core/internal/grammar/parser
+Apr 13 03:01:57 <mistria>	akurtakov: but it seems like adding support for cson wouldn't be too hard
+Apr 13 03:02:13 <akurtakov>	well, stupid question - what's diff between cson and json :)
+Apr 13 03:02:14 <mistria>	akurtakov: it's just another parser to provide and the file really look like json ones
+Apr 13 03:03:06 <mistria>	akurtakov: I don't know but at first sight, it seems like cson users less {..}
+Apr 13 03:03:18 <mistria>	akurtakov: cson is the json of coffeescript apparently
+Apr 13 03:03:26 <mistria>	akurtakov: what a crappy world...
+Apr 13 03:03:28 <akurtakov>	haha, why not create another format 
+Apr 13 03:03:38 <mistria>	akurtakov: exactly
+Apr 13 03:03:45 <akurtakov>	mistria: so I would better try https://github.com/textmate/shellscript.tmbundle/blob/master/Syntaxes/Shell-Unix-Bash.tmLanguage
+Apr 13 03:03:53 <mistria>	akurtakov: "let's create useless work so we won't loose our jobs!"
+Apr 13 03:04:08 <mistria>	akurtakov: yes, .tmLanguage is supported by tm4e
+Apr 13 03:04:26 <akurtakov>	I still dont' get the whole blame on xml
+Apr 13 03:04:35 <akurtakov>	as any format it can be used for good or bad :)
+Apr 13 03:05:24 <akurtakov>	looks like if I want to go tm4e path I would need to spend a lot of time improving the grammars
+Apr 13 03:05:44 <akurtakov>	the shell script is crappier than shelled parser now
+Apr 13 03:06:49 <mistria>	akurtakov: welcome into the JavaScript community ;)
+Apr 13 03:07:43 <akurtakov>	mistria: hmm, I don't feel welcomed 
+Apr 13 03:08:43 <akurtakov>	can I get access to the tokens programatically somehow  from tm4e ?
+Apr 13 03:11:52 <mistria>	akurtakov: I don't know if there is a good editor for those grammars
+Apr 13 03:14:24 <akurtakov>	ok, so far I'm quite dissatisfied by the grammars I've tried (ruby and shell script)
+Apr 13 03:15:08 <akurtakov>	even smth= is not tokenized as "assignment" and showing the thing before '=' as variable 
+Apr 13 03:17:43 <mistria>	akurtakov: yes, it's only textual and regexp, there is not much semantic usually
+Apr 13 03:17:57 <akurtakov>	well, this is textual
+Apr 13 03:18:03 <mistria>	akurtakov: I don't know how powerful/weak those grammars are actually
+Apr 13 03:18:17 <mistria>	akurtakov: I mean, how the grammar mechanism is
+Apr 13 03:18:19 <akurtakov>	SMTH= is as much of a variable as $SMTH after that
+Apr 13 03:18:40 <akurtakov>	now I have to find how hard it is to express it in its format
+Apr 13 03:20:45 <akurtakov>	mistria: btw, tm4e causes numerous "Render from: 58 to: 58" lines in output
+Apr 13 03:20:55 <akurtakov>	pretty disturbing when debugging
+Apr 13 03:21:16 <mistria>	akurtakov: yes, please open a bug for it
+Apr 13 03:21:33 <mistria>	akurtakov: I also think it can affect performance
+Apr 13 03:22:08 <akurtakov>	mistria: also would you please fill https://projects.eclipse.org/projects/technology.tm4e/developer
+Apr 13 03:22:17 <akurtakov>	with git repo info
+Apr 13 03:22:40 <mistria>	akurtakov: I think only Angelo can do it, please open an issue to request it ;)
+Apr 13 03:22:59 <akurtakov>	ok, although every committer should be able to do it IIRC
+Apr 13 03:25:17 <akurtakov>	issues 86 and 87
+Apr 13 03:26:43 <mistria>	akurtakov: ok, I thought it was only PL who could edit it
+Apr 13 03:27:14 <mistria>	akurtakov: anyway, it's better to log every request so Angelo sees what's our direction, and it leave rooms to other to contribute
+Apr 13 03:27:23 <akurtakov>	sure, I did it
+Apr 13 03:30:32 <akurtakov>	mistria: btw, have you heard of any release plans ?
+Apr 13 03:48:25 <akurtakov>	‎[10:30] ‎<‎akurtakov‎>‎ mistria: btw, have you heard of any release plans ?
+Apr 13 03:48:42 <mistria>	akurtakov: for tm4e?
+Apr 13 03:48:47 <akurtakov>	yes
+Apr 13 03:50:51 <mistria>	akurtakov: no big plan
+Apr 13 03:51:04 <mistria>	akurtakov: I think we're waiting for one of the adopters projects to request it
+Apr 13 03:51:24 <mistria>	akurtakov: IIRC Angelo wants to release Typescript.java soon, so that might force a release of a 0.1.0
+Apr 13 03:52:26 <akurtakov>	ok
+Apr 13 06:32:16 <scela>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=515243
+Apr 13 06:33:03 <scela>	akurtakov: i think we are severely underestimating the damage that is being done by oomph to our installations/downloads
+Apr 13 06:33:33 <scela>	akurtakov: last time i tried as a 'Simple Joe' the installer timed out after 10 minutes while the alternative 'old' download finished in <3 mins
+Apr 13 06:33:56 <scela>	akurtakov: then there was the env var passthrough story which I didn't have time to follow up
+Apr 13 06:33:57 <akurtakov>	well, feel free to propose an action plan 
+Apr 13 06:34:49 <akurtakov>	I don't know how to fight the complicated installers insanity 
+Apr 13 06:35:37 <akurtakov>	e.g. if marketplace starts installing more aggressively based on project type and etc.
+Apr 13 06:36:13 <akurtakov>	or we ship some required plugins metadata in projects and resolver in platform and etc.
+Apr 13 06:36:21 <akurtakov>	we can start arguing that it's not needed
+Apr 13 06:36:40 <akurtakov>	now we have nothing against the "it's complex to setup" sayings
+Apr 13 06:38:59 <akurtakov>	mistria: ^ btw, will this hit marketplace M7 ?
+Apr 13 06:39:32 <mistria>	akurtakov: no news so far, let me ping Carsten
+Apr 13 06:39:57 <scela>	akurtakov: I'll think about it how I can approach this
+Apr 13 06:40:11 <scela>	akurtakov: my biggest worry is the first impression on "let's download eclipse"
+Apr 13 06:40:21 <akurtakov>	well, bare tarball is not enough
+Apr 13 06:40:29 <akurtakov>	oomph is total sh*t
+Apr 13 06:41:45 <scela>	akurtakov: tarball downloads are very very well hidden now in the website
+Apr 13 06:42:14 <scela>	akurtakov: so i believe we are relying on oomph for the delivery/installation experience
+Apr 13 06:42:49 <scela>	akurtakov: tbh, I was horrified that on the only occasion I decided to play a "persona" downloading eclipse, the experience was hell
+Apr 13 06:43:06 <scela>	akurtakov: and more not because it was hell, but that no-one pointed it out before
+Apr 13 06:43:17 <scela>	akurtakov: imagine the numbers of users you put off this way
+Apr 13 06:43:39 <akurtakov>	so what to do ?
+Apr 13 06:43:51 <akurtakov>	yum install is way better IMHO :)
+Apr 13 06:46:15 <scela>	i'll think about it
+Apr 13 06:46:38 <scela>	akurtakov: i'll make another detailed test and see how that goes
+Apr 13 06:51:03 <akurtakov>	scela: the best linux option I have thought of is creating flatpak 
+Apr 13 06:51:14 <akurtakov>	and have it as recommended for all linuxes 
+Apr 13 06:51:28 <akurtakov>	bypassing oomph
+Apr 13 06:54:14 <akurtakov>	as if we learn people to do flatpak install to get eclipse oomph will be out of the game
+Apr 13 06:54:37 <akurtakov>	scela: let me know if you're interested in working on this
+Apr 13 07:05:14 <scela>	akurtakov: ok
+Apr 13 07:05:29 <scela>	akurtakov: when I get back after today I'll talk to you about this
+Apr 13 07:05:40 <akurtakov>	I plan on asking mbooth_ for that once oxygen lands in fedora 
+Apr 13 07:05:42 <scela>	akurtakov: maybe the travel this weekend will bring some ideas :)
+Apr 13 07:05:46 <akurtakov>	which I still wait for tbh :)
+Apr 13 07:05:46 <scela>	akurtakov: ok
+Apr 13 07:05:53 <akurtakov>	mbooth_: ^^ :P
+Apr 13 07:07:12 <scela>	akurtakov: anyhow, in case i still see a degraded install experience with oomph compared to zipping (hell Eclipse is for devs, what's so advanced about unzipping) I will definitely plan to at least propose a major change
+Apr 13 07:07:38 <akurtakov>	scela: sure, do it :)
+Apr 13 07:07:57 *	akurtakov will be back in 30-40 mins
+Apr 13 07:07:59 <scela>	if I can get mistria on _board_ it might also help ;)
+Apr 13 07:08:22 <scela>	akurtakov: i might be gone by then as I'm leaving early to catch a plane
+Apr 13 07:08:26 <scela>	akurtakov: tty next week
+Apr 13 07:08:31 <akurtakov>	ok
+Apr 13 09:01:48 <mbooth_>	Re: Eclipse installers, I have a conversation like this probably once a week: https://paste.fedoraproject.org/paste/m6oKSneBAhqa7RXGUvzWsF5M1UNdIGYhyRLivL9gydE= 
+Apr 13 09:02:13 <mbooth_>	People still want tarballs, and they seem to be hard to discover
+Apr 13 10:47:52 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Apr 13 10:47:52 2017
+
+**** BEGIN LOGGING AT Thu Apr 13 11:29:08 2017
+
+Apr 13 11:29:08 *	Now talking on #eclipse
+Apr 13 11:29:08 *	Topic for #eclipse is: Eclipse discussions
+Apr 13 11:29:08 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 13 11:48:35 Python interface unloaded
+**** ENDING LOGGING AT Thu Apr 13 11:48:35 2017
+
+**** BEGIN LOGGING AT Thu Apr 13 11:56:20 2017
+
+Apr 13 11:56:20 *	Now talking on #eclipse
+Apr 13 11:56:20 *	Topic for #eclipse is: Eclipse discussions
+Apr 13 11:56:20 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Thu Apr 13 17:00:40 2017
+
+**** BEGIN LOGGING AT Tue Apr 18 08:53:55 2017
+
+Apr 18 08:53:55 *	Now talking on #eclipse
+Apr 18 08:53:55 *	Topic for #eclipse is: Eclipse discussions
+Apr 18 08:53:55 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 18 09:05:48 <akurtakov>	scela: fwiw, I really like mail that way - less disturbing :)
+Apr 18 09:06:22 <scela>	akurtakov: right - no news is good news
+Apr 18 09:09:40 <mbenitez>	eclipse-team: please remember your weekly reports are due now since scela will be working on the common report before he leaves
+Apr 18 09:10:25 <scela>	mbenitez: there is an issue with email
+Apr 18 09:10:37 <scela>	mbenitez: many people have sent it but it's not showing up
+Apr 18 09:10:46 <mbenitez>	oh it's still gpoing on? :\
+Apr 18 09:10:52 <scela>	it is yes
+Apr 18 09:11:06 <scela>	akurtakov: and mistria have already sent it but it's not arrived
+Apr 18 09:11:22 <mbenitez>	scela, ok, then I guess it'll have to be tomorrow but early your day
+Apr 18 09:11:28 *	akurtakov did it twice :)
+Apr 18 09:12:21 <mbenitez>	akurtakov, I think I saw your report
+Apr 18 09:12:32 <mbenitez>	always 'fun' when email misbehaves
+Apr 18 09:13:30 <akurtakov>	right after gmail migration but this must be co-incidence :)
+Apr 18 09:13:38 <scela>	mbenitez: there was an isaac alert about it
+Apr 18 09:14:01 <mbenitez>	akurtakov, suspicious indeed but let's not think badly ;)
+Apr 18 09:14:22 <mbenitez>	scela, yes, saw that yesterday but didn't imagine it was ongoing, it's really bad!
+Apr 18 09:14:52 <scela>	mbenitez: so you have recieved alex's email?
+Apr 18 09:15:42 <mbenitez>	oh no, only Jeff's
+Apr 18 09:15:59 <scela>	mbenitez: right, same here
+Apr 18 09:54:45 <lufimtse>	etherpad seems down for me.
+Apr 18 09:54:51 <lufimtse>	http://eclipse.etherpad.corp.redhat.com/30
+Apr 18 09:55:24 <lufimtse>	Not sure if I should wait for good things to happen or report it. If report it to whom....
+Apr 18 09:55:36 <lufimtse>	./then to whom..
+Apr 18 09:58:07 <mbenitez>	lufimtse, working for me
+Apr 18 09:58:23 <mbenitez>	it sometimes fails... but comes back
+Apr 18 09:58:29 <lufimtse>	mbenitez, works again for me. Must have been glitch in the matrix.
+Apr 18 09:58:33 <lufimtse>	thank you.
+Apr 18 09:58:37 <mbenitez>	np!
+**** BEGIN LOGGING AT Tue Apr 18 10:30:16 2017
+
+Apr 18 10:30:16 *	Now talking on #eclipse
+Apr 18 10:30:16 *	Topic for #eclipse is: Eclipse discussions
+Apr 18 10:30:16 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Tue Apr 18 10:31:44 2017
+
+Apr 18 10:31:44 *	Now talking on #eclipse
+Apr 18 10:31:44 *	Topic for #eclipse is: Eclipse discussions
+Apr 18 10:31:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 18 10:35:00 <scela>	rgrunber: lufimtse ipun mbooth_  nboldt email issue is hopefully fixed so please send your reports in our usual due time (~30 mins or so)
+Apr 18 10:37:20 <mbenitez>	scela, FYI Ian is taking a sick day today
+Apr 18 10:37:31 <rgrunber>	will do
+Apr 18 10:38:49 <scela>	mbenitez: ok yes I see it in the calendar
+Apr 18 10:39:00 <mbenitez>	:)
+Apr 18 10:56:56 <nboldt>	scela: I thought they were usually due on Mondays :D
+Apr 18 10:57:30 <scela>	nboldt: that's why i said 'time' and not 'day' ;)
+Apr 18 10:57:36 <nboldt>	fair point
+**** BEGIN LOGGING AT Tue Apr 18 11:03:47 2017
+
+Apr 18 11:03:47 *	Now talking on #eclipse
+Apr 18 11:03:47 *	Topic for #eclipse is: Eclipse discussions
+Apr 18 11:03:47 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 18 12:12:19 *	scox is back (gone 04:12:46)
+Apr 19 04:05:10 <mistria>	akurtakov: 1-1 ?
+Apr 19 04:05:15 <akurtakov>	mistria: yes
+Apr 19 04:05:21 <akurtakov>	I was looking for you few mins ago
+Apr 19 04:05:35 <mistria>	akurtakov: I've been a bit late
+Apr 19 04:07:12 <akurtakov>	mistria: https://redhat.bluejeans.com/8966058510/
+Apr 19 04:07:23 <mistria>	akurtakov: I'm there
+Apr 19 04:18:56 <mistria>	akurtakov: seems like there's a issue with BJ,let me reload the windows
+Apr 19 04:20:01 <mistria>	akurtakov: I can't hear nor see you
+Apr 19 04:22:39 <scela>	mistria: akurtakov try gtalk, we'll be probably moving there soon anyway ;)
+Apr 19 04:22:46 <scela>	*hangouts
+Apr 19 07:16:36 <scela>	mistria: hey
+Apr 19 07:17:00 <mistria>	scela: hi
+Apr 19 07:17:19 <scela>	mistria: just fw you an email on gmail
+Apr 19 07:17:29 <mistria>	scela: ok
+Apr 19 07:17:34 <scela>	mistria: do we have an example of the Language Server consuming javascript?
+Apr 19 07:17:41 <scela>	mistria: IIRC we had something with typescript
+Apr 19 07:18:05 <mistria>	scela: BlueSky uses SourceGraph JSTS language-server, it's JavaScript-able
+Apr 19 07:18:37 <scela>	mistria: ok
+Apr 19 07:19:05 <scela>	mistria: please point patrik to it as he is interested in it and maybe will help
+Apr 19 07:19:20 <scela>	mistria: i forgot to cc him but feel free to use his address in original mail
+Apr 19 07:19:36 <mistria>	scela: ok
+Apr 19 07:20:11 <scela>	mistria: thanks
+Apr 19 07:20:27 <scela>	mbooth_: ping
+Apr 19 07:21:16 <scela>	mistria: btw, do you have free ticket for ECF? we only get one from the talk
+Apr 19 07:22:07 <mistria>	scela: I current have 3 free tickets, so feel free to use this one.
+Apr 19 07:22:24 <scela>	mistria: ok
+Apr 19 07:22:32 <scela>	mistria: i'll use the one from the talk
+Apr 19 07:59:30 <akurtakov>	mistria: nice
+Apr 19 08:02:23 <akurtakov>	mistria: I really like the editor so far
+Apr 19 08:02:35 <mistria>	akurtakov: the bluesky ones?
+Apr 19 08:02:53 <akurtakov>	mistria: yeah, using it for html with embedded css and js
+Apr 19 08:03:45 <akurtakov>	mistria: the fact that there is completion for style=" but not for class=" is down to the langserver, right?
+Apr 19 08:03:57 <akurtakov>	nothing of these is handled in bluesky itself
+Apr 19 08:04:03 <mistria>	akurtakov: right
+Apr 19 08:04:11 <mistria>	akurtakov: you can compare with VSCode for that
+Apr 19 08:04:26 <mistria>	akurtakov: if it works in vscode it's supposed to work on bluesky
+Apr 19 08:04:52 <mistria>	akurtakov: if it doesn't work on vscode, open a bug to vscode; if it works on vscode and not on bluesky, open a bug to bluesky
+Apr 19 08:05:17 <akurtakov>	mistria: hmm, it works in vscode
+Apr 19 08:05:43 <mistria>	akuratkov: ok, so please open a bug to bluesky
+Apr 19 08:06:02 <akurtakov>	let me minimize it and will do
+Apr 19 08:06:13 <mistria>	akurtakov: there are often some strange options to discover, especially as the protocol evolves
+Apr 19 08:07:04 <akurtakov>	man, vscode with this dark background really screws selection visibility
+Apr 19 08:16:52 <akurtakov>	mistria: thanks for fixing my paste :)
+Apr 19 09:21:43 <mbenitez>	scela, hello Sopot, sent you an important note, please let me know your answer in the next couple of hours
+Apr 19 09:37:15 <nboldt>	Anyone using Eclipse Neon.3 w/ JDK 9? Wondering about what to do for https://issues.jboss.org/browse/JBIDE-22417
+Apr 19 09:37:35 <nboldt>	scela: lufimtse: rgrunber: ^
+Apr 19 09:38:07 <rgrunber>	scela: we ran into this right ? javax.annotation wiring
+Apr 19 09:38:07 <nboldt>	or is JDK 9 support only coming to Oxygen, with no solution for Neon.3 (other than stated workaround)
+Apr 19 09:38:35 <akurtakov>	nboldt: --add-modules=java.se.ee to vmargs in eclipse.ini
+Apr 19 09:38:44 <nboldt>	workaround is --add-modules=java.se.ee --> https://issues.jboss.org/browse/JBIDE-22417?focusedCommentId=13310535&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13310535
+Apr 19 09:39:03 <nboldt>	yeah, I know about the workaround akurtakov ... just wondering if Eclipse platform in Neon.3 fixed anything 
+Apr 19 09:39:17 <akurtakov>	nboldt: no
+Apr 19 09:39:17 <nboldt>	or if workaround is still needed 
+Apr 19 09:39:20 <nboldt>	ok cool
+Apr 19 09:39:24 <nboldt>	will punt this to 4.5.0 then
+Apr 19 09:39:37 <akurtakov>	nboldt: it is supposed to be in M7 equinox
+Apr 19 09:39:40 <akurtakov>	but hasn't landed yet
+Apr 19 09:39:52 <lufimtse>	nboldt, I haven't tested JDK9 yet.
+Apr 19 09:40:48 <rgrunber>	is anyone aware of any recent issues (past few days) relating to failure to upload content to downloads.eclipse.org by HIPPS ?
+Apr 19 09:41:27 <akurtakov>	rgrunber: we have similar issue with platform https://bugs.eclipse.org/bugs/show_bug.cgi?id=515438
+Apr 19 09:41:46 <rgrunber>	it seems to me like a sync issue.. needless to say orbit is quite affected
+Apr 19 09:42:37 <rgrunber>	k awesome, we're not alone
+Apr 19 09:43:40 <akurtakov>	nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761 
+Apr 19 09:47:02 <akurtakov>	rgrunber: please state the issues you face with orbit too in the bug
+Apr 19 09:47:08 <rgrunber>	am doing that :)
+Apr 19 09:47:16 <rgrunber>	i have maybe some extra info that might give more clues.. 
+Apr 19 09:47:18 <rgrunber>	i hope
+Apr 19 09:49:40 <akurtakov>	there was also the issue of signer being broken today
+Apr 19 09:51:11 <rgrunber>	hmm, i think it's more fundamental. i can do 'touch /home/data/httpd/download.eclipse.org/tools/orbit/downloads/fooo' that succeeds.. but 'fooo' is nowhere to be found. (i could even remove it and it succeeds). in my case i checked maybe 12hrs later and it showed up.
+Apr 19 09:51:30 <rgrunber>	* performing 'touch' via the HIPP
+Apr 19 09:51:59 <rgrunber>	so maybe some issue with mirroring or syncing if they're nfs mounting everything. /home/data
+Apr 19 10:17:27 <rgrunber>	Any errata gurus know what "Could not get product listings for the following builds" means ? it's not for me.. someone asked..
+Apr 19 10:22:57 <mbenitez>	releng needs to allow the builds, just file a ticket by emailing releng, usually best to CC the releng product owner too
+Apr 19 10:23:49 <rgrunber>	k great.. i ran into this as well https://mojo.redhat.com/groups/release-engineering/blog/2017/04/03/you-may-not-know-4-n-build-rpms-not-in-product-listings-doesnt-have-to-mean-error that sort of explains it
+Apr 19 10:24:51 <mbenitez>	nice
+Apr 19 10:53:58 <scela>	nboldt: just had a chance to read your note
+Apr 19 10:54:04 <scela>	nboldt: was that solved already?
+Apr 19 10:56:12 <nboldt>	scela: solved as far as I needed to know, yes. tl;dr, not fixed in Neon.3 but there's a workaround; fix planned for Oxygen.0.M7
+Apr 19 10:56:52 <nboldt>	scela: assuming you mean my IRC message above, not my email. I don't think I sent an email. did you mean mbenitez's email?
+Apr 19 10:57:15 <scela>	nboldt: mbenitez's email is something else
+Apr 19 10:57:24 <scela>	nboldt: i meant your java annotation stuff
+Apr 19 11:18:04 <nboldt>	scela: yep, all good
+Apr 19 11:21:09 <scela>	nboldt: alright
+Apr 19 12:36:42 <rgrunber>	akurtakov: so there's an ongoing migration @ download.eclipse to new storage device, probably explains the delayed content.
+Apr 19 12:40:24 <akurtakov>	aha 
+Apr 19 12:42:02 FiSHLiM plugin unloaded
+**** ENDING LOGGING AT Wed Apr 19 12:42:02 2017
+
+**** BEGIN LOGGING AT Wed Apr 19 12:42:24 2017
+
+Apr 19 12:42:24 *	Now talking on #eclipse
+Apr 19 12:42:24 *	Topic for #eclipse is: Eclipse discussions
+Apr 19 12:42:24 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 19 15:57:28 <lufimtse>	mistria, Hey ya. Is this business working? Bug 513306 - Propose solutions for missing natures
+Apr 19 15:57:32 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=513306
+Apr 19 15:57:38 <lufimtse>	I'd like to try it
+Apr 19 15:57:53 <lufimtse>	for shelled support in projects that don't have dltk nature
+Apr 19 15:58:44 <akurtakov>	lufimtse: so this one is if you have the nature in the project file but shelled is not installed
+Apr 19 15:58:53 <akurtakov>	lufimtse: if you have marketplace installed
+Apr 19 15:59:18 <lufimtse>	Ah, I see
+Apr 19 15:59:21 <lufimtse>	Still useful
+Apr 19 15:59:28 <akurtakov>	and in File associations
+Apr 19 15:59:33 <akurtakov>	you have selected
+Apr 19 15:59:41 <akurtakov>	search via marketplace
+Apr 19 15:59:51 <akurtakov>	or smth similar
+Apr 19 16:00:09 <akurtakov>	on opening of .sh file marketplace will propose installing the editor
+Apr 19 16:00:15 <akurtakov>	that's in neon already
+Apr 19 16:01:21 <lufimtse>	I se
+Apr 19 16:02:02 <lufimtse>	I'm about to submit gerrit patch where I'll be adding the dltk buildcommand (nature?) to swt & swt.tools
+Apr 19 16:02:13 <lufimtse>	although I'm not sure if buildcomman==nature
+Apr 19 16:03:30 <lufimtse>	 if you convert project to have shelled support, the following is added to .project:
+Apr 19 16:03:31 <lufimtse>	<projectDescription> .. <buildSpec>
+Apr 19 16:03:31 <lufimtse>	...<buildCommand><name>org.eclipse.dltk.core.scriptbuilder</name><arguments></arguments></buildCommand>
+Apr 19 16:03:43 <lufimtse>	Not sure if above is nature or not.
+Apr 19 16:03:54 <akurtakov>	lufimtse: hmm, is this needed ?
+Apr 19 16:04:13 <lufimtse>	idk, but with that shelled works (outline/auto-predict)
+Apr 19 16:04:23 <lufimtse>	if you take it out, shelled only does syntax highlighting
+Apr 19 16:04:41 <lufimtse>	ah
+Apr 19 16:04:43 <lufimtse>	SEC
+Apr 19 16:04:47 <lufimtse>	it does add nature also
+Apr 19 16:04:51 <lufimtse>	<nature>org.eclipse.dltk.sh.core.nature</nature>
+Apr 19 16:05:12 <lufimtse>	I guess it adds nature + build command
+Apr 19 16:05:24 <lufimtse>	ok, we're good I guess
+Apr 19 16:05:39 <akurtakov>	hmm so only the nature is not sufficient ?
+Apr 19 16:05:44 <lufimtse>	Let me try.
+Apr 19 16:06:01 <akurtakov>	iirc there is no builder in shelled
+Apr 19 16:06:21 <lufimtse>	in the sense that "Configure -> Add shell script support" automatically adds the build command.
+Apr 19 16:06:23 <lufimtse>	sec
+Apr 19 16:06:40 <akurtakov>	I see
+Apr 19 16:06:55 <lufimtse>	akurtakov, so if I take out the buildcommand, shelled still works
+Apr 19 16:06:57 <akurtakov>	lufimtse: please open bug against shelled for this to be investigated
+Apr 19 16:06:59 <lufimtse>	outlike etc...
+Apr 19 16:07:00 <lufimtse>	ok. 
+Apr 19 16:07:18 <lufimtse>	what is buildcommand used for anyhows?
+Apr 19 16:07:23 <lufimtse>	like for running the bashscripts?
+Apr 19 16:07:33 <akurtakov>	lufimtse: no idea :)
+Apr 19 16:08:15 <akurtakov>	my guess - indexing, type hierarchy and etc. which make sense for ruby/tcl/etc. but not for shell
+Apr 19 16:09:45 <lufimtse>	akurtakov, I see
+Apr 19 16:09:54 <lufimtse>	akurtakov, ok, I'll submit bugz.
+Apr 19 16:17:31 <lufimtse>	akurtakov,  
+Apr 19 16:17:31 <lufimtse>	Bug 515478 - "Configure -> Add shell script support" adds 'buildcommand' to .project without need
+Apr 20 09:06:19 <lufimtse>	--
+Apr 20 09:06:43 <lufimtse>	Does anyone know the MPC update site?
+Apr 20 09:06:47 <lufimtse>	msimacek, ^
+Apr 20 09:07:28 <msimacek>	lufimtse: what's MPC?
+Apr 20 09:07:39 <lufimtse>	msimacek, marketplace client
+Apr 20 09:07:49 <lufimtse>	I want to test: https://bugs.eclipse.org/bugs/show_bug.cgi?id=513306
+Apr 20 09:07:56 <lufimtse>	Bug 513306 - Propose solutions for missing natures 
+Apr 20 09:08:28 <msimacek>	lufimtse: I don't know it, sorry
+Apr 20 09:09:54 <lufimtse>	ok, never mind, I found
+Apr 20 09:09:55 <lufimtse>	http://download.eclipse.org/mpc/nightly/
+Apr 20 10:06:48 <mbenitez>	eclipse-team: devtools monthly all hands in ~25min https://primetime.bluejeans.com/a2m/live-event/wq97228
+**** BEGIN LOGGING AT Thu Apr 20 10:11:35 2017
+
+Apr 20 10:11:35 *	Now talking on #eclipse
+Apr 20 10:11:35 *	Topic for #eclipse is: Eclipse discussions
+Apr 20 10:11:35 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 20 10:18:59 <mbooth_>	rgrunber: A CVE appeared against bouncycastle in F24 -- which looks like the same version of bouncycastle you have in orbit, would you like me to file a bug at eclipse.org?
+Apr 20 10:19:02 <mbooth_>	rgrunber: https://bugzilla.redhat.com/show_bug.cgi?id=1444015
+Apr 20 10:20:03 <rgrunber>	yeah.. just one sec..lemme confirm it's there.
+Apr 20 10:20:56 <rgrunber>	yup, seems to be there.
+Apr 20 10:22:22 <akurtakov>	mbenitez: this needs flash ?
+Apr 20 10:22:37 <rgrunber>	i think primetime needs flash..
+Apr 20 10:23:07 <mbenitez>	oh probably... barely remember issues with bluejeans live before :(
+Apr 20 10:24:22 <akurtakov>	meh, no luck for me
+Apr 20 10:26:35 <mbenitez>	hmm... it seems there's phone options www.bluejeans.com/numbers/primetime-attendees   participant PIN: 1529251737 followed by #
+Apr 20 10:27:16 <rgrunber>	mbooth_: if Orbit does actually introduce a newer version there's a few issues to address (1.52 might not be possible to remove as we're past M6, we're definitely past the CQ deadline)
+Apr 20 10:28:39 <mbooth_>	rgrunber: Is it possible to apply patches and bump the qualifier on the old version?
+Apr 20 10:30:07 <rgrunber>	mbooth_: yes, a possibility.. i would ask they set the 'modified' flag on the 1.52 bug, and promise to eventually bring in an upstream version that contains the fix at a later date.
+Apr 20 10:32:02 <mbooth_>	rgrunber: https://bugs.eclipse.org/bugs/show_bug.cgi?id=515521
+Apr 20 10:33:03 <mbooth_>	rgrunber: Feel free to remove the "committer-only" flag from the bug, I'm unsure what eclipse.org policy is for CVEs
+Apr 20 10:33:35 <mbooth_>	But I think the Fedora bug is public
+Apr 20 10:42:02 <akurtakov>	mbooth_: any chance to know someone having suse handy ?
+Apr 20 10:43:44 <mbooth_>	akurtakov: Hmm, probably not
+Apr 20 10:55:07 <scela>	akurtakov: did you try chrome for the all-hands meeting?
+Apr 20 10:55:12 <scela>	akurtakov: seems to work fine for me
+Apr 20 10:55:25 <akurtakov>	scela: doesn't work with chromium
+Apr 20 10:55:30 <akurtakov>	and I don't have chrome
+Apr 20 11:01:22 <scela>	akurtakov: ok
+Apr 20 11:02:53 <akurtakov>	scela: you'll share with me if there is anything
+Apr 20 11:07:38 <scela>	akurtakov: will do
+Apr 20 11:08:29 <mbenitez>	akurtakov, well played! after all is part of scela's new work :P
+Apr 20 11:10:17 <akurtakov>	mbenitez: :)
+Apr 20 11:10:28 <akurtakov>	and I am at another call too :)
+Apr 20 11:10:43 <mbenitez>	akurtakov, life of a VIP
+Apr 20 11:10:57 <akurtakov>	very idiotic person ? :)
+Apr 20 11:11:11 <mbenitez>	I was thinking important...
+Apr 20 11:11:26 <mbenitez>	but maybe you're speaking about the mtg lead
+Apr 20 11:15:52 <akurtakov>	mbenitez: haha, I was speaking of myself - why would anyone sane sign for so many things :)
+Apr 20 11:16:45 <mbenitez>	akurtakov, well you have many interests and people trust you with many responsibilities
+Apr 20 13:24:54 <akurtakov>	lufimtse_: how do we stand with https://bugs.eclipse.org/bugs/show_bug.cgi?id=507062 ?
+Apr 20 13:25:18 <akurtakov>	should we get scela/mistria finishing it ?
+Apr 20 13:25:21 <akurtakov>	it's due next week
+Apr 20 13:26:28 <akurtakov>	or is it actually fixed?
+Apr 20 14:03:06 <lufimtse_>	akurtakov, start or end of next week?
+Apr 20 14:03:32 <lufimtse_>	akurtakov, partially, but I put it on pause while working on webkit and dnd
+Apr 20 14:03:52 <lufimtse_>	akurtakov, I could work on finishing it off, the DnD work can be done after oxygen
+Apr 20 14:04:01 <lufimtse_>	that colour thing might be better to do sooner
+Apr 20 14:13:54 <akurtakov>	lufimtse_: jump around :)
+Apr 20 14:14:22 *	lufimtse_ bunny mode activated.
+**** BEGIN LOGGING AT Thu Apr 20 14:21:45 2017
+
+Apr 20 14:21:45 *	Now talking on #eclipse
+Apr 20 14:21:45 *	Topic for #eclipse is: Eclipse discussions
+Apr 20 14:21:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 20 14:52:14 <akurtakov>	lufimtse: please note that you will need PMC approval for new api now https://bugs.eclipse.org/bugs/show_bug.cgi?id=508819
+Apr 20 14:52:26 <lufimtse>	akurtakov, ok
+**** BEGIN LOGGING AT Fri Apr 21 08:23:36 2017
+
+Apr 21 08:23:36 *	Now talking on #eclipse
+Apr 21 08:23:36 *	Topic for #eclipse is: Eclipse discussions
+Apr 21 08:23:36 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Apr 21 08:24:03 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 08:54:49 2017
+
+Apr 21 08:54:49 *	Now talking on #eclipse
+Apr 21 08:54:49 *	Topic for #eclipse is: Eclipse discussions
+Apr 21 08:54:49 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Apr 21 09:18:04 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:21:21 2017
+
+Apr 21 09:21:21 *	Now talking on #eclipse
+Apr 21 09:21:21 *	Topic for #eclipse is: Eclipse discussions
+Apr 21 09:21:21 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)

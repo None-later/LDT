@@ -1,0 +1,26 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-04-20T11:21:37-04:00
+
+====== Wayland ======
+Created Thursday 20 April 2017
+
+https://fedoraproject.org/wiki/How_to_debug_Wayland_problems
+
+
+===== Setting backend =====
+export GDK_BACKEND=x11        # doesn't work if you run app as 'sudo'
+export GDK_BACKEND=wayland
+./app
+
+===== Sudo gui apps =====
+In wayland, sudo can't launch gui as a security measure.
+
+Workaround: Create a proxy socket:
+#Prereq install package:
+sudo dnf install -y socat
+
+# Actual launch:
+socat UNIX-LISTEN:/tmp/.X11-unix/X1 UNIX-CONNECT:/tmp/.X11-unix/X0 & sudo DISPLAY=:1 YOUR_COMMAND_BE_HERE
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1274451#c43

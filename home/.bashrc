@@ -96,7 +96,7 @@ alias sdla="sudo dnf list available"
 # e
 # f
 # g - Git, grep 
-alias g="grep -i -I -s"  #i= ignore uppercase. I=Ignore binary s= suppress error messages.
+alias g="grep --color=always -i -I -s"  #i= ignore uppercase. I=Ignore binary s= suppress error messages.
 alias gs="git status"
 alias grh="git reset --hard"
 alias ggu="git add . && git commit -m 'general update' && git push"
@@ -106,8 +106,8 @@ alias not="grep -iv"
 # j
 # k
 # l
-alias la="ll -a"
-
+alias lla="ll -a"
+alias less="less -r"  # read coloured output.
 # m
 alias man="man -P most"
 alias make=colormake

@@ -1,0 +1,75 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-04-03T09:59:32-04:00
+
+====== Week 14 DnD with Ian ======
+02 April to 08 April
+
+Weekly report.
+
+Highlights:
+###########
+- Spent most of the week with Ian designing a DnD architecture, such that we have backwards support
+  for external custom widgets (StyledText/CTabFolder etc..) without having to modify them.
+  This is to be compatible with OSX & Windows and not breaking custom widgets.
+  This involved manually managing outgoing SWT events (SWT.MouseDown, SWT.MouseMove etc.. ).
+  Ian's initial patch (still in review), fixes DnD for StyledText (& other custom widgets) on Wayland.
+
+This week:
+##########
+SWT:
+- DnD Architecture (see above)
+
+Webkit2:
+- 514719 port Browser.getText() api to webkit2 
+  - User reported getText() api does not work on Webkit2.
+  - After investigation, turns out I missed this api, it has not been ported from Webkit1 to Webkit2.
+  - Will need to implement Webkit2 equivalent. 
+  - Wrote preliminary jUnit tests for API.
+
+SWT Tooling:
+- [Awaiting review] Wrote/upstreamed my build script that rebuilds swt bindings with debug support,
+  (to be able to debug SWT jni glue code), it automatically fixes common issues 
+  and automates a series of everyday steps #514509
+- Fixed PPC64 build.sh's method of finding JAVA_PATH. Finding it dynamically instead of hard-coding it. #512224
+
+Triage:
+- [platform-swt-dev] WebKit.java (GTK) does not compile
+- [platform-swt-dev] swt for other programming languages
+- Bug 514711 – [GTK3] SWT errors and event loop exeptions by switching Tabs 
+
+GUI news:
+- Ubuntu is ditching Unity GUI and is now switching to Gnome (with potential Wayland in the future).
+  I.e, now Ubuntu developers will probably be more interested in Eclipse on Wayland work.
+
+Next Week:
+##########
+- DND: Review DnD patch for custom widgets
+- Webkit2: Implement getTet() api
+
+
+# SWT Overview  2017
+######################                 (ETA)              
+- Webkit2 port 
+  - getText() Api                      (April)
+  - BrowserFunction return value       (~June)
+  - Webkit2 to be used as Default
+
+Wayland support
+  - DnD for exteral (custom) widgets   (~April/May)
+
+Gtk3 port / stability 
+  - Resolve outstanding regressions
+	  - Editing table in TabFolder     (~April/May)
+	  - DnD of parts doesn't show preview
+  - Improve performance
+  - Remove use of deprecated functions
+
+Gtk4 port                               (~end of 2017)
+
+# Finished in 2017:
+- Guesture support for multi-touch events  [Jan/Feb]
+- DnD for Wayland
+	- Internal widgets                     [Jan/Feb/March]
+- Webkit2 is ready for Eclipse use         [Jan/Feb/March]
+  (Fedora 26 no longer ships Webki1, so we are ready for Fedora 26)

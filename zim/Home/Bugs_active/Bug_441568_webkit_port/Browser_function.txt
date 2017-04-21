@@ -15,3 +15,96 @@ Sync call idea.
 
 19<aperezdc> lufimtse: yes, I think there is: you can expose your code as JS functions/objects using the JavaScriptCore API
 19<aperezdc> lufimtse: you would do that using a WebKitWebExtension which gets loaded by the web process
+
+----------------------- 
+
+pkg-config webkit2gtk-web-extension-4.0 --cflags   not in gtk+-3.0:
+-I/usr/include/libsoup-2.4
+-I/usr/include/libxml2
+-I/usr/include/webkitgtk-4.0
+-I/usr/include/webkitgtk-4.0
+
+
+====== Webkit support: ======
+webkitgtk 2.14 basic Webextension skeleton code?
+
+====== Adrian email: ======
+aperez@igalia.com>
+Hi Leo,
+
+On Fri, 24 Mar 2017 12:39:53 -0400, Leo Ufimtsev <Leonidas@redhat.com> wrote:
+> Hello,
+>
+> I need to inject javascript objects and thus need to use webkit extensions.
+>
+> I was wondering, does anyone have some github project of a bare-bone webkit
+> extension snippet that I could build upon?
+
+It's probably not the simplest example possible, but Epiphany does add JS
+functionality from its WebExtension. These are some pointers to the bits
+relevant to what you want to do:
+
+- First of all, read through the relevant documentation, and keep it under
+  your pillow for reference:
+  https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebExtension.html
+
+- You have to define webkit_web_extension_initialize_with_user_data() in your
+  extension. The WebKitWebProcess will call this function when it gets loaded.
+  https://git.gnome.org/browse/epiphany/tree/embed/web-extension/ephy-web-extension-main.c#n33
+
+- Connect to the WebKitWebExtension::page-created signal:
+  https://git.gnome.org/browse/epiphany/tree/embed/web-extension/ephy-web-extension.c#n1596
+
+- Now in the handler for the ::page-created signal you can obtain the main
+  frame with webkit_web_page_get_main_frame()
+  https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebPage.html#webkit-web-page-get-main-frame
+
+- Once you have the main frame of a page, you can obtain its JavaScript global
+  context with webkit_frame_get_javascript_global_context()
+  https://webkitgtk.org/reference/webkit2gtk/stable/WebKitFrame.html#webkit-frame-get-javascript-global-context
+
+At this point, you have a “JSGlobalContextRef”, which is a kind of
+“JSContextRef”. You can peruse any online documentation (even Apple's!) which
+discusses the JavaScriptCore C API — it's the same as for other platforms. For
+example, you can start at the following how-to:
+
+  https://karhm.com/JavaScriptCore_C_API/
+
+For detailed documentation, I would recommend reading the “JS*Ref.h” headers
+in the “Source/JavaScriptCore/API/” subdirectory of the WebKit source tree.
+They include documentation comments of good quality. For example:
+
+  https://trac.webkit.org/browser/webkit/trunk/Source/JavaScriptCore/API/JSContextRef.h
+  https://trac.webkit.org/browser/webkit/trunk/Source/JavaScriptCore/API/JSObjectRef.h
+
+(Documentation for the C API used to be available at the Apple Developer
+DocumeDocumentation website; but nowadays they only have the Swift and
+Objective-C versions of the documentation, even when the C API is supported
+and well documented.)
+
+I hope this helps.
+
+Best regards,
+
+--
+ 💻 Adrián
+
+_______________________________________________
+webkit-gtk mailing list
+webkit-gtk@lists.webkit.org
+https://lists.webkit.org/mailman/listinfo/webkit-gtk
+
+
+
+**Also:**
+Hi Leo,
+
+I'm a bit late to this mail but yes, there is this: https://github.com/endlessm/webhelper/
+
+There is also this blog post by Carlos that helped me to figure out that stuff: https://blogs.igalia.com/carlosgc/2013/09/10/webkit2gtk-web-process-extensions/
+
+A bare bones extension should really be in the documentation instead of in a blog though, so if you want to write a patch that adds documentation, I would be more than happy to read it and check it for accuracy. I'm not a WebKit reviewer though so someone else will have to do actual review on it.
+
+Regards,
+Philip C
+	philip.chimento@gmail.com 

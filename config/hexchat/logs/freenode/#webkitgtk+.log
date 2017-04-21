@@ -6065,3 +6065,887 @@ Mar 21 17:14:15 <bitlord>	anyone successfully using distcc to compile ~latest we
 Mar 21 17:43:27 <aperezdc_>	bitlord: we usually pick icecc for builds (in particular when developing to make debug builds), I think nobody has used distcc for a long while
 Mar 21 17:44:27 <aperezdc_>	It should work though, it should be particularly easy if you combine it with ccache and set CCACHE_PREFIX=distcc in the environment before building
 Mar 22 00:28:19 <bitlord>	Thank you aperezdc_, I'm not using this for development, just to build a package, I guess portage by default swaps cc (or whatever with distcc (how not yet sure, but it works for a lot of packages)), with webkitgtk it mostly fails to distribute compilation and falls back to build locally
+Mar 23 07:35:10 <hussam>	when loading a youtube video, parts of the page such as the images on the right of other videos don't start loading until all the currently playing video is buffered.
+Mar 23 07:35:53 <hussam>	is that intentional?
+Mar 23 07:36:19 <mcatanzaro>	hussam: I think it's a bug, but I don't know if it's a YouTube bug or a WebKit bug.
+Mar 23 07:41:33 <hussam>	mcatanzaro: ok, thank you.
+Mar 23 07:55:23 <hussam>	mcatanzaro: it's also hanging when I try to seek if the video already finished playing. gdb says /usr/lib/libgstreamer-1.0.so.0
+Mar 23 07:56:09 <mcatanzaro>	Oh no :(
+Mar 23 07:56:30 <mcatanzaro>	Can you report it on WebKit Bugzilla? If it turns out to be a GStreamer bug we can always move it to GNOME Bugzilla later.
+Mar 23 07:56:40 <mcatanzaro>	Use [GStreamer] rather than [GTK] in the bug title.
+Mar 23 07:57:05 <hussam>	Ok, I'll need to recompile gstreamer first for debug information.
+Mar 23 08:04:25 <mcatanzaro>	Yes indeed, thanks
+Mar 23 08:35:19 <hussam>	does debug webkit still break evolution?
+Mar 23 08:35:52 <mcatanzaro>	I did not realize it ever did.
+Mar 23 08:37:51 <hussam>	I may or may not have filed a bug about it in gnome bug tracker. I'll ask mcrha.
+Mar 23 09:07:00 <hussam>	mcatanzaro: looks like my memory is wrong. it broke gdb at some point:  mcrha> hi hussam, debug webkit, like webkit compiled with debug symbols? It breaks gdb, not evolution itself, due to "too long symbol names", or something like that
+Mar 23 09:10:49 <mcatanzaro>	It was a gdb crash
+Mar 23 09:10:52 <mcatanzaro>	It's fixed upstream
+Mar 23 09:11:07 <mcatanzaro>	gdb works fine if you just ignore it, it's only a demangler crash
+Mar 23 09:11:18 <hussam>	ok. thank you.
+Mar 23 09:26:04 <tpopela>	mcatanzaro, Hi Michael! can you try something? Can you write 's' in the Google Docs's Sheet?
+Mar 23 09:36:44 <hussam>	mcatanzaro: it's not compiling https://paste.gnome.org/peprvjwv5/9hax7c/raw
+Mar 23 10:04:58 <mcatanzaro>	tpopela: No, there is a bug for it somewhere
+Mar 23 10:05:07 <mcatanzaro>	Something changed on Google's end, I think
+Mar 23 10:05:36 <mcatanzaro>	hussam: It looks familiar....
+Mar 23 10:06:09 <hussam>	mcatanzaro: I'm trying RelWithDebInfo now instead.
+Mar 23 10:06:17 <mcatanzaro>	hussam: That's broken, don't!
+Mar 23 10:06:26 <hussam>	ok
+Mar 23 10:39:31 <tpopela>	mcatanzaro, ok :)
+Mar 23 11:01:39 <hussam>	mcatanzaro: adding unset CFLAGS/CXXFLAGS bypassed that error with cmake build type Debug.
+Mar 23 11:30:17 <KaL>	danw: so, no libsoup release for gnome 3.24? :-( is there anything blocking a release or just a matter of lack of time?
+Mar 23 11:30:46 <danw>	KaL: just lack of time. if you'd like to do a release you can
+Mar 23 11:31:10 <KaL>	danw: that was my next question, If I could help with that somehow
+Mar 23 11:31:21 <mcatanzaro>	We have unreviewed patches that are important too.
+Mar 23 11:31:23 <danw>	want to become the libsoup maintainer? :)
+Mar 23 11:31:24 <mcatanzaro>	To libsoup
+Mar 23 11:31:58 <KaL>	daniels: not that I want :-) because I'm already in charge of too many things, but I can help for sure
+Mar 23 11:32:04 <danw>	yes, actually, that's really why i haven't done a release. doing a release is easy, but there's no real point in putting a new release out if i haven't gotten any new patches in
+Mar 23 11:32:18 <KaL>	oops, I meant danw, sorry daniels
+Mar 23 11:32:40 <KaL>	well, there are also important patches that landed
+Mar 23 12:31:08 <hussam>	mcatanzaro: https://paste.gnome.org/puo7jwahg/wrl6zh/raw this is what happens when I use evolution with debug webkit.
+Mar 23 12:44:17 <mcatanzaro>	hussam: That's bad!
+Mar 23 12:44:51 <mcatanzaro>	Evolution devs ought to test with debug builds to make sure they're not missing assertion failures (tpopela ;)
+Mar 23 12:44:56 <hussam>	mcatanzaro: milan just pointed me to this: https://bugs.webkit.org/buglist.cgi?quicksearch=WebPage%3A%3Areload&list_id=2602909
+Mar 23 12:45:14 <tpopela>	mcatanzaro, no way :) you can do it :)
+Mar 23 12:45:30 <mcatanzaro>	Might be https://bugs.webkit.org/show_bug.cgi?id=169894?
+Mar 23 12:45:35 <mcatanzaro>	If so, good timing
+Mar 23 12:46:04 <tpopela>	mcatanzaro, btw there is a regression in 2.16 that's causing Evo to misbehave.. but it's only if you have HTML mode enabled in composer.. and you want to change the font color..
+Mar 23 13:01:34 <tpopela>	mcatanzaro, and also Epi is crashing for me, when holding a mouse on the back button..
+Mar 23 13:01:44 <mcatanzaro>	tpopela: Bug reports please :)
+Mar 23 13:02:50 <tpopela>	mcatanzaro, tomorrow :)..
+Mar 23 13:03:08 <tpopela>	mcatanzaro, and for the WebKit one, I'm bisecting right now..
+Mar 23 14:31:14 <grim>	hiya, i was in here awhile ago about looking to move from webkit1gtk to webkit2gtk but was basically blocked by the lack of a build/support on windows, just wondering if there's any support for windows now or if anyone knows if anyone is working on it, etc
+Mar 23 14:33:05 <mcatanzaro>	grim: No, there is no Windows support and most likely never will be
+Mar 23 14:33:29 <mcatanzaro>	You should look into using either the WinCairo port of WebKit or Chromium.
+Mar 23 14:33:44 <grim>	i really don't want to put CEF into pidgin :)
+Mar 23 14:33:49 <mcatanzaro>	Or developing and maintaining WebKitGTK+ for Windows, but that'd be a big task.
+Mar 23 14:34:04 <aperezdc_>	or, you may contribute the needed code for WebKit2GTK+ in Windows, or get someone to contribute it
+Mar 23 14:34:06 <mcatanzaro>	OK pidgin... well I'd recommend not using a web engine at all for that.
+Mar 23 14:34:08 <MonkeyofDoom>	does WinCairo even have sandboxing/multiprocess?
+Mar 23 14:34:16 <aperezdc_>	ah, mcatanzaro was faster suggesting :D
+Mar 23 14:34:28 <mcatanzaro>	MonkeyofDoom: Nope
+Mar 23 14:34:44 <mcatanzaro>	MonkeyofDoom: WebKitGTK+ has multiprocess but no sandboxing, FYI
+Mar 23 14:34:49 <mcatanzaro>	But I doubt either is important to Pidgin
+Mar 23 14:35:33 <grim>	yeah we just need some animations and some basic javascript to bring the ui up to date with like slack, hipchat, etc (ie collapse images, etc)
+Mar 23 14:35:46 <mcatanzaro>	grim: Here is my confusion: I filed bugs against all packages in Fedora that were still using WebKit1 before we removed the WebKit1 package. But I don't remember ever filing a bug against Pidgin.
+Mar 23 14:35:49 <grim>	i've been looking at https://github.com/litehtml/litehtml but no javascript there :-/
+Mar 23 14:36:09 <grim>	mcatanzaro: it's in our forever not released 3.0.0 branch :)
+Mar 23 14:36:11 <mcatanzaro>	grim: OK, you do want either WebKit or Chromium in that case.
+Mar 23 14:36:31 <mcatanzaro>	But not WebKitGTK+
+Mar 23 14:36:47 <grim>	mcatanzaro: yeah, but because of ethics i refuse to touch windows directly... so stuck :-/
+Mar 23 14:36:50 <mcatanzaro>	(Unless you have $$$$$ to spend for someone to maintain Windows support)
+Mar 23 14:36:54 <grim>	nope
+Mar 23 14:37:15 <mcatanzaro>	FWIW: I suspect that very few people use Pidgin on Windows
+Mar 23 14:37:20 <mcatanzaro>	But whatever
+Mar 23 14:37:24 <grim>	i don't suppose i can just give the wincairo port a cairo context? i mean if it were that easy wouldn't webkitgtk just do that?
+Mar 23 14:37:39 <mcatanzaro>	I have no clue how WinCairo works.
+Mar 23 14:37:45 <grim>	mcatanzaro: heh you're basing that on what? :P
+Mar 23 14:38:00 <mcatanzaro>	WebKitGTK+ is WebKit2-only and WebKit2 has no Windows support. WinCairo is WebKit1-only. So that's one big difference.
+Mar 23 14:38:15 <grim>	le sigh
+Mar 23 14:39:05 <grim>	alright, so state is the same... damn
+Mar 23 14:39:14 <mcatanzaro>	Also I think nobody is taking care of security support for WinCairo. That would be a much easier task than maintaining WebKitGTK+ on Windows, though. You'd probably only need a couple of days every month or two to backport security fixes.
+Mar 23 14:39:26 <grim>	maybe CEF is the easier way... but that looked like such a pain to integrate last time i looked it
+Mar 23 14:40:15 <grim>	heh sure, but i don't want to carry webkit1 code and webkit2 code, going to make debugging a real pain :)
+Mar 23 14:40:26 <grim>	not to mention maintenance
+Mar 23 14:40:30 <aperezdc_>	CEF's API is indeed much more complex, I have to agree with that
+Mar 23 14:40:42 <aperezdc_>	grim: can't you just disable using a web engine in Windows?
+Mar 23 14:41:07 <grim>	aperezdc_: in our dev branch we ripped out the old conversation widget and replaced it with webkit...
+Mar 23 14:41:23 <grim>	the widget we ripped out is like box of spiders all the way through infinity
+Mar 23 14:41:45 <grim>	we built our own wysiwyg and html display on top of GtkTextView
+Mar 23 14:42:04 <aperezdc_>	I see... and JS is a must, isn't it?
+Mar 23 14:42:23 <grim>	if we want to look/act/feel like the current state of messaging, yes unfortunately
+Mar 23 14:43:19 <aperezdc_>	I was thinking GtkHTML, but if you need JS, it's a no-go
+Mar 23 14:43:45 <grim>	yeah, don't need much js, but yeah :-/
+Mar 23 14:45:54 <grim>	wait, does CEF use gtk? for some reason i guess i just assumed it didn't..
+Mar 23 14:46:14 <MonkeyofDoom>	it doesn't
+Mar 23 14:47:31 <grim>	ah ok, but there's a bunch of examples showing how to use it via gtk.. so that _might_ work for me
+Mar 23 14:47:38 <grim>	i just don't want to carry it
+Mar 23 14:51:17 <aperezdc_>	grim: it's also possible to embed ActiveX controls in GTK+ applications, and Microsoft's web engine is one
+Mar 23 14:51:47 <grim>	heh that could be an option, but i'd really like to keep it to a single engine ;)
+Mar 23 14:52:07 <aperezdc_>	just in case you want to check it out, here's some example code with Python: http://python.6.x6.nabble.com/Embedding-a-Win32-window-or-ActiveX-control-in-a-pygtk-application-td1938880.html
+Mar 23 14:52:57 <aperezdc_>	but I haven't much of an idea about Windows programming, so I don't know how one would go about the details -- I just happened to read something a while ago
+Mar 23 14:53:28 <grim>	heh fair enough, thanks for the pointers :)
+Mar 23 14:59:21 <aperezdc_>	happy to help!
+Mar 23 14:59:45 <aperezdc_>	ideally we would prefer to be able to recommend also using WebKit2GTK+ in Windows, but we are not there yet :-\
+Mar 23 15:00:00 <aperezdc_>	(it's unlikely we would be there anytime soon anyway, so...)
+Mar 23 15:00:11 <grim>	yeah, i'd much rather not have to carry CEF, but we're strapped when it comes to devs too, so not much we can do to help each other :-/
+Mar 23 15:03:46 <grim>	is there a list of tickets or anything that needs to be done to get webkit2gtk+ working on windows?
+Mar 23 15:06:07 <aperezdc_>	grim: I think the closest thing would be https://bugs.webkit.org/show_bug.cgi?id=137488
+Mar 23 15:06:55 <aperezdc_>	there's even proposed patches from 2015, but likely they have not aged well
+Mar 23 15:07:12 <aperezdc_>	and that was just trying to make it build
+Mar 23 15:07:38 *	aperezdc_ has to go, bbl
+Mar 23 15:07:44 <grim>	later, thanks again!
+Mar 23 15:10:17 <mcatanzaro>	grim: You're going to need to implement CoreIPC (WebKit2 API layer) using Windows APIs
+Mar 23 15:10:39 <grim>	s/you're/someone/ but cool
+Mar 23 15:10:55 <grim>	going to see if i can suggest it as a project to anyone looking for something ;)
+Mar 23 15:12:12 <grim>	mcatanzaro: is that the main issue? rendering is handled by gtk i assume then?
+Mar 23 15:12:34 <mcatanzaro>	grim: There's probably many issues. I have no clue. Making a web engine work on a new platform is a lot of work.
+Mar 23 15:12:51 <grim>	naturally, but is that the main known issue i guess is what i'm asking
+Mar 23 15:13:48 <grim>	different question, aside for windows knowledgeable developers, why wasn't it ported? (not looking to place blame, just trying to understand) :-D
+Mar 23 15:14:02 <mcatanzaro>	There are no Windows developers working on WebKitGTK+
+Mar 23 15:14:22 <grim>	heh ok, but there were for webkit1gtk?
+Mar 23 15:14:24 <mcatanzaro>	Actually there was Windows support originally for WebKit2, but it was removed when Apple gave up on Safari for Windows
+Mar 23 15:14:33 <mcatanzaro>	I don't remember that far back. :)
+Mar 23 15:14:39 <grim>	ok fair enough :)
+Mar 23 17:54:39 <aperezdc_>	mcatanzaro: question → would it make sense to provide a notifications implementation using GNotification if a recent-enough GLib version is installed, instead of using libnotify? (and using libnotify for older systems where GLib does not have GNotification)
+Mar 23 18:42:03 <mcatanzaro>	aperezdc_: I don't think so. GNotification only works if the application supports D-Bus activation, and there's no way for WebKit to know that.
+Mar 23 18:42:58 <mcatanzaro>	Now, it definitely makes sense for *Epiphany* to become D-Bus activatable and then override WebKit's libnotify use with GNotification. (Epiphany should also stop using libnotify itself. It uses it to notify about newly-created web apps.)
+Mar 23 18:46:31 <aperezdc_>	mcatanzaro: ah, good point there... I assume then that libnotify is not agoing away anytime soon
+Mar 23 18:47:11 <mcatanzaro>	libnotify is dead and should not be used.
+Mar 23 18:47:14 <mcatanzaro>	Oh well. :P
+Mar 23 18:47:51 <aperezdc_>	ouch... isn't it then a bit of an oversight that GNotification requires D-Bus activation?
+Mar 23 18:47:53 <aperezdc_>	O:-)
+Mar 23 18:48:09 <aperezdc_>	mcatanzaro: anyway... do we have a ticket in BGO for the task of making Ephy use GNotification?
+Mar 23 18:48:17 <aperezdc_>	ah, I'll just search for it
+Mar 23 18:48:20 <mcatanzaro>	No, it's a feature. The point of GNotification is for clicking the notification to launch the app if the app is not open.
+Mar 23 18:48:28 <mcatanzaro>	I don't know if we have a ticket.
+Mar 23 18:48:50 <mcatanzaro>	But we do have https://bugzilla.gnome.org/show_bug.cgi?id=722142
+Mar 23 18:59:58 <aperezdc_>	ah, that one I found
+Mar 23 19:00:25 <aperezdc_>	shall we open a new onein general for GNotification and make it depend on that one?
+Mar 23 19:00:59 <mcatanzaro>	There doesn't have to be a dependency. We can do download notifications with libnotify.
+Mar 23 19:02:02 <aperezdc_>	true
+Mar 24 01:01:23 <grim>	so following up from earlier discussion, i can't use cef either... 547mb .so file... wtf.. that's insane, even more so since it's not in debian at the very least
+Mar 24 01:38:57 <fujihiro>	grim:  Otter Browser has up-to-date Windows version. I think QtWebKit supports Windows.
+Mar 24 01:47:56 <grim>	fujihiro: i dont' want to mix gtk with qt ;)
+Mar 24 01:54:53 <hussam>	do you really need javascript for an instant messenger?
+Mar 24 01:56:14 <hussam>	otherwise there is gtkhtml. old evolution used it.
+Mar 24 01:56:16 <grim>	hussam: to stay revelant, yes.  i need to be able to display images with the ability to hide them, handle oauth, and people do like shiny interactive backgrounds and stuff
+Mar 24 01:57:23 <grim>	i mean i could probably do it with gtkhtml (does it have an editing mode?) but then i have to use something to make stuff controllable, and some times that'll be from a theme, so mixing in native code is probably a no go
+Mar 24 02:01:47 <hussam>	oauth wasn't a thing back then.
+Mar 24 02:01:57 <grim>	yeah i know :)
+Mar 24 02:02:21 <grim>	people are spreading fud about the way oauth was handled for the hangouts plugins for pidgin :-/
+Mar 24 02:02:38 <grim>	and it's done that way because we don't have a capable webview :-/
+Mar 24 12:23:10 <tsahyt>	Hello! Is this the right channel to ask a question about using webkitgtk?
+Mar 24 12:28:01 <KaL>	tsahyt: yes
+Mar 24 12:29:36 <tsahyt>	good. I'm writing a small documentation browser, which jumps to URIs with some fragment attached, e.g. example.com/#foo. when using webkit_web_view_load_uri with this URI, it loads the page, but doesn't jump to the anchor. how would I go about getting the desired behavior?
+Mar 24 12:30:25 <tsahyt>	it works just fine when clicking a link in the webview that links to some anchor
+Mar 24 12:31:12 <KaL>	tsahyt: what webkitgtk version?
+Mar 24 12:31:45 <tsahyt>	webkit2. I've also tried with the deprecated API, with the same results
+Mar 24 12:31:54 <tsahyt>	let me see which version of the library I have installed locally
+Mar 24 12:31:59 <KaL>	I remember an old bug where something like that happened
+Mar 24 12:33:27 <tsahyt>	it's linked against the .so provided by webkitgtk4-2.14.1-2.fc25.i686
+Mar 24 12:33:44 <KaL>	2.14
+Mar 24 12:34:33 <KaL>	have you tried doing the same in MiniBrowser?
+Mar 24 12:34:37 <tsahyt>	actually not i686, I miscopied that. but yeah that's the version
+Mar 24 12:34:40 <tsahyt>	what's MiniBrowser?
+Mar 24 12:35:30 <KaL>	the webkitgtk demo browsers that comes with webkitgtk
+Mar 24 12:35:37 <KaL>	I don't know where fedora installs it
+Mar 24 12:35:54 <tsahyt>	I'd have to check that. I've noticed that the same happens when I open qutebrowser with the URI directly
+Mar 24 12:35:56 <KaL>	just try to load something like https://dev.w3.org/html5/spec-preview/references.html#refsDOMCORE for example and see if it jumps to the anchor
+Mar 24 12:35:59 <KaL>	it works here
+Mar 24 12:36:00 <tsahyt>	which also uses webkit
+Mar 24 12:36:07 <tsahyt>	although not webkitgtk
+Mar 24 12:45:43 <tsahyt>	well, I can't find any fedora builds for minibrowser. I suppose I'll have to build it myself then.
+Mar 24 12:46:21 <KaL>	MiniBrowser is included in the webkitgtk package
+Mar 24 12:46:54 <KaL>	in debian it's installed in /usr/lib/x86_64-linux-gnu/webkit2gtk-4.0/MiniBrowser
+Mar 24 12:47:31 <KaL>	are you sure it's 2.14 and not 2.4? you said you tried the deprecated API which is not available in 2.14
+Mar 24 12:47:54 <KaL>	old versions didn't install the MiniBrowser
+Mar 24 12:48:04 <tsahyt>	I used webkit1 earlier
+Mar 24 12:48:17 <tsahyt>	I have found MiniBrowser now. The link you mentioned works
+Mar 24 12:48:21 <tsahyt>	I'll try the same link with my code then
+Mar 24 12:51:45 <tsahyt>	hmm okay this is somewhat confusing now. it works just fine.
+Mar 24 12:53:23 <tsahyt>	this on the other hand does not. /usr/libexec/webkit2gtk-4.0/MiniBrowser "https://hackage.haskell.org/package/bytestring/docs/Data-ByteString.html#v:map"
+Mar 24 12:54:34 <tsahyt>	I'm getting the feeling that his might not be webkit related at all then
+Mar 24 12:55:02 <tsahyt>	the inter-page links are slightly different, e.g. https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html#v:map.
+Mar 24 12:55:09 <KaL>	tsahyt: file a bug report, please
+Mar 24 12:55:54 <KaL>	I guess it's because of the ':' in the fragment
+Mar 24 12:56:00 <tsahyt>	I think it's because of the redirect
+Mar 24 12:56:31 <tsahyt>	passing the redirected url to MiniBrowser with the fragment works.
+Mar 24 12:57:30 <tsahyt>	this might be relevant https://bugs.webkit.org/show_bug.cgi?id=24175
+Mar 24 12:58:22 <tsahyt>	KaL: since bug reports for what seems to be the same problem already exist with webkit, should I still report it for webkitgtk?
+Mar 24 13:05:13 <KaL>	tsahyt: aha, could be the redirection
+Mar 24 13:09:16 <tsahyt>	in my case I can use URLs that are not going to result in a redirect. in the general case however that's not much help I suppse.
+Mar 24 13:14:44 <KaL>	tsahyt: please don't workaround it, if there's a bug report it and we will try to fix it
+Mar 24 13:15:51 <tsahyt>	KaL: since I don't know nearly enough about the specification of any of this, *should* fragments even be preserved through a redirect?
+Mar 24 13:17:05 <KaL>	tsahyt: file a bug report agains WebKitGtk component, pasting https://hackage.haskell.org/package/bytestring-0.10.8.1/docs/Data-ByteString.html#v:map. as test case, it works in other browsers but no tin webkitgtk
+Mar 24 13:17:40 <KaL>	if it's not gtk+ port specific or a duplicate we will handle it
+Mar 24 13:17:52 <KaL>	but report it to ensure we don't forget about it
+Mar 24 13:23:25 <tsahyt>	It already suggests the bug report I posted above as a duplicate
+Mar 24 13:36:48 <tsahyt>	reported. I hope I didn't mess this up.
+Mar 24 15:06:04 <rishi>	Is it known that various characters, cursor movements, etc. go missing when typing into a Google Document using webkitgtk+ 2.14.5?
+Mar 24 15:06:12 *	rishi waits for his password reset email
+Mar 24 15:09:09 <rishi>	Hmm... I am running Wayland. I'll first file the bug and then reboot into X.
+Mar 26 11:27:19 <tanty>	rishi, happens to me still in 2.16.0 and X
+Mar 26 11:27:24 <tanty>	please, do file a report about that
+Mar 26 13:03:55 <hussam>	Will the fix for bug https://bugs.webkit.org/show_bug.cgi?id=168912 make it to 2.16.1?
+Mar 27 02:33:05 <mjog>	Hey all, does WK2 use SIGUSR2 at all?
+Mar 27 02:33:37 <mjog>	(Also, is the mailing list borked? I'm getting "<<< 550 5.7.0 Local Policy Violation" trying to send an email to it)
+Mar 27 04:17:47 <keis>	has something changed recently in webkit w/r to inheriting fds to the web process?
+Mar 27 05:28:32 <hussam>	nevermind, I just checked the channel title. it's under proposed changes for 2.16.1 a;ready according to https://trac.webkit.org/wiki/WebKitGTK/2.16.x
+Mar 27 11:17:49 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 27 11:17:49 2017
+
+**** BEGIN LOGGING AT Mon Mar 27 11:18:14 2017
+
+Mar 27 11:18:14 *	Now talking on #webkitgtk+
+Mar 27 11:18:14 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Mar 27 11:18:14 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Mon Mar 20 08:31:54 2017)
+Mar 27 12:36:44 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 27 12:36:44 2017
+
+**** BEGIN LOGGING AT Mon Mar 27 12:37:11 2017
+
+Mar 27 12:37:11 *	Now talking on #webkitgtk+
+Mar 27 12:37:11 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Mar 27 12:37:11 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Mon Mar 20 08:31:54 2017)
+Mar 27 12:53:30 <keis>	I've found after some investigation that pipe()s opened in initialize-web-extensions signal is not inherited
+Mar 27 12:54:06 <keis>	I think that used to work
+Mar 27 12:54:31 <mcatanzaro>	keis: Are you sure...? WebKit closes all fds except stdout/stdin/stderr I think.
+Mar 27 12:55:00 <keis>	moving it outside the creation of the webview fixes it again
+Mar 27 12:55:54 <keis>	or, well, it showed up in /proc again, I have yet to try to use it
+Mar 27 12:55:57 <mcatanzaro>	Um, what do you mean by "inherited"
+Mar 27 12:56:32 <keis>	in general when you clone() the subprocess have the same fds
+Mar 27 13:01:15 <keis>	and yep, the pipes are happily pushing messages again
+Mar 27 20:10:05 <lfam>	Greetings! Compiling webkitgtk+ 2.16.0, I noticed that it doesn't seem to need gnutls anymore, and instead it uses libgcrypt. But I didn't see it mentioned in NEWS. Is there any documentation about this change?
+Mar 27 20:16:06 <lfam>	I suppose the changeset is self-documenting: http://trac.webkit.org/changeset/208297/webkit
+Mar 28 11:51:54 <keis>	I found the feature I wanted in the "unstable" dom bindings
+Mar 28 11:52:16 <keis>	is that soon stable, on the way out or somewhere in between?
+Mar 28 11:53:54 <aperezdc_>	keis: “unstable” DOM bindings are not “unstable” in the sense that they would not work, but in the sense that the API may change from one WebKitGTK+ release to another
+Mar 28 11:54:36 <keis>	ok. sounds good :)
+Mar 28 11:55:05 <aperezdc_>	the reason is that the “unstable” DOM bindings are auto-generated from IDL files, so if those change, they will change, and there's not guarantee that we will manually patch them to preserve the existing API
+Mar 28 11:55:41 <keis>	ok. I see. but that would be pretty minor things then I guess
+Mar 28 11:55:45 <aperezdc_>	if there is something useful that a few applications use from the unstable DOM binsings, we can consider moving them to the “stable” set
+Mar 28 11:55:52 <keis>	no big refactoring except maybe renames?
+Mar 28 11:55:56 <aperezdc_>	and then we would maintain the API stable
+Mar 28 11:56:22 <aperezdc_>	keis: yes, usually it's small changes in function names or sometimes the arguments they take
+Mar 28 11:56:34 <keis>	ok. good to know
+Mar 28 11:56:35 <aperezdc_>	they usually don't change for parts of the DOM that have stable specs
+Mar 28 11:56:56 <aperezdc_>	“DOM specs” as in W3C DOM specs, I mean
+Mar 28 11:57:36 <aperezdc_>	given the huge amount of autogenerated code, it's not practical for us to promise that those APIs won't change
+Mar 28 11:57:56 <keis>	I'm using the scroll query/translate methods
+Mar 28 11:58:08 <keis>	so pretty much 90s tech so I guess that won't change much
+Mar 28 11:58:44 <aperezdc_>	yep, those are probably pretty safe to use
+Mar 28 11:59:32 <aperezdc_>	and if they ever change, it should be minor fixes so maintenance from your applications point of view should be a small effort (if any)
+Mar 28 14:43:58 <aidanh>	Spotted a typo in the new docs for webkit_website_data_manager_is_ephemeral(); "is-ephemerla"
+Mar 29 06:47:01 <aperezdc_>	so... I am trying to add a check with g_idle_add() in WebKitTestRunner; it checks a condition and calls RunLoop::main().stop()
+Mar 29 06:47:11 <aperezdc_>	but I am getting this segfault: http://sprunge.us/cKEN
+Mar 29 06:47:24 <aperezdc_>	has anybody seen anything similar to this before?
+Mar 29 06:48:21 <aperezdc_>	the problem seems to be that calling RunLoop::main().stop() leaves things in such a state that then RunLoop::main().run() cannot be called again
+Mar 29 06:48:27 <aperezdc_>	is that so?
+Mar 29 06:48:44 *	aperezdc_ needs a way to pause/interrupt the RunLoop and resume its execution
+Mar 31 08:49:58 <rave>	WebkitWebProcess doesn't get killed automatically when the networkprocess is crashed
+Mar 31 08:50:29 <rave>	does anybody know why it stays there ?? not sure if there is any crash detection taking place within the webkitgtk ?
+Mar 31 08:50:50 <mcatanzaro>	If you reload the network process, does the web process get reused or does it just leak?
+Mar 31 08:51:24 <rave>	never tried that , i would want to actually kill that webprocess too
+Mar 31 08:51:33 <mcatanzaro>	It should *probably* get killed when network process crashes, but it's not a huge problem if it still works after you click reload
+Mar 31 08:51:47 <mcatanzaro>	KaL ^
+Mar 31 08:51:52 <rave>	does epiphany detects these two processes ?
+Mar 31 08:52:00 <rave>	when they crashes
+Mar 31 08:52:07 <mcatanzaro>	We have API to detect web process crashes, yes
+Mar 31 08:52:22 <mcatanzaro>	Not for network process crashes, but it should still work
+Mar 31 08:52:24 <rave>	is that in the MiniBrowser code too ?
+Mar 31 08:52:32 <mcatanzaro>	I don't know
+Mar 31 08:52:53 <KaL>	I don't think web process should be killed
+Mar 31 08:53:02 <rave>	is that API online too?
+Mar 31 08:53:17 <rave>	i mean the code that i can have a look?
+Mar 31 08:53:50 <annulen>	NetworkProcess may be killed in the middle of processing request, I'm not sure if WebProcess can recover
+Mar 31 08:53:50 <mcatanzaro>	Grep for web-process-crashed in WebKitWebView.cpp
+Mar 31 08:55:58 <rave>	ah ok I can see the signal , wondering how it works with the network process ??
+Mar 31 08:58:03 <mcatanzaro>	There is no signal for network process crashes. I guess it just breaks.
+Mar 31 09:01:33 <rave>	oh ok , hmm so the network process is not a child process?
+Mar 31 09:02:08 <mcatanzaro>	It is...
+Mar 31 09:02:44 <annulen>	there is WebContextClient::networkProcessDidCrash
+Mar 31 09:03:10 <mcatanzaro>	which we don't expose
+Mar 31 09:03:15 <aperezdc_>	mmh, maybe we should expose that eventually
+Mar 31 09:03:51 <aperezdc_>	or would it make sense to detect it crashed, kill WebProcess, and not change the API?
+Mar 31 09:04:19 <mcatanzaro>	kill all web processes at once, even those that are not currently loading resources...?
+Mar 31 09:04:33 <mcatanzaro>	I don't  know how best to handle ti
+Mar 31 09:04:35 <mcatanzaro>	*it
+Mar 31 09:05:38 <aperezdc_>	tricky ~_~
+Mar 31 09:05:40 <KaL>	why do we have to kill the web process?
+Mar 31 09:05:43 <annulen>	ask Alex maybe?
+Mar 31 09:06:09 <aperezdc_>	KaL: maybe we don't need, but it could be that a WebProcess can get stuck if the NetProcess goes amok
+Mar 31 09:06:54 <rave>	what does webprocess do when the networkprocess goes away?
+Mar 31 09:09:01 <KaL>	nothing
+Mar 31 09:09:15 <KaL>	when a new request is made a new network process will be launched
+Mar 31 09:09:42 <KaL>	the same way the Ui process stays alive even if web processes crash
+Mar 31 09:10:05 <mcatanzaro>	So only problem would be if it crashes when fulfilling an existing request (which will almost always be when it crashes), does it get relaunched and does the original request complete?
+Mar 31 09:10:11 <mcatanzaro>	And if so, do we have logic to avoid loops?
+Mar 31 09:10:30 <KaL>	I don't know the details
+Mar 31 09:10:32 <annulen>	from what I see, WebLoaderStrategy::networkProcessCrashed() is called, it reschedules requests
+Mar 31 09:11:16 <aperezdc_>	so then it seems we don't really need to expose a ::net-process-crashed
+Mar 31 09:11:36 <rave>	so if webprocess dies then networkprocess stays there forever ?
+Mar 31 09:11:41 <KaL>	I don't think so
+Mar 31 09:12:01 <mcatanzaro>	Network process is supposed to stay forever (until UI process quits)
+Mar 31 09:12:12 <KaL>	the network process is shared, it will be used for new web processes
+Mar 31 09:12:49 <KaL>	I don't think so <- we should expose the network process crashed signal
+Mar 31 09:13:30 <rave>	let's say if another instance of MiniBrowser or epiphany is launched which spawns another 2 (web and network process) then ?
+Mar 31 09:14:25 <aperezdc_>	rave: each UIProcess has one shared NetProcess, used by all the WebProcesses spwned by that one UIProcess
+Mar 31 09:14:31 <aperezdc_>	(but only for that UIProcess)
+Mar 31 09:15:03 <aperezdc_>	so: if you have two different browsers which use webkitgtk+, you will have two NetProcesses (one of each)
+Mar 31 09:15:48 <rave>	yeah , so if in one webprocess dies, network process stays there until we kill the UIProcess ?
+Mar 31 09:18:43 <aperezdc_>	correct
+Mar 31 09:19:25 <aperezdc_>	most likely the UIProcess will show something to the user, who will reload the crashes page, and that will already spawn a new WebProcess (which will use the NetProcess which is still around)
+Mar 31 09:21:30 <rave>	oh ok thanks
+Mar 31 09:27:24 <aperezdc_>	np
+**** ENDING LOGGING AT Fri Mar 31 18:26:59 2017
+
+**** BEGIN LOGGING AT Mon Apr  3 09:15:54 2017
+
+Apr 03 09:15:54 *	Now talking on #webkitgtk+
+Apr 03 09:15:54 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 03 09:15:54 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Mon Mar 20 08:31:54 2017)
+Apr 03 11:13:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr  3 11:13:31 2017
+
+**** BEGIN LOGGING AT Mon Apr  3 11:13:55 2017
+
+Apr 03 11:13:55 *	Now talking on #webkitgtk+
+Apr 03 11:13:55 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 03 11:13:55 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Mon Mar 20 08:31:54 2017)
+Apr 03 12:03:31 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Mon Apr  3 12:03:31 2017
+
+**** BEGIN LOGGING AT Mon Apr  3 12:03:55 2017
+
+Apr 03 12:03:55 *	Now talking on #webkitgtk+
+Apr 03 12:03:55 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 03 12:03:55 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Mon Mar 20 08:31:54 2017)
+Apr 03 22:02:26 <chatter29>	hey guys
+Apr 03 22:02:28 <chatter29>	allah is doing
+Apr 03 22:02:33 <chatter29>	sun is not doing allah is doing
+Apr 03 22:02:36 <chatter29>	to accept Islam say that i bear witness that there is no deity worthy of worship except Allah and Muhammad peace be upon him is his slave and messenger
+Apr 04 04:25:27 *	KaL has changed the topic to: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 04 07:22:45 <tpopela>	joanie, Hi Joanie :) can you please look on https://bugs.webkit.org/show_bug.cgi?id=170448 if it makes sense? :)
+Apr 04 07:28:52 <antoyo>	Can someone help we with this issue, please: https://bugs.webkit.org/show_bug.cgi?id=164716 ?
+Apr 04 07:59:46 <tpopela>	antoyo, hmm it looks like we indeed miss an API to create the WebKitDOMFileList.. And we should have it when we expose an API to set it.. The thing with these APIs is that they used to be autogenerated so we didn't have a way to limit what API we exposed.. But now when the APIs are "stable" (not generated) we should have a way to create it..
+Apr 04 08:00:03 <tpopela>	antoyo, also did you tried to use JavaScript to do so?
+Apr 04 08:00:40 <tpopela>	antoyo, through webkit_web_view_run_javascript() ?
+Apr 04 08:00:54 <tpopela>	antoyo, I think that it should be possible to do so..
+Apr 04 08:01:05 <antoyo>	No, I didn't because I prefer to have compile time check (I use the Rust bindings).
+Apr 04 08:04:03 <tpopela>	antoyo, ah ok.. then someone needs to expose that API for creating the WebKitDOMFileList.. I don't know how hard it would be.. KaL (Hi Carlos!) do you know if it will be an easy task or not? We will need a way to create WebKitDOMFileList and also WebKitDOMFile items as well..
+Apr 04 08:05:01 <KaL>	should be easy I guess, maybe just a matter of bringing that back from old unstable dom bindings api
+Apr 04 08:06:13 <tpopela>	KaL, I don't know if we exposed it previously.. let me look..
+Apr 04 08:11:07 <tpopela>	KaL, hmmm we didn't have it previously (at least in the WK1, but the DOM APIs didn't changed that much)..
+Apr 04 08:21:02 <antoyo>	Could you please answer in the bug tracker? I've got to go soon.
+Apr 04 09:41:49 <blino>	zdobersek: hi, I have a years-old patch in the Mageia WebKitGtk package, adding a allowScriptsToCloseWindows API similar to the one you just added in WPE : http://svnweb.mageia.org/packages/cauldron/webkit/current/SOURCES/webkit-2.1.90-allowScriptsToCloseWindows.patch?revision=472509&view=markup should I push upstream?
+Apr 04 09:52:20 <zdobersek>	blino: yes
+Apr 04 09:59:04 <blino>	ok, will do
+Apr 04 11:21:54 <zdobersek>	blino: thanks!
+Apr 04 15:26:59 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Apr  4 15:26:59 2017
+
+**** BEGIN LOGGING AT Tue Apr  4 15:27:22 2017
+
+Apr 04 15:27:22 *	Now talking on #webkitgtk+
+Apr 04 15:27:22 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 04 15:27:22 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:07 2017)
+Apr 04 20:07:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Apr  4 20:07:31 2017
+
+**** BEGIN LOGGING AT Tue Apr  4 20:07:57 2017
+
+Apr 04 20:07:57 *	Now talking on #webkitgtk+
+Apr 04 20:07:57 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 04 20:07:57 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 04 21:10:15 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Apr  4 21:10:15 2017
+
+**** BEGIN LOGGING AT Tue Apr  4 21:10:41 2017
+
+Apr 04 21:10:41 *	Now talking on #webkitgtk+
+Apr 04 21:10:41 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 04 21:10:41 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:07 2017)
+Apr 04 21:41:25 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Tue Apr  4 21:41:25 2017
+
+**** BEGIN LOGGING AT Tue Apr  4 21:50:51 2017
+
+Apr 04 21:50:51 *	Now talking on #webkitgtk+
+Apr 04 21:50:51 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 04 21:50:51 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 04 22:54:35 <fujihiro>	bfulgham: Could you review this? https://bugs.webkit.org/show_bug.cgi?id=157067
+Apr 04 23:10:04 <fujihiro>	I'd like to bump freetype and icu of jhbuild for emoji <https://bugs.webkit.org/show_bug.cgi?id=156579>. Is there a version policy such like this? <https://trac.webkit.org/wiki/WebKitGTK/DependenciesPolicy>
+Apr 05 02:57:49 <alexlarsson>	I have this webkit 2.16.1 build issue on arm (v7)
+Apr 05 02:58:00 <alexlarsson>	For the gnome flatpak runtime
+Apr 05 02:58:11 <alexlarsson>	Warning large log: https://gnome2.codethink.co.uk/logs/build-2017-04-04-214001/build-gnome-sdk-images-3-24-arm.txt
+Apr 05 02:58:34 <alexlarsson>	It ends with
+Apr 05 02:58:43 <alexlarsson>	 /tmp/ccgFL6eC.s: Assembler messages:
+Apr 05 02:58:47 <alexlarsson>	 /tmp/ccgFL6eC.s:2610: Error: selected processor does not support `vmov s2,r1' in ARM mode
+Apr 05 02:58:48 <alexlarsson>	...
+Apr 05 02:58:56 <alexlarsson>	Has anyone seen this before?
+Apr 05 05:06:11 <fujihiro>	KaL: What can I help for you? Can i file a bug ticket? Can I create a first patch?
+Apr 05 05:15:51 <annulen>	fujihiro: as for jhbuild, there is no policy because this software versions affect only development builds of webkitgtk, not redistribution
+Apr 05 05:16:10 <annulen>	however if you update freetype be ready to work on test rebasing
+Apr 05 05:16:24 <annulen>	because render tree dumps of layout tests may change
+Apr 05 05:16:27 <KaL>	fujihiro: feel free to file the bug report, I'll submit a patch taking into acount your proposal
+Apr 05 05:16:55 <KaL>	annulen: https://lists.webkit.org/pipermail/webkit-gtk/2016-October/002819.html
+Apr 05 05:17:15 <KaL>	there's a policy, but we never did it in the end
+Apr 05 05:18:27 <annulen>	oh, I wasn't subscribed to webkit-gtk list at that time
+Apr 05 05:19:14 <annulen>	it would be great to run tests with fresher libs indeed
+Apr 05 05:22:06 <fujihiro>	KaL: Filed. https://bugs.webkit.org/show_bug.cgi?id=170500
+Apr 05 05:22:08 <fujihiro>	KaL: Who should I ask to put the latest stable ICU at here? <http://webkitgtk.org/jhbuild_mirror/>
+Apr 05 05:22:45 <KaL>	fujihiro: hmm, clopez I guess
+Apr 05 05:39:40 <KaL>	fujihiro: the versions of harfbuzz and freetype you are using in the patch are the minimum ones required for the colored emojies, or just the latest ones?
+Apr 05 05:41:06 <fujihiro>	KaL: Just the latest.
+Apr 05 05:42:03 <KaL>	fujihiro: they are too new, it would be better if we could use previous versions, for example harfbuzz 1.4.2 that is already in distros
+Apr 05 05:42:13 <annulen>	freetype 2.5 should be enough for color fonts
+Apr 05 05:43:31 <fujihiro>	I don't mind. But, KaL mentioned "latest stable" in this proposal. https://lists.webkit.org/pipermail/webkit-gtk/2016-October/002819.html
+Apr 05 05:43:37 <annulen>	btw iirc there were plans to make bots that use dependencies from packages, not from jhbuild, to improve distro compatibility
+Apr 05 10:13:57 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Apr  5 10:13:57 2017
+
+**** BEGIN LOGGING AT Wed Apr  5 10:14:20 2017
+
+Apr 05 10:14:20 *	Now talking on #webkitgtk+
+Apr 05 10:14:20 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 05 10:14:20 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Wed Apr  5 10:48:28 2017
+
+**** BEGIN LOGGING AT Wed Apr  5 11:06:27 2017
+
+Apr 05 11:06:27 *	Now talking on #webkitgtk+
+Apr 05 11:06:27 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 05 11:06:27 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 05 12:06:54 <KaL>	tpopela: https://bugs.webkit.org/show_bug.cgi?id=170506 <- could you apply this on fedora when making 2.16.1?
+Apr 05 12:07:17 <KaL>	tpopela: to be able to debug https://bugzilla.redhat.com/show_bug.cgi?id=1438419
+Apr 05 15:35:05 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Apr  5 15:35:05 2017
+
+**** BEGIN LOGGING AT Wed Apr  5 15:35:30 2017
+
+Apr 05 15:35:30 *	Now talking on #webkitgtk+
+Apr 05 15:35:30 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 05 15:35:30 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:07 2017)
+Apr 06 03:46:41 <tpopela>	KaL, Hi Carlos, 2.16.1 is already build.. But I can make scratch build with it and share it in the bug..
+Apr 06 03:47:15 <KaL>	tpopela: no problem, they already confirmed the patch fixed the issue
+Apr 06 03:47:50 <tpopela>	KaL, ok :).. but thanks for the patch this will be handy!
+Apr 06 03:48:51 <KaL>	tpopela: ah, wait, I was thinking on a different bug
+Apr 06 03:49:14 <tpopela>	KaL, https://bugs.webkit.org/show_bug.cgi?id=170450
+Apr 06 03:49:14 <tpopela>	?
+Apr 06 03:49:19 <KaL>	tpopela: sorry, in this case I think it's worth it to make a new .1 packages with the patch
+Apr 06 03:49:37 <KaL>	tpopela: to be able to fix the issue before .2
+Apr 06 03:50:11 <KaL>	yes, I was thinking in that one
+Apr 06 03:50:13 <tpopela>	KaL, I saw the message from Michael in the inbox.. yeah I will do a new build..
+Apr 06 03:50:18 <KaL>	I don't know why
+Apr 06 08:55:49 <tpopela>	KaL, when are you going to release next 2.14 (at least from I got the impression that you are working on it ;))
+Apr 06 08:56:04 <KaL>	tpopela: hopefully today
+Apr 06 08:56:10 <tpopela>	KaL, aaaaa..
+Apr 06 08:56:12 <tpopela>	KaL, ok..
+Apr 06 08:56:17 *	KaL feels watched :-D
+Apr 06 08:56:50 <tpopela>	KaL, I thought that https://bugs.webkit.org/show_bug.cgi?id=170448 can make it there..
+Apr 06 08:56:59 <tpopela>	KaL, yeah, you are :D
+Apr 06 08:58:21 <tpopela>	KaL, also can you backport  https://bugs.webkit.org/show_bug.cgi?id=167900 and yours https://bugs.webkit.org/show_bug.cgi?id=170506 ?
+Apr 06 08:58:31 <annulen>	KaL: could you explain a bit how you do release management? just look at each commit in trunk and pick it or not? or maybe look what Apple backports to their branches, too?
+Apr 06 08:59:41 <KaL>	tpopela: I prefer not to merge commits that make webkit crash in 2.14
+Apr 06 09:00:19 <KaL>	annulen: I depends, for early versions like 2.16.1 and 2.16.2 i check every single commit in trunk
+Apr 06 09:00:23 <tpopela>	KaL, ok.. but there was a possibility that it would crash anyway :)
+Apr 06 09:01:28 <KaL>	annulen: for 2.14, for example, I'm only looking at CVEs and then whatever important we have merged in 2.16
+Apr 06 09:01:43 <KaL>	and of course whatever you guys write down in the wiki
+Apr 06 10:42:23 <tpopela>	KaL, Carlos did you ever saw: (process:17033): libsoup-WARNING **: SoupMessage 0x5628b94be940 stuck in infinite loop?
+Apr 06 10:42:44 *	mcatanzaro has never seen that before
+Apr 06 10:43:40 <tpopela>	mcatanzaro, one internal RH site is triggering it.. and of course it won't load in the end..
+Apr 06 10:59:47 <KaL>	tpopela: nope
+Apr 06 11:02:06 <tpopela>	KaL, mcatanzaro looks like it is related to the Negotiate auth..
+Apr 06 11:02:41 <KaL>	tpopela: I've seen that message with soup unit tests when implementing auth stuff
+Apr 06 11:02:57 <KaL>	tpopela: so, it's probably a message that is re-queued all the time
+Apr 06 11:03:28 <mcatanzaro>	Do we have layout tests for negotiate auth? I think if tpopela didn't write any himself, there probably aren't any?
+Apr 06 11:03:57 <tpopela>	KaL, yeah.. I have to put away the dust from the libsoup auth codebase and look into it..
+Apr 06 11:04:12 <tpopela>	mcatanzaro, yeah I think that there is nothing..
+Apr 06 11:04:23 <tpopela>	mcatanzaro, it's not easy to set it up..
+Apr 06 11:30:22 <keis>	when using the add_event_listener api is possible javascript on the page would interfer by stopping the bubbling etc?
+Apr 06 15:43:52 <leio>	the CVE's not fixed in 2.14.6 won't be in the 2.14 series? And are they critical things?
+Apr 06 15:44:13 <leio>	(or is 2.14 affected by these at all?)
+Apr 06 15:44:36 <mcatanzaro>	clopez?
+Apr 06 15:45:09 <mcatanzaro>	That does look pretty weird...
+Apr 06 15:48:26 <leio>	versions affected: before 2.16.0 with 2.16.1 already out looks weird as well.
+Apr 06 15:48:45 <mcatanzaro>	That one I can answer: the stuff fixed in 2.16.1 doesn't have CVEs yet
+Apr 06 15:49:24 <leio>	so 2.14 series backports were delayed
+Apr 06 15:50:40 <leio>	but yeah, I wonder if I should be looking at 2.14.6 or not with some open CVEs in the 2.14 series...
+Apr 06 15:51:11 <mcatanzaro>	My recommendation is to always use the latest stable version, currently 2.16.1.
+Apr 06 15:51:44 <clopez>	versions affected: before 2.16.0 -> means 2.16.0 is safe and any version after it
+Apr 06 15:52:08 <leio>	I can not validate 2.16 will work with all the existing consumers without some outside reassurance
+Apr 06 15:52:51 <leio>	(including epiphany-3.22 and evolution-3.22)
+Apr 06 15:53:20 <leio>	clopez: the question is - how comes 2.14.6 only fixes a big set of the CVE's in that WSA, not all
+Apr 06 15:53:47 <clopez>	leio: because some CVEs were inpractical to port
+Apr 06 15:53:58 <mcatanzaro>	2.16.0 works fine with Ephy 3.22 and Evolution 3.22 or there would be tons of complaints from Fedora :)
+Apr 06 15:54:05 <clopez>	we did the 2.14.6 for debian specifically because they refuse to update to 2.16.0 on stretch
+Apr 06 15:54:12 <clopez>	otherwise we wouldn't have done a 2.14.6
+Apr 06 15:54:19 <clopez>	the stable version is 2.16.1
+Apr 06 15:54:21 <clopez>	you should use that
+Apr 06 15:54:25 <leio>	I don't even have gnome 3.24 in unstable yet, that's the catch
+Apr 06 15:54:29 <clopez>	the last stable
+Apr 06 15:54:45 <leio>	ok, I can look into 2.16.1 and get it stabled with the excuse of security
+Apr 06 15:55:12 <leio>	as long as I don't get surprises like came with some earlier 2.14.x and epiphany password manager
+Apr 06 15:55:18 <mcatanzaro>	BTW this entire conversation validates my argument that releasing 2.14.6 was a bad idea... Debian could just as easily have backported those patches without us putting a stamp of approval on it.
+Apr 06 15:55:41 <clopez>	yeah.. i also clarified on the list this
+Apr 06 15:55:44 <leio>	I don't know anything about debian.
+Apr 06 15:55:49 <clopez>	our policy for doing stable releases is this one https://trac.webkit.org/wiki/WebKitGTKStableReleases
+Apr 06 15:55:56 <clopez>	we only mantain each stable release for 6 months
+Apr 06 15:56:00 <clopez>	and we sync with gnome release schedule
+Apr 06 15:56:09 <mcatanzaro>	Fixing the password manager to not give out all your passwords was a "surprise"...?
+Apr 06 15:56:10 <clopez>	this 2.14.6 was a exception to the rule, and only because of debian
+Apr 06 15:56:45 <leio>	the surprise was the claim by my team members that was still stuck at 3.20 for.. reasons.. claiming that the webkit upgrade broke epiphany
+Apr 06 15:57:00 <leio>	so I mean the interlock
+Apr 06 15:57:06 <mcatanzaro>	If so, nobody told me
+Apr 06 15:57:39 <leio>	he might have very well been wrong, the point was not having surprises of a webkitgtk upgrade breaking an earlier minor version of epiphany or something else
+Apr 06 15:57:43 <leio>	if that wasn't actually the case, good
+Apr 06 15:57:45 <mcatanzaro>	We have Ephy 3.20 + WebKitGTK+ 2.16 in Fedora 24 right now with no complaints
+Apr 06 15:58:09 <clopez>	ubuntu is also upgrading to the last stable version on the LTS version of their distro
+Apr 06 15:58:12 <mcatanzaro>	Actually I think the 2.14 upgrade would have broken Ephy 3.20 if you didn't take the corresponding Ephy release
+Apr 06 15:58:20 <leio>	regarding 6 months, for us 7 months can be good, IFF such incompatibilies might be a concern; otherwise doesn't matter if we get some communication going.
+Apr 06 15:58:34 <leio>	mcatanzaro: yes, that was the issue.
+Apr 06 15:58:35 <mcatanzaro>	Because Ephy used unstable DOM API that changed in 2.14
+Apr 06 15:58:50 <mcatanzaro>	All that API was removed in 2.16 so it shouldn't be a problem anymore
+Apr 06 15:59:09 <mcatanzaro>	It was really dumb to have Ephy depend on that, since it can go away at any time
+Apr 06 15:59:22 <leio>	I got back into gentoo maintenance things, caugt us up to 3.22 finally, so at least 3.20 isn't a thing anymore
+Apr 06 15:59:27 <leio>	killed all of those 5 days ago :)
+Apr 06 15:59:42 <leio>	(in "stable")
+Apr 06 15:59:55 <mcatanzaro>	Anyway the entire WebKitGTK+ API is stable as of 2.16 so that won't happen again. \o/
+Apr 06 15:59:56 <leio>	so I'll just get us to 2.16.1 then.
+Apr 06 16:00:29 <leio>	regarding your damning blog post earlier this year, I simply somehow missed the WSA mail; I was back by then, but all the catching up got it lost.
+Apr 06 16:00:54 <leio>	and then after taking care of it, that DOM thing was a bit bad; but only for 2 days or so.
+Apr 06 16:01:41 <mcatanzaro>	I think ephy was the only app that was ever affected
+Apr 06 16:02:06 <leio>	yeah, don't tell me about that :D
+Apr 06 16:02:14 <leio>	we still have a lot of 2.4 stuff aroudn.
+Apr 06 16:03:25 <leio>	https://github.com/gentoo/gentoo/pull/3416#issuecomment-291888959 and https://github.com/gentoo/gentoo/pull/3417#issuecomment-291902071
+Apr 06 16:03:31 <mcatanzaro>	leio: OK looking at the history, there was an Epiphany 3.20.4 release in tandem with WebKitGTK+ 2.14, do you have an upstream tracker to watch for that?
+Apr 06 16:04:05 <leio>	mcatanzaro: i bumped webkitgtk, but was on 3.22 myself and didn't make the connection.
+Apr 06 16:04:12 <mcatanzaro>	Admittedly it might not have been obvious they needed to be updated at the same time if you didn't read the NEWS file, but at least any regular update would have fixed it.
+Apr 06 16:04:29 <leio>	yeah, I'd have missed it if it was in epiphany NEWS
+Apr 06 16:04:39 <leio>	and it was adapted to in ephy-3.21
+Apr 06 16:06:50 <leio>	might have caught with a note to distro-list or a ping :D
+Apr 06 16:07:07 <leio>	(or there was one of the former, and I missed that like one of the WSAs)
+Apr 06 16:07:31 <mcatanzaro>	Actually I did mail distributor list about that I think
+Apr 06 16:08:01 <mcatanzaro>	Ahh it was not very clear
+Apr 06 16:08:04 <mcatanzaro>	https://mail.gnome.org/archives/distributor-list/2016-August/msg00006.html (hidden at the bottom)
+Apr 06 16:08:12 <mcatanzaro>	In the end only Ephy needed the rebuild, and only that one time
+Apr 06 16:09:31 <leio>	I wasn't around wrt mail then
+Apr 06 16:09:45 <leio>	I meant the Jan/Feb WSA
+Apr 06 16:09:58 <leio>	that made us jump to 2.14 eventually for stable
+Apr 06 16:11:13 <leio>	anyways, we are happy about any and all GNOME cycle related point releases up to 1-2 months of the next cycle having been around
+Apr 06 16:11:37 <leio>	if there are incompatibilties for a security fix then that's something to know about beforehand; if not, then for security we can go earlier
+Apr 06 16:12:40 <leio>	otherwise the entirety of what is in a GNOME cycle won't be in "stable" before at least 30 days have passed after it being in "testing", which can't be before a month it has been released upstream, but probably longer due to work to be done to get it to testing
+Apr 06 16:13:32 <mcatanzaro>	The point of removing the unstable DOM API was to avoid surprises like that occurring again... sorry that it happened in the first place.
+Apr 06 16:13:38 <leio>	hence sometimes supporting an earlier cycle release up to ~7 months instead of ~6 months can be nice, as for clear important bug or security fixes I'm happy to do it earlier than 30 days of appearance
+Apr 06 16:14:02 <leio>	yeah, I'll just consider webkitgtk as something that doesn't have to be synced up with GNOME then
+Apr 06 16:14:08 <leio>	going forward
+Apr 06 16:14:52 <leio>	so if basic testing works out fine, you can expect to have webkit-gtk-2.16.1 in stable gentoo by end of the weekend :)
+Apr 06 16:14:53 <mcatanzaro>	Yup! That's the right approach. Any ABI/API changes are bugs.
+Apr 06 16:14:56 <leio>	well, for architectures that matter.
+Apr 06 16:15:14 <leio>	(alpha says hello)
+Apr 06 16:15:24 <mcatanzaro>	Well, *almost* any changes are bugs... if something is removed from the DOM spec then the corresponding functions may stop working. I think zero apps have ever been broken by such a change, though. :)
+Apr 06 16:16:17 <leio>	unfortunately I don't think my current machine can get it build tested before sleep, so it won't go to architecture developers before tomorrow
+Apr 06 16:19:13 <leio>	oh, and the HiDPI stuff 2.14.4 vs 2.14.5 wasn't neat either :D
+Apr 06 16:19:29 <mcatanzaro>	Ah, that was just a bug though :)
+Apr 06 16:19:46 <leio>	for us users get to go through the build process, os the quick ones got to do it twice
+Apr 06 16:19:50 <mcatanzaro>	leio: https://mail.gnome.org/archives/distributor-list/2017-February/msg00002.html
+Apr 06 16:20:18 <leio>	yes, https://bugs.gentoo.org/show_bug.cgi?id=608958#c8
+Apr 06 16:20:39 <leio>	we already had 2.14.4 stable by that time
+Apr 06 16:28:29 <leio>	Bug 608958 has already taken the alias CVE-2017-2364. Please choose another alias.
+Apr 06 16:28:30 <leio>	hmm :D
+Apr 06 16:29:35 <leio>	(2.14.4 already claimed to fix it, now 2.14.6)
+Apr 06 16:30:45 <leio>	otherwise, https://bugs.gentoo.org/show_bug.cgi?id=614876
+Apr 06 16:31:34 <leio>	(reports in that kind of format welcome to downstream when I'm not around to do that :)
+Apr 06 16:33:14 <aperezdc_>	Is there anyone fluent with gtk_menu_popup_at_rect()? If so, I would appreciate a review of the patch I made for https://bugs.webkit.org/show_bug.cgi?id=170553
+Apr 06 16:34:35 <aperezdc_>	I am quite confident that its usage is correct, but I find the GTK+ documentation lacking for that function O:-)
+Apr 06 17:00:42 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Apr  6 17:00:42 2017
+
+**** BEGIN LOGGING AT Thu Apr  6 17:01:04 2017
+
+Apr 06 17:01:04 *	Now talking on #webkitgtk+
+Apr 06 17:01:04 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 06 17:01:04 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 06 17:53:34 <leio>	what's all that gtk/patches/ stuff
+Apr 06 17:54:01 <mcatanzaro>	leio: jhbuild patches for layout test environment, you can ignore it
+Apr 06 17:55:11 <leio>	Tools/gtk/patches/
+Apr 06 17:55:16 <leio>	layout test? :)
+Apr 06 17:56:34 <leio>	we have users and architecture testers run all that stuff on all those exotic things, I'm not sure I want to ignore :)
+Apr 06 17:57:04 <leio>	(all that stuff = what is in standard make check usually, or what I put in there additionally)
+Apr 06 17:57:10 <mcatanzaro>	leio: Layout tests are definitely not expected to work from a release tarball, so you can definitely ignore it.
+Apr 06 17:57:24 <leio>	ok
+Apr 06 17:59:39 <leio>	might be interested in the patches against the actual upstream packages in question though
+Apr 06 18:02:35 <leio>	mcatanzaro: how did you get from my ebuild link to WONTFIXing the C++ standard thing? :D
+Apr 06 18:02:45 <leio>	in ephy
+Apr 06 18:03:28 <leio>	s/C++/C/
+Apr 06 18:09:08 <mcatanzaro>	leio: Bugzilla links :D
+Apr 06 18:09:22 <mcatanzaro>	I'll port it to meson eventually and figure out the best practice for specifying C standard in meson
+Apr 06 18:09:25 <mcatanzaro>	Then this problem will go away
+Apr 06 18:09:37 <mcatanzaro>	Or maybe it will go away when everyone uses GCC 5
+Apr 06 18:17:25 <leio>	mcatanzaro: that link would have been in epiphany ebuild, not webkitgtk :D
+Apr 06 18:17:44 <mcatanzaro>	Oh I went from a Bugzilla link you gave me earlier.
+Apr 06 18:17:48 <leio>	our toolchain has a bit dropped the ball on stabilizing gcc5, yes.
+Apr 06 18:18:11 <mcatanzaro>	leio: You realize we have had GCC 7 in Fedora for a couple months now...? :)
+Apr 06 18:18:19 <mcatanzaro>	(prerelease of course)
+Apr 06 18:18:28 <leio>	we have gcc5.3 and gcc6.something
+Apr 06 18:18:37 <mcatanzaro>	We mass rebuild everything with prerelease GCC to shake out the bugs with it
+Apr 06 18:18:37 <leio>	stable, well, that's another matter
+Apr 06 18:21:33 <leio>	some bus factor stuff going on there; but yeah, given that users are exercising that stuff, it ends up being the place where we aren't all that rolling
+Apr 07 13:15:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Apr  7 13:15:43 2017
+
+**** BEGIN LOGGING AT Fri Apr  7 13:16:09 2017
+
+Apr 07 13:16:09 *	Now talking on #webkitgtk+
+Apr 07 13:16:09 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 07 13:16:09 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Fri Apr  7 15:06:39 2017
+
+**** BEGIN LOGGING AT Mon Apr 10 09:56:58 2017
+
+Apr 10 09:56:58 *	Now talking on #webkitgtk+
+Apr 10 09:56:58 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 10 09:56:58 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 10 09:56:58 <annulen>	well, on mips it works fine for me
+Apr 10 09:57:16 <tpopela>	annulen, so I can't really say if it improved..
+Apr 10 09:57:30 <annulen>	ok, thanks
+Apr 10 09:57:51 <tpopela>	annulen, yeah the situation around mips improved a lot.. maybe worth trying to turn it on at least for rawhide..
+Apr 10 09:58:16 <tpopela>	annulen, and I suspect that JIT is implemented on MIPS as well..
+Apr 10 09:58:31 <annulen>	yes
+Apr 10 09:59:13 <tpopela>	annulen, thanks.. I will try to enable it then..
+Apr 10 09:59:44 <tpopela>	mcatanzaro, do you know why we don't have bmalloc and JIT enabled for aarch64?
+Apr 10 10:00:07 <tpopela>	mcatanzaro, ah..
+Apr 10 10:00:08 <tpopela>	Fix the build on aarch64 - disable bmalloc as it's crashing when generating
+Apr 10 10:00:08 <tpopela>	  the documentation
+Apr 10 10:00:24 <tpopela>	let's try it again as it was in 2.12.x times..
+Apr 10 10:09:09 <tpopela>	does someone have a link to SUSE's latest WebKitGTK+ packages? I want to see what downstream patches they use..
+Apr 10 10:09:12 <tpopela>	mcatanzaro, ^ ?
+Apr 10 10:09:43 <mcatanzaro>	tpopela: https://build.opensuse.org/package/show/GNOME:Next/webkit2gtk3
+Apr 10 10:09:58 <tpopela>	mcatanzaro, thanks! :)
+Apr 10 11:16:01 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 10 11:16:01 2017
+
+**** BEGIN LOGGING AT Mon Apr 10 11:16:23 2017
+
+Apr 10 11:16:23 *	Now talking on #webkitgtk+
+Apr 10 11:16:23 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 10 11:16:23 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:03 2017)
+Apr 10 12:05:06 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 10 12:05:06 2017
+
+**** BEGIN LOGGING AT Mon Apr 10 12:05:29 2017
+
+Apr 10 12:05:29 *	Now talking on #webkitgtk+
+Apr 10 12:05:29 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 10 12:05:29 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 10 13:19:29 <leio>	for us 2.14.2 failed build, 2.14.5 succeeded (ppc64, not sure if big or little)
+Apr 10 13:20:18 <leio>	but has an adorable garbled text instead of content in epiphany, https://bugs.webkit.org/show_bug.cgi?id=167100
+Apr 10 13:22:06 <leio>	yeah, seems to have been big endian
+Apr 10 13:29:33 <annulen>	970 is be
+Apr 10 13:33:25 <aperezdc_>	r? https://bugs.webkit.org/show_bug.cgi?id=170553 and  https://bugs.webkit.org/show_bug.cgi?id=170680
+Apr 10 13:33:44 *	aperezdc_ has been on a hunt for popup improvement
+Apr 10 13:34:13 <mcatanzaro>	I wonder how you'd even begin to debug an endianness issue like that
+Apr 10 13:34:37 <mcatanzaro>	You have the unenviable position of being one of the only people in the world who care about running WebKit on PPC.
+Apr 10 13:34:47 <mcatanzaro>	At least on Linux.
+Apr 10 13:38:10 <mcatanzaro>	aperezdc_: r+
+Apr 10 13:38:20 <mcatanzaro>	I was in a meeting when you asked earlier
+Apr 10 13:38:32 <mcatanzaro>	I trust you've tested them both
+Apr 10 13:39:14 <aperezdc_>	mcatanzaro: yes, and the complex one I even tested both the old and new code paths O:-)
+Apr 10 13:39:48 <aperezdc_>	the long list of components in WebKit's Bugzilla is good for testing corner cases
+Apr 10 13:40:03 <aperezdc_>	like the popup adjusting to the available screen height and so
+Apr 10 13:40:05 <aperezdc_>	:P
+Apr 10 13:41:23 <mcatanzaro>	Did you manage to fix that too?
+Apr 10 13:41:44 <mcatanzaro>	Because it's super annoying that the popup goes past the edges of the screen :(
+Apr 10 13:41:49 <mcatanzaro>	That's a Wayland-specific bug
+Apr 10 13:42:19 <aperezdc_>	the one of the menus going outside the screen in Wayland is a bug in GTK+
+Apr 10 13:42:41 <mcatanzaro>	Really? I haven't seen it in other apps.
+Apr 10 13:42:45 <mcatanzaro>	Is there a bug report?
+Apr 10 13:43:00 <mcatanzaro>	(I know other apps don't have huge menus, though.)
+Apr 10 13:43:05 <aperezdc_>	well, I didn't try to fix that one bug with those two patches
+Apr 10 13:43:34 <aperezdc_>	I think this one may help with that → https://bugs.webkit.org/show_bug.cgi?id=145866
+Apr 10 13:44:02 <aperezdc_>	I have to try it the existing patch here locally
+Apr 10 13:44:18 <aperezdc_>	but no time for more popup menu fixes today
+Apr 10 13:44:42 <aperezdc_>	I will still keep an eye on the bots, though
+Apr 10 16:26:58 <aperezdc_>	Nice, it seems that my patches for the popup menus has not broken any layout tests
+Apr 10 16:27:25 <aperezdc_>	that bein said, probably I should look into doing a bit of gardening one of these days
+**** BEGIN LOGGING AT Tue Apr 11 10:09:44 2017
+
+Apr 11 10:09:44 *	Now talking on #webkitgtk+
+Apr 11 10:09:44 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 11 10:09:44 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:06 2017)
+**** ENDING LOGGING AT Tue Apr 11 18:11:47 2017
+
+**** BEGIN LOGGING AT Wed Apr 12 07:51:08 2017
+
+Apr 12 07:51:08 *	Now talking on #webkitgtk+
+Apr 12 07:51:08 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 12 07:51:08 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Wed Apr 12 08:54:16 2017
+
+Apr 12 08:54:16 *	Now talking on #webkitgtk+
+Apr 12 08:54:16 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 12 08:54:16 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Wed Apr 12 11:00:05 2017
+
+Apr 12 11:00:05 *	Now talking on #webkitgtk+
+Apr 12 11:00:05 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 12 11:00:05 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Wed Apr 12 11:10:35 2017
+
+**** BEGIN LOGGING AT Wed Apr 12 11:37:11 2017
+
+Apr 12 11:37:11 *	Now talking on #webkitgtk+
+Apr 12 11:37:11 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 12 11:37:11 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 13 07:17:12 <quinq>	hi :)
+Apr 13 07:19:06 <quinq>	Using WebKit2GTK, inside the “load-failed” signal, I get a gerror with a domain not defined on the WebKitError documentation
+Apr 13 07:19:19 <quinq>	How/where could I find out what it is?
+Apr 13 07:19:33 <annulen>	what domain do you get?
+Apr 13 07:19:44 <quinq>	That's my question :)
+Apr 13 07:19:50 <quinq>	It's decimal 1605
+Apr 13 07:20:55 <quinq>	In this specific case, the message error is “Error resolving 'foo.bar': Name or service not known”
+Apr 13 07:20:59 <ebassi>	You can use `g_quark_to_string(error->domain)`
+Apr 13 07:21:01 <quinq>	(error code 2)
+Apr 13 07:21:18 <quinq>	Ah, good idea ebassi, thanks
+Apr 13 07:21:19 <ebassi>	But it's likely coming from GIO
+Apr 13 07:21:48 <quinq>	Yeah, I was on that trail too, but I wanted to know what would be the best way to handle errors not defined in WebKitError
+Apr 13 07:22:19 <ebassi>	g_error_matches()
+Apr 13 07:22:33 <quinq>	Well I mean rather knowing all situations a load could fail and handle them correspondingly
+Apr 13 07:23:13 <quinq>	I'd like to do more than just displaying the error message, so I have to know the error cases
+Apr 13 07:23:13 <ebassi>	Ideally, the documentation should tell you which domains it will return, so you can use matches() accordingly
+Apr 13 07:23:39 <quinq>	Yep :)
+Apr 13 07:24:43 <quinq>	Here, this is from soup_http_error_quark
+Apr 13 07:24:50 <ebassi>	If it doesn't, then it's like know handling a non-fatal exception: log the error somewhere
+Apr 13 07:25:42 <quinq>	It's non-fatal, but it's a blocking error
+Apr 13 07:26:04 <quinq>	And it's a "network" error
+Apr 13 07:26:34 <quinq>	Well, at least I know how this one comes from, thanks
+Apr 13 07:28:02 <quinq>	With more than 60 error codes ^^
+Apr 13 07:29:39 <quinq>	Shouldn't those be gathered under WEBKIT_NETWORK_ERROR_FAILED?
+Apr 13 07:32:09 <ebassi>	It depends; it would imply catching all errors inside webkit at all times, then checking if there's an existing domain/code that fits, and re-packaging the error
+Apr 13 07:32:40 <ebassi>	It's like catching all exceptions and re-throwing them
+Apr 13 07:34:11 <ebassi>	In general, G* libraries prefer propagating errors and leaving to callers to do matching; of course, the documentation needs to be kept up to date :-)
+Apr 13 07:35:02 <quinq>	Good point
+Apr 13 10:48:50 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Apr 13 10:48:50 2017
+
+**** BEGIN LOGGING AT Thu Apr 13 10:49:16 2017
+
+Apr 13 10:49:16 *	Now talking on #webkitgtk+
+Apr 13 10:49:16 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 13 10:49:16 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 13 11:44:52 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Apr 13 11:44:52 2017
+
+**** BEGIN LOGGING AT Thu Apr 13 11:45:16 2017
+
+Apr 13 11:45:16 *	Now talking on #webkitgtk+
+Apr 13 11:45:16 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 13 11:45:16 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Thu Apr 13 11:48:35 2017
+
+**** BEGIN LOGGING AT Thu Apr 13 11:56:34 2017
+
+Apr 13 11:56:34 *	Now talking on #webkitgtk+
+Apr 13 11:56:34 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 13 11:56:34 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:07 2017)
+**** ENDING LOGGING AT Thu Apr 13 17:00:40 2017
+
+**** BEGIN LOGGING AT Tue Apr 18 08:54:09 2017
+
+Apr 18 08:54:09 *	Now talking on #webkitgtk+
+Apr 18 08:54:09 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 18 08:54:09 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Tue Apr 18 10:30:28 2017
+
+Apr 18 10:30:28 *	Now talking on #webkitgtk+
+Apr 18 10:30:28 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 18 10:30:28 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Tue Apr 18 10:32:00 2017
+
+Apr 18 10:32:00 *	Now talking on #webkitgtk+
+Apr 18 10:32:00 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 18 10:32:00 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:07 2017)
+**** BEGIN LOGGING AT Tue Apr 18 11:04:01 2017
+
+Apr 18 11:04:01 *	Now talking on #webkitgtk+
+Apr 18 11:04:01 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 18 11:04:01 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+Apr 19 01:15:58 <fujihiro>	tanty: Could you comment about this? https://bugs.webkit.org/show_bug.cgi?id=170902#c1
+Apr 19 08:23:22 <aperezdc_>	KaL, clopez: super simple one-liner review → https://bugs.webkit.org/show_bug.cgi?id=170987
+Apr 19 08:23:53 <aperezdc_>	also, could one of you add it to the patches to apply for the 2.16.2 release in the wiki? (unfortunately I can't edit the wiki ~_~)
+Apr 19 08:39:39 <aperezdc_>	KaL: thanks!
+Apr 19 12:03:09 <youenn>	hi guys, we are trying to land today (or tomorrow...) https://bugs.webkit.org/show_bug.cgi?id=170718
+Apr 19 12:03:25 <youenn>	That will probably require some clean-up in the bots running tests to land
+Apr 19 12:03:42 <youenn>	properly
+Apr 19 12:04:02 <youenn>	Any idea on who I should coordinate with on gtk side?
+Apr 19 12:09:32 <mcrha>	hi there, just a quick question, is <audio></audio> processed through some sort of plugin or anything like that? I have a simple HTML code which references a wav file and that code can play "inline" the file in epiphany, but not in evolution and I wonder whether it requires to enable anything specific, because evolution doesn't enable plugins (for security reasons)
+Apr 19 12:10:53 <alexg__>	youenn, ping KaL or clopez
+Apr 19 12:11:46 <youenn>	ok, thanks!
+Apr 19 12:11:52 <KaL>	mcrha: there's a setting to enable web audio
+Apr 19 12:12:05 <KaL>	youenn: yes, me and/or clopez
+Apr 19 12:12:36 <mcrha>	hi KaL, oh, it's done through web audio, I see. I noticed that setting, but the description didn't sound like it
+Apr 19 12:12:40 <mcrha>	let me try it
+Apr 19 12:13:38 <annulen>	<audio> has nothing to do with WebAudio
+Apr 19 12:14:21 <KaL>	ah, no idea then
+Apr 19 12:14:34 <annulen>	it's handled by the same code as <video>, except small details
+Apr 19 12:15:02 <annulen>	WebAudio allows to generate sound algorithmically, or process it
+Apr 19 12:15:20 <mcrha>	looks like it, because it didn't help
+Apr 19 12:15:54 <mcrha>	I see on the page that black "player", but it shows time 00:00 and doesn't play anything when I press the play button
+Apr 19 12:19:36 <mcrha>	I know we've been dealing with something similar in the past, but I do not recall any detail from it.
+Apr 19 12:20:30 <mcrha>	neither default settings make the trick (all in default except "auto-load-images", TRUE, "default-charset", "utf-8")
+Apr 19 12:27:09 <mcrha>	okay, so it requires "enable-javascript", which is not an option for evolution when showing random mail content
+Apr 19 12:28:50 <annulen>	hmm, maybe it's because new media controls require javascript
+Apr 19 12:30:06 <mcrha>	maybe. I think it wasn't the case in the past, but my past dates back to something like WebKitGTK+ with WebKit1, not WebKit2.
+Apr 19 12:30:17 <annulen>	indeed, disabling js breaks controls, so only autoplay elements can work
+Apr 19 12:30:30 <annulen>	in the past controls were implemented in c++
+Apr 19 12:31:19 <mcrha>	ah, okay, then I'll disable inline playing of audio files, to not confuse users of evolution
+Apr 19 12:32:18 <mcrha>	there is some more catch-up on the evolution side, as I had been able to reproduce this out of it, with my old test app which uses WebKit2 by changing the settings
+Apr 19 12:32:44 <mcrha>	but it doesn't matter, javascript in general is not a good thing for emails, especially not for those HTML
+Apr 19 12:32:57 <annulen>	it should be possible to implement selective disabling of JS
+Apr 19 12:33:07 <mcrha>	on evo side?
+Apr 19 12:33:13 <annulen>	to allow controls, not in webkit
+Apr 19 12:33:18 <annulen>	*no in webkit
+Apr 19 12:33:29 <mcrha>	I see. evo is full of iframe-s
+Apr 19 12:34:10 <youenn>	KaL and clopez: https://trac.webkit.org/r215515
+Apr 19 12:34:11 <mcrha>	annulen, never mind, I believe you've better things to work on. Definitely thanks for confirming.
+Apr 19 12:34:23 <youenn>	Will monitor how bots digests it...
+**** ENDING LOGGING AT Wed Apr 19 12:42:02 2017
+
+**** BEGIN LOGGING AT Wed Apr 19 12:42:40 2017
+
+Apr 19 12:42:40 *	Now talking on #webkitgtk+
+Apr 19 12:42:40 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 19 12:42:40 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:27:06 2017)
+Apr 19 13:41:53 <quinq>	Hi, I have a question regarding tls info
+Apr 19 13:42:14 <quinq>	webkit_web_view_get_tls_info() will set errors in GTlsCertificateFlags *errors
+Apr 19 13:42:27 <quinq>	What would be the value for no error?
+Apr 19 13:42:34 <quinq>	Would that be FALSE or G_TLS_CERTIFICATE_VALIDATE_ALL?
+Apr 19 13:42:48 <quinq>	(I'm not sure what would be G_TLS_CERTIFICATE_VALIDATE_ALL in this error context)
+Apr 19 14:47:30 <KaL>	youenn: it seems the wpt server is not working correctly on out bot
+Apr 19 14:47:43 <KaL>	*in our bot
+Apr 19 14:48:25 <KaL>	I have to go now, I hope clopez can help to handle issue with the bot
+Apr 19 14:59:42 <youenn>	KaL: Need to call Tools/Scripts/clean-webkit
+Apr 19 15:00:11 <youenn>	Or simply remove LayoutTests/imported/w3c/web-platform-tests and recheck out it
+Apr 19 17:01:41 <clopez>	i have removed all the build directory and forced a new svn checkout
+Apr 19 17:01:43 <clopez>	let's see
+Apr 19 18:19:57 <clopez>	yep, that fixed it..
+Apr 20 06:33:29 <clopez>	kov: can you please run apt-get install libmount-dev on the 32-bit and arm buildbots?
+Apr 20 08:13:42 <twister_>	Hi all. I have some questions on how to add touch support to webkit2gtk-4.0 in one of my Vala programs. If anyone here is interested to help, please do :) i've been stuck with a partially frozzen webkit for days.. The page loads normally and resizing works, but from what I could see, touch and scroll events are handled in a weird way now :D
+**** BEGIN LOGGING AT Thu Apr 20 10:11:48 2017
+
+Apr 20 10:11:48 *	Now talking on #webkitgtk+
+Apr 20 10:11:48 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 20 10:11:48 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Thu Apr 20 14:21:55 2017
+
+Apr 20 14:21:55 *	Now talking on #webkitgtk+
+Apr 20 14:21:55 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 20 14:21:55 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** BEGIN LOGGING AT Thu Apr 20 17:10:21 2017
+
+Apr 20 17:10:21 *	Now talking on #webkitgtk+
+Apr 20 17:10:21 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 20 17:10:21 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Thu Apr 20 17:15:44 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 08:23:48 2017
+
+Apr 21 08:23:48 *	Now talking on #webkitgtk+
+Apr 21 08:23:48 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 21 08:23:48 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Fri Apr 21 08:24:03 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 08:55:03 2017
+
+Apr 21 08:55:03 *	Now talking on #webkitgtk+
+Apr 21 08:55:03 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 21 08:55:03 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)
+**** ENDING LOGGING AT Fri Apr 21 09:18:04 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:21:35 2017
+
+Apr 21 09:21:35 *	Now talking on #webkitgtk+
+Apr 21 09:21:35 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+Apr 21 09:21:35 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (Tue Apr  4 04:25:27 2017)

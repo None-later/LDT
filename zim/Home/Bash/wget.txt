@@ -1,0 +1,70 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-03-23T12:33:58-04:00
+
+====== wget ======
+Created Thursday 23 March 2017
+
+
+====== Config ======
+Needs a bit of hacking to download sites better.
+
+vi .wgetrc
+**header = Accept-Language: en-us,en;q=0.5**
+**header = Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8**
+**header = Connection: keep-alive**
+**user_agent = Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0**
+**referer = /**
+**robots = off**
+
+^ may need to update user agent version on that.
+
+src:
+http://stackoverflow.com/questions/17182553/sites-not-accepting-wget-user-agent-header
+
+====== Arguments ======
+-R = reject
+-A = accept
+
+
+====== Useful commands: ======
+
+==== Pull the site, without parent (this worked for me) ====
+# seems to block after a while. Should probably use wait & limit rate below.
+wget -r -p --no-parent https://git.eclipse.org/c/
+
+**Only accept the html files**
+wget -A *.html -r -p --no-parent https://git.eclipse.org/c/
+
+**Only go to depth 1?**
+^ I think the above has the issue that it keeps going deeper. Need to look up depth paramater. l?
+
+==== Slowly pull the whole site: ====
+**wget --wait=20 --limit-rate=20K -r -p** 
+
+Will wait for 20 seconds thou. Merps.
+-r = recuriseve.
+-p = ?? meh.
+
+===== Only pull html =====
+# -r : recursive    
+# -nH : Disable generation of host-prefixed directories
+# -nd : all files will get saved to the current directory
+# -np : Do not ever ascend to the parent directory when retrieving recursively. 
+# -R : don't download files with this files pattern
+# -A : get only *.html files (for this case)
+wget -r -nH -nd -np -A *.html -R *.gz, *.tar  http://www1.ncdc.noaa.gov/pub/data/noaa/1990/
+
+===== Download with Firefox cookies =====
+Haven't tried, but looks interesting:
+https://addons.mozilla.org/en-US/firefox/addon/export-cookies/
+
+Run like:
+wget --load-cookies=cookies.txt http://foo.com
+
+
+====== References ======
+
+wget with wait:
+http://linuxreviews.org/quicktips/wget/
+
