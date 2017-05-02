@@ -7103,3 +7103,38 @@ May 01 11:59:22 *	Topic for #webkitgtk+ set by KaL!~cgarcia@9.red-88-26-148.stat
 May 01 13:26:44 <aidanh>	I've been looking at the WebKitWebView script-dialog signal recently; am I correct in thinking that there's no way to asynchronously handle this?
 May 01 13:27:19 <aidanh>	I'd like to implement script dialogs that block only the current tab, like firefox has. But that seems impossible with this API
 May 02 04:45:43 <fujihiro>	Gtk build bots are broken. <https://build.webkit.org/builders> Removing WebInspector images makes incremental build broken. Could anyone trigger clean build?
+May 02 12:41:36 <rave>	has anybody tried building webkitgtk+ on windows ?
+May 02 12:48:12 <mcatanzaro>	rave: We dropped Windows support in 2013, sorry :(
+May 02 12:49:14 <rave>	mcatanzaro: oh ok, yeah I assumed so, also even if I get it to build, I am guessing will not be able to see the right performance with webgl
+May 02 12:49:25 <annulen>	I have wip win ipc for wk2, but it's not yet ready
+May 02 12:49:32 <annulen>	fighting attachment passing now
+May 02 12:50:53 <annulen>	rave: there are high chances you won't be able to see webgl at all :)
+May 02 12:50:57 <annulen>	without additional changes
+May 02 12:51:12 <rave>	annulen: oh ok , because of cairo ?
+May 02 12:52:16 <annulen>	because of missing/broken texture sharing between webprocess and uiprocess
+May 02 12:53:14 <rave>	annulen: u mean shared mem?
+May 02 12:54:17 <annulen>	kind of, shared gpu memory :)
+May 02 12:54:54 <rave>	annulen: oh ok thanks
+May 02 12:57:38 <annulen>	rave: if you want webgl on windows with webkit, your options are wincairo, or wk1 api of qtwebkit
+May 02 12:58:28 <rave>	annulen: is wk1 using wincairo?
+May 02 12:59:12 <annulen>	wincairo is wk1-based
+May 02 12:59:24 <annulen>	i.e., not multiprocess
+May 02 12:59:37 <annulen>	so no dark arts for webgl
+May 02 13:00:56 <rave>	annulen: oh ok any links to this port?
+May 02 13:02:21 <rave>	annulen: I am just thinking of how good the performance would be , since it will be using cygwin? Or else I can just use Chromium embedded framework
+May 02 13:02:57 <annulen>	no cygwin
+May 02 13:03:17 <rave>	https://trac.webkit.org/wiki/BuildingCairoOnWindows this link suggested that ?
+May 02 13:03:28 <annulen>	only build dependency
+May 02 13:04:02 <annulen>	fwiw, for qtwebkit you can just download binaries and start
+May 02 13:05:04 <rave>	and isn't qtwebkit using MinGW ?
+May 02 13:05:36 <rave>	is there any stable webkit based browser on windows?
+May 02 13:05:37 <annulen>	mingw or msvc
+May 02 13:05:41 <annulen>	as you want
+May 02 13:05:53 <annulen>	e.g. you can take Otter
+May 02 13:06:01 <annulen>	https://otter-browser.org/
+May 02 13:06:29 <rave>	is that on webkit or any other port ?
+May 02 13:06:35 <rave>	i mean like qtwebkit
+May 02 13:06:36 <annulen>	qtwebkit
+May 02 13:06:40 <rave>	or wincairo
+May 02 13:07:12 <annulen>	I don't know about wincairo browsers, Sony uses it in their products, and EA used in the past
+May 02 13:07:36 <annulen>	actually, I may be wrong about Sony

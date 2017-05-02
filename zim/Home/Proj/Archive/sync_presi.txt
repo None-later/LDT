@@ -1,0 +1,81 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-01-03T13:03:27-05:00
+
+====== sync presi ======
+Created Tuesday 03 January 2017
+
+
+==== Atomic op != set of atomic ops ====
+Atomic setting/getting. Careful about order.  #test_evaluate_array_mixedTypes
+			atomicArray.set(2, evalResult[2]);
+			atomicArray.set(1, evalResult[1]);
+			atomicArray.set(0, evalResult[0]); // should be set last.
+
+			if (atomicArray.get(0).equals("str1")
+					&& ((Double) atomicArray.get(1)) == 2
+					&& ((Boolean) atomicArray.get(2))) {
+				return; //passed.
+
+
+===== webkit1 return value =====
+todo
+- fill in value in separate thread, read in first thread.
+- can lead to crash when value is written. Lacked proper locking.
+- 
+
+
+===== Botand: =====
+
+==== Scheduling: X.method where X is not yet initialized ====
+- Two scheduling mechanisms 
+- Order of scheduling can sometimes lead to NPE
+One that I ran into recently [1] involved inter-process communication.
+Basically, process A would receive an event, and that would trigger
+various handlers in different parts of the code. One handler would
+send process B a message that said "create component X". Another
+handler would send process B a message that said "instruct component X
+to do Y". As it happens, the two messages were sent using different
+mechanisms with different schedules, and the second message would end
+up arriving before the first one. So process B would receive "instruct
+component X to do Y" at a time when it hasn't created component X yet,
+and would just discard the message as a result. The solution was to,
+in the handler that sends the "instruct component X to do Y" message,
+detect the case where component X was just created, and in that case
+schedule the message to be sent only after the "create component X"
+message.
+
+Bug 1326290 - scroll bars not moving or not allowing scrolling on Google Sheets
+https://bugzilla.mozilla.org/show_bug.cgi?id=1326290 
+
+==== Lock order ====
+- 2 threads, 1 data structure. Lock A and B.
+- Deadlock due to A->B, B->A.
+- Sol: enfore lock acquisition order.
+Another example related to deadlocks: in the component of code that I
+work on, called "asynchronous panning and zooming" or "APZ", we have a
+data structure that can be accessed by two different threads. To
+ensure the data structure remains consistent, access to parts of the
+data structure is protected by locks. In the early days of this
+system, there were several occasions where we ran into deadlocks as
+one thread would hold lock A and wait on lock B, while the other
+thread was holding lock B and waiting on lock A. To systematically
+avoid this, we introduced a "lock order", that is now clearly
+documented in the code [2], and has allowed us to avoid such deadlocks
+since then.
+http://searchfox.org/mozilla-central/rev/82ebc0c5ea45477ef4a4bfb3bbff35069bd18cee/gfx/layers/apz/src/APZCTreeManager.h#41 
+
+
+
+
+
+NUMA. Ramdisk in VM or host managed?
+> In talking to a  customer today a question arose about the use of RAM
+> disks for DB scratch space.  The question is which would be faster; 1)d
+> create the RAM Disk in the Guest VM, or 2) Create a RAM only block
+> device and let the hypervisor manage it as a storage pool which would
+> then be presented as storage to the guest.  The hypervisor would be
+> vanilla KVM as found in RHEL 7.  I am also curious how NUMA may affect
+> the performance of the above options (assuming no NUMA optimizations for
+> the purpose of understanding it's impact).
+

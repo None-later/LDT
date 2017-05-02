@@ -1,0 +1,179 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-26T13:47:46-04:00
+
+====== Sami's patch ======
+Created Tuesday 26 July 2016
+
+====== List of improvement ======
+
+===== Introduced type conversion for "GVariant": =====
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/internal/GVariantConverter.java
+
+===== Added method to convert strings: =====
+**In:**
+platform/eclipse.platform.swt / bundles/org.eclipse.swt/Eclipse SWT/gtk/org/eclipse/swt/internal/Converter.java
+{{{code: lang="java" linenumbers="True"
+public static String getString (long /*int*/ strPtr) {
+	int length = OS.strlen (strPtr);
+	byte [] buffer = new byte [length];
+	OS.memmove (buffer, strPtr, length);
+	return new String (Converter.mbcsToWcs (null, buffer));
+}
+}}}
+
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/internal/Converter.java
+
+===== Added additional JNI functions: =====
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/internal/webkit/WebKitGTK.java
+long /*int*/ webkit_web_view_get_window_properties (long /*int*/ web_view)  <<<, **also added 'geometry' property  (size & pos of window on screen)**
+→ used in WebKit.java:webkit_web_view_ready() : OS.g_object_get (settings, WebKitGTK.geometry, geometry, 0);
+
+long /*int*/ webkit_web_view_get_page_id (long /*int*/ web_view) 
+
+void webkit_web_context_set_web_extensions_directory (long /*int*/ context, byte[] directory)
+void webkit_web_context_set_web_extensions_initialization_user_data (long /*int*/ context,  long /*int*/ user_data)
+void webkit_policy_decision_use (long /*int*/ decision)
+
+===== webkit_extension.h =====
+platform/eclipse.platform.swt / bundles/org.eclipse.swt/Eclipse SWT WebKit/gtk/library/webkit_extension.h
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/library/webkit_extension.h
+Added a new custom file. 
+# I could copy this method to add my own custom file.
+
+===== Make_linux.mak =====
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+PI/gtk/library/make_linux.mak
+- Added support for webextension. 
+- Added webkit2gtk-4.0 flags
+- added webkit_extension.* target .  # I copy for my custom file.
+
+===== WebBrowser =====
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+Browser/common/org/eclipse/swt/browser/WebBrowser.java
+Added annotation about functions being created.
+
+
+===== WebKit (Big changes) =====
+platform/eclipse.platform.swt / bundles/org.eclipse.swt/Eclipse SWT WebKit/gtk/org/eclipse/swt/browser/WebKit.java
+https://git.eclipse.org/r/#/c/23416/16/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/browser/WebKit.java
+
+Things added
+- JS execution
+- DBus 
+
+Callbacks:
+{{{code: lang="java" linenumbers="True"
+	private static Callback connectedToExtensionCallback;
+	private static Callback busAcquiredCallback;
+	private static Callback handleDbusFunctionCallCallbackObject;
+	private static Callback executeJavaScriptFinishedCallback;
+	private static Callback webkit_initialize_web_extensions_callback;
+}}}
+
+
+Keep track of ID mapping between Webpages and webviews:
+{{{code: lang="java" linenumbers="True"
+static HashMap<Long, WebKit> browserIdMappings = new HashMap<Long, WebKit>();
+}}}
+
+
+Added CREATE_WEB_VIEW signal handler: (not present in current code base btw).
+{{{code: lang="java" linenumbers="True"
+long /*int*/ webViewProc (long /*int*/ handle, long /*int*/ user_data) {
+	switch ((int)/*64*/user_data) {
+		case CREATE_WEB_VIEW: return webkit_create_web_view (handle, 0);
+}}}
+
+
+Initialize DBus connection via a wait. # might use something similar for a sync-call:
+# 916
+
+EventFunction (BrowserFunction) is initialized asyncronously to avoid deadlocks
+#1045 
+
+In "void addEventHandlers (long /*int*/ web_view, boolean top)"
+#1110, set of dom_event listeners not triggered on webkit2.
+
+webkit_web_view_ready updated to webkit2: 
+#2626
+{{{code: lang="java" linenumbers="True"
+	long /*int*/ webkit_web_view_ready (long /*int*/ web_view) {
+	..
+	if (WEBKIT2){
+	 	settings = WebKitGTK.webkit_web_view_get_window_properties (webView);	
+	} else {
+		settings = WebKitGTK.webkit_web_view_get_window_features (webView);
+	}
+	... <more>... 
+}}}
+
+
+
+
+==== executeJavaScriptFinishedCallback related ====
+{{{code: lang="java" linenumbers="True"
+long pageId;
+private static HashMap<Integer, Long> jsResults = new HashMap<Integer, Long>();
+private static int jsCounter = 0;
+}}}
+
++ Declare: 
+	**private static Callback executeJavaScriptFinishedCallback;**
++ Init if WEBKIT2: 
+	**executeJavaScriptFinishedCallback = new Callback(WebKit.class, "executeJavaScriptFinishedCallback", 3);**
+	ex in DragSource.java:
+	DragGetData = new Callback(DragSource.class, "DragGetData", 5);	 //$NON-NLS-1$
+	[*] How do they determine which string is the callback? (executeJavaScriptFinishedCallback)'
+	  >>> String seems arbitrary, it matches a static function in the file. See Home:SWT:Callbacks
++ relevant callback declared here:
+{{{code: lang="java" linenumbers="True"
+@SuppressWarnings("unused")
+private static long /*int*/ executeJavaScriptFinishedCallback (long /*int*/ source_object, long /*int*/ res, long /*int*/ user_data){
+	long /*int*/[] error = new long /*int*/[1];
+	long /*int*/ result = OS.g_dbus_proxy_call_finish (dbus_proxy, res, error); // << I may have to hack this to be more like native result getter.
+	int counter = (int) user_data;
+	if (error[0] != 0){
+		SWT.error(SWT.ERROR_IO, new Throwable(Converter.getString(OS.g_error_get_message(error[0]))));
+		result = 0;
+	}
+	jsResults.put(counter, (long)result);  // Stuff is inserted into a counter, there is probably a spin-lock checking this counter's result somewhere...
+	return 0;
+}
+}}}
+
+
++ loop in display till relevant counter has a result.
+#1270
+{{{code: lang="java" linenumbers="True"
+private boolean webkit_extension_execute_script (long pageId, String script, String url){
+	long /*int*/ args[] = { OS.g_variant_new_uint64(pageId),
+			OS.g_variant_new_string (Converter.wcsToMbcs(null, script, true)),
+			OS.g_variant_new_string (Converter.wcsToMbcs(null, url, true))};
+
+	final long /*int*/ argsTuple = OS.g_variant_new_tuple(args, args.length);
+
+	int currentCounter = jsCounter++;
+	OS.g_dbus_proxy_call (dbus_proxy,
+			Converter.wcsToMbcs(null,"webkit_extension_execute_script", true),
+			argsTuple, OS.G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, 0, executeJavaScriptFinishedCallback.getAddress(),currentCounter);
+
+	// The following is a workaround for the fact that g_dbus_proxy_call_sync
+	// blocks until it is timed-out and returns a failure.
+	// Keep iterating through the event loop until our JavaScript call has finished
+	// executing, failed, or timed-out.
+	Display display = this.browser.getDisplay();
+	while (!display.isDisposed() && jsResults.get(currentCounter) == null) {
+		if (!display.readAndDispatch()) display.sleep();
+	}
+
+	long result = jsResults.remove(currentCounter);
+	if (result == 0){
+		return false;
+	}
+
+	return (Boolean) ((Object[])GVariantConverter.convertGVariantToJava((long /*int*/ )result))[0];
+}
+
+}}}
+
+
+
