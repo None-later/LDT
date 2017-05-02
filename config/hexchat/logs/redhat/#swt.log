@@ -2393,3 +2393,433 @@ Apr 21 08:54:49 *	Now talking on #SWT
 **** BEGIN LOGGING AT Fri Apr 21 09:21:21 2017
 
 Apr 21 09:21:21 *	Now talking on #SWT
+Apr 21 09:36:16 <akurtakov>	lufimtse: ipun: try dnd from list in master 
+Apr 21 09:36:22 *	akurtakov couldn't resist :)
+Apr 21 09:36:30 <lufimtse>	X-D
+Apr 21 09:36:50 <lufimtse>	Is there a snippet to test with?
+Apr 21 09:36:58 <lufimtse>	akurtakov, 
+Apr 21 09:37:28 <akurtakov>	lufimtse: https://twitter.com/akurtakov/status/855380276893155328 is what I speak of :)
+Apr 21 09:42:39 <lufimtse>	oh, nice.
+Apr 21 09:43:06 FiSHLiM plugin unloaded
+Apr 21 09:43:06 Python interface unloaded
+**** ENDING LOGGING AT Fri Apr 21 09:43:06 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:43:59 2017
+
+Apr 21 09:43:59 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Apr 21 09:44:36 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:55:46 2017
+
+Apr 21 09:55:46 *	Now talking on #SWT
+Apr 21 09:59:22 <lufimtse>	akurtakov, seems to work fine. Good job.
+Apr 21 10:00:02 <akurtakov>	lufimtse: it was mostly copy/paste (less than 1/2 h) , amazing how many such low hanging fruit is still around
+Apr 21 14:42:19 <ipun>	akurtakov: i fixed the launch bar issue :)
+Apr 21 14:53:41 <akurtakov>	ipun: nice
+Apr 21 14:53:48 <akurtakov>	can I take a look at the patch ?
+Apr 21 14:54:04 <ipun>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=514483
+Apr 21 14:54:11 <ipun>	working on rebasing it now
+Apr 21 14:57:25 <akurtakov>	ipun: looks promising 
+Apr 21 14:57:34 <akurtakov>	and most important quite safe change
+Apr 21 14:57:50 <ipun>	yeah tried to keep it that way :)
+Apr 21 15:00:05 <ipun>	k its rebased
+Apr 21 15:11:37 <akurtakov>	ipun: can you type in the text fielter ?
+Apr 21 15:13:02 <akurtakov>	ipun: you need many(6-8+) launch configs for it to show at the top
+Apr 21 15:13:35 <akurtakov>	ipun: another issue if you alt-tap to another app the popup stays on tp
+Apr 21 15:13:38 <akurtakov>	on top
+Apr 21 15:15:10 <akurtakov>	ipun: it's really weird - I can select text in the filter with mouse but can't type in it
+Apr 21 15:15:48 <ipun>	hmm okay
+Apr 21 15:16:33 <ipun>	i can type in mine
+Apr 21 15:17:34 <ipun>	also i it looks like it doesnt automatically focus on the textbox when you click it. But if you click the textbox you are able to start typing
+Apr 21 15:19:18 <ipun>	akurtakov: did you mean that the filterbox shows up only after 6-8+ lunach configs are displayed? or do you mean anything under that it is not at the top?
+Apr 21 15:23:02 <ipun>	if you look at CSelector.java | line 318 that is where you dont see the filter box until at least 8
+Apr 21 15:25:50 <akurtakov>	weird, I can't type in mine
+Apr 21 15:25:56 <akurtakov>	lufimtse: can you?
+Apr 21 15:26:02 <lufimtse>	akurtakov, hey
+Apr 21 15:27:24 <lufimtse>	akurtakov, I don't have launchbar installed for testing atm, ipun can you find me if you need me to test this business
+Apr 21 15:27:38 <ipun>	sure
+Apr 21 15:29:06 <akurtakov>	lufimtse: ok
+Apr 21 15:30:40 <akurtakov>	ipun: what about alt-tab ? does the popup stay on top for you?
+Apr 21 15:32:51 <ipun>	akurtakov: yes that does. I'm seeing if thers a fix for that
+Apr 21 15:33:02 <akurtakov>	ok
+Apr 21 15:33:38 <akurtakov>	ipun: so did you push your whole change? I remember a case like that where you missed uploading everything :)
+Apr 21 15:34:26 <ipun>	akurtakov: just checked, everything is in
+Apr 21 15:34:53 <lufimtse>	akurtakov, where is the launchbar?
+Apr 21 15:35:02 <lufimtse>	akurtakov, is it part of a cdt plugin, do you know which one?
+Apr 21 15:35:10 <lufimtse>	it doesn't seem to be a separate plugin
+Apr 21 15:35:30 <lufimtse>	ipun, can you spy on the thing to find out which plugin it's from?
+Apr 21 15:35:40 <lufimtse>	ipun, or look into your installed plugin business
+Apr 21 15:36:01 <ipun>	lufimtse:   LaunchBar 2.1.0.201612052026 org.eclipse.launchbar.feature.group Eclipse CDT
+Apr 21 15:36:48 <lufimtse>	ipun, hmm, can't find that plugin. Can you make a screenshot of the plugins that you have installed in your elcipse?
+Apr 21 15:36:52 <lufimtse>	in help > installed
+Apr 21 15:37:55 <ipun>	lufimtse: http://imgur.com/a/QTgOV
+Apr 21 15:41:37 <lufimtse>	ipun, akurtakov . Ok I found it in:  http://download.eclipse.org/releases/oxygen  as "LaunchBar"
+Apr 21 15:41:55 <lufimtse>	not cdt by the looks of things.
+**** BEGIN LOGGING AT Fri Apr 21 15:46:46 2017
+
+Apr 21 15:46:46 *	Now talking on #SWT
+Apr 21 15:51:07 <ipun>	akurtakov: i was able to replicate the issue with it sticking when alt-tabbing, but only if you don't select the filterbox
+Apr 21 15:51:22 <ipun>	but because yours isnt able to select the filterbox, probably why it always doesnt work
+Apr 21 15:52:42 <lufimtse>	ipun, testing...
+Apr 21 15:55:16 <lufimtse>	ipun, when I start a child Eclipse, the launchbar is no where to be found. Do you know how to make it appaer? (I tried all the target platform plugins enabled)
+Apr 21 15:55:45 <ipun>	it should automatically appear
+Apr 21 15:55:51 <ipun>	does it appear for you in your main eclipse?
+Apr 21 15:58:20 <lufimtse>	ipun, yea
+Apr 21 15:58:32 <lufimtse>	ipun, btw, found a way to reliably kill eclipse, without killing other java stuff
+Apr 21 15:58:40 <lufimtse>	pkill -9 -f eclipse
+Apr 21 15:58:45 <ipun>	nice okay
+Apr 21 15:58:57 <lufimtse>	' -f ' searches full command, not just proc name (java)
+**** BEGIN LOGGING AT Fri Apr 21 16:05:50 2017
+
+Apr 21 16:05:50 *	Now talking on #SWT
+**** BEGIN LOGGING AT Mon Apr 24 08:32:45 2017
+
+Apr 24 08:32:45 *	Now talking on #SWT
+Apr 24 09:52:54 <ipun>	lufimtse: were you able to check if the patch worked on your machine?
+Apr 24 09:53:01 <lufimtse>	ipun, hey
+Apr 24 09:53:05 <lufimtse>	which one?
+Apr 24 09:53:17 <lufimtse>	the Launchbar business?
+Apr 24 09:53:54 <ipun>	yeup
+Apr 24 10:03:31 <lufimtse>	not yet. But I've added it to the top of my todolist.
+Apr 24 10:28:19 <ipun>	also akurtakov regarding the alt-tab issue it has to do with this
+Apr 24 10:28:20 <ipun>	http://stackoverflow.com/questions/1925568/how-to-give-keyboard-focus-to-a-pop-up-gtk-window
+Apr 24 10:28:56 <ipun>	basically the GTK_POPUP type of shell doesnt let you grab keyboard focus right away from my testing, so you'll notice that the filter box actually isnt focused when you click it in Wayland
+Apr 24 10:29:06 <ipun>	its hard to continue showing you right nowsince it doesnt work on your :S
+Apr 24 10:29:08 <ipun>	yours*
+Apr 24 10:29:52 <akurtakov>	ipun: upload screencast for me
+Apr 24 10:33:00 <ipun>	akurtakov: where do you normally upload screencasts?
+Apr 24 10:33:21 <akurtakov>	ipun: I used fedorapeople but any hosting should work
+Apr 24 10:35:16 <ipun>	akurtakov: http://s01.yyz.redhat.com/~ipun/launchbarfix.webm
+Apr 24 10:35:26 <ipun>	first part demonstrates the fix
+Apr 24 10:35:44 <ipun>	second part demonstrates the alt-tab issue if you create it and dont focus on the filter text with your mouse click
+Apr 24 10:51:52 <akurtakov>	aha
+Apr 24 11:16:48 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 24 11:16:48 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 12:05:52 2017
+
+Apr 24 12:05:52 *	Now talking on #SWT
+Apr 24 12:16:12 <ipun>	akurtakov: so does your copy of my patch not look the same as my video?
+Apr 24 12:16:28 <akurtakov>	ipun: nope, I can't type in the field
+Apr 24 12:17:33 <ipun>	akurtakov: what happens if you click and hold in the field and try typing?
+Apr 24 12:19:29 <akurtakov>	ipun: text entry loses the selection and nothing more
+Apr 24 12:19:47 <akurtakov>	ipun: what about instrumenting the code with sysouts in relevant places in gerrit
+Apr 24 12:19:54 <akurtakov>	and I'll send you the output
+Apr 24 12:19:57 <ipun>	akurtakov: okay sounds good
+Apr 24 12:23:18 <ipun>	akurtakov: quick question, does the menu still close? Or does it not close and it just not allow you to edit?
+Apr 24 12:23:40 <akurtakov>	ipun: the menu stays but nothing I type shows
+Apr 24 12:27:50 <ipun>	hmm okay
+Apr 24 12:28:13 <akurtakov>	ipun: fwiw, this fedora 26 fully uptodate, single monitor, gnome on waylan
+Apr 24 12:28:31 <ipun>	only difference right now for me is im running 25
+Apr 24 12:28:42 <ipun>	lufimtse: let me know when you are able to test it 
+Apr 24 12:30:31 <akurtakov>	ipun: https://akurtakov.fedorapeople.org/launchbar.webm
+Apr 24 12:30:44 <akurtakov>	ipun: right before showing selection works I'm typing
+Apr 24 12:31:17 <ipun>	got it
+Apr 24 12:31:41 <ipun>	akurtakov: ive uploaded a snippet to bugzilla that would be easier to test than booting up a new eclipse instance everytime
+Apr 24 12:33:11 <akurtakov>	ipun: hmm, which bug ?
+Apr 24 12:33:26 <ipun>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=514483
+Apr 24 12:37:19 <akurtakov>	ipun: yeah, can't type in it either
+Apr 24 12:37:50 <ipun>	okay in that case ill get lufimtse to just run the snippet instead of messing around with launchbar 
+Apr 24 12:38:27 <ipun>	akurtakov: when you click the textbox, is it selected at all? (blue highlight around the edges of the box)
+Apr 24 12:41:30 <akurtakov>	ipun: no
+Apr 24 12:41:41 <akurtakov>	ipun: it's visible on the video I sent you too
+Apr 24 12:43:28 <ipun>	hmmm...the fix was within Shell.java | line 712 setting the type hint. Im trying to figure out why that works in the first place on mine
+Apr 24 12:43:34 <lufimtse>	ipun, ok, let me test the snippet on wayland
+Apr 24 12:43:43 FiSHLiM plugin unloaded
+Apr 24 12:43:43 Python interface unloaded
+**** ENDING LOGGING AT Mon Apr 24 12:43:43 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 12:44:10 2017
+
+Apr 24 12:44:10 *	Now talking on #SWT
+Apr 24 12:51:34 <ipun>	akurtakov: its  very annoying as im trying to run gtk inspector on the popup window to debug and its just SWT FIXED
+Apr 24 12:51:39 <ipun>	doesnt show any infomration about type
+Apr 24 12:58:52 <akurtakov>	ipun: SwtFixed should have children
+Apr 24 13:00:31 <akurtakov>	so it doesn't work fro lufimtse too
+Apr 24 13:00:54 <lufimtse>	akurtakov, yea,
+Apr 24 13:01:06 <lufimtse>	<ian is in kitchen snacking> :-)
+Apr 24 13:01:53 <ipun>	damn
+Apr 24 13:01:55 <ipun>	okay
+Apr 24 13:02:00 <ipun>	thats good i guess
+Apr 24 13:02:03 <ipun>	now time ti figure out why mine works
+Apr 24 13:04:14 <akurtakov>	ipun: fighting stress with icecream ? :)
+Apr 24 13:04:32 <ipun>	akurtakov: if only there was icecream...
+Apr 24 13:04:43 <ipun>	also, it doesnt look like i can claim my beer from you this year
+Apr 24 13:04:45 <ipun>	:(
+Apr 24 13:05:05 <akurtakov>	ipun: haha :)
+Apr 24 13:05:20 <akurtakov>	I remember it but not what it was for :)
+Apr 24 13:05:43 <ipun>	"SWT"
+Apr 24 13:05:46 <ipun>	just kidding ;)
+Apr 24 13:09:52 <ipun>	gonna do an update for fedora and see if i can reproduce
+Apr 24 13:10:36 <akurtakov>	so you're not running latest f25 ?
+Apr 24 13:18:25 Python interface unloaded
+**** ENDING LOGGING AT Mon Apr 24 13:18:25 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 13:18:40 2017
+
+Apr 24 13:18:40 *	Now talking on #SWT
+Apr 24 13:31:41 <akurtakov>	lufimtse: just saw your promise to test on the mpc bug
+Apr 24 13:31:48 <akurtakov>	fwiw, I use smth like http://www.babblingengineer.com/wp-content/uploads/2013/03/gtd_chart.png
+Apr 24 13:31:58 <akurtakov>	where I have changed 2 mins with 15 mins
+Apr 24 13:32:20 <akurtakov>	works pretty well for me to finish many things and don't let the queue grow
+Apr 24 14:13:23 <lufimtse>	akurtakov, I do something simmilar
+Apr 24 14:13:30 <lufimtse>	this week is an exception
+Apr 24 14:13:36 <lufimtse>	^_^
+Apr 24 14:19:10 <akurtakov>	yeah, I understand that
+Apr 24 14:19:19 <akurtakov>	I'm just giving you a hint :)
+Apr 24 14:21:41 <ipun>	akurtakov: i have still no idea why this works on my computer and not anyone elses...
+Apr 24 14:22:09 <ipun>	akurtakov, lufimtse what gtk versions are you running?
+Apr 24 14:22:24 <lufimtse>	3.22
+Apr 24 14:22:32 <lufimtse>	3.22.11
+Apr 24 14:23:13 <ipun>	i wonder if its because im using 3.22.12
+Apr 24 14:27:33 <ipun>	care to update lufimtse ?
+Apr 24 14:28:07 <lufimtse>	ipun, I could
+Apr 24 14:28:36 <lufimtse>	gtk is not marked for upgrade on my system
+Apr 24 14:28:37 <lufimtse>	meh
+Apr 24 14:28:40 <lufimtse>	sudo dnf update
+Apr 24 14:28:44 <lufimtse>	ipun, 
+Apr 24 14:28:58 <ipun>	oh.
+Apr 24 14:28:58 <lufimtse>	ipun, can you test with an older gtk?
+Apr 24 14:28:59 <lufimtse>	3.20
+Apr 24 14:29:02 <lufimtse>	see if it reproduces
+Apr 24 14:29:03 <lufimtse>	etc
+Apr 24 14:30:15 <ipun>	kk ill gvie it a go
+Apr 24 14:31:36 <ipun>	sigh my 3.2 doesnt run wayland
+Apr 24 14:32:40 <ipun>	tried it on gtk3.189 and it works
+Apr 24 14:33:11 <ipun>	lufimtse: care to come swing by in a bit to see if i forgotsomething?
+Apr 24 14:33:34 <lufimtse>	hey
+Apr 24 15:29:15 <ipun>	hey akurtakov did you say that doing any api additions require a lot more work now?
+Apr 24 15:29:28 <akurtakov>	yes
+Apr 24 15:29:34 <ipun>	to fix something up in GTKText fix i was thinking about adding a getDragGesture() call
+Apr 24 15:29:51 <akurtakov>	that would not be new API ?
+Apr 24 15:30:05 <ipun>	no it would just be a method within control
+Apr 24 15:30:20 <akurtakov>	as long as it's default/private it should be fine
+Apr 24 15:30:24 <ipun>	cause we have a setDragGesture(), but no getDragGesture()
+Apr 24 15:30:30 <ipun>	hmm okay let me see if it works oaky
+Apr 24 15:33:21 <ipun>	akurtakov: it looks like it would have to be public for the sake that other methods should be able to get the Gesture widgets if needed
+Apr 24 15:33:30 *	ipun feels like that might take a bit more convincing
+Apr 24 15:35:01 <akurtakov>	setDragGesture is private
+Apr 24 15:35:14 <akurtakov>	why would you need to set it ?
+Apr 24 15:36:43 <akurtakov>	ipun: ^
+Apr 24 15:37:30 <ipun>	akurtakov: the addition would be a public method getDragGesture(), i wouldnt be changing setDragGesture() at all
+Apr 24 15:37:37 <ipun>	that should remain private
+Apr 24 15:37:44 <akurtakov>	why?
+Apr 24 15:37:53 <akurtakov>	and what would you return ?
+Apr 24 15:38:04 <ipun>	it would just return the controls DragSource widget
+Apr 24 15:38:10 <ipun>	DragGesture*
+Apr 24 15:38:30 <akurtakov>	ipun: and how would that look on win32/cocoa?
+Apr 24 15:39:05 <ipun>	akurtakov: ...hmm i see what you mean
+Apr 24 15:39:15 <ipun>	okay no worries, i will figure out another way
+Apr 24 15:39:32 <ipun>	it wouldnt work publically for win32/cocoa for sure i didnt think of that my bad
+Apr 24 15:39:32 <akurtakov>	to make it clear in order to add new api it has to be implemented on 2 out of 3 (gtk,cocoa, win32)
+Apr 24 15:40:10 <akurtakov>	and adding such api at this time and out of the blue  (even if implemented on 2 WS) has zero chances 
+Apr 24 15:40:18 <akurtakov>	ipun: try to explain to me why you need it
+Apr 24 15:48:13 <ipun>	in regards to GTKText, it currently fixes the issue but when DragBegin signal is caught from GTK, i make it send a DragStart SWT signal back with no x/y coordinates. Having the DragGesture widget will let me grab the correct x/y coordinates to send to SWT 
+Apr 24 15:54:34 <akurtakov>	think of IoC 
+Apr 24 15:54:42 <akurtakov>	instanceof? maybe
+Apr 24 15:56:53 <ipun>	if i use instance of i could grab private values?
+Apr 24 15:59:33 <ipun>	akurtakov: would making the dragGestures public instead of having a public method be any different?
+Apr 24 16:43:59 <ipun>	lufimtse: it doesnt look likei can get the x/y coordinates the easy way
+Apr 24 16:44:34 <lufimtse>	ipun, hmmm
+Apr 24 16:44:38 <ipun>	its okay though
+Apr 24 16:44:43 <ipun>	ill see if i can figure out another way
+Apr 24 16:44:45 <ipun>	may not be the most accurate
+Apr 24 16:47:44 <ipun>	got it, pushed now
+Apr 24 17:24:03 <ipun>	lufimtse: take a look at the chagnes i did when you have time
+Apr 24 17:24:10 <ipun>	should be possible
+Apr 24 17:24:12 <ipun>	pushable*
+Apr 25 09:22:54 <ipun>	akurtakov: i got a better fix that doesnt need any change to api
+Apr 25 09:23:02 <ipun>	just waiting for lufimtse to check it out
+Apr 25 09:23:17 <ipun>	i'll just be using internal Display cursor location call instead
+Apr 25 09:23:43 <akurtakov>	ipun: sounds good :)
+Apr 25 11:20:57 <ipun>	lufimtse: https://git.eclipse.org/r/#/c/95705/ 
+Apr 25 11:21:01 <ipun>	mind if you do a quick check on this one?
+Apr 25 11:21:04 <ipun>	just a one liner
+Apr 25 11:21:07 <lufimtse>	ipun, Lemme see
+Apr 25 11:22:41 <akurtakov>	ipun: definetely not OK
+Apr 25 11:22:59 <akurtakov>	this would make various plugins fail with SWTError
+Apr 25 11:23:14 <ipun>	akurtakov: where do you propose we put the SWT error?
+Apr 25 11:23:24 <akurtakov>	there shouldn't be an error
+Apr 25 11:23:54 <akurtakov>	it should do the next best thing to cover this case or nothing
+Apr 25 11:23:56 <akurtakov>	but no error
+Apr 25 11:24:07 <ipun>	okay sounds good
+Apr 25 12:14:59 <ipun>	akurtakov, lufimtse: new patchset will just include a error but wont cause it to crash. Leo, you can use new SWTError().printStackTrace() to do that instead of system.err
+Apr 25 12:16:02 <lufimtse>	ipun, thanks for sharing
+Apr 25 12:16:40 <ipun>	lufimtse: no problem
+Apr 25 12:17:20 <ipun>	akurtakov: the only work done by GTK team to support gtkSockets is this: https://github.com/alexlarsson/wakefield but this hasnt been worked on for 2 years...
+Apr 25 12:17:43 <ipun>	the patch i included will just warn and wont block, so i guess it techincally do "nothing"
+Apr 26 09:40:13 <ipun>	akurtakov: could you take a screenshot of the page you're referring to in https://git.eclipse.org/r/#/c/95734/ please?
+Apr 26 09:41:24 <akurtakov>	ipun: https://imagebin.ca/v/3KPD9JscLDyX
+Apr 26 09:50:18 <ipun>	akurtakov: how did you get to that dialog? I normally just click Run configurations and edit from there and it doesnt give me that problem
+Apr 26 09:50:47 <akurtakov>	ipun: gear button in launch configuration 
+Apr 26 09:50:56 <akurtakov>	launchbar I mean
+Apr 26 09:51:19 <ipun>	ohh right
+Apr 26 09:53:02 <ipun>	kk ill look into this
+Apr 26 09:53:30 <akurtakov>	lufimtse: https://git.eclipse.org/r/#/c/95705/ this is not OK
+Apr 26 09:54:07 <lufimtse>	akurtakov, hey
+Apr 26 09:54:10 <lufimtse>	hmmm
+Apr 26 09:54:22 <lufimtse>	akurtakov, it only prints stack trace afaik
+Apr 26 09:54:43 <lufimtse>	akurtakov, what is the issue?
+Apr 26 09:55:16 <akurtakov>	the code should be modified so EMBEDDED is a no_op on wayland
+Apr 26 09:55:37 <lufimtse>	no_op?
+Apr 26 09:55:46 <lufimtse>	I guess I should've added you as reviewer on that one
+Apr 26 09:56:09 <lufimtse>	what is no_op?
+Apr 26 09:56:15 <akurtakov>	no operation
+Apr 26 09:56:31 <akurtakov>	aka do nothing if not x11 and style embedded
+Apr 26 09:57:45 <akurtakov>	http://whatis.techtarget.com/definition/no-op-no-operation
+Apr 26 09:59:13 <lufimtse>	You mean skip and not print anything?
+Apr 26 09:59:32 <lufimtse>	You mean no error, just silently skip?
+Apr 26 09:59:57 <lufimtse>	akurtakov, 
+Apr 26 10:00:08 <akurtakov>	lufimtse: yes
+Apr 26 10:00:22 <akurtakov>	with comment in the code
+Apr 26 10:00:28 <lufimtse>	akurtakov, well, what about users who are trying to embed elements with SWT on wayland and have no idea why it doesn't work.
+Apr 26 10:00:41 <lufimtse>	akurtakov, shouldn't we suggest something to them?
+Apr 26 10:01:02 <lufimtse>	akurtakov, what's the logic behind silent skipping, why?
+Apr 26 10:01:18 <lufimtse>	akurtakov, afterall, gtk throws warnings if we do something wrong as well.
+Apr 26 10:01:38 <akurtakov>	lufimtse: this is how swt behaves
+Apr 26 10:02:03 <akurtakov>	there was no gesture support and swt was silently skipping someone using the gesture api
+Apr 26 10:02:16 <akurtakov>	provide as much as possible without bail out
+Apr 26 10:02:38 <lufimtse>	akurtakov, But we have things like "no more callbacks" error warning, which has proven to be very useful.
+Apr 26 10:02:48 <lufimtse>	akurtakov, what's the issue with having a warnings?
+Apr 26 10:03:14 <lufimtse>	akurtakov, silent skip makes it hard to figure out why things don't work.
+Apr 26 10:03:20 <akurtakov>	issue is you will step everything else from working in this case for no reason as we know it's not working
+Apr 26 10:03:37 <akurtakov>	while in the no more callback case its unrecoverable
+Apr 26 10:04:09 <lufimtse>	akurtakov, no, a warning doesn't stop everything else from working.
+Apr 26 10:04:15 <lufimtse>	akurtakov, it's just a warning.
+Apr 26 10:04:33 <lufimtse>	akurtakov, the patch doesn't terminate operation
+Apr 26 10:04:38 <lufimtse>	afaik
+Apr 26 10:05:02 <akurtakov>	ah, it's not throwing it
+Apr 26 10:05:05 <akurtakov>	so it really does nothing
+Apr 26 10:05:42 <lufimtse>	yep
+Apr 26 10:05:46 <lufimtse>	just prints stacktrace
+Apr 26 10:05:51 <lufimtse>	and continues
+Apr 26 10:06:11 <akurtakov>	it should be wrapped up in if DEBUG in this case
+Apr 26 10:06:22 <lufimtse>	we have a debug flag?
+Apr 26 10:07:23 <akurtakov>	lufimtse: Device.DEBUG
+Apr 26 10:07:49 <lufimtse>	akurtakov, interesting, let me check
+Apr 26 10:09:00 <akurtakov>	lufimtse: if you download http://download.eclipse.org/eclipse/downloads/drops4/I20170425-2000/download.php?dropFile=swt-I20170425-2000-gtk-linux-x86_64.zip
+Apr 26 10:09:11 <akurtakov>	you would even see two swt jars
+Apr 26 10:09:18 <akurtakov>	one with debug on and one off
+Apr 26 10:10:22 <lufimtse>	akurtakov, interesting
+Apr 26 10:11:44 <akurtakov>	this is not the only thing
+Apr 26 10:12:17 <akurtakov>	actually it would be nice if Device.DEBUG is bound to env variable
+Apr 26 10:12:47 <akurtakov>	and set to true if variable set but I never got to it
+Apr 26 10:12:51 <akurtakov>	:)
+Apr 26 10:15:09 <akurtakov>	Device.init() should set it to env variable if set
+Apr 26 10:15:22 <akurtakov>	as this is not user visible it has always been very low prio to me
+Apr 26 10:19:17 <akurtakov>	lufimtse: in short : a lot of room for improvement again :)
+Apr 26 10:20:11 <akurtakov>	and sorry for missing the fact you're not actually throwing the exception
+Apr 26 10:20:40 <lufimtse>	akurtakov, ah
+Apr 26 10:20:46 <lufimtse>	akurtakov, thanks for pointing out DEBUG flag.
+Apr 26 10:20:54 <lufimtse>	akurtakov, let me investigate and see if we can update Ian's patch
+Apr 26 10:21:09 <lufimtse>	akurtakov, I find discussions very constructive :-)
+Apr 26 10:21:12 <akurtakov>	just do a follow up commit wrapping it
+Apr 26 10:22:05 <lufimtse>	akurtakov, ok. Btw, do you know how the DEBUG flag is set by the swt.debug.jar in compiliation?
+Apr 26 10:22:34 <akurtakov>	don't remember or maybe I mix it up with debug info?
+Apr 26 10:22:40 <akurtakov>	meh, such a mess
+Apr 26 10:23:05 <akurtakov>	for the build I mean
+Apr 26 10:23:14 <akurtakov>	Inever liked the idea of 2 jars tbh
+Apr 26 10:23:29 <lufimtse>	I found this guy https://www.eclipse.org/swt/faq.php#debugmode
+Apr 26 10:29:53 <akurtakov>	lufimtse: btw, I just found http://git.net/ml/commits.gnome/2016-10/msg01931.html
+Apr 26 10:30:26 <akurtakov>	ipun: looks like it's not in progress anymore ?
+Apr 26 10:31:34 <lufimtse>	:-/
+Apr 26 10:33:02 <akurtakov>	how is GtkGLArea doing it ?
+Apr 26 10:35:44 <ipun>	akurtakov: yeah it doesnt look like it
+Apr 26 10:44:23 <ipun>	lufimtse: would   if (Device.DEBUG && !OS.isX11()) be suffieicent or did you think nesting it would be more legible?
+Apr 26 10:44:59 <ipun>	nesting it might be better for future development if there does happen to be support later (if ever)
+Apr 26 10:53:29 <lufimtse>	ipun, the above would still create a socket on wayland
+Apr 26 10:53:46 <lufimtse>	ipun, what you want is not create a socket on wayland, but also print msg if Device.DEBUG is set.
+Apr 26 10:53:54 <ipun>	ah right sorry
+Apr 26 10:54:02 <ipun>	i figured my logic was flawed
+Apr 26 15:21:26 <ipun>	ericwill:  https://git.eclipse.org/r/#/c/95495/
+Apr 27 11:58:47 <ipun>	akurtakov: https://bugzilla.gnome.org/show_bug.cgi?id=781845
+Apr 27 11:58:54 <ipun>	now we wait
+Apr 27 11:59:57 <akurtakov>	ipun: so we should get your patch in ?
+Apr 27 12:00:08 <akurtakov>	it would at least make it not close imediately
+Apr 27 12:00:16 <ipun>	akurtakov: yes the patch i have is independent of that issue
+Apr 27 12:00:25 <ipun>	i split the bug up into two earlier i think
+Apr 27 12:00:26 <akurtakov>	is the alt-tab issue fixed?
+Apr 27 12:00:53 <ipun>	the alt-tab issue is actually related to the gtk bug
+Apr 27 12:01:17 <akurtakov>	to this one ?
+Apr 27 12:01:22 <ipun>	yeah
+Apr 27 12:01:34 <ipun>	its caused by the popup not having focus immediately as intended
+Apr 27 12:01:47 <akurtakov>	thus no focus lost on which it's closed ?
+Apr 27 12:01:52 <ipun>	so when you alt tab out the signal that launchbar checks for doesnt receive
+Apr 27 12:01:55 <ipun>	yes pretty much
+Apr 27 12:02:05 <akurtakov>	I see
+Apr 27 12:02:12 <ipun>	theres a few ways the popup is closed, and thats one of the ways
+Apr 27 12:02:29 <akurtakov>	ipun: would you please contact the gtk guys on irc for their opinion ?
+Apr 27 12:02:33 <ipun>	give me a moment to fix up the patch so i can isolate it 
+Apr 27 12:02:37 <ipun>	akurtakov: i have, no resp
+Apr 27 12:02:42 <akurtakov>	ok
+Apr 27 12:02:47 <ipun>	ive been grilling them for the past week about it
+Apr 27 12:03:06 <ipun>	their recommendation of using popover is not feasible
+Apr 27 12:12:07 <ipun>	wow akurtakov that was the quickest rebase from you ive ever seen (unless that was automated)
+Apr 27 12:12:43 <akurtakov>	if I only knew how to automate that :)
+Apr 27 12:31:58 <ipun>	akurtakov: i ran tests on it and it hasnt caused any additional test errors so it is ready for review
+Apr 27 14:41:11 <ipun>	ericwill: even worse is that GridLayout is shared amongst all platforms
+Apr 27 14:42:56 <ipun>	i think were going to need to figure out how to get the correct width in GridLayout.java | line 670
+Apr 27 14:43:27 <ericwill>	ah yes, I remember this guy
+Apr 27 14:43:31 <ericwill>	what a messy method
+Apr 27 14:43:54 <ipun>	its likely this might be more then just one layout
+Apr 27 15:03:13 <ipun>	lufimtse: im having a bit of trouble building old versiosn of SWT. Im just running build.sh but its saying "No rule to make target 'gnome.c', needed by 'gnome.o'.". Seen this before?
+Apr 27 15:53:08 <akurtakov>	ipun: so the issue comes from https://git.eclipse.org/c/platform/eclipse.platform.swt.git/diff/bundles/org.eclipse.swt/Eclipse%20SWT/gtk/org/eclipse/swt/graphics/TextLayout.java?id=3b55f60471b210ca4631c9c97fbf4ec77086b0b3 ?
+Apr 27 15:54:31 <ipun>	akurtakov: might be, the commits pretty big but i think thats probably hte most relevant one
+Apr 27 16:30:32 <ipun>	akurtakov: yup its that exact block
+Apr 28 10:15:31 <ipun>	akurtakov: regarding the regression caused by https://bugs.eclipse.org/bugs/show_bug.cgi?id=491712 , if i run my eclipse instance in GDK_DPI_SCALE=1.5 , does that mean my junits will also inherit that?
+Apr 28 10:16:03 <ipun>	so far my fix hasnt caused any additional junit errors relating to the one it was there to initially fix
+Apr 28 10:16:11 <akurtakov>	ipun: just to be sure add it to the junit launchers too :)
+Apr 28 10:16:26 <ipun>	akurtakov: yeah i did that too
+Apr 28 10:16:34 <akurtakov>	ipun: they should 
+Apr 28 10:16:46 <ipun>	okay
+Apr 28 10:16:59 <ipun>	let me wrap this up a bit  better and explain my changes
+Apr 28 10:41:45 <ipun>	akurtakov: ignore the commit i think i screwd up my commit and it included some other changes
+Apr 28 10:42:56 <ipun>	k i think i fixed it
+Apr 28 11:01:47 <akurtakov>	lufimtse: please review as I would not have time for it today
+Apr 28 11:11:50 <lufimtse>	akurtakov, k
+Apr 28 11:11:59 <lufimtse>	akurtakov, is it ok for me to do on monday?
+Apr 28 11:12:06 <lufimtse>	was trying to get a few api related things in today.
+Apr 28 11:12:22 <akurtakov>	lufimtse: what api ?
+Apr 28 11:12:37 <akurtakov>	there are zero chances for new API being added now
+Apr 28 11:16:13 <akurtakov>	lufimtse: ok, I'll review 
+Apr 28 11:16:21 <akurtakov>	ipun: link please
+Apr 28 11:16:38 <ipun>	https://git.eclipse.org/r/#/c/96039/
+Apr 28 11:16:43 <ipun>	akurtakov ^
+Apr 28 11:16:54 <akurtakov>	ipun: on it
+Apr 28 11:16:58 <ipun>	thanks!
+Apr 28 11:19:57 <akurtakov>	ipun: you used bisect to find the commit in question right ?
+Apr 28 11:20:16 <akurtakov>	I'm curios how much time this took you
+Apr 28 11:22:35 <akurtakov>	lufimtse: so what api do you speak of ?
+Apr 28 11:22:50 <lufimtse>	the HOVER_ color stuff
+Apr 28 11:22:58 <lufimtse>	kinda been tinkering with the color stuff
+Apr 28 11:23:03 <lufimtse>	akurtakov, 
+Apr 28 11:23:38 <akurtakov>	rebuild everything
+Apr 28 11:25:31 <ipun>	akurtakov: yes i did
+Apr 28 11:25:40 <ipun>	surprisingly not that long
+Apr 28 11:26:03 <ipun>	i wrote a script that rebuilds swt and moves the binaries while cleaning everything beforehand
+Apr 28 11:26:16 <ipun>	rebuildling SWT is a lot quicker than gtk
+Apr 28 11:26:44 <akurtakov>	ipun: yeah, but a rough number would help me get some expectations
+Apr 28 11:26:49 <akurtakov>	I have never used it so far
+Apr 28 11:27:25 <ipun>	akurtakov: id say about 25-30 mins for the 11 bisects
+Apr 28 11:27:35 <akurtakov>	not bad
+Apr 28 11:27:42 <akurtakov>	thanks for the info
+Apr 28 11:27:46 <ipun>	no problerm
+Apr 28 11:27:57 <ipun>	i did an hour or so of trying to figure it out myself
+Apr 28 11:28:26 <ipun>	it was kind of a last choice, but i realised this would be much quicker than bisecting gtk
+Apr 28 11:29:01 <ipun>	also akurtakov i had a bit of help from the comments since he gave me a pretty good estimate of inbetween what versions did it pass/fail
+Apr 28 18:09:53 Python interface unloaded
+**** ENDING LOGGING AT Fri Apr 28 18:09:53 2017
+
+**** BEGIN LOGGING AT Mon May  1 09:24:55 2017
+
+May 01 09:24:55 *	Now talking on #SWT
+May 01 11:15:22 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon May  1 11:15:22 2017
+
+**** BEGIN LOGGING AT Mon May  1 11:41:58 2017
+
+May 01 11:41:58 *	Now talking on #SWT
+May 02 10:29:13 <ipun>	akurtakov: do swt_fixed do any redrawing on keyboard input or is that all done through GTK do you know?
+May 02 10:29:39 <ipun>	i've narrowed down a critical warning from GTK on controlexample and im trying to find a way to remove it
+May 02 10:40:46 <akurtakov>	ipun: I don't think swtfixed does any drwing
+May 02 10:46:39 <ipun>	hmm okay

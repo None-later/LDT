@@ -1,1 +1,0 @@
-/home/lufimtse/gitmisc/python-eclipse-bugzilla-query/bugzilla_open_followup.py

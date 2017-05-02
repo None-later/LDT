@@ -1,502 +1,555 @@
-T 1491935391 19<strykerawb>	lufimtse,  hello. 
-T 1491935410 18<nboldt18>	something something eclipse dark mode popups too dark to read something something
-T 1491935412 20<lufimtse>30	hello strykerawb 
-T 1491935413 18<strykerawb18>	my content assist is dark.  very dark.   black even.   can never read it.  
-T 1491935415 18<strykerawb18>	im not in dark mode
-T 1491935418 18<strykerawb18>	im in normal mode
-T 1491935422 18<nboldt18>	oic
-T 1491935431 18<nboldt18>	Fedora 25?
-T 1491935435 18<strykerawb18>	f24
-T 1491935436 20<lufimtse>30	strykerawb, sec
-T 1491935455 18<strykerawb18>	my content assist window comes up fine, with a correct color from settings, but,  when you click on one of the options, the 2nd content assist window that pops up to the right... has black bg
-T 1491935467 18<strykerawb18>	like the one that lists javadoc 
-T 1491935479 18<strykerawb18>	or validation on a field marked invalid 
-T 1491935481 18<nboldt18>	have you tried...  export GDK_NATIVE_WINDOWS=true
-T 1491935482 18<nboldt18>	or... export SWT_GTK3=0
-T 1491935485 20<lufimtse>30	strykerawb,  try http://download.eclipse.org/eclipse/downloads/drops4/S-4.7M6-201703082000/download.php?dropFile=eclipse-SDK-4.7M6-linux-gtk-x86_64.tar.gz
-T 1491935494 18<nboldt18>	those used to work in earlier Fedoras
-T 1491935512 20<lufimtse>30	akurtakov, ah
-T 1491935515 18<nboldt18>	ah, even better. cutting edge Oxygen builds :)
-T 1491935519 20<lufimtse>30	strykerawb, ^ SEC
-T 1491935523 20<lufimtse>30	strykerawb, KNOWN bug.
-T 1491935524 20<lufimtse>30	sec
-T 1491935532 19<akurtakov>	lufimtse:  ?
-T 1491935543 20<lufimtse>30	akurtakov, << was suppose to be strykerawb 
-T 1491935548 20<lufimtse>30	sec
-T 1491935548 18<akurtakov18>	ah ok
-T 1491935603 18<nboldt18>	mbooth_: egit/ejgit updated to 4.7. Got any more eclipse-*.rpm for me to chew on?
-T 1491935623 18<nboldt18>	if not I can totally find other fires to put out :D
-T 1491935642 20<lufimtse>30	strykerawb, 
-T 1491935642 20<lufimtse>30	Bug 507073 – [content assist] Use fitting colors for Content assist's additional info pane 
-T 1491935642 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=507073
-T 1491935665 20<lufimtse>30	it's on my todolist
-T 1491935672 20<lufimtse>30	at the moment working on Drag and Drop
-T 1491935674 20<lufimtse>30	for wayland
-T 1491935677 20<lufimtse>30	and webkit2
-T 1491935684 20<lufimtse>30	but the plan is to get to it...
-T 1491935699 18<strykerawb18>	oh ok... ... cuz im also noticing this issue in an editor?  when i use ControlDecoration on a text field
-T 1491935753 18<strykerawb18>	is that same issue?
-T 1491935754 19<strykerawb>	lufimtse, 
-T 1491935776 18<strykerawb18>	i mean,  im using it in a weird error where i draw widgets and crap
-T 1491935783 18<strykerawb18>	but lts just say whenever i use the control decorator
-T 1491935789 18<strykerawb18>	and i mouse-over the little 'x' 
-T 1491935800 18<strykerawb18>	shit's dark... super dark... is it same issue?
-T 1491935824 20<lufimtse>30	strykerawb, at the moment there's a bunch of stuff that still uses SWT.INFO, so that kinda causes breakage here and there
-T 1491935835 20<lufimtse>30	strykerawb, solution is to use an alternative colour defined in jFace
-T 1491935852 20<lufimtse>30	strykerawb, but I just haven't got around to replacing these bits and pieces
-T 1491935884 20<lufimtse>30	strykerawb, but thank you for pointing it out, if it comes to my attention more, then I'll probably be more likley to work on it more :-)
-T 1491935892 20<lufimtse>30	strykerawb, after webkit2/DnD...
-T 1491935924 18<strykerawb18>	public Color getSystemColor (int id) {
-T 1491935924 18<strykerawb18>		checkDevice ();
-T 1491935924 18<strykerawb18>		GdkColor gdkColor = null;
-T 1491935924 18<strykerawb18>		switch (id) {
-T 1491935924 18<strykerawb18>			case SWT.COLOR_LINK_FOREGROUND: 					gdkColor = COLOR_LINK_FOREGROUND; break;
-T 1491935925 18<strykerawb18>			case SWT.COLOR_INFO_FOREGROUND: 					gdkColor = COLOR_INFO_FOREGROUND; break;
-T 1491935927 18<strykerawb18>			case SWT.COLOR_INFO_BACKGROUND: 					gdkColor = COLOR_INFO_BACKGROUND; break;
-T 1491935945 18<strykerawb18>	in Display class ;) 
-T 1491936072 19<strykerawb>	lufimtse,  is there no setting i can change to fix this? in the meantime?
-T 1491936116 20<lufimtse>30	hmmmm
-T 1491936140 20<lufimtse>30	theoretically if you feed some gtk3-css that re-defines the systemcolor SWT.INFO is based on...
-T 1491936173 20<lufimtse>30	that would change look of regular tooltips also
-T 1491936177 20<lufimtse>30	but I guess that would be ok.
-T 1491936187 20<lufimtse>30	hmmm
-T 1491936193 18<strykerawb18>	COLOR_INFO_BACKGROUND  is coming up black. 
-T 1491936209 18<strykerawb18>	:( 
-T 1491936210 18<strykerawb18>	so sad
-T 1491936339 18<akurtakov18>	strykerawb: that's correct
-T 1491936365 18<akurtakov18>	COLOR_INFO_BACKGROUND represents the native theme color for tooltips
-T 1491936413 18<akurtakov18>	issue comes when one uses COLOR_INFO_BACKGROUND without COLOR_INFO_FOREGROUND
-T 1491936447 18<akurtakov18>	that's when one gets black-on-black 
-T 1491936453 20<lufimtse>30	tooltip.background  or @define-color tooltip_bg_color  can re-define it in a gtk3-css
-T 1491936456 20<lufimtse>30	sec
-T 1491936491 18<akurtakov18>	from theming POV - there is no way one can let one color be system and the other be userdefined and not hit same-on-same color issue with some theme
-T 1491936518 18<akurtakov18>	one either specifies all colors or lets the system handle them all
-T 1491936681 18<strykerawb18>	i dont recall changing any colors ;) 
-T 1491936691 18<strykerawb18>	or customizing my theme
-T 1491937055 20<lufimtse>30	strykerawb, lemme check if one can load eclipse with a gtk3.css
-T 1491937071 20<lufimtse>30	btw, anyone know how to do that atm?
-T 1491937088 18<strykerawb18>	you know what? i think i can wait for next milestone =P 
-T 1491937095 18<akurtakov18>	strykerawb: well, it can be your system theme and some color that some eclipse plugin sets 
-T 1491937101 18<akurtakov18>	strykerawb: btw, what is your gtk theme ?
-T 1491937104 20<lufimtse>30	One would have to override tooltip.background {      tooltip * {  
-T 1491937110 18<strykerawb18>	akurtakov,  how do i check? 
-T 1491937125 18<strykerawb18>	im using mate... f24 mate.  no idea what else to say 
-T 1491937143 18<akurtakov18>	strykerawb: look for org.eclipse.swt.internal.gtk.theme in configuration tab on about dialog
-T 1491937192 18<strykerawb18>	org.eclipse.swt.internal.gtk.theme=BlueMenta
-T 1491937934 18<akurtakov18>	strykerawb: no idea what that is
-T 1491937967 18<akurtakov18>	please start eclipse with GTK_THEME=Adwaita env variable
-T 1491938488 18<strykerawb18>	tried running GTK_THEME=Adwaita ./eclipse  but didnt seem to help ;)   
-T 1491938504 18<strykerawb18>	not sure how to do it in eclipse.ini?
-T 1491938509 18<akurtakov18>	strykerawb: is there any visual change ?
-T 1491938543 18<akurtakov18>	the question is do you even have adwaita installed
-T 1491938565 18<akurtakov18>	although it should be by default
-T 1491938659 18<strykerawb18>	gnome-themes-standard is installed... 
-T 1491938893 18<strykerawb18>	trying to change my theme says adwaita isn't installed
-T 1491938894 18<strykerawb18>	:|
-T 1491938931 18<strykerawb18>	and yet its still listed there
-T 1491939253 20<lufimtse>30	strykerawb, well, I sort of found a workaround. But it entails compiling your own gtk from sources.
-T 1491939324 20<lufimtse>30	i.e, I changed the tooltip css in the Adwaina base theme, then compiled gtk with changes and run eclipse with the compiled gtk.
-T 1491939540 18<strykerawb18>	yeah im not doing that ;)  i dont even change my gtk themes off my default =P 
-T 1491939554 18<strykerawb18>	i appreciate the effort
-T 1491939568 18<strykerawb18>	as long as it'll be fixed by you guys eventually i'm happy ;) 
-T 1491940123 20<lufimtse>30	strykerawb, I suggest you add yourself as CC to this guy:
-T 1491940124 20<lufimtse>30	Bug 507073 – [content assist] Use fitting colors for Content assist's additional info pane 
-T 1491940124 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=507073
-T 1491940131 20<lufimtse>30	when things are fixed, you'll get notified.
-T 1491940203 19<strykerawb>	lufimtse,  thanks for the help
-T 1491996829 19*	Now talking on 22#eclipse
-T 1491996829 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1491996829 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492001646 19*	Now talking on 22#eclipse
-T 1492001646 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492001646 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492009191 19*	Now talking on 22#eclipse
-T 1492009191 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492009191 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492011416 19*	Now talking on 22#eclipse
-T 1492011416 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492011416 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492023327 19<strykerawb>	lufimtse,  i dont know what i did yesterday, but im now getting white on black 
-T 1492023347 18<strykerawb18>	so... :D  
-T 1492023350 18<strykerawb18>	thnx :D 
-T 1492023372 20<lufimtse>30	strykerawb, X-D
-T 1492066564 18<scela18>	akurtakov: morning
-T 1492066576 18<akurtakov18>	scela: hey, what's up
-T 1492066587 18<scela18>	akurtakov: slow morning
-T 1492066595 18<scela18>	akurtakov: making coffee
-T 1492066598 18<scela18>	akurtakov: http://download.eclipse.org/eclipse/downloads/drops4/I20170412-2000/testResults.php
-T 1492066604 18<scela18>	so the jdt team fixed their bug
-T 1492066611 18<scela18>	and i also fixed the warnings
-T 1492066616 18<akurtakov18>	scela: nice
-T 1492066618 18<akurtakov18>	thanks for that
-T 1492066622 18<scela18>	np
-T 1492066641 18<scela18>	akurtakov: took a while but it needed changes elsewhere
-T 1492066650 18<akurtakov18>	yeah as always
-T 1492066655 18<scela18>	akurtakov: was tempted to suppress but glad i got in touch with stephan
-T 1492066673 18<akurtakov18>	we should do the right thing even if it takes longer
-T 1492066690 18<akurtakov18>	except for cases where it breaks users immediately :)
-T 1492066726 18<scela18>	akurtakov: yeah there are always exceptions
-T 1492066776 18<akurtakov18>	mistria: what is the relation between tm and atom grammars 
-T 1492066799 18<akurtakov18>	e.g. is https://github.com/atom/language-shellscript/tree/master/grammars anything usable from tm4e
-T 1492066803 18<mistria18>	akurtakov: I don't know
-T 1492066817 18<akurtakov18>	mistria: https://github.com/atom/language-shellscript/blob/master/grammars/shell-unix-bash.cson ?
-T 1492066842 18<akurtakov18>	or only xml format
-T 1492066900 18<mistria18>	akurtakov: only xml and json format apparently https://github.com/eclipse/tm4e/tree/0dc22fa65e131e3bb019818f5d7112530038ae83/org.eclipse.tm4e.core/src/main/java/org/eclipse/tm4e/core/internal/grammar/parser
-T 1492066917 18<mistria18>	akurtakov: but it seems like adding support for cson wouldn't be too hard
-T 1492066933 18<akurtakov18>	well, stupid question - what's diff between cson and json :)
-T 1492066934 18<mistria18>	akurtakov: it's just another parser to provide and the file really look like json ones
-T 1492066986 18<mistria18>	akurtakov: I don't know but at first sight, it seems like cson users less {..}
-T 1492066998 18<mistria18>	akurtakov: cson is the json of coffeescript apparently
-T 1492067006 18<mistria18>	akurtakov: what a crappy world...
-T 1492067008 18<akurtakov18>	haha, why not create another format 
-T 1492067018 18<mistria18>	akurtakov: exactly
-T 1492067025 18<akurtakov18>	mistria: so I would better try https://github.com/textmate/shellscript.tmbundle/blob/master/Syntaxes/Shell-Unix-Bash.tmLanguage
-T 1492067033 18<mistria18>	akurtakov: "let's create useless work so we won't loose our jobs!"
-T 1492067048 18<mistria18>	akurtakov: yes, .tmLanguage is supported by tm4e
-T 1492067066 18<akurtakov18>	I still dont' get the whole blame on xml
-T 1492067075 18<akurtakov18>	as any format it can be used for good or bad :)
-T 1492067124 18<akurtakov18>	looks like if I want to go tm4e path I would need to spend a lot of time improving the grammars
-T 1492067144 18<akurtakov18>	the shell script is crappier than shelled parser now
-T 1492067209 18<mistria18>	akurtakov: welcome into the JavaScript community ;)
-T 1492067263 18<akurtakov18>	mistria: hmm, I don't feel welcomed 
-T 1492067323 18<akurtakov18>	can I get access to the tokens programatically somehow  from tm4e ?
-T 1492067512 18<mistria18>	akurtakov: I don't know if there is a good editor for those grammars
-T 1492067664 18<akurtakov18>	ok, so far I'm quite dissatisfied by the grammars I've tried (ruby and shell script)
-T 1492067708 18<akurtakov18>	even smth= is not tokenized as "assignment" and showing the thing before '=' as variable 
-T 1492067863 18<mistria18>	akurtakov: yes, it's only textual and regexp, there is not much semantic usually
-T 1492067877 18<akurtakov18>	well, this is textual
-T 1492067883 18<mistria18>	akurtakov: I don't know how powerful/weak those grammars are actually
-T 1492067897 18<mistria18>	akurtakov: I mean, how the grammar mechanism is
-T 1492067899 18<akurtakov18>	SMTH= is as much of a variable as $SMTH after that
-T 1492067920 18<akurtakov18>	now I have to find how hard it is to express it in its format
-T 1492068045 18<akurtakov18>	mistria: btw, tm4e causes numerous "Render from: 58 to: 58" lines in output
-T 1492068055 18<akurtakov18>	pretty disturbing when debugging
-T 1492068076 18<mistria18>	akurtakov: yes, please open a bug for it
-T 1492068093 18<mistria18>	akurtakov: I also think it can affect performance
-T 1492068128 18<akurtakov18>	mistria: also would you please fill https://projects.eclipse.org/projects/technology.tm4e/developer
-T 1492068137 18<akurtakov18>	with git repo info
-T 1492068160 18<mistria18>	akurtakov: I think only Angelo can do it, please open an issue to request it ;)
-T 1492068179 18<akurtakov18>	ok, although every committer should be able to do it IIRC
-T 1492068317 18<akurtakov18>	issues 86 and 87
-T 1492068403 18<mistria18>	akurtakov: ok, I thought it was only PL who could edit it
-T 1492068434 18<mistria18>	akurtakov: anyway, it's better to log every request so Angelo sees what's our direction, and it leave rooms to other to contribute
-T 1492068443 18<akurtakov18>	sure, I did it
-T 1492068632 18<akurtakov18>	mistria: btw, have you heard of any release plans ?
-T 1492069705 18<akurtakov18>	‎[10:30] ‎<‎akurtakov‎>‎ mistria: btw, have you heard of any release plans ?
-T 1492069722 18<mistria18>	akurtakov: for tm4e?
-T 1492069727 18<akurtakov18>	yes
-T 1492069851 18<mistria18>	akurtakov: no big plan
-T 1492069864 18<mistria18>	akurtakov: I think we're waiting for one of the adopters projects to request it
-T 1492069884 18<mistria18>	akurtakov: IIRC Angelo wants to release Typescript.java soon, so that might force a release of a 0.1.0
-T 1492069946 18<akurtakov18>	ok
-T 1492079536 18<scela18>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=515243
-T 1492079583 18<scela18>	akurtakov: i think we are severely underestimating the damage that is being done by oomph to our installations/downloads
-T 1492079613 18<scela18>	akurtakov: last time i tried as a 'Simple Joe' the installer timed out after 10 minutes while the alternative 'old' download finished in <3 mins
-T 1492079636 18<scela18>	akurtakov: then there was the env var passthrough story which I didn't have time to follow up
-T 1492079637 18<akurtakov18>	well, feel free to propose an action plan 
-T 1492079689 18<akurtakov18>	I don't know how to fight the complicated installers insanity 
-T 1492079737 18<akurtakov18>	e.g. if marketplace starts installing more aggressively based on project type and etc.
-T 1492079773 18<akurtakov18>	or we ship some required plugins metadata in projects and resolver in platform and etc.
-T 1492079781 18<akurtakov18>	we can start arguing that it's not needed
-T 1492079800 18<akurtakov18>	now we have nothing against the "it's complex to setup" sayings
-T 1492079939 18<akurtakov18>	mistria: ^ btw, will this hit marketplace M7 ?
-T 1492079972 18<mistria18>	akurtakov: no news so far, let me ping Carsten
-T 1492079997 18<scela18>	akurtakov: I'll think about it how I can approach this
-T 1492080011 18<scela18>	akurtakov: my biggest worry is the first impression on "let's download eclipse"
-T 1492080021 18<akurtakov18>	well, bare tarball is not enough
-T 1492080029 18<akurtakov18>	oomph is total sh*t
-T 1492080105 18<scela18>	akurtakov: tarball downloads are very very well hidden now in the website
-T 1492080134 18<scela18>	akurtakov: so i believe we are relying on oomph for the delivery/installation experience
-T 1492080169 18<scela18>	akurtakov: tbh, I was horrified that on the only occasion I decided to play a "persona" downloading eclipse, the experience was hell
-T 1492080186 18<scela18>	akurtakov: and more not because it was hell, but that no-one pointed it out before
-T 1492080197 18<scela18>	akurtakov: imagine the numbers of users you put off this way
-T 1492080219 18<akurtakov18>	so what to do ?
-T 1492080231 18<akurtakov18>	yum install is way better IMHO :)
-T 1492080375 18<scela18>	i'll think about it
-T 1492080398 18<scela18>	akurtakov: i'll make another detailed test and see how that goes
-T 1492080663 18<akurtakov18>	scela: the best linux option I have thought of is creating flatpak 
-T 1492080674 18<akurtakov18>	and have it as recommended for all linuxes 
-T 1492080688 18<akurtakov18>	bypassing oomph
-T 1492080854 18<akurtakov18>	as if we learn people to do flatpak install to get eclipse oomph will be out of the game
-T 1492080877 18<akurtakov18>	scela: let me know if you're interested in working on this
-T 1492081514 18<scela18>	akurtakov: ok
-T 1492081529 18<scela18>	akurtakov: when I get back after today I'll talk to you about this
-T 1492081540 18<akurtakov18>	I plan on asking mbooth_ for that once oxygen lands in fedora 
-T 1492081542 18<scela18>	akurtakov: maybe the travel this weekend will bring some ideas :)
-T 1492081546 18<akurtakov18>	which I still wait for tbh :)
-T 1492081546 18<scela18>	akurtakov: ok
-T 1492081553 18<akurtakov18>	mbooth_: ^^ :P
-T 1492081632 18<scela18>	akurtakov: anyhow, in case i still see a degraded install experience with oomph compared to zipping (hell Eclipse is for devs, what's so advanced about unzipping) I will definitely plan to at least propose a major change
-T 1492081658 18<akurtakov18>	scela: sure, do it :)
-T 1492081677 18*	akurtakov will be back in 30-40 mins
-T 1492081679 18<scela18>	if I can get mistria on _board_ it might also help ;)
-T 1492081702 18<scela18>	akurtakov: i might be gone by then as I'm leaving early to catch a plane
-T 1492081706 18<scela18>	akurtakov: tty next week
-T 1492081711 18<akurtakov18>	ok
-T 1492088508 18<mbooth_18>	Re: Eclipse installers, I have a conversation like this probably once a week: https://paste.fedoraproject.org/paste/m6oKSneBAhqa7RXGUvzWsF5M1UNdIGYhyRLivL9gydE= 
-T 1492088533 18<mbooth_18>	People still want tarballs, and they seem to be hard to discover
-T 1492094872 20*	Disconnected (20Connection timed out)
-T 1492097348 19*	Now talking on 22#eclipse
-T 1492097348 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492097348 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492098515 Python interface unloaded
-T 1492098980 19*	Now talking on 22#eclipse
-T 1492098980 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492098980 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492520035 19*	Now talking on 22#eclipse
-T 1492520035 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492520035 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492520748 18<akurtakov18>	scela: fwiw, I really like mail that way - less disturbing :)
-T 1492520782 18<scela18>	akurtakov: right - no news is good news
-T 1492520980 18<mbenitez18>	0,2eclipse-team: please remember your weekly reports are due now since scela will be working on the common report before he leaves
-T 1492521025 18<scela18>	mbenitez: there is an issue with email
-T 1492521037 18<scela18>	mbenitez: many people have sent it but it's not showing up
-T 1492521046 18<mbenitez18>	oh it's still gpoing on? :\
-T 1492521052 18<scela18>	it is yes
-T 1492521066 18<scela18>	akurtakov: and mistria have already sent it but it's not arrived
-T 1492521082 18<mbenitez18>	scela, ok, then I guess it'll have to be tomorrow but early your day
-T 1492521088 18*	akurtakov did it twice :)
-T 1492521141 18<mbenitez18>	akurtakov, I think I saw your report
-T 1492521152 18<mbenitez18>	always 'fun' when email misbehaves
-T 1492521210 18<akurtakov18>	right after gmail migration but this must be co-incidence :)
-T 1492521218 18<scela18>	mbenitez: there was an isaac alert about it
-T 1492521241 18<mbenitez18>	akurtakov, suspicious indeed but let's not think badly ;)
-T 1492521262 18<mbenitez18>	scela, yes, saw that yesterday but didn't imagine it was ongoing, it's really bad!
-T 1492521292 18<scela18>	mbenitez: so you have recieved alex's email?
-T 1492521342 18<mbenitez18>	oh no, only Jeff's
-T 1492521359 18<scela18>	mbenitez: right, same here
-T 1492523685 20<lufimtse>30	etherpad seems down for me.
-T 1492523691 20<lufimtse>30	http://eclipse.etherpad.corp.redhat.com/30
-T 1492523724 20<lufimtse>30	Not sure if I should wait for good things to happen or report it. If report it to whom....
-T 1492523736 20<lufimtse>30	./then to whom..
-T 1492523887 19<mbenitez>	lufimtse, working for me
-T 1492523903 18<mbenitez18>	it sometimes fails... but comes back
-T 1492523909 20<lufimtse>30	mbenitez, works again for me. Must have been glitch in the matrix.
-T 1492523913 20<lufimtse>30	thank you.
-T 1492523917 18<mbenitez18>	np!
-T 1492525816 19*	Now talking on 22#eclipse
-T 1492525816 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492525816 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492525904 19*	Now talking on 22#eclipse
-T 1492525904 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492525904 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492526100 19<scela>	rgrunber: lufimtse ipun mbooth_  nboldt email issue is hopefully fixed so please send your reports in our usual due time (~30 mins or so)
-T 1492526240 18<mbenitez18>	scela, FYI Ian is taking a sick day today
-T 1492526251 18<rgrunber18>	will do
-T 1492526329 18<scela18>	mbenitez: ok yes I see it in the calendar
-T 1492526340 18<mbenitez18>	:)
-T 1492527416 18<nboldt18>	scela: I thought they were usually due on Mondays :D
-T 1492527450 18<scela18>	nboldt: that's why i said 'time' and not 'day' ;)
-T 1492527456 18<nboldt18>	fair point
-T 1492527827 19*	Now talking on 22#eclipse
-T 1492527827 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492527827 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492531939 18*	scox is back (gone 04:12:46)
-T 1492589110 18<mistria18>	akurtakov: 1-1 ?
-T 1492589115 18<akurtakov18>	mistria: yes
-T 1492589121 18<akurtakov18>	I was looking for you few mins ago
-T 1492589135 18<mistria18>	akurtakov: I've been a bit late
-T 1492589232 18<akurtakov18>	mistria: https://redhat.bluejeans.com/8966058510/
-T 1492589243 18<mistria18>	akurtakov: I'm there
-T 1492589936 18<mistria18>	akurtakov: seems like there's a issue with BJ,let me reload the windows
-T 1492590001 18<mistria18>	akurtakov: I can't hear nor see you
-T 1492590159 18<scela18>	mistria: akurtakov try gtalk, we'll be probably moving there soon anyway ;)
-T 1492590166 18<scela18>	*hangouts
-T 1492600596 18<scela18>	mistria: hey
-T 1492600620 18<mistria18>	scela: hi
-T 1492600639 18<scela18>	mistria: just fw you an email on gmail
-T 1492600649 18<mistria18>	scela: ok
-T 1492600654 18<scela18>	mistria: do we have an example of the Language Server consuming javascript?
-T 1492600661 18<scela18>	mistria: IIRC we had something with typescript
-T 1492600685 18<mistria18>	scela: BlueSky uses SourceGraph JSTS language-server, it's JavaScript-able
-T 1492600717 18<scela18>	mistria: ok
-T 1492600745 18<scela18>	mistria: please point patrik to it as he is interested in it and maybe will help
-T 1492600760 18<scela18>	mistria: i forgot to cc him but feel free to use his address in original mail
-T 1492600776 18<mistria18>	scela: ok
-T 1492600811 18<scela18>	mistria: thanks
-T 1492600827 18<scela18>	mbooth_: ping
-T 1492600876 18<scela18>	mistria: btw, do you have free ticket for ECF? we only get one from the talk
-T 1492600927 18<mistria18>	scela: I current have 3 free tickets, so feel free to use this one.
-T 1492600944 18<scela18>	mistria: ok
-T 1492600952 18<scela18>	mistria: i'll use the one from the talk
-T 1492603170 18<akurtakov18>	mistria: nice
-T 1492603343 18<akurtakov18>	mistria: I really like the editor so far
-T 1492603355 18<mistria18>	akurtakov: the bluesky ones?
-T 1492603373 18<akurtakov18>	mistria: yeah, using it for html with embedded css and js
-T 1492603425 18<akurtakov18>	mistria: the fact that there is completion for style=" but not for class=" is down to the langserver, right?
-T 1492603437 18<akurtakov18>	nothing of these is handled in bluesky itself
-T 1492603443 18<mistria18>	akurtakov: right
-T 1492603451 18<mistria18>	akurtakov: you can compare with VSCode for that
-T 1492603466 18<mistria18>	akurtakov: if it works in vscode it's supposed to work on bluesky
-T 1492603492 18<mistria18>	akurtakov: if it doesn't work on vscode, open a bug to vscode; if it works on vscode and not on bluesky, open a bug to bluesky
-T 1492603517 18<akurtakov18>	mistria: hmm, it works in vscode
-T 1492603543 18<mistria18>	akuratkov: ok, so please open a bug to bluesky
-T 1492603562 18<akurtakov18>	let me minimize it and will do
-T 1492603573 18<mistria18>	akurtakov: there are often some strange options to discover, especially as the protocol evolves
-T 1492603624 18<akurtakov18>	man, vscode with this dark background really screws selection visibility
-T 1492604212 18<akurtakov18>	mistria: thanks for fixing my paste :)
-T 1492608103 18<mbenitez18>	scela, hello Sopot, sent you an important note, please let me know your answer in the next couple of hours
-T 1492609035 18<nboldt18>	Anyone using Eclipse Neon.3 w/ JDK 9? Wondering about what to do for https://issues.jboss.org/browse/JBIDE-22417
-T 1492609055 19<nboldt>	scela: lufimtse: rgrunber: ^
-T 1492609087 18<rgrunber18>	scela: we ran into this right ? javax.annotation wiring
-T 1492609087 18<nboldt18>	or is JDK 9 support only coming to Oxygen, with no solution for Neon.3 (other than stated workaround)
-T 1492609115 18<akurtakov18>	nboldt: --add-modules=java.se.ee to vmargs in eclipse.ini
-T 1492609124 18<nboldt18>	workaround is --add-modules=java.se.ee --> https://issues.jboss.org/browse/JBIDE-22417?focusedCommentId=13310535&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13310535
-T 1492609143 18<nboldt18>	yeah, I know about the workaround akurtakov ... just wondering if Eclipse platform in Neon.3 fixed anything 
-T 1492609157 18<akurtakov18>	nboldt: no
-T 1492609157 18<nboldt18>	or if workaround is still needed 
-T 1492609160 18<nboldt18>	ok cool
-T 1492609164 18<nboldt18>	will punt this to 4.5.0 then
-T 1492609177 18<akurtakov18>	nboldt: it is supposed to be in M7 equinox
-T 1492609180 18<akurtakov18>	but hasn't landed yet
-T 1492609192 20<lufimtse>30	nboldt, I haven't tested JDK9 yet.
-T 1492609248 18<rgrunber18>	is anyone aware of any recent issues (past few days) relating to failure to upload content to downloads.eclipse.org by HIPPS ?
-T 1492609287 18<akurtakov18>	rgrunber: we have similar issue with platform https://bugs.eclipse.org/bugs/show_bug.cgi?id=515438
-T 1492609306 18<rgrunber18>	it seems to me like a sync issue.. needless to say orbit is quite affected
-T 1492609357 18<rgrunber18>	k awesome, we're not alone
-T 1492609420 18<akurtakov18>	nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761 
-T 1492609622 18<akurtakov18>	rgrunber: please state the issues you face with orbit too in the bug
-T 1492609628 18<rgrunber18>	am doing that :)
-T 1492609636 18<rgrunber18>	i have maybe some extra info that might give more clues.. 
-T 1492609638 18<rgrunber18>	i hope
-T 1492609780 18<akurtakov18>	there was also the issue of signer being broken today
-T 1492609871 18<rgrunber18>	hmm, i think it's more fundamental. i can do 'touch /home/data/httpd/download.eclipse.org/tools/orbit/downloads/fooo' that succeeds.. but 'fooo' is nowhere to be found. (i could even remove it and it succeeds). in my case i checked maybe 12hrs later and it showed up.
-T 1492609890 18<rgrunber18>	* performing 'touch' via the HIPP
-T 1492609919 18<rgrunber18>	so maybe some issue with mirroring or syncing if they're nfs mounting everything. /home/data
-T 1492611447 18<rgrunber18>	Any errata gurus know what "Could not get product listings for the following builds" means ? it's not for me.. someone asked..
-T 1492611777 18<mbenitez18>	releng needs to allow the builds, just file a ticket by emailing releng, usually best to CC the releng product owner too
-T 1492611829 18<rgrunber18>	k great.. i ran into this as well https://mojo.redhat.com/groups/release-engineering/blog/2017/04/03/you-may-not-know-4-n-build-rpms-not-in-product-listings-doesnt-have-to-mean-error that sort of explains it
-T 1492611891 18<mbenitez18>	nice
-T 1492613638 18<scela18>	nboldt: just had a chance to read your note
-T 1492613644 18<scela18>	nboldt: was that solved already?
-T 1492613772 18<nboldt18>	scela: solved as far as I needed to know, yes. tl;dr, not fixed in Neon.3 but there's a workaround; fix planned for Oxygen.0.M7
-T 1492613812 18<nboldt18>	scela: assuming you mean my IRC message above, not my email. I don't think I sent an email. did you mean mbenitez's email?
-T 1492613835 18<scela18>	nboldt: mbenitez's email is something else
-T 1492613844 18<scela18>	nboldt: i meant your java annotation stuff
-T 1492615084 18<nboldt18>	scela: yep, all good
-T 1492615269 18<scela18>	nboldt: alright
-T 1492619802 18<rgrunber18>	akurtakov: so there's an ongoing migration @ download.eclipse to new storage device, probably explains the delayed content.
-T 1492620024 18<akurtakov18>	aha 
-T 1492620122 FiSHLiM plugin unloaded
-T 1492620144 19*	Now talking on 22#eclipse
-T 1492620144 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492620144 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492631848 20<lufimtse>30	mistria, Hey ya. Is this business working? Bug 513306 - Propose solutions for missing natures
-T 1492631852 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=513306
-T 1492631858 20<lufimtse>30	I'd like to try it
-T 1492631873 20<lufimtse>30	for shelled support in projects that don't have dltk nature
-T 1492631924 19<akurtakov>	lufimtse: so this one is if you have the nature in the project file but shelled is not installed
-T 1492631933 19<akurtakov>	lufimtse: if you have marketplace installed
-T 1492631958 20<lufimtse>30	Ah, I see
-T 1492631961 20<lufimtse>30	Still useful
-T 1492631968 18<akurtakov18>	and in File associations
-T 1492631973 18<akurtakov18>	you have selected
-T 1492631981 18<akurtakov18>	search via marketplace
-T 1492631991 18<akurtakov18>	or smth similar
-T 1492632009 18<akurtakov18>	on opening of .sh file marketplace will propose installing the editor
-T 1492632015 18<akurtakov18>	that's in neon already
-T 1492632081 20<lufimtse>30	I se
-T 1492632122 20<lufimtse>30	I'm about to submit gerrit patch where I'll be adding the dltk buildcommand (nature?) to swt & swt.tools
-T 1492632133 20<lufimtse>30	although I'm not sure if buildcomman==nature
-T 1492632210 20<lufimtse>30	 if you convert project to have shelled support, the following is added to .project:
-T 1492632211 20<lufimtse>30	<projectDescription> .. <buildSpec>
-T 1492632211 20<lufimtse>30	...<buildCommand><name>org.eclipse.dltk.core.scriptbuilder</name><arguments></arguments></buildCommand>
-T 1492632223 20<lufimtse>30	Not sure if above is nature or not.
-T 1492632234 19<akurtakov>	lufimtse: hmm, is this needed ?
-T 1492632253 20<lufimtse>30	idk, but with that shelled works (outline/auto-predict)
-T 1492632263 20<lufimtse>30	if you take it out, shelled only does syntax highlighting
-T 1492632281 20<lufimtse>30	ah
-T 1492632283 20<lufimtse>30	SEC
-T 1492632287 20<lufimtse>30	it does add nature also
-T 1492632291 20<lufimtse>30	<nature>org.eclipse.dltk.sh.core.nature</nature>
-T 1492632312 20<lufimtse>30	I guess it adds nature + build command
-T 1492632324 20<lufimtse>30	ok, we're good I guess
-T 1492632339 18<akurtakov18>	hmm so only the nature is not sufficient ?
-T 1492632344 20<lufimtse>30	Let me try.
-T 1492632361 18<akurtakov18>	iirc there is no builder in shelled
-T 1492632381 20<lufimtse>30	in the sense that "Configure -> Add shell script support" automatically adds the build command.
-T 1492632383 20<lufimtse>30	sec
-T 1492632400 18<akurtakov18>	I see
-T 1492632415 20<lufimtse>30	akurtakov, so if I take out the buildcommand, shelled still works
-T 1492632417 19<akurtakov>	lufimtse: please open bug against shelled for this to be investigated
-T 1492632419 20<lufimtse>30	outlike etc...
-T 1492632420 20<lufimtse>30	ok. 
-T 1492632438 20<lufimtse>30	what is buildcommand used for anyhows?
-T 1492632443 20<lufimtse>30	like for running the bashscripts?
-T 1492632453 19<akurtakov>	lufimtse: no idea :)
-T 1492632495 18<akurtakov18>	my guess - indexing, type hierarchy and etc. which make sense for ruby/tcl/etc. but not for shell
-T 1492632585 20<lufimtse>30	akurtakov, I see
-T 1492632594 20<lufimtse>30	akurtakov, ok, I'll submit bugz.
-T 1492633051 20<lufimtse>30	akurtakov,  
-T 1492633051 20<lufimtse>30	Bug 515478 - "Configure -> Add shell script support" adds 'buildcommand' to .project without need
-T 1492693579 20<lufimtse>30	--
-T 1492693603 20<lufimtse>30	Does anyone know the MPC update site?
-T 1492693607 20<lufimtse>30	msimacek, ^
-T 1492693648 19<msimacek>	lufimtse: what's MPC?
-T 1492693659 20<lufimtse>30	msimacek, marketplace client
-T 1492693669 20<lufimtse>30	I want to test: https://bugs.eclipse.org/bugs/show_bug.cgi?id=513306
-T 1492693676 20<lufimtse>30	Bug 513306 - Propose solutions for missing natures 
-T 1492693708 19<msimacek>	lufimtse: I don't know it, sorry
-T 1492693794 20<lufimtse>30	ok, never mind, I found
-T 1492693795 20<lufimtse>30	http://download.eclipse.org/mpc/nightly/
-T 1492697208 18<mbenitez18>	eclipse-team: devtools monthly all hands in ~25min https://primetime.bluejeans.com/a2m/live-event/wq97228
-T 1492697495 19*	Now talking on 22#eclipse
-T 1492697495 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492697495 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492697939 18<mbooth_18>	rgrunber: A CVE appeared against bouncycastle in F24 -- which looks like the same version of bouncycastle you have in orbit, would you like me to file a bug at eclipse.org?
-T 1492697942 18<mbooth_18>	rgrunber: https://bugzilla.redhat.com/show_bug.cgi?id=1444015
-T 1492698003 18<rgrunber18>	yeah.. just one sec..lemme confirm it's there.
-T 1492698056 18<rgrunber18>	yup, seems to be there.
-T 1492698142 18<akurtakov18>	mbenitez: this needs flash ?
-T 1492698157 18<rgrunber18>	i think primetime needs flash..
-T 1492698187 18<mbenitez18>	oh probably... barely remember issues with bluejeans live before :(
-T 1492698262 18<akurtakov18>	meh, no luck for me
-T 1492698395 18<mbenitez18>	hmm... it seems there's phone options www.bluejeans.com/numbers/primetime-attendees   participant PIN: 1529251737 followed by #
-T 1492698436 18<rgrunber18>	mbooth_: if Orbit does actually introduce a newer version there's a few issues to address (1.52 might not be possible to remove as we're past M6, we're definitely past the CQ deadline)
-T 1492698519 18<mbooth_18>	rgrunber: Is it possible to apply patches and bump the qualifier on the old version?
-T 1492698607 18<rgrunber18>	mbooth_: yes, a possibility.. i would ask they set the 'modified' flag on the 1.52 bug, and promise to eventually bring in an upstream version that contains the fix at a later date.
-T 1492698722 18<mbooth_18>	rgrunber: https://bugs.eclipse.org/bugs/show_bug.cgi?id=515521
-T 1492698783 18<mbooth_18>	rgrunber: Feel free to remove the "committer-only" flag from the bug, I'm unsure what eclipse.org policy is for CVEs
-T 1492698815 18<mbooth_18>	But I think the Fedora bug is public
-T 1492699322 18<akurtakov18>	mbooth_: any chance to know someone having suse handy ?
-T 1492699424 18<mbooth_18>	akurtakov: Hmm, probably not
-T 1492700107 18<scela18>	akurtakov: did you try chrome for the all-hands meeting?
-T 1492700112 18<scela18>	akurtakov: seems to work fine for me
-T 1492700125 18<akurtakov18>	scela: doesn't work with chromium
-T 1492700130 18<akurtakov18>	and I don't have chrome
-T 1492700482 18<scela18>	akurtakov: ok
-T 1492700573 18<akurtakov18>	scela: you'll share with me if there is anything
-T 1492700858 18<scela18>	akurtakov: will do
-T 1492700909 18<mbenitez18>	akurtakov, well played! after all is part of scela's new work :P
-T 1492701017 18<akurtakov18>	mbenitez: :)
-T 1492701028 18<akurtakov18>	and I am at another call too :)
-T 1492701043 18<mbenitez18>	akurtakov, life of a VIP
-T 1492701057 18<akurtakov18>	very idiotic person ? :)
-T 1492701071 18<mbenitez18>	I was thinking important...
-T 1492701086 18<mbenitez18>	but maybe you're speaking about the mtg lead
-T 1492701352 18<akurtakov18>	mbenitez: haha, I was speaking of myself - why would anyone sane sign for so many things :)
-T 1492701405 18<mbenitez18>	akurtakov, well you have many interests and people trust you with many responsibilities
-T 1492709094 19<akurtakov>	lufimtse_: how do we stand with https://bugs.eclipse.org/bugs/show_bug.cgi?id=507062 ?
-T 1492709118 18<akurtakov18>	should we get scela/mistria finishing it ?
-T 1492709121 18<akurtakov18>	it's due next week
-T 1492709188 18<akurtakov18>	or is it actually fixed?
-T 1492711386 20<lufimtse_>30	akurtakov, start or end of next week?
-T 1492711412 20<lufimtse_>30	akurtakov, partially, but I put it on pause while working on webkit and dnd
-T 1492711432 20<lufimtse_>30	akurtakov, I could work on finishing it off, the DnD work can be done after oxygen
-T 1492711441 20<lufimtse_>30	that colour thing might be better to do sooner
-T 1492712034 19<akurtakov>	lufimtse_: jump around :)
-T 1492712062 20*	lufimtse_ 30bunny mode activated.
-T 1492712505 19*	Now talking on 22#eclipse
-T 1492712505 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492712505 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492714334 19<akurtakov>	lufimtse: please note that you will need PMC approval for new api now https://bugs.eclipse.org/bugs/show_bug.cgi?id=508819
-T 1492714346 20<lufimtse>30	akurtakov, ok
-T 1492777416 19*	Now talking on 22#eclipse
-T 1492777416 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492777416 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492779289 19*	Now talking on 22#eclipse
-T 1492779289 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492779289 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1492780881 19*	Now talking on 22#eclipse
-T 1492780881 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1492780881 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1493053497 18<nboldt18>	(throw something over the wall if he's in the office.)
+T 1493053566 18<nboldt18>	jjohnstn: hey, so, dumb question revisited... the current docker tools 2.3.0 in Neon.3[b?] is the same as the stuff I pulled last week from your 2.3.1 site, except for the version number? 
+T 1493053871 18<jjohnstn18>	nboldt: not entirely.  Our code didn't change except for the changing of the version numbers.  The docker-client dependency was back-levelled to 3.4.0 from 3.6.8 so the dependencies such as httpclient and jackson jars were taken from a different Orbit repo.  I still haven't seen any confirmation that the respin has been tested or confirmed to fix the problem.
+T 1493053888 18<nboldt18>	ah
+T 1493053935 18<nboldt18>	so... JBT/devstudio currently use com.spotify.docker.client version="3.6.8.v20170223-1848
+T 1493053957 18<nboldt18>	which means we're "newer/better" than what's in Neon.3b (same as was in Neon.3a)
+T 1493054008 18<nboldt18>	if this respin (b, using 3.4.0) is live then... will we produce a conflict if both 3.4.0 and 3.6.8 are available at install time?
+T 1493054065 18<nboldt18>	eg., user with Neon.3b (including docker 2.3.0 (dep on 3.4.0) tries to install from update site with JBT/devstudio includes dt 2.3.1 (deps on docker.client 3.6.8) ... 
+T 1493054090 18<nboldt18>	I'm guessing that would work and the user would end up with your newer stuff rather than your backlevelled 2.3.0 re-release
+T 1493054098 18<nboldt18>	so that's GOOD. Right?
+T 1493054305 FiSHLiM plugin unloaded
+T 1493054320 19*	Now talking on 22#eclipse
+T 1493054320 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1493054320 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1493054336 18<jjohnstn18>	nboldt: the only issue is with the updated httpclient and httpcore jars.  Someone claimed the fixed versions still cause issues for other Eclipse plug-ins, but in theory they should just work.
+T 1493054491 18<nboldt18>	"the fixed versions" being these two? 
+T 1493054492 18<nboldt18>	      <unit id="org.apache.httpcomponents.httpclient" version="4.5.2.v20170210-0925"/>
+T 1493054492 18<nboldt18>	      <unit id="org.apache.httpcomponents.httpcore" version="4.4.6.v20170210-0925"/>
+T 1493054497 18<nboldt18>	jjohnstn: ^
+T 1493054548 18<jjohnstn18>	nboldt: yes
+T 1493054584 18<nboldt18>	I believe those are the same ones in Fedora and RHSCL... mbooth can you confirm?
+T 1493054671 18<mbooth18>	In Fedora we have: httpcomponents-core-4.4.6-3.fc26 httpcomponents-client-4.5.3-3.fc26
+T 1493054735 18<nboldt18>	shame the timestamps don't line up
+T 1493060472 18<mbenitez18>	mistria, the one time I don't check IRC :)
+T 1493060545 18<mistria18>	mbenitez: I usually prefer emails anyway, so it's not a problem at all 
+T 1493060555 18<mbenitez18>	mistria, good to know
+T 1493110686 18<mistria18>	scela: hi
+T 1493110696 18<mistria18>	scela: I managed to fix my demo
+T 1493110713 18<mistria18>	scela: so I can present BlueSky this afternoon as expected
+T 1493110750 18<akurtakov18>	mistria: on windows?
+T 1493110781 18<mistria18>	akurtakov: I'll demo it on Linux, but it's also working on Windows
+T 1493110794 18<mistria18>	akurtakov: unless you think there's value in demoing it on Windows
+T 1493110799 18<akurtakov18>	yeah, I was asking whether it works on windows now
+T 1493110807 18<akurtakov18>	no, Linux is always better
+T 1493110834 18<akurtakov18>	I feel ashamed when we demo things on non Fedora/RHEL first :)
+T 1493110953 18<mistria18>	akurtakov: I'll prepare the video demo, put it on the README of bluesky and send a note to wtp-dev
+T 1493110980 18<mistria18>	akurtakov scela: please remind me how long a demo is supposed to be on sprint review?
+T 1493111085 18<scela18>	mistria: how much do you need for the best experience?
+T 1493111096 18<scela18>	mistria: i'm sure noone will interrupt you
+T 1493111118 18<mistria18>	scela: I didn't try yet, but I think 2 minutes are enough
+T 1493111141 18<mistria18>	scela: showing Marketplace, showing the editors on the 4 files, a few features
+T 1493111150 18<scela18>	mistria: max 5 minutes
+T 1493111154 18<mistria18>	scela: and a note about the possiblity of debug
+T 1493111157 18<scela18>	if it's less you should be fine
+T 1493111164 18<mistria18>	scela: ok thanks
+T 1493111181 18<mistria18>	scela: I'll stay under 5 for sure
+T 1493111183 18<scela18>	mistria: can you send me also a quick summary of 3 lines of what that is about? I'll put it in a short presentation
+T 1493111206 18<scela18>	mistria: basically a one slide thing of what we're going to show
+T 1493111247 18<scela18>	mistria: i'll put my stuff in there and yours so a couple of lines should be enough
+T 1493111268 18<akurtakov18>	mistria: btw, is js/ts autocomplete working too ?
+T 1493111290 18<mistria18>	scela: "In BlueSky for Eclipse IDE, we've implemented rich editors for web-based formats in Eclipse IDE using TextMate and Language Servers within a few weeks without much difficulty. We've also started to validate that debug is pluggable in those editors."
+T 1493111300 18<mistria18>	akurtakov: yes, should be
+T 1493111334 18<mistria18>	akurtakov: but I'd be glad if you can give it a try too
+T 1493111343 18<akurtakov18>	sure
+T 1493111670 18<scela18>	mistria: ok
+T 1493112096 18<akurtakov18>	mistria: not there for me yet
+T 1493112109 18<akurtakov18>	mistria: still Computing (0/1) in js files
+T 1493112112 18<akurtakov18>	and no hover
+T 1493112114 18<mistria18>	akurtakov: ok...
+T 1493112149 18<mistria18>	akurtakov: did you re-install it from scratch or did an update of a previous one?
+T 1493112173 18<akurtakov18>	mistria: fetched master and run as inner eclipse
+T 1493112192 18<mistria18>	akurtakov: ok, and did you try a `mvn generate-resources` first?
+T 1493112211 18<akurtakov18>	no
+T 1493112220 18<akurtakov18>	doing it now
+T 1493112232 18<akurtakov18>	but I had a build before that
+T 1493112238 18<akurtakov18>	maybe this is the issue
+T 1493112317 18<mistria18>	akurtakov: yes, please delete the language-servers/node_modules folder before running `mvn generate-resources`
+T 1493112348 18<akurtakov18>	ok
+T 1493112487 18<akurtakov18>	mistria: nice
+T 1493112489 18<akurtakov18>	works now
+T 1493112597 18<akurtakov18>	mistria: only issue left from my first experiment is https://github.com/mickaelistria/eclipse-bluesky/issues/8
+T 1493112651 18<mistria18>	akurtakov: yeah, I'll investigate it; it's a bit deeper, either directly in the LS or it means VSCode has another compeltion provider plugged in
+T 1493112679 18<akurtakov18>	mistria: not urgent, I really liked killing the two issues that easily :)
+T 1493112686 18<mistria18>	akurtakov: I'll have to dig in VSCode before I know what to do with it
+T 1493112740 18<mistria18>	akurtakov: yeah, I'm learning the npm magic
+T 1493112778 18<mistria18>	akurtakov: apparently `npm install` doesn't guarantee same result depending on whether there is content present or not already
+T 1493113206 18<mistria18>	akurtakov: https://github.com/mickaelistria/eclipse-bluesky/commit/e8766d4d983b55fd24a6dfef63be65dc668756ff
+T 1493113224 18<mistria18>	akurtakov: that should prevent from facing this issue again
+T 1493113242 18<mistria18>	akurtakov: not definitively, but with a lower probability
+T 1493113253 18<akurtakov18>	nice good to see that even dummy usage like mine is helping :)
+T 1493113732 18<scela18>	mistria: akurtakov always has a funky setup
+T 1493113755 18<scela18>	mistria: everytime i ask him to try something, there is definitely something new popping up, no matter how much i test myself
+T 1493113831 18<mistria18>	scela akurtakov: should it be considered as a divine gift or a curse?
+T 1493113912 18<mbooth18>	akurse... takov
+T 1493114053 18<akurtakov18>	wow :)
+T 1493114071 18<akurtakov18>	actually, what's weird is that I don't tweak my system at all :)
+T 1493114104 18<akurtakov18>	what I work on is build from source rest is without any config changes or as little as possible
+T 1493121059 18<akurtakov18>	mbooth: https://git.eclipse.org/r/#/c/95684/ - once this lands in you will need libsecret-devel to build 
+T 1493122818 18<mbooth18>	akurtakov: On x86_64 only?
+T 1493122824 18<akurtakov18>	mbooth: yes
+T 1493122842 18<akurtakov18>	I don't care to try pushing for the rest now
+T 1493122861 18<akurtakov18>	and if I have bringed the question it would have been delayed for post-oxygen :)
+T 1493130086 19<scela>	lufimtse: ipun it's http://eclipse.etherpad.corp.redhat.com/sprint-planning? time
+T 1493130095 20<lufimtse>30	scela, thanks
+T 1493130099 18<ipun18>	scela: thank you
+T 1493130132 20<lufimtse>30	scela, so we update it one day before each one starts?
+T 1493130144 20<lufimtse>30	(I had a task to update it tomorrow).
+T 1493130154 18<rgrunber18>	nboldt: https://rgrunber.fedorapeople.org/aggInstall
+T 1493130219 18<akurtakov18>	rgrunber: seen my email?
+T 1493130244 18<akurtakov18>	we are really pushed by the ant  and junit changes
+T 1493130248 18<rgrunber18>	k seen
+T 1493130278 19<scela>	lufimtse: we update it the day of the meeting usually
+T 1493130279 18<akurtakov18>	ant is top prio - how far are we from it ?
+T 1493130289 20<lufimtse>30	ok
+T 1493130341 18<rgrunber18>	akurtakov: is there no way to have it working with versions ?
+T 1493130390 18<rgrunber18>	either gunnar or myself would need to patch ebr-maven-plugin to create the jars without version..
+T 1493130395 18<akurtakov18>	rgrunber: no, issue is that wherever someone used ant bundle in e.g. build.xml files 
+T 1493130409 18<akurtakov18>	these referencnes are withoug versions
+T 1493130425 18<akurtakov18>	so not having them means buildsystems of every project will fail
+T 1493130621 18<rgrunber18>	k i'll look at what can be done to change the behaviour
+T 1493130832 18<rgrunber18>	i'll look through what's needed for junit as well.. after the ant work gets in.
+T 1493131282 18<akurtakov18>	rgrunber: so I refer to http://git.eclipse.org/c/platform/eclipse.platform.ua.git/tree/org.eclipse.help.webapp/buildJSPs.xml#n39 and similar hardcoded
+T 1493131299 18<akurtakov18>	while technically they would not be hard to fix
+T 1493131305 18<akurtakov18>	the amount of them is scary
+T 1493131382 18<akurtakov18>	and doing it at M7 would pretty much break the build of everything against M7 which is a clear no-go
+T 1493132324 18<mbenitez18>	eclipse-team: sprint demo session starting in ~2min
+T 1493132343 18<mbenitez18>	https://redhat.bluejeans.com/6300487397
+T 1493133487 18<akurtakov18>	jjohnstn: what do you think about disabling the broken httpclient bundles in linuxtools release ?
+T 1493133490 18<akurtakov18>	rgrunber: ^^
+T 1493133657 18<rgrunber18>	akurtakov: you mean re-releasing our won stuff with the fix Jeff made for Neon.3 aggregation ? If it works and no regressions are encountered i don't see why not..
+T 1493133663 18<rgrunber18>	own*
+T 1493133685 18<akurtakov18>	rgrunber: I've been told that p2 can actively disable bundles 
+T 1493133697 18<akurtakov18>	so they are not used by the resolver
+T 1493134175 18<mbenitez18>	mistria, really good demo!
+T 1493134185 18<mistria18>	mbenitez: thanks
+T 1493134188 18<mbenitez18>	scela, good job representing the group
+T 1493134230 18<scela18>	mbenitez: thanks
+T 1493134846 18<akurtakov18>	jjohnstn: rgrunber: so if you agree on such approach disabling bundle and if the bundle we ship is so badly broken
+T 1493134871 18<akurtakov18>	would you please contact Pascal and/or Tom Watson asking how to do that
+T 1493134884 18<akurtakov18>	so we can have it in our toolbox if needed
+T 1493134905 18<akurtakov18>	it could also fix the case for people that have Neon.3a 
+T 1493134918 18<akurtakov18>	err that have Neon.3 and update to .3a
+T 1493135552 18<jjohnstn18>	akurtakov: I'm not sure what you are proposing...the new Neon.3 aggregation shouldn't bring those in anymore...fwiw: we don't work when the new Neon.3 aggregation docker tooling is added to the EPP for committers Neon.3..looking at it :(
+T 1493135646 18<akurtakov18>	jjohnstn: so if I get it right people that updated to Neon.3 will continue facing resolver issue, right?
+T 1493135666 18<akurtakov18>	as they would still have newer/broken httpclient
+T 1493135817 18<jjohnstn18>	akurtakov: only if they installed us with the higher level of httpclient/httpcore...if they uninstall and reinstall, it should in theory remove the bad plugins...rgrunber would need to confirm this
+T 1493135898 18<akurtakov18>	jjohnstn: so I'm talking of smth like p2.inf with uninstallBundle  for the broken httpclient 
+T 1493135923 18<akurtakov18>	but this might need to be clarified with p2 guys first as it might be crazy idea :)
+T 1493135932 18<akurtakov18>	https://help.eclipse.org/neon/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_actions_touchpoints.html
+T 1493135936 18<jjohnstn18>	akurtakov: I see
+T 1493135967 18<akurtakov18>	so even this case is covered
+T 1493135987 18<akurtakov18>	jjohnstn: aka RPM's Obsolete in p2 :)
+T 1493138227 18<rgrunber18>	akurtakov: isn't it a problem that uninstallBundle doesn't seem to take some kind of version ?
+T 1493145713 18<akurtakov18>	rgrunber: that's a problem yeah, so you can't specify a version to uninstall?
+T 1493145843 18<rgrunber18>	not according to the docs, bundle is just a bundle-id
+T 1493145952 18<akurtakov18>	well, if that's the case - we can't proceed
+T 1493147579 18<jjohnstn18>	rgrunber: what if I force the httpclient and httpcore reqs for docker.core?  on an update, would the newer http packages then not be used by anything and disappear?
+T 1493147639 18<jjohnstn18>	rgrunber: hmm, I guess other packages might just specify 0.0.0 and so the package would still fill some req
+T 1493148640 18<rgrunber18>	jjohnstn: not exactly sure what would happen in that case, would need to test it out
+T 1493151722 18<rgrunber18>	jjohnstn: yeah exactly what you said.. newer bundle remains because an older one could wire to it..
+T 1493151736 18<rgrunber18>	s/could/does/
+T 1493152144 18<jjohnstn18>	rgrunber: I tried removing my new Docker Tooling feature and reinstalling the Neon.3 version.  After restarting and getting errors, I reinstalled the new one.  It restarted without errors and Docker Tooling functionality works.
+T 1493152344 18<rgrunber18>	how many httpclient versions are on the system ?
+T 1493153483 18<jjohnstn18>	rgrunber: not counting commons.httpclient...2 httpclients: 4.3.6 and 4.5.2...2 httpcore 4.3.3 and 4.4.4
+T 1493154217 18<rgrunber18>	hmm and it all works ?
+T 1493154261 18<rgrunber18>	weren't there some complaints from projects that there were uses constraint issues or something ?.. i thought there were issues beyond just fixing httpclient 4.5.2.
+T 1493155137 18<jjohnstn18>	rgrunber: it seems to...but I would need to see others test it and report their findings...nothing shows up in error log on start-up
+T 1493191091 18<akurtakov18>	mistria: mornign
+T 1493191103 18<mistria18>	akurtakov: hello
+T 1493191134 18<akurtakov18>	I just sawyour comment
+T 1493191148 18<akurtakov18>	so this tsserver is not using the LSP ?
+T 1493191175 18<mistria18>	akurtakov: no, tsserver doesn't
+T 1493191187 18<akurtakov18>	but it's still MS project ?
+T 1493191190 18<mistria18>	akurtakov: https://github.com/Microsoft/TypeScript/issues/11274
+T 1493191197 18<mistria18>	akurtakov: yes
+T 1493191216 18<mistria18>	akurtakov: we're using a "layer on top" of it, which reduces the quality of the server
+T 1493191228 18<akurtakov18>	I see
+T 1493191251 18<mistria18>	akurtakov: I think tsserver would welcome support for LSP, it wouldn't be too hard
+T 1493191261 18<mistria18>	akurtakov: but it doesn't seem to be a priority for them
+T 1493191286 18<mistria18>	akurtakov: if we (Red Hat, not specifically our team) want to invest in better typescript, we should work on this issue
+T 1493191287 18<akurtakov18>	and if/when this happens bluesky and typescript.java could merge ?
+T 1493191297 18<mistria18>	akurtakov: Che is using too
+T 1493191319 18<mistria18>	akurtakov: yes, probably
+T 1493191334 18<mistria18>	akurtakov: you mean WTP and typescript.java ;)
+T 1493191352 18<akurtakov18>	if bluesky took over WTP by then - yes :)
+T 1493191401 18*	akurtakov really hates having 3 top level Java Script preferences in eclipse :)
+T 1493191600 18<akurtakov18>	mistria: btw, can you point me to where contributions to release train are defined
+T 1493191635 18<mistria18>	akurtakov: http://git.eclipse.org/c/simrel/org.eclipse.simrel.build.git/tree/
+T 1493191664 18<mistria18>	akurtakov: http://git.eclipse.org/c/simrel/org.eclipse.simrel.build.git/tree/simrel.aggr is the "master" file, and each file is an individual project ocntribution
+T 1493191694 18<akurtakov18>	meh <features href="linuxtools.aggrcon#//@repositories.0/@features.1"/> :)
+T 1493191745 18<akurtakov18>	whatever that means :)
+T 1493191758 18<akurtakov18>	anyway, thanks for the pointer
+T 1493191933 18<mistria18>	akurtakov: means that it adds to the model the feature with index 1 defined in the repository with index 0
+T 1493191971 18<mistria18>	in a java-like world, it's `linuxtools.aggrcon`.repositories/repositories[0]/features[1]
+T 1493192010 18<mistria18>	sorry, I meant `linuxtools.aggrcon`.repositories[0].features[1
+T 1493192013 18<mistria18>	]
+T 1493192135 18<scela18>	mistria: http://langserver.org/
+T 1493192158 18<scela18>	mistria:there's a full blown php server it seems
+T 1493192167 18<scela18>	mistria: in a mood for killing PDT also ? ;)
+T 1493192171 18<mistria18>	scela: yes, there is
+T 1493192183 18<mistria18>	scela: there are 2 actually: one from Zend, the other from SourceGraph
+T 1493192202 18<mistria18>	scela: Michal from PDT has made a PHP editor based on LSP and is actively contributing
+T 1493192216 18<scela18>	mistria: cool, didn't know that
+T 1493192219 18<mistria18>	scela: seems like Zend is taking that direction, and may move PDT at some point
+T 1493192221 18<scela18>	mistria: can we reuse that?
+T 1493192235 18<mistria18>	scela: to get where?
+T 1493192246 18<mistria18>	scela: I think it's better to let PHP professional take care of it
+T 1493192262 18<scela18>	mistria: yeah makes sense if they are going in that direciton
+T 1493192277 18<scela18>	mistria: i was surprised there is already servers for so many languages
+T 1493192280 18<scela18>	akurtakov: ^
+T 1493192286 18<scela18>	mistria: this thing is picking up fast
+T 1493192291 18<mistria18>	scela: https://github.com/eclipselabs/lsp4e-php
+T 1493192314 18<scela18>	mistria: really nice
+T 1493192331 18<akurtakov18>	scela: mistria: I had phone call with Kaloyan (a month or so ago) about it
+T 1493192351 18<akurtakov18>	they are definetely looking into moving in that direction
+T 1493192378 18<scela18>	akurtakov: yeah but it's not only about php
+T 1493192379 18<akurtakov18>	but it's still not on par with their current one
+T 1493192390 18<scela18>	akurtakov: that list has a list of almost all relevant languages
+T 1493192402 18<scela18>	python seems has a full blown one
+T 1493192414 18<scela18>	rust also
+T 1493192420 18<akurtakov18>	scela: sadly, it's not the editor only
+T 1493192423 18<mistria18>	akurtakov: I think a Language Server is never going to be on par with a good parser and a good DOM used directly in a tool
+T 1493192442 18<akurtakov18>	you have to integrate it with unit support, packaging systems and etc.
+T 1493192494 18<akurtakov18>	mistria: well, in the case of PHP I believe it will be simpler as the current parser is not that good anyway
+T 1493192495 18<akurtakov18>	:)
+T 1493192501 18<scela18>	akurtakov: yeah but that's the same as say wtp
+T 1493192507 18<scela18>	with server support and all that
+T 1493192519 18<scela18>	the way i see it we're looking to mainly provide editing support
+T 1493192525 18<scela18>	rather than full blown integration
+T 1493192537 18<akurtakov18>	scela: exactly, that's why it makes sense to target replacing editors in the already existing projects rather than "killing" them
+T 1493192548 18<akurtakov18>	so we can get both
+T 1493192560 18<akurtakov18>	scela: btw, please find me a ruby language server
+T 1493192567 18<akurtakov18>	I'm eager to redo dltk ruby
+T 1493192569 18<scela18>	akurtakov: that was a pre-coffee choice of words  so don't read much into it ..
+T 1493192597 18<akurtakov18>	scela: fwiw, what a coincidence in thinking https://dev.eclipse.org/mhonarc/lists/dltk-dev/msg02582.html
+T 1493192631 18<scela18>	akurtakov: yeah the python part you mean?
+T 1493192637 18<akurtakov18>	yup
+T 1493192660 18<akurtakov18>	I don't trust Fabio to be fast moving 
+T 1493192691 18<akurtakov18>	although pydev is way better known and has tons of features (probabl the most featureful python ide)
+T 1493192732 18<akurtakov18>	btw, Pascal gave me +1 
+T 1493192802 18<scela18>	akurtakov: he would have made a really bad impression would he have voted otheriwise
+T 1493192837 18<scela18>	akurtakov: i wouldn't worry about 'better known'
+T 1493192896 18<akurtakov18>	scela: this still leaves the second part about pylint, pep, jython/ironpython, django....
+T 1493192938 18<mistria18>	akurtakov: pylint can be turned into a language server
+T 1493192960 18<mistria18>	akurtakov: but it can be bound directly to the IDE has a resource or document listener too
+T 1493192986 18<akurtakov18>	mistria: yeah, but the question is is it done, who will do it, when, is this us ... ?
+T 1493193021 18<akurtakov18>	that's why I prefer the redo parts of existing projects so we don't end up maintainers of more things :)
+T 1493193033 18<mistria18>	akurtakov: right
+T 1493193087 18<scela18>	akurtakov: mistria nice to see that RH is featured in most of these projects as spearheading the effort
+T 1493193101 18<scela18>	if this thing takes off fast we will have a competitive advantage over the rest of IDEs
+T 1493193126 18<mistria18>	scela: we already have it
+T 1493193142 18<mistria18>	scela: when we did the demo last week,, people where really impressed
+T 1493193156 18<mistria18>	scela: a question was "what's the state of NetBeans and IJ regarding LSP"
+T 1493193166 18<mistria18>	scela: and the answer was "nothing"
+T 1493193173 18<scela18>	mistria: :) i'm pretty sure you were happy answering that question
+T 1493193179 18<mistria18>	scela: which was really disappointing for IJ fanboys
+T 1493193197 18<mistria18>	scela: I was drinking their tears
+T 1493193217 18<mistria18>	(not sure that translates well)
+T 1493193223 18<scela18>	mistria: another glass for me please
+T 1493193248 18<mistria18>	scela: run the same presentation in your place if you want
+T 1493193259 18<scela18>	mistria: i'm waiting for this to get a bit more famous and us releasing oxygen
+T 1493193269 18<mistria18>	scela: ok
+T 1493193284 18<scela18>	mistria: and I'll start a full blown marketing push about the fact that we're the first to have it and the rest is way behind
+T 1493193408 18<scela18>	akurtakov: btw, eclipse marketing people contacted me and they want me to start doing presentation on tips and tricks and the @EclipseJavaIDE account
+T 1493193417 18<scela18>	mistria: ^
+T 1493193419 18<scela18>	on some meetups
+T 1493193440 18<mistria18>	scela: good
+T 1493193467 18<mistria18>	scela: beware, you're starting to enjoy it; in a few years you'll be doing advertisement for McDonalds rather than coding cool stuff with us
+T 1493193469 18<mistria18>	;)
+T 1493193534 18<scela18>	mistria: oh man, McDonalds ...
+T 1493193582 18<akurtakov18>	mistria: nah scela will be advertising smth with real meat in it  and really BIG :)
+T 1493193620 18<akurtakov18>	first google result was http://bigtexan.com/72-oz-steak/ but it matches my expectation :)
+T 1493193697 18<scela18>	akurtakov: when I first saw a McDonalds burger i was expecting the meat to come after it
+T 1493193710 18<akurtakov18>	:)
+T 1493193766 18<scela18>	mistria: but seriously I'm enjoying it yes and I see this as a different way of helping with the overall success of the technical part we are working on
+T 1493193778 18<scela18>	mistria: especially considering the competition environment we are in
+T 1493193802 18<mistria18>	scela: I can easily understand that
+T 1493193811 18<mistria18>	scela: it's really working moreover, so it's stimulating
+T 1493193835 18<mistria18>	scela: it's a fun thing to find some users who think a 13 years old feature is now and was inspired by IJ
+T 1493193856 18<scela18>	mistria: yeah
+T 1493193859 18<akurtakov18>	mistria: what do you refer to ?
+T 1493193863 18<mistria18>	scela: it shows how users were under-rated in Eclipse IDE development
+T 1493193867 18<mistria18>	akurtakov: the scope selection in JDT
+T 1493193871 18<akurtakov18>	ah
+T 1493193882 18<mistria18>	akurtakov: block selection too was new for some users
+T 1493193931 18<scela18>	mistria: yes and that is my strategic direction to fill this underrated gap
+T 1493193943 18<scela18>	mistria: as only after that is competition fair
+T 1493193994 18<scela18>	mistria: and I'll employ any tactical moves towards that direction
+T 1493194015 18<scela18>	mistria: as up to now marketing of the IDE has been some kind of 'groping in the dark'
+T 1493194053 18<mistria18>	scela: http://devhumor.com/media/eclipse-vs-intellij
+T 1493194064 18<mistria18>	scela: I find it very realistic of many IJ users
+T 1493194083 18<mistria18>	scela: they simply want to hate Eclipse, no matter what
+T 1493194115 18<scela18>	mistria: yes I have noticed that but I still haven't made up my mind on the root cause
+T 1493194125 18<scela18>	mistria: i need a bit more time 
+T 1493194137 18<mistria18>	scela: I think it's really a matter of "choosing a side"
+T 1493194161 18<scela18>	mistria: well I have chosen my side but I'm not like that
+T 1493194177 18<scela18>	mistria: and i know very few people in Eclipse who think like that
+T 1493194186 18<mistria18>	scela: same as OSX vs Win vs Linux; many discussions end up in "religious" ideas rather than technical causes
+T 1493194214 18<scela18>	mistria: maybe
+T 1493194216 18<scela18>	mistria: maybe not
+T 1493194228 18<mistria18>	scela: there are definitely a lot of things that are nicer in IJ than in Eclipse
+T 1493194239 18<mistria18>	scela: auto content assist for example
+T 1493194254 18<mistria18>	scela: as long as Eclipse doesn't have this, there will be people to hate Eclipse IDE
+T 1493194265 18<mistria18>	scela: and a few other ones
+T 1493194290 18<scela18>	mistria: honestly i want to take the supposition part out of the equation
+T 1493194301 18<scela18>	mistria: i want to hear people after 'bombarding' them for a year or two with eclipse tips
+T 1493194312 18<mistria18>	scela: but Eclipse IDE has its strengthes, that things such as the @EclipseJavaIDE account highlight and share successfully
+T 1493194346 18<scela18>	mistria: and the first part is to get people talking about it. before I grabbed the #EclipseTips hashtag it contained a bunch of tips about how to watch the eclipse saga movies
+T 1493194346 18<mistria18>	scela: multi-project, as you type validation on java...
+T 1493194353 18<akurtakov18>	my theory is that Eclipse is hated cause many companies standardized on it so it was kind of enforced on many
+T 1493194408 18<scela18>	as I said I welcome the suppositions (and I have mine) but I am not acting on any supposition until i see myself what people think after a certain time of looking at eclipse tips
+T 1493194420 18<mistria18>	scela: +1
+T 1493194445 18<scela18>	fixing this takes time and i have plenty
+T 1493194485 18<scela18>	i'll wait for our informative pushes to give mass results and then we'll see
+T 1493194532 18<mistria18>	scela: the great thing with this Eclipse tips is that it spread the knowledge. For one twitter account liking a feature, you can imagine the "liker" shares this with 3 or 4 colleagues
+T 1493194546 18<mistria18>	scela: it's just good material to make people talk in a good way about Eclipse IDE
+T 1493194573 18<mistria18>	scela: it's the best way of doing marketing I guess
+T 1493194600 18<scela18>	mistria: that's the tactic i have chosen for now for the strategic direction i mentioned above
+T 1493194612 18<scela18>	mistria: when you do this for a while then devs start doing it for you
+T 1493194618 18<scela18>	spreading the word really fast
+T 1493194627 18<mistria18>	scela: I don't know how much it's related to the Eclipse tips, but I see less and less "Eclipse sucks" on twitter
+T 1493194654 18<mistria18>	scela: there are good things happening in the IDE directly for sure, with many fixes; but the image seems to be changing too
+T 1493194673 18<mistria18>	scela: could be the result of the marketing campaings on twitter, on newsletter...
+T 1493194693 18<scela18>	mistria: it is probably related as I'd be surprised if it's a coincidence it's changing now considering we haven't released anything
+T 1493194730 18<mistria18>	akurtakov: As you're becoming a marketing person, you'll soon need finer metrics
+T 1493194733 18<mistria18>	scela: ^
+T 1493194744 18<mistria18>	scela: such as: how many people are now using Neon vs Mars
+T 1493194746 18<akurtakov18>	mistria: I'm definetely not becoming one :)
+T 1493194753 18<scela18>	mistria: you really like to tease me don't you ;)
+T 1493194781 18<mistria18>	scela: many users don't update as we release stuff, there is a latency that can explain that effects of efforts are perceived monthes after the delivery
+T 1493194807 18<mistria18>	scela: without metrics, it's a bit hard to know on what people are making their opinion
+T 1493194851 18<mistria18>	scela: I'm actually pretty happy with your interest and enthusiasm in that, it serves us very well
+T 1493194868 18<mistria18>	scela: I'm not (too much) teasing
+T 1493194889 18<scela18>	mistria: haha we have been dealing with markus for years - your teasing is kids play
+T 1493194918 18<mistria18>	scela: :D
+T 1493194918 18<scela18>	mistria: but yes i'll be needing more metrics
+T 1493194932 18<scela18>	mistria: and crucially more assistance from EF people
+T 1493194964 18<scela18>	mistria: but if i think of all the stuff i will be needing and facing my mind gets into a bottleneck and hardly anything pushes through
+T 1493194970 18<scela18>	so for now my goal is very very simple
+T 1493194979 18<scela18>	have as much people as possible talk about the cool stuff of eclipse
+T 1493194990 18<scela18>	once I'm happy with this i'll follow through the rest
+T 1493195032 18<scela18>	mistria: same way as we started this: let's just created and let people discuss in the meantime in the mailing list ;)
+T 1493195040 18<scela18>	*create it
+T 1493205339 18<akurtakov18>	with css themes tm4e starts to look more promising
+T 1493207481 18<akurtakov18>	scela: small issue with your validation patch
+T 1493208446 18<scela18>	akurtakov: nice catch thanks
+T 1493211020 18<akurtakov18>	scela: will you be joining scrum of scrums calls ?
+T 1493211138 18<mbenitez18>	actually I had not told him about them, maybe you can explain?
+T 1493211156 18<mbenitez18>	fwiw for a while if we're green we don't really speak
+T 1493211331 18<akurtakov18>	let's keep it fornext time in this case :)
+T 1493211339 18<akurtakov18>	few min notice isnot enough
+T 1493211827 18<mbenitez18>	good idea, also with Summit mtgs are a bit different
+T 1493212000 18<scela18>	mbenitez: akurtakov ok
+T 1493213758 18<mistria18>	mbenitez akurtakov: what would be a good namespace for an eclipse plugin integrating the Bayesian LS? The LS is https://github.com/msrb/component-analysis-lsp-server , so should the plugin be org.jboss.tools.componentanalysis, or com.redhat.devstudio.componentanalysis or ... ?
+T 1493214041 18<mbenitez18>	mistria, Bayesian was supposed to be a confidential project until Summit, before creating anything public please reach out to their team
+T 1493214111 18<akurtakov18>	mistria: I would say use similar namespace to what they use :)
+T 1493215811 18<mistria18>	akurtakov: so that would be com.redhat.bayesian.lsp.eclipse 
+T 1493215823 18<akurtakov18>	mistria: works for me
+T 1493218162 18<rgrunber18>	does anyone here use mattermost for eclipse channels ?
+T 1493218245 19<ericwill>	rgrunber I believe lufimtse does
+T 1493218261 18<rgrunber18>	seeing 60% network drops to PHX2 going through the ip 
+T 1493218261 18<rgrunber18>	                  66.187.228.249 for fedoraproject.org systems. packets going 
+T 1493218261 18<rgrunber18>	                  to PHX2 through 66.187.228.248 for sourceware.org are not 
+T 1493218269 18<rgrunber18>	oops.. wrong window
+T 1493218282 18<akurtakov18>	ericwill: hey, warming up for your return :)
+T 1493218308 18<ericwill18>	akurtakov yes, have a few days left on my part time contract and then full time starts May 22 :)
+T 1493218429 18<akurtakov18>	ericwill: if you have time would you please look at https://git.eclipse.org/r/#/c/95734/ 
+T 1493218456 20<lufimtse>30	rgrunber, I used it for a while
+T 1493218456 18<akurtakov18>	ipun is looking at it but having him on the launchbar issue more would be helpful
+T 1493218482 20<lufimtse>30	rgrunber, I used it for a while, but no one else was using it, so I kinda stopped using it.
+T 1493218507 19<rgrunber>	lufimtse: oh.. i was wondering if people i might not find on irc would be on it..
+T 1493218510 18<ericwill18>	akurtakov will take a look
+T 1493218516 18<akurtakov18>	thanks
+T 1493218582 18<ipun18>	technically they're both now launchbar issues :/
+T 1493218612 18<akurtakov18>	ipun: well, launchbar is only one case for what I asked Eric to look at
+T 1493218643 18<akurtakov18>	it can also be seen in Preferences/General/Keys
+T 1493218679 18<akurtakov18>	top most and bottom most combos 
+T 1493218940 18<ipun18>	akurtakov: yeah ive noticed. THe patch i put in fixes the alignment a bit, but cuts off the arrow
+T 1493219044 18<akurtakov18>	ipun: note that if you make it smaller on the launchbar page where there is component after the combo
+T 1493219053 18<akurtakov18>	it starts to overlap with it after your patch
+T 1493219148 18<ipun18>	akurtakov: yeah, unforuantely doesnt fix the launchbar issue, baiscally now its overlapping something else 
+T 1493219185 18<ipun18>	ericwill: pull a copy of Lauchbar, and look at LaunchBarConfigDialog.java, the relevent information should be there
+T 1493219189 18<akurtakov18>	the issue is it's not shrinking which it should be
+T 1493219217 18<akurtakov18>	that's why we have swtfixed to make sure that we can make widgets smaller 
+T 1493219224 18<akurtakov18>	the key is somewhere there :)
+T 1493219389 18<ipun18>	akurtakov: im going to look into the launchbar menu then
+T 1493221663 18<akurtakov18>	fyi https://www.eclipse.org/eclipse/development/plans/freeze_plan_4_7.php
+T 1493226369 18<rgrunber18>	mbooth: new bug introduce by tycho itself ?
+T 1493226950 18<rgrunber18>	hmm probably something related to contents of boostrap folder..
+T 1493227063 18<rgrunber18>	ahh the ol' guess the builder issue for bootstrap builds..
+T 1493228753 18<nboldt18>	hey rgrunber mbooth know anything about javaewah ? Seems the latest in rhscl / fedora24 is 0.8.4 but I've got something in RH Central that is asking for [1.1.6,2.0.0) and I can't resolve that
+T 1493228817 18<rgrunber18>	nboldt: well 1.1.6 was recently added to Orbit.. by Matthias Sohn so my guess is maybe egit/jgit ?
+T 1493228836 18<nboldt18>	yeah, jgit is asking for it
+T 1493228896 18<rgrunber18>	so jgit 4.4.1 asks for [0.7.9,0.8.0), but jgit 4.6.0 asks for [1.1.6,2.0.0)
+T 1493228917 18<rgrunber18>	just from looking in the oxygen (pre-)release repo
+T 1493228931 18<nboldt18>	so we're missing something in rhscl?
+T 1493228958 18<nboldt18>	since we have jgit 4.6.1 now which Import-Package: com.googlecode.javaewah; version="[1.1.6,2.0.0)"
+T 1493229056 18<rgrunber18>	hmm, http://pkgs.fedoraproject.org/cgit/rpms/eclipse-jgit.git/tree/eclipse-jgit.spec#n69
+T 1493229074 18<rgrunber18>	apparently it just works to ask for the lower one.. so maybe nothing used has changed api.
+T 1493229114 18<rgrunber18>	hmm and WORD_IN_BITS vs. wordinbits ..
+T 1493229722 18<nboldt18>	so... I can't use rhscl in F24 anymore? is that the solution here?
+T 1493229989 18<mbooth18>	Well, F24 is not a supported target for RHSCL...
+T 1493230101 18<mbooth18>	But there's probably no problem updating javaewah in Fedora -- I think jgit is the only consumer
+T 1493230259 18<nboldt18>	mbooth: just means I need a new way to test RHSCL stuff on my local machine... may have to move up to F26 soon 
+T 1493230297 18<mbooth18>	Yeah, I'm waiting for new laptop to arrive and will jump up to latest F26 too
+T 1493230327 18<mbooth18>	nboldt: But I usually test RHSCL in a RHEL 7 VM
+T 1493230356 18<nboldt18>	I need more ram to run a second VM ... usually run F24 in a VM on top of Windows
+T 1493230376 18<nboldt18>	but yeah, that might have to happen :) Or move my F24 -> F25
+T 1493385977 18<mbenitez18>	mbooth, hello Mat, any update on the zstream errata?
+T 1493386438 18<mbenitez18>	akurtakov, mbooth please send your status reports today so Sopot can work on the weekly on Monday, thanks!
+T 1493386452 18<akurtakov18>	mbenitez: sure
+T 1493386505 18<mbenitez18>	thanks! and enjoy the long weekend :)
+T 1493386582 18*	scox is away: dentist
+T 1493388139 18<akurtakov18>	mbenitez: thank you :0
+T 1493391266 18*	scox is back (gone 01:18:04)
+T 1493392364 20<lufimtse>30	akurtakov, org.eclipse.e4.ui.swt.gtk is producing an error for me: 
+T 1493392365 20<lufimtse>30	http://pix.toile-libre.org/upload/original/1493392282.png
+T 1493392387 20<lufimtse>30	"Access restriction: The method "OS.setDarkThemePreferred(..); is not API"
+T 1493392389 20<lufimtse>30	any ideas?
+T 1493392416 18<akurtakov18>	seems like you have stricter api.tooling settings
+T 1493392451 18<akurtakov18>	go to API Errors/Warnings pref page and reset to default
+T 1493392667 18<akurtakov18>	mbooth: fedora doesn'build  ppc (32bit) right?
+T 1493392740 20<lufimtse>30	akurtakov, ok, let me try
+T 1493393009 20<lufimtse>30	akurtakov, I have everything set to defaults, issue still seems to occur... hmmm
+T 1493393025 20<lufimtse>30	akurtakov, I could try to turn off some warnings, 
+T 1493393053 20<lufimtse>30	akurtakov, because of that, gtk native dark theme is not triggered when I turn on dark theme in child eclipse
+T 1493393117 19<akurtakov>	lufimtse: you mean that the bundle loaded has build error and thus isnot loaded
+T 1493393121 18<akurtakov18>	that's normal
+T 1493393128 18<mbooth18>	akurtakov: Correct, there's been no ppc32 builds for a while
+T 1493393130 18<akurtakov18>	go into your java compiler settingss
+T 1493393160 19<akurtakov>	lufimtse: and look for Discouraged references
+T 1493393167 18<akurtakov18>	it should not be error
+T 1493393687 20<lufimtse>30	akurtakov, I found that "Forbidden reference" triggers this. By default it is "Error" and "org.eclipse.e4.ui.swt.gtk" does not override this setting. So as a result there is a problem. I could submit a patch that sets this to "warning" for the project?
+T 1493393706 20<lufimtse>30	akurtakov, or implement a public api in SWT that doesn't do anyhting on win32/cocoa
+T 1493393708 20<lufimtse>30	hmmmm
+T 1493393730 20<lufimtse>30	idk
+T 1493393737 19<akurtakov>	lufimtse: the later is a nogo
+T 1493393750 18<akurtakov18>	any api should be implemented on at least 2 out of the 3 WS
+T 1493393771 20<lufimtse>30	I see
+T 1493393772 20<lufimtse>30	hmmm
+T 1493393775 18<akurtakov18>	weirdly it's warning for me
+T 1493393801 18<akurtakov18>	but it should be fine to make it warning for that bundle
+T 1493393805 18<akurtakov18>	please do so
+T 1493393858 20<lufimtse>30	akurtakov, ok.
+T 1493393869 20<lufimtse>30	try "set to default"
+T 1493393873 20<lufimtse>30	then it'll complain.
+T 1493393879 20<lufimtse>30	and rebuild workspace...
+T 1493393902 19<akurtakov>	lufimtse: well, I trust you
+T 1493393916 18<akurtakov18>	just lower to warning for the bundle
+T 1493394772 20<lufimtse>30	akurtakov, https://git.eclipse.org/r/#/c/96045/
+T 1493394792 20<lufimtse>30	this is sets it for the project
+T 1493394810 20<lufimtse>30	akurtakov, I added that line manually,
+T 1493394845 20<lufimtse>30	akurtakov, alternativley I could also click on "enable project specific settings" and change it that way. This adds lots of lines into the prefs
+T 1493394883 19<akurtakov>	lufimtse:  if it doesn't introduce new warnings inthe bundle use the later approach
+T 1493394913 20<lufimtse>30	akurtakov, So submit patch that uses "enable project specific settings"?
+T 1493394921 20<lufimtse>30	akurtakov, ./update it
+T 1493394932 19<akurtakov>	lufimtse: yes, if it introduces some additional warnings 
+T 1493394937 18<akurtakov18>	fix them too
+T 1493394940 20<lufimtse>30	akurtakov, ok.
+T 1493395695 20<lufimtse>30	akurtakov, ok, no warnings/errors: https://git.eclipse.org/r/#/c/96045/
+T 1493395697 20<lufimtse>30	just that one change
+T 1493395701 20<lufimtse>30	akurtakov, ready for review.
+T 1493396768 20<lufimtse>30	akurtakov, Hmm, I found that the warning goes away, but instead we have a run time error
+T 1493396776 20<lufimtse>30	akurtakov, and dark theme doesn't kick in again
+T 1493396797 20<lufimtse>30	akurtakov, one way around is to add "org.eclipse.swt.internal.gtk," to swt's Manifest.mf, but that breaks cocoa
+T 1493396819 20<lufimtse>30	akurtakov, I'm having a hard time figuring out how to solve this, not sure why nobody picked up on this earlier?
+T 1493396869 19<akurtakov>	lufimtse: I think your child setup is misbehaving
+T 1493396880 18<akurtakov18>	do you have the smth.di bundle activated?
+T 1493397065 20<lufimtse>30	smth.di?
+T 1493397118 20<lufimtse>30	akurtakov, I have all of eclipse.platform.ui, Text, JDT projects
+T 1493397120 20<lufimtse>30	in workspace
+T 1493397135 20<lufimtse>30	child eclipse is set to use all workspace plugins + target after
+T 1493397148 20<lufimtse>30	what is the smth.di ?
+T 1493397285 19<akurtakov>	lufimtse: from target there is a bundle that ends at .di
+T 1493397291 20<lufimtse>30	lemme check
+T 1493397294 18<akurtakov18>	I can't remember the exact name
+T 1493397324 20<lufimtse>30	org.eclipse.e4.ui.di ?
+T 1493397326 20<lufimtse>30	akurtakov, 
+T 1493397368 20<lufimtse>30	akurtakov, I have that enabled
+T 1493397575 20<lufimtse>30	akurtakov, oh I got something
+T 1493397653 20<lufimtse>30	akurtakov, I had these two turned off to prevent duplicate methods showing up in call-hierarchy
+T 1493397653 20<lufimtse>30	http://pix.toile-libre.org/upload/original/1493397631.png
+T 1493397678 20<lufimtse>30	but that affected org.eclipse.e4.ui.swt.gtk
+T 1493397709 20<lufimtse>30	akurtakov, with them two enabled, stuff works again
+T 1493397727 20<lufimtse>30	akurtakov, I think I should probably submit revert patch for that options 
+T 1493397744 20<lufimtse>30	akurtakov, as the error was specific to my config afterall
+T 1493399044 20<lufimtse>30	akurtakov, patch: https://git.eclipse.org/r/#/c/96053/
+T 1493399165 19<akurtakov>	lufimtse: it's fine to have these settings
+T 1493399171 18<akurtakov18>	please abandon
+T 1493399174 20<lufimtse>30	akurtakov, hmmm
+T 1493399187 20<lufimtse>30	akurtakov, actually, there is a problem with them
+T 1493399195 20<lufimtse>30	akurtakov, that I didn't notice originally
+T 1493399205 18<akurtakov18>	I tested them too
+T 1493399208 20<lufimtse>30	akurtakov, with error, you notice the issue at compile time
+T 1493399218 20<lufimtse>30	akurtakov, without the error, it prints the issue at run time
+T 1493399226 20<lufimtse>30	akurtakov, and it doesn't work at run time
+T 1493399234 20<lufimtse>30	akurtakov, the setting just delays the issue
+T 1493399242 20<lufimtse>30	akurtakov, but I didn't see it at the time
+T 1493399251 20<lufimtse>30	akurtakov, so we do need to revert I think
+T 1493399263 19<akurtakov>	lufimtse: no revert 
+T 1493399268 18<akurtakov18>	it's fine that way
+T 1493399273 18<akurtakov18>	let's stop the noise
+T 1493399275 18<akurtakov18>	:)
+T 1493399700 18<akurtakov18>	rgrunber: phew, ant 1.10.1 is in
+T 1493399734 18<rgrunber18>	:) it's been in for a while.. and will make m7.. last bunch of changes have been for things like licensing/minor annoyances..
+T 1493399762 18*	rgrunber was surprised that the extra '.' causes test failures on platform side.
+T 1493399789 18<akurtakov18>	rgrunber: well, we got first build today 
+T 1493399795 18<akurtakov18>	and tests are not finished yet
+T 1493399818 18<akurtakov18>	with no tests finished
+T 1493645095 19*	Now talking on 22#eclipse
+T 1493645095 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1493645095 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1493648116 19<scela>	jjohnstn: rgrunber lufimtse ipun mbooth report time guys
+T 1493648120 18<scela18>	within 45 mins or so
+T 1493651722 20*	Disconnected (20Connection timed out)
+T 1493653318 19*	Now talking on 22#eclipse
+T 1493653318 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1493653318 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1493653350 18<rgrunber18>	seems to be it..
+T 1493654156 18<rgrunber18>	nboldt: did you get my draft script for installing a bunch of bundles + checking any unresolved bundles ?.. sent a link a while ago.
+T 1493654171 18<nboldt18>	rgrunber: yes, but had other things on fire last week
+T 1493654182 18<nboldt18>	it's in my "TODO when nothing is broken" pile
+T 1493654458 18<rgrunber18>	k, just an fyi, the reason i went with installing individual features is because the cli for eclipse has some limit on number of arguments so couldn't do it all at once.. and some features in aggregation simply didn't install due to some conflict or whatnot.. i figured better to have some fail individually.
+T 1493654523 18<nboldt18>	so you install incrementally, rather than in a single massive operation?
+T 1493654541 18<nboldt18>	that actually might be good -- sometimes the big reactor will hide problems
+T 1493654596 18<rgrunber18>	yeah.. could probably check exit code of individual feature install and report what failed to install.
+T 1493654726 18<rgrunber18>	so i actually don't see org.slfj.api 1.7.10 even in the devstudio product master..
+T 1493728003 18<mbooth18>	akurtakov: Something exciting for you: https://koji.fedoraproject.org/koji/taskinfo?taskID=19367799
+T 1493728021 18<mbooth18>	Full 32-bit arm build is less than 2 hours :-o
+T 1493728043 18<akurtakov18>	mbooth: ah, nice :)
+T 1493729657 18<scela18>	akurtakov: did you know about https://twitter.com/EclipseJavaIDE/status/859389412479614977 ?
+T 1493729663 18<scela18>	akurtakov: i didn't. great one from noopur.
+T 1493729698 18<akurtakov18>	nope :)
+T 1493729847 18<scela18>	akurtakov: super useful for me
+T 1493731948 18<scela18>	mistria: welcome. report time :)
+T 1493734309 18<rgrunber18>	akurtakov: according to https://dev.eclipse.org/ipzilla/show_bug.cgi?id=12549#c7, junit 5 is no longer destined for Oxygen ?
+T 1493736110 18<akurtakov18>	rgrunber: well, ti will sit in separately installable feature patch
+T 1493736118 18<akurtakov18>	but ideally should be built with oxygen proper
+T 1493742442 18<nboldt18>	jjohnstn: hey, so the new 2.3.0 docker you pointed me to yesterday requires a whole (older) set of requirements than what's in Neon.3. for example... jnr.unixsocket 0.5 (from 2015) instead of com.github.jnr.unixsocket 0.12.0 (2016)
+T 1493742464 18<rgrunber18>	nboldt: yes, because it's a downgrade of the docker-client stack.
+T 1493742494 18<nboldt18>	ah, so this is expected and I have to iterate through all these renamed /downgraded artifacts? 
+T 1493742519 18<nboldt18>	are the older artifacts also on the new Neon.3b site? 
+T 1493742535 18<nboldt18>	that is, not your docker respin but a respin of the Neon.3 site itself?
+T 1493742551 18<nboldt18>	worried that these deps won't be found by a generic Neon.3b user
+T 1493742555 18<rgrunber18>	nboldt: the older artifacts are on that site http://download.eclipse.org/linuxtools/update-docker-neon3respinb/plugins/?d
+T 1493742573 18<nboldt18>	sure but is that aggregated into the Neon.3 site as well?
+T 1493742579 18<rgrunber18>	ahh.. they should be in the aggregation as well.
+T 1493742644 18<nboldt18>	yeah, seems that way
+T 1493742657 18<nboldt18>	so I'm replacing the 0.12 stuff with their 0.5 counterparts... 
+T 1493742659 18<nboldt18>	$ find . -name "*jnr*_0.5*.jar"
+T 1493742659 18<nboldt18>	./201606221000/plugins/jnr.unixsocket_0.5.0.v201505052040.jar
+T 1493742659 18<nboldt18>	./201609281000/plugins/jnr.unixsocket_0.5.0.v201505052040.jar
+T 1493742659 18<nboldt18>	./201610111000/plugins/jnr.unixsocket_0.5.0.v201505052040.jar
+T 1493742660 18<nboldt18>	./201612211000/plugins/jnr.unixsocket_0.5.0.v201505052040.jar
+T 1493742660 18<nboldt18>	4072 nickb@build:~/downloads/releases/neon
+T 1493742661 18<nboldt18>	$ find . -name "*jnr*_0.12*.jar"
+T 1493742661 18<nboldt18>	./201703141400/plugins/com.github.jnr.unixsocket_0.12.0.v20161107-2054.jar
+T 1493742662 18<nboldt18>	./201703141400/plugins/com.github.jnr.enxio_0.12.0.v20161107-2054.jar
+T 1493742662 18<nboldt18>	./201703231000/plugins/com.github.jnr.unixsocket_0.12.0.v20161107-2054.jar
+T 1493742663 18<nboldt18>	./201703231000/plugins/com.github.jnr.enxio_0.12.0.v20161107-2054.jar
+T 1493742670 18<nboldt18>	fun :(
+T 1493742674 18<rgrunber18>	i think the new and old content is there, yeah..
+T 1493742752 18<rgrunber18>	you could try looking for the artifact in http://download.eclipse.org/linuxtools/update-docker-neon3respinb/plugins/?d as that'd tell you the right one to use
+T 1493742783 18<nboldt18>	yeah that's what I'm doing. just sucks that this is a "one failure at a time" verification process
+T 1493742797 18<nboldt18>	and that the artifacts are renamed (adding com.github. prefix)

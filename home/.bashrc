@@ -17,39 +17,65 @@ if [ -n "$UNDER_JHBUILD" ]; then
 	    PS1="[jhbuild] $PS1"
 fi
       
-
-# Configue JAVA_HOME for building JNI
-export JAVA_HOME=/usr/lib/jvm/java/
-
-# by default, compile gtk3:
-export GTK_VERSION=3.0
-
 # Add my scripts to path:
 export PATH=$PATH:~/git/LDT/path
 
 # Configue my default editor:
-export EDITOR=vim
+export EDITOR=vi
 
-# Colourize LESS:
-## fix less:
-export LESS="-eirMX"
-# ALternatie
+#################################
+############## COLOURING 
+#################################
+
+####################
+#### Colourize LESS:
+####################
+# *) TERM_CAP method
+# Get color support for 'less'
+export LESS="--RAW-CONTROL-CHARS"
+# Use colors for less, man, etc.
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 2) # green 
+export LESS_TERMCAP_md=$(tput bold; tput setaf 6) # cyan 
+export LESS_TERMCAP_me=$(tput sgr0) 
+export LESS_TERMCAP_so=$(tput bold; tput setaf 3; tput setab 4) # yellow on blue 
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0) 
+export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 7) # white 
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0) 
+export LESS_TERMCAP_mr=$(tput rev) 
+export LESS_TERMCAP_mh=$(tput dim) 
+export LESS_TERMCAP_ZN=$(tput ssubm) 
+export LESS_TERMCAP_ZV=$(tput rsubm) 
+export LESS_TERMCAP_ZO=$(tput ssupm) 
+export LESS_TERMCAP_ZW=$(tput rsupm) 
+# src: https://unix.stackexchange.com/questions/119/colors-in-man-pages
+
+# Alternatives
+
+#export LESS="-eirMX"  # Seems to work mostly
+
 #export LESS=' -R'  # Color escape sequences are output in raw form.
 #export LESSOPEN="| /usr/bin/src-hilite-lesspipe.sh %s"
-#1) PyGmatize
+
+# 1) PyGmatize
 # export LESSOPEN='|~/.lessfilter %s'
 # http://superuser.com/questions/117841/get-colors-in-less-or-more
+
 # 2) use 'most'
 # install most
 # export PAGER=most
 
-
-# Add color to gcc:
+###################
+#### Colourize GCC
+##################
 export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
 
 
+
+
+
+
 ##############
-## Key bindings
+## Key bindings inside terminal
 ##############
 # use 'ctrl-v' press KEY to find keycode.
 # substitute ^[ with \e
@@ -67,10 +93,9 @@ bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no outp
 #############
 
 # temp:
-alias swt_webkit="set -x ;{ ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$; }; set +x"
+# alias swt_webkit="set -x ;{ ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$; }; set +x"
 
 # .. cd 
-alias ..="cd .. && pwd"
 
 # bashrc editing
 alias cbrc="cat ~/.bashrc"
@@ -83,7 +108,7 @@ alias ag="alias | g"
 # b
 #alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
 # c 
-alias cd-swtbuild.sh="cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library"
+alias ..="cd .. && pwd"
 alias cd.="cd $(pwd)"
 alias cut1="cut -f1 -d ' '"
 alias lez="less -E"
@@ -93,6 +118,9 @@ alias cr='printf "\033c"'
 # d - dnf
 alias sdi="sudo dnf install" #Sudo dnf install
 alias sdla="sudo dnf list available"
+alias sdli="sudo dnf list installed"
+alias sdl="sudo dnf list"
+
 # e
 # f
 # g - Git, grep 
@@ -100,7 +128,8 @@ alias g="grep --color=always -i -I -s"  #i= ignore uppercase. I=Ignore binary s=
 alias gs="git status"
 alias grh="git reset --hard"
 alias ggu="git add . && git commit -m 'general update' && git push"
-alias not="grep -iv"
+
+alias ngrep="grep -iv"
 # h
 # i
 # j
@@ -108,8 +137,9 @@ alias not="grep -iv"
 # l
 alias lla="ll -a"
 alias less="less -r"  # read coloured output.
+
 # m
-alias man="man -P most"
+#alias man="man -P most"
 alias make=colormake
 
 # n
@@ -176,3 +206,8 @@ ff () {
 line () {
 	sed -n $1p
 }
+
+# DEPRECATED:
+# Configue JAVA_HOME for building JNI
+# export JAVA_HOME=/usr/lib/jvm/java/
+

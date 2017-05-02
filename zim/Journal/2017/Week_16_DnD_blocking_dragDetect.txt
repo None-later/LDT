@@ -1,0 +1,144 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-04-18T11:04:24-04:00
+
+====== Week 16 2017 ======
+16 April to 22 April
+
+====== Observations and Life Lessons ======
+
+====== Weekly Plan ======
+[*] Implement barebones DnD move-move wait in DragDetect logic
+[x] Maybe start on the getText() webkit2 api.
+
+====== Weekly Report ======
+Highlights:
+###########
+- Implemented proof-of-concept DnD patch that should reduce regressions on Wayland. To be implemented after Oxygen release.
+- Engaged with new SWT developer, helped him to get started, encourage him to fix build script instead of disabling test cases.
+- Engaged with testing Market Place client patches and Shelled patches.
+
+Last Week:
+##########
+## SWT
+DND:
+- Investigated DnD mechanism with smoother backwards support for custom widgets.
+  - This would replicate 'blocking' behaviour in dragDetect,
+	simmilar to current Gtk2/Gtk3/Windows/OSX behaviour, which in turn
+	should reduce regressions.
+  - Implemented proof of concept. To be implemented after Oxygen release.
+  - For now, we will use a mechanism where we manually manage outgoing SWT.Mouse* events.
+  -> merged "StyledText DnD" patch.
+
+- merged patch that get's DnD to work for custom widgets on Wayland, (Could have regressions as it's invasive)
+- Implemented proof-of-concept with better backwards support. (To be implemented after Oxygen is released).
+
+Webkit:
+- [Webkit1] test_BrowserSuite.testBrowser1() consistently crashes on RHEL6
+  - buggy jUnit test case logic. I will improve the test case this/next week
+	to stop it from crashing.
+
+Build scripts:
+- Added support to use buildscript to build older SWT code base. This is useful
+  when bisecting swt codebase for problems.
+
+Patch reviews:
+  - Reviewed Ian's GtkEntry patch
+
+User support / Triage:
+- A new (but experienced) SWT developer joined the community **"Martin Oberhuber"**, helped him getting started.
+- Bug 515486 - Provide a consistent mechanism to disable tests that are unstable or depend on specific external infrastructure
+  - User wants to disable some tests. I did not like that idea.
+	I suggested to use AllNonBrowserTests and investigate failing junits.
+  - User submitted Gtk2 patch that fixed broken jUnits on his machine instead. -> Bug resolved.
+
+## Non-SWT:
+Shelled:
+- Bug 515478 - "Configure -> Add shell script support" adds 'buildcommand' to .project without need
+- Bug 515480 - Add dltk nature to SWT projects for shelled support
+
+MarketPlace Client:
+- Tested Mickael's Project nature patch:
+  Bug 515511 - [MPC] Propose solutions for missing natures not working for Shelled?
+  - We wound that shelled project page was missing nature tags, so MPC could not find that it
+	was needed for shelled nature.
+  - But even with tag, still doesn't quite work. Needs further investigation.
+
+My hardware:
+- Spent some time getting my machine to work better on Wayland. (getting utility applications to work etc..)
+- My computer stopped booting with kernel 4.10. Ended up installing kernel from F27 rawhide.
+
+Next Week:
+##########
+- Review Ian's Launchbar fix
+- Fix webkit's test_BrowserSuite.testBrowser1()
+- Fix a few colour related problems in Eclipse
+- If time permits: [Webkit2] port Browser.getText() to webkit2
+
+====== Day Logs ======
+
+=== Monday 17 April ===
+Bug 515396 – [Wayland] dragDetect should block till DnD state is known 
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=515396
+- Implemented proof of concept
+
+=== Tuesday 18 April ===
+Discussed prototype with Ian. Works.
+Alex tested Prototype
+
+Ian's patch review for GtkEntry
+- https://git.eclipse.org/r/#/c/94861/ 
+- Found > & <= typo 
+
+Triage:
+Bug 515471 – [Webkit1] test_BrowserSuite.testBrowser1() consistently crashes on RHEL6 
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=515471
+
+=== Wednesday 19 April ===
+Patch review & merge:
+Bug 510446 - [wayland] StyledText DnD not signalling, move drag detection to mouse_move
+- but to be reverted later.
+
+Submitted:
+Bug 515478 - "Configure -> Add shell script support" adds 'buildcommand' to .project without need 
+
+Bug 515480 - Add dltk nature to SWT projects for shelled support 
+
+=== Thursday 20 April ===
+Triage:
+Bug 515486 - Provide a consistent mechanism to disable tests that are unstable or depend on specific external infrastructure
+- User wants to dissable some tests. I suggested to use AllNonBrowserTests and investigate failing junits.
+
+Test Mickael's Project nature patch:
+Bug 515511 - [MPC] Propose solutions for missing natures not working for Shelled?
+- Had troubles with Shelled.
+
+Getting my system to work better on Wayland
+- Had issues with some of my utility applications (e.g template application autokey-gtk)
+- Found many apps would work ok with "export GDK_BACKEND=x11" or if I installed them with a specific bundled java version. 
+
+Triage:
+Bug 510446 – [wayland] StyledText DnD not signalling, move drag detection to mouse_move 
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=510446
+
+
+=== Friday 21 April ===
+Machine stopped booting after kernel update. Had to install kernel from rawhide
+
+Tested Alex's List patch
+
+Helped Ian with Launchbar issue
+
+Triage: Tested html5 with webkit1 / webkit2.
+
+Bug 514509: [Gtk] Organise swt gtk developer scripts and add build scripts
+- Added script to allow rebuild of old SWT codebase automatically (useful when bisecting)
+
+Testing:
+Bug 515511 - [MPC] Propose solutions for missing natures not working for Shelled
+
+Triage:
+Bug 515486 – Provide a consistent mechanism to disable tests that are unstable or depend on specific external infrastructure 
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=515486
+-> User got his test cases to work.
+

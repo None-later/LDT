@@ -2360,3 +2360,124 @@ Apr 21 08:54:52 *	Now talking on #a11y
 **** BEGIN LOGGING AT Fri Apr 21 09:21:23 2017
 
 Apr 21 09:21:23 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Apr 21 09:43:06 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:44:02 2017
+
+Apr 21 09:44:02 *	Now talking on #a11y
+**** ENDING LOGGING AT Fri Apr 21 09:44:36 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 09:48:37 2017
+
+Apr 21 09:48:37 *	Now talking on #a11y
+**** BEGIN LOGGING AT Fri Apr 21 09:50:23 2017
+
+Apr 21 09:50:23 *	Now talking on #a11y
+**** BEGIN LOGGING AT Fri Apr 21 09:52:25 2017
+
+Apr 21 09:52:25 *	Now talking on #a11y
+Apr 21 10:13:11 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Apr 21 10:13:11 2017
+
+**** BEGIN LOGGING AT Fri Apr 21 10:13:24 2017
+
+Apr 21 10:13:24 *	Now talking on #a11y
+**** BEGIN LOGGING AT Fri Apr 21 15:46:49 2017
+
+Apr 21 15:46:49 *	Now talking on #a11y
+**** BEGIN LOGGING AT Fri Apr 21 16:05:52 2017
+
+Apr 21 16:05:52 *	Now talking on #a11y
+**** BEGIN LOGGING AT Mon Apr 24 08:32:48 2017
+
+Apr 24 08:32:48 *	Now talking on #a11y
+Apr 24 08:40:52 <ksamak>	joanie: hi, i'm working on compiz's zoom/focus tracking, and i'm kinda at a loss on one point, if you had a couple minutes, i'd be glad to ask you a couple questions
+Apr 24 08:41:23 <ksamak>	i'm trying to get the aria live regions working in compiz, in order to make sense of google docs for the tracking.
+Apr 24 08:41:34 <joanie>	good luck! :)
+Apr 24 08:41:44 <ksamak>	yeah, i know...
+Apr 24 08:41:55 <ksamak>	i had a look in orca, but i can't really find the entry points from libatspi to get these info
+Apr 24 08:41:56 <joanie>	I just know about its use of live regions for screen reader support
+Apr 24 08:42:07 <joanie>	and what google docs does is tell screen readers what to say
+Apr 24 08:42:37 <joanie>	i.e. you move to the next line and google docs gives the screen reader the text of that line
+Apr 24 08:42:38 <ksamak>	joanie: you think it works just because gdocs thought about screen readers, but not magnifiers?
+Apr 24 08:42:52 <joanie>	not as something with navigable, accessible text
+Apr 24 08:42:56 <joanie>	ksamak: I dunno
+Apr 24 08:43:04 <joanie>	what I told alexarnaud and what I'll tell you is this:
+Apr 24 08:43:07 <ksamak>	mmmm, that's pretty bad
+Apr 24 08:43:25 <joanie>	Presumably this is something Windows and Mac magnifier users have encountered
+Apr 24 08:43:28 <joanie>	What do they do?
+Apr 24 08:43:31 <joanie>	Does it work?
+Apr 24 08:43:48 <joanie>	If it works in those platforms, there must be something additional google docs is doing for magnification users
+Apr 24 08:44:02 <joanie>	if it doesn't work in those platforms, you likely won't get it working in ours
+Apr 24 08:44:09 <ksamak>	yeah, but my only backend in atspi anyway, so i'm trying to contentrate on getting the most of it
+Apr 24 08:44:11 <joanie>	that's all I can tell you. Sorry!
+Apr 24 08:44:30 <ksamak>	ok, so nothing special from orca, it just get these lines of text.
+Apr 24 08:44:42 <joanie>	it gets stuff to say
+Apr 24 08:44:44 <ksamak>	no special api, no special treatment of some events
+Apr 24 08:44:49 <ksamak>	ok then
+Apr 24 08:44:50 <joanie>	it takes it and speaks it
+Apr 24 08:44:52 <joanie>	unmodified
+Apr 24 08:45:27 <joanie>	and that's not just for the editor. it's for menu selection changes, toolbar focus changes, the whole. freakin'. interface.
+Apr 24 08:45:43 <joanie>	gotta run now.
+Apr 24 08:45:47 <ksamak>	orca doesn't have fine grain, like i'm on the "a" right now, or "this word is hilighted"
+Apr 24 08:45:54 <ksamak>	joanie: ok, thanks for the insight
+Apr 24 08:46:09 *	ksamak is gonna try and get some luck somewhere
+Apr 24 08:46:19 <joanie>	if you arrow to the "a" in a document, google docs emits a live region event with the string "a"
+Apr 24 08:46:30 <joanie>	google docs has its own commands for screen readers
+Apr 24 08:46:39 <joanie>	Orca just spews out what google docs gives it
+Apr 24 08:46:40 <ksamak>	yeah, the question is how can i get this event, i can't find this
+Apr 24 08:47:01 <joanie>	they are text-changed and/or object:children-changed events
+Apr 24 08:47:10 <joanie>	register for them
+Apr 24 08:47:15 <joanie>	see what gets spewed out
+Apr 24 08:47:17 <ksamak>	ok, maybe i'm not looking hard enough on the children changed
+Apr 24 08:47:36 <joanie>	the event.any_data is the child
+Apr 24 08:47:39 <ksamak>	i got the text objects, but they don't follow at-spi standart...
+Apr 24 08:47:41 <joanie>	see what it exposes
+Apr 24 08:47:56 <ksamak>	at least the text-changed doesn't
+Apr 24 08:48:02 <ksamak>	thank, ill look harder
+Apr 24 08:48:11 <joanie>	it's ATK, but again this is a serious hack done by google; not actual text objects.
+Apr 24 08:48:21 <joanie>	good luck!
+Apr 24 08:48:51 <ksamak>	thanks. i know, i'm already making recursions all over the place to get out of this weird heirarchy and find the right objects...
+Apr 24 08:54:17 <alexarnaud>	hum, I don't see anything specific for screen magnifiers.
+Apr 24 08:54:56 <alexarnaud>	I don't know if ZoomText is able to work with Google Doc due I have only Compiz to test.
+Apr 24 11:17:37 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 24 11:17:37 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 11:17:53 2017
+
+Apr 24 11:17:53 *	Now talking on #a11y
+Apr 24 12:22:49 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 24 12:22:49 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 12:23:02 2017
+
+Apr 24 12:23:02 *	Now talking on #a11y
+**** ENDING LOGGING AT Mon Apr 24 12:43:43 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 12:44:13 2017
+
+Apr 24 12:44:13 *	Now talking on #a11y
+**** ENDING LOGGING AT Mon Apr 24 13:18:25 2017
+
+**** BEGIN LOGGING AT Mon Apr 24 13:18:43 2017
+
+Apr 24 13:18:43 *	Now talking on #a11y
+Apr 24 15:39:57 <teddy>	Hi. Anybody here?
+Apr 26 00:57:47 <TheMuso>	mgorse: Is the OpenSuse tumblewead installer supposed to be accessible with Orca? I just booted up the March snapshot image, got Orca up, and tried to load the installer, which seems to be a part of YaST, and no dice. I did see it was running as root...
+**** ENDING LOGGING AT Fri Apr 28 18:09:53 2017
+
+**** BEGIN LOGGING AT Mon May  1 09:24:58 2017
+
+May 01 09:24:58 *	Now talking on #a11y
+May 01 11:16:11 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon May  1 11:16:11 2017
+
+**** BEGIN LOGGING AT Mon May  1 11:16:24 2017
+
+May 01 11:16:24 *	Now talking on #a11y
+May 01 11:59:16 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon May  1 11:59:16 2017
+
+**** BEGIN LOGGING AT Mon May  1 11:59:29 2017
+
+May 01 11:59:29 *	Now talking on #a11y

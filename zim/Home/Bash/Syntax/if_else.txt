@@ -1,0 +1,104 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-07-14T15:25:27-04:00
+
+====== if else ======
+Created Thursday 14 July 2016
+
+====== Basics ======
+
+===== Basic example =====
+#  is not so portable. [ ] is more portable but less features.
+**if [[ CONDITION ]]; then**
+	**echo 'meh'**
+**fi** 
+
+===== Else =====
+**if [[ CONDITION ]]; then**
+	**echo 'meh'**
+**else**
+	**the meh**
+**fi**
+
+===== Else if =====
+**if [[ CONDITION ]]; then**
+	**echo 'meh'**
+**elif [[ CONDITION ]]; then**
+	**echo 'meh2'**
+**else**
+	**echo 'meh3'**
+**fi**
+
+src: http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_02.html
+
+====== Operands (ops) Expressions ======
+http://tldp.org/LDP/Bash-Beginners-Guide/html/sect_07_01.html
+
+==== Files ====
+-a FILE: True if FILE exists
+-e FILE: True if FILE exists
+
+
+==== Directories ====
+-d  : check if directory exists
+
+==== Strings ====
+-z  : Zero string? (-z "") 
+-n  : non-zero string? 
+"str1" == "str1" 
+"str1" != "str2"
+
+
+
+====== Boolean logic ======
+
+===== Single [ ] =====
+Single brackets are much more portable.
+Using single '[ ]' 
+	[ ! EXPR ]   - not
+	[ ( EXPR ) ] override preccedenece 
+	[ EXPR -a EXPR2 ]  - AND : true if both true 
+	[ EXPR -o EXPR2 ] - OR : true if eitheir is true
+
+
+===== Double [[ ]] =====
+
+==== AND and OR ====
+Use  with &&, || :
+**if [[ "$1" == "-h" || "$1" == "--help" ]]; then**
+**	echo "hello world"	**
+**fi**
+Src:
+http://tldp.org/LDP/abs/html/ops.html
+
+Combination of both:
+**if [[ $varA -eq 1 ]] && [[ $varB == 't1' || $varC == 't2' ]]; **
+**  then **
+**    scale=0.05**
+** fi**
+http://stackoverflow.com/questions/6270440/simple-logical-operators-in-bash
+
+==== Negation ====
+**if [[ ! CONDITION ]]; then**
+	**echo "it's not happening"**
+**fi**
+
+
+
+====== Advance ======
+
+===== Directory - Check if diretory exists =====
+	if [ -d "$DIRECTORY" ]; then
+	  # Control will enter here if $DIRECTORY exists.
+	fi
+
+Check if diretory doesn't exist:
+	if [ ! -d "$DIRECTORY" ]; then
+	  # Control will enter here if $DIRECTORY doesn't exist.
+	fi
+
+notes:
+	- forward slash at the end not mandatory. ( [[/home/lufimtse/tmp]] or ...tmp/ ) 
+	- Be attentive to non-absolute paths, expand them first:
+		if [ -d "$(echo ~/tmp)" ]; then echo "hi"; else echo "nay"; fi
+

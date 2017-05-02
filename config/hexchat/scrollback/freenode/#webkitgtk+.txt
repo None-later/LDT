@@ -1,96 +1,3 @@
-T 1490964707 18<mcatanzaro18>	KaL ^
-T 1490964712 18<rave18>	does epiphany detects these two processes ?
-T 1490964720 18<rave18>	when they crashes
-T 1490964727 18<mcatanzaro18>	We have API to detect web process crashes, yes
-T 1490964742 18<mcatanzaro18>	Not for network process crashes, but it should still work
-T 1490964744 18<rave18>	is that in the MiniBrowser code too ?
-T 1490964752 18<mcatanzaro18>	I don't know
-T 1490964773 18<KaL18>	I don't think web process should be killed
-T 1490964782 18<rave18>	is that API online too?
-T 1490964797 18<rave18>	i mean the code that i can have a look?
-T 1490964830 18<annulen18>	NetworkProcess may be killed in the middle of processing request, I'm not sure if WebProcess can recover
-T 1490964830 18<mcatanzaro18>	Grep for web-process-crashed in WebKitWebView.cpp
-T 1490964958 18<rave18>	ah ok I can see the signal , wondering how it works with the network process ??
-T 1490965083 18<mcatanzaro18>	There is no signal for network process crashes. I guess it just breaks.
-T 1490965293 18<rave18>	oh ok , hmm so the network process is not a child process?
-T 1490965328 18<mcatanzaro18>	It is...
-T 1490965364 18<annulen18>	there is WebContextClient::networkProcessDidCrash
-T 1490965390 18<mcatanzaro18>	which we don't expose
-T 1490965395 18<aperezdc_18>	mmh, maybe we should expose that eventually
-T 1490965431 18<aperezdc_18>	or would it make sense to detect it crashed, kill WebProcess, and not change the API?
-T 1490965459 18<mcatanzaro18>	kill all web processes at once, even those that are not currently loading resources...?
-T 1490965473 18<mcatanzaro18>	I don't  know how best to handle ti
-T 1490965475 18<mcatanzaro18>	*it
-T 1490965538 18<aperezdc_18>	tricky ~_~
-T 1490965540 18<KaL18>	why do we have to kill the web process?
-T 1490965543 18<annulen18>	ask Alex maybe?
-T 1490965569 18<aperezdc_18>	KaL: maybe we don't need, but it could be that a WebProcess can get stuck if the NetProcess goes amok
-T 1490965614 18<rave18>	what does webprocess do when the networkprocess goes away?
-T 1490965741 18<KaL18>	nothing
-T 1490965755 18<KaL18>	when a new request is made a new network process will be launched
-T 1490965782 18<KaL18>	the same way the Ui process stays alive even if web processes crash
-T 1490965805 18<mcatanzaro18>	So only problem would be if it crashes when fulfilling an existing request (which will almost always be when it crashes), does it get relaunched and does the original request complete?
-T 1490965811 18<mcatanzaro18>	And if so, do we have logic to avoid loops?
-T 1490965830 18<KaL18>	I don't know the details
-T 1490965832 18<annulen18>	from what I see, WebLoaderStrategy::networkProcessCrashed() is called, it reschedules requests
-T 1490965876 18<aperezdc_18>	so then it seems we don't really need to expose a ::net-process-crashed
-T 1490965896 18<rave18>	so if webprocess dies then networkprocess stays there forever ?
-T 1490965901 18<KaL18>	I don't think so
-T 1490965921 18<mcatanzaro18>	Network process is supposed to stay forever (until UI process quits)
-T 1490965932 18<KaL18>	the network process is shared, it will be used for new web processes
-T 1490965969 18<KaL18>	I don't think so <- we should expose the network process crashed signal
-T 1490966010 18<rave18>	let's say if another instance of MiniBrowser or epiphany is launched which spawns another 2 (web and network process) then ?
-T 1490966065 18<aperezdc_18>	rave: each UIProcess has one shared NetProcess, used by all the WebProcesses spwned by that one UIProcess
-T 1490966071 18<aperezdc_18>	(but only for that UIProcess)
-T 1490966103 18<aperezdc_18>	so: if you have two different browsers which use webkitgtk+, you will have two NetProcesses (one of each)
-T 1490966148 18<rave18>	yeah , so if in one webprocess dies, network process stays there until we kill the UIProcess ?
-T 1490966323 18<aperezdc_18>	correct
-T 1490966365 18<aperezdc_18>	most likely the UIProcess will show something to the user, who will reload the crashes page, and that will already spawn a new WebProcess (which will use the NetProcess which is still around)
-T 1490966490 18<rave18>	oh ok thanks
-T 1490966844 18<aperezdc_18>	np
-T 1491225354 19*	Now talking on 22#webkitgtk+
-T 1491225354 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491225354 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Mon Mar 20 08:31:54 2017)
-T 1491232411 20*	Disconnected (20Connection timed out)
-T 1491232435 19*	Now talking on 22#webkitgtk+
-T 1491232435 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491232435 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Mon Mar 20 08:31:54 2017)
-T 1491235411 20*	Disconnected (20Connection reset by peer)
-T 1491235435 19*	Now talking on 22#webkitgtk+
-T 1491235435 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.0, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491235435 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Mon Mar 20 08:31:54 2017)
-T 1491271346 18<chatter2918>	hey guys
-T 1491271348 18<chatter2918>	allah is doing
-T 1491271353 18<chatter2918>	sun is not doing allah is doing
-T 1491271356 18<chatter2918>	to accept Islam say that i bear witness that there is no deity worthy of worship except Allah and Muhammad peace be upon him is his slave and messenger
-T 1491294327 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491304965 18<tpopela18>	joanie, Hi Joanie :) can you please look on https://bugs.webkit.org/show_bug.cgi?id=170448 if it makes sense? :)
-T 1491305332 18<antoyo18>	Can someone help we with this issue, please: https://bugs.webkit.org/show_bug.cgi?id=164716 ?
-T 1491307186 18<tpopela18>	antoyo, hmm it looks like we indeed miss an API to create the WebKitDOMFileList.. And we should have it when we expose an API to set it.. The thing with these APIs is that they used to be autogenerated so we didn't have a way to limit what API we exposed.. But now when the APIs are "stable" (not generated) we should have a way to create it..
-T 1491307203 18<tpopela18>	antoyo, also did you tried to use JavaScript to do so?
-T 1491307240 18<tpopela18>	antoyo, through webkit_web_view_run_javascript() ?
-T 1491307254 18<tpopela18>	antoyo, I think that it should be possible to do so..
-T 1491307265 18<antoyo18>	No, I didn't because I prefer to have compile time check (I use the Rust bindings).
-T 1491307443 18<tpopela18>	antoyo, ah ok.. then someone needs to expose that API for creating the WebKitDOMFileList.. I don't know how hard it would be.. KaL (Hi Carlos!) do you know if it will be an easy task or not? We will need a way to create WebKitDOMFileList and also WebKitDOMFile items as well..
-T 1491307501 18<KaL18>	should be easy I guess, maybe just a matter of bringing that back from old unstable dom bindings api
-T 1491307573 18<tpopela18>	KaL, I don't know if we exposed it previously.. let me look..
-T 1491307867 18<tpopela18>	KaL, hmmm we didn't have it previously (at least in the WK1, but the DOM APIs didn't changed that much)..
-T 1491308462 18<antoyo18>	Could you please answer in the bug tracker? I've got to go soon.
-T 1491313309 18<blino18>	zdobersek: hi, I have a years-old patch in the Mageia WebKitGtk package, adding a allowScriptsToCloseWindows API similar to the one you just added in WPE : http://svnweb.mageia.org/packages/cauldron/webkit/current/SOURCES/webkit-2.1.90-allowScriptsToCloseWindows.patch?revision=472509&view=markup should I push upstream?
-T 1491313940 18<zdobersek18>	blino: yes
-T 1491314344 18<blino18>	ok, will do
-T 1491319314 18<zdobersek18>	blino: thanks!
-T 1491334019 20*	Disconnected (20Connection timed out)
-T 1491334042 19*	Now talking on 22#webkitgtk+
-T 1491334042 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491334042 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:07 2017)
-T 1491350851 20*	Disconnected (20Connection timed out)
-T 1491350877 19*	Now talking on 22#webkitgtk+
-T 1491350877 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1491350877 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
-T 1491354615 20*	Disconnected (20Connection timed out)
-T 1491354641 19*	Now talking on 22#webkitgtk+
-T 1491354641 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
 T 1491354641 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:07 2017)
 T 1491356485 20*	Disconnected (20Remote host closed socket)
 T 1491357051 19*	Now talking on 22#webkitgtk+
@@ -500,3 +407,107 @@ T 1492779303 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-
 T 1492780895 19*	Now talking on 22#webkitgtk+
 T 1492780895 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
 T 1492780895 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492782251 19*	Now talking on 22#webkitgtk+
+T 1492782251 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492782251 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492782526 19*	Now talking on 22#webkitgtk+
+T 1492782526 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492782526 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492782633 19*	Now talking on 22#webkitgtk+
+T 1492782633 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492782633 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:06 2017)
+T 1492782755 19*	Now talking on 22#webkitgtk+
+T 1492782755 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492782755 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492783937 20*	Disconnected (20Connection timed out)
+T 1492783961 19*	Now talking on 22#webkitgtk+
+T 1492783961 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492783961 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492804019 19*	Now talking on 22#webkitgtk+
+T 1492804019 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492804019 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1492805163 19*	Now talking on 22#webkitgtk+
+T 1492805163 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1492805163 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493037178 19*	Now talking on 22#webkitgtk+
+T 1493037178 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493037178 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:07 2017)
+T 1493047033 20*	Disconnected (20Connection timed out)
+T 1493047057 19*	Now talking on 22#webkitgtk+
+T 1493047057 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493047057 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:07 2017)
+T 1493050998 20*	Disconnected (20Connection timed out)
+T 1493051022 19*	Now talking on 22#webkitgtk+
+T 1493051022 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493051022 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493052285 19*	Now talking on 22#webkitgtk+
+T 1493052285 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493052285 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493054334 19*	Now talking on 22#webkitgtk+
+T 1493054334 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493054334 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493124402 18<blino18>	magomez: clopez : hi, can you run the pixel tests correctly on WebKitGTK ? I tried a few weeks ago, and the images rendering disappeared immediately after their rendering within WebKitTestRunner, which made the test fail
+T 1493124494 18<magomez18>	blino: they work fine for me
+T 1493125650 18<clopez18>	blino: did you tried after r215727 ?
+T 1493126377 18<blino18>	clopez: nope, will do
+T 1493126471 18<blino18>	zdobersek: libgcrypt 1.7.0 is now required, but Ubuntu 16.04 (current LTS) only provides 1.6.5
+T 1493126796 18<zdobersek18>	blino, we're adding it to jhbuild https://bugs.webkit.org/show_bug.cgi?id=171270
+T 1493127453 18<blino18>	zdobersek: alright, thanks
+T 1493129496 18<blino18>	clopez: LayoutTests/fast/images/color-jpeg-with-color-profile.html works fine, but not LayoutTests/http/tests/images/jpeg-partial-load.html
+T 1493135326 18<rdlp18>	hello, one question, How can I add an event handler to DOM element inside iframe element?
+T 1493135436 18<annulen18>	rdlp: get element of iframe, from it get document of that frame
+T 1493140319 18<rdlp18>	annulen, that doesn't work, at least for me. I explained my problem here: http://stackoverflow.com/questions/42766082/how-to-add-event-handler-to-element-inside-iframe-in-webkitgtk
+T 1493209049 18<rdlp18>	hello, one question, How can I add an event handler to DOM element inside iframe element? (I have explained my problem here: http://stackoverflow.com/questions/42766082/how-to-add-event-handler-to-element-inside-iframe-in-webkitgtk )
+T 1493209094 18<annulen18>	KaL: ^
+T 1493209839 18<tpopela18>	rdlp, what WebKitGTK+ version are you using?
+T 1493209915 18<tpopela18>	rdlp, I see that it's probably a WebKit1 based so anything < 2.4.11
+T 1493211420 18<rdlp18>	tpopela, It is a webkit1 version 1.8.3 based on gtk-3.0
+T 1493211445 18<tpopela18>	rdlp, why you use such an old version?
+T 1493211492 18<tpopela18>	rdlp, if you insist on using WebKit1 then you should use 2.4.11, but you should move to WebKit2 based WebKitGTK+ and that's 2.16.x
+T 1493211623 18<rdlp18>	tpopela, because I installed directly from ubuntu repositories. I am going to study move to webkitgtk 2.4.11 or to webkitgtk2
+T 1493211848 18<tpopela18>	rdlp, yeah definitely try 2.4.11 or move to 2.16.x.. There you can use https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-run-javascript to manipulate with DOM.. Or you can create an WebKitWebExtension - https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebExtension.html if you will need advanced things..
+T 1493212469 18<quinq18>	1.8.3 is only 4 years old
+T 1493212553 18<tpopela18>	quinq, only? :D for a web engines it's like a previous century..
+T 1493212851 18<rdlp18>	tpopela, 2.16.x is webkit2?
+T 1493212858 18<annulen18>	rdlp: yes
+T 1493212877 18<rdlp18>	the last webkit1 version is 2.4.11?
+T 1493212878 18<tpopela18>	rdlp, everything that's above 2.4.x
+T 1493212888 18<tpopela18>	rdlp, yes
+T 1493212942 18<quinq18>	Yeah tpopela, that was sarcastic ;)
+T 1493212972 18<tpopela18>	quinq, please use quotes next time :D
+T 1493212978 18<quinq18>	:>
+T 1493224689 18<rave18>	is there any good way to tell which version of Safari shares the same WebCore as latest WebkitGTK+ release?
+T 1493224878 18<annulen18>	rave: look at user-agent
+T 1493224901 18<rave18>	annulen: Thanks
+T 1493229218 18<rdlp18>	I am building webkit from the sources, I have run configure and make and now it generate .la files (libtools files). How can I generate now static libraries (.a) or shared objects (.so)?
+T 1493229263 18<annulen18>	seems like you are building obsolete version
+T 1493229277 18<annulen18>	autotools build was removed long ago
+T 1493229506 18<rdlp18>	I have compiled 2.4.11 version
+T 1493229548 18<annulen18>	that's obsolete, use 2.16
+T 1493229716 18<rdlp18>	with 2.16 can I use webkit1 instead webkit2?
+T 1493229793 18<annulen18>	no
+T 1493229823 18<annulen18>	but you can port your code, there should be example somewhere
+T 1493231709 18<rdlp18>	ok, I will try with webkitgtk2, what if I would like to use webkit 2.4.11 how can I generate libraries without using make install?
+T 1493231833 18<annulen18>	look in .libs
+T 1493233289 18<rdlp18>	ahh thanks, I don't see it in termina due to . (point)
+T 1493233326 18<annulen18>	that's how autotools work
+T 1493285122 18<nacho_18>	hey guys
+T 1493382354 18<blino18>	clopez: hi, did you have time to get a look at the WebP animated patch? any thing that is missing at first look?
+T 1493382726 18<clopez18>	blino: no sorry, i didn't have time to look into it.. i may test it next week
+T 1493386083 18<quinq18>	Hi, it looks like Google© broke webkit compatibility with their new login process, or is it just on my side?
+T 1493402193 18<MarcinWieczorek18>	Hi guys, can I get help with WebKitGTK in C++ here?
+T 1493402687 18<MarcinWieczorek18>	Anyone here?
+T 1493645105 19*	Now talking on 22#webkitgtk+
+T 1493645105 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493645105 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493651746 20*	Disconnected (20Connection timed out)
+T 1493651769 19*	Now talking on 22#webkitgtk+
+T 1493651769 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493651769 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:27:06 2017)
+T 1493654339 20*	Disconnected (20Connection timed out)
+T 1493654362 19*	Now talking on 22#webkitgtk+
+T 1493654362 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.1, unstable: 2.15.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
+T 1493654362 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@9.red-88-26-148.staticip.rima-tde.net (24Tue Apr  4 04:25:27 2017)
+T 1493659604 18<aidanh18>	I've been looking at the WebKitWebView script-dialog signal recently; am I correct in thinking that there's no way to asynchronously handle this?
+T 1493659639 18<aidanh18>	I'd like to implement script dialogs that block only the current tab, like firefox has. But that seems impossible with this API
+T 1493714743 18<fujihiro18>	Gtk build bots are broken. <https://build.webkit.org/builders> Removing WebInspector images makes incremental build broken. Could anyone trigger clean build?

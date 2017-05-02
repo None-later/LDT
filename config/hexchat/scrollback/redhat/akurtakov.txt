@@ -1,170 +1,3 @@
-T 1491402786 20<lufimtse>30	but wish I could..
-T 1491402792 18<akurtakov>	hmm, 
-T 1491402798 18<akurtakov>	I haven't seen bug report :)
-T 1491402808 20<lufimtse>30	maybeh I should file one
-T 1491402814 20<lufimtse>30	see if it occurs on gtk2....
-T 1491402826 18<akurtakov>	I can assure you I don't know of bugs that are not reported :)
-T 1491402833 20<lufimtse>30	X-D
-T 1491402853 20<lufimtse>30	Do you know how to get a stacktrace of a jvm that hung?
-T 1491402884 18<akurtakov>	jstack ?
-T 1491403031 20<lufimtse>30	I see I can do it for a child eclipse
-T 1491403037 20<lufimtse>30	by right clicking on stack
-T 1491403045 20<lufimtse>30	kinda curious if I can do it for my main eclipse
-T 1491403052 20<lufimtse>30	I guess not since it doesn't run in debug ?
-T 1491403057 18<akurtakov>	http://docs.oracle.com/javase/7/docs/technotes/tools/share/jstack.html
-T 1491403124 20<lufimtse>30	oooeeee
-T 1491403131 20<lufimtse>30	Thank you.
-T 1491403137 20<lufimtse>30	This is what I've been looking for.
-T 1491403140 20<lufimtse>30	Life is better now.
-T 1491403160 18<akurtakov>	:)
-T 1491403182 18<akurtakov>	most probably it is a bug in the parser ending cycling
-T 1491403269 20<lufimtse>30	hmm
-T 1491403271 20<lufimtse>30	probably
-T 1491403286 20<lufimtse>30	Anyone maintaining shellEd these days?
-T 1491403290 20<lufimtse>30	you know?
-T 1491403293 20<lufimtse>30	you still work on it?
-T 1491403297 18<akurtakov>	if it happens with one single file I'll need it too
-T 1491403312 18<akurtakov>	I'm the only one doing any shelled/ruby dltk work nowadasy
-T 1491403323 20<lufimtse>30	I see.
-T 1491403359 20<lufimtse>30	ok, so webkitgtk.c is being generated.
-T 1491403370 18<akurtakov>	sigh so smth on f26 broke it
-T 1491403376 18<akurtakov>	wondering what it could be
-T 1491403381 20<lufimtse>30	hmmmm
-T 1491403400 20<lufimtse>30	let me think about it for a sec...
-T 1491403414 20<lufimtse>30	I suppose you did a project clean?
-T 1491403422 18<akurtakov>	oh yeah multiple times
-T 1491403438 20<lufimtse>30	I used this function:
-T 1491403439 20<lufimtse>30	public static final native boolean _webkit_web_view_is_editable (long /*int*/ web_view);
-T 1491403439 20<lufimtse>30	public static final boolean webkit_web_view_is_editable (long /*int*/ web_view) {
-T 1491403439 20<lufimtse>30		lock.lock();
-T 1491403439 20<lufimtse>30		try {
-T 1491403439 20<lufimtse>30			return _webkit_web_view_is_editable (web_view);
-T 1491403439 20<lufimtse>30		} finally {
-T 1491403439 20<lufimtse>30			lock.unlock();
-T 1491403439 20<lufimtse>30		}
-T 1491403439 20<lufimtse>30	}
-T 1491403454 20<lufimtse>30	ah yea
-T 1491403456 20<lufimtse>30	with annotation:
-T 1491403459 20<lufimtse>30	.... /** @method flags=dynamic */
-T 1491403466 20<lufimtse>30	ignore ....
-T 1491403472 20<lufimtse>30	irc didn't print it because of /
-T 1491403521 20<lufimtse>30	I could set up an F26 vm and investigate
-T 1491403531 20<lufimtse>30	this kinda needs to work for us X-D
-T 1491403531 18<akurtakov>	don't
-T 1491403543 18<akurtakov>	finish the other things first they are more pressing
-T 1491403547 20<lufimtse>30	ok
-T 1491403555 20<lufimtse>30	I'll continue on the DnD for now.
-T 1491403600 20<lufimtse>30	I'm moving my laptop. I can be reached on freenode#swt or freenode#eclipse-dev
-T 1491403708 FiSHLiM plugin unloaded
-T 1491403708 Python interface unloaded
-T 1491487157 20<lufimtse>30	morning
-T 1491487161 18<akurtakov>	hey
-T 1491487168 20<lufimtse>30	looks like lots of broken tests this morning
-T 1491487172 20<lufimtse>30	http://download.eclipse.org/eclipse/downloads/drops4/I20170405-2000/testResults.php
-T 1491487174 20<lufimtse>30	not in swt, 
-T 1491487179 20<lufimtse>30	but other projects seem to have more than usual
-T 1491487188 18<akurtakov>	issue is found I think
-T 1491487211 18<akurtakov>	http://git.eclipse.org/c/platform/eclipse.platform.resources.git/commit/?id=607937d3eeafb995b5d9711e21683dc4934e0a96
-T 1491487252 20<lufimtse>30	I see
-T 1491487274 20<lufimtse>30	I looked into the dnd business with Ian.
-T 1491487296 20<lufimtse>30	We may have to find something that doesn't involve modifying styled text
-T 1491487309 18<akurtakov>	I fully agree on this one 
-T 1491487328 20<lufimtse>30	reason is that there are other custom widgets..
-T 1491487332 20<lufimtse>30	that are outside swt
-T 1491487338 18<akurtakov>	yeah
-T 1491487353 18<akurtakov>	I have explained that to Ian weeks ago already
-T 1491487410 20<lufimtse>30	so far it seems that we could get away with using a context_iteration in mouseDown, simmilar to how evaluate() waits in Browser.
-T 1491487430 20<lufimtse>30	A little hacky, but may be neccessary for cocoa/win32 compatability
-T 1491487443 18<akurtakov>	as long as it works
-T 1491487447 20<lufimtse>30	ok.
-T 1491491681 20<lufimtse>30	I explained to Ian how to read crash logs and how to translate "Java org_eclipse_swt_internal_gtk_OS GDK_1EVENT_1TYPE" to OS.java:GDK_EVENT_TYPE etc..
-T 1491491690 20<lufimtse>30	he found what causes the crash, working on fix.
-T 1491491976 20<lufimtse>30	btw, I want to carefully review every new DnD path, so that I'm aware what's going on. Would it be ok if I do the final merge on all upcomming DnD patches? (You are still also welcome to review them when Ian asks)
-T 1491491994 20<lufimtse>30	just so I know the state of DnD when Ian leaves.
-T 1491492010 20<lufimtse>30	I'll quizz Ian on every patch, so I understand it.
-T 1491492191 18<akurtakov>	sure
-T 1491492195 18<akurtakov>	do them
-T 1491492216 18<akurtakov>	it is just fine for me as I can't keep track of everything deeply
-T 1491492254 20<lufimtse>30	btw
-T 1491492254 20<lufimtse>30	News:
-T 1491492254 20<lufimtse>30	Ubuntu 18.04 LTS To Drop Default Unity Desktop, Will Switch Back To GNOME  (April 5th)
-T 1491492254 20<lufimtse>30	https://fossbytes.com/ubuntu-18-04-lts-gnome-default/
-T 1491492260 20<lufimtse>30	Well well.
-T 1491492265 20<lufimtse>30	X-D
-T 1491492267 20<lufimtse>30	oh my.
-T 1491492269 18<akurtakov>	finally
-T 1491492283 20<lufimtse>30	Now Fedora and Ubuntu will finally have some Unity.
-T 1491492286 20<lufimtse>30	he he . 
-T 1491492326 18<akurtakov>	gnome shell is the future of desktop computing :)
-T 1491492333 18*	akurtakov does a bold statement
-T 1491495192 20<lufimtse>30	Ian is making some change to patch now.
-T 1491495196 20<lufimtse>30	If testing, please wait.
-T 1491495234 18<akurtakov>	let's speak in #eclipse 
-T 1491495242 18<akurtakov>	as it's tough who said what to whom
-T 1491495286 20<lufimtse>30	how about #SWT ?
-T 1491495297 20<lufimtse>30	me/ian/eric hang out there.
-T 1491495303 18<akurtakov>	ok
-T 1491585597 20<lufimtse>30	hullo
-T 1491591999 Python interface unloaded
-T 1491840726 18<akurtakov>	what happened with your shelled bug ?
-T 1491840730 18<akurtakov>	have you filed one ?
-T 1491840736 20<lufimtse>30	hey
-T 1491840761 20*	lufimtse 30added "Reproduce and file shelled bug"
-T 1491840767 20*	lufimtse 30to his todo list
-T 1491840773 18<akurtakov>	aha ok :)
-T 1491841952 18<akurtakov>	regarding https://git.eclipse.org/r/#/c/94601/
-T 1491841957 20<lufimtse>30	hey
-T 1491841959 18<akurtakov>	I'm missing build -deps
-T 1491841966 20<lufimtse>30	hmmm
-T 1491841972 18<akurtakov>	but the script still reports success although it hasn't compiled :)
-T 1491841987 18<akurtakov>	Package dependency requirement 'glib-2.0 >= 2.53.0' could not be satisfied.
-T 1491841989 18<akurtakov>	Package 'glib-2.0' has version '2.52.0', required version is '>= 2.53.0'
-T 1491842011 20<lufimtse>30	ah, derp.
-T 1491842015 20<lufimtse>30	I see the fault
-T 1491842030 20<lufimtse>30	I added two lines, which messed with the error check
-T 1491842040 18<akurtakov>	btw, it's weird that latest gtk322 can't be compiled on fedora 26 :)
-T 1491842047 20<lufimtse>30	hmmm
-T 1491842069 20<lufimtse>30	I'll fix rebuild script now. sec.
-T 1491848049 20<lufimtse>30	Bug 515054 – Shelled hangs for a minute once in a while 
-T 1491848049 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=515054
-T 1491848055 20<lufimtse>30	shelled bugz
-T 1491848069 20<lufimtse>30	after a little bit of research, seems like ui freezes for a minute
-T 1491848072 20<lufimtse>30	then unlocks again
-T 1491848091 20<lufimtse>30	the stacktrace seems to show swt pango
-T 1491848108 18<akurtakov>	meh
-T 1491848114 18<akurtakov>	it doesn't make any sense 
-T 1491848115 20<lufimtse>30	I wonder if it just happens to call that method in a loop, or if that call causes the hang
-T 1491848121 20<lufimtse>30	I should try gtk2
-T 1491848128 18<akurtakov>	BrowserInformationControl
-T 1491848137 20<lufimtse>30	I tried with webkit1, 
-T 1491848138 18<akurtakov>	this is used for tooltips and other things
-T 1491848139 20<lufimtse>30	still hangs
-T 1491848149 20<lufimtse>30	Maybe
-T 1491848151 20<lufimtse>30	lemme check
-T 1491848163 20<lufimtse>30	does seem to contain browser
-T 1491848171 20<lufimtse>30	not sure if browser is causing hang thou. hmmm
-T 1491848192 20<lufimtse>30	Let me see if this business occurs with gtk
-T 1491848193 20<lufimtse>30	2
-T 1491848256 20<lufimtse>30	... trying...
-T 1491848553 18<akurtakov>	yeah, I'm 99% sure it's the man page tooltip causing it
-T 1491848721 20<lufimtse>30	hmm
-T 1491848724 20<lufimtse>30	Let me check
-T 1491848725 20<lufimtse>30	btw
-T 1491848729 20<lufimtse>30	https://git.eclipse.org/r/#/c/94601  <<< ready for review
-T 1491848732 20<lufimtse>30	round 2#
-T 1491848762 20<lufimtse>30	akurtakov << yes, you are right, the man-page preview seems to cause the hang
-T 1491848772 20<lufimtse>30	Occurs on Gtk2 as well
-T 1491848786 20<lufimtse>30	when I hover over some symbol for too long...
-T 1491848788 20<lufimtse>30	like "exit'
-T 1491848821 20<lufimtse>30	It does popup eventually thou.
-T 1491848826 20<lufimtse>30	after that one minute
-T 1491848829 20<lufimtse>30	hmmm
-T 1491848851 20<lufimtse>30	I like shelled, would be nice to have fixed. I'd be happy to investigate?
-T 1491850049 18<akurtakov>	I'll look at it tomorrow
-T 1491850053 20<lufimtse>30	ok
-T 1491850054 18<akurtakov>	should be fairly trivial fix
-T 1491852354 18<akurtakov>	weird enough it happens only on exit
-T 1491852369 18<akurtakov>	if your script doesn't have exit you will see no issues
 T 1491852418 18<akurtakov>	probably because it's huge man page
 T 1491853035 20<lufimtse>30	hmm
 T 1491853049 18<akurtakov>	anyway, it's long standing improvement
@@ -664,3 +497,132 @@ T 1492619983 18<akurtakov>	update it in fedora
 T 1492619995 18<akurtakov>	and eventually update batik in orbit too
 T 1492620008 18<akurtakov>	jetty has to be updated to 9.4.4 for oxygen release
 T 1492620122 Python interface unloaded
+T 1493124307 20<lufimtse>30	mornin
+T 1493124317 18<akurtakov>	hey
+T 1493124341 20<lufimtse>30	do you have commiter rights to eclipse.platform.text?  https://git.eclipse.org/r/#/c/86768/
+T 1493124347 18<akurtakov>	yes
+T 1493124362 18<akurtakov>	I asked on the patch
+T 1493124373 18<akurtakov>	but Lars comment puzzled me
+T 1493124408 20<lufimtse>30	Ah, I didn't update gerrit 
+T 1493124410 20<lufimtse>30	lemme read
+T 1493124426 20<lufimtse>30	yea
+T 1493124428 20<lufimtse>30	basically same thing
+T 1493124436 20<lufimtse>30	except that now it's not stylable in options
+T 1493124460 20<lufimtse>30	this makes it consistent with other dialogues, e.g ctrl+space code completion (which is not stylable either).
+T 1493124466 20<lufimtse>30	by stylable, I mean user selecting colour
+T 1493124474 20<lufimtse>30	it's still stylable in dark theme etc..
+T 1493124479 20<lufimtse>30	see screenshot in bug
+T 1493124485 18<akurtakov>	I saw it
+T 1493124505 18<akurtakov>	please commen on the gerrit and maybe edit the commit message to make it clear
+T 1493124510 20<lufimtse>30	ok.
+T 1493124519 18<akurtakov>	it's quite hard for someone not following to get what's going on :)
+T 1493124523 18<akurtakov>	even for me :)
+T 1493124599 18<akurtakov>	mind you - I look at 10+ different things per day 
+T 1493124602 20<lufimtse>30	I posted comment.
+T 1493124602 18<akurtakov>	at least :)
+T 1493124606 20<lufimtse>30	X-D
+T 1493124645 20<lufimtse>30	ah sec
+T 1493124647 20<lufimtse>30	*and*
+T 1493124652 20<lufimtse>30	let me update commit message.
+T 1493124927 20<lufimtse>30	ok, I was about to update commit messsage ^_^, but ok.
+T 1493124945 18<akurtakov>	meh, sorry
+T 1493124948 20<lufimtse>30	^_^
+T 1493124963 20<lufimtse>30	ok, one bug down, bunch left to go.
+T 1493125038 20<lufimtse>30	My todo list related to Colour fixes: http://pix.toile-libre.org/upload/original/1493125016.png
+T 1493135780 18<akurtakov>	that's insane
+T 1493135791 18<akurtakov>	I don't get it how you navigate in it :)
+T 1493136233 20<lufimtse>30	well, it's part of my bigger workspace:
+T 1493136233 20<lufimtse>30	http://pix.toile-libre.org/upload/original/1493136219.png
+T 1493136245 20<lufimtse>30	I zoom out, then zoom back into the relevant section
+T 1493136256 20<lufimtse>30	I guess I'm a fairly visual person
+T 1493136509 18<akurtakov>	I mean it looks not structured to me :)
+T 1493136509 18<akurtakov>	as long as it works for you :)
+T 1493136517 20<lufimtse>30	X-D
+T 1493136575 20<lufimtse>30	I found that I often have to deal with dependencies between tasks, share information between tasks etc...
+T 1493136586 20<lufimtse>30	diagram is good for those non-linear projects
+T 1493146472 20<lufimtse>30	when you have time, I emailed you some patch reviewes.
+T 1493399118 20<lufimtse>30	Initially changing the org.eclipse.e4.ui.swt.gtk project warning settings seemed like a good idea, but it turns out I haven't tested it enough. I guess I don't have that much platfrom.ui experience to having been able to foresee that issue. Will try to be more attentive in future.
+T 1493399124 20<lufimtse>30	Revert: https://git.eclipse.org/r/#/c/96053/
+T 1493399301 20<lufimtse>30	akurtakov hey
+T 1493399317 20<lufimtse>30	akurtakov noise aside, there is reason to revert the patch
+T 1493399324 18<akurtakov>	yup
+T 1493399353 20<lufimtse>30	akurtakov with the current settings, actually I don't notice the problem, with the setting I do notice the problem and can do something about it
+T 1493399356 18<akurtakov>	I have abandoned
+T 1493399368 18<akurtakov>	the change
+T 1493399373 20<lufimtse>30	akurtakov ?
+T 1493399382 20<lufimtse>30	akurtakov why
+T 1493399386 20<lufimtse>30	akurtakov doesn't make sense? 
+T 1493399397 20<lufimtse>30	akurtakov like from logical point of view, maybe I'm missing something?
+T 1493399410 18<akurtakov>	noone should see compile error
+T 1493399424 18<akurtakov>	as we know it violates access control
+T 1493399431 18<akurtakov>	and did it that way on purpose
+T 1493399446 20<lufimtse>30	akurtakov I see. In that case, I did not provide full information
+T 1493399446 18<akurtakov>	so even if one has set his workspace with stricter rules
+T 1493399451 18<akurtakov>	this plugin is fine
+T 1493399452 20<lufimtse>30	akurtakov let me explain:
+T 1493399461 20<lufimtse>30	akurtakov with fixed target platform, there is no compile error
+T 1493399467 20<lufimtse>30	akurtakov I forgot to mention this
+T 1493399469 20<lufimtse>30	akurtakov my bad
+T 1493399489 20<lufimtse>30	akurtakov with correct target platform, all works and no compile errors
+T 1493399497 20<lufimtse>30	akurtakov (without custom settings)
+T 1493399503 20<lufimtse>30	akurtakov basically I kinda screwed up
+T 1493399510 20<lufimtse>30	akurtakov unknowingly
+T 1493399544 20<lufimtse>30	i.e the compile error only pops up with partial target platform
+T 1493399569 20<lufimtse>30	as such, it makes sense to have the patch reverted, so that one can find if one has a broken target platform at compile time
+T 1493399575 18<akurtakov>	anyway, it doesn't hurt to have it fine for people that have just this plugin and no target platform
+T 1493399577 20<lufimtse>30	does that make sense?
+T 1493399607 20<lufimtse>30	sec
+T 1493399820 20<lufimtse>30	Without a target platform, there are other errors either way. So it doesn't help those people either:
+T 1493399830 20<lufimtse>30	http://pix.toile-libre.org/upload/original/1493399824.png
+T 1493399838 20<lufimtse>30	Am I missing something?
+T 1493399860 20<lufimtse>30	Like, it seemed like a good idea 20 minutes ago, but now with complete information at hand, my patch is counterproductive
+T 1493399871 20<lufimtse>30	there is no situation in which it is beneficial
+T 1493399902 20<lufimtse>30	I basically didn't spend enough time testing
+T 1493399914 20<lufimtse>30	was rushing too much >_<
+T 1493400043 20<lufimtse>30	Based on what I currently know (I may be missing something?), I suggest to restore the revert and revert: https://git.eclipse.org/r/#/c/96053/
+T 1493400133 18<akurtakov>	I'll be fine making the one setting you changed stronger
+T 1493400136 18<akurtakov>	but not reverting
+T 1493400161 20<lufimtse>30	Is reverting a big political problem?
+T 1493400168 18<akurtakov>	I do believe every plugin should have custom settings so each contributor sees exactly the same set of issues
+T 1493400176 18<akurtakov>	as what happens when there are none
+T 1493400186 20<lufimtse>30	hmmmm
+T 1493400193 18<akurtakov>	is that many people setup their default settings very low
+T 1493400197 18<akurtakov>	seeing no warning
+T 1493400209 18<akurtakov>	and people working on harder rules
+T 1493400215 20<lufimtse>30	ok,
+T 1493400217 20<lufimtse>30	that's valid
+T 1493400219 18<akurtakov>	see more and more and go after others fixing it
+T 1493400229 20<lufimtse>30	Ok, how about I up the setting to error again?
+T 1493400233 20<lufimtse>30	that should solve things
+T 1493400243 20<lufimtse>30	specific to that bundle
+T 1493400251 20<lufimtse>30	as per above
+T 1493400283 18<akurtakov>	go on
+T 1493400285 20<lufimtse>30	ok
+T 1493400299 18<akurtakov>	think of it that way - even if it was another issue
+T 1493400305 18<akurtakov>	we should take the benefit from it 
+T 1493400318 18<akurtakov>	aka have consistent project settings for every contributor :)
+T 1493400327 20<lufimtse>30	I agree with that
+T 1493400359 18<akurtakov>	which would have the nice effect if it works for everyone else
+T 1493400366 18<akurtakov>	and there are project settings 
+T 1493400373 18<akurtakov>	the issue is in your TV :)
+T 1493400482 20<lufimtse>30	TV?
+T 1493400522 18<akurtakov>	as a teenager I worked in TV sell/repair shop
+T 1493400535 20<lufimtse>30	I see
+T 1493400537 20<lufimtse>30	he he
+T 1493400552 18<akurtakov>	and it was quite funny to find when it's cable operator problem and when a TV issue
+T 1493400568 18<akurtakov>	as in electronics problem in the TV
+T 1493400605 18<akurtakov>	the old analogue stuff could lower image quality for many reasons
+T 1493400819 18<akurtakov>	guys used to measure every single condenser one by one :)
+T 1493400844 18<akurtakov>	hmm, maybe the english word is capacitor
+T 1493400892 20<lufimtse>30	capacitor *
+T 1493400894 20<lufimtse>30	:-)
+T 1493400899 20<lufimtse>30	interesting
+T 1493401071 20<lufimtse>30	ok
+T 1493401072 20<lufimtse>30	phew
+T 1493401077 20<lufimtse>30	ready for review
+T 1493401078 20<lufimtse>30	https://git.eclipse.org/r/#/c/96057/
+T 1493401083 20<lufimtse>30	child eclipse switches themes well with it.
+T 1493401089 20<lufimtse>30	with that merge, I can sleep well at night.
+T 1493401195 20<lufimtse>30	I'm off to lunch
+T 1493401209 18<akurtakov>	and I'll be for weekend once I push this one
+T 1493404548 20<lufimtse>30	have a nice one
