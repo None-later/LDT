@@ -1,16 +1,12 @@
+
+##################
+## Terminal Conig
+##################
+
 # .bashrc
 if [ -f /etc/bashrc ]; then # Source global definitions
 	. /etc/bashrc
 fi
-
-# Color my PS1:
-PS1='\[\e[1;34m\][\t \W]$ \[\e[m\]'
-# https://www.linux.com/learn/how-make-fancy-and-useful-bash-prompt-linux
-# e1:34 -  1=bold, 34=color.  
-# \[\e[m\]  - stop color
-# \t - time 
-# \w - working dir.
-
 
 # change prompt if in jhbuild shell
 if [ -n "$UNDER_JHBUILD" ]; then
@@ -21,11 +17,108 @@ fi
 export PATH=$PATH:~/git/LDT/path
 
 # Configue my default editor:
-export EDITOR=vi
+export EDITOR=vim
+
+
+##############
+## Key bindings inside terminal
+##############
+# use 'ctrl-v' press KEY to find keycode.
+# substitute ^[ with \e
+# bind 
+# bind -x  for executing commands.
+
+bind -x '"\eOP":"ll -a"'                  # F1 = ls -a
+bind '"\eOQ": "| grep -i -I -s "'         # F2 = grep -i -I -s
+bind -x '"\eOR":" cd ~/ && pwd"'          # F3 = cd ~/
+bind -x '"\eOS":" cd ~/git/ && pwd"'      # F4 = cd ~/git
+bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no output.
+
+##############
+## Aliases
+#############
+
+# temp:
+# alias swt_webkit="set -x ;{ ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$; }; set +x"
+
+# .. cd 
+
+# bashrc editing
+alias vbrc="vim ~/.bashrc"
+alias rbrc="source ~/.bashrc"
+
+# a
+alias a="alias"
+alias ag="alias | g"
+# b
+
+#alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
+# c 
+alias ..="cd .. && pwd"
+alias cd.="cd $(pwd)"
+alias cr='printf "\033c"'
+
+# d - dnf
+alias sdi="sudo dnf install" #Sudo dnf install
+alias sdla="sudo dnf list available"
+alias sdli="sudo dnf list installed"
+alias sdl="sudo dnf list"
+
+# e
+# f
+# g - Git, grep 
+alias g="grep --color=always -i -I -s"  #i= ignore uppercase. I=Ignore binary s= suppress error messages.
+alias ga.="git add ."
+alias gcm="git commit -m"
+alias gs="git status"
+alias grh="git reset --hard"
+alias ggu="git add . && git commit -m 'general update' && git push"
+
+alias ngrep="grep -iv"
+# h
+# i
+# j
+# k
+# l
+alias lla="ll -a"
+alias less="less -r"  # read coloured output.
+
+# m
+#alias man="man -P most"
+alias make=colormake
+
+# n
+# o
+# p
+# q
+alias quiet="&> /dev/null "
+# r
+alias rc="referenceGenerator.sh | toclip"
+alias rcp="rsync -azh --info=progress2 "
+alias rsync-workspace="rsync -r --delete ~/workspace/ ~/workspacecopy"
+# s
+alias startssh="systemctl start sshd.service"
+alias stopssh="systemctl stop sshd.service"
+# t
+# u
+# v
+alias vpn="sudo vpnc" 
+alias v="vim"
+# w
 
 #################################
 ############## COLOURING 
 #################################
+
+###################
+### Color my Prompt
+###################
+PS1='\[\e[1;34m\][\t \W]$ \[\e[m\]'
+# https://www.linux.com/learn/how-make-fancy-and-useful-bash-prompt-linux
+# e1:34 -  1=bold, 34=color.  
+# \[\e[m\]  - stop color
+# \t - time 
+# \w - working dir.
 
 ####################
 #### Colourize LESS:
@@ -73,101 +166,24 @@ export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 
 
 
+##############################################################################
+###################################################################### END
+###############################################################################
+### DEPRECATED BELOW
+####################
 
-##############
-## Key bindings inside terminal
-##############
-# use 'ctrl-v' press KEY to find keycode.
-# substitute ^[ with \e
-# bind 
-# bind -x  for executing commands.
 
-bind -x '"\eOP":"ll -a"'                  # F1 = ls -a
-bind '"\eOQ": "| grep -i -I -s "'         # F2 = grep -i -I -s
-bind -x '"\eOR":" cd ~/ && pwd"'          # F3 = cd ~/
-bind -x '"\eOS":" cd ~/git/ && pwd"'      # F4 = cd ~/git
-bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no output.
-
-##############
-## Aliases
-#############
-
-# temp:
-# alias swt_webkit="set -x ;{ ./build.sh clean && make -f make_linux.mak make_webkit && ll | g .o$; }; set +x"
-
-# .. cd 
-
-# bashrc editing
-alias cbrc="cat ~/.bashrc"
-alias vbrc="vim ~/.bashrc"
-alias rbrc="source ~/.bashrc"
-
-# a
-alias a="alias"
-alias ag="alias | g"
-# b
-#alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
-# c 
-alias ..="cd .. && pwd"
-alias cd.="cd $(pwd)"
-alias cut1="cut -f1 -d ' '"
-alias lez="less -E"
-
-alias cr='printf "\033c"'
-
-# d - dnf
-alias sdi="sudo dnf install" #Sudo dnf install
-alias sdla="sudo dnf list available"
-alias sdli="sudo dnf list installed"
-alias sdl="sudo dnf list"
-
-# e
-# f
-# g - Git, grep 
-alias g="grep --color=always -i -I -s"  #i= ignore uppercase. I=Ignore binary s= suppress error messages.
-alias gs="git status"
-alias grh="git reset --hard"
-alias ggu="git add . && git commit -m 'general update' && git push"
-
-alias ngrep="grep -iv"
-# h
-# i
-# j
-# k
-# l
-alias lla="ll -a"
-alias less="less -r"  # read coloured output.
-
-# m
-#alias man="man -P most"
-alias make=colormake
-
-# n
-# o
-# p
-# q
-alias quiet="&> /dev/null "
-# r
-alias rc="referenceGenerator.sh | toclip"
-alias rcp="rsync -azh --info=progress2 "
-alias rsync-workspace="rsync -r --delete ~/workspace/ ~/workspacecopy"
-# s
-alias startssh="systemctl start sshd.service"
-alias stopssh="systemctl stop sshd.service"
-# t
-# u
-# v
-alias vpn="sudo vpnc" 
-alias v="vim"
-# w
-
+# DEPRECATED:
+# Configue JAVA_HOME for building JNI
+# export JAVA_HOME=/usr/lib/jvm/java/
 
 #################
-## User functions
+## User functions (Deprecated)
 #################
 
+# Git branches with descriptions
 # https://github.com/bahmutov/git-branches#adding-to-bash_profile
-gitb () {
+deprecated_gitb () {
     branch=""
     branches=`git branch --list`
     while read -r branch; do
@@ -176,19 +192,19 @@ gitb () {
     printf "%-35s %s\n" "$branch"  "$description"
     done <<< "$branches"
 }
-gbd () {
+deprecated_gbd () {
 	git branch --edit-description 
 }
 
 
-gp () {
+deprecated_gp () {
 	git add .
 	git commit -m "General update. Note: $1"
 	git push
 }
 
 # f
-ff () {
+deprecated_ff () {
 	# Find File
 	# - Dependencies: line
 	# - About:
@@ -203,11 +219,7 @@ ff () {
 }
 
 # l
-line () {
+deprecated_line () {
 	sed -n $1p
 }
-
-# DEPRECATED:
-# Configue JAVA_HOME for building JNI
-# export JAVA_HOME=/usr/lib/jvm/java/
 
