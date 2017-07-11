@@ -10764,3 +10764,1638 @@ May 02 14:38:41 <jjohnstn>	nboldt: improvement is a stretch...it is avoiding iss
 May 02 14:38:50 <nboldt>	\o/ that's an improvement then
 May 02 14:39:05 <nboldt>	"play nice with others" is something we should all aspire to do :D
 May 02 14:41:04 <jjohnstn>	:)...I remember that slf4j had to be 1.72 and the jackson jars had to be 2.5.0 which I saw in your list and the httpclient and httpcore need to be backlevelled which I believe was part of the 2.3.1 repo..I don't know the other changes by heart, but if you took from the neon3respinb repo, you should be fine
+**** BEGIN LOGGING AT Wed May  3 09:40:39 2017
+
+May 03 09:40:39 *	Now talking on #eclipse
+May 03 09:40:39 *	Topic for #eclipse is: Eclipse discussions
+May 03 09:40:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 03 12:31:29 <nboldt>	jjohnstn jjohnstn|wfh: help! any idea why devstudio is installing your March 07 2.3.0 instead of the April 25 version? https://issues.jboss.org/browse/JBIDE-24382?focusedCommentId=13401496&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-13401496
+May 03 12:36:31 <nboldt>	weirder still, Eclipse doesn't see 2.3.0.20170425 as an available update once 2.3.0.20170307 is installed
+May 03 12:36:39 <nboldt>	jjohnstn jjohnstn|wfh ^
+May 03 12:38:33 <jjohnstn|wfh>	nboldt: no idea why this is...rgrunber any ideas?
+May 03 12:39:09 <nboldt>	going to try to add more restrictive rules in openshift feature
+May 03 12:39:36 <rgrunber>	nboldt: looking at the metadata, i see org.eclipse.linuxtools.docker.feature.feature.group 0.0.0 is the requirement from org.jboss.tools.openshift.feature.feature.group 3.3.3.v20170503-0334
+May 03 12:39:50 <nboldt>	right. no version req
+May 03 12:40:06 <nboldt>	but it should be finding the 04/25 version not the 03/07 one
+May 03 12:40:46 <rgrunber>	agreed.. unless the lack of specificity causes p2 to choose the older one..
+May 03 12:40:52 <rgrunber>	but no idea yet
+May 03 12:44:08 <nboldt>	but... it should never pick an old one
+May 03 12:44:17 <nboldt>	it should pick the newest compatible
+May 03 12:45:08 <rgrunber>	p2 can pick an older version in some cases where it's compatible and has fewer dependencies, but deps should be about the same in this case..
+May 03 12:47:43 <nboldt>	hmm. doing a manual Help > Install New ... which p2 recognizes as an update (not a fresh install).
+May 03 12:48:05 <nboldt>	going to see what gets installed (maybe it's spotify.docker that's causing this?)
+May 03 12:52:14 <rgrunber>	nboldt: i just did a headless install of the feature and i see 2.3.0.201704251823
+May 03 12:52:37 <nboldt>	which feature did you install? from what site?
+May 03 12:52:50 <nboldt>	devstudio core feature?
+May 03 12:53:02 <nboldt>	openshift 3 feature?
+May 03 12:53:07 <rgrunber>	from https://devstudio.redhat.com/10.0/snapshots/updates/ and just org.jboss.tools.openshift.feature.feature.group
+May 03 12:53:17 <nboldt>	hmm
+May 03 12:53:28 <rgrunber>	one sec, i'll try in eclipse
+May 03 12:53:33 <nboldt>	try again with BYOE category 
+May 03 12:54:59 <rgrunber>	wow.. so it wants to install 201703 now..
+May 03 12:55:15 <nboldt>	\o/ and wtf?
+May 03 12:55:37 <nboldt>	maybe there's a requirement in devstudio that's asking for newer stuff
+May 03 12:56:26 <rgrunber>	i wanna triple check this.. but i would try nailing down docker tooling to the exact version.
+May 03 12:56:44 <nboldt>	yep. that's what I'm testing now in the openshift build isefl
+May 03 12:56:48 <nboldt>	itself*
+May 03 12:57:57 <nboldt>	./features/com.jboss.devstudio.core.rpmdeps.feature/feature.xml asks for docker plugins ... 1.1.0+ 
+May 03 12:58:03 <nboldt>	so that's vague :(
+May 03 13:22:43 <akurtakov>	how does one subscribe to mailing list with gmail
+May 03 13:22:59 <akurtakov>	eclipse.org ignores nontext 
+May 03 13:23:02 <akurtakov>	sigh
+May 03 13:23:32 <rgrunber>	akurtakov: i create a filter to bypass inbox that matches the words : 'list:thelist@list.org'
+May 03 13:23:57 <akurtakov>	rgrunber: nah, I have issue with actually subscribing to receive mails from mailing list
+May 03 13:24:15 <rgrunber>	ah d'oh!
+May 03 13:24:16 <rgrunber>	:P
+May 03 13:24:17 <akurtakov>	- Results:
+May 03 13:24:19 <akurtakov>	    Ignoring non-text/plain MIME parts
+May 03 13:24:19 <rgrunber>	hmmm
+May 03 13:24:20 <akurtakov>	    Your request has been forwarded to the list moderator for approval.
+May 03 13:24:22 <akurtakov>	- Unprocessed:
+May 03 13:25:22 <akurtakov>	and there seems to be no setting to always send text
+May 03 13:27:04 <akurtakov>	If you click on "plain text", then gmail will always send in plain text EXCEPT when your reply-to or forward a message with embedded images. In this case, it will use rich text by default regardless of your settings.
+May 03 13:31:39 <rgrunber>	nboldt: can you try reproducing but disable 'contact all update sites'. for me that ensured latest always got installed. might be a hint..
+May 03 13:31:47 <rgrunber>	also i'm now seeing 201705
+May 03 13:32:53 <akurtakov>	sigh, failed at subscribing to mail list
+May 03 13:35:20 <nboldt>	akurtakov: why not turn off rich text in gmail, subscribe, respond / confirm subscription, then turn rich text back on?
+May 03 13:35:42 <nboldt>	akurtakov: http://smallbusiness.chron.com/turn-off-html-gmail-composer-40114.html
+May 03 13:35:44 <akurtakov>	nboldt: how do I disable it ? there is nothing in the settings
+May 03 13:35:57 <nboldt>	akurtakov: it's done from any email compose window
+May 03 13:36:08 <akurtakov>	so I have to do it for every email ?
+May 03 13:36:18 <nboldt>	you can toggle it back and forth as needed
+May 03 13:36:34 <akurtakov>	further more, now my mail is sent to moderation so I can't proceed
+May 03 13:36:42 <nboldt>	send another one?
+May 03 13:36:51 <akurtakov>	nboldt: moderation again
+May 03 13:36:56 <nboldt>	which list? maybe we can ping the list mod to add you
+May 03 13:37:30 <nboldt>	rgrunber: yeah, we could do that but average user WON'T know to install from JUST ONE site
+May 03 13:37:31 <akurtakov>	nboldt: I'll handle it but it's just insane to fail on such operation due to gmail
+May 03 13:37:42 <nboldt>	akurtakov: +1, gmail has some quirks
+May 03 13:37:57 <rgrunber>	nboldt: my point is, it's quite strange..
+May 03 13:38:24 <nboldt>	btw protip for composing new messages, hold down SHIFT key when clicking the COMPOSE button to pop in a new window
+May 03 13:39:09 <nboldt>	also works when composing in "fullscreen" mode if you shift-click the up/down arrow in the right corner
+**** BEGIN LOGGING AT Thu May  4 09:12:31 2017
+
+May 04 09:12:31 *	Now talking on #eclipse
+May 04 09:12:31 *	Topic for #eclipse is: Eclipse discussions
+May 04 09:12:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 04 11:28:23 <strykerawb>	rgrunber,  ping.  
+May 04 11:28:31 <rgrunber>	strykerawb: hey
+May 04 11:28:48 <strykerawb>	rgrunber,  hey pal... i got a cryptic email from mistria ;)   
+May 04 11:29:22 <rgrunber>	i could try.. decrypting. what's it about ?
+May 04 11:30:17 <strykerawb>	Do you think you can fix https://kojipkgs.fedoraproject.org/work/tasks/2503/19382503/build.log promptly? It appears you're the official Red Hat committer on this part, there's no Gerrit for me to submit patches and it's blocking the Fedora build.
+May 04 11:30:22 <strykerawb>	basically koji build is failing
+May 04 11:30:25 <strykerawb>	bc of an unnecessary cast
+May 04 11:30:35 <strykerawb>	he says it's a blocker but doesn't link to any bz, either internal rht or public eclipse
+May 04 11:30:44 <strykerawb>	any idea how to reach this fool? ;)   <3 
+May 04 11:31:22 <akurtakov>	strykerawb: it is the automated rebuilding saying it can't rebuild wtp anymore https://apps.fedoraproject.org/koschei/groups/eclipse?order_by=state-f27%2Crunning%2Cfailing%2Cname
+May 04 11:31:49 <strykerawb>	anyway,  the actual error is a an unnecessary cast
+May 04 11:31:55 <strykerawb>	is that really enough to break the koji builds?
+May 04 11:32:24 <akurtakov>	strykerawb: yes
+May 04 11:32:34 <akurtakov>	the thing is koji has tycho 1.0.0
+May 04 11:32:42 <mbenitez>	eclipse-team: next week's call is cancelled but status reports are still due same time Monday
+May 04 11:32:54 <akurtakov>	and tycho 1.0 now uses project settings 
+May 04 11:33:06 <akurtakov>	and I would bet that the project has this set to error
+May 04 11:33:12 <rgrunber>	akurtakov: hmm no way to disable, or turn that message into warning ?.. on our end.. or worst case patch it in koji..
+May 04 11:33:28 <akurtakov>	and after some generification it is unneseccary
+May 04 11:33:34 <strykerawb>	he also didn't indicate what branch of wtp he's building ;) 
+May 04 11:33:41 <strykerawb>	log seems to say 3.8.2?  
+May 04 11:33:59 <rgrunber>	strykerawb: yeah.. look slike your 3.8.2 release
+May 04 11:34:05 <akurtakov>	rgrunber: we can always patch locally but we would rather have all these things upstream for the the sake of simplicity
+May 04 11:34:47 <strykerawb>	well unfortunately upstream is frozen i believe... i mean i think the entire 3.8.x release train is done.   There's still 1 critical issue that might force a patch build 
+May 04 11:35:01 <rgrunber>	what version of tycho is wtp using though.. i wonder if that's the point of difference
+May 04 11:35:02 <akurtakov>	strykerawb: just do it in master
+May 04 11:35:22 <akurtakov>	we will fetch from it as fedora is in the process to move to oxygen
+May 04 11:35:50 <strykerawb>	ok sure. 
+May 04 11:36:46 <akurtakov>	strykerawb: thanks
+May 04 11:36:53 <akurtakov>	sorry for not being clear
+May 04 11:37:28 <strykerawb>	not your fault ;)  blame mistria =P   he seems to think brevity is the soul of wit, but it's not the soul of patching specific branches in code repos 
+May 04 11:37:41 <akurtakov>	we push hard to validate the release train is buildable 
+May 04 11:38:12 <strykerawb>	so to be clear, rawhide will use oxygen?
+May 04 11:38:33 <akurtakov>	strykerawb: yes, it already has platform oxygen
+May 04 11:38:40 <strykerawb>	gotcha
+May 04 11:38:41 <akurtakov>	next are to be moved
+May 04 11:40:03 <akurtakov>	strykerawb: isn't wtp building against oxygen ?
+May 04 11:40:22 <strykerawb>	3.8.2 branch is neon 
+May 04 11:40:24 <strykerawb>	master is oxygen 
+May 04 11:40:39 <strykerawb>	seems to build as far as i know 
+May 04 11:41:08 <strykerawb>	in fact i built the part that has common in it and it never errored like this
+May 04 11:41:13 <rgrunber>	hmm 0.21.0.. http://git.eclipse.org/c/webtools/webtools.releng.aggregator.git/tree/wtp-parent/pom.xml
+May 04 11:41:18 <strykerawb>	so im wondering if you're in fact using project settings or not 
+May 04 11:41:24 <strykerawb>	or if my local build is somehow not
+May 04 11:41:36 <strykerawb>	ah thats probably the issue.... i think official wtp uses old tycho
+May 04 11:41:55 <akurtakov>	wtp would better move up :)
+May 04 11:43:31 <strykerawb>	yeah well they're massively shorthanded and i haven't been a very active committer in years 
+May 04 11:43:36 <strykerawb>	trying to get back into it though
+May 04 11:44:48 <rgrunber>	rfe: humans with N-hands
+May 04 14:12:04 <akurtakov>	eclipse.org gerrit will be down tomorrow
+May 05 08:32:15 <akurtakov>	mbooth: what isthe link?
+May 05 08:32:24 <mbooth>	https://redhat.bluejeans.com/2468351826/
+May 05 09:10:05 <akurtakov>	mbooth: mbenitez: I think we should just close all the test suite bugs in rhscl
+May 05 09:10:09 <akurtakov>	we are not going to work on them
+May 05 09:10:39 <akurtakov>	if anything happens it will need significant effort from QE side to stabilize them before we can rely on them
+May 05 09:11:01 <akurtakov>	aka nothing I would expect to happen over night
+May 05 09:12:36 <mbenitez>	akurtakov, sounds good to me, if things change we can always re-open to fix
+May 05 09:13:00 <akurtakov>	mbooth: agreed ?
+May 05 09:13:15 <akurtakov>	if yes I would ask you to to do it :)
+May 05 09:14:21 <mbooth>	Sure -- I think most failures are caused by the packaging rules that are enforced on us anyway (i.e. upstream in many cases does not generate binary test resources at build time etc)
+May 05 09:15:00 <strykerawb>	hey, anyone here good at concurrent stuff? ;) 
+May 05 09:15:35 <mbooth>	test suites can still be run as IMO it's still a valid measure of health -- if suddenly everything starts failing 100% i'd want to know about it :-)
+May 05 09:16:01 <strykerawb>	java concurrency? anyone? ;) 
+May 05 09:16:15 <mbooth>	strykerawb: What's your question? :-)
+May 05 09:16:30 <strykerawb>	i got this patch here, see...   https://github.com/jbosstools/jbosstools-base/pull/579/files?w=1
+May 05 09:16:37 <strykerawb>	and i know it "works" but really isnt correct
+May 05 09:16:51 <strykerawb>	goal is to basically execute a runnable in another thread, but wait for it to finish before continuing
+May 05 09:16:56 <akurtakov>	mbooth: runnng them is different from having huge backlog of things we are not going to fix
+May 05 09:17:08 <akurtakov>	mbooth: I'm saying keep the tests but not the bzs
+May 05 09:18:08 <mbooth>	akurtakov: Sure
+May 05 09:20:17 <mbooth>	strykerawb: What's the point of using another thread if you are going to block until it completes anyway?
+May 05 09:20:25 <strykerawb>	UI thread
+May 05 09:20:44 <strykerawb>	the problem is eclipse is logging errors and shit when we block UI via syncExec for too long
+May 05 09:21:37 <mbooth>	strykerawb: Right, but you just said you still want to block the UI thread until your other thread is done.... 
+May 05 09:22:02 <strykerawb>	no... you have it backwards ;)   calling thread is non-ui.   I want to execute something in UI thread and wait for it to complete
+May 05 09:22:10 <strykerawb>	but eclipse is complaining if i use syncExec 
+May 05 09:22:48 <strykerawb>	so i'd rather use asyncExec and then wait for the result 
+May 05 09:22:49 <strykerawb>	https://issues.jboss.org/browse/JBIDE-24412
+May 05 09:23:56 <mbooth>	strykerawb: You might be better having a callback instead of having the calling thread wait
+May 05 09:24:29 <strykerawb>	but then my calling thread would just end up waiting for someone to call the callback
+May 05 09:24:38 <strykerawb>	it's effectively the same 
+May 05 09:25:07 <akurtakov>	strykerawb: how does it complain if you use syncExec ?
+May 05 09:25:14 <strykerawb>	there's stack traces in the jira
+May 05 09:25:26 <strykerawb>	https://issues.jboss.org/browse/JBIDE-24412
+May 05 09:26:54 <strykerawb>	it seems like if 2 threads try to use syncExec at the same time it just keeps complaining...   our syncexec thread actually opens a dialog which runs event loop, so it's not dangerous at all... but eclipse decides to complain about it 
+May 05 09:29:24 <akurtakov>	this is not eclipse 
+May 05 09:29:35 <akurtakov>	there is nothing in syncExec to check such things
+May 05 09:30:43 <akurtakov>	strykerawb: why do you need the synchronized block inside the syncExec ? can the collision be as the two synchronized blocks collide ?
+May 05 09:31:29 <strykerawb>	no the collision was happening before i added any sycnrhonized blocks 
+May 05 09:31:36 <strykerawb>	thats my "solution"  :: puke :: 
+May 05 09:32:03 <strykerawb>	basically our syncexec was opening a dialog... and then other threads from other parts of eclipse that wanted to do syncexec were complaining that they couldn't get access to syncexec 
+May 05 09:32:28 <strykerawb>	 
+May 05 09:32:28 <strykerawb>	!ENTRY org.eclipse.ui 4 4 2017-05-05 06:56:36.542
+May 05 09:32:28 <strykerawb>	!MESSAGE To avoid deadlock while executing Display.syncExec() with argument: org.jboss.tools.usage.event.UsageReporter$6@4a965577, thread Worker-5 will interrupt UI thread.
+May 05 09:32:28 <strykerawb>	!SUBENTRY 1 org.eclipse.ui 4 4 2017-05-05 06:56:36.542
+May 05 09:32:30 <mbooth>	strykerawb: Why is the dialog even modal?
+May 05 09:33:23 <strykerawb>	bc a choice was made long ago to force people to respond to the question as to whether we can track their usage or not 
+May 05 09:53:10 <strykerawb>	the api i was looking for is CountdownLatch
+May 05 09:53:14 <strykerawb>	for the record 
+May 05 10:12:57 <akurtakov>	mbooth: see #fedora-java
+May 05 10:13:05 <akurtakov>	new gogo is coming to rawhide
+May 05 10:13:58 <akurtakov>	mbooth: we will ship f26 with ti
+May 05 10:14:04 <akurtakov>	once we update to rawhide
+May 05 10:14:13 <mbooth>	akurtakov: I see, push this to orbit for photon?
+May 05 10:14:21 <akurtakov>	mbooth: that's the goal
+May 05 10:14:36 <akurtakov>	batik 1.9 and gogo 1.0 as soon as photon opens
+May 05 10:15:00 <akurtakov>	I might even open CQs earlier (in the RC phase) if I find time for it
+May 05 11:10:26 <rgrunber>	ok, so call me insane.. but i could swear that i just received 'upgrading gerrit' e-mail (on gmail) not that long ago despite it apparently being sent yesterday..
+May 05 11:10:39 <rgrunber>	^thankfully i knew from Alex yesterday but still..
+May 05 11:17:06 <mbooth>	> ok, so call me insane
+May 05 11:17:12 <mbooth>	rgrunber: You're insane.
+May 05 11:21:22 <ipun>	you're nuts rgrunber 
+May 05 11:23:20 <scela>	rgrunber: https://media3.giphy.com/media/hXG93399r19vi/giphy.gif
+May 05 11:24:13 <scela>	must be strange for nboldt to join mid conversation :)
+May 05 11:25:03 <rgrunber>	well at least i have closure
+May 05 11:25:10 <rgrunber>	^ no pun intended..
+May 05 11:26:03 <rgrunber>	the weird part is even the delivery times show that it would have arrived yesterday, so meh..
+May 05 11:27:21 <scela>	rgrunber: yeah time to migrate away from gmail
+**** ENDING LOGGING AT Fri May  5 12:42:56 2017
+
+**** BEGIN LOGGING AT Fri May  5 12:44:30 2017
+
+May 05 12:44:30 *	Now talking on #eclipse
+May 05 12:44:30 *	Topic for #eclipse is: Eclipse discussions
+May 05 12:44:30 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri May  5 17:54:04 2017
+
+**** BEGIN LOGGING AT Mon May  8 11:31:30 2017
+
+May 08 11:31:30 *	Now talking on #eclipse
+May 08 11:31:30 *	Topic for #eclipse is: Eclipse discussions
+May 08 11:31:30 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 08 12:00:36 <rgrunber>	lufimtse: i might use bcc next time :P
+May 08 12:02:42 <lufimtse>	rgrunber, hmm
+May 08 12:03:17 <rgrunber>	lufimtse: mattermost post has Dani there too.. ?
+May 08 12:03:33 <rgrunber>	(your email)
+May 08 12:03:37 <lufimtse>	accident
+May 08 12:05:41 <lufimtse>	rgrunber, thanks for pointing it out.
+May 08 12:12:36 <nboldt>	mbooth: saw your update to rh-eclipse46-eclipse-webtools-3.8.2-1.5.el7 ... was there a new patch / maintenance build upstream @ eclipse? or is that just applying the patch in the rpm build?
+May 08 13:56:24 <mbooth>	nboldt: Just synchronising between branches, there's nothing new
+May 08 13:56:32 <nboldt>	ok cool
+May 08 15:01:55 <ipun>	rgrunber jjohnstn lufimtse so about that presentation next week...
+May 08 15:04:25 <rgrunber>	ipun: ?
+May 08 15:04:38 <ipun>	rgrunber: for the new interns
+May 08 15:05:42 <ipun>	https://mojo.redhat.com/docs/DOC-1130822
+May 08 15:06:21 <rgrunber>	ipun: yeah, will probably be about what they'll be doing.. likely platform stuff..
+May 08 15:06:47 <ipun>	rgrunber: are we all doing one together? Thats what it sounded like from lucas
+May 08 15:09:23 <rgrunber>	yup
+May 08 15:09:26 <rgrunber>	just sharing time
+May 08 15:26:09 <ipun>	rgrunber: should we work on it sometime this week?
+May 08 15:29:38 <rgrunber>	ipun: that presentation is not usually heavy on technical details or anything.. so there's not much preparation neeeded.
+May 08 15:30:18 <rgrunber>	just basically answer the basic question (what language am i gonna be working with, who, what kind of problems, what tools, etc.)
+May 08 15:32:07 <ipun>	rgrunber: got it, ill make mine quick so you guys have time as well
+May 08 15:43:59 <lufimtse>	ipun, rgrunber, should we make some slides or something?
+May 08 15:44:18 <ipun>	lufimtse: looks like other teams are doing it, maybe we should too
+May 08 15:45:20 <ipun>	Ican reuse some of the stuff from my fsoss presentation
+May 08 15:45:23 <lufimtse>	ipun, shared google doc one?
+May 08 15:48:05 <ipun>	lufimtse: https://docs.google.com/a/redhat.com/presentation/d/1S7cnwp5ouK3BvXRSg8CH__jXBXj8YsyyFRQ0kiCI_rY/edit?usp=sharing
+May 08 15:48:19 <ipun>	this is just a copy of my old stuff, but it alteast has a template of what we can add
+May 09 05:45:19 <akurtakov>	mbooth: hey Mat
+May 09 05:45:29 <mbooth>	Hi
+May 09 05:45:35 <akurtakov>	were there any code changes needed for gogo 1.x ?
+May 09 05:45:51 <mbooth>	No, just MANIFEST.MF changes
+May 09 05:46:19 <akurtakov>	mbooth: and console still works ?
+May 09 05:46:34 <mbooth>	Yes, I tried some commands and it works
+May 09 05:47:16 <akurtakov>	mbooth: can you decode https://bugs.eclipse.org/bugs/show_bug.cgi?id=514338#c3 ?
+May 09 05:47:35 <akurtakov>	is there new jline dep of gogo ?
+May 09 05:47:36 <mbooth>	Let me see
+May 09 05:47:44 <mbooth>	I don't think so
+May 09 05:47:55 <mbooth>	akurtakov: FWIW, here is the change I had to make: http://pkgs.fedoraproject.org/cgit/rpms/eclipse.git/tree/eclipse.spec#n586
+May 09 05:55:15 <mbooth>	akurtakov: I'm not sure what Thomas is talking about
+May 09 05:55:24 <akurtakov>	mbooth: ok, me neither
+May 09 05:55:41 <akurtakov>	looks like I'll put it aside for June :)
+May 09 06:05:36 <mbooth>	akurtakov: I accidentally found a bug in gerrit: https://bugs.eclipse.org/bugs/show_bug.cgi?id=516353
+May 09 06:06:12 <akurtakov>	wow, nice one :)
+May 09 09:00:41 <mistria>	akurtakov: hi
+May 09 09:00:49 <akurtakov>	mistria: hey, what's up
+May 09 09:00:56 <mistria>	akurtakov: I'm working on an article about LSP4E for Eclipse newsletter
+May 09 09:01:03 <mistria>	akurtakov (due tomorrow)
+May 09 09:01:20 <mistria>	akurtakov: do you think I can mention the Fabric8 depednency analysis stuff in examples?
+May 09 09:01:29 <mistria>	without necessarily linking to anything
+May 09 09:05:09 <akurtakov>	mistria: honestly, no idea
+May 09 09:05:50 <mistria>	akurtakov: ok, I'll ask Bayesian PM about that.
+May 09 09:06:00 <akurtakov>	mistria: yeah that would be better
+May 09 09:06:10 <mistria>	akurtakov: or maybe I don't ask and do it anyway...
+May 09 09:06:33 <akurtakov>	I think asking is the proper thing
+May 09 10:54:30 <rgrunber>	akurtakov: do you know offhand if there's any support for building swt in mips64 ?
+May 09 10:54:44 <akurtakov>	rgrunber: none AFAIK 
+May 09 10:54:58 <akurtakov>	why ?
+May 09 10:55:28 <rgrunber>	akurtakov: random email from someone asking for eclipse_bootstrap.tar.xz for tycho to build on mips64.
+May 09 10:55:51 <rgrunber>	appears to be http://ems.whu.edu.cn/en/50/1/9/2015-05-22/195.html
+May 09 11:01:08 <akurtakov>	shouldn't be hard if they got all the underlying deps already
+May 09 11:02:14 <rgrunber>	yeah i think it comes down to building swt on mips64 then just include it in the tarball and they'll have enough to do it.
+May 09 11:03:10 <dhorak>	maybe https://fedoraproject.org/wiki/Architectures/MIPS team already did some work, they could ask there too
+May 09 11:04:13 <rgrunber>	dhorak: yeah i was looking there as well in case person was from Fedora team. However it seems so far they've just copied over noarch stuff. I didn't find any Eclipse native stuff.
+May 09 11:04:40 <rgrunber>	still a good reference point for other packages they might need..
+May 09 11:05:51 <dhorak>	https://mipsdistros.imgtec.com/fedora/development/25/mips64el/eclipse/Packages/e/
+May 09 11:06:32 <dhorak>	seems they managed to build it
+May 09 11:13:05 <rgrunber>	:O whooo
+May 09 11:13:39 <dhorak>	and there is even more in the regular repo https://mipsdistros.imgtec.com/fedora/development/25/mips64el/os/Packages/
+May 09 11:14:41 <rgrunber>	dhorak++
+May 09 11:14:52 <rgrunber>	wow eclispe gets its own folder right next to os and debug
+May 09 11:16:11 <rgrunber>	tycho's there too
+May 09 11:16:14 <dhorak>	it could be a bootstrap repo ...
+May 09 11:16:40 <dhorak>	even eclipse-cdt
+May 09 11:16:50 <dhorak>	so I guess everything :-)
+May 09 11:17:25 <rgrunber>	yeah.. my guess is a hommage to the pain and suffering required to build it.
+May 10 04:49:15 <mistria>	do we have a private video hosting service?
+May 10 11:28:35 <akurtakov>	team: please download today's oxygen I-build and use it from now on and report any bug you spot
+May 10 15:17:01 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed May 10 15:17:01 2017
+
+**** BEGIN LOGGING AT Wed May 10 15:44:08 2017
+
+May 10 15:44:08 *	Now talking on #eclipse
+May 10 15:44:08 *	Topic for #eclipse is: Eclipse discussions
+May 10 15:44:08 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 11 10:38:26 <PiyushB>	Hi folks, any way I can make DTS eclipse point to system gcc-c++ ?
+May 11 11:25:43 <rgrunber>	PiyushB: you could try going into the project's properties, under C/C++ Build -> Settings and try changing the command (give fully qualified path to system version of tool)
+May 11 11:26:51 <rgrunber>	PiyushB: more generally I don't think there is a switch to 'use base system version of all tools' for tooling in Eclipse as opposed to through the SCL.. although iirc there may have been a request for such a thing.
+May 11 11:30:55 <PiyushB>	rgrunber, right has to be within eclipse only. checking in a while thanks!
+May 11 12:48:10 <jjohnstn>	nboldt1: not a fan of github...I tried to add a whatsnew for 4.4.4.FINAL and it has two commits instead of 1...I just created a new file to remove the bit about updating to 3.6.8 which is no longer true...how do I remove the pull request?
+May 11 12:52:25 <jjohnstn>	nboldt1: or should I just leave it as-is?
+May 11 12:55:56 <nboldt1>	jjohnstn: I can just close it if you don't have permission
+May 11 12:56:58 <nboldt1>	jjohnstn: did you want a new PR instead of https://github.com/jbosstools/jbosstools-website/pull/705 ?
+May 11 12:57:09 <nboldt1>	or did you want to squash it into one commit?
+May 11 12:58:45 <jjohnstn>	nboldt1: I thought the sprint129 file was already pushed...if it is harmless, then I guess it can be left as is...I just want the sprint131 file added to the whatsnew
+May 11 12:59:32 <nboldt1>	rebased and merged
+May 11 13:00:15 <jjohnstn>	nboldt1: ok, thx...do I have to do anything with my fork before the next change or will it work next time (i.e. just the latest change I make)?
+May 11 13:00:55 <nboldt1>	you might want to update your fork from master
+May 11 13:01:18 <nboldt1>	I haven't pushed your change to production yet so it'll only be on the staging server (once the site rebuilds)
+May 11 13:02:06 <jjohnstn>	nboldt1: ok, thx
+May 11 13:03:23 <nboldt1>	jjohnstn: no problem
+**** ENDING LOGGING AT Thu May 11 14:45:07 2017
+
+**** BEGIN LOGGING AT Thu May 11 14:46:58 2017
+
+May 11 14:46:58 *	Now talking on #eclipse
+May 11 14:46:58 *	Topic for #eclipse is: Eclipse discussions
+May 11 14:46:58 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Fri May 12 10:00:11 2017
+
+May 12 10:00:11 *	Now talking on #eclipse
+May 12 10:00:11 *	Topic for #eclipse is: Eclipse discussions
+May 12 10:00:11 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 12 10:44:00 <rgrunber>	jjohnstn: just an fyi, i've got debugging a java app in a container kinda working.. it's pretty cool. May need some extensions to the ContainerLauncher API to make it easier but i'll try a rebase against your new stuff to see whatsup.
+May 12 11:20:41 <jjohnstn>	rgrunber: cool
+May 12 11:28:13 <rgrunber>	mm seems i can create a container listener and get the ip address through the containerinfo callback.. hmm well that solves that one :)
+May 12 11:51:24 FiSHLiM plugin unloaded
+**** ENDING LOGGING AT Fri May 12 11:51:24 2017
+
+**** BEGIN LOGGING AT Fri May 12 11:53:45 2017
+
+May 12 11:53:45 *	Now talking on #eclipse
+May 12 11:53:45 *	Topic for #eclipse is: Eclipse discussions
+May 12 11:53:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri May 12 16:51:30 2017
+
+**** BEGIN LOGGING AT Mon May 15 10:25:16 2017
+
+May 15 10:25:16 *	Now talking on #eclipse
+May 15 10:25:16 *	Topic for #eclipse is: Eclipse discussions
+May 15 10:25:16 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 15 10:30:49 <scela>	mbooth: lufimtse ipun hi guys, weekly due in ~30 mins
+May 15 10:35:11 <ipun>	scela: oops i sent mine directly to nbolt for some reason
+May 15 10:35:33 <scela>	ipun: you probably replied to his email
+May 15 10:35:48 <scela>	ipun: i have put a reply-to header to mine so it should propose the list automatically
+May 15 10:36:09 <ipun>	scela: ah got it
+May 15 11:19:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon May 15 11:19:43 2017
+
+**** BEGIN LOGGING AT Mon May 15 11:48:06 2017
+
+May 15 11:48:06 *	Now talking on #eclipse
+May 15 11:48:06 *	Topic for #eclipse is: Eclipse discussions
+May 15 11:48:06 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 15 11:51:42 <scela>	eclipse-team: http://eclipse.etherpad.corp.redhat.com/sprint-planning? and two actoins: update % on previous and add the items for upcoming 
+May 15 12:00:02 <vkadlcik>	akurtakov: looking on scrollback - i missed the call by one hour, didn't i?
+May 15 12:00:12 <akurtakov>	vkadlcik: yes 
+May 15 12:00:22 <akurtakov>	and there is no call next week :)
+May 15 12:00:42 <akurtakov>	I'll warn you for the one on 29th
+May 15 12:00:44 <vkadlcik>	i probably mixed time zones :-(
+May 15 12:00:46 <vkadlcik>	sotty
+May 15 12:00:49 <vkadlcik>	sorry
+May 15 12:01:46 <vkadlcik>	i see, CET != CEST
+May 15 12:52:37 <rgrunber>	is https://en.wikipedia.org/wiki/Eclipse_Public_License wrong ? .. 'The EPL, however, requires that anyone distributing the work grant every recipient a license to any patents that they might hold that cover the modifications they have made.[7] Because this is a "further restriction" on the recipients, distribution of such a combined work does not satisfy the GPL.'
+May 15 12:52:44 <rgrunber>	oops.. wrong window
+May 15 12:52:47 <rgrunber>	ugh
+May 15 15:07:21 <rgrunber>	anyone else getting 500 error consistently on https://git.eclipse.org/r/ ?
+May 15 15:08:18 <rgrunber>	welp something's up cause now i can't even log in
+May 15 15:09:58 <ipun>	rgrunber: same,  you're not the only one
+May 15 15:14:32 <rgrunber>	seems back
+May 16 03:03:30 <akurtakov>	mistria: morning
+May 16 03:03:38 <akurtakov>	wtp seems like a big PITA
+May 16 03:03:51 <mistria>	akurtakov: hi
+May 16 03:04:00 <mistria>	akurtakov: yes, it is
+May 16 03:04:07 <akurtakov>	and sorry for not being able to review the generic editor docs, I'm havng hard time getting things into releasable state
+May 16 03:04:25 <mistria>	akurtakov: there are some good parts and bad parts in WTP, and the more time goes and the more moves into the bad parts
+May 16 03:04:32 <mistria>	akurtakov: no pb
+May 16 03:05:59 <akurtakov>	mistria: tbh, I lost faith there are good parts in unmaintained projects :)
+May 16 03:06:19 <mistria>	akurtakov: the good parts are more the server tools
+May 16 03:06:30 <akurtakov>	mistria: ah, ok, I never use them 
+May 16 03:06:32 <mistria>	akurtakov: (the one Rob is working the most on by the way)
+May 16 03:06:41 <mistria>	akurtakov: they're uber-important for JBoss Tools
+May 16 03:07:05 <mistria>	akurtakov: and openshift tools as well
+May 16 03:10:10 <scela>	akurtakov: why do you say wtp is a PITA
+May 16 03:10:23 <scela>	akurtakov: i mean did you try it or discuss with nitind or what?
+May 16 03:10:35 <akurtakov>	scela: he didn't reply to my mail
+May 16 03:11:08 <akurtakov>	no gerrit (just like dtp) - submiting patches via vz is a real PITA
+May 16 03:11:18 <akurtakov>	awkward build 
+May 16 03:11:29 <akurtakov>	uses tons of deprecated stuff 
+May 16 03:11:54 <akurtakov>	code with tons of warnings making it impossible to notice whether you introduce some 
+May 16 03:11:58 <akurtakov>	should I continue ?
+May 16 03:12:04 <scela>	akurtakov: i see what you mean
+May 16 03:13:46 <akurtakov>	scela: using stuff that was deprecated 11 years ago
+May 16 03:13:48 <akurtakov>	http://pkgs.fedoraproject.org/cgit/rpms/eclipse-webtools.git/diff/oxygen-compatibility.patch?id=c7e661d0670c2250ff9c421279967c5266c01310
+May 16 03:14:27 <scela>	so nitind is component lead?
+May 16 03:14:32 <scela>	or project lead or what?
+May 16 03:14:34 <akurtakov>	I kind of accept that for the fortran tooling 
+May 16 03:14:39 <akurtakov>	but not for wtp
+May 16 03:14:57 <scela>	we are in agreement that we need to do something about it :)
+May 16 03:15:07 <scela>	akurtakov: ^
+May 16 03:15:22 <akurtakov>	scela: https://projects.eclipse.org/projects/webtools.sourceediting/who
+May 16 03:15:32 <akurtakov>	but tbh I never heard the one listed as lead there
+May 16 03:16:15 <scela>	what pmc covers them?
+May 16 03:16:22 <scela>	is it the eclipse one?
+May 16 03:16:42 <akurtakov>	scela: no, wtp is top level project
+May 16 03:16:54 <akurtakov>	so it's own pmc
+May 16 03:17:02 <scela>	ok
+May 16 03:17:11 <scela>	do we know anyone there?
+May 16 03:18:13 <akurtakov>	scela: issue with wtp is much like it used to be with platform
+May 16 03:18:22 <akurtakov>	some parts are quite open
+May 16 03:18:29 <akurtakov>	e.g. js
+May 16 03:18:40 <akurtakov>	others are unresponsive IMHO
+May 16 03:18:46 <akurtakov>	much like p2/resources 
+May 16 03:19:05 <akurtakov>	ideally it show go the equinox route 
+May 16 03:19:10 <akurtakov>	and merge everything into single one
+May 16 03:19:23 <akurtakov>	let me find the pmc
+May 16 03:19:58 <akurtakov>	https://projects.eclipse.org/projects/webtools/who
+May 16 03:20:19 <scela>	yes but we need to find someone we can talk to before we make any plan
+May 16 03:20:21 <akurtakov>	ok, so I know Kaloyan (had a call with him on friday on diff things)
+May 16 03:20:44 <akurtakov>	Viktor is in the jbosstools 
+May 16 03:21:22 <akurtakov>	scela: but why do you ask for the PMC?
+May 16 03:21:50 <akurtakov>	I doubt anyone on that PMC will step in to do bigger changes like Lars and me push for in platform
+May 16 03:24:08 <akurtakov>	mistria: do you think Victor will try driving changes in wtp ?
+May 16 03:25:16 <scela>	akurtakov: i ask for pmc because I think if nitin decides to ignore everyone, they should do something about it
+May 16 03:25:22 <scela>	whether they have done it before or not
+May 16 03:25:38 <mistria>	akurtakov: I don't think Victor is a committer on the part that don't have Gerrit
+May 16 03:25:58 <akurtakov>	mistria: he is in the PMC and PMC can mandate that change
+May 16 03:26:20 <mistria>	akurtakov: Ok. However, I don't know how Victor is influent in this PMC
+May 16 03:26:34 <mistria>	akurtakov: except for the JS and JSON editors, it's really all IBM
+May 16 03:26:44 <akurtakov>	anyway he can bring the topic to the PMC
+May 16 03:26:50 <mistria>	akurtakov: yeah
+May 16 03:26:57 <akurtakov>	and influence is gained not given :)
+May 16 03:27:17 <mistria>	akurtakov: I can send him an email to ask him about that and make you CC
+May 16 03:27:26 <akurtakov>	mistria: please do
+May 16 03:27:52 <akurtakov>	we can surely get Kaloyan to support such changes too
+May 16 03:28:08 <akurtakov>	IIRC their call is on Thu
+May 16 03:35:11 <scela>	akurtakov: mistria i think kaloyan could be a good pushing point for the lang serv proposals also
+May 16 03:35:34 <scela>	AFAIK akurtakov you told me he is interested and he carries zend support behind him
+May 16 03:35:39 <scela>	so would be difficult to ignore
+May 16 03:36:34 <akurtakov>	scela: the thing is if/when they go langserv they would stop relying on wtp at all
+May 16 03:37:14 <scela>	akurtakov: they could but it would be better for them if the langserv support is pushed upstream and contribution is shared
+May 16 03:37:17 <akurtakov>	what they look for is platform+lsp4e + php-lang-server and scrap their wtp and dltk deps
+May 16 03:37:52 <akurtakov>	yeah upstream for that work is lsp4e
+May 16 03:37:56 <scela>	akurtakov: could this (lsp4e+php ls) part live in wtp?
+May 16 03:38:06 <akurtakov>	scela: doesn't make sense
+May 16 03:38:29 <akurtakov>	as php-ls is written in php and shared with che and etc.
+May 16 03:38:56 <akurtakov>	furthermore they have pdt which has all the wizards, debugger and etc. for php
+May 16 03:39:16 <akurtakov>	now pdt depends on both dltk and wtp but overtime they will drop it
+May 16 03:39:42 <scela>	akurtakov: ok
+May 16 03:39:53 <scela>	akurtakov: has kaloyan told you so? or are you deducting it?
+May 16 03:40:05 <mistria>	akurtakov scela: independently of LS, PHP development is also a heavy user of Server Tools
+May 16 03:40:20 <akurtakov>	he mentioned it more than once that this is the direction they look into
+May 16 03:41:07 <akurtakov>	mistria: are you sure about the server tools? I had done a project for a cousin in php few months ago
+May 16 03:41:20 <akurtakov>	and the server tools was undiscoverable
+May 16 03:41:46 <akurtakov>	I haven't looks hard enough though
+May 16 03:41:52 <mistria>	akurtakov: it;s not mandatory, but IIRC they recommend creating a Server for Zend or similar, and for local development, to create a SCP-based server
+May 16 03:42:13 <mistria>	akurtakov: so you can do right-click > Run on server
+May 16 03:42:25 <akurtakov>	mistria: ok, could be 
+May 16 03:42:46 <akurtakov>	it's just that with mod_userdir one doesn't need such things at all :)
+May 16 03:43:04 <akurtakov>	just edit the files
+May 16 03:43:21 <mistria>	akurtakov: right
+May 16 03:43:34 *	akurtakov will be back in15 mins
+May 16 03:44:09 <mistria>	akurtakov: Servers in PHP are mostly useful in case of multiple targets: test, production...
+May 16 05:11:51 <akurtakov>	mbooth: hey Mat
+May 16 05:12:21 <akurtakov>	would you please start moving projects to their oxygen states once they release M7 ?
+May 16 05:12:34 <mbooth>	akurtakov: Hi, sure
+May 16 05:12:43 <mbooth>	akurtakov: Did you manage to submit patch to WTP or still want me to?
+May 16 05:13:07 <akurtakov>	mbooth: for the ListenerList ?
+May 16 05:13:13 <mbooth>	Yeah
+May 16 05:13:17 <akurtakov>	Rob said this has been already fixed
+May 16 05:13:27 <mbooth>	Ah good
+May 16 05:15:07 <akurtakov>	mbooth: https://bugs.eclipse.org/bugs/show_bug.cgi?id=513385
+May 16 05:15:27 <akurtakov>	if you use their oxygen stream this patch would not be needed
+May 16 05:15:33 <akurtakov>	and we should start doing so now
+May 16 10:15:24 <rgrunber>	just a heads up for anyone ever sharing screen via blujeans.. if you do it on Wayland, you might have a bad time (and black screen).
+May 16 10:18:14 <jkang>	good to know thanks
+May 16 10:19:50 <mistria>	rgrunber: it's https://bugzilla.redhat.com/show_bug.cgi?id=1369218 (same applies to any screen sharing from browser)
+May 16 11:51:09 <scela>	rgrunber: no luck with your setup :)
+May 17 05:28:40 <scela>	anyone has a mac with eclipse on it handy?
+May 17 05:32:49 <mbooth>	scela: https://media.giphy.com/media/O38dU2kkQ9sWc/giphy.gif
+May 17 05:40:09 <scela>	mbooth: yeah talking to the void
+May 17 05:40:11 <scela>	...
+May 17 05:40:34 <scela>	need for https://twitter.com/EclipseJavaIDE/status/864423629697822720
+May 17 05:40:44 <scela>	two people already complaining it's not working for mac
+May 17 05:47:33 <mbooth>	scela: I use block selection all the time -- super useful
+May 17 05:49:54 <mbooth>	scela: Googling tells me it has a comedy shortcut like Cmd+Option+A on Mac
+May 17 05:51:10 <mbooth>	scela: I thought about looking in the Eclipse Platform New & Noteworthy document for the release it was introduced, but I don't remember which version introduced it
+May 17 07:52:30 <mbooth>	scela: Does @EclipseJavaIDE know the answer to this? http://stackoverflow.com/questions/18919238/why-eclipse-does-not-include-annotations-when-implementing-methods-from-a-java-i
+May 17 07:53:43 <akurtakov>	scela: mac, this is worse than windows :)
+May 17 10:24:51 <rgrunber>	akurtakov: just to confirm, new intern, when we get them would likely be working on platform.ui with Sopot ?
+May 17 10:25:01 <akurtakov>	rgrunber: yes
+May 17 10:25:07 <akurtakov>	with Sopot and Mickael
+May 17 10:25:33 <akurtakov>	it would be nice if Leo and you still give him a helping hand with usual things
+May 17 10:25:46 <akurtakov>	but regarding what he works it will be around lsp/test/ui
+May 17 10:25:53 <akurtakov>	s/test/text/
+May 17 10:26:44 <rgrunber>	k, yup.
+May 17 11:17:05 <akurtakov>	rgrunber: can you tell me why mockito enforces hamcrest 1.1 in orbit?
+May 17 11:19:29 <rgrunber>	akurtakov: one sec.. i see the range as [1.0,2.0)
+May 17 11:19:56 <akurtakov>	rgrunber: yeah but org.hamcrest is gone in hamcrest 1.3
+May 17 11:20:11 <rgrunber>	so it falls to 1.1
+May 17 11:20:12 <akurtakov>	it's split in hamcrest.core, library, text ...
+May 17 11:20:16 <akurtakov>	yes
+May 17 11:20:34 <akurtakov>	what would be the recommended path to move up
+May 17 11:21:55 <akurtakov>	I think hamcrest.core with same range but still not sure
+May 17 11:23:11 <rgrunber>	akurtakov: looking at org.eclipse.linuxtools.docker.tests.hamcrest-wrap, we basically require-bundled org.hamcrest, org.hamcrest.library at 1.3.0, created a fake org/hamcrest subpackage in that bundle, and exported it, ie. org.hamcrest at 1.3.0.
+May 17 11:24:43 <rgrunber>	that way mockito resolves the hamcrest wrap bundle, which requires 1.3.0.
+May 17 11:25:05 <mbooth>	FWIW in Fedora mockito has "Require-Bundle: org.hamcrest.core"
+May 17 11:25:20 <mbooth>	IMHO nobody should be using the fake org.hamcrest bundle
+May 17 11:28:08 <akurtakov>	mbooth: it's worse as orbit uses import-package and org.hamcrest is split package things get ugly quite fast
+May 17 12:14:54 <rgrunber>	akurtakov: btw how 'public' was the announcement for changing of various button string on dialog boxes (that fix Lars likely did).. Jeff's been a little annoyed about it breaking some swtbot tests.. wouldn't be surprised if other users got bit by that..
+May 17 12:15:30 <akurtakov>	rgrunber_brb: can't say 
+May 17 12:16:11 <akurtakov>	I don't know whether/if/when/where it was announced
+May 17 12:16:28 <akurtakov>	but this is not done for strings at all so :)
+May 17 14:14:14 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed May 17 14:14:14 2017
+
+**** BEGIN LOGGING AT Wed May 17 14:42:57 2017
+
+May 17 14:42:57 *	Now talking on #eclipse
+May 17 14:42:57 *	Topic for #eclipse is: Eclipse discussions
+May 17 14:42:57 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 18 04:31:35 <akurtakov>	mbooth: give me 3 mins
+May 18 04:31:42 <mbooth>	:-)
+May 18 04:36:49 <akurtakov>	mbooth: ready :)
+May 18 04:37:12 <mbooth>	akurtakov: On BJ?
+May 18 04:37:22 <akurtakov>	yeah
+May 18 04:37:47 <akurtakov>	https://redhat.bluejeans.com/8966058510/
+May 18 05:10:20 <akurtakov>	mbooth: http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/commit/?id=8bce47ea5f72239bad733c3d23c4d8f88711b17d
+May 18 05:10:27 <akurtakov>	just landed new scr
+May 18 05:10:46 <mbooth>	perfect that's the same as Fedora :-)
+**** BEGIN LOGGING AT Thu May 18 12:44:59 2017
+
+May 18 12:44:59 *	Now talking on #eclipse
+May 18 12:44:59 *	Topic for #eclipse is: Eclipse discussions
+May 18 12:44:59 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 18 15:26:35 <ipun>	all: please welcome lbullen_ our new intern
+May 18 15:57:43 <rgrunber>	lbullen: welcome :)
+May 18 16:05:42 <patrickm>	ipun: names ian... what's lbullen's name?
+May 18 16:06:47 <rgrunber>	patrickm: it's Lucas.
+May 18 16:12:39 <patrickm>	rgrunber: ohh... that's gonna be confusing
+May 18 16:13:10 <patrickm>	rgrunber: but i'll pronounce it Lucas instead of Lukas... i guess that'll work
+May 18 16:13:18 <rgrunber>	well, Lukas vs Lucas.. but that's not the worst of it..
+May 18 16:13:28 <rgrunber>	both are 'lb' in irc
+May 18 16:13:48 <rgrunber>	unacceptable!!
+May 19 07:13:53 <akurtakov>	mbooth: hey Mat
+May 19 07:14:21 <akurtakov>	mbooth: why do we still add -Dorg.eclipse.swt.browser.UseWebKitGTK=true -Dhelp.lucene.tokenizer=standard to eclipse.ini ?
+May 19 07:14:26 <akurtakov>	both should be not needed nowadays
+May 19 07:26:18 <mbooth>	akurtakov: -Dhelp.lucene.tokenizer=standard was already removed in Rawhide
+May 19 07:26:29 <mbooth>	I will remove the other one too
+May 19 07:26:40 <akurtakov>	mbooth: ah ok, I was looking at f26
+May 19 07:33:33 <akurtakov>	mbooth: I also wonder for the XX:CompileCommand directived
+May 19 07:34:05 <akurtakov>	they are not shipped upstream and I haven't seen any such crash 
+May 19 07:34:10 <akurtakov>	probably due for removal too
+May 19 09:20:46 <akurtakov>	lbullen: welcome to the team!
+May 19 09:26:07 <ipun>	Sorry! Bad intro. Lucas Bullen from Queens university ( lbullen ) is our new intern at the Toronto office :)
+May 19 09:27:07 <lbullen>	Hello all! Looking forward to working with everyone.
+May 19 09:27:39 <rgrunber>	welcome aboard :)
+May 19 09:35:13 <scela>	lbullen: welcome! 
+May 19 10:05:12 <mbooth>	lbullen: Welcome!
+**** BEGIN LOGGING AT Mon May 22 12:22:15 2017
+
+May 22 12:22:15 *	Now talking on #eclipse
+May 22 12:22:15 *	Topic for #eclipse is: Eclipse discussions
+May 22 12:22:15 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 22 15:19:54 <maxandersen>	akurtakov or someonen else - where in bugzilla on eclipse can I figure out how to stop getting notified of new docker tools bugs ?
+May 22 15:20:24 <maxandersen>	I removed all traces of docker in my "monitored users/emails" but i'm still getting them.
+May 23 10:29:04 <mistria>	akurtakov: I found this on a Scala tools discussions " Richard Stallman is pushing for support of this [LSP] protocol in gcc as well"
+May 23 10:30:27 <akurtakov>	mistria: well, any link? I asked our gcc guys (dmalcolm) for anything about it
+May 23 10:30:47 <akurtakov>	and the reply was "Implementing it for gcc seems like a big chunk of work."
+May 23 10:31:18 <akurtakov>	although some of the changes lately opened the door for such work so it's no longer not even feasible
+May 23 10:31:31 <mistria>	akurtakov: https://github.com/ensime/ensime-server/issues/1498#issuecomment-303404832 I didn't look for more
+May 23 10:35:43 <mistria>	akurtakov: https://lists.gnu.org/archive/html/emacs-devel/2017-04/msg00741.html
+May 23 10:35:57 <mistria>	akurtakov: that doesn't mean things are easier or more likely to change soon
+May 23 10:36:20 <mistria>	akurtakov: it's just a big name to put as endorsers for the skeptical ones
+May 23 10:36:25 <akurtakov>	yeah, this reminds me a lot with what happens in eclipse land
+May 23 10:36:42 <akurtakov>	many people argue about things and very few step in to do smth
+May 23 10:37:23 <mistria>	akurtakov: note that in the Eclipse world, it quite quiet and productive these days
+May 23 10:38:06 <akurtakov>	cause many of the very active devs just took the "we do our stuff, if you disagree step in" 
+May 23 10:38:13 <akurtakov>	and mailing lists and etc. are quite dead
+May 23 10:39:22 <akurtakov>	it's just useless to discuss with people that will only demand without doing anything
+May 23 12:15:28 <rgrunber>	mbooth: i have to ask.. https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch09s08.html .. is this someone's idea of a cruel joke.
+May 23 12:17:01 <mbooth>	rgrunber: Haha, is the publication date 1st of April?
+May 23 12:17:28 <rgrunber>	i guess it's.. more machine friendly...
+May 23 12:17:45 <rgrunber>	can finally get that specfile form editor off the ground.
+May 23 12:18:32 <rgrunber>	paving the way for a maven-rpmbuild-plugin
+May 23 12:21:22 <mbooth>	rgrunber: I just had a mild panic that this was our Jeff advocating for it: https://www.redhat.com/archives/rpm-list/2002-June/msg00036.html
+May 23 12:23:22 <rgrunber>	.. wow from 2002..
+May 23 12:24:29 <mbooth>	Of course 2002; if this was done today it would be json or yaml ;-)
+May 23 12:24:35 <rgrunber>	baha
+May 23 12:25:24 <rgrunber>	https://lwn.net/Articles/197002/
+May 23 12:26:28 <rgrunber>	http://www.osnews.com/story/24686/Jeff_Johnson_About_to_Fork_rpm_-_Again
+May 23 12:27:04 <rgrunber>	i want to believe...
+May 24 10:16:03 <scela>	ericwill: hey, welcome back 
+May 24 10:16:23 <ericwill>	scela hey, thanks :) good to be back
+May 24 10:16:34 <scela>	ericwill: are you back for good this time?
+May 24 10:18:14 <rgrunber>	"back for good" .. hehe
+May 24 10:20:16 <ericwill>	scela yes, full time now
+May 24 10:20:44 <scela>	ericwill: great, Markus will be waiting for you ... :)
+May 24 10:23:49 <ericwill>	scela ah yes, just what I was looking forward to haha
+May 24 11:10:33 <mistria>	mbooth: hi
+May 24 11:10:46 <mistria>	mbooth: what's the status of https://bugs.eclipse.org/bugs/show_bug.cgi?id=464271 ?
+May 24 11:11:03 <mbenitez>	mistria, Mat is on PTO, back next Wednesday
+May 24 11:11:23 <mistria>	mbenitez:ah ok
+May 25 03:03:26 <akurtakov>	mbooth: hey, have you seen the egit bug
+May 25 12:05:21 <dbocharo>	Hi, all! Could somebody please help me to undrestand org.eclipse.jdt.ui.wizards.NewContainerWizardPage works. I'm interested in getInitialJavaElement() method. When pass a NodeJS or just a simple NON java project inside getInitialJavaElement() it returns not-null IJavaElement value. And after that even "returnedValue instanceof IJavaProject" gives me true. Why does it happen? Why does non-java project is adapted successfully to IJavaEle
+May 25 12:05:21 <dbocharo>	ment inside NewContainerWizardPage.getInitialJavaElement() ?
+May 25 12:15:53 <rgrunber>	dbocharo: my guess is that it ultimately ends up calling JavaCore.create() on your project, so regardless of the contents, the IProject itself can be made return an IJavaProject.
+May 25 12:18:45 <rgrunber>	so probably no different than taking an empty IProject and calling JavaCore.create() on it.. certainly nothing about it that makes it java but if you intend to add things in the context of a java project, it helps to view the IProject as an IJavaProject instead.
+May 25 12:18:46 <dbocharo>	rgrunber: thank you for the reply! You're right. I debugged it and it finally called jelem= JavaCore.create(resource); on my projects. So my question is - is it a correct behavior? It looks really strange to me
+May 25 12:19:59 <rgrunber>	so i guess the method tries a little too hard to get you an IJavaElement.
+May 25 12:21:19 <rgrunber>	are you trying to determine if something is an actual java project ?
+May 25 12:21:25 <rgrunber>	dbocharo: ^
+May 25 12:21:43 <dbocharo>	rgrunber: yes, seems it does. The initial problem i investigate is in jbosstools-webservices. Look here: https://github.com/jbosstools/jbosstools-webservices/blob/19440e7ed882544ab184299512b2a21771aa7881/plugins/org.jboss.tools.ws.jaxrs.ui/src/org/jboss/tools/ws/jaxrs/ui/wizards/JaxrsApplicationCreationWizardPage.java#L156
+May 25 12:23:32 <dbocharo>	so here a selected element is always treated as IJavaElement. And if it is, let's say, a nodejs project - it's incorrect. Because the next line "selectedJavaElement instanceof IJavaProject" returns true.
+May 25 12:23:57 <rgrunber>	interesting..is this recent behaviour? did it used to work before ?
+May 25 12:25:30 <rgrunber>	you could try from the IProject, getDescription().hasNature(JavaCore.NATURE_ID)
+May 25 12:26:07 <dbocharo>	i don't think so. The initial issue i started working on is https://issues.jboss.org/browse/JBIDE-24076. It was reported by AERI. I did a simple null check: https://github.com/jbosstools/jbosstools-webservices/pull/263/files.  But it didn't help, so i started to dig dipper and found that i was able to open all the Java Webservices wizards for non-java projects
+May 25 12:26:46 <dbocharo>	rgrunber: and that led to the issue with NewContainerWizardPage.getInitialJavaElement() 
+May 25 12:28:05 <dbocharo>	rgrunber: about your suggestion: IProject, getDescription().hasNature(JavaCore.NATURE_ID). Of course i can fix it in our code, it's not a problem. I just want to understand if jdt's NewContainerWizardPage works correctly
+May 25 12:28:06 <rgrunber>	hmm that code has been around a few years.. hmm
+May 25 12:28:13 <rgrunber>	yeah i see...
+May 25 12:28:33 <rgrunber>	i could have a quick look in jdt..i wonder if any recent changes would have affected this..
+May 25 12:29:19 <dbocharo>	rgrunber: it would be very kind of you. I don't have it cloned locally
+May 25 12:35:46 <rgrunber>	dbocharo: i don't see anything that would have caused it.. and certainly JavaCore.create has been there since 2002.
+May 25 12:36:02 <rgrunber>	i do think it's strange that it doesn't adapt to an IResource..
+May 25 12:37:15 <rgrunber>	ah or it does.. and then the logic travels to the parent trying to find an IJavaProject
+May 25 12:41:09 <dbocharo>	rgrunber: take a look - https://drive.google.com/a/redhat.com/file/d/0B0RN6XF4EC8GZWZWWGM4ZGFqVEU/view?usp=sharing
+May 25 12:42:36 <dbocharo>	sorry for the quality. Seems google needs some time to process it
+May 25 12:46:05 <rgrunber>	dbocharo: couldn't see perfectly well, but it looks like the structured selection for the nodjes project has a way to adapt it to an IJavaProject ?
+May 25 12:46:39 <dbocharo>	yes
+May 25 12:47:50 <dbocharo>	which is treated as  IJavaProject after
+May 25 12:53:25 <dbocharo>	rgrunber: the quality is better now
+May 25 12:53:39 <dbocharo>	rgrunber: should i create an issue for jdt?
+May 25 12:55:06 <rgrunber>	dbocharo: hmm cold be an issue.. i would maybe look at debugging into that exists() call .. seeing why it says it doesn't exist..
+May 25 12:55:30 <rgrunber>	maybe even consider opening the project (says it isn't open?)
+May 25 12:58:48 <dbocharo>	JavaProject.resource(PackageFragmentRoot) line: 2019	
+May 25 12:58:48 <dbocharo>		JavaProject(Openable).resource() line: 461	
+May 25 12:58:48 <dbocharo>		JavaProject(Openable).exists() line: 207	
+May 25 12:58:48 <dbocharo>		JaxrsApplicationCreationWizardPage(NewContainerWizardPage).getInitialJavaElement(IStructuredSelection) line: 181
+May 25 12:59:17 <dbocharo>	rgrunber: ^ the stacktrace
+May 25 13:00:23 <dbocharo>	then validateExistence() method is called in JavaProject class
+May 25 13:01:18 <rgrunber>	yeah so that'd probably fail.. doesn't have the java nature..
+May 25 13:01:49 <dbocharo>	yes
+May 25 13:02:16 <dbocharo>	the status is not ok, after this check. I mean isOK() returns false in validateExistence()
+May 25 13:02:31 <dbocharo>	so the whole jelem.exists() is false
+May 25 13:09:00 <rgrunber>	dbocharo: it might still end up working fine for the jdt wizard since they also look for particular types under IJavaProject.
+May 25 13:09:53 <rgrunber>	dbocharo: if the functionality in jbosstools-webservices worked at one point then i'd start from there and see how it has changed.. but if this is just a newly discovered bug.. it could just be a case of needing to improve the logic.
+May 25 13:10:16 <rgrunber>	and clearly even with IJavaProject, they still test for the nature.
+May 25 13:12:05 <dbocharo>	rgrunber: yes, i agree with there checks in JavaProject and so on. But in my opinion the issue is in NewContainerWizardPage.getInitialJavaElement()
+May 25 13:13:14 <dbocharo>	rgrunber: it mustn't return an IJavaElement "castable" to the IJavaProject for non-java projects
+May 25 13:15:32 <rgrunber>	dbocharo: could be, although I don't think instanceof IJavaProject is enough to conclude that something is a java project.. especially when it would succeed on just about any IProject.
+May 25 13:16:41 <dbocharo>	rgrunber: ok. i'll be investigating it further tomorrow. Need to go now. Thank you for help!
+May 25 13:16:42 <rgrunber>	and i have no idea to what extent the jdt relies on all projects being turned into IJavaProjects
+May 25 13:17:16 <rgrunber>	dbocharo: worst case, file the bug and if they say no, at least you get a good explanation as to why..
+May 25 13:17:47 <dbocharo>	rgrunber: yes, i also think so
+May 26 15:05:11 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri May 26 15:05:11 2017
+
+**** BEGIN LOGGING AT Fri May 26 15:29:04 2017
+
+May 26 15:29:04 *	Now talking on #eclipse
+May 26 15:29:04 *	Topic for #eclipse is: Eclipse discussions
+May 26 15:29:04 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 29 08:06:38 *	scox is away: US holiday
+May 29 10:19:12 <ipun>	lbullen: are you in our eclipse-team mailing list?
+May 29 10:19:21 <lbullen>	yes
+May 29 10:24:22 <scela>	rgrunber nboldt1 lufimtse lbullen : hello guys, weekly due in roughly 35 min
+May 29 10:24:42 <nboldt1>	scela: ok
+May 29 10:25:36 <lufimtse>	scela, working on it :-)
+May 29 10:32:44 <lbullen>	mistria: What content do you see being within the preferences page you added to the aCute/dotnet-new branch?
+May 29 10:34:46 <mbenitez>	welcome back nboldt1 
+May 29 10:41:05 <rgrunber>	nboldt1++
+May 29 10:52:25 <mistria>	lbullen: hi, glad to know there's been progress
+May 29 10:52:36 <mistria>	lbullen: do you think you could make a PR and attach a screenshot?
+May 29 10:53:06 <mistria>	lbullen: for preferences, I don't know, maybe it's not the most interesting if you want to keep working on C#
+May 29 10:53:40 <mistria>	lbullen: maybe working on the export or run would be more interesting right now
+May 29 10:55:49 <scela>	mistria: do you have issues for those?
+May 29 10:55:59 <nboldt1>	mbenitez: rgrunber: good to be back in this sticky, humid, flooded city. :)
+May 29 10:57:19 <mistria>	scela lbullen: there's https://github.com/mickaelistria/aCute/issues/12 which is an entry point, but individual issues should be opened for each ones to make it easier to track progress
+May 29 10:59:17 <scela>	mistria: ok
+May 29 10:59:30 <scela>	mistria: let's wrap up the 'new' story first
+May 29 11:00:50 <mbenitez>	scela, mistria, nboldt1 meeting time
+May 29 11:01:13 <scela>	mbenitez: joining
+May 29 11:02:46 <vkadlcik>	hi, cannot connect, just "Connecting..."
+May 29 11:04:59 <mbenitez>	vkadlcik, oh, too bad :(
+May 29 11:05:08 <mbenitez>	that's the fun of Bluejeans...
+May 29 11:07:06 <mbenitez>	vkadlcik, does phone work for you? if so 420.22.888.2256
+May 29 11:31:08 <nboldt1>	rgrunber: can you rename the final Orbit RCx S2017xxyyaabb build to R2017xxyyaabb, then symlink it back from the old folder name? Would that work with mirrors & allow people to NOT have to fix all their S refs to R refs, while not needing you to actually REBUILD the S as an R, or keep the old S build? 
+May 29 11:42:53 <rgrunber>	nboldt1: no rebuild took place.. i basically just copied over the S2017.. to an R2017 folder, and just modified in a few places to have the 'S's be 'R's.. but otherwise the content is identical. The thing is I don't want people's build to point to a p2 repo that has 'S2017...' it really should be R..
+May 29 11:45:11 <rgrunber>	so i guess in the future my only choice is to either make RC builds be R, or just always make sure to finalize by RC2 at the latest, so projects have at least another 2 candidate builds in which to update.
+May 29 11:47:17 <mistria>	scela lbullen: I'm closing the office for today, if you want to have a chat tomorrow, I'm available all day so feel free to place an invite in my agenda whenever is best for both of you.
+May 29 11:48:14 <scela>	mistria: ok
+May 29 11:48:46 <scela>	lbullen: are you comfortable with providing a PR and a screenshot of how the wizard looks right now?
+May 29 11:52:31 <nboldt1>	rgrunber: pretty sure that platform and wtp have just been copying RCs from S to R for years, then tweaking metadata. So you approach works too... I was just wondering if a symlink would help w/ the retention policy / forcing people to update scripts ASAP when the S is replaced by an R
+May 29 11:58:13 <rgrunber>	nboldt1: i guess i could do a 'rename' + symlink, sure and get rid of the S after. Right now i just copied over and made some small changes though.
+May 29 11:59:20 <rgrunber>	not sure if i explained correctly, but i meant that people will generally ensure their final build doesn't refer to S-builds as for say Oxygen.1 those would likely stop working/wouldn't exist.
+May 29 12:00:14 <rgrunber>	so actually if others are in fact calling their RC candidates S-builds and then renaming/coping + modifying to an R-build on final release, then at least i'm the same.
+May 29 12:31:13 <lbullen>	scela: What would PR stand for? Here is the screenshot: http://pix.toile-libre.org/upload/original/1496075434.png
+May 29 12:31:50 <rgrunber>	lbullen: pull request (ie. pushing your changes to gerrit, or github, wherever project resides
+May 29 12:31:53 <rgrunber>	)
+May 29 12:32:52 <lbullen>	rgrunber: thanks, should I make pull requests even if the project is not done?
+May 29 12:33:56 <rgrunber>	lbullen: you can certainly push it up, make it more public and continue working on it. i usually push something up and add [WIP] in the message.
+May 29 12:34:25 <rgrunber>	for github, i wouldn' do a pull request until it's ready but you can for the repository and push it to your version so people can view it.
+May 29 12:34:59 <rgrunber>	for gerrit, i'd just push it up so it's there.. where's the project located ?
+May 29 12:35:18 <lbullen>	github
+May 29 12:37:04 <rgrunber>	lbullen: i see you don't have any forks of it (https://github.com/lbullen?tab=repositories) .. i would fork the project so your account has a copy of it, and push to your forked copy, so it's visible at least there.
+May 29 12:37:35 <lbullen>	https://github.com/LucasBullen/aCute
+May 29 12:37:52 <rgrunber>	ah wrong user
+May 29 12:38:04 <scela>	lbullen: I was having dinner so yes it should be relatively easy to create a pull request with what you have right now
+May 29 12:38:12 <scela>	lbullen: you can improve it with successive commits
+May 29 12:38:32 <scela>	lbullen: screenshot looks like a good start
+May 29 12:38:33 <rgrunber>	it looks to be at https://github.com/LucasBullen/aCute/commits/dotnet-new ?
+May 29 12:38:46 <lbullen>	correct
+May 29 12:38:58 <lbullen>	scela: thanks
+May 29 12:41:15 <rgrunber>	lbullen: then just go with scela's recommendation and file the pull request.
+May 30 08:46:54 *	scox is back (gone 00:10:40)
+May 30 09:02:26 <scela>	mistria: it's difficult to hear you at all :)
+May 30 11:53:19 <mistria>	scela: still around?
+May 30 11:53:27 <scela>	mistria: yes
+May 30 11:53:45 <mistria>	scela: I'm looking for a way to list all help pages, do you know?
+May 30 11:54:03 <scela>	mistria: eclipse help you mean?
+May 30 11:55:28 <scela>	mistria: through API?
+May 30 11:55:41 <mistria>	scela: yes
+May 30 11:56:16 <scela>	mistria: you can use the search api using '*' as a search term
+May 30 11:56:23 <scela>	and unlimiting the results size
+May 30 11:56:47 <mistria>	scela: ok, and which class is the entry point for programatical search?
+May 30 12:00:37 <scela>	mistria: 1sec, I'm in a meeting
+May 30 12:02:41 <mistria>	scela: I think I found what I need
+May 30 12:03:16 <scela>	mistria: ok
+May 30 12:03:24 <scela>	mistria: you can look at the platform.ua tests
+May 30 12:06:33 <scela>	mistria: they are the ones using the API from "outside"
+May 30 12:06:52 <scela>	for internals the key entry point is : org.eclipse.help.internal.search.SearchIndex
+May 30 12:17:03 <akurtakov_>	lbullen: https://github.com/mickaelistria/aCute/pull/13 nice :)
+May 30 12:17:30 <lbullen>	thank you
+May 30 12:17:51 <akurtakov_>	I hope to have time to try it tomorrow
+May 30 12:21:41 <akurtakov_>	lbullen|lunch: btw, are you on fedora ?
+May 30 13:02:22 <lbullen|lunch>	akurtakov_: yes
+May 31 05:20:25 <akurtakov>	scela: sorry got disconnected
+May 31 05:24:33 <scela>	akurtakov: np, i dropped off as i had some other stuff to take care of
+May 31 05:24:48 <scela>	akurtakov: and i think the part where my presence made sense was done :)
+May 31 10:12:24 <mbenitez>	akurtakov, hi Alex, for RHSCL we have a long list of bugs [mostly tests] I forgot what we said we'd do with those, close them for now?
+May 31 10:13:38 <mbenitez>	mbooth, welcome back! hope you had a great pto
+May 31 10:14:20 <mbooth>	mbenitez: Hi thanks, I believe I was going to close the test related bugs btw
+May 31 10:15:17 <mbenitez>	mbooth, oh ok, I must have talked about that with you, thanks :)
+May 31 10:15:33 <mbenitez>	let me know if you need help while you're catching up after pto
+May 31 12:45:38 <rgrunber>	mbooth: another rare droplets bug at https://bugzilla.redhat.com/show_bug.cgi?id=1455279
+May 31 12:52:22 <mbooth>	rgrunber: Hmm, I've thought before about possible doing "-clean" if an rpm changes something in /usr/{lib,share}/eclipse
+May 31 12:54:01 <rgrunber>	mbooth: i believe the clean happens, the issue is nothing changed in /usr/{libe,share}/eclipse . there's a symlink there and its timestamp is the same.
+May 31 12:55:01 <rgrunber>	the underlying file changed, but it's in /usr/share/java/... and the logic in droplets probably only checks the file timestamp, but not if the file is in fact a symlink where the real timestamp change would be discovered.
+May 31 12:56:12 <rgrunber>	what makes this super rare, is that it'd need to be an update that does not change a single thing 'under' droplets.. just things that get symlinked.
+May 31 13:02:47 <mbooth>	rgrunber: Interesting, I see what you're saying
+May 31 13:05:27 <rgrunber>	yeah, i'd need to investigate more to really confirm, but i'm fairly certain that's happening.
+May 31 14:47:50 *	scox is away: pto
+May 31 14:48:40 *	scox is away: pto
+Jun 01 04:25:25 <akurtakov>	mbooth: can we delay the call for 11 ?
+Jun 01 04:25:33 <akurtakov>	err 10 your time
+Jun 01 04:25:39 <mbooth>	akurtakov: Sure
+Jun 01 04:25:43 <akurtakov>	thanks
+Jun 01 10:13:41 <nboldt>	mbooth: ping?
+Jun 01 10:14:20 <nboldt>	mbooth: welcome back from PTO. sent you an email about where I could find rh-eclipse47 builds in brew
+Jun 02 10:23:07 <akurtakov>	mbooth: hey do you think you can add https://github.com/eclipse/jetty.project/issues/1587#issuecomment-305802078 in your  task list ?
+Jun 02 10:23:55 <akurtakov>	rgrunber: ^^ I have a feeling jetty overcomplicated smth
+Jun 02 10:26:38 <mbooth>	Hmm, in ECF we do it the other way round -- i.e. push to maven central *after* we generate packed-and-signed artifacts
+Jun 02 10:27:22 <mbooth>	This means the maven central artifacts are both signed by eclipse signing server *and* gpg signed by the project for maven central
+Jun 02 10:27:27 <rgrunber>	it looks like they're signing after the fact in http://git.eclipse.org/c/jetty/org.eclipse.jetty.releng.bundles.git/tree/jetty.bundles.repo/pom.xml .. although they could pack+sign as part of the individual module build..
+Jun 02 10:28:00 <mbooth>	Whereas for jetty I guess they are only gpg signed in maven central
+Jun 02 10:29:36 <mbooth>	This kinda implies that the jetty artifacts in maven central are different (have different content even) to the ones in their p2 repo, which seems... wrong
+Jun 02 10:31:31 <rgrunber>	mbooth: they rebuild everything.. i don't see them using jgit-timestamp provider...
+Jun 02 10:32:19 <akurtakov>	well, if you guys can help streamlining the process that would be nice
+Jun 02 10:32:38 <akurtakov>	I have to remind them every third build to publish the p2 repo
+Jun 02 10:35:25 <rgrunber>	yeah.. when i get some time i wouldn't mind, if they don't mind pack+sign as part of the build process, and they have a way to exclude those artifacts from being uploaded..
+Jun 05 02:33:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun  5 02:33:12 2017
+
+**** BEGIN LOGGING AT Mon Jun  5 08:28:12 2017
+
+Jun 05 08:28:12 *	Now talking on #eclipse
+Jun 05 08:28:12 *	Topic for #eclipse is: Eclipse discussions
+Jun 05 08:28:12 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 05 09:25:15 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun  5 09:25:15 2017
+
+**** BEGIN LOGGING AT Mon Jun  5 16:17:50 2017
+
+Jun 05 16:17:50 *	Now talking on #eclipse
+Jun 05 16:17:50 *	Topic for #eclipse is: Eclipse discussions
+Jun 05 16:17:50 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 06 04:00:13 <mistria>	scela: hi
+Jun 06 04:01:56 <mistria>	scela: (I'll send you a mail)
+Jun 06 04:32:08 <scela>	mistria: hi
+Jun 06 04:32:38 <scela>	mistria: was making coffee so probably missed the beep sound :)
+Jun 06 04:37:01 <scela>	mistria: ok
+Jun 06 04:37:17 <scela>	mistria: and what about the nature one? is it something we did?
+Jun 06 04:45:27 <scela>	mistria: mbooth can you send the weeklies please?
+Jun 06 04:46:42 <akurtakov>	nope
+Jun 06 04:46:50 <akurtakov>	scela: ^nothing I can se
+Jun 06 04:46:52 <akurtakov>	see
+Jun 06 04:46:56 <akurtakov>	meh, I can't write
+Jun 06 05:03:34 <mistria>	scela: yes, it's something we did, but not really in that sprint
+Jun 06 05:03:52 <mistria>	scela: it just got finalized (not by us) recently and put into SimRel
+Jun 06 05:13:59 <mistria>	scela: I think lufimtse is the last one who played with it, maybe he can do the demo (if he's interested)
+Jun 06 06:12:15 <mistria>	scela: you want to see a tweet high-score to get you inspired? ;)
+Jun 06 06:12:27 <mistria>	scela: https://twitter.com/java/status/871396882618040320 , the article about LSP4E, 323K followers
+Jun 06 06:20:45 <mistria>	scela: I imagine it was "bought" by the Foundation
+Jun 06 06:50:30 <scela>	mistria: nice
+Jun 06 06:50:40 <scela>	mistria: did you ask them to tweet about it?
+Jun 06 06:50:57 <mistria>	scela: The fundation did tweet the newsletter articles as usual
+Jun 06 06:51:04 <mistria>	scela: as they do for any newsletter
+Jun 06 06:51:18 <mistria>	scela: but I don't know how they managed to get the tweet from @java
+Jun 06 06:51:30 <mistria>	scela: I didn't ask them anything on that topc, it's a surprise to me
+Jun 06 06:53:20 <scela>	mistria: ok
+Jun 06 06:53:34 <scela>	mistria: I'll get in touch with them to ask if we could have some control on what gets retweeted
+Jun 06 06:59:49 <akurtakov>	mistria: what's the goal with https://bugs.eclipse.org/bugs/show_bug.cgi?id=517188
+Jun 06 07:00:43 <mistria>	akurtakov: the goal was basically to see whether an RCP app with only LSP and TM for language edition is viable
+Jun 06 07:05:05 <akurtakov>	mistria: so now lsp4e-php/python and etc will die in favor of this one
+Jun 06 07:05:51 <mistria>	akurtakov: I don't know about Michal's plans but, at the moment, the idea is only to package all that stuff into a single deliveray
+Jun 06 07:06:24 <mistria>	akurtakov: I don't think it's meant to replace existing integrations (lsp4e-php, lsp4e-python...) unless it provides a benefit to merge them
+Jun 06 07:07:02 <akurtakov>	ok, so basically it's smth like the epp fro lsp :)
+Jun 06 07:09:47 <mistria>	akurtakov: yes
+Jun 06 07:14:15 <scela>	mistria: https://bugs.eclipse.org/bugs/show_bug.cgi?id=517849 seems to be for real :-O
+Jun 06 07:14:34 <mistria>	scela: yes
+Jun 06 08:18:09 <scela>	eclipse-team: we need to update http://eclipse.etherpad.corp.redhat.com/sprint-planning. Two things as usual: percentage on previous and 2-3 items you expect to work on in the next 3 weeks
+Jun 06 09:37:36 <scela>	nboldt: hey
+Jun 06 09:37:43 <scela>	nboldt: so https://issues.jboss.org/browse/JBIDE-24530 means no release today?
+Jun 06 09:45:51 <mistria>	lbullen: hi
+Jun 06 09:46:14 <mistria>	lbullen: are you available for a chat/code session?
+Jun 06 09:48:27 <lbullen>	sure am
+Jun 06 09:52:02 <mistria>	lbullen: ok, come by https://redhat.bluejeans.com/1668327003/?src=meet_now whenever you're ready
+Jun 06 09:59:43 <mistria>	lbullen: I'm back
+Jun 06 11:33:36 <nboldt>	scela: correct, that sank our battleship
+Jun 06 11:58:00 <scela>	nboldt: so AM1 is going to be in 3 weeks then
+Jun 06 11:58:06 <scela>	?
+Jun 06 12:00:36 <nboldt>	yes
+Jun 06 12:00:42 <nboldt>	AM1 is the new AM2
+Jun 06 12:00:45 <nboldt>	AM2 is the new AM3
+Jun 06 12:00:49 <nboldt>	GA is still GA
+Jun 06 12:03:37 <scela>	nboldt: ok, and the time diff is one sprint between all of those?
+Jun 06 12:22:21 <nboldt>	yes. one milestone release per sprint, every 3 weeks. are you subscribed to the calendar?
+Jun 06 12:22:25 <nboldt>	scela: ^
+Jun 06 12:23:00 <scela>	nboldt: RHD release train? yes
+Jun 06 12:23:05 <nboldt>	https://calendar.google.com/calendar/embed?src=redhat.com_in0j7ooh3tiksaqi7odjlov1qs%40group.calendar.google.com&ctz=America/New_York yes
+Jun 06 12:23:22 <nboldt>	if data is missing in there, ping me (or I can give you edit access if you want)
+Jun 06 12:23:55 <scela>	nboldt: yeah I can see it now
+Jun 06 12:24:09 <scela>	nboldt: no need for edit access, just need it for reference
+Jun 06 12:24:46 <nboldt>	I've updated the three Enthusiam: jbosstools 4.5.0.AM* entries to reflect the new calendar
+Jun 06 12:25:06 <nboldt>	AM2 is now on Jul 18, AM1 is now on Jun 27
+Jun 06 12:25:22 <scela>	nboldt: yes I see it reflected
+Jun 06 12:25:26 <nboldt>	and Jun 6 updated to show NOT released
+Jun 06 12:25:38 <nboldt>	thx for reminder
+Jun 06 12:25:47 <scela>	np
+Jun 06 12:26:49 <scela>	nboldt: might make sense to put a reference to the bug in the description of Jun 6 event, in case anyone takes a look
+Jun 06 12:34:46 <nboldt>	done
+Jun 06 12:35:33 <scela>	thx
+Jun 07 09:03:03 <mbenitez>	scela, hello, are you joining the SoS?
+Jun 07 09:03:28 <scela>	mbenitez: it's not in the calendar
+Jun 07 09:03:37 <scela>	mbenitez: joining now anyway
+Jun 07 09:03:54 <scela>	using last week's bluejeans
+Jun 07 09:04:40 <mbenitez>	ok
+Jun 07 09:04:48 <scela>	mbenitez: I'm in
+Jun 07 11:42:41 <mbenitez>	mbooth, when you get a chance could you please test the setup from https://projects.engineering.redhat.com/browse/RCM-16963 ?
+Jun 07 11:45:31 <akurtakov>	mistria: here?
+Jun 07 11:45:51 <akurtakov>	what do you think of the decorator alternative ?
+Jun 07 11:48:41 <scela>	rgrunber: hi
+Jun 07 11:48:58 <scela>	rgrunber: https://bugs.eclipse.org/bugs/show_bug.cgi?id=517935
+Jun 07 11:49:18 <scela>	rgrunber: AFAICS there's nothing I can do to help from platform side
+Jun 07 11:49:38 <scela>	rgrunber: (i.e. client code consuming the libs)
+Jun 07 11:50:08 <scela>	akurtakov: ^ is probably the source of the issues we discussed coming from AERI, remember?
+Jun 07 11:50:47 <rgrunber>	scela: no because i believe the issue is in lucene-core
+Jun 07 11:51:15 <rgrunber>	the fix itself is a oneline change to classloading logic https://git.eclipse.org/r/#/c/98804/1/apache/lucene/org.apache.lucene.core_5.2.1/src/main/java/org/apache/lucene/util/SPIClassIterator.java
+Jun 07 11:53:06 <scela>	rgrunber: indeed
+Jun 07 11:54:24 <rgrunber>	so it's in the process of pushing it in.. it'd target Oxygen.1 and could probably fix an consumer if they pointed to a repo we provide.. according to the bug.
+Jun 07 11:59:56 <mistria>	akuratkov: yeah, I'm here
+Jun 07 12:00:40 <mistria>	akurtakov: I have to read it again, but I think what would be nice would be to find a 2nd use-case out of the generic editor
+Jun 07 12:01:05 <mistria>	akurtakov: so we could tell Dani that it's obviously not a responsibility for the generic editor
+Jun 07 12:01:25 <mistria>	akurtakov: I was thinking about the content-type page should show the icons for nicer navigation
+Jun 07 12:02:09 <akurtakov>	:)
+Jun 07 12:02:16 <akurtakov>	I'll upload annotated icon
+Jun 07 12:08:04 <akurtakov>	scela: https://bugs.eclipse.org/bugs/show_bug.cgi?id=517935
+Jun 07 12:12:44 <mistria>	akurtakov: I can't decide whether I like the decoration approach or not. On one hand, it could work; on the other hand, it makes icon very heavy and it's not exactly making things content-type centric
+Jun 07 12:13:14 <akurtakov>	well, using content-type icon is a clear no go for dani
+Jun 07 12:13:23 <akurtakov>	and we can always go the other side
+Jun 07 12:13:37 <akurtakov>	use the content-type icon and annotate it as generic editor
+Jun 07 12:13:54 <akurtakov>	I haven't made my decision on it
+Jun 07 12:14:13 <akurtakov>	I want to sell the contenttype<-> icon first
+Jun 07 12:14:41 <mistria>	akurtakov: composing icons isn't a bad idea
+Jun 07 12:14:54 <akurtakov>	mistria: btw, have you ever opened the preference page for generic editor
+Jun 07 12:15:16 <akurtakov>	I see the appearance to change theme there which looks really wrong
+Jun 07 12:15:26 <mistria>	akurtakov: but in the example of Java, the natural icon for the content type would be the coffee cup
+Jun 07 12:15:58 <akurtakov>	mistria: this was just getting the first two icons that make sense and put them on top of each other :)
+Jun 07 12:17:07 <mistria>	akurtakov: about the preference page, I don't see what you're referring to ;)
+Jun 07 12:17:40 <akurtakov>	mistria: open a file with generic editor, inside the editor write click /Preferences
+Jun 07 12:18:27 <scela>	akurtakov: ?
+Jun 07 12:18:52 <scela>	that's the link I pointed to you in the discussion above with rgrunber 
+Jun 07 12:19:02 <mistria>	akurtakov: I just tried it, and it froze my IDE...
+Jun 07 12:19:03 <akurtakov>	scela: just sent you the lucene bug as it was bringed at the planning council
+Jun 07 12:20:24 <scela>	akurtakov: ok
+Jun 07 12:20:40 <scela>	akurtakov: just pointing it's the same one I pointed you to some minutes before you did :)
+Jun 07 12:20:51 <akurtakov>	scela: ok, I haven't read it :)
+Jun 07 12:21:11 <scela>	talking about "<scela> akurtakov: ^ is probably the source of the issues we discussed coming from AERI, remember?"
+Jun 07 12:21:27 <akurtakov>	scela: yeah, that's right
+Jun 07 12:23:01 <scela>	rgrunber: the change needs to go to upstream lucene, no?
+Jun 07 12:24:31 <rgrunber>	scela: yeah hopefully upstream lucene. i just wonder whether it's too Eclipse specific.. or whatnot.. i mean whether its harmless for people not consuming via OSGi.
+Jun 07 12:24:47 <rgrunber>	i mean part of shipping something 'modified' is committing to upstream the patch.
+Jun 07 12:24:56 <rgrunber>	(from eclipse legal context)
+Jun 07 12:31:10 <mistria>	akurtakov: please open a bug for the preferences, I'll have a deeper look later
+Jun 07 12:31:25 <akurtakov>	mistria: will do
+Jun 07 12:38:14 <nboldt>	mbooth: if I want to open a RHBZ against rh-eclipse47, do I use Software Collections or is there a DevTools product in RHBZ now?
+Jun 07 12:39:03 <mbenitez>	there will be a devtools product, not there yet
+Jun 07 12:39:25 <mbenitez>	so use rhscl for now if needed
+Jun 07 12:39:26 <nboldt>	mbenitez: ok. when will it be added?
+Jun 07 12:39:42 <nboldt>	rhscl doesn't have any eclipse47 entries :(
+Jun 07 12:39:59 <nboldt>	so use component = rh-eclipse46 for a problem in Oxygen? :(
+Jun 07 12:40:18 <mbenitez>	use 46
+Jun 07 12:40:30 <mbenitez>	as to when 'soon' :D
+Jun 07 12:40:34 <mbenitez>	it's in the works
+Jun 07 12:40:42 <nboldt>	who has access to adding more products/components in RHBZ? 
+Jun 07 12:41:36 <mbenitez>	probably Kerri but I'm not completely sure
+Jun 07 12:42:43 <mbenitez>	there's a ticket already but can't remember where I saw it
+Jun 07 12:45:55 <nboldt>	mbenitez: well for now I've opened https://bugzilla.redhat.com/show_bug.cgi?id=1459637assigned to mbooth
+Jun 07 12:46:34 <nboldt>	I'd love to help make this move faster but don't know how. we're three weeks away from theoretically doing a rh-eclipse47-devstudio release into devtools (or so I'd hoped) 
+Jun 07 12:54:08 <mbenitez>	understood, that's why I've been pushing to get the setup, stuff is ready for builds as of today
+Jun 07 12:54:19 <mbenitez>	time to coordinate with Mat
+Jun 07 13:57:57 <rgrunber>	jjohnstn: do you mind if i push my java docker tooling changes into linuxtools containers/ folder ? none of them touch existing code.. just adding a new plugin. If you do want to review them, I've broken them up into about 10 commits, all around ~150LOC (except one that's 400)
+Jun 07 13:59:45 <jjohnstn>	rgrunber: go ahead...if you want me to review, you can just make one big commit
+Jun 07 14:02:32 <rgrunber>	jjohnstn: i'll go ahead and push in.. plenty of feature improvements to make anyways.. will be much easier once it's all in..
+Jun 07 14:03:50 <jjohnstn>	rgrunber: I am assuming this is master only
+Jun 07 14:04:09 <rgrunber>	jjohnstn: yup.
+Jun 08 08:58:12 <mbenitez>	mbooth, hey Mat, have you tried the new setup for the scl?
+Jun 08 08:58:39 <mbooth>	mbenitez: Yes, packages are building now :-)
+Jun 08 08:59:00 <mbenitez>	wow!!! that's awesome :)
+Jun 08 08:59:08 <mbenitez>	thanks mbooth 
+Jun 09 05:12:38 <akurtakov>	mbooth: hey do you know whether we have python36 scl
+Jun 09 05:15:15 <mbooth>	akurtakov: I think only in RHSCL 3.0+ 
+Jun 09 05:15:28 <akurtakov>	can yo upoint me
+Jun 09 05:15:33 <akurtakov>	I see 3.5 only
+Jun 09 05:15:59 <mbooth>	I see the metapackage in brew: https://brewweb.engineering.redhat.com/brew/buildinfo?buildID=561453
+Jun 09 05:16:13 <mbooth>	But it's only a few days old
+Jun 09 05:16:18 <mbooth>	Probably not ready yet
+Jun 09 08:52:40 <akurtakov>	scela: I can stay only first 30 mins
+Jun 09 08:52:46 <akurtakov>	for the call
+Jun 09 09:01:51 <scela>	akurtakov: ok
+Jun 09 09:02:04 <scela>	akurtakov: I'll try to recap the rest for you
+Jun 09 10:54:17 <nboldt1>	rgrunber: found 3 old SSD drives I can bring in next week. Interested?
+Jun 09 10:54:51 <rgrunber>	nboldt1: yup :)
+Jun 09 10:55:15 <nboldt1>	Kingston 30GB, Samsung 300GB, and an unnamed 160GB which may be a Fedora 23 boot
+Jun 09 10:55:43 <nboldt1>	cool. prolly mosey in on Monday then
+Jun 09 10:57:19 <rgrunber>	nboldt1: yeah, any of those would give my machine some extra ..oomph
+Jun 09 10:57:37 *	rgrunber assumes the 30GB was a typo..
+Jun 09 11:02:25 <nboldt1>	nope. 30G. boot disk to be associated w/ a bigger 7200RPM drive
+Jun 09 11:03:00 <nboldt1>	there was a time... back in the wayback days... where SSDs were hella expensive and so machines were configured w/ a tiny SSD for OS/boot, and a larger non-SSD for all the other crap
+Jun 09 11:03:27 <nboldt1>	that might be the one that's dead, of the pile. not sure. been ages since I used any of them
+Jun 09 11:10:46 <rgrunber>	nboldt1: yes i remember.. so that disk is from those long ago days :P
+Jun 09 11:11:13 <rgrunber>	i actually did consider taking a smaller disk for boot/home and a separate one for data..
+Jun 09 11:18:49 <nboldt1>	well, now you have options :D
+Jun 09 11:19:02 <nboldt1>	or will have options as of Monday
+Jun 09 11:46:33 <rgrunber>	jjohnstn: i can probably respond to that message on linuxtools-distros-dev (about old Eclipse in Debian).. unless i'm mistaken we don't really have anything to do with Debian Testing, so it should probably be directed towards those maintainers.
+Jun 09 11:48:22 <akurtakov>	rgrunber: and that noone from debian contacted us in years
+Jun 09 11:56:58 <rgrunber>	also til i'm subscribed to that list.. :P or forgot to filter it
+Jun 09 12:03:08 *	scox is away: 
+Jun 09 12:15:18 <jjohnstn>	thx rgrunber
+Jun 09 12:16:05 <rgrunber>	yeah, the actual answer seems to be.. no one is willing to do the work. an active bug in debian for helpwanted.
+Jun 09 15:13:35 <jjohnstn>	akurtakov: seeing editor plug-in names printed to terminal with RC3...any chance the TextEditor has some debugging statements left in?
+Jun 09 15:13:50 <akurtakov>	jjohnstn: in platform ?
+Jun 09 15:13:53 <akurtakov>	not that I know
+Jun 09 15:14:00 <akurtakov>	but ask mistria on monday
+Jun 09 15:15:06 <jjohnstn>	akurtakov: that is my assumption...didn't happen on RC2...posted to the cdt dev list...seeing our editors, the CDT editor, the default Text editor listed
+Jun 09 15:15:47 <akurtakov>	jjohnstn: http://git.eclipse.org/c/platform/eclipse.platform.text.git/
+Jun 09 15:15:56 <akurtakov>	I don't see anything such
+Jun 09 15:16:14 <akurtakov>	RC2==RC3==RC4
+Jun 09 15:17:36 <akurtakov>	jjohnstn: could it be elsewhere ?
+Jun 09 15:17:51 <jjohnstn>	akurtakov: I guess it has to be
+Jun 09 15:35:33 <jjohnstn>	akurtakov: not happening with the Committer's CPP RC3...opening Java editor and text editor for .bat file so far
+Jun 09 15:35:53 <jjohnstn>	akurtakov: I meant EPP, not CPP above
+Jun 09 16:06:43 *	scox is back (gone 04:03:35)
+Jun 12 10:02:04 <scela>	jjohnstn: rgrunber mbooth nboldt ipun lufimtse lbullen hello guys, report due in 1hr
+Jun 12 10:08:03 <lufimtse>	scela, sent. Thanks.
+Jun 12 10:09:41 <scela>	eclipse-team: make sure to reply to the first email so it makes use of the reply-to field I put in there. Otherwise you reply to one of the senders and it doesn't go to the list.
+Jun 12 10:09:54 <scela>	I'm making this remark as it happens often so FYI
+Jun 12 10:10:44 <rgrunber>	also if you don't reply to the first e-mail it comes off as weirdly nested, or ppl might think you're commenting on someone's particular report :P
+Jun 12 10:30:30 <nboldt>	+1, reply to top msg in thread
+Jun 12 10:31:09 <nboldt>	of course we could start using etherpad or googledoc and then there'd be no confusion :) Sorta like the http://eclipse.etherpad.corp.redhat.com/sprint-planning doc but one per week 
+Jun 12 10:31:17 <nboldt>	scela: ^
+Jun 12 10:32:59 <rgrunber>	nboldt: i believe there have been issues with losing content in etherpad.. i guess for our weekly status reports that's the dealbreaker.. ?
+Jun 12 10:33:13 <rgrunber>	so.. googledoc.. ? :P
+Jun 12 10:33:21 <scela>	nboldt: thanks. We'll stick to email for weeklies.
+Jun 12 10:33:31 <ericwill>	rgrunber get out of here :P
+Jun 12 10:34:01 <rgrunber>	ericwill: fine, Slack it is
+Jun 12 10:34:05 <scela>	rgrunber: https://media.giphy.com/media/ac7MA7r5IMYda/giphy.gif
+Jun 12 10:35:10 <rgrunber>	https://media2.giphy.com/media/11gC4odpiRKuha/giphy.gif
+Jun 12 10:35:29 <ericwill>	rgrunber https://media3.giphy.com/media/14smAwp2uHM3Di/giphy.gif
+Jun 12 10:38:11 <nboldt>	meh, it was worth a shot. #minimizeEmail
+**** BEGIN LOGGING AT Mon Jun 12 12:00:23 2017
+
+Jun 12 12:00:23 *	Now talking on #eclipse
+Jun 12 12:00:23 *	Topic for #eclipse is: Eclipse discussions
+Jun 12 12:00:23 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 13 13:54:53 <nboldt1>	lufimtse: did you see ping from jpav  on mattermost? Told him to find you on IRC, but...
+Jun 13 13:55:43 <lufimtse>	nboldt1, hey
+Jun 13 13:55:59 <lufimtse>	I was afk when it came throu. But seems like I got an email from mattermost about it.
+Jun 13 13:56:29 <lufimtse>	It's very rare for anyone to ping me on mattermost, I haven't been checking it that often I guess. Thanks for mentioning.
+Jun 13 13:57:25 <nboldt1>	no prob. wasn't sure if you were regularly logged in there
+Jun 14 09:44:17 *	scox is away: headed to the office
+Jun 14 10:07:51 <rgrunber>	mbooth: ah.. i just realized i commented on the whole equinox not stopping..
+Jun 14 10:08:01 <rgrunber>	mbooth: not only that.. i believe i reproduced it.. and never crossed my mind..
+Jun 14 10:08:18 <rgrunber>	was testing another bug.. and noticed i had to kill equinox each time.. just thought it was being... slow
+Jun 14 10:08:35 <mbooth>	rgrunber: Yeah, you pointed out there was some wierd bundling
+Jun 14 10:08:50 <rgrunber>	i'm gonna try deleting them and see if it solves anything
+Jun 14 10:08:52 <mbooth>	Everytime I think I understand the bnd tool, it turns out I don't :-)
+Jun 14 10:11:26 <rgrunber>	mbooth: so on the orbit side we do an explicit : http://git.eclipse.org/c/gerrit/orbit/orbit-recipes.git/tree/apache/felix/org.apache.felix.scr_2.0.10/pom.xml#n15
+Jun 14 10:12:07 <mbooth>	rgrunber: Yep next I was going to try rebuilding scr with such a directive
+Jun 14 10:14:34 <ericwill>	https://www.reddit.com/r/aww/comments/6h4alm/so_this_is_eclipse_every_day_she_leaves_her_house/
+Jun 14 10:16:17 <rgrunber>	112k upvotes, 2899 comments, and not a single joke about other IDEs
+Jun 14 10:17:09 <mbooth>	intelliJ is a terrible name for a dog
+Jun 14 10:17:51 <rgrunber>	could be a cat
+Jun 14 10:21:26 <rgrunber>	mbooth: also is eclipse now in /usr/lib/ , even on x86 ? packaging rule change ?
+Jun 14 10:21:35 <rgrunber>	x86_64*
+Jun 14 10:23:04 <mbooth>	rgrunber: Not a rule change... more like bring eclipse in line with the rest of the java stack
+Jun 14 10:23:43 <rgrunber>	always though we placed it in arch-specific because there were arch-specific parts of platform..
+Jun 14 10:24:31 <mbooth>	rgrunber: All arch-specific java stuff is in /usr/lib/java
+Jun 14 10:24:52 <mbooth>	There never was any /usr/lib64/java
+Jun 14 10:25:38 <mbooth>	At least on my system there is no /usr/lib64/java, if you have one, it's a packaging error :-)
+Jun 14 10:26:21 *	scox is back (gone 00:00:05)
+Jun 14 10:59:34 <rgrunber>	mbooth: so removing the osgi* from felix.scr finally stops equinox.. but also fails with some CNFE in locating org.osgi.service.component.runtime
+Jun 14 11:15:18 <rgrunber>	hmm nvm.. doesn't seem to fix the issue
+Jun 14 13:48:27 <rgrunber>	hmm nvm.. doesn't seem to fix the issue
+Jun 14 14:18:42 <rgrunber>	jjohnstn: i was wondering what the reason is for adding '/' to the end of the container/host paths at http://git.eclipse.org/c/gerrit/linuxtools/org.eclipse.linuxtools.git/tree/containers/org.eclipse.linuxtools.docker.ui/src/org/eclipse/linuxtools/docker/ui/launch/ContainerLauncher.java#n123 . I pass in some folder mappings like /a/b/c -> /a/b/c , so when it looks for '/a/b/c/' it finds nothing and 
+Jun 14 14:18:48 <rgrunber>	fails.
+Jun 14 14:19:18 <rgrunber>	not that i couldn't just work around it by slash terminating all my paths.. just curious.. 
+Jun 14 14:36:53 <jjohnstn>	rgrunber: IIRC, the underlying docker-client copying didn't copy directories over without the slash
+Jun 14 14:39:09 <rgrunber>	jjohnstn: it may have been fixed in recent versions.. will have to double check.. but removing that code and letting my slash-less paths through worked.
+Jun 14 14:39:30 <rgrunber>	(on a remote daemon)
+Jun 14 14:41:29 <jjohnstn>	ok
+Jun 14 15:08:32 <rgrunber>	mbooth: congrats.. :P
+Jun 14 15:09:09 <rgrunber>	go jsdt :P
+Jun 16 10:11:35 <rgrunber>	lbullen: how big is DotNet2, or that saved workspace ?
+Jun 16 10:14:24 <lbullen>	rgrunber: 277M
+Jun 16 10:15:44 <rgrunber>	hmmm do you have nfs set up ? or somewhere you can put it so i can get a hold of it ?
+Jun 16 10:17:01 <rgrunber>	lbullen: ^
+Jun 16 10:17:44 <lbullen>	don't know of any nfs, will dropbox it to you, one second.
+Jun 16 10:20:41 <rgrunber>	cool, great.. fwiw the code that runs indicates something causes Eclipse to shutdown.. so even though it fails with that error message i think the real question is why does it try to shutdown to begin with..
+Jun 16 10:22:08 <lbullen>	https://www.dropbox.com/s/e5ek1lye8qyx1td/DotNet2.zip?dl=0
+Jun 16 10:23:35 <rgrunber>	you ran it against eclipse neon ?, or oxygen ?
+Jun 16 10:25:34 <lbullen>	oxygen
+Jun 16 10:27:05 <rgrunber>	great :) i'll see if i can reproduce anything.. otherwise just blame it on the drag/drop plugin :P
+Jun 16 10:27:43 <rgrunber>	heh.. reproduced...
+Jun 16 10:27:59 <lbullen>	good luck
+Jun 16 11:04:29 <nboldt>	rgrunber: know anyone who might want a VGA x 4 + USB x 3 KVM switch? 
+Jun 16 11:04:42 <nboldt>	eg., monitor sharing, USB device sharing, etc.
+Jun 16 11:06:41 <rgrunber>	hmm, was thinking i could have used it for the windows box but vga doesn't work on it and i've got a remote desktop session..
+Jun 16 11:06:44 <rgrunber>	lufimtse: ? ^
+Jun 16 11:07:30 <mbenitez>	rgrunber, don't encourage Leo's addictions ;)
+Jun 16 11:08:19 <rgrunber>	i'm not encouraging more monitors :P just more control over multiple machine displays :P
+Jun 16 11:08:58 <mbenitez>	fair enough
+Jun 16 11:09:15 <rgrunber>	and if he only cares about 1 machine, now's a great chance to start using more :D
+Jun 16 11:22:10 <nboldt>	i've also got a VGA-to-DVI adapter if that helps :D
+Jun 16 11:22:42 <nboldt>	anyway I can bring it to the office some time if anyone is interested. Free for the taking
+Jun 16 14:05:13 <mbenitez>	nboldt, it seems etherpad is back
+Jun 16 14:15:01 <lufimtse>	rgrunber, hey
+Jun 16 14:16:12 <lufimtse>	nboldt, I'd have use for the splitter. I have like 3 machines that I switch back and forth between.
+Jun 16 14:16:26 <lufimtse>	nboldt, what are the specs on that thing?
+Jun 16 14:16:34 <lufimtse>	can you send me some link to see if it would be useufl.
+Jun 19 08:35:11 <nboldt>	jjohnstn: what version of docker tools should we be including in JBoss Tools 4.5 / devstudio 11 ?
+Jun 19 08:35:41 <nboldt>	currently have 3.0.0.201706141541 but I found 3.1.0.201706152201 too
+Jun 19 09:05:03 <mistria>	lbullen: hi
+Jun 19 09:05:15 <lbullen>	Hello
+Jun 19 09:05:17 <mistria>	lbullen: what's up?
+Jun 19 09:05:38 <mistria>	lbullen: would you like to have a video chat, or are you entirely happy with emails/comments on reviews?
+Jun 19 09:06:38 <lbullen>	mistria: emails/comments are working for now and seem to be more time efficient so they work for me
+Jun 19 09:07:44 <mistria>	lbullen: ok, that's good for me too
+Jun 19 09:07:58 <mistria>	lbullen: feel free to ping me if you change your mind any time
+Jun 19 09:08:06 <lbullen>	mistria: will do
+Jun 19 09:19:16 <mbenitez>	mistria, thanks for the note about the team call, could you please just make sure to send out your status before you pick up your kid?
+Jun 19 09:19:41 <mistria>	mbenitez: just done, nothing much to report as done though
+Jun 19 09:20:16 <mbenitez>	thanks a lot mistria I imagined traveling for the board mtg consumed most of your week
+Jun 19 09:21:21 <mistria>	mbenitez: yes, it did, especially since the flight I booked was a joke
+Jun 19 09:21:37 <mistria>	mbenitez: because of my too little knowledge about Canada geographics
+Jun 19 09:21:38 <mbenitez>	oh really? :(
+Jun 19 09:22:01 <mistria>	mbenitez: I did Ottawa->Toronto->Montreal by plane, took me 6hours
+Jun 19 09:22:05 <mbenitez>	mistria, we'll have to bring you again to visit us and get more time here
+Jun 19 09:22:17 <mbenitez>	that's terrible!!!
+Jun 19 09:22:33 <mistria>	mbenitez: only the days before the journey, someone told me that Ottawa->Montreal was a 2h train, getting directly to the airport
+Jun 19 09:22:57 <mistria>	mbenitez: it's mostly my fault I guess
+Jun 19 09:23:15 <mbenitez>	mistria, yes, that's too bad, usually there's 1 stop but in your case 2 was really overkill
+Jun 19 09:23:41 <mbenitez>	mistria, the joys of traveling, we've all made some mistakes going to new places
+Jun 19 09:42:56 <nboldt>	mistria: wow, that's a terrible itinerary. what airline sold you that boondoggle?
+Jun 19 09:47:22 <mistria>	nboldt; it's the Red Hat travel site, but it was really the fastest way by plane
+Jun 19 09:54:53 <nboldt>	mistria: we have a travel site? huh. last time I just used Kayak and booked the cheapest I could find.
+Jun 19 10:01:49 <mistria>	nboldt: https://www.ts24.com/portal/redhat/index.cfm , it's the same as Kayak, sometimes it's a bit more expensive but for some other flights, it's cheaper
+Jun 19 10:10:32 <nboldt>	ah, right. I've used ts24 before. Apparently there's a NEW travel site coming in the next few months to replace that one.
+Jun 19 11:18:10 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun 19 11:18:10 2017
+
+**** BEGIN LOGGING AT Mon Jun 19 12:02:02 2017
+
+Jun 19 12:02:02 *	Now talking on #eclipse
+Jun 19 12:02:02 *	Topic for #eclipse is: Eclipse discussions
+Jun 19 12:02:02 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 19 12:55:01 <nboldt>	jjohnstn|lunch: ok great. so I've got your latest/greatest for Oxygen.0 then. \o/
+Jun 19 13:14:31 <akurtakov>	mbooth: rgrunber: would you please comment on https://github.com/eclipse/jetty.project/issues/1587#issuecomment-309505365 
+Jun 19 13:47:08 <rgrunber>	sure.. the thread seems oddly familiar.. maybe we discussed it at a past meeting
+Jun 19 15:33:02 <rgrunber>	akurtakov: still around ?
+Jun 20 04:29:03 <akurtakov>	mbooth: would you please send me repo file for the latest scl builds to install locally ?
+Jun 20 04:29:15 <mbooth>	Sure
+Jun 20 04:33:55 <akurtakov>	nice rhel 7 beta available as update :)
+Jun 20 04:33:58 <akurtakov>	finally gtk 3.22 :)
+Jun 20 04:35:19 <akurtakov>	just 1GB to download :)
+Jun 20 04:43:26 <akurtakov>	mbooth: https://bugzilla.redhat.com/show_bug.cgi?id=1347646 is this one fixed ?
+Jun 20 04:44:41 <mbooth>	Should be fixed in Fedora, so will be fixed in rh-eclipse47
+Jun 20 04:45:16 <akurtakov>	I'll mark it as fixed
+Jun 20 04:50:37 <akurtakov>	mbooth: why the 46 repo?
+Jun 20 04:50:41 <akurtakov>	for bootstrapping ?
+Jun 20 05:16:10 <akurtakov>	mbooth: so 'yum install rh-eclipse47' is supposed to fail still ?
+Jun 20 05:34:38 <mbooth>	akurtakov: Yeah, the metapackage has a explicit dep on everything in the collection, so it will fail before everything is built
+Jun 20 05:34:45 <akurtakov>	ok
+Jun 20 05:46:59 <akurtakov>	mbooth: should eclipse be startable https://paste.fedoraproject.org/paste/BMjDHekgt7FSdF5GkI9Xbw ?
+Jun 20 12:06:32 <rgrunber>	akurtakov: how badly is the jetty repo thing needed ? is it a giant pain ?
+Jun 20 12:06:32 <rgrunber>	s/jetty repo/continuously integrated jetty repo/
+Jun 20 12:06:32 <akurtakov>	rgrunber: it's a pain later in the cycle
+Jun 20 12:06:32 <akurtakov>	after M7
+Jun 20 12:06:32 <rgrunber>	my proposal would be to alter the ci.eclipse.org job to either poll or do a weekly rebuild of jetty.project + generate the repo from that content, and offer it to consumers in some latest-jetty-9.4.x repo ? seem reasonable ?
+Jun 20 12:06:32 <rgrunber>	it should only require changes in hudson config.. and not with any of the projects..
+Jun 20 12:06:32 <akurtakov>	I don't think jettyproject will like 
+Jun 20 12:06:32 <rgrunber>	presumably that keeps Jesse happy as he doesn't want extra work on osgi side ?..
+Jun 20 12:06:32 <akurtakov>	as they have some staging process
+Jun 20 12:06:32 <rgrunber>	ah, for releases...
+Jun 20 12:06:32 <akurtakov>	hmm, I think he is fine with extra work as long as someone else does it :)
+Jun 20 12:06:32 <rgrunber>	akurtakov: ^ well yeah.. :P
+Jun 20 12:06:43 <rgrunber>	how about an additional hudson instance.. so his remains untouched..
+Jun 20 12:06:52 <rgrunber>	and process is automated so he should never have to touch it..
+Jun 20 12:08:47 <akurtakov>	rgrunber: it doesn't have to be additonal one
+Jun 20 12:08:57 <akurtakov>	just additional task
+Jun 20 12:09:03 <akurtakov>	and this should be fine I hope
+Jun 20 12:11:19 <rgrunber>	it may have to be additional job because i assume the current job is manually triggered. perhaps one day it could be just one single instance of everything but i haven't looked at automating his releng steps.
+Jun 20 12:12:00 <rgrunber>	actually nvm.. i see what you mean.. can still be manually triggered, as long as variables have correcty defaults..
+Jun 20 12:13:12 <akurtakov>	well, job or task is a detail for me as long as it works
+Jun 20 12:13:44 <akurtakov>	what we need is having staged p2 repo in the same way they stage the maven artifacts done automatically
+Jun 20 12:14:18 <akurtakov>	so we can test platform.releng during staging period and give immediate feedback during staging if things are going wrong
+Jun 20 12:14:24 <akurtakov>	instead of having to skip releases
+Jun 20 12:17:15 <rgrunber>	akurtakov: but they don't release integration builds leading up to a release for artifacts either.. ?
+Jun 20 12:17:32 <akurtakov>	rgrunber: not AFAIK
+Jun 20 12:18:25 <akurtakov>	rgrunber: what you see are announcements like https://dev.eclipse.org/mhonarc/lists/jetty-dev/msg03034.html
+Jun 20 12:18:41 <akurtakov>	no idea where/if the nightlies/integrations happen
+Jun 20 12:18:54 <rgrunber>	ah they do : https://oss.sonatype.org/content/repositories/jetty-snapshots/org/eclipse/jetty/jetty-client/9.4.7-SNAPSHOT/
+Jun 20 13:20:04 <rgrunber>	akurtakov: could eclipse point releases update jetty even for security fixes ?
+Jun 20 13:20:24 <rgrunber>	didn't seem to happen in neon, but could just be unlikely..
+Jun 20 13:25:12 <rgrunber>	nvm.. i guess it could happen.. did in mars
+Jun 20 14:45:42 <akurtakov>	rgrunber: yeah, I'll push for faster jetty updates in oxygen
+Jun 20 14:46:51 <rgrunber>	someone seems to be questioning me about whether we would provide a job that could also build other branches (ie 9.2.x, 9.3.x), and not just 9.4.x.. which seemed strange to me given that they claim to not care that much about it at all..
+Jun 20 15:53:30 <nboldt>	akurtakov: afair Oxygen's already included 9.4.0 (M7) and 9.4.5 (RC4)
+Jun 20 15:53:46 <akurtakov>	nboldt: ?
+Jun 20 15:53:48 <nboldt>	is that not frequent enough?
+Jun 20 15:53:54 <nboldt>	re: Jetty updates
+Jun 20 15:54:19 <akurtakov>	nboldt: ah, yes but we didnt do updates in the stable channel (neon) during the last year
+Jun 20 15:54:46 <akurtakov>	I'm looking towards getting Jetty refreshes in Oxygen.x releases
+Jun 20 15:55:04 <akurtakov>	well not each but when possible
+Jun 21 03:14:37 <akurtakov>	mbooth: morning, what was the issue with pomless builds
+Jun 21 04:19:38 <mbooth>	akurtakov: You mean for ECF? IIRC it didn't work with the maven integration for Jenkins. Not sure if this has changed since then.
+Jun 21 04:22:28 <akurtakov>	mbooth: yes
+Jun 21 04:22:39 <akurtakov>	btw, lars says it works for their own builds
+Jun 21 04:26:01 <akurtakov>	do you remember what the issue was ?
+Jun 21 04:35:09 <mbooth>	akurtakov: No, I don't recall the details. Wim Jongman had met some problems with it in Nebula project and discouraged it for ECF -- he could probably tell us more
+Jun 21 04:36:48 <akurtakov>	mbooth: would you please get the details? Lars wants to push that for platform so I want us to be on the safe side
+Jun 21 04:37:11 <mbooth>	Sure
+Jun 21 04:39:13 <akurtakov>	man, I have never seen so many things happening in platform simultaneously since I work on it :)
+Jun 21 04:42:11 <mbooth>	akurtakov: Good thing though, right? Level of contributions getting healthier?
+Jun 21 04:42:23 <akurtakov>	mbooth: I think so
+Jun 21 04:42:43 <akurtakov>	and general acceptance of changes has increased a lot
+Jun 21 09:28:19 <mbooth>	akurtakov: FYI Koschei failures might be due to new xmvn/javapackage-tools -- I haven't looked too closely but the timing lines up
+Jun 21 09:30:46 <msimacek>	mbooth: indeed. I already added a workaround, but the build didn't hit the repo yet
+Jun 21 09:31:04 <mbooth>	msimacek: Aha, thanks
+Jun 21 09:36:50 <akurtakov>	mbooth: ok, as long as it's not blocking your scl work - it's fine
+Jun 22 10:00:57 <mbooth>	Number of participants bluejeans shows for the company meeting: NaN
+Jun 22 10:03:42 <rgrunber>	that's NaN+ .. clearly Sodium combined with a single Nitrogen cause yes we can.
+Jun 22 10:03:45 <rgrunber>	mbooth: ^
+Jun 22 10:06:27 <mbooth>	rgrunber: Can we? I've been obeying the laws of chemistry all this time for nothing?
+Jun 22 10:12:03 <akurtakov>	mbooth: what's up with the patch for source generation?
+Jun 22 10:12:09 <akurtakov>	once scl is done?
+Jun 22 10:14:34 <mbooth>	akurtakov: Yes
+Jun 22 10:14:46 <akurtakov>	and how is that going
+Jun 22 10:15:05 <akurtakov>	the scl I mean
+Jun 22 10:17:03 <mbooth>	akurtakov: Good, just a few builds left to do
+Jun 23 12:52:52 *	scox is away: lunch
+Jun 23 14:12:28 *	scox is back (gone 01:19:36)
+**** BEGIN LOGGING AT Fri Jun 23 15:50:47 2017
+
+Jun 23 15:50:47 *	Now talking on #eclipse
+Jun 23 15:50:47 *	Topic for #eclipse is: Eclipse discussions
+Jun 23 15:50:47 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Fri Jun 23 15:53:51 2017
+
+Jun 23 15:53:51 *	Now talking on #eclipse
+Jun 23 15:53:51 *	Topic for #eclipse is: Eclipse discussions
+Jun 23 15:53:51 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 25 00:24:10 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Sun Jun 25 00:24:10 2017
+
+**** BEGIN LOGGING AT Sun Jun 25 00:24:20 2017
+
+Jun 25 00:24:20 *	Now talking on #eclipse
+Jun 25 00:24:20 *	Topic for #eclipse is: Eclipse discussions
+Jun 25 00:24:20 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 26 09:44:54 <mbenitez>	scela, welcome back! hope you had a relaxing time away
+Jun 26 09:46:14 <scela>	mbenitez: thanks!
+Jun 26 09:46:20 <scela>	mbenitez: yeah I'm quite refreshed
+Jun 26 09:46:38 <scela>	mbenitez: doing the email backlog ritual right now
+Jun 26 09:46:59 <mbenitez>	have fun ;)
+Jun 26 11:16:53 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun 26 11:16:53 2017
+
+**** BEGIN LOGGING AT Mon Jun 26 11:47:08 2017
+
+Jun 26 11:47:08 *	Now talking on #eclipse
+Jun 26 11:47:08 *	Topic for #eclipse is: Eclipse discussions
+Jun 26 11:47:08 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jun 26 12:24:02 <mbenitez>	mbooth, errata is not setup yet, I've pinged the tickets to get that moving
+Jun 26 12:31:17 <mbooth>	mbenitez: Thanks
+Jun 26 12:31:26 <akurtakov>	mbooth: rgrunber: what happened with the felix-scr issue ?
+Jun 26 12:31:55 <akurtakov>	is it fixed in fedora? from what I get from Tom he fixed it upstream already
+Jun 26 12:32:00 <mbooth>	akurtakov: rgrunber: It appears to be some bug between scr and new versions of gogo
+Jun 26 12:32:21 <mbooth>	I think there's a fix upstream at scr but was no release when I looked last
+Jun 26 12:33:38 <mbooth>	I was planning to find a patch to backport, but didn't get to it yet
+Jun 26 12:33:43 <rgrunber>	mbooth: yup.. https://issues.apache.org/jira/browse/FELIX-5416 fixed in 2.0.12 but not released yet
+Jun 26 12:34:37 <rgrunber>	actually nvm
+Jun 26 12:34:39 <rgrunber>	just released!
+Jun 26 12:34:48 <mbooth>	Oh, great timing
+Jun 26 12:36:05 <rgrunber>	http://www.apache.org/dist/felix/org.apache.felix.scr-2.0.12-source-release.tar.gz
+Jun 26 12:36:18 <rgrunber>	today at 11:49
+Jun 26 12:41:11 <rgrunber>	mbooth: if you're busy with other things i can take care of it.. assuming i have commit rights on it..
+Jun 26 12:44:08 <akurtakov>	rgrunber: pushing your patch should take few minutes only :)
+Jun 26 12:44:25 <akurtakov>	furthermore with fedora moving to pagure you can push PR
+Jun 26 12:44:30 <mbooth>	rgrunber: Please do, if you can't commit, I can merge a patch
+Jun 26 12:47:24 <rgrunber>	i'm just confirming it solves the issue first.
+Jun 26 12:53:06 <rgrunber>	work for me.. pushing..
+Jun 26 13:01:09 <rgrunber>	mbooth: feel free to apply https://paste.stg.fedoraproject.org/paste/xiRpo5xRnLcX17BcwrAgDw/raw .. couldn't push.
+Jun 26 13:01:23 <rgrunber>	but sources are uploaded.
+Jun 26 16:29:26 <mbooth>	rgrunber: Thanks -- Nice simple change :-)
+Jun 26 16:29:50 <rgrunber>	mbooth: that's what it looks like when all the work is done upstream :P
+Jun 26 16:30:02 <mbooth>	:-)
+Jun 27 10:01:49 <mbenitez>	eclipse-team: Sopot is about to demo aCute if you're interested https://bluejeans.com/930233078
+Jun 27 10:24:30 <mbenitez>	has anybody in the TO office seen Lucas today?
+Jun 27 10:24:36 <mbenitez>	it's odd he's not on irc...
+Jun 27 10:25:12 <rgrunber>	he's in another channel.. asked him to get on here
+Jun 27 10:25:56 <mbenitez>	thanks rgrunber 
+Jun 27 10:26:35 <lbullen>	Sorry about that, my favourites got reset yesterday.
+Jun 27 10:26:36 <mbenitez>	lbullen, so soon after joining our team you no longer like us? we miss you here
+Jun 27 10:26:59 <mbenitez>	no worries
+Jun 27 10:27:23 <mbenitez>	lbullen, Sopot just showed your work at the sprint demo session and got lots of good feedback
+Jun 27 10:27:31 <mbenitez>	congrats on your progress so far! :)
+Jun 27 10:27:49 <mistria>	lbullen: I join mbenitez in these congratulations
+Jun 27 10:28:21 <scela>	lbullen: yes the demo went well
+Jun 27 10:28:39 <scela>	lbullen: feedback was quite positive from project management
+Jun 27 10:28:50 <scela>	lbullen: looking forward to completing the whole thing with test and pack
+Jun 27 10:29:09 <lbullen>	Glad to hear. Is the sprint demo a meeting I should be a part of? Was not in my calendar
+Jun 27 10:29:45 <scela>	lbullen: only if you demo it but this time you were offline so I did the sprint demo presentation for you
+Jun 27 10:30:04 <mbenitez>	lbullen, it's not mandatory, but it's a long story, I'll tell you about it later
+Jun 27 10:30:28 *	scela just deleted part of the long story from chat box :)
+Jun 27 10:34:52 <mistria>	lbullen scela mbenitez: I think we shouldn't rush on Debug, and not implement a .net specific debug
+Jun 27 10:35:30 <mistria>	lbullen scela mbenitez: we need to investigate in the current state of the Debug protocol, see whehter it's already something we can play with (according to LSP4J folks, it's currently not)
+Jun 27 10:35:46 <scela>	mistria: lbullen for now I'd go on with test and pack
+Jun 27 10:36:09 <scela>	mistria: this would allow us to call it 'done' in terms of development features
+Jun 27 10:36:14 <mistria>	I'm also not much aware of the importance of the "pack" feature, we should ask about it on the #dotnet channel
+Jun 27 10:36:29 <scela>	mistria: once debug protocol is there we can go back to it
+Jun 27 10:36:45 <mistria>	scela: agree, test would be nice, especially since there is not big perspective of an innovation in this area
+Jun 27 10:36:58 <scela>	mistria: can you inquire about the 'pack' part?
+Jun 27 10:37:10 <mistria>	scela: maybe the dotnet tests do reuse the JUnit reports and APIs, that would make things easy
+Jun 27 10:37:57 <mistria>	scela mbenitez lbullen: depending on what's expected for our team, it could be interesting to go in the direction of deploying such dotnet apps on OpenShift/Docker from Eclipse IDE as well
+Jun 27 10:38:17 <mistria>	it's probably a bit harder so if we go there, it must be guaranteed that it's going to be useful
+Jun 27 10:38:24 <mistria>	otherwise it can become a huge waste of effort
+Jun 27 10:40:47 <scela>	mistria: what would be an estimate for that effort?
+Jun 27 10:41:08 <mistria>	scela: ask Jeff or Roland, I think they know better
+Jun 27 10:42:09 <akurtakov>	for openshift shouldn't this be done by reusing the openshift integration done by JBDS ?
+Jun 27 10:42:13 <scela>	rgrunber: ^
+Jun 27 10:42:41 <scela>	mistria: anyway for immediate work we agree to pursue dotnet test
+Jun 27 10:43:16 <akurtakov>	scela: can this demo go public ? twitted and etc. to gain more interest in acute
+Jun 27 10:43:24 <akurtakov>	if everything is on the update site of course :)
+Jun 27 10:43:32 <scela>	mistria: ^?
+Jun 27 10:43:39 <rgrunber>	that would probably be a good starting point.. for just inside a container, that could be done with docker tooling.
+Jun 27 10:43:40 <scela>	akurtakov: it could 
+Jun 27 10:44:23 <scela>	akurtakov: I could even push it through @EclipseJavaIDE but that would be a bit tricky :)
+Jun 27 10:44:25 <rgrunber>	as long as you know what commands need to be run it's just a matter of creating a container that runs it and collects the result.. the rest is just integrating with Eclipse's Launch Configuration Type/Delegate/Tab Group stuff.
+Jun 27 10:44:43 <akurtakov>	scela: no, EclipseJavaIDE is for java not for .Net :)
+Jun 27 10:45:25 <scela>	akurtakov: oh I know, but I'm sure it will be a pretty hot tweet and I'm quite heartless when it comes to attracting attention to it :)
+Jun 27 10:47:09 <mistria>	scela: I think we should tweet it with our account and the EclipseFdn would probably share it as a cool thing
+Jun 27 10:47:23 <mistria>	scela: it was mentioned at the board, it really something they'd like to get in Photon
+Jun 27 10:47:41 <mistria>	scela: so I guess they can buy our move with a couple of tweets ;)
+Jun 27 10:48:00 <mistria>	scela lbullen: yes, I think `dotnet test` is the next one to have fun with
+Jun 27 10:48:36 <scela>	lbullen: there's your next thing then
+Jun 27 10:48:45 <scela>	lbullen: have you already played with it?
+Jun 27 10:48:56 <scela>	mistria: what would they like to get in Photon?
+Jun 27 10:49:00 <scela>	mistria: aCute?
+Jun 27 10:49:04 <mistria>	scela: yes
+Jun 27 10:49:22 <scela>	mistria: ok
+Jun 27 10:49:23 <mistria>	scela akurtakov: if we want big exposure for aCute, we could try to blog on developers.redhat.com
+Jun 27 10:49:36 <scela>	mistria: I think we should finish what we plan for it first
+Jun 27 10:49:37 <akurtakov>	mistria: works for me
+Jun 27 10:49:52 <akurtakov>	when is up to you guys
+Jun 27 10:49:53 <scela>	mistria: it helps to be patient and wait until it's done and then talk about it
+Jun 27 10:50:19 <scela>	akurtakov: mistria if you tell people here's something cool but it's WIP they think 'cool, I'll check it when it's completed' ->they never do
+Jun 27 10:50:44 <scela>	so let's wrap up test and potentially pack
+Jun 27 10:50:55 <lbullen>	scela: have yet to play with it, finishing up the export PR now and then that is next
+Jun 27 10:51:02 <scela>	ok
+Jun 27 11:03:32 <akurtakov>	what is pack?
+Jun 27 11:08:11 <scela>	akurtakov: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-pack
+Jun 27 11:09:05 <mistria>	akurtakov: it's exporting a shareable artifact to put it on a repository like MAven
+Jun 27 11:09:42 <mistria>	I asked on the #dotnet channel and it seems less important
+Jun 27 11:09:52 <mistria>	at least for the moment
+Jun 27 11:19:32 <mistria>	scela: did you see Howlger video for Oxygen ?
+Jun 27 11:19:42 <mistria>	scela: I think it's worth a tweet from @EclipseJavaIDE
+Jun 27 11:26:36 <scela>	mistria: no, can you paste the link?
+Jun 27 11:50:28 <mistria>	scela: https://www.youtube.com/watch?v=Y0-cO9wZj6w&feature=youtu.be
+Jun 28 09:58:32 <rgrunber>	akurtakov: is xz 1.6 on behalf of p2 , or equinox itself..
+Jun 28 09:58:51 <akurtakov>	rgrunber: there is no longer separate p2 project
+Jun 28 09:58:57 <rgrunber>	ahh merged..
+Jun 28 09:58:57 <akurtakov>	it got merded into equinxo
+Jun 28 10:04:09 <rgrunber>	akurtakov: are they git submodules ?
+Jun 28 10:04:16 <akurtakov>	rgrunber: no
+Jun 28 10:04:23 <akurtakov>	different git repos for single projects
+Jun 28 10:04:29 <rgrunber>	ah..
+Jun 28 10:04:41 <akurtakov>	projecT :)
+Jun 28 10:04:59 <rgrunber>	and shared commit rights ?
+Jun 28 10:05:07 <akurtakov>	rgrunber: yes
+Jun 28 10:05:25 <akurtakov>	equinox committer can push to p2 and vice-versa
+Jun 28 10:05:28 <akurtakov>	:)
+Jun 28 10:06:52 <akurtakov>	rgrunber: equinox launcher/releng opened the door to p2 for me :)
+Jun 28 10:08:14 <ipun>	happy release day everyone!
+Jun 28 10:22:57 <mbenitez>	mbooth, great news on the scl, thanks for keeping that moving fwd!
+Jun 28 10:31:15 <scela>	eclipse-team: in 30 mins or so, me and mickael will be presenting https://www.meetup.com/nl-NL/Virtual-Eclipse-Community-MeetUp/events/240640927/?eventId=240640927
+Jun 28 10:31:24 <scela>	join if you like
+Jun 28 10:42:25 <rgrunber>	does anyone have some idea about how p2.stats claims to work vs. how it currently works ?
+Jun 28 10:46:42 <rgrunber>	basically i have repos, none of which declare the p2.stats, or p2.mirrors property but they're being recorded just fine by the statistics.. is it all handled now through the eclipse proxy/mirror that everything now goes through ?
+Jun 28 10:52:40 <mbooth>	rgrunber: Black magic voodoo.
+Jun 28 10:54:08 <rgrunber>	yeah i mean.. i don't doubt they could do it (off the GET requests) but p2.stats says when enabled the repos send a 'HEAD' back to the server
+Jun 28 10:55:05 <rgrunber>	so by association, download statistics work using magnetohydrodynamics (https://xkcd.com/1851/)
+Jun 28 10:59:25 <mbenitez>	ipun, happy release day to you too! you're seeing some of your work officially hitting the public now :)
+Jun 28 11:14:51 <ipun>	mbenitez: always a pleasure to see it in public use now :)
+Jun 28 12:15:49 <scela>	lbullen: hey
+Jun 28 12:16:02 <lbullen>	hello
+Jun 28 12:18:53 <lbullen>	scela /\
+Jun 28 12:21:10 <scela>	lbullen: how are things? wrapped up the export stuff?
+Jun 28 12:21:56 <lbullen>	scela: yes, set out the PR yesterday, working on tests now
+Jun 28 12:24:17 <scela>	eclipse-team: please update the etherpad planning document http://eclipse.etherpad.corp.redhat.com/sprint-planning with the usual two steps: % on previous and plan for this one
+Jun 28 12:25:33 <scela>	akurtakov: jjohnstn rgrunber mbooth nboldt lbullen ericwill|lunch ipun ^
+Jun 28 12:27:40 <lbullen>	scela, that brings up a good point, I will be finished the CLI hopefully this week. What should be next on the todo list?
+Jun 28 12:28:09 <scela>	lbullen: dotnet test support you will be done this week?
+Jun 28 12:28:35 <scela>	lbullen: and dotnet pack potentially
+Jun 28 12:28:51 <scela>	lbullen: along with needed wizards/run configs etc.
+Jun 28 12:29:06 <scela>	lbullen: when this is wrapped up we could call this done
+Jun 28 12:29:34 <scela>	lbullen: after that you'll get your fit wet with some eclipse.org projects, starting with platform.text and the Generic Editor infra
+Jun 28 12:30:35 <lbullen>	scela: A better estimate will early next week. Dotnet pack seems to have been tabled according to Mickael's comment on github.
+Jun 28 12:31:11 <scela>	lbullen: ok
+Jun 28 12:35:55 <scela>	lbullen: so once you are done with the test and the auxiliary support there you will start to move on eclipse.org projects
+Jun 28 12:36:40 <scela>	lbullen: you might have to do some demo/video of the fully featured aCute but we'll talk about it when the time comes
+Jun 28 12:37:09 <scela>	lbullen: is that enough info for now?
+Jun 28 12:56:56 <nboldt>	scela: done. that was way less painful than a 45 min sprint planning call :)
+Jun 28 12:57:12 <scela>	nboldt: thanks
+Jun 28 12:57:45 <nboldt>	scela: I wish the devstudio dev team moved to this format. WAY easier
+Jun 28 13:52:45 <nboldt>	rgrunber: is there a way to resolve a brew build as a yum repo?
+Jun 28 13:52:59 <mbenitez>	nboldt, I agree in many cases we should skip lengthy meetings but... I'm not agile enough :P
+Jun 28 13:53:22 <nboldt>	mbenitez: yeah but those planning calls aren't planning calls. they're just announcements
+Jun 28 13:53:51 <nboldt>	"here's my plan! next person?" "I haven't got a plan yet, I was on PTO. still triaging."
+Jun 28 13:55:32 <nboldt>	rgrunber: Victor R is asking me how to install all the rpms from https://brewweb.engineering.redhat.com/brew/buildinfo?buildID=566421 ... vaguely recall there's a way to fetch them all in one operation
+Jun 28 13:57:39 <nboldt>	is there a way to use koji for brew?
+Jun 28 13:57:43 <nboldt>	eg.,  koji download-build https://brewweb.engineering.redhat.com/brew/buildinfo?buildID=566421 ?
+Jun 28 14:04:12 <rgrunber>	nboldt: sorry for delay.. yes there should be.. most builds go into a build target.. which has a yum repo to go with it
+Jun 28 14:04:49 <rgrunber>	let me get you a link
+Jun 28 14:06:13 <rgrunber>	nboldt: http://download-node-02.eng.bos.redhat.com/brewroot/repos/extras-rhel-7.3-build/latest/x86_64/ should have them
+Jun 28 14:08:43 <nboldt>	rgrunber: great, thanks!
+Jun 28 14:08:53 <rgrunber>	nboldt: oh and there's 'brew download-build' 
+Jun 28 14:09:04 <rgrunber>	works same as koji download-build.. give it a package NVR, or buildID
+Jun 28 14:09:10 <nboldt>	now if i could just get the MM people to use IRC and vice versa, I wouldn't have to play messenger-pigeon :D
+Jun 28 14:09:39 <nboldt>	rgrunber: thanks!
+Jun 28 14:10:13 <nboldt>	btw, if there was real interest in the usb/vga 4-port KVM switch I can bring it on a Monday some time (not next week but the one after)
+Jun 28 14:10:22 <nboldt>	if not I'll just throw it in a box somewhere
+Jun 28 14:10:25 <rgrunber>	lufimtse: ^
+Jun 28 14:10:29 <nboldt>	lufimtse: ^ 
+Jun 28 14:10:38 <nboldt>	lol, GMTA
+Jun 28 14:14:17 <rgrunber>	nboldt: he might also need http://download-node-02.eng.bos.redhat.com/brewroot/repos/extras-rhel-7.3-container-build/latest/x86_64/pkglist .. i think it also has docker-latest.. it's there.
+Jun 29 11:25:12 <mbenitez>	scela, hi Sopot, just talked to Jeff Maury and he mentioned he hasn't heard from you about the analytics work, could you please get back to him when you get a sec?
+Jun 29 11:27:00 <scela>	mbenitez: yes I received the email yesterday
+Jun 29 11:28:49 <scela>	mbenitez: I'll have an answer with detail for him tomorrow morning
+Jun 29 11:28:54 <scela>	mbenitez: unless it's more urgent :)
+Jun 29 11:29:24 <mbenitez>	just let him know... since you were going to talk to him before your pto :)
+Jun 29 11:29:54 <scela>	mbenitez: ok I'll let him know.
+Jun 29 11:30:01 <mbenitez>	thanks scela 
+Jun 29 11:31:50 <scela>	mbenitez: done
+Jun 29 12:16:53 <lufimtse>	rgrunber, hey
+Jun 29 12:17:01 <rgrunber>	lufimtse: hey
+Jun 29 12:17:46 <lufimtse>	nboldt, rgrunber in the mean time, I've configured RDP (on win) and VNC (on OSX), which seems to get the job done.
+Jun 29 12:20:52 <rgrunber>	lufimtse: i might be missing some context here.. :P
+Jun 29 12:21:09 <rgrunber>	your macos box ?
+Jun 29 12:36:27 <nboldt>	lufimtse: so no need for KVM switch?
+Jun 29 12:43:33 <lufimtse>	nboldt, Indeed, for now I'm good without the KVM switch. Thank you for offer.
+Jun 29 12:44:47 <nboldt>	ok. just trying to repurpose my old *cough* tech garbage */cough* as I simplify my life into a much much smaller condo space :D
+Jun 29 12:44:51 <nboldt>	lufimtse: ^
+Jun 29 12:49:05 <lufimtse>	nboldt,  :-D
+Jun 29 12:49:41 <lufimtse>	rgrunber_lunch, btw, to clarify, I setup the "eclipse" Mac for cross-platform testig, not my own mac. (Mac hardware + Win vm + Linux vm).
+Jun 30 10:00:24 <mbooth>	http://git.eclipse.org/c/ seems to be dead :-(
+Jun 30 10:35:48 <scela>	eclipse-team: FYI today is the early-bird deadline to apply for EclipseCon Europe in October. The final deadline is July 17.
+Jun 30 10:36:46 <scela>	https://www.eclipsecon.org/europe2017/cfp
+Jun 30 10:38:43 <ericwill>	mbooth re: git.eclipse.org/c, hopefully they are fixing the linking issue
+Jun 30 10:45:03 <mbenitez>	scela, thank you for the reminder
+Jun 30 10:45:14 <mbenitez>	lots of proposals so far, hopefully many make it in
+Jun 30 10:46:01 <scela>	mbenitez: yep
+Jun 30 10:46:55 <scela>	akurtakov: so rob stryker is now leading WTP common ?
+Jun 30 10:47:07 <scela>	akurtakov: this is the RH guy we met in washington right?
+Jun 30 10:47:11 <akurtakov>	scela: not yet official
+Jun 30 10:47:14 <akurtakov>	scela: but yes
+Jun 30 10:47:26 <akurtakov>	I mean voting is still ongoing
+Jun 30 10:47:58 <scela>	akurtakov: supposing he gets elected, would this help our BlueSky story?
+Jun 30 10:48:11 *	akurtakov hopes Rob and Nick give some much needed kick to wtp
+Jun 30 10:48:52 <akurtakov>	scela: not sure
+Jun 30 10:48:57 <akurtakov>	depends on webtools 
+Jun 30 10:49:33 <akurtakov>	it's like platform in the past the lead of swt don't have much say over e.g. text
+Jun 30 10:49:43 <akurtakov>	and source editing is separate project
+Jun 30 10:51:05 <akurtakov>	I look at wtp like platform 4 years ago :)
+Jun 30 10:51:27 <akurtakov>	IBM losing the reigns finally :)
+Jun 30 10:52:48 <scela>	akurtakov: i see
+Jun 30 11:11:32 <mbooth>	scela: Thanks for the reminder, I submitted a talk proposal too :-)
+Jun 30 11:13:36 <scela>	mbooth: np :)
+Jun 30 11:18:00 <lufimtse>	wiki.eclipse.org seems down ...
+Jun 30 11:19:22 <scela>	lufimtse: works for me
+Jun 30 11:19:39 <rgrunber>	yeah, seems back up
+Jun 30 11:19:45 <rgrunber>	it was also down yesterday briefly i think
+Jun 30 11:24:10 <scela>	is lucas already in?
+Jun 30 11:24:27 <scela>	xlbullen: is this you ? :)
+Jun 30 11:25:13 <rgrunber>	scela: seems idle currently.. might not be in yet.
+Jun 30 11:25:17 <rgrunber>	ericwill: ^
+Jun 30 11:25:36 <ericwill>	ericwill not at the office, ask Leo or Ian
+Jun 30 11:25:39 <ericwill>	oops
+Jun 30 11:25:41 <ericwill>	rgrunber ^^
+Jun 30 11:25:49 <ericwill>	accidental third person speech, pls ignore
+Jun 30 11:26:04 <rgrunber>	ericwill: what have you done with ericwill ?
+Jun 30 11:26:07 <mbenitez>	haha
+Jun 30 11:26:42 <scela>	ericwill: rgrunber it's fine I'll catch up next week. have a nice weekend. I'm out.
+Jun 30 11:27:02 <rgrunber>	ericwill: if you are looks for a ransom, i can tell you i don't have money, but what i have are a particular are a very particular set of .. commandline tools.
+Jun 30 11:27:16 <ericwill>	rgrunber resistance is futile
+Jun 30 11:27:23 <ericwill>	scela cool, have a good one!
+Jun 30 11:27:24 <rgrunber>	scela: k c ya
+Jun 30 11:27:54 <mbooth>	ericwill: resistance is voltage over current
+Jun 30 11:28:29 <ericwill>	mbooth har har har!
+Jun 30 11:29:40 <akurtakov>	mbooth: ericwill: http://www.sengpielaudio.com/ohms-law-illustrated.gif :)
+Jun 30 11:29:58 <ericwill>	ha!
+Jun 30 11:30:17 <mbooth>	akurtakov: That's surprisingly instructive!
+Jun 30 11:52:11 <nboldt1>	hey, any aeri / lucene people in here? Question about aeri startup errors, which might be lucene related. https://issues.jboss.org/browse/JBIDE-24534 
+Jun 30 11:54:33 <akurtakov>	nboldt1: hey, why you think it's lucene related ?
+Jun 30 11:54:50 <akurtakov>	I think it's network issue @eclipse.org now
+Jun 30 11:55:00 <akurtakov>	preventing aeri to download it's lucene db
+Jun 30 11:55:17 <nboldt1>	org.apache.lucene.store.LockObtainFailedException: Lock held by another program: /home/nboldt/eclipse/workspace-47clean/.metadata/.plugins/org.eclipse.epp.logging.aeri.ide/org.eclipse.epp.logging.aeri.ide.server/http-cache.lucene60/write.lock
+Jun 30 11:55:24 <nboldt1>	ah, ok
+Jun 30 11:55:29 <nboldt1>	even better :) 
+Jun 30 11:55:50 <nboldt1>	I'm just trying to close out old (possibly upstream) JIRAs and wanted to see if this was still a problem
+Jun 30 11:56:02 <nboldt1>	but if it's masked by a NEW problem... then I'll go find something else to do :)
+Jun 30 11:56:38 <akurtakov>	well, eclipse.org is definetely unreliable
+Jun 30 11:56:54 <akurtakov>	you would better not debug possible network issue now :)
+Jun 30 12:35:08 <ericwill>	I'm out, have a good weekend everyone!
+Jun 30 12:35:30 <rgrunber>	ericwill: have a good weekend :)
+Jun 30 12:36:51 <rgrunber>	ericwill: s/weekend/long weekend/
+Jun 30 12:37:02 <ericwill>	rgrunber where applicable :P
+Jun 30 16:50:47 *	scox is away: 
+**** ENDING LOGGING AT Fri Jun 30 18:34:19 2017
+
+**** BEGIN LOGGING AT Mon Jul  3 09:49:13 2017
+
+Jul 03 09:49:13 *	Now talking on #eclipse
+Jul 03 09:49:13 *	Topic for #eclipse is: Eclipse discussions
+Jul 03 09:49:13 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 04 08:54:09 <scela>	lbullen: we were thinking you could start with eclipse projects with https://bugs.eclipse.org/bugs/show_bug.cgi?id=517818
+Jul 04 08:54:13 <scela>	mistria: akurtakov ^
+Jul 04 08:56:22 <scela>	lbullen: http://www.vogella.com/tutorials/EclipsePlatformDevelopment/article.html is a crash course on how to do an initial set up (find project, clone, gerrit, bugzilla etc.)
+Jul 04 08:57:35 <lbullen>	Great, I'll get through the test issue in aCute then jump on this
+Jul 04 10:04:27 <mistria>	lbullen: what's the state with `dotnet test` by the way? Is it easy to turn dotnet test reports into something usable in Eclipse IDE?
+Jul 04 10:05:27 <lbullen>	mistria: my current implementation is to just printing to console the results of the test command
+Jul 04 10:06:21 <mistria>	lbullen: ok, that's indeed a good 1st iteration; no need to go into more details right now unless it's easy to do
+Jul 04 10:10:15 <lbullen>	mistria: ya that is my plan, to get out the basics then work towards making it comparable to the JUnit setup
+Jul 04 10:15:52 <mistria>	lbullen: ok
+Jul 04 10:17:32 <mistria>	lbullen: Once the basics are working with console output, if you're ok with it, you can take a break with aCute and have a look at the MPC issue
+Jul 04 10:17:49 <mistria>	lbullen: the one linked by scela https://bugs.eclipse.org/bugs/show_bug.cgi?id=517818
+Jul 04 10:18:30 <scela>	MPC being Marketplace Client
+Jul 04 10:18:42 <scela>	lbullen: the one that helps you install stuff from the marketplace
+Jul 04 10:19:04 <lbullen>	mistria: will do
+Jul 04 10:19:35 <mistria>	lbullen: are you ok with it or do you prefer using some more time on aCute?
+Jul 04 10:20:15 <lbullen>	mistria: No, I'm on board with moving into the real world of Eclipse
+Jul 04 10:21:06 <mistria>	lbullen: ok, cool. aCute will soon be the real world of Eclipse too ;)
+Jul 04 10:21:50 <mistria>	lbullen: the MPC one would ideally make it into the September release of Oxygen.1.
+Jul 04 10:22:02 <lbullen>	mistria: yes, read your proposal. Very good work, I'm looking forward to it
+Jul 04 10:28:23 <nboldt>	rgrunber: re: https://bugzilla.redhat.com/show_bug.cgi?id=1467548 ... how does one get something in Orbit built into an rpm, so that it can be a dependency for rh-eclipse47-webtools-* ?
+Jul 04 10:29:01 <nboldt>	we need Closure Compiler bundled in Orbit (for WTP 3.9.0 RC1-RC3) from orbit-buildrepo-S20170516192513
+Jul 04 10:29:56 <rgrunber>	nboldt: nothing goes directly from Orbit to an rpm.. generally it's on the Fedora side that a new package request must be made.. 
+Jul 04 10:30:08 <rgrunber>	assuming same issue applies to WTP in Fedora.
+Jul 04 10:30:24 <rgrunber>	ie.. built from sources there /etc/etc.
+Jul 04 10:31:13 <rgrunber>	and in fact ... https://koji.fedoraproject.org/koji/packageinfo?packageID=17960
+Jul 04 10:31:20 <rgrunber>	it's there
+Jul 04 10:31:35 <rgrunber>	so now the real question is does it build in brew..
+Jul 04 10:32:04 <nboldt>	dunno. maybe this is my introduction to a start-from-scratch brew build?
+Jul 04 10:33:26 <nboldt>	mbooth: ^ 
+Jul 04 10:34:27 <rgrunber>	nboldt: might be your first package to get into brew
+Jul 04 10:34:35 <rgrunber>	or just another one if you haven't already
+Jul 04 10:34:43 <rgrunber>	also webtools is at 3.8.2 currently..
+Jul 04 10:34:48 <nboldt>	yeah, I've never brewed before
+Jul 04 10:35:00 <nboldt>	whut? wtp should be 3.9 in rh-eclipse47
+Jul 04 10:35:06 <nboldt>	so... that's not good :(
+Jul 04 10:35:17 <rgrunber>	or maybe i'm looking at old root ?
+Jul 04 10:35:32 <rgrunber>	http://download-node-02.eng.bos.redhat.com/brewroot/repos/devtools-1.0-rh-eclipse47-rhel-7-build/latest/x86_64/pkglist
+Jul 04 10:36:30 <nboldt>	dunno, that says "devtools-1.0" and rh-eclipse47 and latest... so... :(
+Jul 04 10:36:44 <rgrunber>	https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=62936
+Jul 04 10:37:19 <rgrunber>	tag seems right.. probably step1 was get things in.. update can happen eventually.
+Jul 04 10:37:50 <nboldt>	ugh, that has a newer version of jetty than devstudio does
+Jul 04 10:38:09 <nboldt>	9.4.6 in dt-1.0, 9.4.5 in devstudio 11 / oxygen.0
+Jul 04 10:55:37 <akurtakov>	rgrunber: is their xz-java containing orbig buitl :)
+Jul 04 10:56:23 <rgrunber>	akurtakov: you could always use http://download.eclipse.org/tools/orbit/N-builds/N20170629201544/
+Jul 04 10:56:33 <rgrunber>	( http://download.eclipse.org/tools/orbit/N-builds/N20170629201544/repository )
+Jul 04 10:57:00 <akurtakov>	rgrunber: huh, I would have if it was visible at http://download.eclipse.org/tools/orbit/downloads/ :)
+Jul 04 11:05:25 <rgrunber>	akurtakov: yeah, N-builds don't get promoted there, but searching the contents of http://download.eclipse.org/tools/orbit/downloads/latest-N/ would have shown it.
+Jul 04 11:05:49 <akurtakov>	rgrunber: would you please publish I-build
+Jul 04 11:06:03 <akurtakov>	I would not be allowed to update to N-build in platform.releng
+Jul 04 11:06:29 <rgrunber>	building..
+Jul 04 11:30:22 <rgrunber>	akurtakov: http://download.eclipse.org/tools/orbit/downloads/drops/I20170704152159/ , you can see it on the downloads page.
+Jul 04 11:37:20 <mbooth>	nboldt: Ah, woops. I'd updated but not built wtp due to insufficient closer-compiler at the time. Will fire a build now, sorry about that
+Jul 04 11:37:54 <mbooth>	nboldt: Also for jetty there was a CVE which caused the update to 9.4.6
+Jul 04 11:39:43 <mbooth>	( https://bugzilla.redhat.com/show_bug.cgi?id=1464158 )
+Jul 04 11:52:23 <nboldt>	mbooth: ok, just means fedora/rh-eclipse will have a newer version than Oxygen.0
+Jul 04 11:52:35 <nboldt>	which is fine I guess but MIGHT break devstudio
+Jul 04 11:54:19 <nboldt>	nah, I think we're OK. used to have tight range limits on jetty bundles [9.4.4,9.4.5) but looks like 9.4.x is allowed now
+Jul 04 11:54:25 <mbooth>	I'd be surprised if any bundle specified a hard requirement on [9.4.5,9.4.6)
+Jul 04 11:54:55 <nboldt>	mbooth: yeah, I changed the old way to make it more forgiving. I guess in the past there were breaking changes between .z releases
+Jul 04 11:55:29 <nboldt>	but we have deps on jetty from 6 projects in devstudio/jbosstools
+Jul 04 11:57:01 <mbooth>	I anticipate that akurtakov will be updating jetty in the platform again for Oxygen.1 anyway :-)
+Jul 04 11:58:42 <rgrunber>	jetty might be seeing more updates if they'll request that integration job for it..
+Jul 04 12:03:58 <akurtakov>	keeping platform more uptodate is definetely in the plan
+Jul 04 12:04:09 <akurtakov>	whether it will work for jetty is yet to be seen
+Jul 04 12:04:50 <akurtakov>	let's say that if we team up and I have patches to push it shouldn't be an issue
+Jul 04 14:08:57 <ipun>	has anyone experienced system.out.println() not showing up on Eclipse Console when running a test eclipse?
+Jul 04 14:09:07 <ipun>	i tried it with both system.out and system.err
+Jul 04 14:09:30 <ipun>	putting a breakpoint on it works fine as it actually does reach that part of the code
+Jul 04 14:13:05 <rgrunber>	ipun: is the child eclipse being run with -consolelog ?
+Jul 04 14:13:08 <rgrunber>	in arguments
+Jul 04 14:13:12 <ipun>	rgrunber: yes
+Jul 04 14:14:11 <rgrunber>	hmm, then it should work..
+Jul 04 14:15:55 <rgrunber>	ipun: fwiw you can add printlns in just conditional breakpoints. just create a conditional breakpoint, call system.out.println(..) in the snippet, and then 'return false'
+Jul 04 14:16:48 <rgrunber>	^in case you don't have time to figure out why your code isn't being run
+Jul 04 14:16:59 <ipun>	rgrunber: i could but id rather fix this issue
+Jul 04 14:17:40 <ipun>	rgrunber: i think its actually not using my source code to rebuild... I looked into "plugins" in my configuration and swt is selected, any ideas?
+Jul 04 14:19:28 <rgrunber>	ipun: when you build.. is the swt plugin coming from the target platform heading, or the 'workspace' heading in that giant list in run configurations.
+Jul 04 14:20:01 <ipun>	rgrunber: its in workspace
+Jul 04 14:20:11 <ipun>	coditional breakpointing seems to work, but not system.out
+Jul 04 14:20:31 <ipun>	im worried its not actually building any new changes since ive actually tested with some errors in the code and its not complaining
+Jul 04 16:18:08 <nboldt>	hey, dumb question... when you're submitting koji builds for fedora rpms... how do you know how many versions of Fedora to build?
+Jul 04 16:18:29 <nboldt>	rgrunber: ^ for example... eclipse-usage rpm... for FC25 - 27? or just 26 & 27?
+Jul 04 16:20:23 <rgrunber>	nboldt: depends on whether you actually wanna push an update to that version
+Jul 04 16:20:52 <rgrunber>	i would say f27 for sure.
+Jul 04 16:21:06 <rgrunber>	for f26 you'll need to push to bodhi also after it's built
+Jul 04 16:28:40 <nboldt>	rgrunber: ok, thanks. meanwhile. seems I can't update eclipse-testng to 6.11 because need to first figure out how to build testng 6.11 :(
+Jul 04 16:28:41 <rgrunber>	nboldt: if the eclipse-usage changes aren't specific to say Oxygen or something, then it should be fine to push them, even to f25 as from what i can see in the git branch f25,26,master(f27) haven't really divereged.
+Jul 04 16:29:43 <nboldt>	rgrunber: yeah, usage was a simple update
+Jul 04 16:30:12 <nboldt>	but testng doesn't seem to use maven anymore for its builds. got any known examples of a spec file calling gradle?
+Jul 04 16:31:32 <rgrunber>	hmmm
+Jul 04 16:32:08 <nboldt>	http://pkgs.fedoraproject.org/cgit/rpms/testng.git/tree/testng.spec#n52 ... but also...
+Jul 04 16:32:19 <nboldt>	https://github.com/cbeust/testng/blob/master/build.gradle
+Jul 04 16:32:27 <nboldt>	doesn't seem to have any poms any more
+Jul 04 16:34:11 <rgrunber>	nboldt: you mean it doesn't use it upstream ? it uses it in fedora no ?
+Jul 04 16:34:27 <nboldt>	I'm not sure. looking in github I;m not seeing poms
+Jul 04 16:34:29 <rgrunber>	nvm i see..
+Jul 04 16:34:32 <nboldt>	but .... https://github.com/cbeust/testng/blob/73fce4a63c6dc24a547c159e76af66fa0bb93e9f/README.dev
+Jul 04 16:34:38 <nboldt>	suggests using mvn to build
+Jul 04 16:35:25 <nboldt>	ah, maybe I'm blind... https://github.com/cbeust/testng/blob/73fce4a63c6dc24a547c159e76af66fa0bb93e9f/pom.xml for 6.9.12
+Jul 04 16:37:55 <nboldt>	and as of 6.9.13 it's gone :(
+Jul 04 16:40:51 <akurtakov>	nboldt: https://fedora-java.github.io/howto/latest/#gradle but I stopped with packaging before gradle :)
+Jul 04 16:41:20 <akurtakov>	nboldt: fwiw, mizdebsk@redhat.com is really respronsive so just send him an email with questions 
+Jul 05 08:50:17 <scela>	jmaury: hey
+Jul 05 08:50:37 <scela>	jmaury: any other report wrt https://twitter.com/Gaby_Centurion/status/882582245743226882
+Jul 05 10:05:31 <nboldt1>	mbooth: I see you figured out how to build testng 6.11 w/o using maven. I was working on that last night but got stuck porting the spec file to use gradle
+Jul 05 10:05:42 <nboldt1>	... it couldn't resolve gradle plugins 
+Jul 05 10:08:59 <mbooth>	nboldt: Yah, gradle is broken at the moment in rawhide :-( 
+Jul 05 10:09:01 <mbooth>	nboldt: https://bugzilla.redhat.com/show_bug.cgi?id=1467724
+Jul 05 10:09:25 <mbooth>	I'm not familiar with it enough to fix it myself -- I suspect it needs rebootstrapping
+Jul 05 10:09:53 <mbooth>	It was trivial to re-instate the maven build
+Jul 05 10:12:31 <mbooth>	Also, if you unlucky and get a ppc64le builder, maven is bust as well: https://bugzilla.redhat.com/show_bug.cgi?id=1467833
+Jul 05 10:13:11 <mbooth>	Although in that case, you can just keep resubmitting the build until you get a different builder
+Jul 05 10:29:43 <nboldt1>	mbooth: you just grabbed the pom from 6.9.12 and patched it into the 6.11 build?
+Jul 05 10:34:20 <mbooth>	Yeah pretty much.
+Jul 05 11:00:15 <nboldt1>	mbooth: re: eclipse-usage should we wait until closer to 4.5.0.GA to update Fedora? 
+Jul 05 11:00:36 <nboldt1>	not sure if the contents will change much in the next 5 weeks, but *shrug* it could
+Jul 05 11:01:32 <mbooth>	nboldt1: I'm not sure, I would say if it would cause a problem for devstudio then yes, otherwise maybe not
+Jul 05 11:46:35 <rgrunber>	ericwill: lufimtse are you sure you want to do a 3hr tutorial [y/N] [default:N]
+Jul 05 11:46:47 <ericwill>	rgrunber yes lol
+Jul 05 11:47:03 <rgrunber>	that's not an option.. defaults to N
+Jul 05 11:47:24 *	ericwill hits Ctrl+C
+Jul 05 11:47:46 <akurtakov>	rgrunber: thansk for xz-java 1.6
+Jul 05 11:47:49 <akurtakov>	works just fine
+Jul 05 11:47:55 <akurtakov>	and is today's I-build
+Jul 05 11:47:57 <rgrunber>	akurtakov: that's good to know.
+Jul 05 14:29:46 <mbenitez>	mbooth, if you haven't left yet, please make sure to send a note of current SCL status, I guess the list of builds to add to errata will be everything rh-eclipse-47
+Jul 06 01:50:00 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Thu Jul  6 01:50:00 2017
+
+**** BEGIN LOGGING AT Thu Jul  6 01:50:10 2017
+
+Jul 06 01:50:10 *	Now talking on #eclipse
+Jul 06 01:50:10 *	Topic for #eclipse is: Eclipse discussions
+Jul 06 01:50:10 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 06 04:13:29 <akurtakov>	scela: here now :)
+Jul 06 04:16:42 <scela>	akurtakov: ok :)
+Jul 06 10:06:31 <akurtakov>	mistria: do you think you can help with https://bugs.eclipse.org/bugs/show_bug.cgi?id=519318
+Jul 07 15:55:20 <mbenitez>	rgrunber, hey Roland, quick question, if I want to see the spec file for let's say rh-eclipse47 [from the new collection] without downloading the srpm from brew, what's the URL I'd use?
+Jul 07 15:55:47 <rgrunber>	mbenitez: pkgs.devel.redhat.com
+Jul 07 15:56:00 <rgrunber>	specifically http://pkgs.devel.redhat.com/cgit/rpms/rh-eclipse47/
+Jul 07 15:56:18 <mbenitez>	rgrunber, thanks! that's the link I always forget
+Jul 07 15:56:53 <rgrunber>	np
+Jul 07 15:57:15 <rgrunber>	nothing there now though..
+Jul 07 15:57:24 <rgrunber>	ah nvm.. i'm wrong.. there is
+Jul 07 15:57:38 <rgrunber>	http://pkgs.devel.redhat.com/cgit/rpms/rh-eclipse47/tree/rh-eclipse47.spec?h=devtools-1.0-rh-eclipse47-rhel-7
+Jul 07 16:00:39 <mbenitez>	yes, I also got a bit of trouble finding the content
+Jul 07 16:00:56 <mbenitez>	but nboldt actually found the spec file and we're able to waive some rpmdiffs
+Jul 10 09:17:10 <mbenitez>	eclipse-team: today's call is on, same time as every week
+Jul 10 09:57:23 <mistria>	lbullen: hi
+Jul 10 09:58:37 <lbullen>	mistria: hi
+Jul 10 09:58:59 <mistria>	lbullen: interested in a video chat?
+Jul 10 09:59:12 <lbullen>	yes
+Jul 10 09:59:55 <mistria>	lbullen: https://redhat.bluejeans.com/1668327003
+Jul 10 10:33:34 <scela>	lufimtse: nboldt1 hi guys, report due in 30 mins or so
+Jul 10 10:42:00 <nboldt1>	scela: sent
+Jul 10 10:42:30 <scela>	nboldt1: thx
+Jul 10 10:51:42 <scela>	rgrunber: "Played around with Eclipse update site download stats"
+Jul 10 10:51:48 <scela>	rgrunber: what came out of that?
+Jul 10 11:19:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jul 10 11:19:12 2017
+
+**** BEGIN LOGGING AT Mon Jul 10 11:34:25 2017
+
+Jul 10 11:34:25 *	Now talking on #eclipse
+Jul 10 11:34:25 *	Topic for #eclipse is: Eclipse discussions
+Jul 10 11:34:25 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 10 11:36:45 <rgrunber>	scela: basically i always thought you needed p2.statsUri enabled and download.stats on individual bundles but my guess is all of that is done..
+Jul 10 11:36:55 <rgrunber>	this is using the committer stats query page ^
+Jul 10 11:37:22 <rgrunber>	so can't really automate scraping it since credentials are needed.. unless i pass in cookies or whatnot as well.
+Jul 10 11:37:58 <rgrunber>	but i'm able to get a listing of orbit bundles and i could create some html page based on usage..
+Jul 10 11:39:36 <scela>	rgrunber: I see
+Jul 11 10:42:24 <rgrunber>	ericwill: yup f26 is here..
+Jul 11 10:43:34 <ericwill>	rgrunber cool

@@ -2823,3 +2823,1269 @@ May 02 10:29:13 <ipun>	akurtakov: do swt_fixed do any redrawing on keyboard inpu
 May 02 10:29:39 <ipun>	i've narrowed down a critical warning from GTK on controlexample and im trying to find a way to remove it
 May 02 10:40:46 <akurtakov>	ipun: I don't think swtfixed does any drwing
 May 02 10:46:39 <ipun>	hmm okay
+**** BEGIN LOGGING AT Wed May  3 09:40:39 2017
+
+May 03 09:40:39 *	Now talking on #SWT
+**** BEGIN LOGGING AT Thu May  4 09:12:31 2017
+
+May 04 09:12:31 *	Now talking on #SWT
+May 04 09:18:08 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=515880
+May 04 09:18:13 <akurtakov>	that's a real adventure
+May 04 09:18:31 <akurtakov>	how do you debug smth that doesn't happen on your machine and you can't replicate it locally
+May 04 09:19:00 <akurtakov>	it's impossible to test smth without dbus on systemd booted distro :)
+May 04 09:20:39 <ipun>	jeez thats brutal
+May 04 10:28:18 <ipun>	akurtakov: have you happened to have reviewed this? https://git.eclipse.org/r/#/c/95925/
+May 04 10:28:41 <ipun>	i got a full fix for the launch bar sorta ready, but might need some of your intuition. Needs this patch first in order to do the full fix
+May 04 10:29:29 <ipun>	ill add lufimtse to cc in case you have not
+May 04 10:29:35 <lufimtse>	hey
+May 04 10:29:46 <lufimtse>	reading
+May 04 10:29:47 <ipun>	added you to a fix
+May 04 10:30:57 <lufimtse>	looking 
+May 04 11:12:43 <akurtakov>	ipun: lufimtse: please review yourself
+May 04 11:12:53 <lufimtse>	akurtakov, I'm reviewing/testing
+May 04 11:16:49 <ipun>	lufimtse: could you send me the location of where content assist hover popups are created in eclipse?
+May 04 11:17:12 <lufimtse>	in what context?
+May 04 11:17:29 <ipun>	lufimtse: when you are in the editor and hover over a method
+May 04 11:17:38 <lufimtse>	you mean the javadoc?
+May 04 11:17:40 <ipun>	yeah
+May 04 11:17:49 <lufimtse>	sec
+May 04 11:18:09 <lufimtse>	JavadocHover.java in jdt.ui
+May 04 11:18:11 <lufimtse>	why
+May 04 11:18:18 <lufimtse>	?
+May 04 11:18:37 <lufimtse>	there's also javadocview something that's used in a part
+May 04 11:18:44 <lufimtse>	also in jdt.ui
+May 04 11:18:47 <lufimtse>	context?
+May 04 11:20:37 <ipun>	lufimtse: dealing with SWT.ON_TOP issues with a secondary patch
+May 04 11:21:45 <lufimtse>	Javadoc Hover uses stuff in platform.ui
+May 04 11:21:48 <lufimtse>	Abstract something
+May 04 11:22:00 <lufimtse>	a bit of a hierarchy there
+**** ENDING LOGGING AT Fri May  5 12:42:56 2017
+
+**** BEGIN LOGGING AT Fri May  5 12:44:30 2017
+
+May 05 12:44:30 *	Now talking on #SWT
+May 05 13:40:12 <lufimtse>	ipun, I can't test your patch because gerrit is being updated. I'll check back on it on Monday.
+May 05 15:04:28 <ipun>	lufimtse: no problem
+May 05 17:54:04 Python interface unloaded
+**** ENDING LOGGING AT Fri May  5 17:54:04 2017
+
+**** BEGIN LOGGING AT Mon May  8 11:31:30 2017
+
+May 08 11:31:30 *	Now talking on #SWT
+May 08 11:32:59 <ipun>	hey lufimtse 
+May 08 11:33:07 <lufimtse>	ipun, meh
+May 08 11:33:10 <ipun>	https://git.eclipse.org/r/#/c/95925/
+May 08 11:33:14 <ipun>	its working on me
+May 08 11:33:22 <ipun>	the snippet i mean
+May 08 12:24:46 <ipun>	hey lufimtse 
+May 08 12:24:49 <ipun>	this bug is not fixable
+May 08 12:24:57 <ipun>	just got word from mclassen
+May 08 12:24:57 <lufimtse>	ipun, hmmm
+May 08 12:25:26 <ipun>	lufimtse: it makes sense though 
+May 08 12:25:50 <ipun>	because a toplevel gtk_window can move very far away from another top_level window, how are you going to return the coodinates to that?
+May 08 12:26:06 <ipun>	theres no "net" that holds the two together within a range
+May 08 12:28:25 <lufimtse>	hmmm
+May 08 12:30:04 <ipun>	lufimtse: it only works with SWT.ON_TOP
+May 08 12:30:16 <ipun>	which basically maps it to the shell
+May 08 12:31:50 <lufimtse>	why with swt.ON_TOP ?
+May 08 12:31:56 <lufimtse>	why does it work with?
+May 08 12:32:07 <lufimtse>	internet seems down..
+May 08 12:32:09 <lufimtse>	meh?
+May 08 12:32:57 <lufimtse>	hey
+May 08 12:33:02 <lufimtse>	did you get my messages?
+May 08 12:33:15 <lufimtse>	like, why does it work with ON_TOP?
+May 08 12:34:04 <ipun>	yes
+May 08 12:34:10 <ipun>	lufimtse: come over i cant walk
+May 09 11:06:24 <ipun>	akurtakov: I got https://git.eclipse.org/r/#/c/96061/ to work pretty much, i just need some testing done and general tips if its too invasive or not
+May 09 11:10:22 <akurtakov>	ipun: I won't be able to look at it today
+May 09 11:12:04 <ipun>	akurtakov: no worries. Did you want me to have lufimtse look at it instead?
+May 09 11:12:11 <akurtakov>	yes please
+May 09 11:12:19 <ipun>	kk
+May 09 11:12:25 <lufimtse>	hey
+May 09 11:12:35 <lufimtse>	Should I review above now?
+May 09 11:12:40 <ipun>	lufimtse: besides the cursor patch, yes please
+May 09 11:13:19 <lufimtse>	so review the first guy, then the above
+May 09 11:13:26 <lufimtse>	ok, 
+May 09 11:13:38 <ipun>	thanks!
+May 09 11:15:19 <lufimtse>	ipun, did you run jUnits for this guy: https://git.eclipse.org/r/#/c/95925/
+May 09 11:19:53 <ipun>	lufimtse: i believe i did, ill run it again 
+May 09 11:22:03 <ipun>	lufimtse: okay yes i did. I do remember doing so. And also this is barred off with !OS.isX11() so it would only affect the junit of 3.20+
+May 09 11:23:07 <lufimtse>	yea, only wayland jUnits are interesting.
+May 09 11:25:06 <ipun>	lufimtse: updated the commit message
+May 09 11:28:25 <lufimtse>	Hmm, I was editing wiki: https://wiki.eclipse.org/SWT/Devel/Gtk
+May 09 11:28:31 <lufimtse>	now it shows that it broke down
+May 09 11:28:36 <lufimtse>	feels like I broke that 
+May 09 11:28:41 <lufimtse>	X-d
+May 09 11:31:03 <akurtakov>	hey Leo
+May 09 11:31:59 <ipun>	lufimtse ^
+May 09 11:32:01 <akurtakov>	lufimtse: please do not break the rules
+May 09 11:32:04 <akurtakov>	https://dev.eclipse.org/mhonarc/lists/eclipse-dev/msg10376.html
+May 09 11:32:16 <akurtakov>	Tuesday: All-day test pass. Nobody should develop or fix anything. Literally spend the entire day testing.
+May 09 11:33:36 <akurtakov>	the endgame is pretty heavy process and requires everyone to keep an eye to the process
+May 09 11:34:28 <lufimtse>	akurtakov, my bad
+May 09 11:34:33 <lufimtse>	I forgot
+May 09 11:34:46 <lufimtse>	I read that before, but forgot about it. I should add that to my calendar.
+May 09 11:34:49 <lufimtse>	soz.
+May 09 11:42:17 <akurtakov>	lufimtse: just keep it for now and maybe add a comment in bz that you made it by mistake
+May 09 11:42:29 <lufimtse>	ok
+May 10 10:57:54 <akurtakov>	lufimtse: are you on https://bugs.eclipse.org/bugs/show_bug.cgi?id=516420
+May 10 10:58:23 <lufimtse>	akurtakov, looking
+May 10 10:58:31 <lufimtse>	was triaging bits. thanks for pointing out.
+May 10 15:17:01 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed May 10 15:17:01 2017
+
+**** BEGIN LOGGING AT Wed May 10 15:44:08 2017
+
+May 10 15:44:08 *	Now talking on #SWT
+May 11 10:42:24 <ipun>	lufimtse: so the logic behind having a absolute coordinate scheme so that we can "save" shell positions when exiting eclipse/starting eclipse is met by "no. Wayland does not support that functionality"
+May 11 10:44:23 <lufimtse>	hmm
+May 11 10:45:13 <lufimtse>	ipun, meh. I guess best we can do is make sure the most vital things of Eclipse work on Wayland, and then see if we can fix up platform.ui elements to adjust accordingly.
+May 11 10:45:20 <lufimtse>	like take out the hacky logic in launchbar maybe etc...
+May 11 10:45:38 <lufimtse>	if we're hitting walls with Wayland, then we should maybe try to make the best of what we can.
+**** ENDING LOGGING AT Thu May 11 14:45:07 2017
+
+**** BEGIN LOGGING AT Thu May 11 14:46:58 2017
+
+May 11 14:46:58 *	Now talking on #SWT
+May 11 14:48:16 <lufimtse>	akurtakov, ipun hmm. My eclipse is not starting with "No more handles" in the log....
+May 11 14:48:20 <lufimtse>	I updated yesterday.
+May 11 14:48:44 <akurtakov>	lufimtse: no such issue on my side 
+May 11 14:49:59 <lufimtse>	an older eclipse isn't starting either. meh
+May 11 14:50:06 <lufimtse>	not even after reboot.
+May 11 14:50:11 <ipun>	same mines working fine
+May 11 14:50:12 <lufimtse>	hmm.
+May 11 14:50:13 <ipun>	updated this morning
+May 11 14:50:28 <ipun>	splash screen looks great btw
+May 11 14:50:40 <akurtakov>	lufimtse: maybe you screwed your system somehow ?
+May 11 14:50:55 <lufimtse>	akurtakov, I haven't installed anything latley
+May 11 14:51:00 <lufimtse>	or removed
+May 11 14:51:03 <lufimtse>	hmm
+May 11 14:51:32 <lufimtse>	last dnf history item is like from a week ago.
+May 11 14:56:52 <lufimtse>	akurtakov, ipun . Ah, never mind. I had GDK_BACKEND=wayland set, when on x11.
+May 11 14:57:18 <akurtakov>	‎[21:50] ‎<‎akurtakov‎>‎ lufimtse: maybe you screwed your system somehow ? :)
+May 11 15:03:32 <lufimtse>	X-D
+**** BEGIN LOGGING AT Fri May 12 10:00:11 2017
+
+May 12 10:00:11 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri May 12 11:51:24 2017
+
+**** BEGIN LOGGING AT Fri May 12 11:53:45 2017
+
+May 12 11:53:45 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri May 12 16:51:30 2017
+
+**** BEGIN LOGGING AT Mon May 15 10:25:16 2017
+
+May 15 10:25:16 *	Now talking on #SWT
+May 15 11:19:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon May 15 11:19:43 2017
+
+**** BEGIN LOGGING AT Mon May 15 11:48:06 2017
+
+May 15 11:48:06 *	Now talking on #SWT
+May 15 12:59:39 <akurtakov>	ipun: lufimtse: https://bugs.eclipse.org/bugs/show_bug.cgi?id=514483
+May 15 12:59:50 <akurtakov>	faster reaction is expected
+May 15 13:03:58 <lufimtse>	hey
+May 15 13:10:59 <lufimtse>	I closed the bug as resolved. Sorry for delay.
+May 15 13:11:03 <lufimtse>	akurtakov, 
+May 15 13:12:01 <akurtakov>	lufimtse: every committer is expected to check all bugs he reviewed or opened targetted for some milestone prior to releasing the milestone
+May 15 13:12:12 <akurtakov>	sorry if I haven't told you that :)
+May 15 13:12:18 <lufimtse>	ah, I see.
+May 15 13:12:33 <ipun>	akurtakov: my apologies i shouldve noted that as well
+May 15 13:13:16 <akurtakov>	overall, a useful habbit is to have 2 blocks of time per day where you check your email and reply to such inquiries
+May 15 15:36:07 <lufimtse>	ipun, does bz work for you? https://bugs.eclipse.org/bugs/show_bug.cgi?id=508819
+May 15 15:36:24 <lufimtse>	ipun, never mind.
+May 16 10:42:06 <ipun>	akurtakov: https://bugzilla.gnome.org/show_bug.cgi?id=782694
+May 16 10:42:30 <ipun>	related maybe?
+May 16 10:43:13 <akurtakov>	ipun: sounds similar
+May 16 12:16:40 <lufimtse>	ipun, btw, the maven/gradle distribution of 2014 no longer applies in 2017: https://raw.githubusercontent.com/blindpirate/report-of-build-tools-for-java-and-golang/master/trending.png
+May 17 12:02:27 <lufimtse>	ipun, are you working on this one: https://git.eclipse.org/r/#/c/96061/ or are you waiting for me to come talk to you about it?
+May 17 12:02:48 <ipun>	lufimtse: waiting for you to talk to me about it
+May 17 12:02:57 <ipun>	there isnt a real solution that I've uncovered without doing a search
+May 17 14:14:14 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed May 17 14:14:14 2017
+
+**** BEGIN LOGGING AT Wed May 17 14:42:57 2017
+
+May 17 14:42:57 *	Now talking on #SWT
+May 17 16:04:50 <lufimtse>	akurtakov, hey
+May 17 16:04:52 <lufimtse>	you still around?
+May 18 10:35:40 <akurtakov>	lufimtse: hey
+May 18 10:35:45 <akurtakov>	I'm here for 1/2 h more
+May 18 10:35:52 <akurtakov>	do you have smth to talk about ?
+May 18 10:44:43 <ipun>	akurtakov: i might. I tried out a ton of variations on how to fix this issue with the keyboard focus in wayland and Ive come to it that the logic cant be put the else line in line 591:Shell.java
+May 18 10:45:18 <akurtakov>	ipun: have you identified place where it can be put ?
+May 18 10:48:10 <ipun>	akurtakov: it can be put in setVisible
+May 18 10:48:33 <akurtakov>	hmm ok
+May 18 10:48:45 <ipun>	ive put it up for review; im trying to figure out a better solution instead of traversing the shell to see if it has editable fields
+May 18 10:48:53 <ipun>	i've asked GTK for help, im just waiting on that now
+May 18 10:49:01 <akurtakov>	or maybe you can hook it into some gtk signal
+May 18 10:50:31 <ipun>	akurtakov: i've been told it needs to be done before gtk_show
+May 18 10:51:10 <akurtakov>	ok
+May 18 10:51:53 <ipun>	akurtakov: im wondering if its possible to capture the show singal before its sent, otherwise we might have to put it there
+May 18 10:51:59 <ipun>	there as in setVisible
+May 18 10:52:23 <ipun>	the only small issue is the traversal method. Its using DFS but i dont think its the most "viable" solution
+May 18 10:52:33 <ipun>	it works the way its intended to though!
+May 18 11:41:33 <akurtakov>	ipun: can you point me to the double click inline editor bug for jdt
+May 18 11:42:11 <ipun>	akurtakov: which one is that?
+May 18 11:42:36 <akurtakov>	the refactoring not getting into edit mode tableviewer
+May 18 11:46:17 <ipun>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=510803 ?
+May 18 11:50:30 <akurtakov>	ipun: thanks
+May 18 11:52:44 <ipun>	np
+**** BEGIN LOGGING AT Thu May 18 12:44:59 2017
+
+May 18 12:44:59 *	Now talking on #SWT
+May 18 14:48:27 <ipun>	akurtakov: are you here atm?
+May 18 14:50:38 <akurtakov>	ipun: yes
+May 18 14:51:16 <ipun>	akurtakov: im getting the new intern set up right now which might take the rest of the day, curious what you would like me to have him to start with?
+May 18 14:51:57 <akurtakov>	ipun: initial git familiarity
+May 18 14:52:12 <akurtakov>	fedora 25 or 26
+May 18 14:52:21 <akurtakov>	having acute running
+May 18 14:52:25 <akurtakov>	https://github.com/mickaelistria/aCute/issues/12
+May 18 14:52:45 <akurtakov>	https://github.com/mickaelistria/aCute/issues/10
+May 18 14:52:57 <akurtakov>	and starting on https://github.com/mickaelistria/aCute/tree/dotnet-new
+May 18 14:53:12 <akurtakov>	to finish the new wizard
+May 18 14:53:23 <akurtakov>	ipun: should be enough till monday 
+May 18 14:53:26 <akurtakov>	:)
+May 18 14:53:30 <akurtakov>	what's his name btw?
+May 18 15:01:41 <ipun>	akurtakov: cool ill get him to it
+May 18 15:01:45 <ipun>	his name is Lukas
+May 18 15:01:55 <akurtakov>	ipun: full name ?
+May 18 15:02:04 <ipun>	Lucas Bullen
+May 18 15:02:12 <ipun>	(with a c instead of k woops)
+May 18 15:02:54 <akurtakov>	ipun: thanks
+May 18 15:03:49 <ipun>	no problem 
+May 18 15:03:52 <ipun>	ill get him started
+May 18 15:04:53 <akurtakov>	ipun: and irc please 
+May 18 15:04:59 <ipun>	yes of course
+May 18 15:05:03 <akurtakov>	it's the team channel :)
+May 18 15:05:14 <ipun>	leo is just getting him learning some concepts first
+May 18 15:05:46 <akurtakov>	UoT ?
+May 18 15:09:44 <ipun>	akurtakov: from Queens University
+May 18 15:10:01 <akurtakov>	first time a student from there 
+May 18 15:10:04 <akurtakov>	16 months ?
+May 18 15:10:06 <ipun>	yeah
+May 18 15:10:11 <akurtakov>	ok :)
+May 18 15:10:18 <ipun>	i think we have a queens uni student from 5 years ago
+May 18 15:10:29 <ipun>	Lukas Berk is from Queens hes on perf tools
+May 18 15:11:27 <ipun>	hmmm
+May 18 15:11:30 <akurtakov>	ah, I know Lukas but I was speaking for the team
+May 18 15:11:32 <ipun>	this actually looks like a really cool project
+May 18 15:11:40 <ipun>	ah yes, definitely for the team
+May 18 15:12:00 <akurtakov>	lberk did the stap-java stuff IIRC
+May 18 15:13:22 <ipun>	yeah he did, just spoke with him haha
+May 18 15:13:32 <ipun>	coincidentally just happened to be working on something next to me
+May 18 15:14:14 <akurtakov>	bed time, ttyt
+May 19 11:31:15 <ipun>	akurtakov: who maintains JDT atm?
+May 19 11:31:27 *	ipun has some complaints/suggestions
+May 19 11:32:05 <akurtakov>	ipun: please open bugs, the jdt guys are hard to work with :)
+May 19 11:32:17 <akurtakov>	and really strong on following procedures
+May 19 11:32:58 <ipun>	akurtakov: ah i see. Had this chat with Angel from the Che team about a similar issue that Intellij was able to solve
+May 19 11:33:11 <ipun>	i will see if they already have a report on it 
+May 19 11:33:50 <akurtakov>	what was that ?
+May 19 11:34:30 <akurtakov>	ipun: fwiw, there are really important things which we will probably have someone to work on (eventually, probably not this year) :)
+May 19 11:34:49 <akurtakov>	but our editor shouldn't be worse in any single topic
+May 19 11:36:37 <ipun>	akurtakov: this use case: im typing a method within an object and use ctrl+space to see the autocompletions. I happen to select foo(int a, int b). After selection the brackets are automatically created and i can start adding in my parameters
+May 19 11:36:49 <ipun>	say i later realise "oh, i actually meant another method
+May 19 11:37:10 <ipun>	so i click at object.foo(a,b) at the end of foo
+May 19 11:37:36 <ipun>	and do ctrl+space. I found the proper method called foo2(int a, int b) and select that
+May 19 11:38:11 <ipun>	what ends up happening is the editor fills it in like so: object.foo2(___, ___)foo(a,b);
+May 19 11:39:31 <ipun>	i had a chat with Jeff about it too, and i think its fair that if both foo and foo2 have the same template param name and object type, it should be asummed that the arguments from foo() are safe to be moved to foo2()
+May 19 11:40:00 <akurtakov>	try doing the autocomplete while having ctrl hit
+May 19 11:40:08 <akurtakov>	this enables autocomplete overrides
+May 19 11:40:18 <akurtakov>	instead of the default autocomplete inserts
+May 19 11:40:58 <akurtakov>	ipun: works for you ?
+May 19 11:41:57 <ipun>	wow
+May 19 11:41:58 <ipun>	it does
+May 19 11:42:04 <ipun>	akurtakov: thanks i didnt know that
+May 19 11:42:19 <akurtakov>	ipun: you're welcome :)
+May 19 11:42:58 <akurtakov>	one thing to send mail to Sopot to tweet from his account as a hint
+May 19 11:42:59 <akurtakov>	thanks
+May 19 11:43:30 <akurtakov>	we are always looking for content for https://twitter.com/EclipseJavaIDE
+May 19 11:45:04 <akurtakov>	ipun: sent to him already :)
+May 19 11:45:24 <akurtakov>	how does intellij does it ?
+May 19 11:45:30 <akurtakov>	is it easier to find it out ?
+May 19 11:46:54 <akurtakov>	does it satisfy your need? I mean is Intellij doing smth else ?
+May 19 11:52:33 <ipun>	akurtakov: let me ask 
+May 19 11:52:38 <ipun>	some of my coworkers use intellij
+May 19 11:52:40 <akurtakov>	https://twitter.com/EclipseJavaIDE/status/849957500241666048
+May 19 11:55:22 <akurtakov>	I don't mind netbeans at all
+May 19 11:56:06 <akurtakov>	but somehow intellij in my eyes is much like macos - marketing products mostly
+May 19 11:56:33 <akurtakov>	I mean all the "benefits" come from better marketing
+May 19 11:57:46 <ipun>	akurtakov: okay so i just played around with intellij in regards to what we discussed with a coworker
+May 19 11:57:56 <ipun>	basically you dont need to hold ctrl
+May 19 11:58:00 <ipun>	it just does it automatically
+May 19 11:58:16 <akurtakov>	you can get that in eclipse too
+May 19 11:58:32 <akurtakov>	go to Preferences/Java/Content Assist
+May 19 11:59:00 <akurtakov>	and switch completion inserts to completion overrides radio
+May 19 11:59:15 <akurtakov>	should we make this default is probably a valid question
+May 19 11:59:25 <ipun>	oh my gosh
+May 19 11:59:34 <ipun>	this definteily should be defaulted
+May 19 12:00:46 <akurtakov>	feel free to open bug for that
+May 19 12:06:02 <ipun>	akurtakov: okay 
+May 19 12:06:20 <ipun>	i just talked to lucas about it too, hes going through vogellas tutorial and even hes like "why is this not defaulted"
+**** BEGIN LOGGING AT Mon May 22 12:22:15 2017
+
+May 22 12:22:15 *	Now talking on #SWT
+May 23 08:44:21 <akurtakov>	lufimtse: so is this dltk mylyn issue https://bugs.eclipse.org/bugs/show_bug.cgi?id=515779
+May 23 08:44:25 <akurtakov>	maybe reassign it ?
+May 23 08:44:42 <akurtakov>	I mean change the component
+May 23 12:05:51 <ipun>	akurtakov: i dont think lufimtse is in today
+May 23 12:06:22 <akurtakov>	ipun: ok, thanks
+May 24 11:41:34 <lufimtse>	ericwill, https://bugs.eclipse.org/bugs/show_bug.cgi?id=494641
+May 24 14:35:41 <ericwill>	ipun https://bugs.eclipse.org/bugs/show_bug.cgi?id=133037
+May 24 14:36:38 <ericwill>	ipun I think what we worked on was this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=498165
+May 24 14:36:39 <ipun>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=498165
+May 24 14:36:40 <ipun>	this it?
+May 24 14:36:42 <ipun>	damn
+May 24 14:36:46 <ericwill>	haha same time
+May 24 14:36:48 <ericwill>	yeah that's the one
+May 26 10:24:48 <akurtakov>	ericwill: lufimtse: yeah the patch was merged but I didn't expected Sravan and Arun to jump in that fast :)
+May 26 10:25:44 <ipun>	ericwill: my popup patch is ready for testing now i think
+May 26 10:25:56 <ericwill>	ipun cool, I'll take a look this afternoon
+May 26 10:26:00 <ipun>	thanks
+May 26 10:27:04 <ericwill>	akurtakov all good, nice to see IBM guys are awake :)
+May 26 10:27:56 <akurtakov>	ericwill: yeah, finally
+May 26 10:28:04 <akurtakov>	they missed last few months :)
+May 26 10:28:17 <akurtakov>	without sravan who took care of all the releng work 
+May 26 10:28:29 <akurtakov>	but the swt side @ibm was pretty low
+May 26 15:05:11 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri May 26 15:05:11 2017
+
+**** BEGIN LOGGING AT Fri May 26 15:29:04 2017
+
+May 26 15:29:04 *	Now talking on #SWT
+May 29 16:27:27 <lufimtse>	ericwill, https://marketplace.eclipse.org/content/quick-search-eclipse
+May 30 10:04:13 <ericwill>	ipun never heard of this "ChaletOS" before, kind of interesting
+May 30 10:04:30 <ipun>	ericwill: i wonder how good their sauce is
+May 30 10:04:53 <ericwill>	definitely no where close to the same
+May 30 14:55:26 <lufimtse>	ipun, was it this guy? https://bugs.eclipse.org/bugs/show_bug.cgi?id=482018
+May 30 15:04:55 <lufimtse>	ipun, hey
+May 30 15:05:00 <lufimtse>	ipun, you can post things here: https://bugs.eclipse.org/bugs/show_bug.cgi?id=510538
+May 30 15:05:02 <lufimtse>	I'll re-open bug
+May 30 15:05:05 <lufimtse>	instead of filing new one.
+May 30 15:05:36 <ipun>	ok sounds good lufimtse 
+May 31 10:59:13 <ipun>	lufimtse: https://git.eclipse.org/r/#/c/98344/ for you to work on the gesture fix
+May 31 10:59:32 <lufimtse>	ipun, thank you.
+May 31 11:31:04 <ericwill>	lufimtse GTK_THEME=Adwaita:dark
+Jun 01 10:17:00 <ipun>	akurtakov: regarding the swt shell it looks like all wayland shells cant go beyond 110px for some reason
+Jun 01 10:17:09 <ipun>	tested it in gtk3-demo
+Jun 01 10:17:19 <ipun>	asked on GTK channel no response
+Jun 01 10:44:48 <akurtakov>	what do you mean ?
+Jun 01 10:45:00 <akurtakov>	eclipse is way biiger than 110px
+Jun 01 10:46:39 <ipun>	akurtakov: sorry i mean the other way around
+Jun 01 10:47:03 <ipun>	the window has trouble going smaller than 110px width
+Jun 01 10:48:20 <ipun>	try running gtk3-demo-> gestures. In x11 you can make it so small its basically 1x1 size
+Jun 01 10:48:59 <ipun>	but in wayland there is a minimum width
+Jun 01 10:49:17 <ipun>	very annoying, not documented either
+Jun 01 10:50:29 <akurtakov>	ipun: regarding https://git.eclipse.org/r/#/c/98447/
+Jun 01 10:50:39 <akurtakov>	my gut feeling is this is recipe for disaster
+Jun 01 10:50:59 <ipun>	akurtakov: having the async call?
+Jun 01 10:51:19 <akurtakov>	yes, you can  end up with endless cycle
+Jun 01 10:52:11 <akurtakov>	as if you do it async it could cause new gtk_changed signal 
+Jun 01 10:52:27 <akurtakov>	which would post new async java event and etc.
+Jun 01 10:52:48 <ipun>	hmmm...
+Jun 01 10:52:50 <akurtakov>	it would depend on the amount of events in the gtk queue whether this would happen or not
+Jun 01 10:53:24 <akurtakov>	and whether you have slow enough event handler somewhre 
+Jun 01 10:55:03 <ipun>	okay ill try to find a better way
+Jun 01 10:55:07 <ipun>	i see your point 
+Jun 01 10:56:22 <ipun>	do you have any suggestions of another possible solution?
+Jun 01 10:56:41 <akurtakov>	probably bug in gtk_commit logic
+Jun 01 11:01:07 <akurtakov>	or in some other handler
+Jun 01 11:01:44 <ipun>	kk
+Jun 01 11:08:09 <akurtakov>	my first idea is that the whole if not needed
+Jun 01 11:08:39 <akurtakov>	but it needs deeper testng
+Jun 01 11:09:19 <ipun>	doesnt seem to be a problem in gtk2
+Jun 01 11:09:42 <ipun>	you're right though im pretty sure this was left behind from 1.x days as this is forcing a manual update
+Jun 01 11:09:43 <akurtakov>	yup
+Jun 01 11:09:58 <akurtakov>	I have to run now but will take a look tomorrow
+Jun 01 11:10:03 <ipun>	okay sounds good
+Jun 01 11:10:05 <ipun>	thanks for the help! :)
+Jun 01 11:10:13 <ipun>	wouldnt have thought to remove it
+Jun 01 11:11:11 <akurtakov>	one should never make 2 eventloops interfere :)
+Jun 01 11:11:21 <akurtakov>	this is what troubled me
+Jun 01 11:16:54 <akurtakov>	and after that it's a matter of reading the docs
+Jun 01 11:17:39 <akurtakov>	and the docs for the function say it's for "manual" so my thought was so this shouldn't happen in response to signal and removed it
+Jun 01 11:17:41 <akurtakov>	hope that helps
+Jun 01 11:21:23 <ipun>	yes it does, thanks akurtakov !
+Jun 01 11:21:51 <ipun>	so far all junits have passed and running hte snippet works fine, so ill do some more testing within a child eclipse
+Jun 01 11:21:54 <ipun>	but its looking good
+Jun 01 16:17:09 <ipun>	https://git.eclipse.org/r/#/c/91218/
+Jun 05 02:33:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun  5 02:33:12 2017
+
+**** BEGIN LOGGING AT Mon Jun  5 08:28:12 2017
+
+Jun 05 08:28:12 *	Now talking on #SWT
+Jun 05 08:28:56 *	*** Notice -- TS for #SWT changed from 1496653742 to 1495399625
+Jun 05 09:25:15 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun  5 09:25:15 2017
+
+**** BEGIN LOGGING AT Mon Jun  5 16:17:50 2017
+
+Jun 05 16:17:50 *	Now talking on #SWT
+Jun 06 14:32:52 <ericwill>	akurtakov hey, is SWT master open for commits?
+Jun 06 14:49:42 <akurtakov>	ericwill: yes, but there are no builds for photon yet 
+Jun 06 14:49:47 <akurtakov>	so use with care :)
+Jun 06 14:50:16 <ericwill>	so nothing super crazy? :P
+Jun 06 14:50:21 <lufimtse>	akurtakov, when are the builds back up?
+Jun 06 14:50:32 <akurtakov>	well, if you're going to commit smth 
+Jun 06 14:50:42 <akurtakov>	that would require natives rebuild you would better wait
+Jun 06 14:50:49 <akurtakov>	lufimtse: once RC4 is out
+Jun 06 14:51:40 <akurtakov>	and me and/or Sravan are back from vacation as noone else will work on that AFAIK
+Jun 06 14:52:10 <ericwill>	akurtakov okay, good to know :)
+Jun 08 10:41:42 <ericwill>	akurtakov when someone switches to the dark theme on GTK, do we set the GTK theme to Adwaita-dark?
+Jun 08 10:41:48 <ericwill>	I think I asked you this before but I can't remember :)
+Jun 08 12:48:44 <akurtakov>	ericwill|world-environment-day: yes
+Jun 08 12:49:44 <akurtakov>	ericwill|world-environment-day: via http://git.eclipse.org/c/platform/eclipse.platform.ui.git/tree/bundles/org.eclipse.e4.ui.swt.gtk/src/org/eclipse/e4/ui/swt/internal/gtk/DarkThemeProcessor.java
+Jun 08 14:55:06 <ericwill>	akurtakov okay thanks
+Jun 09 10:20:46 <ericwill>	akurtakov hey, if I wanted to merge some small patches am I all clear to go? or do I need to bump a version somewhere?
+Jun 09 10:32:00 <akurtakov>	ericwill: you can merge it
+Jun 09 10:32:15 <akurtakov>	and bump the swt version like x.y.z+100
+Jun 09 10:32:24 <akurtakov>	assuming you're not adding new functionality
+Jun 09 10:32:40 <akurtakov>	note that there will be no build
+Jun 09 10:32:55 <akurtakov>	for now 
+Jun 09 10:33:10 <akurtakov>	although Sravan is wokring on it and hopefully he will be able to get them running today
+Jun 09 10:33:14 <ericwill>	akurtakov :)
+Jun 09 10:37:56 <ericwill>	akurtakov how do I bump the version, never done that before
+Jun 09 10:38:20 <akurtakov>	increase the version in the Manifest.mf and pom.xml
+Jun 09 10:38:24 <akurtakov>	that's it
+Jun 09 10:39:42 <ericwill>	3.106.0 becomes 3.107.0?
+Jun 09 10:40:17 <akurtakov>	ericwill: no
+Jun 09 10:40:27 <akurtakov>	3.106.0 becomese 3.106.100
+Jun 09 10:41:04 <akurtakov>	ericwill: https://wiki.eclipse.org/Version_Numbering#Guidelines_on_versioning_plug-ins
+Jun 09 10:41:33 <akurtakov>	if/when we add new API or we change BREE it will become 107
+Jun 09 10:41:53 <akurtakov>	ericwill: note that you have to do it for fragments too 
+Jun 09 10:41:55 <akurtakov>	e.g. http://git.eclipse.org/c/platform/eclipse.platform.swt.binaries.git/tree/bundles/org.eclipse.swt.gtk.linux.x86/META-INF/MANIFEST.MF
+Jun 09 10:43:43 <ericwill>	akurtakov do I have to do it for that fragment even if I make no change to OS.java?
+Jun 09 10:44:05 <akurtakov>	ericwill: yes, swt fragments always keep same version
+Jun 09 10:44:15 <akurtakov>	as they are actually containing the java code too
+Jun 09 10:44:38 <akurtakov>	org.eclipse.swt host is just an empty shell
+Jun 09 10:53:01 <ericwill>	akurtakov like this? https://git.eclipse.org/r/#/c/98369/
+Jun 09 10:53:07 <ericwill>	and https://git.eclipse.org/r/#/c/99030/
+Jun 09 10:53:58 <akurtakov>	ericwill: 1. is ok
+Jun 09 10:54:01 <akurtakov>	2 is not
+Jun 09 10:54:08 <akurtakov>	you have to do for all fragments :)
+Jun 09 10:54:55 <ericwill>	ah, all platforms
+Jun 09 11:06:28 <ericwill>	akurtakov for the binaries, build.xml stays untouched right? or also gets bumped?
+Jun 09 11:06:50 <akurtakov>	there is no version in build.xml, right?
+Jun 09 11:09:22 <ericwill>	there is <property name="version.suffix" value="3.106.0" />
+Jun 09 11:09:41 <akurtakov>	so change it there too :)
+Jun 09 11:17:18 <akurtakov>	lufimtse: ipun: see my comment for the spin button change
+Jun 09 11:17:54 <lufimtse>	akurtakov, where?
+Jun 09 11:18:00 <akurtakov>	gerrit
+Jun 09 11:18:13 <lufimtse>	nothing there
+Jun 09 11:18:19 <lufimtse>	last comment was june 1st
+Jun 09 11:18:29 <lufimtse>	did you post it?
+Jun 09 11:18:31 <lufimtse>	akurtakov, 
+Jun 09 11:18:38 <akurtakov>	oops :)
+Jun 09 11:19:18 <akurtakov>	done now
+Jun 09 11:24:28 <ericwill>	akurtakov should I file a bug for the version bump?
+Jun 09 11:24:45 <akurtakov>	just use the one you will push the change with
+Jun 09 11:28:26 <ericwill>	akurtakov okay added
+Jun 09 11:28:57 <ericwill>	for the change in SWT, I should bump org.eclipse.swt.examples etc. as well, right?
+Jun 09 11:44:56 <ericwill>	akurtakov can I merge my other change now?
+Jun 09 11:45:15 <akurtakov>	ericwill: go on
+Jun 09 11:45:25 <akurtakov>	no need to bump other bundles
+Jun 09 11:45:35 <akurtakov>	they will be bumped on changes in them 
+Jun 09 11:49:50 <ericwill>	akurtakov ok, change is in
+Jun 09 11:49:55 <ericwill>	for SWT
+Jun 09 11:50:41 <akurtakov>	ericwill: push the binaries change too
+Jun 09 11:51:06 <akurtakov>	ericwill: btw, this is good candidate for backport too
+Jun 09 11:51:22 <akurtakov>	although branch is not open for backports yet
+Jun 09 11:52:03 <ericwill>	okay, I'll make a note of it :)
+Jun 09 11:52:08 <akurtakov>	ericwill: good thanks
+**** BEGIN LOGGING AT Mon Jun 12 12:00:23 2017
+
+Jun 12 12:00:23 *	Now talking on #SWT
+Jun 12 14:00:55 <ericwill>	ipun 486068
+Jun 13 11:10:00 <lufimtse>	ipun, this guy ready for review? https://git.eclipse.org/r/#/c/98030/
+Jun 13 11:10:50 <ericwill>	haha lufimtse I was about to ask the same thing
+Jun 13 11:11:14 <lufimtse>	ipun, it's helpful to leave a message in the gerrit patch about what to do with patch.
+Jun 13 11:11:52 <ipun>	ah right my bad. I did it for some other patches I had ready but I thought ericwill was working on it already
+Jun 13 11:12:23 <ipun>	lufimtse: refer to my spinner bug pls
+Jun 13 11:12:25 <ipun>	that is ready for review
+Jun 13 11:12:43 <lufimtse>	ipun, lemme investigate
+Jun 19 11:18:10 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun 19 11:18:10 2017
+
+**** BEGIN LOGGING AT Mon Jun 19 12:02:02 2017
+
+Jun 19 12:02:02 *	Now talking on #SWT
+Jun 19 12:20:20 <akurtakov>	ipun: wayland is the fix then :)
+Jun 19 13:38:39 <ipun>	akurtakov: do you know if there was a bug report  for that?
+Jun 19 13:41:06 <akurtakov>	ipun: for the misplaced popup menu?
+Jun 19 13:41:13 <akurtakov>	yes there is but I can't find it now
+Jun 19 13:41:34 <ipun>	akurtakov: okay ill have a look for it once I figure out this async problem
+Jun 20 09:56:21 <ericwill>	ipun menu patch ready for another review?
+Jun 20 09:56:27 <ipun>	yes
+Jun 20 09:56:31 <ipun>	ericwill ^
+Jun 20 10:09:05 <ericwill>	ipun what did you and Leo end up deciding re: using a generic GdkEvent?
+Jun 20 10:09:13 <ericwill>	instead of GdkEventButton
+Jun 20 10:09:24 <ipun>	ericwill: no we decided on GdkEventButton
+Jun 20 10:09:38 <ipun>	the problem with using a generic GdkEvent(Any) is that there isnt a memmove for that
+Jun 20 10:09:57 <ipun>	thats not hard to implement, but I think its better just to do it this way and keep it as a real Gdk Signal
+Jun 20 10:10:06 <ipun>	you never know what might happen in GTK4
+Jun 20 10:10:22 <ericwill>	okay
+Jun 20 10:10:24 <ericwill>	Leo is okay with this?
+Jun 20 10:11:51 <ericwill>	ipun ^
+Jun 20 10:11:56 <ipun>	ericwill: yes
+Jun 20 10:12:09 <ipun>	I discussed with him first about it
+Jun 20 10:12:40 <ipun>	ericwill: he seemed fine with it considering i got rid of all the errors
+Jun 20 10:12:49 <ipun>	and also it wasnt just the window we were missing
+Jun 20 10:13:07 <ipun>	we acted needed a few more attributes in the signal that GdkEventButton has
+Jun 20 10:13:25 <ericwill>	that's fine, I was just curious since Leo commented about it yesterday
+Jun 20 10:13:26 <ericwill>	+2 from me
+Jun 20 10:14:05 <ericwill>	ipun what is your github username
+Jun 20 10:14:10 <ericwill>	going to add you to the snippets repo
+Jun 20 10:14:12 <ipun>	ericwill: itpun
+Jun 20 10:14:20 <ericwill>	kk
+Jun 20 10:14:25 <ericwill>	please upload any snippets you have
+Jun 20 10:14:30 <ipun>	sure
+Jun 20 10:15:11 <ericwill>	https://github.com/ericwill/SWT-snippets
+Jun 20 10:15:13 <ericwill>	invite sent
+Jun 20 10:29:44 <akurtakov>	ericwill: you mentioned 85% of the warnings fixed
+Jun 20 10:29:48 <akurtakov>	is this in master already ?
+Jun 20 10:36:50 <ericwill>	akurtakov no
+Jun 20 10:36:54 <ericwill>	it's a native change
+Jun 20 10:36:58 <ericwill>	can't merge it yet
+Jun 20 10:37:08 <akurtakov>	not ready or relen limitation ?
+Jun 20 10:37:20 <ericwill>	it's ready
+Jun 20 10:37:25 <ericwill>	but I thought the builds aren't ready yet
+Jun 20 10:53:38 <akurtakov>	ericwill: should be fine to push now
+Jun 20 10:54:52 <ericwill>	akurtakov okay, this is good :) because I have some patches in the queue that have OS.java changes
+Jun 20 10:55:09 <akurtakov>	ericwill: please push, the first native build was yesterday
+Jun 20 10:55:32 <akurtakov>	and I'm back so I can handle the releng changes if needed
+Jun 20 10:55:59 <ericwill>	akurtakov okay will do
+Jun 20 11:00:27 <akurtakov>	lufimtse: hpux should die :)
+Jun 20 11:21:39 <ipun>	lufimtse: could you take a look at https://git.eclipse.org/r/#/c/98030/ when you are free?
+Jun 20 11:21:53 <lufimtse>	hey
+Jun 20 11:21:55 <lufimtse>	lemme see
+Jun 20 12:01:51 <akurtakov>	ipun: lufimtse: can you point to the jdt bug refactoring bug where table viewer doesn't enter edit mode?
+Jun 20 12:06:32 <akurtakov>	I used it as an example why using deprecated code hurts us
+Jun 20 12:06:32 <akurtakov>	and now I need to make proposal what does JDT UI needs to change to 
+Jun 20 12:06:32 <ipun>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=510803
+Jun 20 12:06:32 <akurtakov>	as I claimed non-deprecated viewer works
+Jun 20 12:06:32 <akurtakov>	ipun: can we make a proposal to jdt.ui to change their code to make it works
+Jun 20 12:06:32 <akurtakov>	as IIRC the normal table viewer works
+Jun 20 12:08:43 <ipun>	akurtakov: yeah sure. Should the proposal be made on that bug or should I do it as a new bug report on the JDT UI
+Jun 20 12:09:18 <akurtakov>	ipun: please let it be new for JDT UI
+Jun 20 12:09:54 <akurtakov>	if you can come up with patch that just makes it work by not using deprecated stuff - that would be perfect 
+Jun 20 12:10:02 <akurtakov>	I would be able to make Dani shut up :0
+Jun 20 12:26:29 <akurtakov>	ipun: so do you think this is feasible to be done in few days?
+Jun 20 12:26:55 <akurtakov>	aka feel free to go wild and use JFace stuff directly without caring about JDT UI internal implementations
+Jun 20 13:57:20 <ipun>	akurtakov: i can try, ill see what i can do
+Jun 20 13:57:46 <ipun>	its been pretty embeded to what has been built, but i don't see a problem with trying to fix this with a newer way
+Jun 20 14:00:52 <ipun>	akurtakov: ill let you know once I can give you a better estimate in time
+Jun 20 14:28:33 <lufimtse>	akurtakov, hey
+Jun 20 14:29:56 <lufimtse>	I'm not exactly sure about the above, but the issue is not in the deprecated viewer, but in SWT somewhere.
+Jun 20 14:30:07 <lufimtse>	The same thing can occur on a non-deprecated viewer just as likley.
+Jun 20 14:30:12 <lufimtse>	akurtakov, 
+Jun 20 14:30:37 <lufimtse>	That bug is on my todo list, will get to it eventually :-)
+Jun 20 14:36:49 <ipun>	yeah i just looked at it i forgot that was the issue
+Jun 20 14:36:54 <ipun>	something to do with children of a tab folder right?
+Jun 20 14:44:35 <akurtakov>	lufimtse: I know it's an issue in swt
+Jun 20 14:45:09 <akurtakov>	but what i remember is Ian not being able to reproduce it with plain Jface viewer
+Jun 20 14:45:22 <lufimtse>	that's because plain viewer didn't use a tabfolder
+Jun 20 14:45:24 <lufimtse>	I think
+Jun 20 14:45:43 <lufimtse>	but any non-deprecated viewer that uses tabfolder will have the same trouble.
+Jun 20 14:45:59 <lufimtse>	Like, the viewer being deprecated is not the issue per-se.
+Jun 20 14:46:30 <lufimtse>	if that makes sense.... akurtakov 
+Jun 20 14:46:35 <akurtakov>	damn, I needed an example how bad it is that jdt ui to use 
+Jun 20 14:46:40 <akurtakov>	deprecated
+Jun 20 14:46:47 <lufimtse>	hmmmm
+Jun 20 14:46:49 <lufimtse>	I see
+Jun 20 14:46:56 <lufimtse>	What's the context?
+Jun 20 14:47:27 <akurtakov>	look at it from my pov, I want to push some reasoning in jdt guys that they should start updating their codebase to modernize it
+Jun 20 14:47:55 <lufimtse>	I see.
+Jun 20 14:48:00 <akurtakov>	lufimtse: https://wiki.eclipse.org/Eclipse/PMC
+Jun 20 14:48:09 <akurtakov>	we had a heated discussion today
+Jun 20 14:48:44 <lufimtse>	I recall fixing a memory leak that was due to a resource not being closed. This could have been detected if newer java interface was used that automatically detects unclosed resources..
+Jun 20 14:49:12 <akurtakov>	lufimtse: fwiw, there was a way to follow gerrits for given project
+Jun 20 14:49:31 <akurtakov>	that would be easier than others remembering to add you as reviewer
+Jun 20 14:49:49 <akurtakov>	I remember I did that myself some years ago but not how :)
+Jun 20 14:49:59 <lufimtse>	akurtakov, that's true. I do that. But I can't stop merges in time sometimes X-D
+Jun 20 14:50:32 <akurtakov>	well, don't become next Markus
+Jun 20 14:50:40 <akurtakov>	if we can improve it later so be it
+Jun 20 14:51:05 <akurtakov>	it is really discourages for others if their patch end up in lenghty discussions
+Jun 20 14:51:44 <lufimtse>	akurtakov, I like Markus :-)
+Jun 20 14:51:44 <akurtakov>	it's a really sharp edge between teaching someone and discouraging him
+Jun 20 14:51:51 <lufimtse>	but I see your point.
+Jun 20 14:52:28 <akurtakov>	while I like his technical expertise and etc.
+Jun 20 14:52:34 <lufimtse>	that's true, but sometimes it helps to prevent obvious mistakes as cleaning up later can be more pain. Ex adding api too early...
+Jun 20 14:52:41 <akurtakov>	I really hate the fact that he discouraged many many people from contributing to eclipse
+Jun 20 14:52:51 <lufimtse>	I see
+Jun 20 14:53:15 <akurtakov>	this is long term vs mid term
+Jun 20 14:53:37 <akurtakov>	mid term it's best to have the best tech solution we can achieve now
+Jun 20 14:54:05 <akurtakov>	long term it's best to gave a number vibrant community
+Jun 20 14:55:01 <akurtakov>	today's call was double the usual time
+Jun 20 14:55:13 <akurtakov>	as we obviously have to change a lot in how we welcome people
+Jun 20 14:55:22 <lufimtse>	I see
+Jun 20 14:55:40 <akurtakov>	aka it's normal to have way higher expectation to patches depending on whom they come from
+Jun 20 14:55:53 <akurtakov>	aka I can nitpick on patches coming from you
+Jun 20 14:56:07 <akurtakov>	as you know there is nothing bad in my intention already
+Jun 20 14:56:27 <akurtakov>	while there is no way we know how a random person trying to contribut will get it
+Jun 20 14:56:58 <lufimtse>	I see. So be picky with friends and co-workers, but be easy on new commers.
+Jun 20 14:56:59 <akurtakov>	so it's most probably more encouraging to accept his change after fixing obvious mistakes
+Jun 20 14:57:18 <akurtakov>	and do the details in consequent changes
+Jun 20 14:57:34 <akurtakov>	of course there is no silver bullet
+Jun 20 14:57:36 <lufimtse>	Interesting.
+Jun 20 14:57:43 <lufimtse>	That's an interesting thought there.
+Jun 20 14:57:51 <lufimtse>	We should add to Open Organisation book.
+Jun 20 14:59:00 <akurtakov>	it's a really big discussion 
+Jun 20 14:59:17 <akurtakov>	and we need to act to try encouraging more people to contribute back
+Jun 20 14:59:39 <akurtakov>	although whatever path we try it's a guess
+Jun 20 14:59:54 <akurtakov>	but one thing is sure current path leads to less contributors
+Jun 20 15:00:26 <akurtakov>	if there are ideas about how to make it more atractive for people to contribute I'm all ears 
+Jun 20 15:00:37 <akurtakov>	look at it as brainstorming
+Jun 20 15:00:58 <akurtakov>	it might be totally discarded or morph into smth different
+Jun 20 15:01:13 <akurtakov>	or accepted warmly
+Jun 20 15:01:26 <akurtakov>	no one really knows more than - change is needed
+Jun 20 15:04:19 <ericwill>	akurtakov a good way is to get university students involved with contributing. it's a good learning experience for them and it builds experience for their resume. and we benefit from the contributions :)
+Jun 20 15:08:31 <akurtakov>	ericwill: how do you propose this to happen?
+Jun 20 15:09:28 <ericwill>	akurtakov encourage the foundation to go to university career fairs or give talks in lectures
+Jun 20 15:09:37 <ericwill>	Leo speaks in some university classes about Red Hat and open source
+Jun 20 15:09:38 <akurtakov>	ericwill: forget about it
+Jun 20 15:09:39 <ericwill>	something similar
+Jun 20 15:09:57 <akurtakov>	we can not rely on foundation to do anything specific to one project
+Jun 20 15:10:19 <akurtakov>	they to try to stay away from things that "don't benefit all projects:
+Jun 20 15:10:33 <akurtakov>	which is impossible IMHO but they insist on it
+Jun 20 15:10:51 <ericwill>	that's too bad, all could benefit from this
+Jun 20 15:11:15 <akurtakov>	you can talk to Sopot to hear that they don't want to even bless his twitter account as foundation thing
+Jun 20 15:11:34 <akurtakov>	as for them these things are beneficial only for the IDE
+Jun 20 15:11:39 <ericwill>	that is quite sad
+Jun 20 15:12:01 <akurtakov>	so it's about things we (+friends) can do
+Jun 20 15:12:30 <akurtakov>	speaking of eclipse ide - it's our team + Vogella
+Jun 20 15:12:41 <akurtakov>	^^ IMHO :)
+Jun 20 15:14:16 <ericwill>	Vogella could be a help, he knows that SWT being in good shape is directly tied to the user experience of platform UI
+Jun 20 15:14:30 <akurtakov>	btw, if things go according to my plan - you should become committers to whole platform :)
+Jun 20 15:14:55 <akurtakov>	I hope that by end of year we will be single project
+Jun 20 15:15:05 <akurtakov>	we seem to have an agreement to merge 
+Jun 20 15:16:14 <ericwill>	does that mean platform UI committers become SWT committers?
+Jun 20 15:16:56 <akurtakov>	it means all platform.* becomes a single committers list
+Jun 20 15:17:08 <akurtakov>	and yes to swt committers
+Jun 20 15:17:58 <akurtakov>	but this troubles me - in Mandriva we had a single list of committers - everything from kernel to gnome-dictionary or freemind 
+Jun 20 15:18:25 <akurtakov>	if you're committer you had access to everything, and people were still acting sensibly
+Jun 20 15:18:43 <akurtakov>	not a single failure in more than 2 years of someone breaking things badly
+Jun 20 15:19:16 <akurtakov>	in a way it's a matter of trust more than technical expertise
+Jun 20 15:19:55 <akurtakov>	but makes changes that need to apply to multiple repos way easier than current find dozen committers to drive a change
+Jun 20 15:20:06 <ericwill>	hmm
+Jun 20 15:20:27 <ericwill>	only concern I have is that we would get committers who fix SWT by calling redraw() or something similar -- not real fixes
+Jun 20 15:21:27 <akurtakov>	yeah, I have heard these concerns 
+Jun 20 15:21:47 <akurtakov>	still, have you ever touched macos code ?
+Jun 20 15:22:18 <akurtakov>	you would do it only if you're fairly certain in what you do or search competent opinion on it
+Jun 20 15:22:49 <akurtakov>	and empowering committers doesn't mean they will abuse it
+Jun 20 15:23:11 <akurtakov>	easy things will go faster, more difficult ones will get proper reviews
+Jun 20 15:23:19 <akurtakov>	that's my mandriva experience
+Jun 20 15:23:25 <ericwill>	that's a good point
+Jun 20 15:23:32 <ipun>	akurtakov: its an interesting idea to merge everyone together as one project
+Jun 20 15:23:37 <ericwill>	it shouldn't be an issue as long as there is vigilance
+Jun 20 15:23:37 <ipun>	but i could see there be faults
+Jun 20 15:23:48 <akurtakov>	and I want to believe that eclipse community is at least that much responsible :)
+Jun 20 15:23:49 <ipun>	im curious what the numbers of actual contributors are though
+Jun 20 15:24:40 <akurtakov>	ipun: https://projects.eclipse.org/projects/eclipse.platform/who
+Jun 20 15:24:59 <akurtakov>	and these are people that have contributed
+Jun 20 15:25:11 <akurtakov>	not all of them are committers
+Jun 20 15:25:16 <akurtakov>	e.g. like you :)
+Jun 20 15:25:58 <ipun>	haha yu
+Jun 20 15:26:01 <ipun>	yup
+Jun 20 15:26:21 <ipun>	pretty cool visual guide 
+Jun 20 15:27:11 <ipun>	but in that regard, I think this community is sensitive enough to not have things breaking badly
+Jun 20 15:28:02 <ipun>	i think it could also benefit later if we do merge everything together so that when we refer to "eclipse" we might be able to have more leverage to have the foundation support things like University Fairs because theres less segregation within the community 
+Jun 20 15:36:04 <akurtakov>	what I have to add is that e.g. there are many p2 patches that I have to review
+Jun 20 15:36:20 <akurtakov>	even though I'm not really confident there
+Jun 20 15:36:44 <akurtakov>	if we have single set of committers we can split this work allowing easier/faster/better reviews
+Jun 20 15:36:53 <akurtakov>	and this is my ultimate goal
+Jun 20 15:38:15 <akurtakov>	if the price for that is some temp issues till we adjust the process
+Jun 20 15:38:20 <akurtakov>	it's small price to pay
+Jun 20 15:39:43 <ipun>	fair enough 
+Jun 20 15:57:37 <ericwill>	akurtakov overall I am in favour of it
+Jun 20 15:57:48 <ericwill>	if people break some stuff, just revert :)
+Jun 20 16:44:55 <akurtakov>	ericwill: hmm https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/ColorDialog.java
+Jun 20 16:44:57 <akurtakov>	why?
+Jun 20 16:45:36 <akurtakov>	I can see later in the code there is different function called for pre 3.4
+Jun 20 16:46:02 <ericwill>	akurtakov GdkRGBA support was added in 3.0, but the GtkColorChooserDialog (which uses GdkRGBA instead of GdkColor) was only added in 3.4
+Jun 20 16:46:04 <ericwill>	so there is a gap
+Jun 20 16:46:32 <akurtakov>	that's not fine
+Jun 20 16:47:03 <akurtakov>	can't the guards be adjusted accordingly?
+Jun 20 16:47:27 <akurtakov>	I mean gtk_color_chooser_dialog_new  is used only for 3.4+
+Jun 20 16:47:47 <akurtakov>	for older versions gtk_color_selection_dialog_new
+Jun 20 16:47:48 <akurtakov>	is used
+Jun 20 16:48:14 <akurtakov>	so I don't see what the assert is giving us other than breaking 3.0-3.4 range which will use collor selection anyway
+Jun 20 16:48:34 <ericwill>	akurtakov it means we will have to use GdkColor Java objects for 3.0 - 3.4, and in GdkColor.java there is a call to GdkColor_sizeof()
+Jun 20 16:48:45 <ericwill>	which would crash if this isn't provided on GTK3
+Jun 20 16:49:12 <akurtakov>	and why wouldn't it ?
+Jun 20 16:49:27 <akurtakov>	I mean it's not fine to just say this api doesn't work for 3.0-3.4 
+Jun 20 16:49:37 <akurtakov>	esp when it was owrking previous
+Jun 20 16:49:51 <ericwill>	yeah this was something I meant to ask you but forgot
+Jun 20 16:50:06 <ericwill>	okay I will fix it
+Jun 20 16:50:33 <akurtakov>	ericwill: it's not gonna be big fix , right? 
+Jun 20 16:50:41 <akurtakov>	at least I don't think so :)
+Jun 20 16:51:14 <akurtakov>	btw, https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/Combo.java
+Jun 20 16:51:26 <akurtakov>	asserts like that make me a bit nervous
+Jun 20 16:51:49 <akurtakov>	will the functions not be reached by the other gtk version with your patch
+Jun 20 16:52:10 <ericwill>	akurtakov for the ColorDialog thing: no shouldn't be a big fix
+Jun 20 16:52:16 <akurtakov>	I assume so by reading but want to be sure
+Jun 20 16:52:24 <ericwill>	for the asserts, yes that's correct
+Jun 20 16:52:41 <ericwill>	no code should reach any color function that uses GdkRGBA outside of GTK3
+Jun 20 16:52:52 <akurtakov>	ok
+Jun 20 16:53:16 <akurtakov>	fwiw, I never used runtime asserts 
+Jun 20 16:53:37 <akurtakov>	so I'm kind of unsure how they work :)
+Jun 20 16:53:49 <akurtakov>	will they just print to syserr ?
+Jun 20 16:55:01 <ericwill>	so with assert
+Jun 20 16:55:12 <ericwill>	they only have an effect when you run the JVM with assertions enabled
+Jun 20 16:55:30 <ericwill>	and then they print a warning in syserr
+Jun 20 16:55:42 <ericwill>	by default Eclipse doesn't run with assertions enabled
+Jun 20 16:55:50 <ericwill>	but if you run a JUnit test they are
+Jun 20 16:56:42 <akurtakov>	ericwill: have you tested it with gtk older than 3.16? so we are sure that we don't end up in this assertion called on older gtk version 
+Jun 20 16:58:37 <ericwill>	yes
+Jun 20 16:58:43 <ericwill>	I went back as far as 3.10
+Jun 20 16:58:53 <akurtakov>	care to explain https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/DateTime.java to me
+Jun 20 16:59:11 <akurtakov>	the Version >= 3.16 becomes  GTK3
+Jun 20 16:59:35 <akurtakov>	this is because we now use RGBA everywhere ?
+Jun 20 17:00:04 <akurtakov>	I like it just again confirming my reading :)
+Jun 20 17:00:14 <ericwill>	yes, with the patch everything on GTK3 uses GdkRGBA
+Jun 20 17:00:22 <ericwill>	everything GTK2 runs GdkColor
+Jun 20 17:00:44 <ericwill>	also if you want to run anything with assertions enabled, in the launch config under VM arguments, add "-ea"
+Jun 20 17:02:32 <akurtakov>	https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/IME.java
+Jun 20 17:02:40 <akurtakov>	there are few todos you added :)
+Jun 20 17:03:17 <akurtakov>	I guess either leftovers or guards are really due
+Jun 20 17:03:37 <ericwill>	ah, looks like I did
+Jun 20 17:03:39 <ericwill>	an easy fix
+Jun 20 17:03:54 <ericwill>	just move the new GdkColor() bits into the GTK2 guard
+Jun 20 17:04:19 *	akurtakov is code reading only now
+Jun 20 17:04:32 <akurtakov>	will try it tomorrow, hopefully with your adjustments :)
+Jun 20 17:04:44 <akurtakov>	fwiw, proper commit message is due to
+Jun 20 17:05:10 <ericwill>	sounds good
+Jun 20 17:05:17 <ericwill>	a second set of eyes is very helpful
+Jun 20 17:05:23 <ericwill>	especially when having worked on this for so long
+Jun 20 17:06:16 <akurtakov>	fwiw, https://bugs.eclipse.org/bugs/show_bug.cgi?id=518532
+Jun 20 17:06:28 <akurtakov>	I'm pushing hard for modernization 
+Jun 20 17:06:46 <ericwill>	I saw that, removing GDK drawing will make the code a lot simpler
+Jun 20 17:06:51 <ericwill>	especially for things like GC
+Jun 20 17:06:52 <akurtakov>	it's a step towards gtk2 removal
+Jun 20 17:07:07 <akurtakov>	as gtk2 is used by rhel6 only 
+Jun 20 17:07:19 <akurtakov>	and others that opt in but I don't really care about them that much :)
+Jun 20 17:07:34 <ericwill>	I will be so happy when we remove GTK2 :)
+Jun 20 17:11:09 <akurtakov>	I'm pushing as much as I can
+Jun 20 17:11:28 <akurtakov>	while trying to not cross the line where people stop listening and just say no :)
+Jun 20 17:11:41 *	akurtakov feels like a politician lately
+Jun 20 17:12:20 <akurtakov>	ericwill: https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/Widget.java this looks suspicious
+Jun 20 17:13:36 <ericwill>	akurtakov I moved it into Control
+Jun 20 17:13:41 <ericwill>	line 5020
+Jun 20 17:13:44 <akurtakov>	ok
+Jun 20 17:14:03 <ericwill>	the foreground machinery is a bit gimped, half of it was implemented in widget, half in Control
+Jun 20 17:14:58 <akurtakov>	ericwill: please nuke the sysout https://git.eclipse.org/r/#/c/76631/38/tests/org.eclipse.swt.tests/JUnit+Tests/org/eclipse/swt/tests/junit/Test_org_eclipse_swt_widgets_Control.java
+Jun 20 17:15:15 <akurtakov>	done reading :)
+Jun 20 17:15:46 <ericwill>	oops
+Jun 20 17:15:47 <ericwill>	will do
+Jun 20 17:19:41 <akurtakov>	ericwill: btw, there is issue with http://git.eclipse.org/c/platform/eclipse.platform.swt.git/diff/bundles/org.eclipse.swt/Eclipse%20SWT%20PI/gtk/org/eclipse/swt/internal/gtk/OS.java?id=56755d505b2f2ece25e1a012100d096898dafaf7
+Jun 20 17:20:06 <akurtakov>	long[] value should be long /*int*/
+Jun 20 17:20:25 <akurtakov>	swt tools put errors in my workspace for that
+Jun 20 17:20:37 <ericwill>	doh
+Jun 20 17:20:43 <ericwill>	sorry about that, forgot to enable that setting
+Jun 20 17:20:45 <ericwill>	will fix it now
+Jun 20 17:20:51 <akurtakov>	I can do it if you want
+Jun 20 17:21:00 <ericwill>	akurtakov okay please do
+Jun 20 17:26:25 <akurtakov>	ericwill: done
+Jun 20 17:26:33 <akurtakov>	with that I wish you good night :)
+Jun 20 17:26:46 <ericwill>	akurtakov thanks, I turned my warnings on. good night :)
+Jun 21 12:24:39 <akurtakov>	ericwill: lufimtse: please feel free to throw bugs at ipun :)
+Jun 21 12:24:58 <akurtakov>	overall, he is tasked with finishing his bugs and helping with the triaging
+Jun 21 12:25:09 <lufimtse>	ok
+Jun 21 12:25:18 <lufimtse>	:-D
+Jun 21 12:25:20 <lufimtse>	ak
+Jun 21 12:25:21 <lufimtse>	akurtakov, 
+Jun 21 12:25:31 *	ericwill loads a bunch of bugs into his hands and throws them at ipun
+Jun 21 12:25:52 <akurtakov>	ericwill: few loads please :)
+Jun 21 12:27:00 <akurtakov>	btw, who wants GLCanvas ? it is smth I hope one of you will be able to pick up after new year :)
+Jun 21 12:27:12 <akurtakov>	the other one get a11y :)
+Jun 21 12:27:19 <akurtakov>	but it's ASAP :)
+Jun 21 12:39:10 <ericwill>	I don't think anyone wants a11y :P
+Jun 21 12:40:04 <akurtakov>	that could only mean - you both get it :)
+Jun 21 12:40:16 <ericwill>	haha, I don't mind working on it once the color port is done
+Jun 21 12:40:24 <ericwill>	lufimtse can have GLCanvas
+Jun 21 12:40:51 <akurtakov>	yeah, after being done with webkit2 :)
+Jun 21 12:44:18 <akurtakov>	btw, how is the color port going ?
+Jun 21 12:44:30 <akurtakov>	have you adjusted Leo's comments ?
+Jun 21 12:44:36 <ericwill>	akurtakov good, yes I made them
+Jun 21 12:44:45 <ericwill>	was just about to say you can try it out again if you like
+Jun 21 12:44:59 <akurtakov>	I tried it today and there was nothing broken I spotted
+Jun 21 12:45:07 <akurtakov>	will do thorough test later
+Jun 21 12:45:18 <ericwill>	okay
+Jun 21 12:45:20 <ericwill>	btw
+Jun 21 12:45:31 <ericwill>	on GTK2 Table and Tree bg colors do not work
+Jun 21 12:45:33 <ericwill>	on master
+Jun 21 12:45:38 <ericwill>	(unrelated to color port)
+Jun 21 12:45:52 <ericwill>	maybe something ipun can investigate?
+Jun 21 12:45:57 <lufimtse>	akurtakov, I'm working ont this guy atm btw: Bug 465280 – [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls
+Jun 21 12:45:59 <akurtakov>	meh 
+Jun 21 12:46:08 <akurtakov>	I don't care about GTK2 :)
+Jun 21 12:46:16 <akurtakov>	tbh, I want to remove it
+Jun 21 12:46:29 <akurtakov>	don't bother with gtk2 guys
+Jun 21 12:46:39 <akurtakov>	unless someone finds it's your patch that broke it :)
+Jun 21 12:47:09 <ericwill>	works for me :)
+Jun 21 12:47:44 <akurtakov>	now that we don't have to support RHEL 6 it's of no use for us
+Jun 21 12:47:59 <akurtakov>	lufimtse: btw, good new for you - RHEL 7.4 will have webkit2 :)
+Jun 21 12:48:23 <akurtakov>	just in time isn't it :)
+Jun 21 12:48:29 <akurtakov>	release is in september :)
+Jun 21 12:49:05 <lufimtse>	nice
+Jun 21 12:49:43 <akurtakov>	lufimtse: are there other things but return js left there ?
+Jun 21 12:50:19 <lufimtse>	akurtakov, so far no. But it wouldn't hurt for me to go through the whole browser api to make sure it all works.
+Jun 21 12:50:31 <akurtakov>	ok
+Jun 21 16:22:32 <ericwill>	akurtakov is 4.7 backport branch open for merging yet?
+Jun 21 16:22:39 <akurtakov>	ericwill: not yet
+Jun 21 16:24:11 <akurtakov>	this is postponed until 4.7 is out officialy so we can handle the extrme case of rebuild on 4.7 for Oxygen.0 if smth really severe hapens
+Jun 21 16:25:58 <ericwill>	okay, np :)
+Jun 22 10:52:41 <ericwill>	akurtakov: hey, Leo and I were wondering if this can be merged: https://git.eclipse.org/r/#/c/99534/
+Jun 22 10:55:31 <akurtakov>	if you're confident in it
+Jun 22 10:56:10 <akurtakov>	I have my principal concerns over such tests 
+Jun 22 10:56:37 <akurtakov>	aka how well it will work on different versions systems etc.
+Jun 22 10:56:48 <akurtakov>	but if you find it valuable - go oon
+Jun 22 10:57:00 <lufimtse>	akurtakov, what you mean over different version sysetms?
+Jun 22 10:57:22 <akurtakov>	well, if the test is specific to gtk
+Jun 22 10:57:39 <akurtakov>	what hapens if one runs them on e.g. ubuntu/rhel7/mageial...
+Jun 22 10:59:00 <akurtakov>	from releng pov they look stable
+Jun 22 10:59:33 <lufimtse>	akurtakov, hmmm. But in what way would all test be different to gtk specific tests in such context?
+Jun 22 10:59:41 <lufimtse>	both would run into the same problem?
+Jun 22 11:00:24 <akurtakov>	yeah, I mean if we have tests that are same for all WS we claim this is the right way and the system is offending
+Jun 22 11:00:56 <akurtakov>	if we have ws specific tests - it becomes gray area as it obviously it's not specified behavior of swt
+Jun 22 11:01:11 <akurtakov>	anyway, this is just thoughts and you're working more on this so it's your call
+Jun 22 11:01:35 <lufimtse>	akurtakov, I see. I think in such a case, a jUnit test can be made more generic to see the common behaviour.
+Jun 22 11:09:52 <akurtakov>	lufimtse: if we can get your +1 for https://git.eclipse.org/r/#/c/76631/45
+Jun 22 11:10:02 <akurtakov>	and Eric can push it
+Jun 22 11:10:35 <lufimtse>	akurtakov, Ok. I'll review.
+Jun 22 11:25:34 <akurtakov>	ericwill: getting rgba will not magically enable transparent tooltips, will it ?
+Jun 22 11:26:19 <ericwill>	akurtakov not the javadoc ones, since they are not really tooltips :)
+Jun 22 11:27:50 <ericwill>	the native tooltips (like when you hover over a button on the eclipse workbench toolbar) are already transparent
+Jun 22 12:23:42 <akurtakov>	lufimtse: are launch groups storable in launch file ?
+Jun 22 12:24:05 <akurtakov>	that would be nice
+Jun 22 12:25:02 <lufimtse>	akurtakov, what do you mean?
+Jun 22 12:25:14 <lufimtse>	whats a launch file?
+Jun 22 12:25:20 <akurtakov>	lufimtse: you know that you can store launch configuration in a file and store it in git
+Jun 22 12:26:32 <akurtakov>	lufimtse: like http://git.eclipse.org/c/equinox/rt.equinox.p2.git/tree/bundles/org.eclipse.equinox.frameworkadmin.test/Framework%20Admin%20Test.launch
+Jun 22 12:27:13 <lufimtse>	akurtakov, that's new info to me.
+Jun 22 12:27:19 <lufimtse>	akurtakov, how do you run such a .launch?
+Jun 22 12:27:35 <akurtakov>	lufimtse: if you open a project that has such launch file
+Jun 22 12:27:48 <akurtakov>	it will be auto added in the launch configurations :)
+Jun 22 12:27:54 <akurtakov>	magic is magic :)
+Jun 22 12:28:06 <lufimtse>	oh.
+Jun 22 12:28:16 <lufimtse>	Interesting. I need to investigate.
+Jun 22 12:28:24 <lufimtse>	This could make life a lot easier.
+Jun 22 12:29:07 <akurtakov>	lufimtse: there is export wizard 
+Jun 22 12:29:22 <akurtakov>	so you can get launch file generated from your existing launch
+Jun 22 12:30:18 <lufimtse>	akurtakov, ah, that's how to get it. Yea, it seems Launch Group is in there.
+Jun 22 12:30:34 <lufimtse>	akurtakov, could potentially be used for ALLTests + platformTest.
+Jun 22 12:30:42 <akurtakov>	lufimtse: exactly my idea :)
+Jun 22 12:30:48 <lufimtse>	with Gtk2/Gtk3 versions.
+Jun 22 12:31:06 <akurtakov>	and if hte launch is stored in the platform test bundles voila :)
+Jun 22 12:31:24 <lufimtse>	akurtakov, btw, is it possible to have a hudson that also does cocoa/Win32
+Jun 22 12:31:28 <lufimtse>	for patch submissions?
+Jun 22 12:31:35 <akurtakov>	lufimtse: short: no
+Jun 22 12:31:41 <lufimtse>	derp.
+Jun 22 12:32:22 <akurtakov>	long: technically there are such machines but they are limited as foundation can not expose windows/mac to the general public like that for licencing issues
+Jun 22 12:33:14 <akurtakov>	lufimtse: btw, it would be nice if export was available from the launch dialog
+Jun 22 12:33:29 <akurtakov>	as the export wizard is kind of hidden
+Jun 22 12:38:41 <lufimtse>	akurtakov, I agree. Had a simmilar thought.
+Jun 22 12:38:57 <akurtakov>	lufimtse: feel free to open a bug :)
+Jun 22 12:39:01 <lufimtse>	X-D
+Jun 22 12:39:34 <akurtakov>	Eclipe is full of these nice things but UX is not the best :)
+Jun 22 12:39:54 <akurtakov>	and add me on cc to that bug I'll try to get someone on it :)
+Jun 22 12:40:06 <akurtakov>	although it should be fairly trivial 
+Jun 22 12:41:45 <lufimtse>	akurtakov, I'm getting a lot of errors from bugzilla: There was an error sending mail from 'bugzilla-daemon@eclipse.org' to 'dirk.fauth@googlemail.com': Can't send data 
+Jun 22 12:41:53 <lufimtse>	?
+Jun 22 12:42:04 <akurtakov>	lufimtse: network issue https://hudson.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/4728/console
+Jun 22 12:42:31 <lufimtse>	derp.
+Jun 22 12:43:29 <lufimtse>	akurtakov, https://bugs.eclipse.org/bugs/show_bug.cgi?id=518652
+Jun 22 12:46:20 <lufimtse>	akurtakov, I'm getting bugzilla error after every single bugzilla opertion. 
+Jun 22 12:46:26 <lufimtse>	akurtakov, do you get that also?
+Jun 22 12:46:28 <akurtakov>	yes
+Jun 22 12:46:31 <lufimtse>	der.p
+Jun 22 12:46:45 <akurtakov>	infra is broken
+Jun 22 13:00:01 <akurtakov>	done for today, can't wait to remove gdk draw once rgba work is in :)
+Jun 22 13:00:04 <akurtakov>	g'night
+Jun 22 14:34:52 <ericwill>	ipun if you are looking for a bug to work on, you can take this one from me: https://bugs.eclipse.org/bugs/show_bug.cgi?id=494771
+Jun 22 14:35:34 <ipun>	ericwill: sure i can take a look. You want to triage for a bit then?
+Jun 22 14:35:50 <ericwill>	ipun I might do triage tomorrow, we'll see
+Jun 23 11:26:06 <ipun>	ericwill|afk: man this spinner bug guy is...thurough
+Jun 23 11:45:27 <ericwill>	ipun haha I saw
+Jun 23 11:45:32 <ericwill>	just one of those types of bugs
+Jun 23 11:53:38 <ericwill>	lufimtse can we just merge that bug snippet thing and the readme? I want to add some other snippets today
+Jun 23 12:25:54 <akurtakov>	ericwill: wow, you spamed swt inbox :)
+Jun 23 12:26:11 <akurtakov>	that's so we don't think we are close to being decent :)
+Jun 23 12:27:32 <ericwill>	akurtakov haha, I noticed yesterday running the build script that a lot of stuff is deprecated that we don't have bugs for
+Jun 23 12:28:54 <ericwill>	a brief glance says most of them are easy fixes
+Jun 23 12:50:52 <lufimtse>	hello
+Jun 23 12:51:50 <lufimtse>	ericwill, +1 to submitting bug reports. We need to weed out these deprecated functions for gtk4.
+Jun 23 12:52:11 <lufimtse>	ericwill, I was having the same thought about the snippet business.
+Jun 23 12:52:30 <ericwill>	lufimtse okay, I will merge it
+Jun 23 12:52:51 <ericwill>	also just uploaded some revised color port stuff, when you have a chance
+Jun 23 12:52:57 <lufimtse>	ok,
+**** BEGIN LOGGING AT Fri Jun 23 15:50:47 2017
+
+Jun 23 15:50:47 *	Now talking on #SWT
+**** BEGIN LOGGING AT Fri Jun 23 15:53:51 2017
+
+Jun 23 15:53:51 *	Now talking on #SWT
+Jun 23 16:05:16 <ericwill>	lufimtse I saw your changes on the color port patch, I'll look at it Monday
+Jun 23 16:08:44 <ericwill>	have a good weekend everyone!
+Jun 25 00:24:10 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Sun Jun 25 00:24:10 2017
+
+**** BEGIN LOGGING AT Sun Jun 25 00:24:20 2017
+
+Jun 25 00:24:20 *	Now talking on #SWT
+Jun 26 10:35:05 <ipun>	akurtakov: what do you think of this guys reasoning for using async in https://bugs.eclipse.org/bugs/show_bug.cgi?id=517633 ?
+Jun 26 10:38:43 <akurtakov>	what is the async? java one?
+Jun 26 10:40:35 <ipun>	akurtakov: he wanted to call OS.gtk_spin_button_update() on async instead
+Jun 26 10:40:44 <lufimtse>	ipun, I think he mentioned async is one possible solution, not the only one.
+Jun 26 10:40:53 <lufimtse>	ipun, afaik, we spoke about using a different signal, no?
+Jun 26 10:41:05 <ipun>	lufimtse: tried it already
+Jun 26 10:41:11 <lufimtse>	result?
+Jun 26 10:41:24 <ipun>	the other signals are only sent on the widget being actually changed after called by gkt_spin_button_update()
+Jun 26 10:41:26 <ipun>	so no, it doesnt work
+Jun 26 10:42:22 <ipun>	lufimtse: also where did you hear he had mulitple solutions?
+Jun 26 10:43:50 <lufimtse>	ipun, let's chat.
+Jun 26 10:45:45 <akurtakov>	replied
+Jun 26 10:46:46 <akurtakov>	lufimtse: the async is a total no -go 
+Jun 26 10:47:01 <akurtakov>	lufimtse: see my reasoning in the bug
+Jun 26 10:58:02 <lufimtse>	akurtakov, that's a good point.
+Jun 26 11:16:53 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jun 26 11:16:53 2017
+
+**** BEGIN LOGGING AT Mon Jun 26 11:47:08 2017
+
+Jun 26 11:47:08 *	Now talking on #SWT
+Jun 26 11:55:23 <ipun>	akurtakov: im going to see if he has a response, for now ill see ifi can figure out another solution
+Jun 26 12:19:52 <lufimtse>	akurtakov, btw, is backport branch open for backports?
+Jun 26 12:20:21 <akurtakov>	no, it will happen after Oxygen is officially released
+Jun 26 12:20:32 <akurtakov>	there is still the risk of last minute rebuild
+Jun 26 12:20:38 <akurtakov>	so backports can not be allowed
+Jun 26 12:27:31 <lufimtse>	akurtakov, ah. Ok.
+Jun 26 13:40:05 <ipun>	ericwill lufimtse anyone that is free, could someone run snippet141 and see if it runs with current gtk and swt versions
+Jun 26 13:40:06 <ipun>	?
+Jun 26 13:40:32 <ericwill>	ipun sure give me a sec
+Jun 26 13:41:23 <ipun>	thanks!
+Jun 26 13:41:32 <ericwill>	I get an error
+Jun 26 13:41:38 <ericwill>	"There was an error loading the GIF"
+Jun 26 13:41:52 <ipun>	hmm okay mine says it cant load the class
+Jun 26 13:42:03 <ipun>	im wondering what i should do with this https://bugs.eclipse.org/bugs/show_bug.cgi?id=287477
+Jun 26 14:21:07 <akurtakov>	fwiw, swt has it's own gif/jpeg implementations
+Jun 26 14:31:42 <ericwill>	akurtakov do you know what is going on here? http://git.eclipse.org/c/platform/eclipse.platform.swt.git/diff/bundles/org.eclipse.swt/Eclipse%20SWT/gtk/org/eclipse/swt/widgets/Display.java?h=silenio/Bug389910&id=cd78cc4a8b2e806160de2908244830099a48d3b9
+Jun 26 14:31:51 <ericwill>	in the "toGdkColor" method
+Jun 26 14:33:47 <ericwill>	seems like some math to convert from HSV to HSL...then back to RGB
+Jun 26 14:43:32 <akurtakov>	ericwill: no idea :)
+Jun 26 14:43:36 <akurtakov>	was I involved ?
+Jun 26 14:45:13 <ericwill>	nope
+Jun 26 14:45:20 <ericwill>	akurtakov seems to be conversion with this: https://en.wikipedia.org/wiki/HSL_and_HSV
+Jun 26 14:50:53 <akurtakov>	ericwill: so do you think it's no longer needed or smth in it troubles you ?
+Jun 26 14:51:14 <ericwill>	akurtakov we still need it, I can't find a suitable replacement
+Jun 26 14:51:24 <ericwill>	and Leo pointed out in a patch review that the method makes no sense
+Jun 26 14:51:28 <ericwill>	so I am documenting it
+Jun 26 14:53:20 <akurtakov>	always good :)
+Jun 26 15:05:51 <akurtakov>	lufimtse: there were talks about having image decoders based on gdk-pixbuf
+Jun 26 15:06:23 <akurtakov>	as this would give support for latest specs and it would give also way more details properly implemented
+Jun 26 15:06:34 <akurtakov>	and quite probably speed up too 
+Jun 26 15:06:56 <akurtakov>	but this has always been very low in prio list
+Jun 26 15:34:55 <ericwill>	akurtakov do you know what IME is and how I can test it
+Jun 26 15:35:04 <ericwill>	I don't see any snippets for it
+Jun 26 15:38:53 <lufimtse>	akurtakov, hmmm
+Jun 27 09:30:31 <ericwill>	lufimtse good morning, thank you for the patch review
+Jun 27 09:37:14 <ericwill>	akurtakov: http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=8f5c12dbbf0d52d77529e8b468c625831e5f4dd0
+Jun 27 09:37:15 <ericwill>	:)
+Jun 27 09:38:18 <akurtakov>	yay :)
+Jun 27 09:38:33 <akurtakov>	one of the most eventfull swt months lately
+Jun 27 09:39:01 <akurtakov>	https://projects.eclipse.org/projects/eclipse.platform.swt/who
+Jun 27 09:39:06 <akurtakov>	pretty good for June 
+Jun 27 09:40:01 <ericwill>	absolutely
+Jun 27 09:41:49 <ipun>	cool i see my name!
+Jun 27 09:42:52 <ericwill>	akurtakov you can go ahead and remove GDK drawing now :)
+Jun 27 09:43:13 <akurtakov>	ericwill: will do it tomorrow
+Jun 27 09:43:36 <akurtakov>	still discussing with Lakshmi how to handle xulrunner removal :)
+Jun 27 09:43:41 <akurtakov>	and doing it around the world
+Jun 27 09:43:47 <akurtakov>	e.g. launcher was today :)
+Jun 27 09:43:59 <ericwill>	perfect
+Jun 27 10:10:34 <ipun>	akurtakov: is there any historical reasons why some SWT events are sent as post vs send when retreiving from GTK?
+Jun 27 10:10:52 <akurtakov>	ipun: no idea :)
+Jun 27 10:11:02 <akurtakov>	I gave up on remembering
+Jun 27 10:11:13 <akurtakov>	gut feelings + reading for me :)
+Jun 27 10:37:52 <lufimtse>	ipun, send is often used if gtkEvents need a return value. post is usually used if they don't.
+Jun 27 10:38:23 <lufimtse>	ipun, but if you change post to send now and vice versa, it can break order of events. So it has to be well justified and tested.
+Jun 27 10:51:20 <lufimtse>	ipun, Bug 515396 – [Wayland] dragDetect should block till DnD state is known 
+Jun 27 10:51:20 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=515396
+Jun 27 14:00:03 <ericwill>	lufimtse hello
+Jun 27 14:00:06 <ericwill>	do you have a minute?
+Jun 27 14:36:56 <lufimtse>	hey
+Jun 27 14:36:57 <lufimtse>	ericwill, 
+Jun 27 14:37:00 <lufimtse>	sap
+Jun 27 14:37:35 <ericwill>	lufimtse hey, for the GTK specific JUnits
+Jun 27 14:37:43 <ericwill>	I wanted to know if you had naming scheme in mind
+Jun 27 14:37:49 <ericwill>	I came up with this so far: https://git.eclipse.org/r/#/c/98569/
+Jun 27 14:40:01 <lufimtse>	ericwill, maybe just call it Test_color.java ?
+Jun 27 14:40:05 <lufimtse>	or something like that.
+Jun 27 14:40:32 <ericwill>	lufimtse I thought maybe something in the name of the class would distinguish it from the cross-platform tests
+Jun 27 14:40:34 <ericwill>	idk
+Jun 27 14:42:02 <lufimtse>	maybe put the color tests into cross-platform test, but tell it not skip on gtk2.
+Jun 27 14:42:12 <lufimtse>	but tell it *to* skip on gtk2
+Jun 27 14:42:31 <ericwill>	lufimtse can we do that?
+Jun 27 14:42:41 <ericwill>	I thought the gtk guards are in OS.java only
+Jun 27 14:42:58 <lufimtse>	I did something similar for webkit2
+Jun 27 14:43:06 <lufimtse>	you don't call os.java
+Jun 27 14:43:09 <lufimtse>	instead ...
+Jun 27 14:43:22 <lufimtse>	use get system property
+Jun 27 14:43:33 <lufimtse>	like: String webkitGtkVersionStr = System.getProperty("org.eclipse.swt.internal.webkitgtk.version")
+Jun 27 14:43:36 <lufimtse>	but for gtk
+Jun 27 14:43:39 <lufimtse>	lemmeeee see
+Jun 27 14:43:46 <ericwill>	lufimtse ah yeah
+Jun 27 14:43:51 <ericwill>	I know what you are talking about
+Jun 27 14:44:06 <lufimtse>	String gtkVersion = System.getProperty("org.eclipse.swt.internal.gtk.version");
+Jun 27 14:44:32 <lufimtse>	see Test_*Browser
+Jun 27 14:44:41 <lufimtse>	setUp()
+Jun 27 14:44:44 <ericwill>	lufimtse danke
+Jun 27 14:44:54 <lufimtse>	I'm setting up cross platform tests atm
+Jun 27 14:45:15 <lufimtse>	one thing I didn't quite anticipate is that running jUnits over ssh is not straight forward.
+Jun 27 14:45:27 <lufimtse>	it tries to tunnel them etc...
+Jun 27 14:45:33 <lufimtse>	gotta find a more creative approach.
+Jun 27 14:46:11 <ericwill>	ah yeah that could be tricky
+Jun 27 14:46:24 <ericwill>	maybe do it headless?
+Jun 27 15:36:16 <ericwill>	akurtakov how often do the hudson test machines on gerrit get updated?
+Jun 27 15:36:19 <ericwill>	every night?
+Jun 27 15:36:39 <akurtakov>	ericwill: yes
+Jun 27 15:37:49 <ericwill>	okay, cool
+Jun 27 15:39:06 <akurtakov>	ericwill: unless there is broken build :)
+Jun 27 15:39:16 <akurtakov>	in which case I-build repo will not be updated
+Jun 27 15:40:14 <ericwill>	akurtakov I was just wondering when I push the JUnit tests with alpha
+Jun 27 15:40:20 <ericwill>	it can wait
+Jun 27 15:40:28 <akurtakov>	once you see good build
+Jun 27 15:44:00 <ericwill>	akurtakov after removal of GDK drawing, what stands in the way of GTK2 removal?
+Jun 27 15:44:23 <akurtakov>	people will :)
+Jun 27 15:45:05 <ericwill>	ah yes, the political discussions
+Jun 27 15:45:36 <akurtakov>	ericwill: I'm looking to remove rhel6 out of the equation by dropping cairo pre 1.10
+Jun 27 15:46:07 <akurtakov>	that would silence many people :)
+Jun 27 15:50:51 <akurtakov>	ericwill: I'm not pushing too much now 
+Jun 27 15:51:06 <akurtakov>	as there are other changes which require pushing 
+Jun 27 15:51:16 <akurtakov>	but gtk2 removal is about time
+Jun 27 15:51:32 <akurtakov>	and once we have gtk4 betas we will claim it inevitable
+Jun 27 15:52:11 <ericwill>	right, makes sense
+Jun 28 09:59:58 <lufimtse>	https://dev.eclipse.org/mhonarc/lists/platform-releng-dev/
+Jun 28 10:00:19 <lufimtse>	http://download.eclipse.org/eclipse/downloads/
+Jun 28 10:00:25 <lufimtse>	ericwill, builds produced, but not yet linked.
+Jun 28 10:00:49 <akurtakov>	I'm working on starting doing 4.7.1 maintenance builds as we speak
+Jun 28 10:01:08 <akurtakov>	aiming that all this is fixed by eow
+Jun 28 10:02:04 <akurtakov>	after all we have the release today
+Jun 28 10:02:08 <akurtakov>	PARTYYY :)
+Jun 28 10:03:11 <ericwill>	akurtakov :D
+Jun 28 10:03:19 <ericwill>	a good reason to have some beers
+Jun 28 10:06:24 <ipun>	oh yeah
+Jun 28 10:06:27 <ipun>	todays the day :D
+Jun 28 10:06:37 <ipun>	release party on blujeans it is
+Jun 29 09:53:05 <akurtakov>	ipun: here ?
+Jun 29 09:53:15 <ipun>	akurtakov: hey
+Jun 29 09:53:29 <akurtakov>	what are you working on ?
+Jun 29 09:54:36 <ipun>	i've been bug triaging this whole week but ive picked up https://bugs.eclipse.org/bugs/show_bug.cgi?id=4745
+Jun 29 09:54:52 <ipun>	this one is pretty much done im just trying to see if i can set up a windows VM to test how it looks
+Jun 29 09:55:08 <ipun>	im waiting for Leo to test it on OSX but hes not in yet
+Jun 29 10:02:06 <akurtakov>	please look at TableDragSourceEffect 
+Jun 29 10:02:17 <akurtakov>	or TreeDragSourceEffect
+Jun 29 10:02:28 <akurtakov>	drawing is in if GTK3 block
+Jun 29 10:02:36 <ipun>	there a bug id for that?
+Jun 29 10:02:40 <akurtakov>	but doing cairo drawing should be suitable for all
+Jun 29 10:02:43 <akurtakov>	no
+Jun 29 10:02:48 <akurtakov>	just saw it
+Jun 29 10:02:54 <akurtakov>	while looking at other things
+Jun 29 10:03:17 <akurtakov>	I don't know how much porting would be needed
+Jun 29 10:03:25 <akurtakov>	probably none for the actual drawing
+Jun 29 10:03:35 <akurtakov>	but I would expect some "hooking" fun
+Jun 29 10:03:43 <akurtakov>	as it doesn't work out of the box :)
+Jun 29 10:07:50 <ipun>	okay i will take a look
+Jun 29 10:10:59 <akurtakov>	feel free to open a bug
+Jun 29 10:11:15 <akurtakov>	it's just smth I found while looking to remove gdkdraw
+Jun 29 10:17:19 <ipun>	akurtakov: so did you want to remove cairo or remove the guard?
+Jun 29 10:17:22 *	ipun is slightly confused
+Jun 29 10:17:34 <akurtakov>	remove the else clause
+Jun 29 10:17:39 <akurtakov>	aka not cairo drawing
+Jun 29 10:27:30 <ipun>	akurtakov: okay. But still have a solution for GTK2 i assume?
+Jun 29 11:03:41 <ericwill>	lufimtse color port tests ready to be reviewed once more
+Jun 29 14:19:06 <akurtakov>	lufimtse: http://download.eclipse.org/eclipse/downloads/
+Jun 29 14:19:16 <akurtakov>	4.8 I builds are shown now 
+Jun 29 15:14:13 <lufimtse>	akurtakov, ooeee
+Jun 29 15:14:40 <akurtakov>	lufimtse: 4.7.1 builds should be up by Tue
+Jun 29 15:15:05 <akurtakov>	it involved me requesting resources and pde commit rights so I can speed it up in the future
+Jun 30 09:30:30 <akurtakov>	ipun: how is the dnd effect stuff going ?
+Jun 30 09:38:54 <ipun>	akurtakov: good, i was just about to msg you
+Jun 30 09:39:14 <ipun>	i spent a while on #cairo and #gtk to figure this out
+Jun 30 09:39:21 <akurtakov>	so sounds doable?
+Jun 30 09:39:50 <ipun>	theres a small problem. The way that GTK gives us the drag icon differs in GTK2 vs GTK3
+Jun 30 09:40:13 <ipun>	gtk_tree_view_create_row_drag_icon() is not deprecated and is in both versions, but they return different values
+Jun 30 09:40:29 <ipun>	in GTK2 a GDKpixmap is returned, while GTK3 returns a cairo surface
+Jun 30 09:41:09 <ipun>	they've dropped support for GdkPixmap for Cairo as of GTK3, which makes it difficult as there is no methods in GTK2 that will give us a cairo surface image instead
+Jun 30 09:41:22 <ipun>	their fix was basically for GTK3, which kind of screws things up for us 
+Jun 30 09:45:22 <ipun>	what do you think?
+Jun 30 09:46:39 <akurtakov>	not sure I follow
+Jun 30 09:46:48 <akurtakov>	we work dynamically
+Jun 30 09:47:03 <akurtakov>	and GdkPixmap is smth we can use with cairo
+Jun 30 09:47:10 <akurtakov>	on gtk2 
+Jun 30 09:47:13 <akurtakov>	or not?
+Jun 30 09:48:07 <ipun>	so basically in Gtk2 a GdkPixmap is returned, which is deprecated
+Jun 30 09:48:13 <ipun>	but, we can convert the pixmap to cairo using gdk_cairo_set_source_pixmap
+Jun 30 09:48:19 <ipun>	however, that method is removed in GTK3
+Jun 30 09:48:38 <akurtakov>	which is fine
+Jun 30 09:48:41 <ipun>	so we will still need a (OS.GTK3) conditional
+Jun 30 09:48:45 <akurtakov>	ok
+Jun 30 09:48:54 <ipun>	are you okay with that?
+Jun 30 09:48:57 <akurtakov>	yes
+Jun 30 09:49:03 <ipun>	kk
+Jun 30 09:49:10 <ipun>	ill come up with something asap
+Jun 30 09:49:13 <akurtakov>	having a cairo drawing (even if pixmap based) on gtk2
+Jun 30 09:49:20 <akurtakov>	is better than gdkdrawable
+Jun 30 09:49:30 <akurtakov>	which was deprecated even before that :)
+Jun 30 09:49:43 <akurtakov>	and it allow me nuke all gdkdrawable stuff :)
+Jun 30 09:50:14 <ipun>	sounds good, i think this is very possible then :)
+Jun 30 10:06:47 <akurtakov>	one hell of a commit coming guys :)
+Jun 30 10:12:45 <akurtakov>	https://git.eclipse.org/r/#/c/100472/ 
+Jun 30 10:12:55 <akurtakov>	I would appreciate a quick glance
+Jun 30 10:16:43 <ipun>	akurtakov: oh my...
+Jun 30 10:16:52 <ericwill>	lufimtse ^^
+Jun 30 10:20:01 <ipun>	i dont think lufimtse is here
+Jun 30 10:20:05 <ipun>	hes not in the office
+Jun 30 10:20:20 <ipun>	he'll show up though I talked to him last night
+Jun 30 10:20:43 <akurtakov>	ericwill: btw, mylyn notification background is broken with the latest build
+Jun 30 10:22:00 <akurtakov>	ericwill: anyway, I'll push it unless you find issue while I do same surgery to TextLayout :)
+Jun 30 10:22:50 <ericwill>	akurtakov screenshot of breakage?
+Jun 30 10:23:02 <akurtakov>	ericwill: for mylyn ?
+Jun 30 10:23:05 <ericwill>	akurtakov yeah
+Jun 30 10:25:42 <akurtakov>	meh, it worked now
+Jun 30 10:25:52 <akurtakov>	worst case , doesn't happen everytime
+Jun 30 10:26:07 <akurtakov>	ericwill: ok, open preferences
+Jun 30 10:26:38 <akurtakov>	do you see the right column being all white background ?
+Jun 30 10:27:11 <ericwill>	window -> preferences?
+Jun 30 10:27:15 <akurtakov>	I think it's same thing there 
+Jun 30 10:27:17 <akurtakov>	yes
+Jun 30 10:28:20 <ericwill>	preferences window looks fine to me
+Jun 30 10:28:40 <ericwill>	or is this under some specific preference?
+Jun 30 10:29:27 <akurtakov>	ericwill: are you unde rwayland ?
+Jun 30 10:30:06 <ericwill>	akurtakov no
+Jun 30 10:30:10 <ericwill>	are you?
+Jun 30 10:32:38 <akurtakov>	yes
+Jun 30 10:33:15 <ericwill>	let me try it, brb
+Jun 30 10:35:09 <ericwill>	akurtakov still looks fine to me
+Jun 30 10:35:30 <akurtakov>	hmm ok
+Jun 30 10:35:35 <akurtakov>	please stay on wayland
+Jun 30 10:35:41 <akurtakov>	it might come later :)
+Jun 30 10:35:52 <ericwill>	will do
+Jun 30 10:35:57 <akurtakov>	good idea in general :)
+Jun 30 10:36:31 <ericwill>	a wayland only color bug would be weird
+Jun 30 10:36:43 <akurtakov>	it is so awkward
+Jun 30 10:37:02 <akurtakov>	my swt involvement started with adding all these ifs for gtk3
+Jun 30 10:37:18 <akurtakov>	actually with cairo in gtk 2.18 :)
+Jun 30 10:37:31 <akurtakov>	feels like closing the loop now by removing the old stuff
+Jun 30 10:38:10 <ericwill>	it's come full circle!
+Jun 30 10:43:33 <akurtakov>	yeah
+Jun 30 10:43:48 <akurtakov>	so fine to push GC stuff ?
+Jun 30 10:44:44 <ericwill>	akurtakov I don't see anything bad looking, you know more about it than me :)
+Jun 30 10:44:55 <akurtakov>	:)
+Jun 30 10:45:12 <akurtakov>	worst part is probably I'm the only one in the project remembering this shit :)
+Jun 30 10:59:27 <akurtakov>	ericwill: I had to restart my ide
+Jun 30 10:59:32 <akurtakov>	preferences are now fine
+Jun 30 10:59:44 <akurtakov>	so there is smth somewhere causing the issues later
+Jun 30 11:00:12 <ericwill>	strange
+Jun 30 11:00:28 <ericwill>	not re-drawing properly maybe?
+Jun 30 11:02:10 <lufimtse>	ericwill, hello'
+Jun 30 11:04:26 <ericwill>	lufimtse hi, it's okay
+Jun 30 11:04:32 <ericwill>	Alex already went ahead and merged
+Jun 30 11:20:09 <akurtakov>	if you guys don't notice any change I did good job :)
+Jun 30 11:24:32 <akurtakov>	ericwill: ok, so I got the preferences dialog background white again
+Jun 30 11:25:04 <ericwill>	akurtakov anything specific to reproduce the issue?
+Jun 30 11:25:17 <akurtakov>	ericwill: no, regular coding stuff
+Jun 30 11:25:25 <akurtakov>	jump to navigation search for references and etc.
+Jun 30 11:25:35 <akurtakov>	after an hour doing so I get it repro
+Jun 30 11:26:03 <ericwill>	very weird
+Jun 30 11:26:13 <ericwill>	if it happens only on Wayland -- even weirder
+Jun 30 11:27:43 <ipun>	akurtakov: so its looking more doable to get this done but i might have to rewrite getSourceImage quite a bit, might take a bit longer than a few lines changed
+Jun 30 11:28:01 <akurtakov>	hmm
+Jun 30 11:28:16 <akurtakov>	that's unexpected :)
+Jun 30 11:29:20 <ipun>	yeah basically i have to do some conversion so that might change the actual logic to it
+Jun 30 11:29:28 <ipun>	but it shouldnt be a problem, it just might look different
+Jun 30 11:30:14 <akurtakov>	you're off on monday, right?
+Jun 30 11:30:38 <ipun>	no im gonna be working on monday
+Jun 30 11:30:54 <akurtakov>	ok, I'll look into it on monday and we can talk once you appear
+Jun 30 11:30:58 <ipun>	sure
+Jun 30 12:03:08 <lufimtse>	facebook launched a "workplace" version. Interesting..
+**** ENDING LOGGING AT Fri Jun 30 18:34:19 2017
+
+**** BEGIN LOGGING AT Mon Jul  3 09:49:14 2017
+
+Jul 03 09:49:14 *	Now talking on #SWT
+Jul 04 10:10:08 <akurtakov>	ericwill: hey Eric
+Jul 04 10:10:19 <akurtakov>	would you please install ubuntu in a vm and try 
+Jul 04 10:10:32 <akurtakov>	my gut feeling is some weird ubuntu theme issue
+Jul 04 10:10:40 <ericwill>	akurtakov already in the process of doing so :)
+Jul 04 10:10:47 <akurtakov>	cool
+Jul 04 10:10:48 <ericwill>	that is what I think as well
+Jul 04 10:11:11 <akurtakov>	ericwill: could it be even transparency
+Jul 04 10:11:37 <akurtakov>	now that the colors have transparency and adwaita doesn't define it for anything but tooltip
+Jul 04 10:11:59 <akurtakov>	if ambience uses heavy transparency I can envision such problems
+Jul 04 10:12:26 <ericwill>	akurtakov I will look into it. all his breakages were custom widgets/SwtFixed only widgets
+Jul 04 10:12:35 <ericwill>	so transparency could be it
+Jul 04 10:17:26 <ericwill>	akurtakov the issue reproduces on Ubuntu unity
+Jul 04 10:17:28 <ericwill>	will try with GNOME
+Jul 04 10:18:12 <akurtakov>	I don't expect change if gnome uses ambience and not adwaita :)
+Jul 04 10:19:06 <ericwill>	akurtakov GNOME with ambiance broken, adwaita works
+Jul 04 10:19:11 *	ericwill sighs
+Jul 04 10:19:28 <akurtakov>	as expected :)
+Jul 04 10:20:13 <ericwill>	akurtakov what is the procedure with this, do we fix it?
+Jul 04 10:20:24 <akurtakov>	yeah, we would better fix it
+Jul 04 10:20:40 <akurtakov>	ubuntu is one of the target environments
+Jul 04 10:20:44 <akurtakov>	so it should work out of the box
+Jul 04 10:21:06 <ericwill>	okay, I'll look into it
+Jul 04 10:21:18 <ericwill>	can't wait for Ubuntu to start using GNOME :)
+Jul 04 10:21:39 <akurtakov>	ericwill: well, and Adwaita (ideally)
+Jul 04 10:21:48 <akurtakov>	ambience is an abomination :)
+Jul 04 10:22:28 *	akurtakov can't get people liking the orange color randomly in the UI
+Jul 04 10:22:32 <akurtakov>	is it still like that ?
+Jul 04 10:22:38 <ericwill>	yes
+Jul 04 10:22:41 <ericwill>	it is so ugly
+Jul 04 10:22:43 <ericwill>	I can't stand it
+Jul 04 10:23:39 <akurtakov>	seeing UI like that being liked makes me believe I can be a world class artist one day :)
+Jul 04 10:24:37 <ipun|laptop>	akurtakov: I'd love to see that haha
+Jul 04 10:24:39 <ericwill>	I don't who decided on orange, of all colors
+Jul 04 10:24:44 <ericwill>	*I don't know
+Jul 04 10:38:05 <lufimtse>	akurtakov, so is backport branch open now? Do you know?
+Jul 04 10:38:12 <akurtakov>	ipun: if ambience is designer work, I 'm leonardo da vinci :)
+Jul 04 10:38:28 <akurtakov>	lufimtse: according to sravan , he needs few more hours
+Jul 04 10:38:33 <akurtakov>	tbh, I don't know what is he doing 
+Jul 04 10:38:40 <lufimtse>	akurtakov, ah, ok.
+Jul 04 10:55:01 <akurtakov>	ericwill: it gets better and better :)
+Jul 04 10:55:33 <ericwill>	akurtakov I am very curious as the cause of this
+Jul 04 11:00:33 <ipun>	akurtakov: i should just call you alex da vinci from now on
+Jul 04 11:01:04 <akurtakov>	ericwill: transparency or some color not initialized
+Jul 04 11:01:25 <akurtakov>	look in the color tab in control example on ubuntu
+Jul 04 11:01:38 <akurtakov>	some constant should be quite weird
+Jul 04 11:01:40 <akurtakov>	 :)
+Jul 04 11:03:47 <ericwill>	akurtakov that is what I am doing right now haha
+Jul 04 11:09:30 <akurtakov>	ericwill: let me know of anything you find
+Jul 04 11:09:57 <ericwill>	akurtakov system colors look normal
+Jul 04 11:32:48 <ericwill>	akurtakov actually nvm, I was looking at the wrong thing. I found some breakages
+Jul 04 12:02:47 <akurtakov>	ericwill: what it is ?
+Jul 04 12:06:51 <ericwill>	akurtakov 7 system colors are broken, I am looking into the cause
+Jul 04 12:07:06 <ericwill>	doesn't seem to be a transparency issue
+Jul 04 12:07:11 <akurtakov>	good
+Jul 04 12:07:20 <akurtakov>	that should be easier to fix
+Jul 04 12:07:23 <ericwill>	yes
+Jul 05 10:42:15 <ipun>	akurtakov: do you know what type of widget this diagram viewer is using? https://bugs.eclipse.org/bugs/show_bug.cgi?id=517671
+Jul 05 10:42:36 <akurtakov>	probably canvas
+Jul 06 01:50:00 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Thu Jul  6 01:50:00 2017
+
+**** BEGIN LOGGING AT Thu Jul  6 01:50:10 2017
+
+Jul 06 01:50:10 *	Now talking on #SWT
+Jul 06 10:50:16 <lufimtse>	ericwill,  addr: EclipseWin10.local   usr/pass:eclipse/eclipse
+Jul 06 10:50:35 <lufimtse>	sorry pass is not 169 letters long like your password.
+Jul 06 10:57:20 <ericwill>	lol
+Jul 10 11:19:12 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jul 10 11:19:12 2017
+
+**** BEGIN LOGGING AT Mon Jul 10 11:34:25 2017
+
+Jul 10 11:34:25 *	Now talking on #SWT

@@ -1,0 +1,162 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-06-19T11:07:03-04:00
+
+====== Week 25 2017 ======
+18 June to 24 June
+
+====== Observations and Life Lessons ======
+
+====== Weekly Goals ======
+[*] Fix Coord issue.  2017-06Jun-26Mon.
+[ ] Dark theme hyper-link text is dark blue on black background in Javadoc.
+[*] Fix Stack overflow issue in perspectives.
+
+====== Weekly Report ======
+Highlights:
+###########
+- Fixed highest voted critical bug in SWT/Linux: 
+   Unhandled event loop > StackOverflow in Perspective  (Infnite recusion) 
+   & OS.gtk_widget_get_allocation returns (0,0) for invisible controls 
+  This improves EclipseGtk3 performance on Fedora and makes Eclipse Gtk3 usable on Ubuntu.
+
+- SWT Noteworthy: Lakshmi removed XUL/Mozilla backend from SWT
+
+Last Week:
+##########
+- Resolved Infinite recursion issue: (review in progress)
+   #1 Bug 497705 – Unhandled event loop > StackOverflow in Perspective
+	  which in turn was caused by:
+   #2 Bug 465280 – [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls
+   * On Fedora, Eclipse/Gtk3 had performance issues as infinite recusion occured, but JVM did not crash.
+   * On Ubuntu, Eclipse/Gtk3 was not usable at all due to a stack overflow. (Now Elipse is usable).
+   * The fix was actually fixing a workaround that had a typo. But it took a long
+	 time to find this as I had to understand how visibility works internally in GTK.
+   * This was the highest voted critical Linux bug in SWT. I started work on it due to
+	 large number of complaints by users about this issue.
+
+ - Reviewed Eric's 1700+ color patch. ~It took a day and a half.
+   Very good patch, looking forward to having it merged!
+
+ - Submitted Eclipse con talk proposal for my own talk:
+	JNI in Eclipse, where C and Java mix and mingle
+   Also Eric and I submitted a joint tutorial:
+	Building Meaningful Applications in SWT for Beginners
+   (for tutorials, both presenters get a free pass)
+
+- Other bits:
+ Bug 516674 – Regression in Oxygen of Control.forceFocus() on CentOS 
+ - Investigation test failure that only occurs on CentOS.
+ Bug 518379 – Allow platform specific JUnit tests 
+  - Added platform .java stubs, updated pom files. Merged
+ Bug 518478 – SWT project should use "Triaged" keyword instead of assigning to swt-triaged@eclipse.org user. 
+  - Updated eclips.org swt website to point to new triage process
+  - Steadily moving bugs away from old swt-triaged@ user.
+
+- Patch reviews:
+   Bug 486068 – [GTK3.20+] Allocation warnings printed in error console 
+   Bug 502264 – Event class should override clone() 
+	- User submitte patch to make Events Clonable. Whlie its a great idea, the trivial implementation only created a shallow copy, which is not a true copy, thus it had too much potential for bugs
+   Bug 505992 – [Gtk] Replace deprecated gtk_menu_popup 
+   Bug 506030 – [GTK] clean up dynamic function calls 
+	- SWT JNI methods javadoc should not contain usercomments
+   Bug 517633 – [Gtk] Strange text replacement in Spinner 
+   
+- Emphasis on being responsive to user submissions. Ensured all submissons
+  were responded to.
+  Triaged:
+  Bug 1250817 – libwebkitgtk-3.0.so SIGSEGV in org.eclipse.swt.internal.gtk.OS._g_main_context_iteration 
+  Bug 1251170 dark theme does not distinguish inactive buttons
+  Bug 455437 – Eclipse crashes using webkit on CentOS (undefined symbol: soup_message_set_first_party)
+  Bug 478641 – Gtk-WARNING: natural size must be >= min size 
+  Bug 370215 – Freeze showing hover during debug session
+  Bug 51705 – [Widgets] [JUNIT] - CoolItem fails JUnit tests 
+  Bug 518131 – java.lang.NoSuchMethodError: org.eclipse.swt.custom.ScrolledComposite.getFlatVerticalScrollbar()Lorg/eclipse/swt/widgets/Control; 
+  Bug 518167 – [navigation] Open selection in Java editor doesn't work. 
+  Bug 518484 – [gtk][I18N]Can't input Chinese characters in StyledText using ibus input method 
+  Bug 518513 – [Win32][Accessibility] - getSelection() CHILDID_MULTIPLE has defect 
+  Bug 518657 – [GTK] Add bug snippets to GTK only tests project 
+  Bug 518728 – Application does not open with SWT 4.6 or 4.5, but it does open with SWT 4.4 "(SWT:26811): Gtk-CRITICAL" 
+
+  Closed 20+ old motif bugs.
+
+Next Week:
+##########
+- Setup automated Win32/Cocoa/Linux test servers to test patches.
+- Merge outstanding BrowserTests refactorign update.
+- Backport SEARCH icon to 4.7.1
+- Resolve Blue text on dark background in dark theme.
+
+====== Day Logs ======
+
+=== Monday 19 June ===
+Triage:
+Bug 1250817 – libwebkitgtk-3.0.so SIGSEGV in org.eclipse.swt.internal.gtk.OS._g_main_context_iteration 
+https://bugzilla.redhat.com/show_bug.cgi?id=1250817
+[Bug 1251170] dark theme does not distinguish inactive buttons - lufimtse@redhat.com - Red Hat Mail
+Bug 455437 – Eclipse crashes using webkit on CentOS (undefined symbol: soup_message_set_first_party)
+Bug 370215 – Freeze showing hover during debug session
+Bug 518443 – Stop building XULRunner libraries on Linux/GTK
+Bug 518131 – java.lang.NoSuchMethodError: org.eclipse.swt.custom.ScrolledComposite.getFlatVerticalScrollbar()Lorg/eclipse/swt/widgets/Control;
+Bug 516674 – Regression in Oxygen of Control.forceFocus() on CentOS
+
+Patch review:
+Bug 517633 – [Gtk] Strange text replacement in Spinner
+
+Day goal:
+[*] Finish off SWT triage page redirect
+[*] Do a little bit of trriag
+[x] Start on the coords business.
+
+=== Tuesday 20 June ===
+Noteworthy: Lakshmi removed XUL/Mozilla backend from SWT
+
+Submitted talk proposal:
+https://www.eclipsecon.org/europe2017/session/past-present-and-future-swt-linux
+https://www.eclipsecon.org/europe2017/session/jni-eclipse-where-c-and-java-mix-and-mingle
+https://www.eclipsecon.org/europe2017/session/building-meaningful-applications-swt-beginners
+
+=== Wednesday 1 June ===
+Day goals:
+[*] Significant progress on Coords issue.
+ 
+
+=== Thursday 22 June ===
+
+Eclipse con: Submitted joint tutorial session with Eric on "Building meaningful Applications in SWT for beginners".
+(For tutorials, two presenters get a free pass)
+
+[*] 11 Platform patch. Anki.
+[*] 12 Mail/etc.. 
+[*] 13 Lunch. Gym.
+[ ] 14
+[ ] 15
+[ ] 16
+[ ] 17 
+
+=== Friday 23 June ===
+Fixed highest voted critical bug in Eclipse:
+Bug 497705 – Unhandled event loop > StackOverflow in Perspective
+Bug 465280 – [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls
+
+Motif No longer supported:
+	Bug 277351 – [DND] cannot drag file to desktop 
+	Bug 32864 – [DND] Tree flash during DnD 
+	Bug 42428  [DND] Attempt to get data early returns garbage, instead of null. 	
+	Bug 293462  [Widgets] ControlExample's Sash tab does not lay out initially 
+	Bug 92639  [consistency] CTRL-selecting a MenuItem does not select item 
+	Bug 40765  combo event firing differences (win32/motif) 		
+	Bug 74432  [Widgets] Interesting warning from metacity 	
+	Bug 56495  [Widgets] Color choice doen't allow every color 
+	Bug 100897  [browser] cannot get focus into Javadoc view with keyboard 	
+	Bug 97002  [browser] context menu is never dismissed 	
+	Bug 96499  [browser] two clicks are required to give focus to text input 		
+	Bug 97666  [Widgets] Arrow Button draws badly 	
+	Bug 25640  [Widgets] Calling setText for a SWT Group object 		
+	Bug 13967  [Widgets] Button of DialogCellEditor does not look like Push Button
+	Bug 105773  [Graphics] font mapping wrnings are displayed on the shell 		
+	Bug 98177  [Widgets] Variables view full of cheese 	
+	Bug 78268  [Graphics] GC.drawString draws at wrong vertical offset 
+	+3
+
+

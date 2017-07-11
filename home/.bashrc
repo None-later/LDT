@@ -21,6 +21,37 @@ export EDITOR=vim
 
 
 ##############
+### History
+#############
+# Keep long history and
+# sync history between tabs.
+# src: https://unix.stackexchange.com/questions/1288/preserve-bash-history-in-multiple-terminal-windows#answer-48116
+# USAGE:
+# history | grep CMD
+# !1234
+HISTSIZE=100000
+HISTFILESIZE=$HISTSIZE
+HISTCONTROL=ignorespace:ignoredups
+
+_bash_history_sync() {
+  builtin history -a         #1
+  HISTFILESIZE=$HISTSIZE     #2
+  builtin history -c         #3
+  builtin history -r         #4
+}
+
+history() {                  #5
+  _bash_history_sync
+  builtin history "$@"
+}
+
+PROMPT_COMMAND=_bash_history_sync
+
+shopt -s histverify  # 'history' & !ID will present command for editing before running it.
+shopt -s histreedit  #not really sure, but redit line if history exec failed?
+
+
+##############
 ## Key bindings inside terminal
 ##############
 # use 'ctrl-v' press KEY to find keycode.
@@ -44,7 +75,7 @@ bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no outp
 # .. cd 
 
 # bashrc editing
-alias vbrc="vim ~/.bashrc"
+alias vbrc="vim ~/.bashrc && source ~/.bashrc && echo 'bashrc reloaded'"
 alias rbrc="source ~/.bashrc"
 
 # a
@@ -63,7 +94,7 @@ alias sdi="sudo dnf install" #Sudo dnf install
 alias sdla="sudo dnf list available"
 alias sdli="sudo dnf list installed"
 alias sdl="sudo dnf list"
-
+alias sds="sudo dnf search"
 # e
 # f
 # g - Git, grep 
@@ -81,7 +112,11 @@ alias ngrep="grep -iv"
 # k
 # l
 alias lla="ll -a"
+#alias lld="ll --group-directories-first"
+alias lld="ll -d */"
+alias lsd="ls -d */"
 alias less="less -r"  # read coloured output.
+# alias lock="gnome-screensaver-command -l"
 
 # m
 #alias man="man -P most"
@@ -93,16 +128,17 @@ alias make=colormake
 # q
 alias quiet="&> /dev/null "
 # r
-alias rc="referenceGenerator.sh | toclip"
+alias rc="referenceGenerator.sh | setclip"
 alias rcp="rsync -azh --info=progress2 "
-alias rsync-workspace="rsync -r --delete ~/workspace/ ~/workspacecopy"
+# alias rsync-workspace="rsync -r --delete ~/workspace/ ~/workspacecopy"
+
 # s
+alias s="sudo"
 alias startssh="systemctl start sshd.service"
 alias stopssh="systemctl stop sshd.service"
 # t
 # u
 # v
-alias vpn="sudo vpnc" 
 alias v="vim"
 # w
 

@@ -1,0 +1,76 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-05-04T14:03:31-04:00
+
+====== VirtualBox ======
+Created Thursday 04 May 2017
+
+====== Setup ======
+
+===== Installation: =====
+I installed via dnf, then followed on-screen instructions when starting a vm.
+
+But also:
+https://www.if-not-true-then-false.com/2010/install-virtualbox-with-yum-on-fedora-centos-red-hat-rhel/
+
+===== Guest additions =====
+Guest additions iso download:
+http://download.virtualbox.org/virtualbox/
+
+Install guide:
+https://www.if-not-true-then-false.com/2010/install-virtualbox-guest-additions-on-fedora-centos-red-hat-rhel/
+
+
+====== Guest setup notes: ======
+
+==== Set root password ====
+sudo passwd root
+
+sudo visudo 
+#%wheel  ALL=(ALL)       NOPASSWD: ALL     <<< this line uncomment
+
+**Autologin:**
+In user options, enable autologin.
+
+
+==== Shared folder fix ====
+on 5.1.20, shared folder integration is broken due to broken link in:
+[[/sbin/mount.vboxsf]]
+
+Fix:
+https://forums.virtualbox.org/viewtopic.php?f=3&p=[[https://forums.virtualbox.org/viewtopic.php?f=3&p=283645|283645]]
+
+~~ do sort of:
+cd [[/sbin]]
+# check that mount.vboxsf is broken
+su
+rm mount.vboxsf
+ln -s /opt/VBoxGuestAdditions-5.1.20/lib/VBoxGuestAdditions/mount.vboxsf 
+
+==== Shared folder ====
+- On vm config go to "Shared Folders", 
+- Under "Machine Folders" add folder, e.g [[~/]] and call it 'lufimtse'.
+
+**Option 1: Automount:**
+  - When creating Machine Folder, set to auto-mount.
+  - in guest, these are mounted into: [[/media/sf_lufimtse]]
+  - In guest, add yourself to vboxsf group to have access to share:
+	sudo usermod -a -G vboxsf lufimtse
+	sudo shutdown -r now  # reboot system.
+
+**Option 2: Mount manually**
+- In guest:
+  cd [[~/]]
+  mkdir [[~/host]]
+  # find uid/gid of your user. See [[~/etc/passwd]] (usually first user is 1000)
+  sudo mount -o uid=1000,gid=1000 -t vboxsf lufimtse [[~/host]]  # src: https://serverfault.com/questions/674974/how-to-mount-a-virtualbox-shared-folder/674978
+  (Theory: alternatively add yourself to vboxsf group, #not tested).
+
+
+===== Rsync two folders =====
+ex:
+rsync -rtu --delete-delay /home/lufimtse/host/workspace ~/workspace/ 
+rsync -rtu --delete-delay /home/lufimtse/host/apps/eclipse [[~/eclipse/]]
+~Takes about 12 seconds to do incremental update.
+see: [[Home:Bash:cmd:rsync]]
+

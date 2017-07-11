@@ -1,0 +1,90 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-07-03T15:41:45-04:00
+
+====== Week 27 2017 ======
+02 July to 08 July
+
+====== Observations and Life Lessons ======
+- SWT Nebula has quite an active user base, lots of commits. 
+
+====== Weekly Goals ======
+[70% -> 80%] Setup automated Windows/OSX/LinuxGtk2/LinuxGt3/LinuxWayland test servers for gerrit patch submissions
+[x] Dark theme hyper-link text is dark blue on black background in Javadoc 
+[x] Investigate outstanding Webkit2 work
+[60->70% ] Complete update of SWT Triage process 
+
+====== Weekly Report ======
+
+Webkit:
+Bug 514719 – [Browser][Webkit2] port Browser.getText() to webkit2 
+ - Updated jUnits to reflect different behaviour on windows
+ - a few Browser tests timeout too soon on OSX when started from maven. Increased timeout interval
+Bug 519177 – [All] update Browser.getText() javadoc to reflect platform specific behavior of returned html (ex Windows) 
+Bug 518961 – [Gtk][Browser] Using Nebula's Rich Text Editor Launchs exception on Linux OS
+- Investigated. Nebula (SWT extension) RichTextEditor only fails on Webkit1/Webkit2 Linux.
+  Not on Cocoa/Win32.
+  Seems some javascript triggers exception only on webkit1/webkit2.
+  Requested Nebula maintainers to narrow down to javascript snippet,
+  (or I will do later if time permits):
+  ReportedBug 519333 – Regression after (Bug 498392 Create a more general configuration design), on Linux Webkit1,2 
+  Bug 519340 – org.eclipse.nebula.widgets.richtext.example doesn't launch on Cocoa due to java 1.7 
+
+
+SWT jUnit/Test related:
+Bug 518379 – Allow platform specific JUnit tests 
+ - gtk only junit test package activated on cocoa, which it shouldn't.
+ - The reason was that Cocoa is a 'unix' family and gtk tests were marked to run only on unix family.
+ - Solution was to narrow Gtk tests to "Linux" OS name.
+ - Tested on Cocoa/Fedora/CentOS/Ubuntu.
+Bug 519237 – [Cocoa] mvn -Pbuild-individual-bundles fails on OSX due to missing -XstartOnFirstThread vm arg 
+  - "Maven build fails on OSX. Added conditional argument to pom.xml, such that on OSX arg is added"
+ Bug 470174 – Improvement main thread warning message on macosx 
+  - Made error message include the solution, as oppose to just print a complaint. 
+	Solution is to add a vm arg that is specific to java on osx"
+Bug 519328 – [All] Add "Bug Snippets" folder to org.eclipse.swt.tests project 
+ - "Adding bug snippets to swt, to make it easier to reproduce bug reports"
+
+Review
+Bug 351303 – Register an URL protocol with the operating system 
+ - old patch. Pinged author
+Bug 443250 – Support modern native directory dialog 
+ - Old patch. Pinged author
+ - "Win32 patch. Asked Niraj to review"
+Bug 467203 – Download progress window not shown with XULRunner 31 
+ - Abandoned old XUL commit
+Bug 4745 – [StyledText] StyledText does not provide a disabled look (1GG00JX) 
+ - Looks good on linux and cocoa, slightly off on win32
+Bug 481085 – [StyledText][Block Selection] Cursor unexpectedly jumps to first line while typing 'if' condition 
+ - followup on 2 year old gerrit patch
+Bug 484205 – Add support for ImageData comparison 
+ - Patch blocked because it didn't work well on gtk2. Advised to ignore gtk2
+Bug 485413 – [win32] Main Menu refresh with slight flicker when switching to/from MSWord editor 
+ - old patch. Pinged author
+Bug 508600 – [API]The average character width of a font is not integer 
+ - Pinged author of old patch
+Bug 502264 – Event class should override clone() 
+  - Closing as wontfix. Feature would cause more problems than it would resolve. 
+  - Made suggestions on how to improve, but author did not appear to be interested in
+	improving original patch.
+  
+Community:
+Bug 519124 – Add SWT variable to print versions of underlying libraries 
+ - "Adding SWT_LIB_VERSIONS to print versions of native libraries, for investigation of bug reports"
+ - "Updated swt wiki triage page"
+Bug 518478 – SWT project should use "Triaged" keyword instead of assigning to swt-triaged@eclipse.org user. 
+ - Update: 119 bugs assigned to swt-triage were updated (by various SWT developers), 242 left to go
+
+Triage:
+Bug 212416 – [Cocoa,Gtk][Browser] Browser does not send DragDetect on Mac/Safari and Gtk/Webkit 
+ - Drag detect doesn't work on Linux and cocoa. Wrote a snippet to test
+Bug 426243 – [All] Add Display API to spin event loop 
+ - Original patch author abandoned work on patch started in 2015
+Bug 491855 – A lot of glib assertions fail in 4.6M6 
+Bug 518099 – Graphics errors in Java editor 
+Bug 518728 – Application does not open with SWT 4.6 or 4.5, but it does open with SWT 4.4 "(SWT:26811): Gtk-CRITICAL"
+Bug 519166 – [Gtk] Tree performance problem tracker 
+Bug 519295 – invisible settings button in validation preferences when using GTK3 
+Bug 519413 – Error creating a Javascript project 
+ - "seems not related to swt"
+Bug 79925 – [consistency][Gtk] Button MenuDetect preceeds MouseDown

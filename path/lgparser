@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	LOG="/home/lufimtse/git/LDT/worklog/$(date '+%W')"
+else
+	LOG="$1"
+fi
+SORTEDLOG="${LOG}Sorted"
+cat "$LOG" | sort > "$SORTEDLOG"
+
+CURRTYPE=""
+CURRID=""
+cat "$SORTEDLOG" | while read line
+do
+	TYPE=$(echo "$line" | grep -o ".*:i:" | sed 's/:i://')
+	if [ "$TYPE" != "$CURRTYPE" ]; then
+			CURRTYPE="$TYPE"
+			printf "\n${TYPE}\n"
+	fi
+	ID=$(echo "$line" | grep -o ":i:.*:t:" | sed 's/:i://' | sed 's/:t://')
+	if [ "$ID" != "$CURRID" ]; then
+		CURRID="$ID"
+		printf "$ID\n"
+	fi
+	COMMENT=$(echo "$line" | grep -o ":c:.*" | sed 's/:c://')
+	if [ "$COMMENT" != "" ]; then
+		printf " - $COMMENT\n"
+	fi
+done
+
+
+rm $SORTEDLOG

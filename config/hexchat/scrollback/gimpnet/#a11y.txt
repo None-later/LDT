@@ -1,199 +1,3 @@
-T 1486483629 18<joanie18>	you rock
-T 1486483645 18<joanie18>	lemme see if I can see what your logs reveal about gtk+ 2
-T 1486483653 18<b4n18>	:)
-T 1486484822 18<joanie18>	b4n: could you see if the problem also exists when you use LibreOffice with the old mate-panel?
-T 1486484830 18<joanie18>	in English locale
-T 1486484840 18<joanie18>	sorry, the problem being the gtk+ 2 stuff
-T 1486484844 18<joanie18>	not the language stuff
-T 1486484867 18<b4n18>	you want me to try and hit Alt+F1 from inside LO under MATE1.8/GTK2 ?
-T 1486484873 18<joanie18>	yes please
-T 1486484876 18<b4n18>	sure
-T 1486484886 18<joanie18>	thanks for saying what I mean more clearly than I can
-T 1486484888 18<joanie18>	;)
-T 1486484891 18<joanie18>	more coffee please
-T 1486485013 18<b4n18>	joanie: same issue about re-announcing the app
-T 1486485020 18<joanie18>	ok thanks
-T 1486485024 18<b4n18>	I can send you the log if you want
-T 1486485044 18<joanie18>	not yet
-T 1486485069 18<b4n18>	(BTW for some reason I don't see the accessible-name issue there event though the code is clearly broken the same… I won't complain though)
-T 1486485314 18<joanie18>	b4n: if you run gtk3-demo in the old MATE environment, do you also see the problem?
-T 1486485339 18<b4n18>	lemme see
-T 1486485592 18<b4n18>	joanie: yes.  and I got 2 times where it cutoff the menu speech Firefox-like (before your fix)
-T 1486485613 18<joanie18>	so this seems to be a bug in the old MATE panel
-T 1486485634 18<joanie18>	The firefox issue was something I saw
-T 1486485677 18<b4n18>	well, the fact the window is announced probably comes from the X grabs/ungrabs that happens when hitting Alt+F1
-T 1486485691 18<b4n18>	why the menu doesn't take over though I don't know
-T 1486485719 18<joanie18>	but I don't see sanity checking window events across the board in Orca master in order to work around a bug in an old version of mate-panel
-T 1486485747 18<b4n18>	we don't have thos events in the GTK3 version?
-T 1486485770 18<b4n18>	but if you give me a moment, I can try mate-panel 1.16 GTK2 on the old thing
-T 1486485783 18<joanie18>	ok
-T 1486486293 18<b4n18>	1.16/GTK2 doesn't help
-T 1486486319 18*	joanie sighs
-T 1486486332 18<joanie18>	and the problem is fixed for firefox?
-T 1486486357 18<b4n18>	yes
-T 1486486382 18<joanie18>	and why can't the Gtk+ issue be fixed in Gtk+ ?
-T 1486486403 18<b4n18>	wait.
-T 1486486406 18<joanie18>	because it still means sanity checking events across the board
-T 1486486430 18<joanie18>	just in case people are using MATE with Gtk+ 2
-T 1486486445 18<joanie18>	when a lot of users aren't using mate and if they are have hopefully switched to Gtk+ 3
-T 1486486489 18<b4n18>	joanie: it *might* be possibel to somehow filter those events from the a11y part, but it might miss some legitmiate onew then IIUC
-T 1486486521 18<joanie18>	b4n: making the change / doing the filtering where?
-T 1486486530 18<b4n18>	yes
-T 1486486542 18<joanie18>	yes what?
-T 1486486559 18<b4n18>	that filtering on GTK side might cause problesm too
-T 1486486585 18<joanie18>	so in Gtk+ 2, correct?
-T 1486486591 18<b4n18>	those extra events are emitted during an X grab, and if the active window changes during it, it would get ignored
-T 1486486605 18<b4n18>	joanie: AFAIK there's the very same issue in GTK3
-T 1486486637 18<joanie18>	but are you seeing this problem with mate-panel Gtk+ 3?
-T 1486486640 18<joanie18>	I'm not
-T 1486486650 18<b4n18>	no I'm not
-T 1486486664 18<joanie18>	so is the very same issue in Gtk+ 3?
-T 1486486682 18<b4n18>	I meant the extra events
-T 1486486688 18<b4n18>	but lemme check again
-T 1486486697 18<joanie18>	Then why are we not seeing the chattiness?
-T 1486486706 18<joanie18>	Firefox emits extra events
-T 1486486712 18<joanie18>	but check some other app
-T 1486486874 18<b4n18>	joanie: I don't know why it works on my GTK3 box
-T 1486486899 18<joanie18>	you mean no chattiness in Gtk+3 mate-panel?
-T 1486486907 18<b4n18>	but logging the events I deveinitely see what I described there https://bugzilla.gnome.org/show_bug.cgi?id=776854
-T 1486486934 18<b4n18>	joanie: no, not there yet: no chattiness under a proper MATE 1.16 GTK3
-T 1486486979 18<b4n18>	the same setup as I had all along, the one where the language change fixed it further
-T 1486487054 18<joanie18>	So if I'm understanding you correctly, you're asking me to attempt to sanity check window-activation related events coming from all apps and toolkits for all users
-T 1486487076 18<joanie18>	in order to address a problem which only occurs if the user is using MATE panel built with Gtk+ 2
-T 1486487079 18<joanie18>	?
-T 1486487083 18<b4n18>	…or anythin else that would shut this up
-T 1486487110 18<joanie18>	I would suggest you fix that downstream
-T 1486487123 18<b4n18>	actually I don't understand why Orca isn't stopping the speach from the activate/deactivate events although another app is focused
-T 1486487142 18<b4n18>	(the panel)
-T 1486487194 18<joanie18>	probably because we don't normally see bogus events like that?
-T 1486487205 18<b4n18>	maybe
-T 1486487208 18<joanie18>	;)
-T 1486487224 18<b4n18>	but isn't the fact it doesn't happen on our GTK3 setups just that Orca shuts it up?
-T 1486487230 18<b4n18>	I shuold probably check teh event log though
-T 1486487255 18<joanie18>	Orca isn't doing anything special for mate-panel
-T 1486487263 18<b4n18>	no
-T 1486487264 18<joanie18>	regardless of version or gtk+ version
-T 1486487286 18<b4n18>	but in normal situation, if the currently focused app, it shuts the previous on up, right?
-T 1486487303 18<b4n18>	if the currently focused app changes*
-T 1486487310 18<b4n18>	one*
-T 1486487357 18<joanie18>	I'm not sure I follow what you're saying
-T 1486487358 18<joanie18>	however
-T 1486487470 18<b4n18>	shouldnt the fact that the panel gets focused shut up the other app (e.g. the terminal)?
-T 1486487484 18<b4n18>	I'm literally hearing the whole announce of the current app
-T 1486487493 18<b4n18>	it's not cut off or anything
-T 1486487494 18<joanie18>	because of the window:activate event
-T 1486487501 18<joanie18>	?
-T 1486487502 18<b4n18>	and then, after all that, I get the announce of the menu
-T 1486487548 18<b4n18>	my point is, shouldn't one of those be cut off by the other becoming the ative one?
-T 1486487573 18<joanie18>	probably
-T 1486487629 18<joanie18>	but Orca deliberately doesn't interrupt speech if a window was recently activated
-T 1486487639 18<joanie18>	because then it won't present the new window
-T 1486487661 18<b4n18>	oh
-T 1486487765 18<b4n18>	joanie: well I don't know, but in my GTK3 logs I see the very same window deactivate/activate events
-T 1486487774 18<b4n18>	yet it's not a problem apparently
-T 1486487807 18<joanie18>	is the behavior with mate-panel built with Gtk+ 3 fixed?
-T 1486487816 18<b4n18>	1s
-T 1486487839 18<joanie18>	?
-T 1486487911 18<b4n18>	gimme a moment
-T 1486487915 18<joanie18>	k
-T 1486487929 18<b4n18>	building a GTK3 one is a lot more annoying on a GTK2 environment than a GTK2 one :)
-T 1486487936 18<joanie18>	ha
-T 1486488434 18<b4n18>	joanie: mate-panel 1.16/GTK3 doen't magically fix it
-T 1486488470 18<b4n18>	it feels like it happens slightly less often, but it's highly random
-T 1486488471 18<joanie18>	so before you were not seeing the problem and now you are?
-T 1486488494 18<joanie18>	because before my changes I was seeing the problem and now I am not
-T 1486488502 18<joanie18>	using Fedora 25
-T 1486488540 18<b4n18>	no no I'm talking about putting a MATE 1.16 GTK3 panel on Debian Jessie, which has otherwise MATE 1.8
-T 1486488564 18<b4n18>	behavior on my Debian Sid box is still good
-T 1486488605 18<joanie18>	so what's up with Debian Jessie then?
-T 1486488632 18<joanie18>	and why is it my job to fix it in Orca?
-T 1486488640 18<joanie18>	s/fix/"fix"/
-T 1486488682 18<b4n18>	when I hit Alt+F1 on that Debian Jessie (with orca master obviously), it often announces the current window before announcing the menu
-T 1486488759 18<joanie18>	what I meant with "what's up with Debian Jessie then?" is what condition is present in Debian Jessie that might be responsible for it not working there?
-T 1486488774 18<b4n18>	whether it's your job or not I don't know, and don't mean to force it upon you.  But I don't think the events are tremendously different from the ones I get on my Sid box where it does work
-T 1486488808 18<b4n18>	joanie: ah.  I have no clue what's so different.  It has GTK2 everything, maybe that's the main difference
-T 1486488857 18<joanie18>	and you have the latest ATK? Or at least a newer one?
-T 1486488872 18<joanie18>	I think that some event filtering was done in ATK a year or two ago
-T 1486488889 18<joanie18>	and there have been various and sundry fixes in AT-SPI2
-T 1486488937 18<b4n18>	I probably have olde ones.  ATK 2.14
-T 1486488937 18<joanie18>	and even if I did sanity check everything for Debian Jessie, if that's stable Debian, they won't be including the current Orca, right?
-T 1486488950 18<joanie18>	yikes
-T 1486488975 18<b4n18>	no indeed they won't.  If it's really specific to Jessie you probably don't really care yourself
-T 1486488989 18<joanie18>	If things are good for a recent environment (which it sounds like they are(??)) then I think I've done enough within Orca to address this
-T 1486489023 18<joanie18>	which means that the bug you filed is as fixed as it is going to be
-T 1486489040 18<b4n18>	but as I see the very same events on both setups, I somewhat wonder it's really the environment's fault, or a different code path in Orca because of it
-T 1486489045 18<b4n18>	okay yeah I get that
-T 1486489064 18<b4n18>	I can probably live with a hack in Jessie in the meantime
-T 1486489087 18<joanie18>	would you like to close the bug and obsolete the patches you proposed or shall I?
-T 1486489135 18<b4n18>	if you don't mind I'd like to ask colleagues to test and see if there's something left I missed
-T 1486489144 18<b4n18>	and then I can close it, sure
-T 1486489147 18<joanie18>	ok
-T 1486489162 18<joanie18>	I'm afraid I won't be taking the patches you proposed, however
-T 1486489171 18<joanie18>	as I don't believe they are the right and safe thing to do
-T 1486489215 18<joanie18>	if you missed something in a modern environment, give me the specifics to reproduce the problem and I'll see what I can do
-T 1486489233 18<b4n18>	sure
-T 1486489234 18<b4n18>	thanks
-T 1486489263 18<joanie18>	np
-T 1486489549 18<b4n18>	joanie: ah, one last detail: I don't always get the "top expandd edg panel frame/panel" before "applications menu"
-T 1486489566 18<b4n18>	seems to mostly depend on which app was focused before
-T 1486489611 18<b4n18>	from Firefox I always get it
-T 1486489618 18<b4n18>	from mate-terminal almost (?) never
-T 1486489874 18<joanie18>	b4n: ok, I'll take a look
-T 1486497760 18<joanie18>	b4n: I made some more changes -- including sanity checking all windows upon activation. I hope that solves more of your problems
-T 1486497771 18<joanie18>	I also officially loathe mate-panel now.
-T 1486497774 18*	joanie runs to meeting
-T 1486500426 18<TheMuso18>	Hrm. I've been fixing things in caja recently, maybe its time I get familiar with Mate panel's code...
-T 1486507720 18<joanie18>	TheMuso: That would be nice
-T 1486508586 18<TheMuso18>	joanie: All depends on how much code has to do with legacy systray stuff.
-T 1486508788 18<TheMuso18>	Anyways, need to get more familiar with the problem first.
-T 1486534307 18<TheMuso18>	joanie: Is there a bug I can look at to better learn what the problems with mate panel are?
-T 1486537707 18<joanie18>	TheMuso: The biggest issue seems to be related to event ordering. The menu selection happens first; then we get the window:activate events. Beyond that something(tm) mate-panel does is convincing Firefox to emit window:activate and state-changed:active and state-changed:focused events that are bogus.
-T 1486537746 18<joanie18>	TheMuso: b4n claims this cannot be fixed in mate-panel and that it's a gtk+ issue.
-T 1486537800 18<joanie18>	But I am hoping you can find a way to get the event ordering reversed so that the window first becomes active (or at least announces that) and then emits the selection-change event.
-T 1486537826 18<joanie18>	the amount of sanity checking I am doing seems unfortunate
-T 1486537852 18<joanie18>	"thank mate-panel, kids"
-T 1486537937 18<joanie18>	also I think there may be some race condition or two going on
-T 1486537966 18<joanie18>	because I don't always get the same events
-T 1486537989 18<joanie18>	but the window activation following the menu selection seems pretty reliable
-T 1486539174 18<TheMuso18>	Ok, thanks for the summary. I'll see what I can find.
-T 1486539186 18<joanie18>	you rock. thanks!!
-T 1486542873 18<b4n18>	TheMuso: my take is that it't not really mate-panel's fault but X focus out/in/out events upon keyboard grabs combined with a window (the panels) that don't get focused
-T 1486542894 18<b4n18>	but heck, maybe I'm wrong, let's hope so :)
-T 1486543083 18<TheMuso18>	Well, according to what I am seeing in accerciser, I get bounds changed signals for menus in the applications menu first, before any window activation event. If I'm understanding joanie correct, the window activate event should always be the first event from a newly focused window...
-T 1486543111 18<TheMuso18>	Ad state-changed::showing events too.
-T 1486543114 18<TheMuso18>	before window activate
-T 1486543142 18<joanie18>	The state-changed:selected one is the key, however
-T 1486543201 18<joanie18>	b4n: have you had time to test the latest master
-T 1486543220 18<joanie18>	as indicated I added more sad hacks and updated existing sad hacks
-T 1486543228 18<b4n18>	TheMuso: the panel's frame never gets actually activated as a window.  that's the WM choice, and it's useful not to get focus on the manel after triggering that, but having it back in the poriginal window
-T 1486543234 18<joanie18>	and even did a global sanity check just for mate-panel
-T 1486543240 18*	joanie grumbles some more
-T 1486543253 18<b4n18>	joanie: on Debian Sid/GTK3 the announcement seems consistent, good :)
-T 1486543263 18<joanie18>	And I'd like to be able to cross this one off my list
-T 1486543269 18<joanie18>	yay for good! :)
-T 1486543273 18<TheMuso18>	Yup can confirm with accerciser, Fedora 25, mate 1.16.
-T 1486543303 18<joanie18>	TheMuso: if you can fix it, you will become my hero
-T 1486543321 18<TheMuso18>	joanie: I'll see what I can do. No promises. :)
-T 1486543332 18<joanie18>	thanks! :)
-T 1486543379 18<b4n18>	joanie: no luck on 1.8/GTK2, but IIUC you don't care too much about that
-T 1486543413 18<joanie18>	I'm having a really hard time caring, sorry.
-T 1486543423 18<TheMuso18>	Accessibility in GTK2 is quite a different beast to GTK3.
-T 1486543425 18<joanie18>	Especially given it may be something already filtered out in changes in ATK
-T 1486543433 18<joanie18>	or AT-SPI2
-T 1486543486 18<joanie18>	and it's Gtk+ 2 ffs ;)
-T 1486543510 18<b4n18>	TheMuso: is it from an external POV?  the implementation seemed fairly similar between GAIL's *Accessible and the Gtk*Accesssible
-T 1486543537 18<joanie18>	anyway b4n if it's decent enough, could you please comment on that bug and close it?
-T 1486543572 18<b4n18>	joanie: yes.  I'll prepare a setup so colleagues can test today and I'll do that
-T 1486543580 18<joanie18>	thanks!
-T 1486543596 18<TheMuso18>	b4n: In GTK+2, accessibility is implemented in a separate module. In GTK+3, its part of the core GTK 3 library, so it is possible for any custom accessible code to directly inherrit from GTK's own accessibility objects.
-T 1486543614 18<b4n18>	TheMuso: yeah I got that part :)
-T 1486543634 18<b4n18>	though in GTK2 it was somewhat possible too due to the ATK registry but well
-T 1486543650 18<joanie18>	there were also a bunch of fixes for a11y issues that went into gtk+3 that are not in gtk+2
-T 1486543674 18<TheMuso18>	Yeah, I know, but I don't know how well that worked, and I am not sure I care really, because the way things are done in GTK+3 is cleaner.
-T 1486543697 18<b4n18>	yeah, post 3.6 it's better
-T 1486543700 18*	joanie would like gtk+2 to die
-T 1486543718 18<b4n18>	between 3.2 and 3.6, err.  world blinked for a year
-T 1486543718 18*	joanie hopes it suffers too
 T 1486543785 18<TheMuso18>	joanie: From a code implementation POV a11y wise, yeah GTK 2 can die as far as I'm concerned too.
 T 1486543799 18<joanie18>	:)
 T 1486543964 18<TheMuso18>	Ok not sure if this was tried, but I get the same behavior when opening a menu with the mouse as well.
@@ -502,3 +306,222 @@ T 1493651771 20*	Disconnected (20Connection timed out)
 T 1493651784 19*	Now talking on 22#a11y
 T 1493654356 20*	Disconnected (20Connection timed out)
 T 1493654369 19*	Now talking on 22#a11y
+T 1493818842 19*	Now talking on 22#a11y
+T 1493846054 19*	Now talking on 22#a11y
+T 1493903554 19*	Now talking on 22#a11y
+T 1494002663 19*	Now talking on 22#a11y
+T 1494003604 20*	Disconnected (20Connection timed out)
+T 1494003618 19*	Now talking on 22#a11y
+T 1494247960 19*	Now talking on 22#a11y
+T 1494258518 20*	Disconnected (20Invalid argument)
+T 1494258532 19*	Now talking on 22#a11y
+T 1494443866 20*	Disconnected (20Connection timed out)
+T 1494443880 19*	Now talking on 22#a11y
+T 1494446418 20*	Disconnected (20Connection timed out)
+T 1494446431 19*	Now talking on 22#a11y
+T 1494511787 18<lolek18>	hello
+T 1494511794 18<lolek18>	anyone here from the accerciser project?
+T 1494514993 20*	Disconnected (20Connection reset by peer)
+T 1494515007 19*	Now talking on 22#a11y
+T 1494516632 20*	Disconnected (20Remote host closed socket)
+T 1494516646 19*	Now talking on 22#a11y
+T 1494517529 20*	Disconnected (20Remote host closed socket)
+T 1494517542 19*	Now talking on 22#a11y
+T 1494517542 20*	Cannot join 22#gtk+ (20Channel is invite only)
+T 1494528421 19*	Now talking on 22#a11y
+T 1494597613 19*	Now talking on 22#a11y
+T 1494604428 19*	Now talking on 22#a11y
+T 1494608133 18<ankh18>	deedra, i suggest filing a bug against mate for that one
+T 1494608158 18<ankh18>	maybe there is a MATE irc channel on freenode, I'm not sure
+T 1494616716 18<deedra18>	ankh: there is i'll ask there and probably file a bug. it's really annoying lol
+T 1494622290 FiSHLiM plugin unloaded
+T 1494858319 19*	Now talking on 22#a11y
+T 1494861660 20*	Disconnected (20Connection timed out)
+T 1494861674 19*	Now talking on 22#a11y
+T 1494864302 20*	Disconnected (20Connection timed out)
+T 1494864315 19*	Now talking on 22#a11y
+T 1495009963 18<m_tadeu18>	hi...where can I find the latest docs about gnome a11y?
+T 1495035476 18<jhernandez18>	m_tadeu: https://help.gnome.org/users/gnome-help/stable/a11y.html
+T 1495035501 18<m_tadeu18>	jhernandez: thanks...will check that out
+T 1495040106 18<joanie18>	mgorse: when you have a chance.... I attached a patch to https://bugzilla.gnome.org/show_bug.cgi?id=782041. I also filed and attached patches for two additional bugs which depend upon the first bug.
+T 1495040121 18<joanie18>	They should be quick reviews. Please and thank you.
+T 1495044928 20*	Disconnected (20Connection timed out)
+T 1495044941 19*	Now talking on 22#a11y
+T 1495047537 20*	Disconnected (20Connection timed out)
+T 1495047550 19*	Now talking on 22#a11y
+T 1495125899 19*	Now talking on 22#a11y
+T 1495182063 18<lolek18>	helllo everybody, question regarding at-spi here or some different #?
+T 1495193348 18<Fudge18>	yep here is good ap lace as any
+T 1495202364 18<lolek18>	Fudge: thanks, well seems that we will have to move this to Monday as weekend is ahead ;)
+T 1495205893 18<m_tadeu18>	where can I find good documentation about atspi? what I found doesn't seem up to date
+T 1495233507 18<Fudge18>	mgorse:  prob can answer both questions
+T 1495470137 19*	Now talking on 22#a11y
+T 1495471570 18<mgorse18>	Fudge: I don't understand how that change could make a difference, but thanks
+T 1495486511 18<Fudge18>	mgorse:  pleasure
+T 1495573386 20*	Disconnected (20Connection timed out)
+T 1495573399 19*	Now talking on 22#a11y
+T 1495825569 20*	Disconnected (20Connection timed out)
+T 1495825584 19*	Now talking on 22#a11y
+T 1495827944 20*	Disconnected (20Connection timed out)
+T 1495827958 19*	Now talking on 22#a11y
+T 1496161423 18<alexarnaud18>	https://bugs.documentfoundation.org/show_bug.cgi?id=94113
+T 1496161424 18<alexarnaud18>	joanie: Hello, if you have one minute could you confirm that this bug is not present in the last dev build of LIbreOffice ?
+T 1496161425 18<alexarnaud18>	I'm not able to reproduce it with the steps you've provided.
+T 1496161608 18<joanie18>	alexarnaud: I'm afraid I cannot at the moment, but I'll add it to my todo list
+T 1496161628 18<alexarnaud18>	joanie: Thanks :) !
+T 1496305947 18<yyz18>	STUPID DDOS FAGS CAN'T DDOS THIS
+T 1496305948 18<yyz18>	██╗██████╗  ██████╗
+T 1496305949 18<yyz18>	██║██╔══██╗██╔════╝
+T 1496305951 18<yyz18>	██║██████╔╝██║
+T 1496305952 18<yyz18>	██║██╔══██╗██║
+T 1496305953 18<yyz18>	██║██║  ██║╚██████╗
+T 1496305953 18<yyz18>	╚═╝╚═╝  ╚═╝ ╚═════╝
+T 1496305955 18<yyz18>	irc.supernets.org
+T 1496305956 19<yyz>	m_tadeu bastianilso lajava Company fredw infapi00 ankh stanluk dustinm` schoppenhauer b4n_ TheMuso Fudge texou lufimtse kevin-brown tjis halfline fredp mario jpwhiting ueno joanie tbsaunde Ralesk mgorse ksamak
+T 1496306003 18<infapi0018>	?
+T 1496306009 18*	infapi00 shrugs
+T 1496313961 18<tjis18>	here I was all excited over nothing
+T 1496322534 18<schoppenhauer18>	wuuus?
+T 1496439330 18<mgorse18>	joanie: Do you know if any orca users have had trouble with AT-SPI flagging a process as hung and never clearing the flag? Someone noticed it with caribou/firefox. I think I finally tracked down the bug, so I wonder if it's affected orca that you know of
+T 1496578722 18<jj123418>	hi
+T 1496644441 20*	Disconnected (20Connection timed out)
+T 1496665702 19*	Now talking on 22#a11y
+T 1496669111 20*	Disconnected (20Connection timed out)
+T 1496669127 19*	Now talking on 22#a11y
+T 1496675053 18<mgorse18>	joanie: Possibly. With your listener on the bug, getRole() seems to be returning ROLE_INVALID. I'd think that it would throw a traceback if the process was considered to be hung, but maybe something isn't working the way I would have expected
+T 1496694887 20*	Disconnected (20Connection timed out)
+T 1496694901 19*	Now talking on 22#a11y
+T 1497098407 18<di0de18>	http://rarbg.to/torrents.php?search=&category%5B%5D=4
+T 1497098407 18<di0de18>	http://nzbindex.nl/release/139513936/503229-FULL-a.b.eroticaEFNet-real.amateurs.fuck.for.dollars.6.xxx.dvdrip.x264-xcite-0142-real.amateurs.fuck.for.dollars.6.xxx.dvdrip.x264-xcite.p.nzb
+T 1497098407 18<di0de18>	it was twenty thousand, i did take ya base.
+T 1497098407 18<di0de18>	http://nzbindex.nl/release/139525932/503252-FULL-a.b.eroticaEFNet-kks-fumesi2016-0148-kks-fumesi2016-sample.par2.nzb
+T 1497098407 18<di0de18>	http://nzbindex.nl/release/139525889/503251-FULL-a.b.eroticaEFNet-kks-homo2016-0138-kks-homo2016.par2.nzb
+T 1497098407 18<di0de18>	http://nzbindex.nl/release/139525895/503249-FULL-a.b.eroticaEFNet-kks-filo-0127-kks-filo.par2.nzb
+T 1497098409 18<di0de18>	http://nzbindex.nl/release/139527409/503290-FULL-a.b.eroticaEFNet-ps-ac-0139-ps-ac.par2.nzb
+T 1497098411 18<di0de18>	,
+T 1497098417 18<di0de18>	http://nzbindex.nl/release/132195004/476496-FULL-a.b.eroticaEFNet-vbt-raw.25-0152-vbt-raw.25.sample.mp4.nzb
+T 1497098417 18<di0de18>	http://nzbindex.nl/release/130483922/466575-FULL-a.b.eroticaEFNet-vbt-hcn2-0150-vbt-hcn2-sample.mp4.nzb
+T 1497098417 18<di0de18>	http://nzbindex.nl/release/139645183/503771-FULL-a.b.eroticaEFNet-cic-dpm3-0162-cic-dpm3.par2.nzb
+T 1497098417 18<di0de18>	http://nzbindex.nl/release/139636898/503659-FULL-a.b.eroticaEFNet-td-ngfnd-0134-td-ngfnd.par2.nzb
+T 1497098419 18<di0de18>	http://nzbindex.nl/release/139640481/503740-FULL-a.b.eroticaEFNet-vsex-hot-latin-pussy-adventures-61-720p-0186-vsex-hot-latin-pussy-adventures-61-720p.par2.nzb
+T 1497098421 18<di0de18>	http://nzbindex.nl/release/139652860/503798-FULL-a.b.eroticaEFNet-pml.16.08.20.layla.leoni.outdoor.fuckin-0138-pml.16.08.20.layla.leoni.outdoor.fuckin.par2.nzb
+T 1497098424 18<di0de18>	http://nzbindex.nl/release/139676865/504003-FULL-a.b.eroticaEFNet-cic-iktg29-0153-cic-iktg29.par2.nzb
+T 1497098426 18<di0de18>	http://nzbindex.nl/release/139678106/504006-FULL-a.b.eroticaEFNet-uc-bohobeauties-0150-uc-bohobeauties.par2.nzb
+T 1497098428 18<di0de18>	,
+T 1497098429 18<di0de18>	http://classic.beatport.com/search?query=Julius+Hilbert+Careless+Feelings+(Original+Mix)
+T 1497098468 18<di0de18>	,
+T 1497098469 18<di0de18>	http://classic.beatport.com/search?query=Julius+Hilbert+Right+Path+(Original)
+T 1497182817 18<lgr18>	CP IS BEING PROMOTED ON #ATHEME (FREENODE)
+T 1497182818 18<lgr18>	| |
+T 1497182819 18<lgr18>	| |__   _____      ____ _ _ __ ___
+T 1497182821 18<lgr18>	| '_ \ / _ \ \ /\ / / _` | '__/ _ \
+T 1497182821 18<lgr18>	| |_) |  __/\ V  V / (_| | | |  __/
+T 1497182823 18<lgr18>	|_.__/ \___| \_/\_/ \__,_|_|  \___|
+T 1497182823 18<lgr18>	https://paste.debian.net/plainh/d5c858f7
+T 1497182824 19<lgr>	lajava schoppenhauer TheCompany TheMuso ankh texou dustinm` ksamak joanie kevin-brown fregl stanluk lufimtse halfline Fudge Ralesk mgorse tbsaunde ueno tjis fredp msanchez jpwhiting
+T 1497278893 19*	Now talking on 22#a11y
+T 1497284287 20*	Disconnected (20Connection timed out)
+T 1497284300 19*	Now talking on 22#a11y
+T 1497453962 18<alexarnaud18>	joanie: Hello, does Orca team accept donation ?
+T 1497453981 18<alexarnaud18>	(it's a French user ask me the question)
+T 1497454866 18<joanie18>	alexarnaud: no
+T 1497489871 18*	ankh donates a bottle of single-malt scotch to Orca 
+T 1497885567 20*	Disconnected (20Connection timed out)
+T 1497885582 19*	Now talking on 22#a11y
+T 1497889074 20*	Disconnected (20Connection timed out)
+T 1497889087 19*	Now talking on 22#a11y
+T 1497967199 18<alexarnaud18>	Hello joanie. As usuel, sorry to disturb you. At Hypra, We are looking on FIrefox bugs specific to Linux to make it fix by the a11y team or by developers paid by Hypra but we have difficulties to understand and to determine how many workaround you have  done into Orca and if bugs are not reported on the Mozilla BTS. For example,this one : https://mail.gnome.org/archives/orca-list/2017-March/msg00054.html , is it reported upstream ?
+T 1497967199 18<alexarnaud18>	If we have to disable e10s, how could we have this one resolved in Orca : https://bugzilla.mozilla.org/show_bug.cgi?id=1260598 ? 
+T 1497967200 18<alexarnaud18>	If you prefer I could send you an e-mail but we really want to collaborate with you but it's harder for us to understand Mozilla related bugs than we do in other apps.
+T 1497967250 18<joanie18>	alexarnaud: I thought I was already working around that one.
+T 1497967297 18<joanie18>	regardless, right now I'm working on implementing ARIA 1.1 (starting with low-hanging fruit) in Gecko (since I'm new to the code).
+T 1497967304 18<joanie18>	and I need to focus on that.
+T 1497967720 18<alexarnaud18>	joanie: the ctrl+tab issue is not resolved without e10s. I have tried with Nightly one minute ago and Orca only announces the current focused item. It's a major issue for users. We really try to make users as efficient as in Windows with NVDA. Blind persons have also lot of difficulties with their disability so they want (and I understand) to be efficient on their computer. 
+T 1497967720 18<alexarnaud18>	If we says e10s will not be usable for years we need to find a solution for this non-e10s bug.
+T 1497967745 18<joanie18>	alexarnaud: ok
+T 1497967792 18<alexarnaud18>	I'll try to ping a11y  team on this bug.
+T 1497967851 18<alexarnaud18>	Do you think you could five a little bit of time to help us to understand more why you have to workaround lot of gecko issues ?
+T 1497967867 18<joanie18>	not right now sorry!
+T 1497968042 18<ankh18>	i think in fact that is the answer, alexarnaud - people are busy, and bugs don't get fixed upstream (and often there's lengthy discussion about whether it's actually a bug) and people demand/need that the a11y tools work regardless
+T 1497970784 18<alexarnaud18>	joanie: Do you know if it is possible to use accerciser with Orca? My colleague Raphael POITEVIN is a blind person and want to check bug you've reported on Mozilla BTS but it seems accerciser is only usable by sighted and low-vision people
+T 1497970879 18<alexarnaud18>	each time I've tried to run accercicer with Orca accerciser becomes unresponsive.
+T 1497973800 18<ankh18>	i don't see a bug reported against accerciser for that
+T 1497973819 18<ankh18>	(you're running accerciser from the comand-line? make sure it's in the foreground!!!!!)
+T 1497973888 18<ankh18>	there are bugs about accerciser's accessibiliyy though
+T 1497985136 18<alexarnaud18>	ankh: It's possible indeed. Please ping me with my nickname when you answered me. We'll report a bug if needed.
+T 1497985150 18<alexarnaud18>	I go away. Have a good night :) !
+T 1497985761 18<ankh18>	then i can't ping you darling.
+T 1498138267 18<gianlucac18>	Hi! I'm trying to make my application a11y-enabled. I have custom widget, so was thinking to use the information at https://wiki.gnome.org/Accessibility/Documentation/GNOME2/AtkGuide/Custom. Do you know if it is still valid?
+T 1498138280 18<gianlucac18>	*custom widgets
+T 1498138637 18<gianlucac18>	The last editor of that page seems to be @joanie (in 2011)
+T 1498144685 18<alexarnaud18>	https://bugs.documentfoundation.org/show_bug.cgi?id=35654
+T 1498144772 18<alexarnaud18>	joanie: is the ATKCollection already available?
+T 1498144831 18<joanie18>	alexarnaud: no
+T 1498144833 18<alexarnaud18>	How Firefox works to provide structural navigation if it doesn't use AtkCollection?
+T 1498144851 18<joanie18>	Orca uses Atspi2
+T 1498144857 18<joanie18>	Atspi2 does it
+T 1498144871 18<alexarnaud18>	What LibreOffice should do for that ? So LibreOffice should use directly AT-SPI?
+T 1498144878 18<joanie18>	no
+T 1498144891 18<joanie18>	LibreOffice should fix their bugs related to items missing from the accessibility tree
+T 1498144915 18<joanie18>	if they do that, I should be able to add structural navigation support in Orca for LibreOffice in about 5 minutes -- probably less
+T 1498144946 18<joanie18>	I believe I've already stated this in multiple places
+T 1498144959 18<alexarnaud18>	joanie: and after that all will work correctly for structural navigation ? So the bug I point to you last minute is no longer useful? We should use this one ? https://bugs.documentfoundation.org/show_bug.cgi?id=35652
+T 1498144960 18<joanie18>	ask jean-philippe
+T 1498144971 18<joanie18>	lemme look
+T 1498145037 18<joanie18>	the first bug says what I said above about which accessibility api needs to be done
+T 1498145047 18<joanie18>	once atkcollection exists
+T 1498145061 18<joanie18>	that would be a ton more performant for LO and Gecko and everyone else to implement 
+T 1498145072 18<joanie18>	in the meantime, ....
+T 1498145083 18<alexarnaud18>	So the last bug is the good one?
+T 1498145094 18<alexarnaud18>	I understand indeed :).
+T 1498145097 18<joanie18>	it's one of them
+T 1498145114 18<joanie18>	look for another which I think is officially related to nvda say all
+T 1498145116 18<alexarnaud18>	Thanks :)!
+T 1498145124 18<joanie18>	somewhere in there I also answer all of these questions I believe
+T 1498145140 18*	joanie goes back to work
+T 1498149713 18<alexarnaud18>	joanie: is Igalia always work on PDF accessibility?
+T 1498149714 18<alexarnaud18>	https://www.gnome.org/news/2013/02/call-for-bids-for-gnome-accessibility-work/
+T 1498149715 18<alexarnaud18>	I've seen two blogs posts about the a11y support and a crowd funding campaign. What's the state of tagged PDF? Do we should ask for a new campaign to continue the work on evince and popler a11y?
+T 1498149716 18<alexarnaud18>	Sorry to ask you so much things but we have organized a BSP and PDF a11y is one of the most requirement for users to switch to Linux and you are aware of all things related to a11y and Idalia.
+T 1498150006 18<alexarnaud18>	As you know as I can I try to answer question from users to help you to avoid to  do it yourself:).
+T 1498150038 18<joanie18>	alexarnaud: I'm in a meeting
+T 1498151971 18<alexarnaud18>	No problem. If you could I'll be happy otherwise I'll ask on gnome-a11y and gnome-a11y-devel. I just need to shut down my computer so you could contact me by e-mail.
+T 1498247449 19*	Now talking on 22#a11y
+T 1498247634 19*	Now talking on 22#a11y
+T 1498323021 18<javjarfer18>	Hi everyone! Anyone knows if there is any consistent way of finding if a particular window has any kind of accessibility support? I know about this function "gtk_widget_get_accessible", but it's doc says explicitly that it's return value could be no-op, no that it will certain be
+T 1498364576 20*	Disconnected (20Connection reset by peer)
+T 1498364589 19*	Now talking on 22#a11y
+T 1498367607 20*	Disconnected (20Connection reset by peer)
+T 1498367620 19*	Now talking on 22#a11y
+T 1498490266 20*	Disconnected (20Connection timed out)
+T 1498490279 19*	Now talking on 22#a11y
+T 1498492977 20*	Disconnected (20Connection timed out)
+T 1498492991 19*	Now talking on 22#a11y
+T 1499089756 19*	Now talking on 22#a11y
+T 1499103749 18<ricotz18>	mgorse, ping
+T 1499104017 18<ricotz18>	mgorse, https://bugzilla.gnome.org/show_bug.cgi?id=784481
+T 1499157585 18<alexarnaud18>	Hello, do you have seen my mail related to PDF a11y? Do you know if Igalia guys are subscribers of gnome-a11y et gnome-a11y-devel ML?
+T 1499157730 18<ksamak18>	hi, i got a question. does anyone like joanie notice a shift in GTK3 caret-move events? like the caret is 10,10 but the annouced pos from at-spi is smt like 6,6
+T 1499160284 18<joanie18>	alexarnaud: We're busy I'm afraid
+T 1499160294 18<joanie18>	ksamak: haven't noticed that
+T 1499160307 18<ksamak18>	ok
+T 1499160310 18<joanie18>	But Orca doesn't need the precision you do
+T 1499160320 18<joanie18>	but it might be a deliberate fix
+T 1499160332 18<joanie18>	or it might be a bug :)
+T 1499160339 18<ksamak18>	yeah i guess that's only visual, and all the others infos are here as usual
+T 1499160359 18<ksamak18>	i can't put my finger on the logic of it though for now.
+T 1499160368 18<ksamak18>	where would you suggest looking?
+T 1499160411 18<joanie18>	the Gtk text stuff :) (Is there a GtkTextView?)
+T 1499160427 18<ksamak18>	i don't really know what box to open to be closer to a solution, i've looked into acceciser, i'm trying to make a dummy entry and check what's off
+T 1499160430 18<ksamak18>	ok
+T 1499160445 18<ksamak18>	it seems to only be in entries
+T 1499320126 20*	Disconnected (20Connection reset by peer)
+T 1499320139 19*	Now talking on 22#a11y
+T 1499403854 18<Fudge18>	joanie:  how would you feel if I file a feature request for Orca, to speak last phrase Orca said?
+T 1499441755 20*	Disconnected (20Remote host closed socket)
+T 1499441899 19*	Now talking on 22#a11y
+T 1499441899 20*	Cannot join 22#gtk+ (20Channel is invite only)
+T 1499700005 20*	Disconnected (20Connection timed out)
+T 1499700019 19*	Now talking on 22#a11y
+T 1499701832 20*	Disconnected (20Connection timed out)
+T 1499701845 19*	Now talking on 22#a11y

@@ -1,0 +1,56 @@
+#!/bin/bash
+# TODO Allow interactive input to input comments.
+LOG="/home/lufimtse/git/LDT/worklog/$(date '+%W')"
+
+# Try to get bug description.
+ID=$(wmctrl -xl | grep -i firefox | grep -o 'Bug.*' | sed 's/- Mozilla Firefox//g')
+if [ "$ID" == "" ]; then
+	# Try to get FF title.
+	ID=$(wmctrl -xl | grep -i firefox | grep -o "LeosMa.*" | sed 's/LeosMacBook //' | sed 's/ - Mozilla Firefox//')
+fi
+
+echo "Auto Identified ID: $ID"
+
+
+TIME=$(date "+%u%a%H-%M")
+
+if [[ "$1" =~ ^(s|o|c|r|t|w)$ ]]; then
+	char="$1"
+	shift
+	USER_COMMENT="${@}"
+else
+	# Offer types
+	echo "Select type: 
+	c - Cancle log entry.
+
+	r - Review
+	s - research
+	o - Other
+	t - Triage
+	w - General work
+	"
+
+	# Process user input for types.
+	stty cbreak
+	char=`dd if=/dev/tty bs=1 count=1 2>/dev/null`
+	stty -cbreak
+	
+	echo "Type a comment:"
+	read usrcomment
+	USER_COMMENT="$usrcomment"
+fi 
+
+
+case $char in
+  "c") exit ;;
+  "t") LOGTYPE="Triage";;
+  "s") LOGTYPE="Research";;
+  "w") LOGTYPE="General Work";;
+  "r") LOGTYPE="Review";;
+  *) LOGTYPE="Other";;
+esac
+
+# i - id, t - type, c - comment
+LOGLINE="${LOGTYPE}:i:${ID}:t:${TIME}:c:${USER_COMMENT}" 
+echo "LOGGING: $LOGLINE"
+echo "$LOGLINE" >> $LOG 

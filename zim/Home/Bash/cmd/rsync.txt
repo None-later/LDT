@@ -1,0 +1,73 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2016-08-30T16:11:19-04:00
+
+====== rsync ======
+Created Tuesday 30 August 2016
+
+====== Note: ======
+- slash at end of src/ AND dest/ implies copy into this folder:
+	rsync ... src/ dest/ 
+				^     ^
+	otherwise you get:
+	[[/dest/src/]] 
+
+
+====== Args ======
+-r recursive
+-t preserve modification time
+-v verbose  #this makes copy slower.
+-a preserves symlinks, recursive, preserves modification times
+-u update. (copy only deltas, used for syncing). (uses date_of_mod+size of file to determine if sync needed).
+ -c use checksum instead of date+size to determine change.
+--delete remove files in dest that don't exist in src. (for folder sync).
+	--delete-before (default)
+	--delete-during
+	--delete-after
+	--delete-delay (scan during, delete after).
+-z compress (to save bandwidth). (bad with many small files)
+
+-d copy files in directory without recursing
+-q suppress non-error msgs
+-l Copy symlinks as symlinks
+-L Copy whole files that symlink points to.
+--progress (of file).
+--info=progress2   #this makes copy slower.
+-h human readable.
+
+====== Common usages ======
+
+===== Sync two folders =====
+rsync -rtvu --delete-delay source/ dest/
+ -r recursive
+ -t preserve timestamp
+ -v verbose
+ -u update only deltas
+ --delete-delay delete in dest files not in src
+
+===== With progress indicator: =====
+rsync -azh --info=progress2 /home/lufimtse/workspace_neon/ ~/workspace
+rsync -azh --info=progress2 /home/lufimtse/apps/eclipse ~/
+src: http://serverfault.com/questions/219013/showing-total-progress-in-rsync-is-it-possible
+
+I could also use the script if I wanned to..:
+https://gist.github.com/JohannesBuchner/4d61eb5a42aeaad6ce90
+
+====== GUI ======
+grsync https://www.maketecheasier.com/make-incremental-backups-with-rsync/ w
+
+
+====== Sources ======
+Articles:
+http://www.jveweb.net/en/archives/2010/11/synchronizing-folders-with-rsync.html
+https://www.digitalocean.com/community/tutorials/how-to-use-rsync-to-sync-local-and-remote-directories-on-a-vps
+
+Examples:
+http://www.tecmint.com/rsync-local-remote-file-synchronization-commands/
+
+====== OLD ======
+
+
+
+
+
