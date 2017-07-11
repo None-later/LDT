@@ -1,0 +1,75 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-07-11T13:44:38-04:00
+
+====== Cross platform test servers ======
+Created Tuesday 11 July 2017
+
+
+https://wiki.eclipse.org/Tycho/FAQ#How_do_I_add_OS-specific_flags.3F\
+-XstartOnFirstThread - OK to specify multiple times.
+
+Defined in parent, such that sub-projects can use.
+
+
+
+Tasks:
+######
+Linux 
+  - [x] ssh, vnc, maven via ssh
+OSX
+  - [x]   ssh, vnc, 
+  - [X] maven via ssh
+  - [X] Need to increase Test*Browser timeout for maven to function properly. 
+Windows
+  - [ ] Try setting up a 32bit java?
+	https://www.mkyong.com/maven/how-to-install-maven-in-windows/
+    
+  - [ ] Try moving git into user folder
+  - [ ] Try moving maven into Program folder.
+
+Documentation update
+[ ] Submit maven scripts into SWT tools, with docu in the scripts.
+
+Info:
+- Win32 console info:  
+  http://download.eclipse.org/eclipse/downloads/drops4/I20170709-2000/testresults/consolelogs/ep48I-unit-win32_win32.win32.x86_8.0_consolelog.txt
+- 32/64bit com.ibm.vm.bitmode
+  https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.zos.80.doc/user/bit_check.html
+  https://stackoverflow.com/questions/2062020/how-can-i-tell-if-im-running-in-64-bit-jvm-or-32-bit-jvm-from-within-a-program
+
+
+Friends:
+Jonah Graham <jonah@kichwacoders.com>
+Conrad Groth <info@conrad-groth.de>
+
+Notes:
+Maven is equally available for Windows: https://maven.apache.org/guides/getting-started/windows-prerequisites.html
+Have a look at the CDT Windows config if it helps: https://ci.eclipse.org/cdt/job/cdt-master-windows/configure
+
+Natives:
+If you want to test patches, that contain changes to .c or .h files, you need to build also the native libraries. This is done by ANT scripts, but the most common ANT target can also be called from Maven. Therefore you have to start mvn process-resources -Pbuild-natives
+BUT: For a successful local build of the natives you need some preconditions. I sent a mail with a description to the swt-dev list some months ago, but I didn’t manage a local build of the XULRUNNER.
+Also this only works for a 64-bit build. For a 32-bit build you need to convert the SWT code from 64-bit to 32-bit. There’s is also an ANT target. If you have questions about the 32-bit build, write me. I recently managed to locally build the SWT 32-bit native libraries.
+Regards
+Conrad
+
+
+
+Hi,
+I recently configured my windows 10 laptop, to rebuild the SWT binaries.
+I started with the steps from list item 6 on https://www.eclipse.org/swt/jnigen.php
+Unfortunately these steps don’t work without these additional measures:
+-  Start you eclipse with an environment variable JAVA_HOME pointing to your JDK folder. I created a cmd file with this contents:
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_45
+start c:\eclipse\eclipse.exe
+-  Create a folder C:\BUILD\swt-builddir (it has to be exactly named like this)
+-  Install the “Windows Server 2003 SP1 SDK” (https://www.microsoft.com/en-us/download/details.aspx?id=6510 ) to “C:\BUILD\swt-builddir\MSSDKs\Windows Server 2003 SP1 SDK”
+-  Make a symbolic link “C:\BUILD\swt-builddir\ibm-sdk50-x86_64”, that points to your JDK (alternatively install the JDK to that folder)
+Inside that folder you have the folders bin, include, jre…
+-  Copy the file jawt.lib from the lib subfolder to jre\bin
+With these steps I managed to build the SWT binaries locally, but without the XULRUNNER. That build step had an error, but as I didn’t need those artefacts, I was happy.
+Have fun,
+Conrad
+
+
