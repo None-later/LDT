@@ -1,0 +1,85 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Floating point ======
+Created Friday 14 July 2017
+
+float - 4 bytes  (6-7 digets)
+double - 8 bytes (15 digit precision) # better use double
+
+float f = 0.1f; // 32 bit float, note f suffix
+double d = 0.1d; // 64 bit float, suffix optional
+
+Include decimal point for literals:  .. = 10.0;
+
+Float -> int : Removes decimals.  3.999 -> 3  (*1).  
+  Maybe use Math.round(), adds .5 & truncates.
+
+ 3.54 can in fact be the same as 3.5399999999
+
+
+
+Sources
+[1] Convert Float to int.
+http://www.java67.com/2015/10/how-to-convert-float-to-int-in-java-example.html
+
+Intro:
+http://www.dummies.com/programming/java/floating-point-data-types-in-java/
+
+java epsiolon:
+https://www.krenger.ch/blog/java-comparing-floating-point-numbers/
+
+Oracle: What Every Computer Scientist Should Know About Floating-Point Arithmeti
+http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+
+Extensive peer-reviewed blog post: (but for C)
+https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+
+Dangers. Uni article:
+http://introcs.cs.princeton.edu/java/91float/
+
+Stack overflow:
+https://stackoverflow.com/questions/38419579/java-faster-equals-method-for-float-type
+(Math.abs(ff - other.ff) >= 0.001)
+
+Code example
+public static void main (String [] args) {
+	{
+		float a = 3.54f;
+		float b = 3.5399999999f;
+		if (a == b) {
+			System.out.println("equal  !?");    // Output is "equal", but it shouldn't.
+		} else {
+			System.out.println("not equal");
+		}
+
+		if (Float.floatToIntBits(a) == Float.floatToIntBits(b)) {
+			System.out.println("floatToIntBits equal !?"); 
+		} else {
+			System.out.println("floatToIntBits not equal");
+		}
+	}
+
+	{
+		float a = 0.3f;
+		float b = 0.2f;
+		float c = 0.1f;
+		if ((a - b) == c) {
+				System.out.println("\n0.3 - 0.2 is 0.1");
+		} else {
+				System.out.println("\n0.3 - 0.2 is not 0.1 !?");  // This is printed, but shouldn't.
+		}
+
+		if ((Float.floatToIntBits(a) - Float.floatToIntBits(b)) == Float.floatToIntBits(c)) {
+			System.out.println("floatToIntBits 0.3 - 0.2 is 0.1");
+		} else {
+			System.out.println("floatToIntBits 0.3 - 0.2 is not 0.1 !?"); // This is printed, but it shouldn't.
+		}
+
+		if (Math.abs(a-b) >= 0.0001) {
+			System.out.println("Epsilon comparison equal"); // Epsilon comparison yields correct result.
+		} else {
+			System.out.println("Epsilon comparison not equal !?");
+		}
+	}
+}

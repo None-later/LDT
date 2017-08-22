@@ -1,0 +1,30 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== listen to file changes ======
+Created Wednesday 19 July 2017
+
+echo "maven build listener"
+function watch($file) {
+	$this_time = (get-item $file).LastWriteTime
+	$last_time = $this_time
+	while($true) {
+		if ($last_time -ne $this_time) {
+			$last_time = $this_time
+
+			$LogTime = Get-Date -Format "MM-dd-yyyy_hh-mm-ss"
+			echo "Running maven " $LogTime
+			# $LogFile = 'c:\log\mvnbuild'+$LogTime
+			$LogFile = 'c:\mvnexec\out'
+			$UnixLogFile = 'c:\mvnexec\outunix'
+			cd C:\git\eclipse.platform.swt
+			mvn clean verify -Pbuild-individual-bundles | Out-File $LogFile
+			[string]::Join( "`n", (gc $LogFile)) | sc $UnixLogFile
+			echo "done. See c:\mvnexec\out"
+		}
+		sleep 1
+		$this_time = (get-item $file).LastWriteTime
+	}
+}
+
+$f = ls C:\mvnexec\mvnTouchToRun

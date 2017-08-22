@@ -1,0 +1,78 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Week 29 2017 ======
+16 July to 22 July
+
+====== Observations and Life Lessons ======
+
+====== Weekly Goals ======
+(W29) [X] Setup automated Windows/OSX/LinuxGtk2/LinuxGt3/LinuxWayland test servers for gerrit patch submissions
+(W29) [~30%] Commit outstanding Browser jUnit patches
+[ ] Backport patches that need backporting.76pc
+
+
+====== Weekly Report ======
+
+Highlights:
+- Cross-platform (Win32/Cocoa/Linux) SWT/jUnit test framework setup.
+- OpenSource/Red Hat presentation at UofT's software engineering course.
+  http://i.imgur.com/miIugk1.png
+  Handed out free Red Hat swag I receivd from Raleigh. Twittered picture.
+  
+This week:
+- Crossplatform test servers 
+  Not perfect, but it's setup in such a way that I can quickly test jUnit submission across Windows/Cocoa/Linux.
+  I can SSH into the boxes, checkout relevant commit and run mvn build/test.
+  Current limitations:
+  - For windows I use a workaround (hack feature.xml) #519583
+	Me/Roland spent time debugging this somewhat, but at the moment I settled with workaround for now.
+  - maven tests only the swt.tests package independent of SWT sources locally on the machine.
+	I.e, I can auto-test jUnit submissions, but not changes to custom widgets.
+	(To be investigated someday, when the need arises...)
+
+  I used the auto-test-framework to start merging outstanding Browser test refactoring pachtches I did earlier,
+   and found an issue with a test case on Windows.
+
+General Work
+   Bug 465280 – [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls 
+	- Backported
+   Bug 508819 – Define proper API for hover/info color constants 
+   Bug 516674 – Regression in Oxygen of Control.forceFocus() on CentOS 
+	- Attempting to reproduce regression, but could not get swtbot tests to run.
+	- Trying to figure out how to setup swtbot tests in eclipse, to reproduce issue to do a bisect
+   Bug 517264 – Refactor old Browser* tests into Test_*_Browser 
+	- Started testing/merging outstanding patches. Bumped into issue on Windows with one of the patches.
+   Bug 517508 – SWT.ICON_SEARCH is ugly under Linux 
+	- Backported
+   Bug 519844 – Improve test_setCursorLocation stability
+	- Added code to only take screenshot if test fails. 
+   Bug 519916 – [maven][test] pom.xml doesn't have to specify webkit as default browser anymore 
+	- Patch was needed to get maven working on Windows.
+   SWT/Devel/Triage - Eclipsepedia
+	- Updated Triage process page on status
+
+Review
+   Bug 486068 – [GTK3.20+] Allocation warnings printed in error console 
+   Bug 61190 – [Bidi] Shortcut keys doesn't work with Arabic and other non-English keyboard 
+
+Triage
+   Bug 286065 – [Browser] Nested modal dialogs with browser components fail to open 
+   Bug 290535 – [Browser] Unhandled event loop exception 
+   Bug 305670 – [Browser] Browser looses keylistener very easily 
+	- issue seemed to occur only on xul  runner
+   Bug 364455 – [Databinding] StringIndexOutOfBoundsException , Databinding & FormattedText 
+   Bug 506189 – [GTK][Ubuntu] Toolbar icons missing in 4.6.1 with Ubuntu 16.10 
+   Bug 511732 – [GTK3] Severe memory leak in Oxygen 
+   Bug 516408 – [Ubuntu17.04] "Quick Access" and "Open Perspective" items are missing from the Eclipse toolbar 
+   Bug 518728 – Application does not open with SWT 4.6 or 4.5, but it does open with SWT 4.4 "(SWT:26811): Gtk-CRITICAL" 
+   Bug 519413 – Error creating a Javascript project 
+   Bug 519808 – [GTK] Shell.getBounds returns obsolete values 
+   Bug 519846 – 70 test cases in AllWidgetTests broken because of Point(1, 1) instead of Point(0, 0) 
+   Bug 519996 – Widget is disposed exception when closing shell with ccombos 
+	- Investigated regression in oxygen due to focus fix
+
+Next week:
+- RHCSA course
+- Merge outstanding webkit patches/backports
+- Webkit2 Browser Function return value (last webkit2-specific bug)

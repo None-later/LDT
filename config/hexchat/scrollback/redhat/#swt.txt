@@ -1,340 +1,3 @@
-T 1497988668 18<ericwill18>	if people break some stuff, just revert :)
-T 1497991495 18<akurtakov18>	ericwill: hmm https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/ColorDialog.java
-T 1497991497 18<akurtakov18>	why?
-T 1497991536 18<akurtakov18>	I can see later in the code there is different function called for pre 3.4
-T 1497991562 18<ericwill18>	akurtakov GdkRGBA support was added in 3.0, but the GtkColorChooserDialog (which uses GdkRGBA instead of GdkColor) was only added in 3.4
-T 1497991564 18<ericwill18>	so there is a gap
-T 1497991592 18<akurtakov18>	that's not fine
-T 1497991623 18<akurtakov18>	can't the guards be adjusted accordingly?
-T 1497991647 18<akurtakov18>	I mean gtk_color_chooser_dialog_new  is used only for 3.4+
-T 1497991667 18<akurtakov18>	for older versions gtk_color_selection_dialog_new
-T 1497991668 18<akurtakov18>	is used
-T 1497991694 18<akurtakov18>	so I don't see what the assert is giving us other than breaking 3.0-3.4 range which will use collor selection anyway
-T 1497991714 18<ericwill18>	akurtakov it means we will have to use GdkColor Java objects for 3.0 - 3.4, and in GdkColor.java there is a call to GdkColor_sizeof()
-T 1497991725 18<ericwill18>	which would crash if this isn't provided on GTK3
-T 1497991752 18<akurtakov18>	and why wouldn't it ?
-T 1497991767 18<akurtakov18>	I mean it's not fine to just say this api doesn't work for 3.0-3.4 
-T 1497991777 18<akurtakov18>	esp when it was owrking previous
-T 1497991791 18<ericwill18>	yeah this was something I meant to ask you but forgot
-T 1497991806 18<ericwill18>	okay I will fix it
-T 1497991833 18<akurtakov18>	ericwill: it's not gonna be big fix , right? 
-T 1497991841 18<akurtakov18>	at least I don't think so :)
-T 1497991874 18<akurtakov18>	btw, https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/Combo.java
-T 1497991886 18<akurtakov18>	asserts like that make me a bit nervous
-T 1497991909 18<akurtakov18>	will the functions not be reached by the other gtk version with your patch
-T 1497991930 18<ericwill18>	akurtakov for the ColorDialog thing: no shouldn't be a big fix
-T 1497991936 18<akurtakov18>	I assume so by reading but want to be sure
-T 1497991944 18<ericwill18>	for the asserts, yes that's correct
-T 1497991961 18<ericwill18>	no code should reach any color function that uses GdkRGBA outside of GTK3
-T 1497991972 18<akurtakov18>	ok
-T 1497991996 18<akurtakov18>	fwiw, I never used runtime asserts 
-T 1497992017 18<akurtakov18>	so I'm kind of unsure how they work :)
-T 1497992029 18<akurtakov18>	will they just print to syserr ?
-T 1497992101 18<ericwill18>	so with assert
-T 1497992112 18<ericwill18>	they only have an effect when you run the JVM with assertions enabled
-T 1497992130 18<ericwill18>	and then they print a warning in syserr
-T 1497992142 18<ericwill18>	by default Eclipse doesn't run with assertions enabled
-T 1497992150 18<ericwill18>	but if you run a JUnit test they are
-T 1497992202 18<akurtakov18>	ericwill: have you tested it with gtk older than 3.16? so we are sure that we don't end up in this assertion called on older gtk version 
-T 1497992317 18<ericwill18>	yes
-T 1497992323 18<ericwill18>	I went back as far as 3.10
-T 1497992333 18<akurtakov18>	care to explain https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/DateTime.java to me
-T 1497992351 18<akurtakov18>	the Version >= 3.16 becomes  GTK3
-T 1497992375 18<akurtakov18>	this is because we now use RGBA everywhere ?
-T 1497992404 18<akurtakov18>	I like it just again confirming my reading :)
-T 1497992414 18<ericwill18>	yes, with the patch everything on GTK3 uses GdkRGBA
-T 1497992422 18<ericwill18>	everything GTK2 runs GdkColor
-T 1497992444 18<ericwill18>	also if you want to run anything with assertions enabled, in the launch config under VM arguments, add "-ea"
-T 1497992552 18<akurtakov18>	https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/IME.java
-T 1497992560 18<akurtakov18>	there are few todos you added :)
-T 1497992597 18<akurtakov18>	I guess either leftovers or guards are really due
-T 1497992617 18<ericwill18>	ah, looks like I did
-T 1497992619 18<ericwill18>	an easy fix
-T 1497992634 18<ericwill18>	just move the new GdkColor() bits into the GTK2 guard
-T 1497992659 18*	akurtakov is code reading only now
-T 1497992672 18<akurtakov18>	will try it tomorrow, hopefully with your adjustments :)
-T 1497992684 18<akurtakov18>	fwiw, proper commit message is due to
-T 1497992710 18<ericwill18>	sounds good
-T 1497992717 18<ericwill18>	a second set of eyes is very helpful
-T 1497992723 18<ericwill18>	especially when having worked on this for so long
-T 1497992776 18<akurtakov18>	fwiw, https://bugs.eclipse.org/bugs/show_bug.cgi?id=518532
-T 1497992788 18<akurtakov18>	I'm pushing hard for modernization 
-T 1497992806 18<ericwill18>	I saw that, removing GDK drawing will make the code a lot simpler
-T 1497992811 18<ericwill18>	especially for things like GC
-T 1497992812 18<akurtakov18>	it's a step towards gtk2 removal
-T 1497992827 18<akurtakov18>	as gtk2 is used by rhel6 only 
-T 1497992839 18<akurtakov18>	and others that opt in but I don't really care about them that much :)
-T 1497992854 18<ericwill18>	I will be so happy when we remove GTK2 :)
-T 1497993069 18<akurtakov18>	I'm pushing as much as I can
-T 1497993088 18<akurtakov18>	while trying to not cross the line where people stop listening and just say no :)
-T 1497993101 18*	akurtakov feels like a politician lately
-T 1497993140 18<akurtakov18>	ericwill: https://git.eclipse.org/r/#/c/76631/38/bundles/org.eclipse.swt/Eclipse+SWT/gtk/org/eclipse/swt/widgets/Widget.java this looks suspicious
-T 1497993216 18<ericwill18>	akurtakov I moved it into Control
-T 1497993221 18<ericwill18>	line 5020
-T 1497993224 18<akurtakov18>	ok
-T 1497993243 18<ericwill18>	the foreground machinery is a bit gimped, half of it was implemented in widget, half in Control
-T 1497993298 18<akurtakov18>	ericwill: please nuke the sysout https://git.eclipse.org/r/#/c/76631/38/tests/org.eclipse.swt.tests/JUnit+Tests/org/eclipse/swt/tests/junit/Test_org_eclipse_swt_widgets_Control.java
-T 1497993315 18<akurtakov18>	done reading :)
-T 1497993346 18<ericwill18>	oops
-T 1497993347 18<ericwill18>	will do
-T 1497993581 18<akurtakov18>	ericwill: btw, there is issue with http://git.eclipse.org/c/platform/eclipse.platform.swt.git/diff/bundles/org.eclipse.swt/Eclipse%20SWT%20PI/gtk/org/eclipse/swt/internal/gtk/OS.java?id=56755d505b2f2ece25e1a012100d096898dafaf7
-T 1497993606 18<akurtakov18>	long[] value should be long /*int*/
-T 1497993625 18<akurtakov18>	swt tools put errors in my workspace for that
-T 1497993637 18<ericwill18>	doh
-T 1497993643 18<ericwill18>	sorry about that, forgot to enable that setting
-T 1497993645 18<ericwill18>	will fix it now
-T 1497993651 18<akurtakov18>	I can do it if you want
-T 1497993660 18<ericwill18>	akurtakov okay please do
-T 1497993985 18<akurtakov18>	ericwill: done
-T 1497993993 18<akurtakov18>	with that I wish you good night :)
-T 1497994006 18<ericwill18>	akurtakov thanks, I turned my warnings on. good night :)
-T 1498062279 19<akurtakov>	ericwill: lufimtse: please feel free to throw bugs at ipun :)
-T 1498062298 18<akurtakov18>	overall, he is tasked with finishing his bugs and helping with the triaging
-T 1498062309 20<lufimtse>30	ok
-T 1498062318 20<lufimtse>30	:-D
-T 1498062320 20<lufimtse>30	ak
-T 1498062321 20<lufimtse>30	akurtakov, 
-T 1498062331 18*	ericwill loads a bunch of bugs into his hands and throws them at ipun
-T 1498062352 18<akurtakov18>	ericwill: few loads please :)
-T 1498062420 18<akurtakov18>	btw, who wants GLCanvas ? it is smth I hope one of you will be able to pick up after new year :)
-T 1498062432 18<akurtakov18>	the other one get a11y :)
-T 1498062439 18<akurtakov18>	but it's ASAP :)
-T 1498063150 18<ericwill18>	I don't think anyone wants a11y :P
-T 1498063204 18<akurtakov18>	that could only mean - you both get it :)
-T 1498063216 18<ericwill18>	haha, I don't mind working on it once the color port is done
-T 1498063224 19<ericwill>	lufimtse can have GLCanvas
-T 1498063251 18<akurtakov18>	yeah, after being done with webkit2 :)
-T 1498063458 18<akurtakov18>	btw, how is the color port going ?
-T 1498063470 18<akurtakov18>	have you adjusted Leo's comments ?
-T 1498063476 18<ericwill18>	akurtakov good, yes I made them
-T 1498063485 18<ericwill18>	was just about to say you can try it out again if you like
-T 1498063499 18<akurtakov18>	I tried it today and there was nothing broken I spotted
-T 1498063507 18<akurtakov18>	will do thorough test later
-T 1498063518 18<ericwill18>	okay
-T 1498063520 18<ericwill18>	btw
-T 1498063531 18<ericwill18>	on GTK2 Table and Tree bg colors do not work
-T 1498063533 18<ericwill18>	on master
-T 1498063538 18<ericwill18>	(unrelated to color port)
-T 1498063552 18<ericwill18>	maybe something ipun can investigate?
-T 1498063557 20<lufimtse>30	akurtakov, I'm working ont this guy atm btw: Bug 465280 – [GTK3] OS.gtk_widget_get_allocation returns (0,0) for invisible controls
-T 1498063559 18<akurtakov18>	meh 
-T 1498063568 18<akurtakov18>	I don't care about GTK2 :)
-T 1498063576 18<akurtakov18>	tbh, I want to remove it
-T 1498063589 18<akurtakov18>	don't bother with gtk2 guys
-T 1498063599 18<akurtakov18>	unless someone finds it's your patch that broke it :)
-T 1498063629 18<ericwill18>	works for me :)
-T 1498063664 18<akurtakov18>	now that we don't have to support RHEL 6 it's of no use for us
-T 1498063679 19<akurtakov>	lufimtse: btw, good new for you - RHEL 7.4 will have webkit2 :)
-T 1498063703 18<akurtakov18>	just in time isn't it :)
-T 1498063709 18<akurtakov18>	release is in september :)
-T 1498063745 20<lufimtse>30	nice
-T 1498063783 19<akurtakov>	lufimtse: are there other things but return js left there ?
-T 1498063819 20<lufimtse>30	akurtakov, so far no. But it wouldn't hurt for me to go through the whole browser api to make sure it all works.
-T 1498063831 18<akurtakov18>	ok
-T 1498076552 18<ericwill18>	akurtakov is 4.7 backport branch open for merging yet?
-T 1498076559 18<akurtakov18>	ericwill: not yet
-T 1498076651 18<akurtakov18>	this is postponed until 4.7 is out officialy so we can handle the extrme case of rebuild on 4.7 for Oxygen.0 if smth really severe hapens
-T 1498076758 18<ericwill18>	okay, np :)
-T 1498143161 18<ericwill18>	akurtakov: hey, Leo and I were wondering if this can be merged: https://git.eclipse.org/r/#/c/99534/
-T 1498143331 18<akurtakov18>	if you're confident in it
-T 1498143370 18<akurtakov18>	I have my principal concerns over such tests 
-T 1498143397 18<akurtakov18>	aka how well it will work on different versions systems etc.
-T 1498143408 18<akurtakov18>	but if you find it valuable - go oon
-T 1498143420 20<lufimtse>30	akurtakov, what you mean over different version sysetms?
-T 1498143442 18<akurtakov18>	well, if the test is specific to gtk
-T 1498143459 18<akurtakov18>	what hapens if one runs them on e.g. ubuntu/rhel7/mageial...
-T 1498143540 18<akurtakov18>	from releng pov they look stable
-T 1498143573 20<lufimtse>30	akurtakov, hmmm. But in what way would all test be different to gtk specific tests in such context?
-T 1498143581 20<lufimtse>30	both would run into the same problem?
-T 1498143624 18<akurtakov18>	yeah, I mean if we have tests that are same for all WS we claim this is the right way and the system is offending
-T 1498143656 18<akurtakov18>	if we have ws specific tests - it becomes gray area as it obviously it's not specified behavior of swt
-T 1498143671 18<akurtakov18>	anyway, this is just thoughts and you're working more on this so it's your call
-T 1498143695 20<lufimtse>30	akurtakov, I see. I think in such a case, a jUnit test can be made more generic to see the common behaviour.
-T 1498144192 19<akurtakov>	lufimtse: if we can get your +1 for https://git.eclipse.org/r/#/c/76631/45
-T 1498144202 18<akurtakov18>	and Eric can push it
-T 1498144235 20<lufimtse>30	akurtakov, Ok. I'll review.
-T 1498145134 18<akurtakov18>	ericwill: getting rgba will not magically enable transparent tooltips, will it ?
-T 1498145179 18<ericwill18>	akurtakov not the javadoc ones, since they are not really tooltips :)
-T 1498145270 18<ericwill18>	the native tooltips (like when you hover over a button on the eclipse workbench toolbar) are already transparent
-T 1498148622 19<akurtakov>	lufimtse: are launch groups storable in launch file ?
-T 1498148645 18<akurtakov18>	that would be nice
-T 1498148702 20<lufimtse>30	akurtakov, what do you mean?
-T 1498148714 20<lufimtse>30	whats a launch file?
-T 1498148720 19<akurtakov>	lufimtse: you know that you can store launch configuration in a file and store it in git
-T 1498148792 19<akurtakov>	lufimtse: like http://git.eclipse.org/c/equinox/rt.equinox.p2.git/tree/bundles/org.eclipse.equinox.frameworkadmin.test/Framework%20Admin%20Test.launch
-T 1498148833 20<lufimtse>30	akurtakov, that's new info to me.
-T 1498148839 20<lufimtse>30	akurtakov, how do you run such a .launch?
-T 1498148855 19<akurtakov>	lufimtse: if you open a project that has such launch file
-T 1498148868 18<akurtakov18>	it will be auto added in the launch configurations :)
-T 1498148874 18<akurtakov18>	magic is magic :)
-T 1498148886 20<lufimtse>30	oh.
-T 1498148896 20<lufimtse>30	Interesting. I need to investigate.
-T 1498148904 20<lufimtse>30	This could make life a lot easier.
-T 1498148947 19<akurtakov>	lufimtse: there is export wizard 
-T 1498148962 18<akurtakov18>	so you can get launch file generated from your existing launch
-T 1498149018 20<lufimtse>30	akurtakov, ah, that's how to get it. Yea, it seems Launch Group is in there.
-T 1498149034 20<lufimtse>30	akurtakov, could potentially be used for ALLTests + platformTest.
-T 1498149042 19<akurtakov>	lufimtse: exactly my idea :)
-T 1498149048 20<lufimtse>30	with Gtk2/Gtk3 versions.
-T 1498149066 18<akurtakov18>	and if hte launch is stored in the platform test bundles voila :)
-T 1498149084 20<lufimtse>30	akurtakov, btw, is it possible to have a hudson that also does cocoa/Win32
-T 1498149088 20<lufimtse>30	for patch submissions?
-T 1498149095 19<akurtakov>	lufimtse: short: no
-T 1498149101 20<lufimtse>30	derp.
-T 1498149142 18<akurtakov18>	long: technically there are such machines but they are limited as foundation can not expose windows/mac to the general public like that for licencing issues
-T 1498149194 19<akurtakov>	lufimtse: btw, it would be nice if export was available from the launch dialog
-T 1498149209 18<akurtakov18>	as the export wizard is kind of hidden
-T 1498149521 20<lufimtse>30	akurtakov, I agree. Had a simmilar thought.
-T 1498149537 19<akurtakov>	lufimtse: feel free to open a bug :)
-T 1498149541 20<lufimtse>30	X-D
-T 1498149574 18<akurtakov18>	Eclipe is full of these nice things but UX is not the best :)
-T 1498149594 18<akurtakov18>	and add me on cc to that bug I'll try to get someone on it :)
-T 1498149606 18<akurtakov18>	although it should be fairly trivial 
-T 1498149705 20<lufimtse>30	akurtakov, I'm getting a lot of errors from bugzilla: There was an error sending mail from 'bugzilla-daemon@eclipse.org' to 'dirk.fauth@googlemail.com': Can't send data 
-T 1498149713 20<lufimtse>30	?
-T 1498149724 19<akurtakov>	lufimtse: network issue https://hudson.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/4728/console
-T 1498149751 20<lufimtse>30	derp.
-T 1498149809 20<lufimtse>30	akurtakov, https://bugs.eclipse.org/bugs/show_bug.cgi?id=518652
-T 1498149980 20<lufimtse>30	akurtakov, I'm getting bugzilla error after every single bugzilla opertion. 
-T 1498149986 20<lufimtse>30	akurtakov, do you get that also?
-T 1498149988 18<akurtakov18>	yes
-T 1498149991 20<lufimtse>30	der.p
-T 1498150005 18<akurtakov18>	infra is broken
-T 1498150801 18<akurtakov18>	done for today, can't wait to remove gdk draw once rgba work is in :)
-T 1498150804 18<akurtakov18>	g'night
-T 1498156492 18<ericwill18>	ipun if you are looking for a bug to work on, you can take this one from me: https://bugs.eclipse.org/bugs/show_bug.cgi?id=494771
-T 1498156534 18<ipun18>	ericwill: sure i can take a look. You want to triage for a bit then?
-T 1498156550 18<ericwill18>	ipun I might do triage tomorrow, we'll see
-T 1498231566 18<ipun18>	ericwill|afk: man this spinner bug guy is...thurough
-T 1498232727 18<ericwill18>	ipun haha I saw
-T 1498232732 18<ericwill18>	just one of those types of bugs
-T 1498233218 19<ericwill>	lufimtse can we just merge that bug snippet thing and the readme? I want to add some other snippets today
-T 1498235154 18<akurtakov18>	ericwill: wow, you spamed swt inbox :)
-T 1498235171 18<akurtakov18>	that's so we don't think we are close to being decent :)
-T 1498235252 18<ericwill18>	akurtakov haha, I noticed yesterday running the build script that a lot of stuff is deprecated that we don't have bugs for
-T 1498235334 18<ericwill18>	a brief glance says most of them are easy fixes
-T 1498236652 20<lufimtse>30	hello
-T 1498236710 20<lufimtse>30	ericwill, +1 to submitting bug reports. We need to weed out these deprecated functions for gtk4.
-T 1498236731 20<lufimtse>30	ericwill, I was having the same thought about the snippet business.
-T 1498236750 19<ericwill>	lufimtse okay, I will merge it
-T 1498236771 18<ericwill18>	also just uploaded some revised color port stuff, when you have a chance
-T 1498236777 20<lufimtse>30	ok,
-T 1498247447 19*	Now talking on 22#SWT
-T 1498247631 19*	Now talking on 22#SWT
-T 1498248316 19<ericwill>	lufimtse I saw your changes on the color port patch, I'll look at it Monday
-T 1498248524 18<ericwill18>	have a good weekend everyone!
-T 1498364650 20*	Disconnected (20Connection reset by peer)
-T 1498364660 19*	Now talking on 22#SWT
-T 1498487705 18<ipun18>	akurtakov: what do you think of this guys reasoning for using async in https://bugs.eclipse.org/bugs/show_bug.cgi?id=517633 ?
-T 1498487923 18<akurtakov18>	what is the async? java one?
-T 1498488035 18<ipun18>	akurtakov: he wanted to call OS.gtk_spin_button_update() on async instead
-T 1498488044 20<lufimtse>30	ipun, I think he mentioned async is one possible solution, not the only one.
-T 1498488053 20<lufimtse>30	ipun, afaik, we spoke about using a different signal, no?
-T 1498488065 19<ipun>	lufimtse: tried it already
-T 1498488071 20<lufimtse>30	result?
-T 1498488084 18<ipun18>	the other signals are only sent on the widget being actually changed after called by gkt_spin_button_update()
-T 1498488086 18<ipun18>	so no, it doesnt work
-T 1498488142 19<ipun>	lufimtse: also where did you hear he had mulitple solutions?
-T 1498488230 20<lufimtse>30	ipun, let's chat.
-T 1498488345 18<akurtakov18>	replied
-T 1498488406 19<akurtakov>	lufimtse: the async is a total no -go 
-T 1498488421 19<akurtakov>	lufimtse: see my reasoning in the bug
-T 1498489082 20<lufimtse>30	akurtakov, that's a good point.
-T 1498490213 20*	Disconnected (20Connection timed out)
-T 1498492028 19*	Now talking on 22#SWT
-T 1498492523 18<ipun18>	akurtakov: im going to see if he has a response, for now ill see ifi can figure out another solution
-T 1498493992 20<lufimtse>30	akurtakov, btw, is backport branch open for backports?
-T 1498494021 18<akurtakov18>	no, it will happen after Oxygen is officially released
-T 1498494032 18<akurtakov18>	there is still the risk of last minute rebuild
-T 1498494038 18<akurtakov18>	so backports can not be allowed
-T 1498494451 20<lufimtse>30	akurtakov, ah. Ok.
-T 1498498805 19<ipun>	ericwill lufimtse anyone that is free, could someone run snippet141 and see if it runs with current gtk and swt versions
-T 1498498806 18<ipun18>	?
-T 1498498832 18<ericwill18>	ipun sure give me a sec
-T 1498498883 18<ipun18>	thanks!
-T 1498498892 18<ericwill18>	I get an error
-T 1498498898 18<ericwill18>	"There was an error loading the GIF"
-T 1498498912 18<ipun18>	hmm okay mine says it cant load the class
-T 1498498923 18<ipun18>	im wondering what i should do with this https://bugs.eclipse.org/bugs/show_bug.cgi?id=287477
-T 1498501267 18<akurtakov18>	fwiw, swt has it's own gif/jpeg implementations
-T 1498501902 18<ericwill18>	akurtakov do you know what is going on here? http://git.eclipse.org/c/platform/eclipse.platform.swt.git/diff/bundles/org.eclipse.swt/Eclipse%20SWT/gtk/org/eclipse/swt/widgets/Display.java?h=silenio/Bug389910&id=cd78cc4a8b2e806160de2908244830099a48d3b9
-T 1498501911 18<ericwill18>	in the "toGdkColor" method
-T 1498502027 18<ericwill18>	seems like some math to convert from HSV to HSL...then back to RGB
-T 1498502612 18<akurtakov18>	ericwill: no idea :)
-T 1498502616 18<akurtakov18>	was I involved ?
-T 1498502713 18<ericwill18>	nope
-T 1498502720 18<ericwill18>	akurtakov seems to be conversion with this: https://en.wikipedia.org/wiki/HSL_and_HSV
-T 1498503053 18<akurtakov18>	ericwill: so do you think it's no longer needed or smth in it troubles you ?
-T 1498503074 18<ericwill18>	akurtakov we still need it, I can't find a suitable replacement
-T 1498503084 18<ericwill18>	and Leo pointed out in a patch review that the method makes no sense
-T 1498503088 18<ericwill18>	so I am documenting it
-T 1498503200 18<akurtakov18>	always good :)
-T 1498503951 19<akurtakov>	lufimtse: there were talks about having image decoders based on gdk-pixbuf
-T 1498503983 18<akurtakov18>	as this would give support for latest specs and it would give also way more details properly implemented
-T 1498503994 18<akurtakov18>	and quite probably speed up too 
-T 1498504016 18<akurtakov18>	but this has always been very low in prio list
-T 1498505695 18<ericwill18>	akurtakov do you know what IME is and how I can test it
-T 1498505704 18<ericwill18>	I don't see any snippets for it
-T 1498505933 20<lufimtse>30	akurtakov, hmmm
-T 1498570231 19<ericwill>	lufimtse good morning, thank you for the patch review
-T 1498570634 18<ericwill18>	akurtakov: http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=8f5c12dbbf0d52d77529e8b468c625831e5f4dd0
-T 1498570635 18<ericwill18>	:)
-T 1498570698 18<akurtakov18>	yay :)
-T 1498570713 18<akurtakov18>	one of the most eventfull swt months lately
-T 1498570741 18<akurtakov18>	https://projects.eclipse.org/projects/eclipse.platform.swt/who
-T 1498570746 18<akurtakov18>	pretty good for June 
-T 1498570801 18<ericwill18>	absolutely
-T 1498570909 18<ipun18>	cool i see my name!
-T 1498570972 18<ericwill18>	akurtakov you can go ahead and remove GDK drawing now :)
-T 1498570993 18<akurtakov18>	ericwill: will do it tomorrow
-T 1498571016 18<akurtakov18>	still discussing with Lakshmi how to handle xulrunner removal :)
-T 1498571021 18<akurtakov18>	and doing it around the world
-T 1498571027 18<akurtakov18>	e.g. launcher was today :)
-T 1498571039 18<ericwill18>	perfect
-T 1498572634 18<ipun18>	akurtakov: is there any historical reasons why some SWT events are sent as post vs send when retreiving from GTK?
-T 1498572652 18<akurtakov18>	ipun: no idea :)
-T 1498572662 18<akurtakov18>	I gave up on remembering
-T 1498572673 18<akurtakov18>	gut feelings + reading for me :)
-T 1498574272 20<lufimtse>30	ipun, send is often used if gtkEvents need a return value. post is usually used if they don't.
-T 1498574303 20<lufimtse>30	ipun, but if you change post to send now and vice versa, it can break order of events. So it has to be well justified and tested.
-T 1498575080 20<lufimtse>30	ipun, Bug 515396 – [Wayland] dragDetect should block till DnD state is known 
-T 1498575080 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=515396
-T 1498586403 19<ericwill>	lufimtse hello
-T 1498586406 18<ericwill18>	do you have a minute?
-T 1498588616 20<lufimtse>30	hey
-T 1498588617 20<lufimtse>30	ericwill, 
-T 1498588620 20<lufimtse>30	sap
-T 1498588655 19<ericwill>	lufimtse hey, for the GTK specific JUnits
-T 1498588663 18<ericwill18>	I wanted to know if you had naming scheme in mind
-T 1498588669 18<ericwill18>	I came up with this so far: https://git.eclipse.org/r/#/c/98569/
-T 1498588801 20<lufimtse>30	ericwill, maybe just call it Test_color.java ?
-T 1498588805 20<lufimtse>30	or something like that.
-T 1498588832 19<ericwill>	lufimtse I thought maybe something in the name of the class would distinguish it from the cross-platform tests
-T 1498588834 18<ericwill18>	idk
-T 1498588922 20<lufimtse>30	maybe put the color tests into cross-platform test, but tell it not skip on gtk2.
-T 1498588932 20<lufimtse>30	but tell it *to* skip on gtk2
-T 1498588951 19<ericwill>	lufimtse can we do that?
-T 1498588961 18<ericwill18>	I thought the gtk guards are in OS.java only
-T 1498588978 20<lufimtse>30	I did something similar for webkit2
-T 1498588986 20<lufimtse>30	you don't call os.java
-T 1498588989 20<lufimtse>30	instead ...
-T 1498589002 20<lufimtse>30	use get system property
-T 1498589013 20<lufimtse>30	like: String webkitGtkVersionStr = System.getProperty("org.eclipse.swt.internal.webkitgtk.version")
-T 1498589016 20<lufimtse>30	but for gtk
-T 1498589019 20<lufimtse>30	lemmeeee see
-T 1498589026 19<ericwill>	lufimtse ah yeah
-T 1498589031 18<ericwill18>	I know what you are talking about
-T 1498589046 20<lufimtse>30	String gtkVersion = System.getProperty("org.eclipse.swt.internal.gtk.version");
-T 1498589072 20<lufimtse>30	see Test_*Browser
-T 1498589081 20<lufimtse>30	setUp()
-T 1498589084 19<ericwill>	lufimtse danke
-T 1498589094 20<lufimtse>30	I'm setting up cross platform tests atm
-T 1498589115 20<lufimtse>30	one thing I didn't quite anticipate is that running jUnits over ssh is not straight forward.
-T 1498589127 20<lufimtse>30	it tries to tunnel them etc...
-T 1498589133 20<lufimtse>30	gotta find a more creative approach.
-T 1498589171 18<ericwill18>	ah yeah that could be tricky
-T 1498589184 18<ericwill18>	maybe do it headless?
-T 1498592176 18<ericwill18>	akurtakov how often do the hudson test machines on gerrit get updated?
 T 1498592179 18<ericwill18>	every night?
 T 1498592199 18<akurtakov18>	ericwill: yes
 T 1498592269 18<ericwill18>	okay, cool
@@ -563,3 +226,370 @@ T 1499352635 20<lufimtse>30	sorry pass is not 169 letters long like your 
 T 1499353040 18<ericwill18>	lol
 T 1499699952 20*	Disconnected (20Connection timed out)
 T 1499700865 19*	Now talking on 22#SWT
+T 1499795223 19*	Now talking on 22#SWT
+T 1499796294 19*	Now talking on 22#SWT
+T 1499796571 19*	Now talking on 22#SWT
+T 1499796919 19*	Now talking on 22#SWT
+T 1499801507 19*	Now talking on 22#SWT
+T 1499893133 19<ericwill>	lufimtse https://bugs.eclipse.org/bugs/show_bug.cgi?id=519537
+T 1499893137 18<ericwill18>	related?
+T 1499983102 19*	Now talking on 22#SWT
+T 1500039391 20*	Disconnected (20Connection reset by peer)
+T 1500039402 19*	Now talking on 22#SWT
+T 1500385817 19*	Now talking on 22#SWT
+T 1500386958 19<akurtakov>	lufimtse: hey Leo
+T 1500386966 20<lufimtse>30	akurtakov, hello
+T 1500386972 18<akurtakov18>	how are things going ?
+T 1500386978 20<lufimtse>30	Good good. Whats up
+T 1500386991 18<akurtakov18>	do you have all the test machines setup?
+T 1500387028 20<lufimtse>30	~Sorta. Maven still doesn't read correct env on windows box. Only works if I hard-code it in feature.xml
+T 1500387041 20<lufimtse>30	me/Roland debugged yesterday a bit, but could not find root cause
+T 1500387044 20<lufimtse>30	yet...
+T 1500387052 20<lufimtse>30	but linux/cocoa work.
+T 1500387081 18<akurtakov18>	did Roland told you that the way tests are run is not with maven for upstream ?
+T 1500387113 20<lufimtse>30	on windows?
+T 1500387121 20<lufimtse>30	like via build.xml?
+T 1500387154 20<lufimtse>30	Essentially, I'm just looking to run jUnits programtically on windows in some form or fashion. 
+T 1500387164 20<lufimtse>30	doing it manually is very time consuming
+T 1500387209 18<akurtakov18>	via test.xml and testrunner
+T 1500387228 20<lufimtse>30	is it quick to setup or difficult? you know?
+T 1500387255 20<lufimtse>30	I fiddled around with test.xml very briefly, couldn't get it to work, something about missing libs. Did you ever get it working?
+T 1500387271 18<akurtakov18>	we have it in eclipse-tests.rpm in fedora
+T 1500387278 18<akurtakov18>	and Roland did a fair bit of work on it
+T 1500387285 20<lufimtse>30	that's interesting
+T 1500387288 18<akurtakov18>	what else are you up to?
+T 1500387316 18<akurtakov18>	anything else stopping ou from webkit2 work?
+T 1500387320 20<lufimtse>30	Bunch of patch reviews. E.g this one: https://git.eclipse.org/r/#/c/22713/
+T 1500387326 18<akurtakov18>	any eta on it being feature complete ?
+T 1500387338 20<lufimtse>30	Just the testing business. 
+T 1500387349 20<lufimtse>30	after that webkit2's browser function
+T 1500387350 18<akurtakov18>	I ask as I don't wnat it to prolong and we miss the boat again :)
+T 1500387354 20<lufimtse>30	ah
+T 1500387355 20<lufimtse>30	I see
+T 1500387356 20<lufimtse>30	ok, 
+T 1500387366 20<lufimtse>30	Ill prioritise webkit2's browser function
+T 1500387369 20<lufimtse>30	's return value
+T 1500387434 18<akurtakov18>	well, reviews are not that time consuming are they?
+T 1500387442 20<lufimtse>30	Some are :-)
+T 1500387453 18<akurtakov18>	I mean they are not taking more than 1-2 h from your day or they do?
+T 1500387476 20<lufimtse>30	Usually not, with some exceptions, 
+T 1500387480 18*	akurtakov would be surprised if people are that fast with responses :)
+T 1500387490 20<lufimtse>30	the one above took me half a day or
+T 1500387496 20<lufimtse>30	had a memory leak in there
+T 1500387501 20<lufimtse>30	but good patch
+T 1500387507 20<lufimtse>30	it's for the highest voted swt linux bug
+T 1500387521 20<lufimtse>30	I'm also the tester for those 
+T 1500387559 20<lufimtse>30	For now I'll try to get something working for windows jUnits and focus on finishing of webkit, will pause other activities.
+T 1500387588 18<akurtakov18>	well, perfect wold be still doing other things but not for 1-2 h per day 
+T 1500387601 18<akurtakov18>	so nothing stops and waits :)
+T 1500387729 18<akurtakov18>	ericwill: what about you ?
+T 1500387739 18<akurtakov18>	color port looks good ?
+T 1500387755 18<akurtakov18>	I don't see the white background anymore
+T 1500387761 18<akurtakov18>	until not yesterday or today
+T 1500387801 18<ericwill18>	akurtakov there are some small issues on isolated themes, but yes regular GTK theme should be working nicely
+T 1500387806 18<ericwill18>	I am working on them now
+T 1500387881 18<ericwill18>	once the color issues are ironed out I am planning on starting with a11y work
+T 1500387893 18<akurtakov18>	ericwill: did you deal with tree stuff last year ?
+T 1500387908 18<akurtakov18>	ah, yes a11y - that beast :)
+T 1500387962 18<ericwill18>	akurtakov yeah I did a lot of tree fixes last year
+T 1500387975 18<akurtakov18>	ok, I'll probably open some fun stuff for you :)
+T 1500387995 18<ericwill18>	okay :P
+T 1500390553 19<akurtakov>	ericwill: lufimtse: it's that time when we should do planning for Photon
+T 1500390559 18<akurtakov18>	for SWT
+T 1500390569 20<lufimtse>30	hmmm
+T 1500390582 18<akurtakov18>	so Webkit2 by default, A11y
+T 1500390619 18<akurtakov18>	what about Notifications? or Opengl?
+T 1500390672 18<ericwill18>	akurtakov I was going to ask you about notifications
+T 1500390676 18<ericwill18>	I'd be interested in working on that
+T 1500395984 19<akurtakov>	ericwill|lunch: lufimtse: do you think it's reasonable expectation to get all these done by March ?
+T 1500396256 20<lufimtse>30	akurtakov, I would need to evaluate Opengl work to figure out how long it would take. Evaluating might take a while as I have not worked with OpenGL before, 
+T 1500396263 20<lufimtse>30	akurtakov, I can say Webkit2 be done.
+T 1500396264 20<lufimtse>30	thou.
+T 1500396379 18<ericwill18>	akurtakov hard to say, a11y is so big and I am not sure what exactly is the issue there
+T 1500396390 18<ericwill18>	could take me a long/short time
+T 1500396410 18<akurtakov18>	I see
+T 1500396425 18<akurtakov18>	I'll try to get notifications started soonish
+T 1500396440 18<akurtakov18>	and get at least initial POC for gtk
+T 1500396500 18*	akurtakov hopes to start next week after catching up post vacations
+T 1500400455 18<ericwill18>	akurtakov do you know anything about this THEME_BACKGROUND state in Widget.java?
+T 1500400466 18<ericwill18>	I asked about it on the mailing lists but no one answered
+T 1500403877 18<akurtakov18>	ericwill: sorry, nothing I remember
+T 1500404043 18<ericwill18>	akurtakov okay, np
+T 1500405248 18<akurtakov18>	ericwill: btw, any progress on the gdk warnings?
+T 1500405309 18<ericwill18>	akurtakov no, I kind of ran into a wall on that issue. GTK complains about size being below min size, but all the fixes I've attempted have broken little things elsewhere
+T 1500405331 18<akurtakov18>	hmm ok
+T 1500405791 18<ericwill18>	akurtakov it's still on my list, I'll revisit it later after thinking about it some more
+T 1500405797 18<akurtakov18>	ok
+T 1500492244 19*	Now talking on 22#SWT
+T 1500560292 18<akurtakov18>	ericwill: hey Eric
+T 1500560322 18<akurtakov18>	http://download.eclipse.org/eclipse/downloads/drops4/I20170719-2000/testresults/html/org.eclipse.ui.tests_ep48I-unit-cen64-gtk3_linux.gtk.x86_64_8.0.html
+T 1500560332 18<akurtakov18>	testColorsAndFonts	Error	Background was not cleared 
+T 1500560338 18<akurtakov18>	^^ looks like your stuff :)
+T 1500560558 18<ericwill18>	akurtakov hmm okay, will investigate
+T 1500560573 18<akurtakov18>	ericwill: 3.14 is this AFAIK
+T 1500560741 18<ericwill18>	yes I believe so
+T 1500560995 18<ericwill18>	akurtakov btw I made some progress on the warnings yesterday
+T 1500560999 18<ericwill18>	without changes in os_custom.c
+T 1500561005 18<ericwill18>	looks promising
+T 1500561033 18<akurtakov18>	ericwill: nice, I can't wait to see less of these :)
+T 1500561518 18<akurtakov18>	ericwill: everyone sees this today https://hudson.eclipse.org/platform/job/eclipse.platform.ui-Gerrit/13231/testReport/ :)
+T 1500561587 18<ericwill18>	akurtakov I think I know what is causing the issue, won't take me long to fix
+T 1500562070 18<akurtakov18>	ericwill: good :)
+T 1500562077 18<akurtakov18>	I'll keep bugging :)
+T 1500563254 18<ericwill18>	akurtakov fixed it
+T 1500563669 19*	Now talking on 22#SWT
+T 1500567278 19<akurtakov>	ericwill|lunch: lufimtse: ipun: https://git.eclipse.org/r/#/c/85603/ would someone pick https://git.eclipse.org/r/#/c/85603/
+T 1500567335 20<lufimtse>30	akurtakov, I'll take a looks
+T 1500567344 18<akurtakov18>	cool, thanks
+T 1500567983 20<lufimtse>30	akurtakov, Hey. Do you know, for backports, do I need to bump service version for every commit, or only once per 4.7.x release? e.g https://git.eclipse.org/r/#/c/99982/3
+T 1500567997 18<akurtakov18>	only once
+T 1500568004 20<lufimtse>30	thx
+T 1500586205 18<ericwill18>	akurtakov that latest comment on the CDT hover bug...so is it a GTK theme problem?
+T 1500641359 18<akurtakov18>	ericwill: hey Eric
+T 1500641366 18<akurtakov18>	any progress on the white background
+T 1500641398 18<ericwill18>	akurtakov you mean the debug  hover thing that Andrey reported? I am looking into it now
+T 1500641410 18<akurtakov18>	ericwill: fwiw, mylyn notifications on first appearance seems to have wrong background 
+T 1500641414 18<akurtakov18>	fixes after that
+T 1500641491 18<akurtakov18>	ericwill: yeah the debug hover
+T 1500641550 18<ericwill18>	akurtakov I am investigating. I can see some sort of issue with 3.14 on Fedora, but it's not unreadable. I have a RHEL 7.2 VM I can try with as well
+T 1500641572 18<akurtakov18>	ericwill: AFAIK Andrey uses kde 
+T 1500641576 18<akurtakov18>	any maybe gtk2 :)
+T 1500641626 18<ericwill18>	I think now he is using RHEL 7.2 with GTK3.14
+T 1500641630 18<ericwill18>	but he uses non-Adwaita theme
+T 1500641665 18<akurtakov18>	ok
+T 1500641834 18<ericwill18>	akurtakov these debug hovers are still supposed to be black, right? they didn't get changed to white
+T 1500641837 18<ericwill18>	in platform UI?
+T 1500641844 18<akurtakov18>	I think so
+T 1500641867 18<akurtakov18>	well, probably it depends on the debugging plugin in question
+T 1500641882 18<akurtakov18>	as I can ensure you the dltk.ruby one does nasty things :)
+T 1500641936 18<ericwill18>	ha
+T 1500641941 18<ericwill18>	okay that is what I thought as well
+T 1500641952 18<ericwill18>	not seeing the bug on Fedora, let me try RHEL with his theme
+T 1500642584 18<ericwill18>	thought I had a RHEL 7.2 VM, turns out it's actually RHEL 7.4
+T 1500642585 18<ericwill18>	hmm
+T 1500642603 18<ericwill18>	let me try with this theme on Fedora
+T 1500642608 18<ericwill18>	*his theme
+T 1500642633 18<akurtakov18>	ericwill: I added you on cc to one bug yesterdya
+T 1500642644 18<akurtakov18>	it was about some color not being parsed from some theme
+T 1500642660 18<akurtakov18>	could be smth similar
+T 1500642677 18<ericwill18>	the CDT hover bug right?
+T 1500642688 18<akurtakov18>	ericwill: yea
+T 1500642892 18<ericwill18>	hmm
+T 1500647667 19<ericwill>	lufimtse heya, are you on PTO next week?
+T 1500647678 20<lufimtse>30	I have training
+T 1500647684 20<lufimtse>30	./forgot to mention.
+T 1500647685 20<lufimtse>30	Will do.
+T 1500647773 18<ericwill18>	so you are on PTO next week?
+T 1500647839 20<lufimtse>30	It's not counted as vaccation days. 
+T 1500647850 20<lufimtse>30	but in that sense, yes 
+T 1500647862 20<lufimtse>30	I'll be back friday 1 pm
+T 1500647878 18<ericwill18>	ah okay cool
+T 1500647881 18<ericwill18>	what kind of training?
+T 1500647883 18<ericwill18>	RHCSA?
+T 1500647892 20<lufimtse>30	yea
+T 1500647907 18<ericwill18>	:)
+T 1500647976 20<lufimtse>30	ericwill, can you check the eclipse calendar, does my PTO show up for next week?
+T 1500648019 19<akurtakov>	lufimtse: hmm, are you taking PTO to take RHCSA ?
+T 1500648040 19<ericwill>	lufimtse yes I see it on the calendar now
+T 1500648077 20<lufimtse>30	akurtakov it's a training instructor lead course
+T 1500648078 20<lufimtse>30	yes
+T 1500648242 19<akurtakov>	lufimtse: I asked Martha to check with you
+T 1500648255 18<akurtakov18>	but taking courses shouldn't cost you PTO :)
+T 1500648291 20<lufimtse>30	ok, confusion. I"m not taking PTO, but I'm doing the course and I won't be in the office.
+T 1500648314 18<ericwill18>	yeah sorry about that, I should have said "away" instead of PTO :)
+T 1500648355 18<akurtakov18>	ok :)
+T 1500648371 18<akurtakov18>	I just make sure things are clear :)
+T 1500648457 20<lufimtse>30	akurtakov, Thanks for clarification. I mixed up PTO with OOO. I thought PTO==OOO.
+T 1500648460 20<lufimtse>30	I updated calendar 
+T 1500648471 20<lufimtse>30	"OOO - Leo Ufimtsev"
+T 1500648487 18*	akurtakov doesn't want people in the team to lose PTO for work related things :)
+T 1500650528 20<lufimtse>30	akurtakov, Are we good to merge: https://git.eclipse.org/r/#/c/85603/4 ?
+T 1500650535 20<lufimtse>30	I removed pom.xml
+T 1500650540 20<lufimtse>30	changes
+T 1500650543 20<lufimtse>30	and added ignore
+T 1500650547 20<lufimtse>30	and clarified assert
+T 1500651721 19<akurtakov>	lufimtse: looks like it
+T 1500657210 19<ericwill>	lufimtse do you have time to review one of my patches today?
+T 1500657216 18<ericwill18>	before you leave next week
+T 1500657218 20<lufimtse>30	hey
+T 1500657224 20<lufimtse>30	ericwill, sure
+T 1500657282 19<ericwill>	lufimtse https://git.eclipse.org/r/#/c/99177/
+T 1500657291 18<ericwill18>	danke
+T 1500661270 Python interface unloaded
+T 1500661338 19*	Now talking on 22#SWT
+T 1500662886 19*	Now talking on 22#SWT
+T 1501268772 19*	Now talking on 22#swt
+T 1501268978 19<ericwill>	lufimtse welcome back
+T 1501270175 20<lufimtse>30	ericwill, :-)
+T 1501270197 20<lufimtse>30	eagerly awaiting test results
+T 1501270198 20<lufimtse>30	derp
+T 1501270228 19<ericwill>	lufimtse ah yeah waiting is annoying, when do you find out?
+T 1501270941 20<lufimtse>30	they say within 3 business days
+T 1501270949 20<lufimtse>30	when I took it the first time, I got results in like 30 minutes
+T 1501270954 20<lufimtse>30	but haven't received them yet
+T 1501270955 20<lufimtse>30	ericwill, 
+T 1501271094 18<ericwill18>	damn, fingers crossed :)
+T 1501271103 19<ericwill>	lufimtse our EclipseCon talk got accepted
+T 1501271800 20<lufimtse>30	ericwill, yea, I just saw. My jni talk also got accepted.
+T 1501271809 20<lufimtse>30	ericwill, next week we be busy.
+T 1501271956 20<lufimtse>30	ericwill, I just noticed that gerrit kinda feels like gmail. Like if you press shift+?, the same keyboard help pops up. Most of the keyboard shortcuts are the same. Gerrit was made by google I think, which kinda explains it.
+T 1501272163 18<ericwill18>	hmm, good to know
+T 1501272192 18<ericwill18>	well I'm done for the day, see you next week
+T 1501514278 20*	Disconnected (20Connection timed out)
+T 1501515387 19*	Now talking on 22#swt
+T 1501519995 20<lufimtse>30	akurtakov, to clarify, I can merge stuff today?
+T 1501520000 20<lufimtse>30	still?
+T 1501520042 19<akurtakov>	lufimtse: yes, although nothing big and not self contained
+T 1501520072 18<akurtakov18>	it's all in Sravan's mail from last week to eclipse-dev
+T 1501520074 18<akurtakov18>	Monday: Last day of development (and even then, no "big changes"). After Monday 20:00 ET, no feature work or unrelated fixes are allowed -- only regression fixes.
+T 1501520091 20<lufimtse>30	akurtakov, I want to merge highest voted SWT-Linux patch: https://git.eclipse.org/r/#/c/22713/
+T 1501520094 20<lufimtse>30	has 36 votes.
+T 1501520100 20<lufimtse>30	~266 line changes.
+T 1501520133 18<akurtakov18>	if you're confident in it
+T 1501520159 20<lufimtse>30	ok.
+T 1501523197 18<ericwill18>	akurtakov any idea why gerrit jobs are failing? https://hudson.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/5043/console
+T 1501523211 18<ericwill18>	says the VM crashed in SWT Table tests
+T 1501524251 18<akurtakov18>	ericwill: no idea
+T 1501524256 18<akurtakov18>	is it one time thing 
+T 1501524261 18<akurtakov18>	or keep happening ?
+T 1501524376 18<ericwill18>	akurtakov still happening
+T 1501524388 18<ericwill18>	since this morning
+T 1501524392 18<akurtakov18>	ericwill: no idea, you would have to find it out yourself
+T 1501524560 18<ericwill18>	akurtakov ok :)
+T 1501526124 18<ericwill18>	akurtakov the issue resolved itself, the tests pass now...
+T 1501532338 20*	Disconnected (20Connection timed out)
+T 1501533336 19*	Now talking on 22#swt
+T 1501596176 20*	Disconnected (20Connection reset by peer)
+T 1501596186 19*	Now talking on 22#swt
+T 1501598260 20<lufimtse>30	ericwill, Can you verify? https://bugs.eclipse.org/bugs/show_bug.cgi?id=497071
+T 1501598272 20<lufimtse>30	resolved -> verify if it works.
+T 1501598320 20<lufimtse>30	ericwill,  https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&chfield=resolution&chfieldfrom=2017-06-12&chfieldto=Now&classification=Eclipse&columnlist=bug_severity%2Cpriority%2Cop_sys%2Cassigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Ctarget_milestone&component=SWT&known_name=4.8M1fixed&list_id=16607848&product=Platform&query_based_on=4.8M1fixed&query_format=advanced&resolution=FIXED
+T 1501598335 20<lufimtse>30	ipun, same for you  ^_^
+T 1501598640 20<lufimtse>30	akurtakov, About the solution status to this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=498450
+T 1501598652 20<lufimtse>30	maybe set it as "worksforme" instead of "fixed" as there was no actual patch?
+T 1501598693 19<akurtakov>	lufimtse: do as it pleases you :)
+T 1501598698 20<lufimtse>30	ok 
+T 1501600252 18<akurtakov18>	ericwill: are you on F26 ?
+T 1501600258 18<ericwill18>	akurtakov yes
+T 1501600276 18<akurtakov18>	and you don't see the issues with preferences dialog sometimes white ?
+T 1501600290 18<akurtakov18>	happens rarely but still happens
+T 1501600379 18<ericwill18>	akurtakov nope
+T 1501600385 18<akurtakov18>	doh
+T 1501600389 18<akurtakov18>	I saw it again
+T 1501600395 18<akurtakov18>	it's really rare
+T 1501600400 18<akurtakov18>	do you use mylyn?
+T 1501600414 18<ericwill18>	I have the task list installed for testing some things but I don't really use it at all
+T 1501600416 18<akurtakov18>	mylyn notifications seems to be the most common 
+T 1501600432 18<ericwill18>	hmm I'll look into it
+T 1501600441 18<ericwill18>	this bug is very elusive :)
+T 1501613640 18<ericwill18>	akurtakov I wrote a script that pulls in the daily I-build test results and parses them for failures
+T 1501613649 18<ericwill18>	so you don't have to email me when the e4 tests fail or something
+T 1501613894 18<akurtakov18>	ericwill: ok, I just check the web :)
+T 1501616233 19*	Now talking on 22#swt
+T 1501683879 19*	Now talking on 22#swt
+T 1501683944 19*	Now talking on 22#swt
+T 1501684158 19*	Now talking on 22#swt
+T 1501684689 19*	Now talking on 22#swt
+T 1501685119 19*	Now talking on 22#swt
+T 1501685721 19*	Now talking on 22#swt
+T 1501700795 19<ipun>	lufimtse: when you were working on webkit, did you do anything related to user-agents/
+T 1501700808 20<lufimtse>30	ipun, no
+T 1501860811 19<ericwill>	lufimtse fixed those issues you filed today, only one left to handle is the test names without stacktraces
+T 1501860820 18<ericwill18>	thank you for the feedback :)
+T 1501861025 20<lufimtse>30	X-D
+T 1501865345 19*	Now talking on 22#swt
+T 1502200712 18<ericwill18>	akurtakov which version of Eclipse started enforcing GTK3 by default? Mars?
+T 1502200757 18<akurtakov18>	the one from 2014 :)
+T 1502200822 18<akurtakov18>	ericwill: I think it was Luna :)
+T 1502200904 18<ericwill18>	akurtakov okay thanks
+T 1502200913 18<ericwill18>	akurtakov did you see https://bugs.eclipse.org/bugs/show_bug.cgi?id=470031#c23 ?
+T 1502200936 18<akurtakov18>	ericwill: yeah, but I was waiting on your reaction :)
+T 1502200956 18<ericwill18>	I will tell him what I know so far and see what he says
+T 1502292497 18<akurtakov18>	ericwill: hey Eric
+T 1502292512 18<akurtakov18>	so you're moving on with accessibility stuff
+T 1502292521 18<akurtakov18>	do you have better idea what's going on ?
+T 1502292532 18<ericwill18>	akurtakov I haven't heard anything yet from Sravan
+T 1502292536 18<ericwill18>	eh..a little :)
+T 1502292643 18<akurtakov18>	ericwill: ok, I would not push too much but I'm just curious
+T 1502292725 18<ericwill18>	akurtakov how the SWT a11y code interacts with GTK is still a mystery to me
+T 1502292731 18<ericwill18>	that's what I am trying to figure out now
+T 1502293052 18<akurtakov18>	g'luck :)
+T 1502293102 18<ericwill18>	ha, thanks :P
+T 1502294445 18<akurtakov18>	guys, everything you want for 4.7.1 must be in this week 
+T 1502294446 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=517487
+T 1502294481 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=61190 
+T 1502294486 18<akurtakov18>	^^ these both look good
+T 1502294526 18<akurtakov18>	ericwill|lunch: https://bugs.eclipse.org/bugs/show_bug.cgi?id=481824 for 4.8 I would say?
+T 1502294543 18<akurtakov18>	ericwill|lunch: https://bugs.eclipse.org/bugs/show_bug.cgi?id=470031 same?
+T 1502295644 18<ericwill18>	akurtakov yeah for 4.8 sure
+T 1502295658 18<akurtakov18>	ericwill: please retarget 
+T 1502296257 18<ericwill18>	akurtakov done
+T 1502296264 18<akurtakov18>	thanks
+T 1502296273 18<akurtakov18>	why do we have a release every week :)
+T 1502296283 18<akurtakov18>	I can barely keep up with the dates :)
+T 1502296400 18<ericwill18>	yeah
+T 1502296404 18<ericwill18>	I try to backport my stuff ASAP to avoid forgetting about these things
+T 1502304495 20<lufimtse_>30	ericwill, https://git.eclipse.org/r/#/c/60704/
+T 1502304506 20<lufimtse_>30	akurtakov, hudson builds seem to be failing as of: https://git.eclipse.org/r/#/c/60704/
+T 1502304540 19<akurtakov>	lufimtse_: I simply removed it as reviewer and pushed https://git.eclipse.org/r/#/c/102801/
+T 1502304547 18<akurtakov18>	if it's only this failure
+T 1502304562 18<akurtakov18>	Niraj merged fix and test change together
+T 1502304602 20<lufimtse_>30	I see
+T 1502304606 20<lufimtse_>30	so wait till tomorrow?
+T 1502304622 19<akurtakov>	lufimtse_: if there is just this failure, remove hudson as reviewer and push
+T 1502304633 18<akurtakov18>	I'm tired of waiting for stuff :)
+T 1502304633 20<lufimtse_>30	I see
+T 1502304637 20<lufimtse_>30	ok
+T 1502304647 18<akurtakov18>	we have lost too much time trying to play nice :)
+T 1502304736 19<akurtakov>	lufimtse_: I've changed the config of the hudson job to publish the junit results to it's easier (one click away) to spot the failing tests now :)
+T 1502304992 20<lufimtse_>30	akurtakov, you mean when you open the hudson build, click on the "Test Result" next to the clipboard?
+T 1502305116 19<akurtakov>	lufimtse_: yes, it wasn't there for older builds https://hudson.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/5087/ 
+T 1502305395 20<lufimtse_>30	oh
+T 1502305399 20<lufimtse_>30	akurtakov, very useful
+T 1502305400 20<lufimtse_>30	thank you
+T 1502305424 20<lufimtse_>30	akurtakov, btw, I don't seem to have rights to remove hudson. Should I be having those?
+T 1502305433 19<akurtakov>	lufimtse_: you should be able
+T 1502305438 18<akurtakov18>	how do you try to do it?
+T 1502305457 20<lufimtse_>30	there is no "x" next to hudson
+T 1502305467 20<lufimtse_>30	but there is one next to my name
+T 1502305500 18<akurtakov18>	hmm, no idea
+T 1502305508 18<akurtakov18>	every committer should be able to do it
+T 1502305515 18<akurtakov18>	please ask ericwill to try
+T 1502305531 20<lufimtse_>30	ericwill, https://git.eclipse.org/r/#/c/98260/
+T 1502305547 20<lufimtse_>30	akurtakov, Eric cannot
+T 1502305548 18<ericwill18>	I can't
+T 1502305550 20<lufimtse_>30	akurtakov, can you?
+T 1502305565 20<lufimtse_>30	akurtakov, maybe I need to request some permissions
+T 1502305566 19<akurtakov>	lufimtse_: I do it for my gerrits
+T 1502305573 18<akurtakov18>	which one do  you want me to try ?
+T 1502305576 20<lufimtse_>30	https://git.eclipse.org/r/#/c/98260/
+T 1502305644 20<lufimtse_>30	akurtakov, I can remove Eric, but not Hudson
+T 1502305659 19<akurtakov>	lufimtse_: I removed it
+T 1502305670 18<akurtakov18>	well, open bz
+T 1502305682 20<lufimtse_>30	akurtakov, ok
+T 1502305685 18<akurtakov18>	I seriously thought every committer was able to do it
+T 1502309098 20<lufimtse_>30	ipun, have you tested this guy: https://git.eclipse.org/r/#/c/100078/ with regular ccombo boxes that don't have read only property?
+T 1502309129 19<ipun>	lufimtse_: no I havent, but thast a good case 
+T 1502309135 18<ipun18>	ill see what inheriently GTK does
+T 1502309163 20<lufimtse_>30	I'll post into gerrit review. When tested, please post your findings into the gerrit review and I'll test on other platforms.
+T 1502309513 19<ipun>	lufimtse_: oh wait nevermind, ive definitely tested this with regular combo boxes. I read your comment wrong
+T 1502309522 18<ipun18>	I thought you meant testing it on regular "combo" boxes
+T 1502312799 20<lufimtse_>30	no, I mean ccombo not read only
+T 1502374821 19<ipun>	lufimtse_: how did you access git through your windows machine?
+T 1502374830 18<ipun18>	this is paaiinnffull
+T 1502376018 20<lufimtse_>30	ipun,   remember to   cd /mnt/c/git/
+T 1502376039 19<ipun>	lufimtse_: yeah i got it working thanks! Tested on all platforms and ready for merge
+T 1502376158 20<lufimtse_>30	ipun, r u done with mac?
+T 1502376206 19<ipun>	lufimtse_: yes
+T 1502384587 20<lufimtse_>30	ipun, hey ya, any chance you could review the patch here? https://bugs.eclipse.org/bugs/show_bug.cgi?id=520442  you seem to know your way around styledText 
+T 1502384662 19<ipun>	lufimtse_: sure. I don't see this being any issue unless the builds are failing but ill review it
+T 1502385009 19<ipun>	lufimtse_: https://bugs.eclipse.org/bugs/show_bug.cgi?id=304893 whos carolyn?
+T 1502385060 18<ipun18>	oh wait nvm shes the QA, ignore
+T 1502385077 18<ericwill18>	she's from IBM but doesn't work on Eclipse anymore
+T 1502385080 18<ericwill18>	I'd remove her from QA
+T 1502385087 18<ericwill18>	I doubt you'll get a response
+T 1502386580 18<ipun18>	ericwill: thanks, ive done so now
+T 1502392430 19<ipun>	lufimtse_: https://bugs.eclipse.org/bugs/show_bug.cgi?id=304893
+T 1502392434 18<ipun18>	no QA for this one 
+T 1502723727 20*	Disconnected (20Connection timed out)
+T 1502724852 19*	Now talking on 22#swt

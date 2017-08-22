@@ -60,7 +60,7 @@ shopt -s histreedit  #not really sure, but redit line if history exec failed?
 # bind -x  for executing commands.
 
 bind -x '"\eOP":"ll -a"'                  # F1 = ls -a
-bind '"\eOQ": "| grep -i -I -s "'         # F2 = grep -i -I -s
+bind '"\eOQ": " $(!!) "'                  # F2 = $(!!) 
 bind -x '"\eOR":" cd ~/ && pwd"'          # F3 = cd ~/
 bind -x '"\eOS":" cd ~/git/ && pwd"'      # F4 = cd ~/git
 bind '"\e[15~":" 2> /dev/null > /dev/null &"' # F5 = run in backgrounud, no output.
@@ -139,7 +139,7 @@ alias stopssh="systemctl stop sshd.service"
 # t
 # u
 # v
-alias v="vim"
+alias vim=vimx
 # w
 
 #################################
@@ -199,8 +199,40 @@ export LESS_TERMCAP_ZW=$(tput rsupm)
 export GCC_COLORS="error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
 
 
+##################
+#### User function
+##################
 
 
+
+##########
+### Finding and enumirating output:
+########## 
+# https://unix.stackexchange.com/questions/378270/find-command-enumerate-output-and-allow-selection/378277?noredirect=1#comment673124_378277
+
+# V1
+# find -name feature.xml | nl
+# vim $(!!s 2)
+nls () { head -n $1 | tail -n 1 ;}
+
+# V2
+# num find -name feature.xml | sel 2
+# vim $(!!)
+num () { "$@" | sed 's!^\./!!' | nl; }
+sel () {  sed -nr "$1"'{s/^\s+'"$1"'\t//p;q}'; }
+
+# V3
+findexec () {
+        # Usage: findexec <cmd> <name/pattern>
+	# ex: findexec vim pom.xml
+	IFS=$'\n'; 
+	select file in $(find -type f -name "$2"); do
+  		#$EDITOR "$file"
+  		"$1" "$file"
+		break
+	done; 
+	unset IFS
+}
 
 ##############################################################################
 ###################################################################### END

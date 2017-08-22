@@ -1,0 +1,66 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== maven ======
+Created Tuesday 26 July 2016
+
+===== Rebuild everything: =====
+Build all of SWT and run all tests. Inside [[~/git/eclipse.platform.swt,]] run:
+	mvn clean verify -Pbuild-individual-bundles
+
+
+===== Rebuild native bindings =====
+**Clean rebuild:**
+	cd /home/lufimtse/git/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.gtk.linux.x86_64
+	mvn clean verify -Pbuild-individual-bundles -Dnative=gtk.linux.x86_64
+	
+	(recommend to git reset -- hard && git clean -xdf)
+
+**Faster: (but sometimes doesn't work for changes).**
+	mvn -Pbuild-individual-bundle -Dnative=gtk.linux.x86_64
+
+
+===== Debugging tests =====
+http://maven.apache.org/surefire/maven-surefire-plugin/examples/debugging.html
+mvn ... -DforkCount=0
+
+https://eclipse.org/tycho/sitedocs/tycho-surefire/tycho-surefire-plugin/test-mojo.html#debugPort
+
+===== Run over ssh =====
+export DISPLAY=:1    #should check if it's :=1 or :=0
+...
+
+===== Maven tutorial: =====
+http://www.mkyong.com/tutorials/maven-tutorials/
+
+===== Maven setup =====
+osx: https://stackoverflow.com/questions/8826881/maven-install-on-mac-os-x
+ -> use Brew
+
+
+mvn [[Bash:cmd:help:active-profiles]] -X  #show details of active profiles.
+mvn help:active-profiles | grep -v INFO
+mvn help:active-profiles  -Pbuild-individual-bundle   # for Swt.
+
+===== Win Setup: =====
+https://www.mkyong.com/maven/how-to-install-maven-in-windows/
+
+===== Cocoa setup: =====
+#**homebrew**
+# Maven config
+# https://wilsonmar.github.io/maven-on-macos/
+
+export M2_HOME=/usr/local/Cellar/maven/*/libexec   # I added * to be version generic.
+export M2=$M2_HOME/bin
+export PATH=$PATH:$M2_HOME/bin
+
+===== Get os name =====
+mvn help:system |grep os.name
+
+Mac-profile:
+http://maven.40175.n5.nabble.com/Profile-activation-for-mac-and-linux-td3263043.html
+Profile families: https://github.com/sonatype/plexus-utils/blob/f2beca21c75084986b49b3ab7b5f0f988021dcea/src/main/java/org/codehaus/plexus/util/Os.java#L72
+
+===== Clear cached repos =====
+https://stackoverflow.com/questions/7408545/how-do-you-clear-apache-mavens-cache
+Delete the artifacts (or the full local repo) from c:\Users\username\.m2\repository by hand

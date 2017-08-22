@@ -1,0 +1,72 @@
+T 1499876602 20<lufimtse>30	hey ya
+T 1499876606 20<lufimtse>30	do you remember this guy?
+T 1499876606 20<lufimtse>30	https://git.eclipse.org/r/#/c/81666/
+T 1499876613 18<mistria>	hi
+T 1499876631 20<lufimtse>30	More specifically this one: https://git.eclipse.org/r/#/c/81666/17/tests/org.eclipse.swt.tests.fragments.feature/feature.xml
+T 1499876633 18<mistria>	a bit
+T 1499876645 18<mistria>	yes
+T 1499876672 20<lufimtse>30	Ok, so I'm trying to test swt's junit via maven *on windows*. It works if I delete everything except the "win32.x86_64" related plugin.
+T 1499876682 20<lufimtse>30	otherwise on windows instead it reads the first entry
+T 1499876686 20<lufimtse>30	which is gtk 32 bit.
+T 1499876689 18<mistria>	ah
+T 1499876698 20<lufimtse>30	any ideas if on Windows I can force it to read the correct one?
+T 1499876704 20<lufimtse>30	some param/config?
+T 1499876716 18<mistria>	filtering and taking the right one is the purpose of p2 resolution
+T 1499876735 18<mistria>	can you have a look at the classpath you get for your plain tests?
+T 1499876742 18<mistria>	does it contain all the bundles or only one?
+T 1499876854 20<lufimtse>30	http://i.imgur.com/ooJzgOo.png
+T 1499876860 20<lufimtse>30	hmm, actually, 
+T 1499876869 20<lufimtse>30	that log is of when there is only win32 plugin
+T 1499876877 20<lufimtse>30	(working)
+T 1499876886 20<lufimtse>30	Let me see what happens when all are present.
+T 1499877044 18<mistria>	I got disconneected. Did you add anything after "hmm, actually" ?
+T 1499877057 20<lufimtse>30	yea,
+T 1499877062 20<lufimtse>30	<lufimtse> that log is of when there is only win32 plugin
+T 1499877062 20<lufimtse>30	<lufimtse> (working)
+T 1499877062 20<lufimtse>30	<lufimtse> Let me see what happens when all are present.
+T 1499877066 20<lufimtse>30	gimme a min.
+T 1499877607 20<lufimtse>30	@mistria how do I find out classpath?
+T 1499877624 20<lufimtse>30	I run tests like: mvn verify -Pbuild-individual-bundles    #-X
+T 1499877965 20<lufimtse>30	ping ping
+T 1499878085 18<mistria>	again got disconnected and reconnected... last message I got was "gimme a min"
+T 1499878100 20<lufimtse>30	meh
+T 1499878106 20<lufimtse>30	<lufimtse> @mistria how do I find out classpath?
+T 1499878106 20<lufimtse>30	<lufimtse> I run tests like: mvn verify -Pbuild-individual-bundles    #-X
+T 1499878112 20<lufimtse>30	./received?
+T 1499878200 20<lufimtse>30	hmm. It's also possible it's reading 32 bit instead of 64 bit win. Let me check.
+T 1499878355 20<lufimtse>30	btw, do you have skype?
+T 1499878364 20<lufimtse>30	or are you on mattermost somewhere?
+T 1499878376 18<mistria>	nope
+T 1499878385 18<mistria>	I stay on good old IRC and emails
+T 1499878389 18<mistria>	and bug trackers
+T 1499878394 18<mistria>	it's what scales and tracks best
+T 1499878471 20<lufimtse>30	I see
+T 1499878511 20<lufimtse>30	mistria ok, so summary: Win10 64 bit. I try to run maven, it picks up gtk32 bit plugin. Tests fail. If I remove all but win32 plugin in feature.xml, tests work
+T 1499878516 20<lufimtse>30	you asked about classpath
+T 1499878520 20<lufimtse>30	I asked how do I find it
+T 1499878531 20<lufimtse>30	Any ideas?
+T 1499878599 18<mistria>	mvn -X should give the classpath properly, but if you have doubt, you can still run tests with debug from surefire, place a breakpoint and ask the classloader
+T 1499879325 20<lufimtse>30	mistria I can't seem to find the classpath (Like I don't know what I'm looking for?). Relevant bit of log: https://paste.fedoraproject.org/paste/btN8xMxmqHQ~DjPUGNCGCg
+T 1499879325 29*	mistria :No such nick/channel
+T 1499880046 18<mistria>	it seems to be the VPN that has issues. Anyway, any progress since my last answer?
+T 1499880074 20<lufimtse>30	mistria might be a maven on windows bug
+T 1499880079 20<lufimtse>30	it works on Linux/Cocoa
+T 1499880102 20<lufimtse>30	I'm investigating
+T 1499880135 20<lufimtse>30	at the moment the environments are read from feature.xml. I'm gonna try to list them directly in test's pom.xml
+T 1499880142 20<lufimtse>30	I'll let you know how it goes.
+T 1499880151 18<mistria>	line 643 to 739 seem to be your classpath
+T 1499880195 18<mistria>	I see the non-win32 bundles listed, with an extra-indent
+T 1499880201 18<mistria>	not sure what that means
+T 1499880248 18<mistria>	but I think those shouldn't be here
+T 1499880270 18<mistria>	the bundle shouldn't depend on the feature, only tests should
+T 1499880313 20<lufimtse>30	I see
+T 1499880313 20<lufimtse>30	hmmm
+T 1499880334 20<lufimtse>30	it's odd that cocoa/gtk are listed but not win32, on win
+T 1499880348 20<lufimtse>30	derp.
+T 1499880357 20<lufimtse>30	I'm off to gym. Back in an hour ish.
+T 1499880430 18<mistria>	win32 is listed just below, as a 1st-rank dependency
+T 1499880536 18<mistria>	try a `mvn dependency:tree` when you can and compare the result across the different OS
+T 1499889943 20<lufimtse>30	mistria hey. I tried the command, but I get an error: [ERROR] Failed to execute goal on project org.eclipse.swt.fragments.localbuild: Could not resolve dependencies for project org.eclipse.swt:org.eclipse.swt.fragments.localbuild:eclipse-plugin:3.105.0-SNAPSHOT: Failure to find org.eclipse.swt:org.eclipse.swt:jar:3.106.100-SNAPSHOT in https://repo.eclipse.org/content/repositories/eclipse/ was cached in 
+T 1499889943 20<lufimtse>30	the local repository, resolution will not be reattempted until the update interval of eclipse-hosted has elapsed or updates are forced -> [Help 1
+T 1499889943 29*	mistria :No such nick/channel
+T 1499889943 29*	mistria :No such nick/channel

@@ -1,0 +1,62 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== gcc ======
+Created Monday 15 August 2016
+
+===== Examples =====
+gcc  main.cpp hello.cpp factorial.cpp -o hello
+
+
+===== List of params =====
+-c  — Compile but not link. (Used to produce object files '.o')
+	ex:
+	gcc -c main.c    # produces 'main.o'
+	
+-o — name of outupt file. a.out if not specified.
+
+-Dmacro=value
+
+-fPCI — position independent code. (used by shared libs).
+
+-Werror - make all warnings into errors.
+-Wall   - with all warnings 
+
+===== Order of parameters =====
+Syntax:
+	gcc [options] [source files] [object files] [-Ldir] -llibname [-o outfile]
+
+**Libraries have to be at the end:**
+Lib's (-lYOUR_LIB) go at the end, because only 'neccessary' objects at the time of reading the libs are taken from those libs, not everything.
+
+ex:
+	$(CC) $(CFLAGS) -o $@-bin $@.c $(LIBS)
+
+refs:
+http://www.rapidtables.com/code/linux/gcc/gcc-l.htm
+http://stackoverflow.com/questions/11893996/why-does-the-order-of-l-option-in-gcc-matter
+
+
+
+====== Special sections ======
+
+===== Options Controlling Pre-processor =====
+https://gcc.gnu.org/onlinedocs/gcc-6.1.0/gcc/Preprocessor-Options.html#Preprocessor-Options
+http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_2.html#SEC11
+
+
+===== Expand Macros =====
+With "-E" you can expand macros. Example:
+	#define HELLO 50
+	int main (int    argc, char **argv) {
+		printf("hello world %d\n", HELLO);
+		return 1;
+	}
+Expands to:
+....
+	 printf("hello world %d\n", 50);
+....
+I.e, you pass as paramater and specify output file:
+	$(CC) -E $(CFLAGS) test.c -o test-macroExpand $(LIBS)
+
+

@@ -1,0 +1,219 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== makefile ======
+Created Thursday 07 July 2016
+
+# comment.
+
+====== Notes ======
+https://www.tutorialspoint.com/makefile/why_makefile.htm
+
+==== Files used ====
+	main.cpp	       # calls print_hello() and factorial(..)
+		functions.h   # prototypes 
+		hello.cpp     # contains print_hello()
+		factorial.cpp # contains factorial(..)
+	    
+Compile from cmd: gcc  main.cpp hello.cpp factorial.cpp -o hello
+
+
+===== Variables =====
+https://www.tutorialspoint.com/makefile/makefile_macros.htm
+CFLAGS  = -O -systype bsd43
+LIBS    = "-lncurses -lm -lsdl"
+	
+
+===== Macros =====
+
+==== Predefined variables and references ====
+	ex:
+	%.o: %.c $(DEPS)
+		$(CC) -c -o $@ $< $(CFLAGS)
+	
+	$@  - left of ':'
+	$^    - first item right of ':'
+	%.o   - regex matching *.o 
+	%.c   - regex matching *.c
+
+	Meaning: compile, output according to name on left of ':' and use as input first reference after ":"
+	src: http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/ #3
+
+
+==== Special macros $@ and $? ====
+$@ name of file to be made. Left of ":"
+$? name of changed dependencies.
+
+Ex:  "$? == $@.cpp"
+hello: main.cpp hello.cpp factorial.cpp
+	$(CC) $(CFLAGS) $? $(LDFLAGS) -o $@
+
+Alternatively −
+hello: main.cpp hello.cpp factorial.cpp
+	$(CC) $(CFLAGS) $@.cpp $(LDFLAGS) -o $@
+
+
+==== Special macros $< and $* ====
+There are two more special macros used in the implicit rules. 
+ $< the name of the related file that caused the action.
+ $* the prefix shared by target and dependent files.
+
+Here the name of the file is not given. The implicit rule works for all *.cpp
+.cpp.o:
+	$(CC) $(CFLAGS) -c $<
+OR:
+.cpp.o:
+	$(CC) $(CFLAGS) -c $*.c
+
+
+==== Conventional Macros ====
+  make -p
+
+==== Specify macro on command line ====
+ make CPP = /home/courses/cop4530/spring02
+
+
+===== Dependencies =====
+hello: main.o factorial.o hello.o              # hello depends on object files.
+	$(CC) main.o factorial.o hello.o -o hello
+
+# Object files defined to be:
+main.o: main.cpp functions.h
+	$(CC) -c main.cpp
+
+factorial.o: factorial.cpp functions.h
+	$(CC) -c factorial.cpp
+
+hello.o: hello.cpp functions.h
+	$(CC) -c hello.cpp
+
+===== Defines and C macros =====
+via: -Dmacro=value
+Default: -Dmacro    //=1.
+In a makefile, you can pass along a value to the C file:
+WEBKITCFLAGS = `pkg-config --cflags glib-2.0 webkit2gtk-4.0` -DSWT_WEBKIT4_EXISTS=1
+
+webkitgtk_custom.o: webkitgtk_custom.c
+	$(CC) $(CFLAGS) $(WEBKITCFLAGS) -c webkitgtk_custom.c
+
+Then in your C file, it can be read as such:
+#ifdef SWT_WEBKIT4_EXISTS
+...
+#endif /*SWT_WEBKIT4_EXISTS*/
+
+===== Conditionals =====
+**Ex: if flag defined...**
+SWT_DEBUG = -D WEBKIT_DEBUG
+ifdef SWT_DEBUG
+CHEESE= -Dhasstuff
+else
+CHEESE= -Dempty
+endif
+
+
+====== Special Examples ======
+
+===== Executing a shell command and assign to varible. =====
+Useful to check if a package exist. Observe double $$
+{{{code: lang="makefile" linenumbers="True"
+WEBKIT4_EXISTS = $(shell pkg-config --exists webkit2gtk-4.0; echo $$?)
+ifeq ($(WEBKIT4_EXISTS), 0)
+	# Webkit2gkt4 (I.e Webkit2 with Gtk3 bindings) is available.
+	WEBKITCFLAGS = `pkg-config --cflags glib-2.0 webkit2gtk-4.0`
+	WEBKITLIBS = `pkg-config --libs-only-l glib-2.0 webkit2gtk-4.0`
+else
+	WEBKITCFLAGS = `pkg-config --cflags glib-2.0`
+endif
+
+}}}
+
+src:
+http://stackoverflow.com/questions/7394290/makefile-return-value-from-the-shell-directive
+http://stackoverflow.com/questions/10024279/how-to-use-shell-commands-in-makefile
+
+
+===== Comprehensive example - objects =====
+{{{code: lang="makefile" linenumbers="True"
+CC=g++
+CFLAGS=-c -Wall
+LDFLAGS=
+SOURCES=main.cpp hello.cpp factorial.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=hello
+
+all: $(SOURCES) $(EXECUTABLE)
+    
+$(EXECUTABLE): $(OBJECTS) 
+    $(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+    $(CC) $(CFLAGS) $< -o $@
+}}}
+
+
+===== Automatically generate target names =====
+The below reads all '*.c' files.
+Then it trips the '.c' to nothing.
+Then '$(SNIPPETS) :: ' generates all targets in the array.   $@  is a reference to the name.
+This generates '-bin' executlables. E.f "make hello" will take hello.c and generate hello-bin 
+{{{code: lang="makefile" linenumbers="True"
+SRC = $(wildcard *.c)
+SNIPPETS = $(SRC:.c=)
+
+all :: $(SNIPPETS)
+
+$(SNIPPETS) ::
+	$(CC) $(CFLAGS) -o $@-bin $@.c $(LIBS)
+}}}
+
+
+
+====== Misc notes ======
+
+===== Dependencies =====
+Useful to only build what's needed to be build
+tagrget: dependecy1 dependency2
+{{{code: lang="makefile" linenumbers="True"
+all: hello
+
+hello: main.o factorial.o hello.o
+    g++ main.o factorial.o hello.o -o hello
+
+main.o: main.cpp
+    g++ -c main.cpp
+
+factorial.o: factorial.cpp
+    g++ -c factorial.cpp
+
+hello.o: hello.cpp
+    g++ -c hello.cpp
+
+clean:
+    rm *o hello
+}}}
+
+
+
+====== References ======
+
+===== Manual =====
+http://www.gnu.org/software/make/manual/make.html 
+
+===== Tutorials =====
+https://www.tutorialspoint.com/makefile/why_makefile.htm
+http://mrbook.org/blog/tutorials/make/
+http://nuclear.mutantstargoat.com/articles/make/  << more advanced
+https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
+http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
+
+===== Summaries =====
+Useful quick ref:
+https://www.gnu.org/software/make/manual/make.html#Quick-Reference
+https://gist.github.com/isaacs/62a2d1825d04437c6f08  #good $@ $^ and $< explanations.
+
+====== See also ======
+Compiling multiple executables:
+http://stackoverflow.com/questions/5950395/makefile-to-compile-multiple-c-programs
+
+Loops in make files:
+http://stackoverflow.com/questions/26822036/how-can-i-simplify-this-makefile-to-make-it-less-repetitive?noredirect=1&lq=1

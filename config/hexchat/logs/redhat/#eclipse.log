@@ -12401,3 +12401,1076 @@ Jul 11 10:42:24 <rgrunber>	ericwill: yup f26 is here..
 Jul 11 10:43:34 <ericwill>	rgrunber cool
 Jul 11 13:39:43 <scela>	mistria: the tutorial might require some effort preparing though
 Jul 11 13:39:54 <scela>	mistria: but it would definitely be of great help to spread the word
+**** BEGIN LOGGING AT Tue Jul 11 13:47:03 2017
+
+Jul 11 13:47:03 *	Now talking on #eclipse
+Jul 11 13:47:03 *	Topic for #eclipse is: Eclipse discussions
+Jul 11 13:47:03 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue Jul 11 14:01:59 2017
+
+**** BEGIN LOGGING AT Tue Jul 11 14:04:54 2017
+
+Jul 11 14:04:54 *	Now talking on #eclipse
+Jul 11 14:04:54 *	Topic for #eclipse is: Eclipse discussions
+Jul 11 14:04:54 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Tue Jul 11 14:09:31 2017
+
+Jul 11 14:09:31 *	Now talking on #eclipse
+Jul 11 14:09:31 *	Topic for #eclipse is: Eclipse discussions
+Jul 11 14:09:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Tue Jul 11 14:15:19 2017
+
+Jul 11 14:15:19 *	Now talking on #eclipse
+Jul 11 14:15:19 *	Topic for #eclipse is: Eclipse discussions
+Jul 11 14:15:19 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 11 14:58:28 <nboldt1>	rgrunber: hey, if I check an rpmdiff and find a problem... how can I report that?
+**** BEGIN LOGGING AT Tue Jul 11 15:31:47 2017
+
+Jul 11 15:31:47 *	Now talking on #eclipse
+Jul 11 15:31:47 *	Topic for #eclipse is: Eclipse discussions
+Jul 11 15:31:47 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 11 15:39:13 <nboldt1>	mbenitez: found another one https://bugzilla.redhat.com/show_bug.cgi?id=1469765
+Jul 11 16:02:38 <nboldt1>	rgrunber: mbenitez what is binary stripping? https://errata.devel.redhat.com/rpmdiff/show/177003?result_id=4854819
+Jul 11 16:02:53 <nboldt1>	are these files that should be excluded from x64 distros?
+Jul 11 16:03:07 <nboldt1>	because gtk, not gtk_x64?
+Jul 11 16:03:27 <rgrunber>	debuginfo still present ?
+Jul 11 16:03:34 <nboldt1>	wut?
+Jul 11 16:04:08 <rgrunber>	https://docs.engineering.redhat.com/display/HTD/rpmdiff-elf-stripping
+Jul 11 16:05:15 <nboldt1>	" If rpmdiff says a previously stripped ELF file is now unstripped, it is probably a bug and the file shall be carefully examined to ensure the unstripping is necessary." 
+Jul 11 16:06:38 <nboldt1>	rgrunber: ok, I've not idea how to check that problem. I'll leave it for Mat for now
+Jul 11 16:06:54 <nboldt1>	what about https://errata.devel.redhat.com/rpmdiff/show/177094?result_id=4855440 ... I assume org/fedoraproject/ paths are OK? 
+Jul 11 16:07:24 <rgrunber>	nboldt1: yeah from fedoraproject-p2
+Jul 11 16:07:26 <rgrunber>	should be fine
+Jul 11 16:07:37 <nboldt1>	does autowaive actually work?
+Jul 11 16:08:20 <nboldt1>	eg., I tried to autowaive on https://errata.devel.redhat.com/rpmdiff/show/177004?result_id=4852495 but it did nothing so I waived by hand
+Jul 11 16:08:27 *	nboldt1 mumbles something about waving hands
+Jul 11 16:08:31 <rgrunber>	can't remember trying it ever..
+Jul 11 16:23:03 <nboldt1>	rgrunber: this looks like something that has to be fixed in upstream, right ? https://errata.devel.redhat.com/rpmdiff/show/177016?result_id=4852998
+Jul 11 16:23:31 <nboldt1>	eg., in org.eclipse.linuxtools.tools.launch.core at eclipse, then trickled down to fedora -> rh-eclipse47
+Jul 11 16:25:17 <rgrunber>	nboldt1: seems like a bug in how it's built.. in brew..
+Jul 11 16:25:27 <rgrunber>	nboldt1: i'm guessing the .orig got generated during %patch
+Jul 11 16:25:33 <nboldt1>	oh? ah
+Jul 11 16:25:37 <rgrunber>	not enough fuzz maybe ?
+Jul 11 16:25:42 <nboldt1>	*shrug*
+Jul 11 16:25:52 <rgrunber>	i can tell you we ship no .java.orig files upstream
+Jul 11 16:26:13 <nboldt1>	ok, so ... %patch0 -p1
+Jul 11 16:26:13 <nboldt1>	%patch1 -p1
+Jul 11 16:26:13 <nboldt1>	%patch2 -p1
+Jul 11 16:26:13 <nboldt1>	%patch3
+Jul 11 16:26:13 <nboldt1>	%patch4
+Jul 11 16:26:19 <nboldt1>	where does one define fuzz?
+Jul 11 16:27:45 <rgrunber>	hmm
+Jul 11 16:27:46 <rgrunber>	patching file profiling/org.eclipse.linuxtools.tools.launch.core/src/org/eclipse/linuxtools/tools/launch/core/factory/LinuxtoolsProcessFactory.java
+Jul 11 16:27:46 <nboldt1>	add-base-rhel-tools-path.patch seems to be the one contributing the .orig files
+Jul 11 16:27:49 <rgrunber>	Hunk #1 succeeded at 104 (offset 16 lines).
+Jul 11 16:28:00 <nboldt1>	where are you looking ?
+Jul 11 16:28:05 <rgrunber>	http://download-node-02.eng.bos.redhat.com/brewroot/packages/rh-eclipse47-eclipse-linuxtools/6.0.0/1.3.el7/data/logs/noarch/build.log
+Jul 11 16:28:53 <nboldt1>	I see fuzz=0
+Jul 11 16:29:00 <nboldt1>	and only 1 hunk succeeded
+Jul 11 16:29:14 <rgrunber>	oh well that's the issue then..
+Jul 11 16:29:20 <rgrunber>	but why didn't it fail in %patch
+Jul 11 16:29:39 <nboldt1>	good question
+Jul 11 16:29:46 <nboldt1>	the patch file has two diffs in it
+Jul 11 16:30:30 <rgrunber>	ah no.. it only mentiones success if there's an offeset.. if it succeeds it should just be silent ?
+Jul 11 16:31:00 <nboldt1>	patching file profiling/org.eclipse.linuxtools.tools.launch.core/src/org/eclipse/linuxtools/tools/launch/core/factory/LinuxtoolsProcessFactory.java
+Jul 11 16:31:08 <nboldt1>	seems like it tried to patch at least
+Jul 11 16:31:26 <nboldt1>	where can I find the binary to check its contents?
+Jul 11 16:31:48 <rgrunber>	i would still maybe re-do the patch in case it simply decided to generate a .orig when it has too large an offset.
+Jul 11 16:32:20 <nboldt1>	so that's still an upstream fix in Fedora?
+Jul 11 16:32:29 <nboldt1>	oh, maybe not
+Jul 11 16:32:34 <rgrunber>	mmm no.. that patch only exists in rhel.
+Jul 11 16:32:36 <nboldt1>	+         * '/usr/bin' is set by 'Base RHEL Tools'
+Jul 11 16:32:36 <nboldt1>	+         * Disable any XDG_DATA_DIRS in this case.
+Jul 11 16:32:38 <nboldt1>	yeah
+Jul 11 16:32:39 <rgrunber>	the base rhel tools thing
+Jul 11 16:32:46 <nboldt1>	do I have access to that repo?
+Jul 11 16:32:49 <rgrunber>	errata should link to the rpms
+Jul 11 16:32:59 <nboldt1>	you mean on https://errata.devel.redhat.com/advisory/29343/builds ?
+Jul 11 16:33:55 <rgrunber>	yeah.. i'd go there.. otherwise i'd do http://download-node-02.eng.bos.redhat.com/brewroot/repos/devtools-1.0-rh-eclipse47-rhel-7-build/latest/x86_64/
+Jul 11 16:35:00 <rgrunber>	ugh nvm.. rpms aren't directly there.. go with the errata links
+Jul 11 16:35:14 <nboldt1>	all good
+Jul 11 16:36:45 <rgrunber>	ahhhhh
+Jul 11 16:37:02 <nboldt1>	??
+Jul 11 16:37:06 <rgrunber>	one sec
+Jul 11 16:37:40 <rgrunber>	http://pkgs.devel.redhat.com/cgit/rpms/eclipse-linuxtools/tree/eclipse-linuxtools.spec?h=devtools-1.0-rh-eclipse47-rhel-7#n202 .. that is quite suspect
+Jul 11 16:38:29 <rgrunber>	the patches are applied in an scl environment.. which could silence the error code of a failed patch.. however set -e -x is applied so that it's verbose and errors should be caught..
+Jul 11 16:38:52 <rgrunber>	so everything should be fine.. but if it didn't actually fail then something is still going wrong.
+Jul 11 16:39:42 <nboldt1>	patch is definitely not applied
+Jul 11 16:40:02 <nboldt1>	ripped open the rpm and checked inside
+Jul 11 16:40:08 <nboldt1>	.orig has the change
+Jul 11 16:40:27 <nboldt1>	oh, wait, no. had that backwards
+Jul 11 16:40:41 <nboldt1>	patch IS applied in /home/nboldt/tmp/opt/rh/rh-eclipse47/root/usr/share/eclipse/droplets/linuxtools-core/eclipse/plugins/org.eclipse.linuxtools.tools.launch.core.source/org/eclipse/linuxtools/tools/launch/core/factory/LinuxtoolsProcessFactory.java
+Jul 11 16:41:33 <nboldt1>	after I unpacked `rpm2cpio rh-eclipse47-eclipse-linuxtools-6.0.0-1.3.el7.noarch.rpm | cpio -idmv`
+Jul 11 16:41:53 <nboldt1>	as fetched from http://download.eng.bos.redhat.com/brewroot/packages/rh-eclipse47-eclipse-linuxtools/6.0.0/1.3.el7/noarch/rh-eclipse47-eclipse-linuxtools-6.0.0-1.3.el7.noarch.rpm
+Jul 11 16:42:06 <rgrunber>	k so both are applied.
+Jul 11 16:42:42 <nboldt1>	or at least the patch is applied but there's a leftover .orig file
+Jul 11 16:44:15 <nboldt1>	looks like all three hunks are applied
+Jul 11 16:44:38 <nboldt1>	so... how is the .orig file getting pushed into the binary?
+Jul 11 16:45:11 <rgrunber>	nboldt1: i really think the final gets generated if there's an offset..
+Jul 11 16:46:03 <rgrunber>	nboldt1: for example
+Jul 11 16:46:15 <rgrunber>	when i run locally, i get :
+Jul 11 16:47:00 <rgrunber>	patching file containers/pom.xml
+Jul 11 16:47:00 <rgrunber>	Hunk #1 succeeded at 42 (offset 5 lines).
+Jul 11 16:47:00 <rgrunber>	Hunk #2 succeeded at 74 (offset 5 lines).
+Jul 11 16:47:00 <rgrunber>	patching file vagrant/pom.xml
+Jul 11 16:47:00 <rgrunber>	Hunk #1 succeeded at 36 (offset 1 line).
+Jul 11 16:47:23 <rgrunber>	i see org.eclipse.linuxtools-6.0.0/containers/pom.xml.orig but not for vagrant.. possible due to the larger offset ?
+Jul 11 16:47:50 <nboldt1>	I see the diff applied on line 107-114
+Jul 11 16:48:21 <nboldt1>	but the patch file has @@ -88,6 +88,14 @@ public abstract class LinuxtoolsProcessFactory {
+Jul 11 16:48:31 <nboldt1>	so about 20 lines later
+Jul 11 16:49:17 <nboldt1>	is that too fuzzy ?
+Jul 11 16:50:24 <rgrunber>	funny thing is i see the exact same locally but no .java.orig created for that file
+Jul 11 16:50:28 <rgrunber>	so there goes that..
+Jul 11 16:53:24 <nboldt1>	well, I think I have a fix but not sure if I can push it
+Jul 11 16:53:37 <nboldt1>	do I push to http://pkgs.devel.redhat.com/cgit/rpms/eclipse-linuxtools ?
+Jul 11 16:54:45 <rgrunber>	yeah onto the devtools-1.0-rh-eclipse47-rhel-7 branch
+Jul 11 16:54:59 <rgrunber>	and i would use rhpkg clone .. so that it gets everything right
+Jul 11 16:55:08 <nboldt1>	I think this is the solution https://paste.fedoraproject.org/paste/kgxikGwCYBDuItPDsDx8pg
+Jul 11 16:55:28 <nboldt1>	remove the line that doesn't match in the patch, and fix the location in the file from 88 -> line 104
+Jul 11 16:55:44 *	rgrunber tries
+Jul 11 16:56:16 <rgrunber>	yup it's silent
+Jul 11 16:56:22 <nboldt1>	\o/
+Jul 11 16:56:34 <nboldt1>	where do I get rhpkg command?
+Jul 11 16:56:36 <rgrunber>	i mean locally..
+Jul 11 16:57:33 <nboldt1>	nm, found it
+Jul 11 16:58:18 <rgrunber>	http://download-node-02.eng.bos.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-F-25/compose/Everything/x86_64/ ?
+Jul 11 17:01:36 <nboldt1>	rgrunber: rhpkg-simple installed but doesn't work
+Jul 11 17:02:30 <nboldt1>	oh, I see. has to be run inside a git repo
+Jul 11 17:02:39 <rgrunber>	oops, yeah
+Jul 11 17:02:54 <rgrunber>	well no rhpkg clone should clone it..
+Jul 11 17:08:44 <nboldt1>	nope, it refused
+Jul 11 17:10:40 <nboldt1>	so how do I push to the repo? rhpkg --release el7 ?
+Jul 11 17:10:51 <nboldt1>	do we do scratch builds too?
+Jul 11 17:11:04 <nboldt1>	rgrunber: ^ (my only guide book here is for fedora, not rhel)
+Jul 11 17:11:27 <rgrunber>	nboldt1: how does it refuse.. ?
+Jul 11 17:13:22 <nboldt1>	$➔ git push origin devtools-1.0-rh-eclipse47-rhel-7
+Jul 11 17:13:22 <nboldt1>	XML error: undefined entity
+Jul 11 17:13:22 <nboldt1>	error: no DAV locking support on http://pkgs.devel.redhat.com/cgit/rpms/eclipse-linuxtools/
+Jul 11 17:13:22 <nboldt1>	fatal: git-http-push failed
+Jul 11 17:13:22 <nboldt1>	error: failed to push some refs to 'http://pkgs.devel.redhat.com/cgit/rpms/eclipse-linuxtools'
+Jul 11 17:13:43 <nboldt1>	should the repo be ssh or something other than http?
+Jul 11 17:13:48 <rgrunber>	ssh
+Jul 11 17:13:53 <nboldt1>	example?
+Jul 11 17:14:13 <rgrunber>	url = ssh://rgrunber@pkgs.devel.redhat.com/rpms/eclipse-linuxtools
+Jul 11 17:14:20 <nboldt1>	thx
+Jul 11 17:15:24 <nboldt1>	boom pushed
+Jul 11 17:15:42 <nboldt1>	triggering a build... ?
+Jul 11 17:15:52 <nboldt1>	rhpkg build?
+Jul 11 17:16:31 <nboldt1>	nope, that didn't trigger anything
+Jul 11 17:16:33 <nboldt1>	$➔ rhpkg build
+Jul 11 17:16:33 <nboldt1>	++ basename /home/nboldt/4/eclipse-linuxtools
+Jul 11 17:16:33 <nboldt1>	+ pkgname=eclipse-linuxtools
+Jul 11 17:16:33 <nboldt1>	+ '[' -s sources ']'
+Jul 11 17:16:33 <nboldt1>	+ baseurl=http://pkgs.devel.redhat.com/repo/pkgs
+Jul 11 17:16:34 <nboldt1>	+ read md5sum tarball
+Jul 11 17:16:34 <nboldt1>	+ wget http://pkgs.devel.redhat.com/repo/pkgs/eclipse-linuxtools/org.eclipse.linuxtools-6.0.0.tar.xz/938b78bd5796de5e7952839cdcae7b27/org.eclipse.linuxtools-6.0.0.tar.xz
+Jul 11 17:16:35 <nboldt1>	--2017-07-11 17:15:58--  http://pkgs.devel.redhat.com/repo/pkgs/eclipse-linuxtools/org.eclipse.linuxtools-6.0.0.tar.xz/938b78bd5796de5e7952839cdcae7b27/org.eclipse.linuxtools-6.0.0.tar.xz
+Jul 11 17:16:35 <nboldt1>	Resolving pkgs.devel.redhat.com (pkgs.devel.redhat.com)... 10.19.208.80
+Jul 11 17:16:36 <nboldt1>	Connecting to pkgs.devel.redhat.com (pkgs.devel.redhat.com)|10.19.208.80|:80... connected.
+Jul 11 17:16:36 <nboldt1>	HTTP request sent, awaiting response... 200 OK
+Jul 11 17:16:37 <nboldt1>	Length: 15615592 (15M) [application/x-xz]
+Jul 11 17:16:37 <nboldt1>	Saving to: ‘org.eclipse.linuxtools-6.0.0.tar.xz’
+Jul 11 17:16:38 <nboldt1>	org.eclipse.linuxtools-6.0.0.tar.xz             100%[=====================================================================================================>]  14.89M  1.62MB/s    in 12s     
+Jul 11 17:16:38 <nboldt1>	2017-07-11 17:16:11 (1.25 MB/s) - ‘org.eclipse.linuxtools-6.0.0.tar.xz’ saved [15615592/15615592]
+Jul 11 17:16:39 <nboldt1>	+ read md5sum tarball
+Jul 11 17:16:39 <nboldt1>	+ md5sum -c sources
+Jul 11 17:16:40 <nboldt1>	org.eclipse.linuxtools-6.0.0.tar.xz: OK
+Jul 11 17:16:40 <nboldt1>	+ '[' -s source-repos ']'
+Jul 11 17:16:41 <nboldt1>	+ [[ eclipse-linuxtools == \k\e\r\n\e\l ]]
+Jul 11 17:17:04 <rgrunber>	seems to have worked..
+Jul 11 17:17:09 <nboldt1>	oh?
+Jul 11 17:17:10 <nboldt1>	where ?
+Jul 11 17:17:16 <nboldt1>	doesn't work like fedpkg
+Jul 11 17:17:27 <nboldt1>	which actually gives you a link to the build in koji
+Jul 11 17:17:29 <nboldt1>	:(
+Jul 11 17:17:31 <rgrunber>	well i would have expected a link.. but hmm
+Jul 11 17:18:07 <rgrunber>	nvm.. i don't see it..
+Jul 11 17:23:27 <nboldt1>	well, I opened a bz instead
+Jul 11 17:23:34 <nboldt1>	https://bugzilla.redhat.com/show_bug.cgi?id=1469805 
+Jul 11 17:23:38 <rgrunber>	nboldt1: well i'm very confident the patch will fix things.. reproduced, then fixed with your change locally
+Jul 11 17:23:41 <nboldt1>	 need to escape for the day
+Jul 11 17:23:53 <rgrunber>	let me try pushing
+Jul 11 17:24:21 <rgrunber>	nboldt1: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=13635779
+Jul 11 17:24:22 <nboldt1>	pu-pu-push it real good
+Jul 11 17:24:41 <nboldt1>	cool thanks
+Jul 12 12:49:26 <nboldt>	rgrunber: so https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=13635779 completed... how do we get it into the errata to see if the warning goes away? do I add the new build / remove the old one?
+Jul 12 12:49:31 <nboldt>	mbenitez: ^ same question
+Jul 12 12:50:14 <rgrunber>	nboldt: there should be a way to move it back into a NEW state or something.. maybe replace with the newer build.
+Jul 12 12:50:48 <mbenitez>	nboldt, yes, remove old build and add new
+Jul 12 12:51:06 <mbenitez>	rgrunber, errata is still in new files so it's one step easier ;0
+Jul 12 12:51:08 <mbenitez>	;)
+Jul 12 12:52:09 <nboldt>	ok so https://errata.devel.redhat.com/advisory/29343/builds -> find rh-eclipse47-eclipse-linuxtools -> "reload files for this build" ?
+Jul 12 12:52:20 <nboldt>	nope, that didn't work
+Jul 12 12:53:01 <mbenitez>	in the box of builds you can exchange the old for the new
+Jul 12 12:54:47 <mbenitez>	nboldt, did you get it now?
+Jul 12 12:55:08 <nboldt>	nope :( removed the old one and now trying to figure out how to add the new one
+Jul 12 12:55:40 <nboldt>	aha... working
+Jul 12 12:57:14 <nboldt>	mbenitez: and the errata rpmdiff is running on the new rpms
+Jul 12 12:57:24 <nboldt>	\o/ (I didn't break all the things.)
+Jul 12 12:57:37 <mbenitez>	awesome!
+Jul 12 12:58:00 <nboldt>	and now there's an "obsolete runs" section w/ the old 6.0.0-1.3.el7 version 
+Jul 12 12:58:18 <nboldt>	on https://errata.devel.redhat.com/advisory/29343/rpmdiff_runs
+Jul 12 12:58:43 <mbenitez>	correct
+Jul 12 12:58:49 <mbenitez>	every change is tracked
+Jul 12 13:03:11 <nboldt>	mbenitez: so... do I move https://bugzilla.redhat.com/show_bug.cgi?id=1469805 to a new state? ON_QA or something?
+Jul 12 13:07:11 <mbenitez>	nboldt, yes, there are a few steps: 1. we need the 3acks [I just set the flags: pm_ack, qa_ack and pm_ack] for qa we ask either Vaclav or mcermak in #devtoolset and for pm_ack in theory Bob but we can ask Kerri nicely and she'll help us :)
+Jul 12 13:07:36 <mbenitez>	2. add the build in the 'Fixed in' box
+Jul 12 13:08:07 <mbenitez>	3. set the bug to status 'Modified'
+Jul 12 13:08:41 <mbenitez>	4. once all the acks and devtools-1.0 + flags are in place we'll add the bug to errata [next lesson]
+Jul 12 13:10:18 <nboldt>	ugh. HATE bugzilla's "oh no this issue has been modified" warnings. just apply my unrelated changes already
+Jul 12 13:10:33 <nboldt>	steps 2-3 done
+Jul 12 13:11:19 <mbenitez>	ok, 1 will take a bit but it's ok, we haven't added any bugs to errata yet
+Jul 12 13:11:25 <mbenitez>	only the one needed to create it
+Jul 12 13:18:56 <nboldt>	so next dumb questions
+Jul 12 13:19:22 <nboldt>	a) how do I build eclipse-linuxtools/eclipse-linuxtools.spec from pkgs.devel.redhat.com/rpms/eclipse-linuxtools ?
+Jul 12 13:19:41 <nboldt>	b) and how do I trigger a build in brew once I'm happy with my local build?
+Jul 12 13:20:08 <nboldt>	want to see if I can fix https://bugzilla.redhat.com/show_bug.cgi?id=1469756 by adding a Require for %{?scl_prefix_maven}geronimo-jms
+Jul 12 13:20:27 <nboldt>	rgrunber: mbenitez: ^
+Jul 12 13:21:59 <rgrunber>	nboldt: 'rhpkg build' should work from the working directory of eclipse-linuxtools
+Jul 12 13:22:13 <rgrunber>	but currently nothing would happen as the latest release is already built
+Jul 12 13:22:43 <rgrunber>	^ that's for triggering in brew
+Jul 12 13:22:54 <rgrunber>	if you mean a local build.. i have a preference for mock builds.
+Jul 12 13:24:17 <rgrunber>	nboldt: i use the following mock config : http://pastebin.test.redhat.com/502621 .. it basically uses the devtools-1.0-rh-eclipse47-rhel-7-build tag.
+Jul 12 13:50:39 <nboldt>	rgrunber: https://paste.fedoraproject.org/paste/aijzL1lsfiOHbtpxiczwCg ... rhpkg build doesn't work for me on F24
+Jul 12 13:50:55 <nboldt>	I may have to hack the script to work here :(
+Jul 12 13:50:56 <nboldt>	or run it on RHEL7
+Jul 12 13:52:16 <rgrunber>	nboldt: what version of rhpkg do you have ?
+Jul 12 16:01:22 <nboldt>	rhpkg-simple Version     : 1.11
+Jul 12 16:01:22 <nboldt>	Release     : 2.el7eng
+Jul 12 16:02:21 <nboldt>	rgrunber: ^
+Jul 12 16:03:49 <rgrunber>	on fedora 24 ?
+Jul 12 16:04:03 <nboldt>	yep
+Jul 12 16:04:19 <rgrunber>	there is http://download-node-02.eng.bos.redhat.com/rel-eng/RCMTOOLS/latest-RCMTOOLS-2-F-24/compose/Everything/x86_64/os/Packages/
+Jul 12 16:04:56 <rgrunber>	i use :
+Jul 12 16:05:21 <rgrunber>	http://pastebin.test.redhat.com/502703
+Jul 12 16:06:40 <nboldt>	oh, duh. had enabled=0
+Jul 12 16:06:43 <nboldt>	*sigh*
+Jul 12 16:06:59 <nboldt>	*sad trombone for me*
+Jul 12 16:07:24 <rgrunber>	:P
+Jul 12 16:15:28 <nboldt>	ah, that's better... installing brewkoji and other toys
+Jul 12 16:18:09 <nboldt>	rgrunber: $➔ rhpkg build
+Jul 12 16:18:09 <nboldt>	Could not execute build: Unable to find remote branch.  Use --release
+Jul 12 16:18:25 <nboldt>	what release value do I need for el7?
+Jul 12 16:19:08 <rgrunber>	are you on the devtools-1.0-rh-eclipse47-rhel-7 branch ?
+Jul 12 16:19:18 <nboldt>	yeah
+Jul 12 16:20:37 <nboldt>	trying the FC25 version
+Jul 12 16:20:40 <nboldt>	of rhpkg
+Jul 12 16:21:30 <rgrunber>	you could try rhpkg build --release devtools-1.0-rh-eclipse47-rhel-7
+Jul 12 16:21:48 <nboldt>	rhpkg: error: unrecognized arguments: --release devtools-1.0-rh-eclipse47-rhel-7
+Jul 12 16:23:48 <rgrunber>	rpm -qf `which rhpkg`   ?
+Jul 12 16:23:55 <rgrunber>	--release is definitely a valid argument
+Jul 12 16:24:09 <nboldt>	rhpkg-1.32-2.fc25.noarch
+Jul 12 16:24:26 <rgrunber>	nboldt: what about rhpkg --release devtools-1.0-rh-eclipse47-rhel-7 build
+Jul 12 16:24:50 <nboldt>	$➔  rhpkg --release devtools-1.0-rh-eclipse47-rhel-7 build
+Jul 12 16:24:50 <nboldt>	Could not execute build: /home/nboldt/4/eclipse-linuxtools has uncommitted changes.  Use git status to see details
+Jul 12 16:24:50 <nboldt>	Try option --srpm to make scratch build from local changes.
+Jul 12 16:24:54 <nboldt>	^^ better :D
+Jul 12 16:26:48 <nboldt>	 rhpkg --release devtools-1.0-rh-eclipse47-rhel-7 build --srpm 
+Jul 12 16:26:50 <nboldt>	seems to work
+Jul 12 16:27:02 <nboldt>	or not
+Jul 12 16:27:04 <nboldt>	Could not execute build: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:661)
+Jul 12 16:27:09 <rgrunber>	that seems familiar
+Jul 12 16:27:27 <rgrunber>	do you have your kerberos ticket enabled ?
+Jul 12 16:27:38 <nboldt>	yes, but may not have the root ca cert
+Jul 12 16:27:42 <nboldt>	following mojo page now
+Jul 12 16:28:19 <rgrunber>	you need either legacy.crt, RH-IT-Root-CA.crt in /etc/pki/ca-trust/source/anchors
+Jul 12 16:28:33 <rgrunber>	and then run update-ca-trust
+Jul 12 16:30:42 <nboldt>	what if I have all three?
+Jul 12 16:30:45 <nboldt>	1148  sudo wget https://password.corp.redhat.com/RH-IT-Root-CA.crt -O /etc/pki/ca-trust/source/anchors/RH-IT-Root-CA.crt --no-check-certificate
+Jul 12 16:30:45 <nboldt>	 1149  sudo wget https://password.corp.redhat.com/legacy.crt -O /etc/pki/ca-trust/source/anchors/legacy.crt --no-check-certificate
+Jul 12 16:30:45 <nboldt>	 1150  sudo wget https://engineering.redhat.com/Eng-CA.crt -O /etc/pki/ca-trust/source/anchors/Eng-CA.crt --no-check-certificate
+Jul 12 16:30:45 <nboldt>	 1151  sudo update-ca-trust
+Jul 12 16:30:45 <nboldt>	 1152  sudo update-ca-trust enable  # Necessary for RHEL-6 systems
+Jul 12 16:30:46 <nboldt>	 
+Jul 12 16:30:54 <nboldt>	did that ^^
+Jul 12 16:31:30 <rgrunber>	that should resolve it.
+Jul 12 16:31:55 <nboldt>	nope
+Jul 12 16:31:57 <nboldt>	rhpkg --release devtools-1.0-rh-eclipse47-rhel-7 build --srpm
+Jul 12 16:31:57 <nboldt>	Wrote: /home/nboldt/4/eclipse-linuxtools/eclipse-linuxtools-6.0.0-1.5.el7.src.rpm
+Jul 12 16:31:57 <nboldt>	Certificate verification failed.
+Jul 12 16:31:57 <nboldt>	Note: Do you have Red Hat IT Root CA certificate installed on your machine?
+Jul 12 16:31:57 <nboldt>	See https://mojo.redhat.com/docs/DOC-999615#jive_content_id_Certificates
+Jul 12 16:31:58 <nboldt>	Could not execute build: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:661)
+Jul 12 16:34:30 <nboldt>	do I need to reboot after the cert install?
+Jul 12 16:35:55 <rgrunber>	might be worth a try.. but all i have is the IT crt, and a legacy one.
+Jul 12 16:36:10 <nboldt>	I have 5 of them... 
+Jul 12 16:36:54 <rgrunber>	do you have https://mojo.redhat.com/docs/DOC-1122706-configure-ca-cert-in-rhel-and-fedora (the legacy one)
+Jul 12 16:37:33 <nboldt>	ah, that's a different set & instructions
+Jul 12 16:39:43 <nboldt>	gah, same error
+Jul 12 16:43:20 <nboldt>	meh, rebooting time.
+Jul 12 17:10:20 <nboldt>	rgrunber: how do I kick a brew build for rh-eclipse47-eclipse-linuxtools ? 
+Jul 12 17:10:29 <nboldt>	need a rebuild for my fix for https://bugzilla.redhat.com/show_bug.cgi?id=1469756 
+Jul 12 17:12:53 <rgrunber>	nboldt: from the git working directory while on the devtools branch.. you should be able to do rhpkg build
+Jul 12 17:13:00 <rgrunber>	or rhpkg --release ... build
+Jul 12 17:13:05 <nboldt>	lol, we've been over this. that doesn;t work
+Jul 12 17:13:13 <nboldt>	I can do rhpkg sources and THAT works
+Jul 12 17:13:24 <rgrunber>	nboldt: certificate issue isn't fixed ?
+Jul 12 17:13:36 <nboldt>	haven't rebooted. decided to try a mockbuild locally instead :D
+Jul 13 08:55:18 <scela>	lufimtse: there?
+Jul 13 09:05:33 <mbenitez>	eclipse-team: FYI Monthly devtools all hands about to start https://primetime.bluejeans.com/a2m/live-event/zx46677
+Jul 13 09:09:13 <scela>	ericwill: hey, morning
+Jul 13 09:09:54 <ericwill>	scela hey, how's it going
+Jul 13 09:10:04 <scela>	fine thanks
+Jul 13 09:10:10 <scela>	ericwill: can you take a look at https://bugs.eclipse.org/bugs/show_bug.cgi?id=519616 ?
+Jul 13 09:10:27 <scela>	ericwill: lakshmi also sent an email to swt-dev about it
+Jul 13 09:11:00 <ericwill>	scela yes I am investigating, AFAIK the tests started failing yesterday for no apparent reason
+Jul 13 09:11:04 <ericwill>	and they pass locally
+Jul 13 09:11:09 <ericwill>	kind of a mystery at the moment
+Jul 13 10:08:35 <rgrunber>	nboldt: any luck getting permissions sorted out ?
+Jul 13 10:08:57 <rgrunber>	for my case, it was the legacy.crt that provided the credentials needed for pushing to brew.
+Jul 13 10:24:49 <lufimtse>	scela, hey ya
+Jul 13 10:25:27 <lufimtse>	scela, maven tests fail locally for me, but jUnits work in Eclipse
+Jul 13 10:25:56 <lufimtse>	and I know for a fact that the tests used to work, as gerrit passed with "sucessess" at the time.
+Jul 13 10:26:15 <lufimtse>	I also tried checking out older SWT git commits, but they still fail.
+Jul 13 10:26:20 <lufimtse>	~Investigating..
+Jul 13 10:50:31 <scela>	lufimtse: ericwill ok, thanks for taking a look
+**** BEGIN LOGGING AT Thu Jul 13 17:58:22 2017
+
+Jul 13 17:58:22 *	Now talking on #eclipse
+Jul 13 17:58:22 *	Topic for #eclipse is: Eclipse discussions
+Jul 13 17:58:22 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 14 09:36:31 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Fri Jul 14 09:36:31 2017
+
+**** BEGIN LOGGING AT Fri Jul 14 09:36:42 2017
+
+Jul 14 09:36:42 *	Now talking on #eclipse
+Jul 14 09:36:42 *	Topic for #eclipse is: Eclipse discussions
+Jul 14 09:36:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Jul 14 15:16:39 2017
+
+**** BEGIN LOGGING AT Tue Jul 18 09:50:17 2017
+
+Jul 18 09:50:17 *	Now talking on #eclipse
+Jul 18 09:50:17 *	Topic for #eclipse is: Eclipse discussions
+Jul 18 09:50:17 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 18 10:25:37 <nboldt>	mbooth: did you see my email about rpmdiff stuff?
+Jul 18 10:27:11 <mbooth>	nboldt: Hi, yes. Drafting a reply
+Jul 18 10:38:50 <nboldt>	mbooth: cool thanks!
+Jul 18 10:48:46 <mistria>	lbullen: Great patch!
+Jul 18 10:50:47 <lbullen>	mistria, thanks
+Jul 18 11:07:45 <rgrunber>	mbooth: btw, nboldt and i saw some strange behaviour with respect to patches. apparently even patches that apply but have an offset >= .. say 5 lines produce a .orig file.. ended up getting into the source bundle, and errata complained (thankfully)
+Jul 18 11:07:56 <rgrunber>	^ fixed now though.
+Jul 18 11:14:43 <nboldt>	rgrunber: yeah, had to revise a patch file to fix the offset
+Jul 18 11:15:23 <nboldt>	mbooth: rgrunber: ref: https://bugzilla.redhat.com/show_bug.cgi?id=1469805
+Jul 18 11:15:54 <nboldt>	I think the problem was more than just the offset, but the fact that the source file had changed
+Jul 18 11:16:16 <mbooth>	Hmm, I wonder if RHEL has different patch fuzz rules to Fedora...
+Jul 18 11:31:11 <mbenitez>	eclipse-team: demo session starting now
+Jul 18 11:31:24 <mbenitez>	https://bluejeans.com/930233078
+Jul 18 11:41:49 <mbenitez>	scela, there's a question in Bluejeans' chat
+Jul 18 11:43:05 <mbenitez>	lbullen, congrats on the demo! it was a very professional video
+Jul 18 11:43:32 <scela>	mbenitez: answered with a question :)
+Jul 18 11:43:56 <scela>	mbenitez: it's bad that there's no timestamp on those messages, I don't know when he asked it
+Jul 18 11:44:39 <mbenitez>	scela, right, I think it was after Lucas' demo but let's see if DV replies
+Jul 18 12:05:00 <mistria>	scela mbenitez: I'm quitting the call. If there are some questions, can you please redirect people to ask them on the google doc and to add a mention so someone in our team gets notified?
+Jul 18 12:05:30 <scela>	mistria: sure, thanks for the demo
+Jul 18 12:05:41 <scela>	mistria: I'll keep an eye on it
+Jul 18 12:06:05 <mbenitez>	mistria, sure, thanks for the demo and the answers in the doc
+Jul 18 13:08:54 <lbullen>	thanks mbenitez!
+Jul 19 08:51:48 <nboldt>	mbooth: hey, got your note re: eclipse-testng. Will there be a backport of testng-6.11-1.fc27 to other earlier fedoras?
+Jul 19 08:52:26 <nboldt>	if not I can have an if-else block in the spec file I had started back on July 4
+Jul 19 08:57:27 <mbooth>	nboldt: Hi, we can probably backport to f26 but since there is a lot of non-eclipse stuff that uses it, I don't think we should bother with earlier
+Jul 19 09:02:06 <nboldt>	ok
+Jul 19 09:03:04 <nboldt>	mbooth: currently I have this for the spec file: https://da.gd/uINuU
+Jul 19 09:05:39 <mbooth>	nboldt: Does it build and work against testng 6.9? I kinda expected there to be some breaking api change in testng
+Jul 19 09:06:43 <nboldt>	no, it doesn't work yet. I'm using F24 to test build it so it's a bit tricky when the testng and testng-remote updates aren't there
+Jul 19 09:06:57 <nboldt>	also the %elif doesn't work... revising now
+Jul 19 09:07:35 <nboldt>	ok, seems better. trying a mockbuild against f27
+Jul 19 09:08:06 <nboldt>	mbooth: https://paste.fedoraproject.org/paste/ZGuY2btchiO3ZmGA0tFHfw/
+Jul 19 09:11:24 <nboldt>	mbooth: is it safe to run multiple mockbuilds in parallel, if they all set a different --release version?
+Jul 19 09:30:11 <nboldt>	mbooth: ok, spec builds for f27 and craps out for f26 and earlier
+Jul 19 09:30:22 <nboldt>	can you force something to be uninstalled from a mock root?
+Jul 19 09:30:29 <nboldt>	mbooth: ^
+Jul 19 09:30:33 <nboldt>	I'm getting this error
+Jul 19 09:30:44 <nboldt>	Error: libcrypt-nss conflicts with libcrypt-2.25-7.fc26.x86_64
+Jul 19 09:30:44 <nboldt>	Error: libcrypt conflicts with libcrypt-nss-2.25-7.fc26.x86_64
+Jul 19 09:30:44 <nboldt>	 You could try using --skip-broken to work around the problem
+Jul 19 09:30:44 <nboldt>	 You could try running: rpm -Va --nofiles --nodigest
+Jul 19 09:35:37 <nboldt>	mbooth: ... ping?
+Jul 19 09:36:00 *	nboldt blows on mic ... is this thing on?
+Jul 19 09:53:18 <mbooth>	nboldt: Sorry, got called away from my desk
+Jul 19 09:53:39 <mbooth>	Not sure why f26 buildroot might be broken, that's pretty annoying
+Jul 19 09:55:28 <mbooth>	nboldt: Let's just build for f27 for now -- I'll make a note for us re-try it for f26 at some point
+Jul 19 09:56:51 <mbooth>	nboldt: To answer the question about mock -- you can do "mock -r ... --remove pkg_name" to uninstall a package from the buildroot, or you could try "mock -r ... --init" to start with a fresh one
+Jul 19 09:57:15 <mbooth>	It wouldn't be the first time that some nss update has broken everything though :-/
+Jul 19 10:22:00 <rgrunber>	mbooth++
+Jul 19 10:23:48 <mbooth>	rgrunber: ?
+Jul 19 10:23:55 <rgrunber>	mbooth: 4.7.0
+Jul 19 10:23:57 <rgrunber>	f26
+Jul 19 10:24:00 <mbooth>	Ah
+Jul 19 10:24:12 <mbooth>	You mean you weren't using updates-testing? :-o
+Jul 19 10:24:28 <rgrunber>	*gulp*
+Jul 19 10:35:26 <nboldt>	thanks, mbooth ... working on a new patch for F24/25 to fix missing exception catches
+Jul 19 10:37:05 <mbooth>	mbenitez: Hey, thanks for creating the errata while I was away, btw. Who should I bug about pm_ack flags for devtools, still kanderso?
+Jul 19 10:43:12 <mbenitez>	mbenitez, belated welcome back! np, I wanted to make sure things were in good shape
+Jul 19 10:44:01 <mbenitez>	mbooth, that's a million dollar question :\ in theory they should start coming in automatically within the day... if not we can ask Kerri nicely tomorrow
+Jul 19 10:44:17 <mbenitez>	mbooth, it's a long story... nboldt shared in the fun while you were away
+Jul 19 10:44:40 <mbooth>	Aha, "sorry" I missed that fun :-)
+Jul 19 10:45:15 <mbenitez>	haha
+Jul 19 12:52:35 <jjohnstn>	rgrunber: if you are in the office, can you check the Windows machine?  I can't connect to it today
+Jul 19 12:53:26 <rgrunber>	jjohnstn: sure, just one sec.. i needed to update it..
+Jul 19 13:02:06 <rgrunber>	jjohnstn: it's at 75%-ish.. updating whatever there is to update.
+Jul 19 13:02:31 <rgrunber>	i couldn't connect to it over rdp this morning so i rebooted it.. and it worked.. but then complained about updates.
+Jul 19 13:15:04 <jjohnstn>	rgrunber: did it get a new ip address?
+**** BEGIN LOGGING AT Wed Jul 19 15:24:04 2017
+
+Jul 19 15:24:04 *	Now talking on #eclipse
+Jul 19 15:24:04 *	Topic for #eclipse is: Eclipse discussions
+Jul 19 15:24:04 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 20 05:10:15 <akurtakov>	hey, I forgot to log into vpn again
+Jul 20 09:12:49 <nboldt>	mbooth: re: eclipse-testng update to 6.11... probably I won't have time to play with that today. https://bugzilla.redhat.com/show_bug.cgi?id=1465818
+Jul 20 09:13:11 <nboldt>	mbooth: also would like your opinion on https://issues.jboss.org/browse/JBDS-4257 if you have a few mins
+Jul 20 09:13:48 <mbooth>	nboldt: No worries -- and sure
+Jul 20 09:14:11 <mbooth>	nboldt: Sorry I wasn't more help re: rhpkg build -- that's pretty annoying :-/
+Jul 20 09:14:18 <nboldt>	mbooth: yeah, agreed :(
+Jul 20 09:14:29 <nboldt>	did you open an RCM ticket for the staging of devtools stuff?
+Jul 20 09:14:36 <nboldt>	or do you need me to do so?
+Jul 20 09:14:59 <nboldt>	haven't checked rpmdiff yet to see if we're all ready for the next step ;)
+Jul 20 09:15:38 <nboldt>	ah, I see we're still in "waivers for review" mode :(
+Jul 20 09:15:46 <mbooth>	nboldt: Not yet -- I got distracted by a "major CVE" in one of our packages so I may yet need to add another build :-(
+Jul 20 09:15:59 <nboldt>	oh, boourns :( 
+Jul 20 09:16:05 <mbooth>	https://bugzilla.redhat.com/show_bug.cgi?id=1462702
+Jul 20 09:16:19 <mbooth>	"Affects: Every product in the world"
+Jul 20 09:18:17 <nboldt>	./studio/plugins/com.fasterxml.jackson.core.jackson-databind_2.6.2.v20161117-2150.jar << it's in devstudio too
+Jul 20 09:18:45 <nboldt>	impact=important < is that the highest sev level? 
+Jul 20 09:19:58 <mbooth>	nboldt: Not sure, but this is the first CVE I've had where I've been prodded directly by a security person... Interpret that as you will...
+Jul 20 09:20:07 <nboldt>	mbooth: so I guess we need an Orbit respin too? 
+Jul 20 09:20:50 <mbooth>	nboldt: Good thought. Let's ping him when he arrives
+Jul 20 09:21:10 <nboldt>	I think this is the latest Orbit build and the one we used in devstudio. http://download.eclipse.org/tools/orbit/downloads/drops/R20170516192513/?d
+Jul 20 09:21:13 <mbooth>	s/him/Roland, king of Orbit/
+Jul 20 09:21:49 <nboldt>	yep, keeper of the spinning satellites, director of the flying CQs
+Jul 20 09:54:28 <akurtakov>	mistria: this is tiring exersice :)
+Jul 20 09:55:17 <mistria>	akurtakov: only to be done once fortunately!
+Jul 20 09:55:35 <akurtakov>	mistria:  I hope so 
+Jul 20 09:55:47 <akurtakov>	spend whole day on it already
+Jul 20 09:56:35 <akurtakov>	but the fact that we were shipping so outdated perspective extenstion that views were not realy added proves it's more than worth it
+Jul 20 10:00:52 <akurtakov>	mistria: yay, lucky iteration 20 :)
+Jul 20 10:01:38 <akurtakov>	only 3 templates had issues though
+Jul 20 10:01:45 <akurtakov>	rest was in the test case itself
+Jul 20 10:02:42 <mistria>	akurtakov: ok
+Jul 20 10:04:03 <mistria>	akurtakov: ok the "pure OSGi" thing seems to be the main difference in the result
+Jul 20 10:04:20 <akurtakov>	and the target-platform adjustments
+Jul 20 10:19:47 <nboldt>	rgrunber: mbooth: know anything about how to disable Provides: that are automatically added to an RPM header?
+Jul 20 10:20:07 <nboldt>	reading through https://docs.fedoraproject.org/en-US/Fedora_Draft_Documentation/0.1/html/RPM_Guide/ch-advanced-packaging.html and trying to solve https://issues.jboss.org/browse/JBDS-4257 
+Jul 20 10:20:24 <rgrunber>	nboldt: something something %global ___exclude_provides something something.. or am i being wishful..
+Jul 20 10:20:27 <rgrunber>	mbooth: ^ ?
+Jul 20 10:20:44 <nboldt>	https://github.com/jbdevstudio/jbdevstudio-product/blob/master/rpm/devstudio.spec.template#L3 ?
+Jul 20 10:21:03 <nboldt>	maybe just remove that?
+Jul 20 10:21:10 <rgrunber>	https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering#Filtering_provides_and_requires_after_scanning
+Jul 20 10:21:23 <mbooth>	nboldt: Best would be for the package to not provide that bundle, assuming it is provided by some other RPM
+Jul 20 10:21:25 <nboldt>	or is there a macro for java_common_find_requires (and no provides?)
+Jul 20 10:21:57 <nboldt>	mbooth: right ... the problem is that devstudio rpm apparently PROVIDES rh-eclipse47-base instead of just requiring it
+Jul 20 10:23:02 <mbooth>	It can't do, surely. What is the output of rpm -qp --provides the_devstudio_rpm?
+Jul 20 10:23:39 <mbooth>	It must be providing some osgi bundle that is provided by rh-eclipse47-base.
+Jul 20 10:24:48 <nboldt>	%define __provides_exclude ^rh-eclipse47.*$ 
+Jul 20 10:24:51 <nboldt>	^ something like that ?
+Jul 20 10:25:12 <nboldt>	mbooth: look in the JIRA, it's documented there 
+Jul 20 10:26:31 <mbooth>	nboldt: Yeah, so devstudio is shipping some bundles that are also being shipped by some other RPM.
+Jul 20 10:26:45 <nboldt>	right. it should only be providing itself
+Jul 20 10:27:01 <nboldt>	 %define __provides_exclude ^rh-eclipse47.*$  << so something like that might help?
+Jul 20 10:27:29 <mbooth>	No, I mean it seems like we shouldn't be shipping duplicate stuff -- the problem is not with the generated provides, it with the content of the RPM
+Jul 20 10:28:57 <nboldt>	um
+Jul 20 10:29:24 <nboldt>	so... I should crack open the rpm and look inside for other rpms?
+Jul 20 10:29:48 <mbooth>	I.e. there wouldn't be conflicting provides if devstudio RPM did not ship some bundles that are shipped by other RPMs
+Jul 20 10:30:54 <nboldt>	when you say bundle you mean "rpm" not "osgi plugin bundle" right?
+Jul 20 10:31:06 <mbooth>	No, OSGi bundle, sorry
+Jul 20 10:31:24 <nboldt>	oh, ... then I need to filter out more stuff from the rpm
+Jul 20 10:31:42 <mbooth>	I mean if devstudio is getting a generated provides for "rh-eclipse4*-osgi(com.google.guava)" then it must contain a guava bundle inside the RPM. This bundle is shipped by a different RPM so it shouldn't be shipped by devstudio
+Jul 20 10:31:54 <mbooth>	Yeah
+Jul 20 10:32:02 <mbooth>	Terminology :-)
+Jul 20 10:33:26 <nboldt>	ok, so I need to add more stuff to https://github.com/jbdevstudio/jbdevstudio-product/blob/master/rpm/devstudio.removelist.txt and https://github.com/jbdevstudio/jbdevstudio-product/blob/master/rpm/devstudio.blacklist.txt so the IUs added to the rpm are fewer than we currently include
+Jul 20 10:33:53 <mbooth>	Yes, that seems like the Right™ fix
+Jul 20 10:34:30 <mbooth>	Didn't we have a script that could determine if there were duplicate bundles installed? Or was it only for features? I don't remember
+Jul 20 10:35:44 <mbooth>	rgrunber: BTW we had an important CVE in jackson-databind that is likely present in Orbit: https://bugzilla.redhat.com/show_bug.cgi?id=1462702
+Jul 20 10:36:02 <rgrunber>	i saw.. no fixed version yet ?
+Jul 20 10:36:16 <mbooth>	rgrunber: Looks fixed in >=2.8.9
+Jul 20 10:36:22 <nboldt>	mbooth: the blacklist.txt is IUs - plugins and features both
+Jul 20 10:37:51 <nboldt>	so I guess I can iterate through the list of provided osgi bundles in https://paste.fedoraproject.org/paste/PWYxWF56Yr~p~8W-lRoLlw/ and add more to the blacklist if they're in another rpm
+Jul 20 10:37:58 <rgrunber>	mbooth: is that stated anywhere ?
+Jul 20 10:38:00 *	nboldt ponders how to script this
+Jul 20 10:40:45 <mbooth>	rgrunber: I am testing now a patch extracted from that version
+Jul 20 10:46:07 <nboldt>	so if I have the name of an eclipse plugin, and the name of an rpm, how can I query the RPM to see if that plugin is in the rpm -- and which version is included?
+Jul 20 10:46:35 <nboldt>	rpm -ql ?
+Jul 20 10:47:59 <mbooth>	nboldt: You can query the yum repo using "repoquery" on RHEL and "dnf repoquery" on Fedora
+Jul 20 10:48:08 <rgrunber>	ah.. finally found it. yeah 2.8.9 should have it..
+Jul 20 10:48:12 <rgrunber>	or 2.6.7.1 ?
+Jul 20 10:48:14 <mbooth>	$ sudo repoquery --whatprovides "rh-eclipse47-osgi(com.google.guava)"
+Jul 20 10:48:43 <mbooth>	rgrunber: You need also this change: https://github.com/FasterXML/jackson-databind/commit/3bfbb835e530055c1941ddf87fde0b08d08dcd38
+Jul 20 10:49:58 <mbooth>	nboldt: So that command ^ can say which rpm contains it, if it exists in the repo -- just substitute whatever bundle for com.google.guava
+Jul 20 10:51:07 <scela>	does anyone know a way for me to 'draw' a rectangle on the screen and see the 4 coordinates of it (preferably while dragging) ?
+Jul 20 10:51:58 <mbooth>	scela: Screenshot + GIMP selection tool?
+Jul 20 10:52:22 <scela>	mbooth: anything easier/realtime
+Jul 20 10:53:03 <rgrunber>	troll-level : mbooth
+Jul 20 10:53:38 <rgrunber>	isn't there xinput or something .. on X
+Jul 20 10:53:57 *	mbooth shrugs...
+Jul 20 10:54:22 <mbooth>	I mean if you only need to see it once or twice, I'd probably do it that way :-p
+Jul 20 10:55:10 <rgrunber>	i know there is an X tool that outputs mouse events, including mouse movement.. to terminal
+Jul 20 10:56:17 <scela>	rgrunber: this xinput thing needs <device name>
+Jul 20 11:00:30 <rgrunber>	scela: if you do xinput list .. what number is xwayland-pointer ?
+Jul 20 11:00:59 <rgrunber>	basically, figure out which one is your pointer, and do 'xinput test ${NUM}'
+Jul 20 11:01:37 <rgrunber>	however for xwayland .. you'll only see data on something that's drawn using X.. so like firefox.. i think in my case..
+Jul 20 11:05:58 <scela>	rgrunber: works great, thanks
+Jul 20 11:06:48 <rgrunber>	cool :)
+Jul 20 11:08:28 <rgrunber>	it's sad that all these tools will need to be re-written.. on gnome or something :\
+**** BEGIN LOGGING AT Thu Jul 20 11:14:29 2017
+
+Jul 20 11:14:29 *	Now talking on #eclipse
+Jul 20 11:14:29 *	Topic for #eclipse is: Eclipse discussions
+Jul 20 11:14:29 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Thu Jul 20 11:15:47 2017
+
+Jul 20 12:54:51 <mistria>	akurtakov: who's a committer on eclipse.platform.team ?
+Jul 20 13:05:02 <ericwill>	mistria lufimtse and I are
+Jul 20 13:05:11 <ericwill>	if you are referring to SWT
+Jul 20 13:28:08 <mistria>	ericwill: I'm referring to the team (compare, CVS and so on) module
+Jul 20 13:28:28 <ericwill>	ah okay, np
+Jul 20 13:57:37 <mbenitez>	mbooth, excellent progress on the SCL! thanks
+Jul 20 14:00:38 <mbooth>	mbenitez: I just need to switch back to new-files to add a fix for a CVE and add all the bugs once Kerri can spare the time to grant all the acks :-)
+Jul 20 14:01:13 <mbenitez>	mbooth, that is fantastic, it's all coming together
+Jul 20 14:01:31 <mbenitez>	and in the meantime of course vkadlcik_gone has been busy testing too :)
+Jul 20 14:56:14 <rgrunber>	nboldt: btw, your ssd has drastically improved my bootup time :P .. and things do feel faster..
+Jul 20 15:34:30 <nboldt>	rgrunber: \o/ yw!
+Jul 21 05:10:45 <akurtakov>	scela: here now :)
+Jul 21 05:11:28 <scela>	akurtakov: :)
+Jul 21 05:11:43 <scela>	akurtakov: I was preparing to share a better version of the aCute video
+Jul 21 05:11:54 <scela>	akurtakov: Lucas as an even better version in store
+Jul 21 05:11:59 <scela>	akurtakov: but you beat me to it :)
+Jul 21 05:12:09 <akurtakov>	well, share it  on monday
+Jul 21 05:12:14 <scela>	yep that's the plan
+Jul 21 05:12:28 <scela>	I'm also thinking whether it's a good idea to do this end-of-July
+Jul 21 05:12:33 <akurtakov>	with smth like "A real C# demo in Eclipse"
+Jul 21 05:12:35 <scela>	so might also push it for September
+Jul 21 05:13:13 <akurtakov>	you can push in September again
+Jul 21 05:13:55 <akurtakov>	we are in the era of "buzz" driven development
+Jul 21 05:14:18 <scela>	exactly that's why the first push is always very important 
+Jul 21 05:14:33 <scela>	as that's when the urge of people to share it with others is highest
+Jul 21 05:14:39 <scela>	I'll think about it
+Jul 21 05:14:45 <scela>	as in theory you can push it N times
+Jul 21 05:14:50 <scela>	but the effect wanes
+Jul 21 05:15:10 <akurtakov>	if it comes from different people I don't think so
+Jul 21 05:15:19 <akurtakov>	if it's same person repeating the same thing - yeah :)
+Jul 21 05:15:52 <akurtakov>	and if doing in informal and personal way they don't get it as boring marketing material IMHO
+Jul 21 05:16:17 <scela>	akurtakov: that's the whole idea behind @EclipseJavaIDE and its methods
+Jul 21 05:16:37 <scela>	akurtakov: but still the first push is always better - according to analytics not me
+Jul 21 05:16:54 <akurtakov>	yup, and we should copy the approach to other places too
+Jul 21 05:17:00 <akurtakov>	although not that consistent they will be
+Jul 21 05:17:13 *	scela didn't get last one
+Jul 21 05:19:03 <scela>	akurtakov: ^
+Jul 21 06:10:52 <akurtakov>	scela: ‎[12:18] ‎<‎akurtakov‎>‎ do you know whether Lucas has twitter account
+Jul 21 06:11:18 <scela>	akurtakov: no
+Jul 21 06:11:23 <scela>	as in I don't know
+Jul 21 06:11:38 <scela>	xlbullen: do you?
+Jul 21 06:11:39 <akurtakov>	ok, I asked him via email
+Jul 21 06:11:57 <akurtakov>	it would be nice to give him some credit
+Jul 21 06:12:01 <akurtakov>	xlbullen: ^^
+Jul 21 06:13:55 <scela>	yep
+Jul 21 06:14:04 <scela>	akurtakov: btw, http://download.eclipse.org/releases/photon is still not up it seems
+Jul 21 06:14:25 <akurtakov>	scela: it will be once Frederic starts shaping for M1
+Jul 21 06:14:41 <akurtakov>	there was some mail about it this week
+Jul 21 06:15:08 <akurtakov>	I would expect it to get real once we have platform m1 to put as initial content there
+Jul 21 06:15:13 <scela>	ok
+Jul 21 06:34:23 <akurtakov>	scela: some more work needed on the patch :)
+Jul 21 06:36:50 <scela>	akurtakov: yeah that's work that needs to be done at some point
+Jul 21 06:37:00 <scela>	akurtakov: right now there's no intelligence on what tag is available where
+Jul 21 06:37:32 <scela>	akurtakov: I mean that's not specific for launcher Args
+Jul 21 06:37:58 <akurtakov>	yeah, but it wasn't obviousl in the past when target supported only locations as child :)
+Jul 21 06:38:08 <akurtakov>	at least it wasn't THAT obvious
+Jul 21 06:40:18 <scela>	akurtakov: if I do it I'll do it for all of them
+Jul 21 06:40:25 <scela>	probably be my first thing as a committer
+Jul 21 06:40:33 <akurtakov>	hmm ok 
+Jul 21 06:40:42 <akurtakov>	mind you I'll chase you about it :P
+Jul 21 06:41:00 <scela>	akurtakov: I'd appreciate it if you do :)
+Jul 21 06:41:16 <akurtakov>	well, I'm looking to have folding too :)
+Jul 21 06:41:43 <akurtakov>	but we can ask Lucas to do it as he just added support for it and updated the docs
+Jul 21 06:41:52 *	scela looks at xlbullen 
+Jul 21 06:42:07 <akurtakov>	it's needed so we have a real enduser facing test for this feature
+Jul 21 06:42:17 <scela>	akurtakov: true
+Jul 21 06:42:23 <scela>	I'll talk with him about it
+Jul 21 06:42:50 <akurtakov>	cool, thanks
+Jul 21 06:44:42 <scela>	yeah I have around 4-5 things in the pipeline for xlbullen
+Jul 21 06:45:18 <scela>	getting a second opinion from Mickael and we should be good to go with next 1-2 bugs
+Jul 21 06:46:58 <akurtakov>	scela: ok
+Jul 21 06:47:24 <akurtakov>	scela: regarding https://git.eclipse.org/r/#/c/101704 would you please open bug for the autocomplete fixes and say that it will be handled there in comment so I can push it
+Jul 21 06:53:13 <scela>	akurtakov: done
+Jul 21 07:34:25 <akurtakov>	mbooth: what does xmvn -B does ?
+Jul 21 07:34:48 <mbooth>	akurtakov: Run "non-interactively"
+Jul 21 07:34:55 <mbooth>	"Batch mode"
+Jul 21 07:36:30 <mbooth>	The %mvn_build macro adds -B so it makes sense to also add it when we run naked xmvn
+Jul 21 07:37:42 <mbooth>	akurtakov: Mikolaj has been adding it to my spec files so I assume there is good reason for it :-)
+Jul 21 07:38:22 <akurtakov>	well, I hope non-interactive means faster in this case :)
+Jul 21 07:57:46 <mbooth>	vkadlcik: Errata tells me "Only the Security Team can remove security Bugs from an advisory"
+Jul 21 07:58:41 <mbooth>	vkadlcik: Should I set it to QE anyway?
+Jul 21 08:03:30 <vkadlcik>	mbooth: i see... it will have to be removed at one point or another, if you know a security person who can do it just now, can you ask?
+Jul 21 08:03:52 <vkadlcik>	mbooth: it would save one state changing cycle...
+Jul 21 08:04:06 <mbooth>	vkadlcik: Sure, I will ask now
+Jul 21 08:04:18 <vkadlcik>	mbooth: ok, thanks
+Jul 21 08:41:50 <vkadlcik>	mbooth: it's strange but the guy says it's the process, maybe my memory is failing me... anyway, please move it to QE, i'm ok with that
+Jul 21 08:43:51 <mbooth>	vkadlcik: Okay, will do :-)
+Jul 21 08:50:25 <akurtakov>	scela: have you reported the background bug you mentioned?
+Jul 21 08:51:12 <scela>	akurtakov: no, still downloading the latest i-build to try with that one
+Jul 21 08:51:18 <scela>	akurtakov: why?
+Jul 21 08:51:18 <akurtakov>	ah ok
+Jul 21 08:51:59 <lufimtse>	does anyone know when 4.7.1 will be released?
+Jul 21 08:52:15 <lufimtse>	I didn't see in https://wiki.eclipse.org/Neon/Simultaneous_Release_Plan
+Jul 21 08:53:40 <akurtakov>	lufimtse: Neon is long done 
+Jul 21 08:53:42 <akurtakov>	https://wiki.eclipse.org/Oxygen/Simultaneous_Release_Plan
+Jul 21 08:53:54 <akurtakov>	was until this june
+Jul 21 08:54:12 <akurtakov>	from now on till next june - refer to https://wiki.eclipse.org/Photon/Simultaneous_Release_Plan
+Jul 21 08:54:13 <akurtakov>	:)
+Jul 21 08:54:59 <lufimtse>	ah, soNeon.1 (Wed., 09/28) In september?
+Jul 21 08:55:31 <akurtakov>	lufimtse: Oxygen.1 	Wednesday, September 27, 2017
+Jul 21 08:55:40 <scela>	lufimtse: no coffee yet?
+Jul 21 08:55:42 <scela>	:)
+Jul 21 08:55:42 <akurtakov>	there will be no more Neon releases
+Jul 21 08:56:00 <scela>	lufimtse: there's Ganymede.2 coming though ;)
+Jul 21 08:56:01 *	akurtakov is mumbling smth similar :)
+Jul 21 08:58:11 <lufimtse>	scela, yes lack of coffee X-D. 
+Jul 21 08:59:06 <lufimtse>	scela, btw, how come this lists neon.1: https://wiki.eclipse.org/Oxygen/Simultaneous_Release_Plan#Schedule
+Jul 21 08:59:13 <lufimtse>	copy/paste left over?
+Jul 21 08:59:31 <akurtakov>	lufimtse: https://wiki.eclipse.org/Photon/Simultaneous_Release_Plan#Schedule - just bookmark this one
+Jul 21 08:59:42 <scela>	lufimtse: for the same reason that https://wiki.eclipse.org/Photon/Simultaneous_Release_Plan#Schedule lists oxygen
+Jul 21 08:59:53 <lufimtse>	I see
+Jul 21 09:00:01 <akurtakov>	.1 and .2 releases are done during the next year development
+Jul 21 09:00:17 <scela>	lufimtse: in the time frame of release N there are also information about (N-1).1,2,3 releases
+Jul 21 09:00:21 <akurtakov>	aka technically Oxygen.1 and .2 will be done during Photon development
+Jul 21 09:00:26 <lufimtse>	Ah, ok.
+Jul 21 09:08:30 <scela>	lbullen: congrats on your first major Eclipse commit! https://git.eclipse.org/c/platform/eclipse.platform.text.git/commit/?id=798ba99e71d97835741ac91d068afc2130c66bcc
+Jul 21 09:09:00 <lufimtse>	lbullen, congrats, great job!
+Jul 21 09:09:45 <nboldt>	lbullen: I'm impressed you even updated copyright dates :) So few people remember that one 
+Jul 21 09:10:46 <nboldt>	(at least from what I see in JBoss Tools, that is.)
+Jul 21 09:15:45 <akurtakov>	nboldt: it's everywhere :)
+Jul 21 09:15:59 <nboldt>	lufimtse: hey, feel like tackling a NPE in SWT that's been happening since Fedora 20?
+Jul 21 09:16:06 <nboldt>	lufimtse: https://issues.jboss.org/browse/JBIDE-22436
+Jul 21 09:16:42 <nboldt>	not sure if this is a real problem since the JIRA says the quickstarts and cheatsheets work despite the NPE, but ...? 
+Jul 21 09:17:19 <lufimtse>	nboldt, investigating.
+Jul 21 09:21:12 <lufimtse>	nboldt, so the issue doesn't occur on Win32/Cocoa?
+Jul 21 09:24:52 <nboldt>	no, I think it's just on Fedora. or at least that's what was reported in the jira
+Jul 21 09:24:57 <nboldt>	*shrug*
+Jul 21 14:20:27 <rgrunber>	jjohnstn: any idea if we still need to do this https://bugzilla.redhat.com/show_bug.cgi?id=1411966 (docker-client-java rename) ? no complaints yet on their side..
+Jul 21 14:21:10 FiSHLiM plugin unloaded
+**** ENDING LOGGING AT Fri Jul 21 14:21:10 2017
+
+**** BEGIN LOGGING AT Fri Jul 21 14:22:18 2017
+
+Jul 21 14:22:18 *	Now talking on #eclipse
+Jul 21 14:22:18 *	Topic for #eclipse is: Eclipse discussions
+Jul 21 14:22:18 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Fri Jul 21 14:48:06 2017
+
+Jul 21 14:48:06 *	Now talking on #eclipse
+Jul 21 14:48:06 *	Topic for #eclipse is: Eclipse discussions
+Jul 21 14:48:06 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 21 15:21:24 <jjohnstn>	rgrunber: I am going through the renaming process as we speak
+**** BEGIN LOGGING AT Fri Jul 28 15:06:12 2017
+
+Jul 28 15:06:12 *	Now talking on #eclipse
+Jul 28 15:06:12 *	Topic for #eclipse is: Eclipse discussions
+Jul 28 15:06:12 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 31 11:17:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jul 31 11:17:58 2017
+
+**** BEGIN LOGGING AT Mon Jul 31 11:36:27 2017
+
+Jul 31 11:36:27 *	Now talking on #eclipse
+Jul 31 11:36:27 *	Topic for #eclipse is: Eclipse discussions
+Jul 31 11:36:27 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 31 11:38:32 <rgrunber>	mbenitez: i think i was using node:6 .. but hopefully 8 works as well.
+Jul 31 11:47:45 <rgrunber>	jjohnstn: https://bugs.eclipse.org/bugs/show_bug.cgi?id=520275 with regards to leading slashes, and https://git.eclipse.org/r/102253/ is a separate issue with systemtap plugin.
+Jul 31 11:48:06 <jjohnstn>	rgrunber: will take a look
+Jul 31 11:59:53 <mbooth>	Hey, just had a click around in the google analytics
+Jul 31 12:00:35 <mbooth>	Since F26 is released, it seems to be winning in the category of new installs reporting in: https://fedorapeople.org/~mbooth/stats.png
+Jul 31 12:01:17 <mbooth>	While the concrete numbers are not super high, the high percentage pleases me :-)
+Jul 31 12:02:30 <mbenitez>	it's promising
+Jul 31 12:23:14 <akurtakov>	mbenitez: my 25% :)
+Jul 31 12:23:33 <mbenitez>	haha
+Jul 31 12:23:50 <mbenitez>	akurtakov, thank you for getting that server farm up ;)
+Jul 31 13:12:16 <rgrunber>	jjohnstn: are you signed into the windows box ?
+Jul 31 13:20:44 <jjohnstn>	rgrunber: not through remote desktop here...I may have signed in via my desktop, but go ahead
+Jul 31 13:20:55 <rgrunber>	kk great :)
+Jul 31 13:21:04 <rgrunber>	maybe stale session
+Jul 31 14:40:40 <rgrunber>	jjohnstn|afk: btw i keep getting error while creating mount source path '/C/Users/user/workspace/Test/bin': mkdir /C/Users/user/workspace: permission denied" on Windows. Any idea why ?
+Jul 31 14:51:33 <rgrunber>	jjohnstn|afk: nvm.. seems to work again.. after a reboot and updating the daemon.
+Jul 31 16:18:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Jul 31 16:18:58 2017
+
+**** BEGIN LOGGING AT Mon Jul 31 16:35:36 2017
+
+Jul 31 16:35:36 *	Now talking on #eclipse
+Jul 31 16:35:36 *	Topic for #eclipse is: Eclipse discussions
+Jul 31 16:35:36 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jul 31 16:42:36 <rgrunber>	lufimtse: ericwill don't get me started on xpath/xquery
+Jul 31 16:42:45 <ericwill>	lol
+Aug 01 09:42:49 <mbenitez>	akurtakov, thank you for the weekly report :)
+Aug 01 09:43:21 <akurtakov>	mbenitez: np, I'm supposed to do the stuff sopot is responsible for these 2 weeks :)
+Aug 01 10:02:56 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Tue Aug  1 10:02:56 2017
+
+**** BEGIN LOGGING AT Tue Aug  1 10:03:06 2017
+
+Aug 01 10:03:06 *	Now talking on #eclipse
+Aug 01 10:03:06 *	Topic for #eclipse is: Eclipse discussions
+Aug 01 10:03:06 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 01 10:05:26 <rgrunber>	lufimtse: ericwill yess ?
+Aug 01 10:10:06 <rgrunber>	lufimtse: ericwill https://bugzilla.redhat.com/show_bug.cgi?id=1263178 , and https://bugzilla.gnome.org/show_bug.cgi?id=756074
+Aug 01 10:10:32 <rgrunber>	jerboaa's video is even still there :) https://jerboaa.fedorapeople.org/bugs/rhbz_1263178_eclipse_run_config_dialog.webm
+Aug 01 10:11:33 <jerboaa>	:)
+Aug 01 10:11:48 <rgrunber>	oh and upstrem at https://bugs.eclipse.org/bugs/show_bug.cgi?id=477599
+Aug 01 11:44:27 <nboldt>	anyone see jjohnstn online? 
+Aug 01 11:44:41 <nboldt>	rgrunber: is he near you today?
+Aug 01 11:45:02 <rgrunber>	nboldt: not in currently.
+Aug 01 11:45:06 <nboldt>	ah, ok
+Aug 01 11:45:19 <rgrunber>	might be on his way..
+Aug 01 11:45:26 <nboldt>	just wanted to confirm the URL for the new Docker Tools site... 
+Aug 01 11:45:33 <nboldt>	didn't see an annoucement email
+Aug 01 11:45:42 <nboldt>	so using http://download.eclipse.org/linuxtools/updates-docker-nightly-oxygen/ 
+Aug 01 11:47:20 <rgrunber>	nboldt: appears to be http://download.eclipse.org/linuxtools/update-docker-3.1.0/
+Aug 01 11:48:07 <nboldt>	excellent. same version
+Aug 01 11:50:52 <jjohnstn>	nboldt: just sent out the release notice for Linux Tools 6.1.0...you can find the Docker stuff at http://download.eclipse.org/linuxtools/update-docker-3.1.0
+Aug 01 11:51:34 <rgrunber>	jjohnstn: thanks for pushing that last fix in.. were the tests failing in PerfSession again ? .. or hanging there?
+Aug 01 11:53:27 <jjohnstn>	rgrunber: worse...three gerrit jobs had completed successfully and were trying to record their test results at the same time...some kind of deadlock seemed to have occurred and I had to kill 2 of the 3 jobs to make it continue
+Aug 01 11:55:38 <jjohnstn>	nboldt: I see you have already found the release...never mind
+Aug 01 11:55:58 <nboldt>	jjohnstn: yep, thanks!
+Aug 01 11:56:20 <nboldt>	saw another nightly from last night but figured the one with today's date was better :D
+Aug 01 13:24:18 <rgrunber>	ericwill: lufimtse btw i guess you're award of https://dev.eclipse.org/mhonarc/lists/eclipse-dev/msg10451.html ?
+Aug 01 13:24:23 <rgrunber>	aware*
+Aug 01 13:24:51 <ericwill>	rgrunber saw that
+Aug 01 15:04:49 <lufimtse>	rgrunber, saw it. There was a followup to it, probably caused by listeners allocating objects in Eclipse. Not sure if SWT specific
+Aug 01 15:05:56 <lufimtse>	swt listeners are fairly small, they just create the listener and run the user code. Maybe the user code is generating excess objects. But it wouldn't hurt to investigate futhre.
+**** BEGIN LOGGING AT Tue Aug  1 15:37:13 2017
+
+Aug 01 15:37:13 *	Now talking on #eclipse
+Aug 01 15:37:13 *	Topic for #eclipse is: Eclipse discussions
+Aug 01 15:37:13 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue Aug  1 15:40:14 2017
+
+Aug 02 08:51:45 <dbocharo>	Hello everybody! could smb help, please? I can't run our JUnit tests after my Fedora reinstallation from scratch as "Run as ... -> JUint Plug-in Test". A new Eclipse instance is launched, but i can't even open its window: https://www.youtube.com/watch?v=OtywDJ9hQ9o. I tried to make a java thread dump. Here is what i found there: https://pastebin.com/zvPbvX53
+Aug 02 08:53:35 <mbooth>	dbocharo: Fedora 26?
+Aug 02 08:54:00 <dbocharo>	i'd appreciate any help, because don't have more ideas. All projects are compiled without errors. Target platform is set correctly. I have Fedora 26. Restarted it several times and tried Wayland and Xorg - nothing helped
+Aug 02 08:54:05 <dbocharo>	mbooth: yes
+Aug 02 08:55:38 <mbooth>	dbocharo: Does it fail for any plugin unit test, or the specific one you are running in this video?
+Aug 02 08:56:14 <dbocharo>	mbooth: any - jbostools-base, server, openshift etc.
+Aug 02 08:57:34 <dbocharo>	however, "Rus as -> Eclipse Applcation" Run Configuration works without problems - launched eclipse instance and i can do everything
+Aug 02 08:57:51 <mbooth>	Hmm, let me try and reproduce here. Do you mind filing a bug
+Aug 02 08:58:02 <mbooth>	in bugzilla?
+Aug 02 08:58:14 <dbocharo>	mbooth: ok
+Aug 02 08:58:27 <mbooth>	Thanks
+Aug 02 08:58:41 <dbocharo>	mbooth: i've asked already some people to reproduce it - but it works fine for them
+Aug 02 08:59:26 <mbooth>	dbocharo: Interesting, did you bring your workspace from your old Fedora install, or is it a fresh workspace?
+Aug 02 09:02:01 <dbocharo>	mbooth: fresh. Everything's from scratch - i downloaded Eclipse for RCP and RAP Developers, imported all our plugins and target platform. Everything as usual, made it many times on different OSs. Always worked. But not now :(
+Aug 02 09:02:30 <mbooth>	dbocharo: Oh wait, this is not Eclipse from Fedora repos?
+Aug 02 09:03:32 <dbocharo>	mbooth: no. I always download it from here: http://www.eclipse.org/downloads/eclipse-packages/. Isn't it right?
+Aug 02 09:04:13 <mbooth>	Okay, in that case don't file a bug in the redhat bugzilla if you are not using the RPM version of Eclipse :-)
+Aug 02 09:05:12 <dbocharo>	mbooth: ok. I wanted to file it Eclipse bugzilla
+Aug 02 09:05:59 <mbooth>	akurtakov: Any ideas on dbocharo's problem? ^
+Aug 02 09:10:52 <mbooth>	dbocharo: I'd be interested to know if the Fedora version of Eclipse works for you (IIRC, for the equivilent of Eclipse for RCP Devs, you can do something like: dnf install eclipse-pde eclipse-egit)
+Aug 02 09:13:05 <dbocharo>	mbooth: let me try. Is it ok, if i try the same workspace in order not to import everything from scratch?
+Aug 02 09:13:34 <mbooth>	dbocharo: It should be okay, yes
+Aug 02 09:15:41 <nboldt>	mbooth: hey, I thought I was going to take another crack at improving the errata autowaive script ... but looks like you're waiving all the things I could be autowaiving? https://issues.jboss.org/browse/JBIDE-24757
+Aug 02 09:16:14 <mbooth>	nboldt: Force of habit...
+Aug 02 09:16:27 <nboldt>	mbooth: :( ok, I'll push this jira to the next sprint?
+Aug 02 09:16:51 <nboldt>	I guess I can re-waive stuff that's already been waived
+Aug 02 09:17:01 <mbooth>	nboldt: I did just add a new build: https://errata.devel.redhat.com/rpmdiff/show/178868
+Aug 02 09:17:20 <nboldt>	ah, good point. need to do that anyway for eclipse-usage
+Aug 02 09:17:33 <mbooth>	Java byte code errors (oh noes we use java 8!) should always be waived
+Aug 02 09:20:56 <dbocharo>	mbooth: the same problem with Fedora version of Eclipse 
+Aug 02 09:28:20 <dbocharo>	mbooth: i'm not very aware of internals of org.eclipse.equinox. But according to the thread dump org.eclipse.equinox.internal.simpleconfigurator.ConfigApplier.refreshPackages is hanging for me forever
+Aug 02 09:30:54 <akurtakov>	mbooth: hmm no idea
+Aug 02 09:37:20 <mbooth>	dbocharo: I don't know what to suggest --  It also works for me :-(
+Aug 02 09:38:12 <dbocharo>	mbooth: i see :(
+Aug 02 09:38:42 <dbocharo>	mbooth: according to a thread dump there is a problem - somehting is hanging indeed. But have no idea how resolve it
+Aug 02 09:39:02 <akurtakov>	try forcng the launch config to clean up 
+Aug 02 09:49:06 <dbocharo>	akurtakov: added "-clean" to the Program arguments of the run config - didn't help. Or did you mean smth different?
+Aug 02 09:50:49 <akurtakov>	dbocharo: no, 
+Aug 02 09:51:22 <akurtakov>	on main page there is clean checkbox
+Aug 02 09:51:29 <akurtakov>	main perference page for the launch
+Aug 02 09:51:46 <akurtakov>	on the Configuration tab
+Aug 02 09:51:59 <akurtakov>	there is "Clear the configuraion ...."
+Aug 02 09:52:48 <dbocharo>	akurtakov: i've already had it chosen
+Aug 02 09:53:28 <dbocharo>	the above Location field is: ${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit. is it ok?
+Aug 02 10:04:58 <akurtakov>	well, try with new one
+Aug 02 10:05:10 <akurtakov>	in case there is some content not cleaned :)
+Aug 02 10:08:38 <rgrunber>	akurtakov: https://accounts.eclipse.org/user/6142 doesn't it say Red Hat ?.. i listed that under employer. Not sure why i'm not shown.
+Aug 02 10:10:44 <akurtakov>	rgrunber: both Jeff and me has Red Hat Inc. as employer
+Aug 02 10:11:02 <akurtakov>	I guess you have to match the name of the company used for membership
+Aug 02 10:11:13 *	rgrunber tries
+Aug 02 10:11:21 <akurtakov>	https://projects.eclipse.org/user/97 https://accounts.eclipse.org/users/jjohnston
+Aug 02 10:13:14 <akurtakov>	rgrunber: project data is calculated once per day so we should check tomorrow
+Aug 02 10:13:25 <rgrunber>	yup, i've switched it..
+Aug 02 10:13:28 <rgrunber>	we'll see
+**** ENDING LOGGING AT Wed Aug  2 10:22:43 2017
+
+**** BEGIN LOGGING AT Wed Aug  2 10:24:39 2017
+
+Aug 02 10:24:39 *	Now talking on #eclipse
+Aug 02 10:24:39 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:24:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Aug  2 10:25:44 2017
+
+Aug 02 10:25:44 *	Now talking on #eclipse
+Aug 02 10:25:44 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:25:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Aug  2 10:29:18 2017
+
+Aug 02 10:29:18 *	Now talking on #eclipse
+Aug 02 10:29:18 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:29:18 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Aug  2 10:38:09 2017
+
+Aug 02 10:38:09 *	Now talking on #eclipse
+Aug 02 10:38:09 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:38:09 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Aug  2 10:45:19 2017
+
+Aug 02 10:45:19 *	Now talking on #eclipse
+Aug 02 10:45:19 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:45:19 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Aug  2 10:55:21 2017
+
+Aug 02 10:55:21 *	Now talking on #eclipse
+Aug 02 10:55:21 *	Topic for #eclipse is: Eclipse discussions
+Aug 02 10:55:21 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 03 07:53:11 <akurtakov>	nboldt: hey Nick
+Aug 03 07:53:26 <akurtakov>	do you have a pointer to the RPMs for jbds?
+Aug 03 07:53:38 <akurtakov>	anything in the docs or anywhere
+Aug 03 09:05:31 <nboldt>	akurtakov: define pointer. you want a link to the yum repo? to the RCM tickets? to the docs?
+Aug 03 09:05:46 <akurtakov>	nboldt: the later if available
+Aug 03 09:05:54 <akurtakov>	see the mail you should have received
+Aug 03 09:06:14 <nboldt>	"Re: About Eclipse documentation" ?
+Aug 03 09:07:23 <mbenitez>	mbooth, Hello Mat, I see vkadlcik has been busy filing some bugs for us, with the release scheduled for Tuesday, could you please make sure to review them and recruit the team as needed so we get to GA?
+Aug 03 09:08:01 <mbooth>	mbenitez: Sure
+Aug 03 09:08:05 <akurtakov>	nboldt: yes
+Aug 03 09:08:12 <mbenitez>	thanks mbooth 
+Aug 03 09:12:50 <nboldt>	mbooth: did you see my note about eclipse-usage rpm update to 4.5.0?
+Aug 03 09:14:43 <mbooth>	nboldt: No, I saw you uploaded new sources, but I don't see anything new in git
+Aug 03 09:18:06 <nboldt>	mbooth: sent an email with details. couldn't get mock or koji to build
+Aug 03 09:19:55 <mbooth>	nboldt: Hmm, I don't see it, did it go to the correct Mat Booth?
+Aug 03 09:20:09 <mbooth>	He's always stealing my mail
+Aug 03 09:24:38 <mbooth>	nboldt: Looking in koji I found your failed scratch build: https://koji.fedoraproject.org/koji/taskinfo?taskID=20985405
+Aug 03 09:25:02 <mbooth>	nboldt: Looks like the build added a new maven plugin, "com.googlecode.maven-download-plugin:download-maven-plugin"
+Aug 03 09:26:42 <mbooth>	nboldt: If this plugin is for downloading something from the internet -- it won't work for RPM builds since no comms to the outside world is allowed at build time. Plugin should be disabled with %pom_remove_plugin macro
+Aug 03 09:29:41 <nboldt>	that's not a new plugin afaik. it's been in the parent pom for a long time
+Aug 03 09:29:59 <nboldt>	but if all I need is to remove that, then cool. I'll experiment today
+Aug 03 09:30:31 <mbooth>	Unused by the usage stuff until now, maybe? 
+Aug 03 09:31:16 <mbooth>	But yeah, that's what I'd do first :-)
+Aug 03 09:35:37 <nboldt>	mbooth: great, thanks
+Aug 03 10:19:09 <rgrunber>	nboldt: about that maven-download-plugin question.. i kind of see why that plugin wouldn't be in fedora/fail at build time :P
+Aug 03 10:19:24 <rgrunber>	i mean koji build would definitely not have access to interwebs
+Aug 03 10:21:53 <rgrunber>	though given that it did work at some point...
+Aug 03 10:23:44 <nboldt>	rgrunber: I've solved it locally
+Aug 03 10:23:58 <nboldt>	rgrunber: mbooth: building scratch in koji now https://koji.fedoraproject.org/koji/taskinfo?taskID=21016649
+Aug 03 10:24:20 <nboldt>	removing the plugin worked ... but had to fight with it a bit until I realized there are two different artfactIds
+Aug 03 10:24:36 <nboldt>	+# need BOTH permutations here because we have 1.1 (maven-download-plugin) and 1.2 (download-maven-plugin) in parent pom
+Aug 03 10:24:36 <nboldt>	+%pom_remove_plugin com.googlecode.maven-download-plugin:maven-download-plugin jbosstools-build/parent
+Aug 03 10:24:36 <nboldt>	+%pom_remove_plugin com.googlecode.maven-download-plugin:download-maven-plugin jbosstools-build/parent
+Aug 03 10:25:42 <rgrunber>	yeah
+Aug 03 10:25:51 <rgrunber>	i hate it when they do that..
+Aug 03 10:26:20 <rgrunber>	aid-maven-plugin, plugin-maven-aid, ....
+Aug 03 10:30:54 <nboldt>	akurtakov: so you want a link to rpm docs? latest I've seen is for 10.4 https://access.redhat.com/documentation/en-us/red_hat_jboss_developer_studio/10.4/html/installation_guide/rpm
+Aug 03 10:31:33 <akurtakov>	nboldt: so this is build against neon?
+Aug 03 10:31:40 <akurtakov>	will there be such docs for oxygen ?
+Aug 03 10:34:18 <nboldt>	yes, but docs folks are still writing them
+Aug 03 10:35:36 <nboldt>	akurtakov: http://ccs-jenkins.gsslab.brq.redhat.com:8080/job/doc-Red_Hat_JBoss_Developer_Studio-Installation_Guide-branch-master/lastSuccessfulBuild/artifact/index.html#rpm
+Aug 03 10:35:44 <nboldt>	um... I'll let Supriya know that 's wrong
+Aug 03 10:36:11 <akurtakov>	what is wrong ?
+Aug 03 10:36:31 <akurtakov>	ah that 11 is not available as rpm
+Aug 03 10:40:39 <nboldt>	akurtakov: yeah, reported in https://issues.jboss.org/browse/RHDEVDOCS-525
+Aug 03 10:41:52 <nboldt>	mbooth: ok, koji scratch build passed. pushing new f27 build: https://koji.fedoraproject.org/koji/taskinfo?taskID=21016906
+Aug 03 10:42:15 <nboldt>	note that I'm using jbosstools-4.5.0.Final-SNAPSHOT tag because we're not QUITE ready to release parent pom version 4.5.0.Final 
+Aug 03 10:42:44 <nboldt>	so we can in theory rebuild this again if we want to use the .Final instead of the -SNAPSHOT
+Aug 03 10:43:36 <nboldt>	do we need to backport this to F25 or F26?
+Aug 03 10:54:24 <nboldt>	akurtakov: in case my vpn died and this didn't go through... akurtakov: yeah, reported in https://issues.jboss.org/browse/RHDEVDOCS-525
+Aug 03 10:57:34 <nboldt>	mbooth:  ok, koji build passed for eclipse-usage on f27 https://koji.fedoraproject.org/koji/taskinfo?taskID=21016906 ... do we need to backport this to F25 or F26? also note that  I'm using jbosstools-4.5.0.Final-SNAPSHOT tag because we're not QUITE ready to release parent pom version 4.5.0.Final so we can in theory rebuild this again if we want to use the .Final instead of the -SNAPSHOT
+Aug 03 10:57:34 <nboldt>	(resending in case VPN dropped before that went out)
+Aug 03 10:57:34 <mbooth>	nboldt: If the source doesn't change before the final final release, it will not be necessary to rebuild
+Aug 03 10:57:47 <nboldt>	parent pom will change
+Aug 03 10:57:55 <nboldt>	but eclipse-usage won't
+Aug 03 10:58:16 <nboldt>	mbooth: waiting on release of updated TP before I can push final parent pom
+Aug 03 10:58:24 <mbooth>	nboldt: In general poms are not shipped with Eclipse plugin RPMs, so we should be safe :-)
+Aug 03 10:58:38 <mbooth>	And yes feel free to merge your changes into the f26 and f25 branches
+Aug 03 11:00:46 <nboldt>	ok, thanks
+Aug 03 11:51:10 <mbooth>	mbenitez: Are we supporting rh-eclipse47 on RHEL 7.2? 
+Aug 03 11:52:49 <mbenitez>	mbooth, apparently yes until the end of November
+Aug 03 11:52:55 <mbenitez>	https://access.redhat.com/support/policy/updates/errata/
+Aug 03 11:54:40 <mbooth>	mbenitez: Thanks
+Aug 03 11:57:51 <mbenitez>	mbooth, looking at RHSCL reqs it seems they're going with 7.3 though
+Aug 03 11:58:36 <mbenitez>	are there bugs with 7.2?
+Aug 03 12:00:05 <mbooth>	mbenitez: I was looking at this old dark theme bug: https://bugzilla.redhat.com/show_bug.cgi?id=1250859
+Aug 03 12:04:07 <mbooth>	mbenitez: Also, I was thinking about requesting that our minimum RHEL be 7.4 for Devtools 2 because it looks like we finally get webkit2 :-)
+Aug 03 12:05:03 <mbenitez>	mbooth, it makes a lot of sense to set that req to get webkit, for devtools 2 you mean photon?
+Aug 03 12:05:24 <mbooth>	Yeah for photon
+Aug 03 12:05:35 <mbenitez>	by all means, we should do that
+Aug 03 12:05:40 <mbooth>	Cool
+Aug 03 12:06:07 <mbenitez>	mbooth, re: 1250859 I think we keep postponing it, Alex set a 'depends on' and that bug didn't make it into 7.4
+Aug 03 12:06:20 <mbenitez>	plus it's not a devtools 1.0 blocker
+Aug 03 12:06:35 <mbenitez>	right now we should only fix anything that is really broken
+Aug 03 12:06:40 <mbooth>	Sure
+Aug 03 12:07:38 <mbenitez>	thanks mbooth I've seen a lot of movement, which should get us to the finish line :)
+Aug 03 12:17:27 <jjohnstn>	mbenitez: I have a patch for https://bugzilla.redhat.com/show_bug.cgi?id=1477972 ... I have started a build...do I need to wait for all flags being set before changing to Modified?
+Aug 03 12:18:16 <mbenitez>	jjohnstn, yes, you need the flags, but we can get them
+Aug 03 12:18:37 <jjohnstn>	ok, thx
+Aug 03 12:18:43 <mbenitez>	devtools 1.0.0 should show up in a bit
+Aug 03 12:21:16 <mbooth>	jjohnstn: Thanks for taking a look, btw
+Aug 03 14:53:29 <jjohnstn>	mbenitez: I found a further issue with the remote volumes and made a subsequent patch to build 6.1.0-1.4...I see that you have moved the bug to ON_QA...can we modify the fixed-in-build field?
+Aug 03 14:55:53 <jjohnstn>	mbenitez: it is building now, but I already did a scratch-build successfully...without it, the patch fixes the NPE, but remote copying doesn't occur properly
+Aug 03 14:55:55 <mbenitez>	jjohnstn, yes, feel free to adjust the build, just send a note to Mat to also update it in errata
+Aug 03 14:56:03 <jjohnstn>	mbenitez: will do
+Aug 03 14:56:06 <mbenitez>	jjohnstn, great to have this fixed, thanks!
+Aug 03 16:54:29 <mbenitez>	eclipse-team: Taking PTO Friday Aug 4, Holiday Monday Aug 7
+Aug 04 12:29:27 <jjohnstn>	nboldt: can you confirm if 4.5.0.final is using Linux tools 6.1.0..I am doing the N&N now
+Aug 04 12:30:41 <nboldt>	should be yes
+Aug 04 12:32:12 <nboldt>	jjohnstn: https://issues.jboss.org/browse/JBIDE-24654 confirmed by Lukas
+Aug 04 12:33:01 <jjohnstn>	nboldt: thanks..just didn't want to screw up the N&N again :)
+Aug 04 12:47:33 <nboldt>	jjohnstn: no worries. I'm forever asking the same questions because it's better than making (invalid) assumptions :D
+Aug 04 12:47:56 <nboldt>	especially since I screwed up the initial TP update, it's worth the double-check 
+**** BEGIN LOGGING AT Fri Aug  4 12:49:05 2017
+
+Aug 04 12:49:05 *	Now talking on #eclipse
+Aug 04 12:49:05 *	Topic for #eclipse is: Eclipse discussions
+Aug 04 12:49:05 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 04 13:32:32 <jjohnstn>	nboldt: I submitted the pull request but it claims a DCO check failed...this seems new...is there something I need to do?
+Aug 04 13:39:22 <rgrunber>	jjohnstn: i would try adding a -s for signed-off-by when you ammend the commit.
+Aug 04 13:39:58 <rgrunber>	https://github.com/apps/dco
+Aug 04 13:43:53 <jjohnstn>	rgrunber: I really hate github...didn't have to do anything before for other commits...now, the problem is that I have pushed this to my forked repo which I then created the pull request from
+Aug 04 13:43:56 <nboldt>	jjohnstn: yes, need to sign your commits now with -s flag
+Aug 04 13:44:13 <nboldt>	just repush to your topic branch w/ -force
+Aug 04 13:44:29 <jjohnstn>	nboldt: ok
+Aug 04 13:44:38 <nboldt>	where does one report a bug in linuxtools.changelog? eclipse bz?
+Aug 04 13:46:30 <nboldt>	nm, found it. https://bugs.eclipse.org/bugs/show_bug.cgi?id=520585
+Aug 04 13:47:35 <jjohnstn>	nboldt: did the force, it seems to have satisfied the check without me having to resubmit..thx
+Aug 04 13:50:09 <nboldt>	cool
+Aug 04 13:50:54 <nboldt>	jjohnstn: you missed an opportunity to say that you "used the Force" :)
+Aug 04 13:51:27 <rgrunber>	jjohnstn: fwiw the same requirement exists for eclipse (signed-off-by), it's just that you're a committer on most projects and so there's no need.
+Aug 04 13:51:41 <rgrunber>	or most projects you commit to
+Aug 04 13:52:17 *	nboldt just added the -s flag to the alias I use for committing all changes
+Aug 04 13:52:36 <nboldt>	alias   ci='git commit -s -m'
+Aug 04 13:52:51 <nboldt>	makes life easier - never have to remember it
+Aug 04 14:10:47 <jjohnstn>	nboldt: if you get a chance, could you accept the pull request?
+Aug 04 14:23:30 <nboldt>	jjohnstn|afk: http://tools.stage.jboss.org/documentation/whatsnew/jbosstools/4.5.0.Final.html done
+Aug 04 14:24:36 <nboldt>	production branch seems to have stalled.... https://travis-ci.org/jbosstools/jbosstools-website/builds/261110907
+Aug 04 14:38:44 <nboldt>	jjohnstn|afk: ok, it's live. http://tools.jboss.org/documentation/whatsnew/jbosstools/4.5.0.Final.html
+Aug 04 15:14:20 <jjohnstn>	nboldt: thx as usual
+Aug 04 15:19:50 <nboldt>	jjohnstn: no problema, hombre
+Aug 07 03:05:06 <gb21>	Hi everyone, I want to test my local plugin jar with eclipse. It is dependent on external jars, so I created another plugin which only has these external jars, I want to add it as a plugin dependency in my current plugin, how can I do that?
+Aug 07 03:05:38 <gb21>	My current plugin is in the uses Tycho.
+Aug 07 03:05:38 <gb21>	My current plugin is in the uses Tycho
+Aug 07 03:05:38 <gb21>	My current plugin is in the uses Tycho
+Aug 07 03:05:57 <gb21>	My current plugin uses Tycho*
+Aug 08 10:08:53 <mbenitez>	mbooth, hello Mat, I'm just starting to catch up after the long weekend, how are things with SCL?
+Aug 08 10:10:27 <mbooth>	mbenitez: Hey, I think we're good to go with it -- https://errata.devel.redhat.com/advisory/29343
+Aug 08 10:11:42 <mbooth>	mbenitez: What do we need to do to progress it from the releng side? File a new RCM ticket to push it again? 
+Aug 08 10:12:04 <mbenitez>	mbooth, that's excellent news, thanks!
+Aug 08 10:12:35 <mbenitez>	mbooth, I think Kerri opened one and you were not originally in CC
+Aug 08 10:13:26 <mbenitez>	mbooth, but we need vkadlcik_gone and mcoufal to finish testing the last few bugs on QA
+Aug 08 10:22:43 <mbenitez>	mbooth, fyi this is the ticket: https://projects.engineering.redhat.com/browse/RCM-19732
+Aug 08 10:23:01 <mbenitez>	once errata is ready to ship rhartman should take it from there
+Aug 08 10:23:13 <mbooth>	Cool, thanks
+Aug 08 10:24:00 <rgrunber>	akurtakov: https://projects.eclipse.org/projects/tools.orbit/who still unaffiliated.. what gives..
+Aug 08 10:24:39 <rgrunber>	time to open a bug.. or search for similar..
+Aug 08 10:24:44 <akurtakov>	rgrunber: yeah
+Aug 08 10:26:58 <mbooth>	rgrunber: It drives me nuts that the Red Hat slice of pie is not red...
+Aug 08 10:27:26 <rgrunber>	mbooth: outa luck on this one
+Aug 08 10:42:23 <rgrunber>	https://bugzilla.redhat.com/show_bug.cgi?id=1479433 ? :O
+Aug 08 11:19:33 <mbooth>	rgrunber: I was just reading that and I ... can't imagine Eclipse can cause his machine to not boot :-/
+Aug 08 11:20:01 <rgrunber>	mbooth: the file list makes it looks like it was an upstream eclipse, unpacked into home, not the rpm..
+Aug 08 11:22:03 <mbooth>	Yeah, you're right
+Aug 08 11:22:31 <rgrunber>	and there's a bunch of epp packages installed as well.
+Aug 08 11:22:47 <rgrunber>	and oomph
+Aug 08 11:24:04 *	mbooth is tempted to reassign this against btrfs...
+Aug 08 11:24:42 <mbooth>	I mean, Eclipse may thrash your filesystem, but if heavy IO kills your machine, then that's gotta be a btrfs fault :-/
+Aug 08 11:36:44 <rgrunber>	mbooth: well i dunno about stars aligning.. but one star and one moon are aligning pretty soon so maybe we should consider his request of explaining to Eclipse developers "what's a database, introducing them to sqlite, and explain them how easier and better it is to use instead of file-bombing the file-system .."
+Aug 08 11:43:48 <mbooth>	rgrunber: Half the file list he posted is CDT checked out from source control, so I'm not sure that will help much ;-)
+Aug 08 11:44:25 <rgrunber>	i couldn't find anything that strange though.. other than it looks like he installed a bunch of plugins
+Aug 08 11:59:22 <mbooth>	rgrunber: Commented. Thought I'd make the subject a little less inflammatory too...
+Aug 08 12:01:33 <rgrunber>	k, you convered most of what i was gonna mention..
+Aug 08 12:02:38 <rgrunber>	o.e.cdt is just one massive repo when built.. no way around it :P
+Aug 08 12:02:58 <mbooth>	Feel free to add anything else you think is useful
+Aug 08 12:03:01 <mbooth>	But yeah
+Aug 08 12:03:39 <mbooth>	It's the nature of programming to make lots of small changes to many small files, not a lot we can do about that
+Aug 08 12:08:53 <rgrunber>	mbooth: might be good to try running maven on cdt headless.. in that environment.. to see whether other file accesses might do the same..
+Aug 08 12:09:12 <rgrunber>	but otherwise i can't see this being 'eclipse is generating too many files' when 75% belong to the git repo
+Aug 08 12:11:23 <akurtakov>	nboldt: anything you want me to look for in this channel or it was some setup only?
+Aug 08 12:13:04 <nboldt>	akurtakov: if you mean the releng-qe thing it's more so you're aware that's where releng and QE discuss stuff on MM (since no one does IRC anymore)
+Aug 08 12:13:29 <nboldt>	but feel free to remove yourself if the volume of annoyances gets too high :D 
+Aug 08 12:13:43 *	akurtakov wishes people moved to smth better than irc at least :)
+Aug 08 12:13:52 <akurtakov>	if there is one :)
+Aug 08 12:14:03 <nboldt>	mbooth: need anything from me for devtools channel stuff? you got my eclipse-usage rpms in F25-27, yeah?
+Aug 08 12:14:17 <nboldt>	akurtakov: well, MM = IRC + email spam & ability to embed images
+Aug 08 12:14:37 <nboldt>	so I'd say it's better, but YMMV
+Aug 08 12:14:39 <mbooth>	nboldt: I don't think so, and yeah, thanks :-)
+Aug 08 12:15:29 <nboldt>	mbooth: cool ... FYI, devstudio is respinning today because of a communication problem (I thought that Seam 3 == CDI, so marked too many features deprecated); no one corrected my incorrect assumption last week :(
+Aug 08 12:16:10 <nboldt>	and afaik devsuite squeezed in a latebreaking UX change yesterday, so it's also a bit behind. TLDR, devtools non-brew RPMs are coming a bit later than I'd hoped
+Aug 08 12:33:58 <nboldt>	mbooth: any objection to me closing https://projects.engineering.redhat.com/browse/RCM-18986 ?
+Aug 08 12:34:49 <mbooth>	nboldt: No, go ahead
+Aug 08 12:46:31 <mbooth>	rgrunber: Heh, if he thinks Eclipse creates lots of files, just wait until he sees maven download the internet...
+Aug 08 12:46:49 <rgrunber>	mwhaahahaha
+Aug 08 12:47:41 <rgrunber>	if it survives that i'd be more inclined to believe it's Eclipse's file r/w doing something
+Aug 08 12:48:22 <rgrunber>	though i actually didn't see m2e at all in his list..
+Aug 08 12:49:21 <mbooth>	Well, he's pretty vague about the time it takes for the problems to occur, just "use [Eclipse] until it mess up the file system"
+Aug 08 12:49:57 <rgrunber>	so either.. a cdt full build by pde.. or something.. maybe target platform support..
+Aug 08 13:22:26 <nboldt>	mbooth: I've passed https://bugzilla.redhat.com/show_bug.cgi?id=1465816 to you re: eclipse-usage. If you need me to do more there, just ask
+Aug 11 11:01:24 <nboldt>	mbooth: just wanted to make sure you saw my updated email with link to https://github.com/jbdevstudio/jbdevstudio-devdoc/blob/master/release_guide/11/6_Release_day_steps.adoc
+Aug 14 05:47:43 <akurtakov>	mbooth: hey Mat
+Aug 14 05:47:51 <mbooth>	Hi
+Aug 14 05:48:01 <akurtakov>	tomorrow we should see the source tarball on the download page :)
+Aug 14 05:48:16 <mbooth>	Nice
+Aug 14 05:49:17 *	mbooth is poised to execute "git rm get-eclipse.sh"
+Aug 14 06:03:56 <akurtakov>	mbooth: time will come :)
+Aug 14 08:45:36 <akurtakov>	mbooth: http://build.eclipse.org/eclipse/builds/4I/siteDir/eclipse/downloads/drops4/I20170814-0635/
+Aug 14 08:45:49 <akurtakov>	look for source tarball :)
+Aug 14 08:51:44 <akurtakov>	http://download.eclipse.org/eclipse/downloads/drops4/I20170814-0635/
+Aug 14 08:51:48 <akurtakov>	this is what I meant
+Aug 14 08:52:19 <mbooth>	Cool :-)
+Aug 14 08:55:27 <akurtakov>	mbooth: now it's up to you to prepare a backport commit to 4.7.1 :)
+Aug 14 08:56:49 <akurtakov>	that would give you the freedom to "git rm get-eclipse.sh" soon :)
+Aug 14 09:04:21 <akurtakov>	mbooth: or you would rather wait for the new assembly plugin?
+Aug 14 09:04:27 <akurtakov>	but this will miss 4.7.1 :)
+Aug 14 09:06:01 <mbooth>	Maybe, my mail to maven project triggered a release vote: http://mail-archives.apache.org/mod_mbox/maven-dev/201708.mbox/%3C6703ee90-5c51-08fa-a485-f1ff15b03356%40gmx.de%3E
+Aug 14 09:11:21 <akurtakov>	yeah I saw it
+Aug 14 09:11:28 <akurtakov>	btw, patches pleas https://bugs.eclipse.org/bugs/show_bug.cgi?id=520940
+Aug 14 09:11:37 <akurtakov>	I can't push to jdt
+Aug 14 09:11:49 <akurtakov>	but I can make noise for patches pending :)
+Aug 14 09:12:19 <mbooth>	Heh, sure
+Aug 14 09:22:29 <mbooth>	akurtakov: Just for you: https://git.eclipse.org/r/#/c/103048/
+Aug 14 09:26:42 <akurtakov>	thanks
+Aug 14 10:41:00 <akurtakov>	mbooth: is the tarball good ?
+Aug 14 10:41:16 <mbenitez>	akurtakov, hello Alex, do we have any way to help with https://bugs.eclipse.org/bugs/show_bug.cgi?id=422665 ?
+Aug 14 10:43:14 <akurtakov>	mbenitez: sounds doable
+Aug 14 10:43:31 <akurtakov>	What's needed is significant changes to the provider code to work around the new apache handling for those proxies (NTLM v2 in particular seems to be an ongoing problem for apache code).   
+Aug 14 10:43:36 <akurtakov>	from the last comment
+Aug 14 10:43:49 <akurtakov>	I have no idea how much of an effort that would be
+Aug 14 10:43:52 <mbenitez>	akurtakov, great! could we prioritize it? there's a customer case around devstudio blocked by this
+Aug 14 10:44:16 <akurtakov>	mbenitez: can I see this customer case
+Aug 14 10:44:19 <mbenitez>	it'd be good to look into it and give an estimate
+Aug 14 10:44:24 <mbenitez>	sure, give me a sec
+Aug 14 10:44:38 <akurtakov>	I would expect that to be dozen(s) of different cases
+Aug 14 10:45:06 <akurtakov>	fwiw, mbooth is looking into moving ecf to latest httpclient
+Aug 14 10:45:22 <akurtakov>	mbooth: ^ how is that going btw?
+Aug 14 10:48:11 <mbenitez>	akurtakov, excellent! if we can help with this it would be really good
+Aug 14 11:15:27 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Aug 14 11:15:27 2017
+
+**** BEGIN LOGGING AT Mon Aug 14 11:34:12 2017
+
+Aug 14 11:34:12 *	Now talking on #eclipse
+Aug 14 11:34:12 *	Topic for #eclipse is: Eclipse discussions
+Aug 14 11:34:12 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Aug 14 11:35:37 <rgrunber>	mbooth: btw, if you plan to bring a newer httpclient to Orbit, we should probably announce to cross-project-issues nice'n early.
+Aug 14 11:35:50 <rgrunber>	that bundle has been trouble in the past
+Aug 14 11:35:54 <mbooth>	rgrunber: Sure
+Aug 14 11:36:05 <rgrunber>	some projects update, others don't, problems co-existing.. 
+Aug 14 11:36:43 <mbooth>	rgrunber: I was thinking as well about bundling the cache and fluent components separately like it is distributed by upstream
+Aug 14 11:37:28 <mbooth>	Occasionally I have to patch in Fedora when some project assumes the cache API is part of the main httpcomponents jar, when it isn't
+Aug 14 11:37:39 <mbooth>	It would be nice to have the same structure everywhere
+Aug 14 11:37:42 <mbooth>	WDYT?
+Aug 14 11:37:51 <rgrunber>	mbooth: the only point against that is that in the past it has been distributed bundled into httpclient itself iirc..
+Aug 14 11:38:17 <rgrunber>	in maven they're separate but there's some osgi artifact in which they're all together or something.. or in the sources they're all together.. can't remember exactly
+Aug 14 11:38:58 <mbooth>	Hmm, I'll investigate that further then
+Aug 14 15:43:37 <rgrunber>	'You have indicated a change in employer. As such any changes you made have not been saved. A notice has been sent to you and EMO legal (emo-records@eclipse.org) so that they can advise what paperwork(if any) needs to be updated.'
+Aug 14 15:43:41 <rgrunber>	this is gonna be good...
+Aug 14 16:02:10 <mbenitez>	:)
+Aug 14 16:02:23 <mbenitez>	coincidentally Alex dropped off irc...
+Aug 14 16:02:54 <rgrunber>	I wonder if they'll accept my "Alex made me do it" excuse
+Aug 14 16:14:31 <mbenitez>	haha guess you can try
+Aug 14 16:16:07 <ericwill>	rgrunber I'm sure everything will work out for the Orbit King
+**** ENDING LOGGING AT Mon Aug 14 16:50:14 2017
+

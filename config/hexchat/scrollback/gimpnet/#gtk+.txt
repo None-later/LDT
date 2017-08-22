@@ -1,670 +1,625 @@
-T 1499089756 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
-T 1499106017 18<bugbot18>	New gtk+ bug 784485 filed by dboles.src@gmail.com.
-T 1499106017 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784485 Widget: GtkMenu, normal, gtk-bugs, NEW , Garbled styling of menuitem:nth-child(N) > *
-T 1499111713 18<dboles18>	Do TreeIters get invalidated when things are appended/prepended to the ListStore?
-T 1499111794 18<TingPing18>	dboles, i believe any insertion does, yes
-T 1499111848 18<dboles18>	TingPing: thanks, I'll try fixing up this code on that basis (didn't want to start if the answer was 'never'!)
-T 1499111852 18<tpm18>	dboles, it depends on the model
-T 1499111872 18<tpm18>	dboles, you can check with gtk_tree_model_get_flags(), there's GTK_TREE_MODEL_ITERS_PERSIST
-T 1499111880 18<dboles18>	I'm guessing there's no reserve() a la C++
-T 1499111884 18<tpm18>	if in doubt, don't make assumptions :)
-T 1499111919 18<dboles18>	tpm: It's a GtkListStore
-T 1499111926 18<dboles18>	tpm: and thanks for the tip!
-T 1499113049 18<dboles18>	hmm: "Iterators are expected to always be valid for as long as the model is unchanged [...] some models guarantee that an iterator is valid for as long as the node it refers to is valid (most notably the GtkTreeStore and GtkListStore)", which implies that additions don't invalidate previous nodes, right?
-T 1499113081 18<dboles18>	I did get a few segfaults before, but I dunno if something else was causing that which I've since fixed... and I'm getting the right results now
-T 1499113096 18*	dboles gets another segfault
-T 1499113115 18<dboles18>	i had to say it
-T 1499113228 18<dboles18>	segfault seems unrelated to whether i reference the rows before/after append, fwiw
-T 1499113285 18<tpm18>	I can recommend valgrind :)
-T 1499113318 18<dboles18>	indeed, though maybe when i have more time to wait for it to run ;)
-T 1499113727 18<dboles18>	found it - a signal handler that i wasn't disconnecting when the model it depends on is replaced
-T 1499113767 18<dboles18>	"// TODO: can't connect this until I figure out how to disconnect it when model changes"
-T 1499113770 18<dboles18>	job's a good'un
-T 1499118559 18<bugbot18>	New gtk+ bug 784490 filed by bugzilla@colorremedies.com.
-T 1499118559 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784490 Widget: GtkFileChooser, normal, gtk-bugs, NEW , file open save dialog can't navigate to smb shares
-T 1499123501 18<bugbot18>	dboles.src@gmail.com changed the Status on bug 784490 from NEW --- to RESOLVED NOTGNOME.
-T 1499123502 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784490 Widget: GtkFileChooser, normal, gtk-bugs, RESOLVED NOTGNOME, file open save dialog can't navigate to smb shares
-T 1499126112 18<mertyildiran18>	Hi, how should I include the Gtk+ library to my Python C extension? libraries=['cairo','gtk+-2.0'] is not working?
-T 1499126140 18<mertyildiran18>	for cairo it's good, it's working
-T 1499126158 18<mertyildiran18>	but for gtk libraries=['gtk'] also not working
-T 1499127417 18<jff_[m]18>	are you using gtk in python or C
-T 1499131851 18<antoyo18>	Hi. What could cause all windows to become black (including the one created by GTK_DEBUG=interactive) when a window is destroyed?
-T 1499132086 18<antoyo18>	This also happens when I destroy the webkit2gtk WebView instead of the window.
-T 1499143404 18<hergertme18>	is there a way to make GtkLabel only ever request up to a certain width, but if it gets more, it can use it?
-T 1499144392 18<baedert18>	ellipsize and size request?
-T 1499146291 18<hergertme18>	baedert, unfortunately the natural-width still gets used in this case
-T 1499146648 18<baedert18>	of course
-T 1499146659 18<baedert18>	thats what natural size means
-T 1499146961 18<hergertme18>	right, but that is what im trying to work around
-T 1499147006 18<hergertme18>	it's causing my paneds to jump around because of natural sizing jumps, so im trying to force-block the natural sizing on some stuff
-T 1499147036 18*	hergertme just adds the necessary feature to DzlSimpleLabel which we use in other places to avoid spurious sizing requests
-T 1499151106 18<baedert18>	I don't even know if max-width-chars and the other one work when not wrapping and just ellipsizing
-T 1499151831 18<hergertme18>	from what i tested it looked like it said a max width that would be rendered
-T 1499155050 18<baedert18>	I somehow with we had a GDK_GTK_INSPECTOR_SCALE
-T 1499155304 18<baedert18>	*wish
-T 1499165223 18<baedert18>	Baselines kinda don't make sense to be in widget coords, do they?
-T 1499166490 18<hjdskes18>	Am I correct in finding that to respond to an activation of a GtkListBoxRow, I should connect to "row-activated" of the GtkListBox and not to the row's "activated" signal? It seems the latter is never emitted
-T 1499167207 18<baedert18>	hjdskes: yes
-T 1499167218 18<baedert18>	thats a keybinding signal
-T 1499167275 18<pranavg189[m]18>	how do we change the background color when hovering on a GtkListBoxRow ?
-T 1499167328 18<baedert18>	css.
-T 1499167384 18<hjdskes18>	baedert: I'm not sure that I follow? The signal is never emitted from anywhere, as far as I can see. 
-T 1499167455 18<pranavg189[m]18>	what will be the naming of the css class for it ? like row : hover
-T 1499167487 18<baedert18>	yes
-T 1499167503 18<baedert18>	hjdskes: use the one on GtkListBox
-T 1499167540 18<hjdskes18>	baedert: oke, thanks
-T 1499167558 18<pranavg189[m]18>	baedert: Ok.
-T 1499167760 18<mertyildiran18>	what does this warning means? Is there any way to fix?
-T 1499167780 18<mertyildiran18>	"/usr/include/gtk-2.0/gtk/gtkitemfactory.h:47:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]"
-T 1499167788 18<mertyildiran18>	"typedef void (*GtkItemFactoryCallback)  ();"
-T 1499167847 18<baedert18>	google for "function declaration isn't a prototype".
-T 1499167877 18<mertyildiran18>	baedert: but it's comming from Gtk+ not my code?
-T 1499167913 18<baedert18>	I think so?
-T 1499167932 18<ebassi18>	mertyildiran: It's coming from your compiler
-T 1499167953 18<ebassi18>	https://bugzilla.gnome.org/show_bug.cgi?id=92200
-T 1499167954 18<bugbot18>	Bug 92200: Widget: Other, minor, gtk-bugs, RESOLVED WONTFIX, GtkItemFactoryCallback prototype needs to be filled out
-T 1499168034 18<mertyildiran18>	ebassi: and baedert thank you so much. :)
-T 1499168070 18<ebassi[m]18>	The actual answer is: stop using gtk2
-T 1499168113 18<mertyildiran18>	ebassi[m]: hmm.. OK I understand now.
-T 1499168537 18<hjdskes18>	baedert: thanks again for your help, I found what the activated signal is for now
-T 1499168713 18<bugbot18>	New gtk+ bug 784509 filed by ksamak@riseup.net.
-T 1499168713 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784509 Accessibility, major, gtk-bugs, NEW , wrong coordinates given to at-spi layer from GTK3 entries
-T 1499172923 18<jff_[m]18>	how can i stop the default signal running
-T 1499172929 18<jff_[m]18>	eg
-T 1499172934 18<jff_[m]18>	for my main window
-T 1499172939 18<ebassi18>	jff_[m]: "The default signal"?
-T 1499172953 18<jff_[m]18>	the signal "destroy", how do i stop the default code
-T 1499172958 18<jff_[m]18>	so instead of destoying the window
-T 1499172960 18<jff_[m]18>	it simply hides it
-T 1499172966 18<ebassi18>	You don't
-T 1499172978 18<jff_[m]18>	default probs a bad term but w/e
-T 1499173004 18<ebassi18>	"destroy" is not meant to be stopped; you use it only to remove external references
-T 1499173005 18<jff_[m]18>	w-what
-T 1499173013 18<ebassi18>	You probably want "delete-event"
-T 1499173039 18<ebassi18>	Which is the signal that is emitted when the user presses the Close button on the window
-T 1499173048 18<ebassi18>	And whose default handler calls gtk_widget_destroy()
-T 1499173049 18<jff_[m]18>	oh thanks
-T 1499173050 18<jff_[m]18>	i will try that
-T 1499173059 18<jff_[m]18>	so if i connect it
-T 1499173061 18<ebassi18>	Just connect to the "delete-event" signal and return TRUE
-T 1499173064 18<jff_[m]18>	i will override the default correct?
-T 1499173069 18<jff_[m]18>	ok thanks
-T 1499173078 18<baedert18>	see also: gtk_widget_hide_on_delete
-T 1499173099 18<jff_[m]18>	oh wow that should simplyf things
-T 1499173100 18<jff_[m]18>	thanks for that
-T 1499173136 18<ebassi18>	g_signal_connect (window, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), NULL);
-T 1499173170 18<ebassi18>	https://developer.gnome.org/gtk3/stable/GtkWidget.html#gtk-widget-hide-on-delete
-T 1499173174 18<jff_[m]18>	i will try that now
-T 1499173322 18<jff_[m]18>	awesome working now thanks
-T 1499175085 18<baedert18>	mclasen[m]: any opinion about baselines? They only get propagated to children with valign=GTK_ALIGN_BASELINE but we don't always want that I think? E.g. for the spinbutton>box>entry case, all of those need to have valign=BASELINE set, otherwise it won't take effect
-T 1499175097 18<baedert18>	same thing with the label inside a button created with gtk_button_new_with_label
-T 1499175722 18<baedert18>	Company: https://paste.xinu.at/AzFy5/
-T 1499175861 18*	Company not gonna do his rant about baselines now
-T 1499175907 18<Company18>	i have no idea - maybe we should indeed set ALIGN_BASELINE on internal children by default?
-T 1499176159 18<dboles18>	Is it possible to use a key binding signal/CSS on a ComboBox to select specific items? i.e. can I set the user_data argument in the binding and interpret it as an index in the handler?
-T 1499176282 18<baedert18>	Company: What if we pass the baseline on even if the valign is not BASELINE?
-T 1499176288 18<dboles18>	nvm, that won't do what i need anyway
-T 1499176329 18<dboles18>	I think what I want - setting accelerators to select items while the menu is open - is not possible without being able to access the menu child
-T 1499176338 18<Company18>	baedert: is the problem is just passing the baseline on? Or is it also baselign-aligning children?
-T 1499176402 18<Company18>	passing baselines on is definitely a thing we should do in any case, as long as they make sense
-T 1499176481 18<baedert18>	well widgets never check that their valign is BASELINE, just that the given baseline is != -1
-T 1499176504 18<baedert18>	but gtk_widget_size_allocate_with_baseline passes on  -1 if the valign is any different
-T 1499176517 18<baedert18>	e.g. for GtkImage baselines almost never make any sense so it looks weird there
-T 1499176578 18<Company18>	hrm
-T 1499176591 18<Company18>	i don't think this makes sense
-T 1499176597 18<Company18>	this = the gtk3 approach
-T 1499176617 18<muktupavels18>	Company: can you comment on bug https://bugzilla.gnome.org/show_bug.cgi?id=780991?
-T 1499176618 18<bugbot18>	Bug 780991: Class: GtkStyleContext, normal, gtk-bugs, NEW , Foreign drawing & animations
-T 1499176622 18<Company18>	because it means once a single widget is not ALIGN_BASELINE, you lose all baselines, no?
-T 1499176694 18<baedert18>	only in child widgets of that widget, but yes
-T 1499176708 18<baedert18>	a box still passes on baselines if even one of the children has a baseline
-T 1499176726 18<Company18>	muktupavels: I didn't comment on it, because I don't have an opinion on it yet
-T 1499176767 18<Company18>	baedert: right, but then you make up new baselines
-T 1499176828 18<Company18>	muktupavels: but I can imagine a lot of things that might go wrong, because you're now mixing animations and not animating (for the case where no frame clock is set)
-T 1499176937 18<Company18>	muktupavels: and then there are the existing cases where style contexts aren't expected to animate and with your case they would suddenly start to
-T 1499176992 18<baedert18>	the widget-factory definitely looks pretty fucked up when we just pass baselines on
-T 1499177028 18<Company18>	muktupavels: unless you wanted that patch for GTK4 - in which case I'd be even more confused, because I want to get rid of style contexts and widget paths, but have not thought enoudh about what APIs we'd need to expose as a replacement
-T 1499177032 18<Company18>	baedert: got a screenshot?
-T 1499177087 18<baedert18>	Company: https://paste.xinu.at/V4Zc/
-T 1499177098 18<muktupavels18>	Company: how about adding new function that would allow to create animated style context? Is it allowed to add new API now that gtk+ 3 is considered stable?
-T 1499177149 18<Company18>	baedert: neat o.O
-T 1499177193 18<Company18>	muktupavels: I think we want to avoid that - especially because this pokes into internals quite a bit
-T 1499177240 18<Company18>	muktupavels: out of interest, why do you want this?
-T 1499177271 18<muktupavels18>	Company: new GtkCssPathNodeAnimated and then gtk_style_context_new_animated that would use this animated node?
-T 1499177283 18<muktupavels18>	transitions in window decorations
-T 1499177293 18<muktupavels18>	mutter and metacity still use gtk+ 3...
-T 1499177377 18<Company18>	muktupavels: ugh mutter - i would have asked why you don't use real widgets, but I guess that answers it
-T 1499177419 18<Company18>	did i ever mention that I think GTK should have a drm backend so people can write WMs with it? ;)
-T 1499177474 18<Company18>	muktupavels: we could do that approach but make those APIs private and only use them from mutter
-T 1499177515 18<Company18>	muktupavels: I'd probably go for gtk_style_context_set_widget_path_animated() (that's where we create the path node I think?)
-T 1499177591 18<muktupavels18>	widgets use gtk_style_context_new_for_node
-T 1499177613 18<muktupavels18>	how private API could be used from mutter?
-T 1499177629 18<Company18>	I'd just not put it into a public header
-T 1499177670 18<baedert18>	Company: looks like that was a bug, it doesn't look that bad actually
-T 1499177673 18<Company18>	muktupavels: but still mark it as GDK_AVAILABLE_IN_WHATEVER
-T 1499177715 18<Company18>	muktupavels: and then you need to declare the function in mutter sources and you should be fine (after a version check)
-T 1499177755 18<Company18>	muktupavels: and we should make sure mclasen has no objections
-T 1499177797 18<muktupavels18>	Company: ok, but why you think it should not be public API?
-T 1499178626 18<Company18>	muktupavels: because we don't want to add public API
-T 1499178638 18<Company18>	muktupavels: if we added public API, we'd need to do GTK 3.26
-T 1499178675 18<muktupavels18>	Company: ok
-T 1499179127 18<ebassi18>	muktupavels: "transitions in window decorations" — I assume you mean server side decorations, right?
-T 1499179140 18<muktupavels18>	ebassi: yes
-T 1499179149 18<ebassi18>	Which is weird, because server side decorations are animated, here
-T 1499179158 18<ebassi18>	What kind of transitions are we talking about?
-T 1499179168 18<muktupavels18>	CSS?
-T 1499179184 18<ebassi18>	muktupavels: Of course, but of *what*?
-T 1499179244 18<muktupavels18>	button { background: #e8e8e7; transition: background 2000ms ease; }
-T 1499179250 18<muktupavels18>	button:hover { background: #4a90d9; }
-T 1499179293 18<ebassi18>	muktupavels: I get transitions of the buttons in GNOME Shell
-T 1499179325 18<ebassi18>	Oh, no, wait
-T 1499179329 18<ebassi18>	Sorry, I'm using Wayland
-T 1499179346 18<muktupavels18>	:)
-T 1499179347 18<ebassi18>	It was weird because I couldn't reproduce it at all
-T 1499179357 18<ebassi18>	Well, that's the answer, I guess. Stop using X11. :-P
-T 1499179467 18<ebassi18>	muktupavels: Adding new public API to gtk3 is kind of a tricky bit, at this point
-T 1499180682 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 784433 from NEW --- to RESOLVED FIXED.
-T 1499180682 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784433 gdbus, normal, gtkdev, RESOLVED FIXED, gdbus-codegen with variant type parameters result in nested variant
-T 1499182516 18<baedert18>	Company: https://paste.xinu.at/YMHpa/ is actually what it looks like
-T 1499182701 18<baedert18>	ah can't ask alex now :(
-T 1499182922 18<dboles18>	Every time I see the widget factory it annoys me how there are 4 identical frame examples, instead of a with- and without-border case, but then I always forget to write a patch
-T 1499184680 18<mertyildiran18>	Hi, I'm getting undefined symbol: gdk_x11_window_get_xid error. What could be the reason?
-T 1499185151 18<mertyildiran18>	I'm also getting undefined symbol: GDK_WINDOW_XID (I think it's Gtk+-2.0 alternative)
-T 1499185676 18<mertyildiran18>	#include <gdk/gdkx.h> solved the problem.
-T 1499187700 18<baedert18>	https://paste.xinu.at/LqKLxU/ Ok
-T 1499187790 18<baedert18>	results look bad of course when the valign is not baseline...
-T 1499192122 18<bugbot18>	New glib bug 784528 filed by ebassi@gmail.com.
-T 1499192123 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784528 gobject, normal, gtkdev, NEW , Rewrite glib-genmarshal in Python
-T 1499192950 18<Company18>	baedert: looks like we can just do it then
-T 1499196225 18<ebassi18>	Pythonistas wanted for reviewing bug 784528
-T 1499196226 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784528 gobject, normal, gtkdev, NEW , Rewrite glib-genmarshal in Python
-T 1499196253 18<ebassi18>	nirbheek: It would also be nice to get glib-mkenums merged in, at some point :-)
-T 1499197064 18<tpm18>	ebassi, what is it blocking on?
-T 1499197086 18<tpm18>	ebassi, I think it's just waiting for someone to JFDI (and stand by to fix any fallout)
-T 1499197099 18<ebassi[m]18>	tpm: I have absolutely no idea :-D
-T 1499197121 18<ebassi[m]18>	I should probably have a look, but I thought nirbheek was also working on it, so I didn't want to step on anyone's toes
-T 1499197180 18<tpm18>	I don't think he's working on it
-T 1499197223 18<tpm18>	would be good if someone who has a local jhbuild or continuous setup could test it
-T 1499197227 18<tpm18>	I'm not that person ;)
-T 1499197270 18<tpm18>	but I'm happy to help fix up things that need fixing once it's merged
-T 1499201061 18<dboles18>	Another oddity that I wonder whether it's known: Selecting on a cellview and applying a rule that uses currentColor ( e.g. in a mix() ) indicates that it doesn't seem to notice changes to currentColor, e.g. when its window changes to/from :backdrop
-T 1499202050 18<baedert18>	wtf is a cellview even
-T 1499202502 18<dboles18>	something that barfs at the thought of CSS, it seems
-T 1499202625 18<baedert18>	does it have a gadget?
-T 1499202794 18<dboles18>	yeah
-T 1499202833 18<dboles18>	so I'm having to use @theme_fg_color because currentColor doesn't track as it should
-T 1499202850 18<dboles18>	which means no nice backdrop transitions, etc.
-T 1499202894 18<dboles18>	(presumably I could double up the rules to get those, but meh)
-T 1499211931 18<dboles18>	I fixed Adwaita
-T 1499211935 18<dboles18>	button:not(image-button) { padding: 0.25em 0.5em; }
-T 1499211984 18<dboles18>	er, .image-button
-T 1499231219 18<jff_[m]18>	how would i check if the scroll bar is at the top of a treeview
-T 1499231408 18<baedert18>	check if the adjustment's value is 0
-T 1499231614 18<jff_[m]18>	hmm it's not working for me
-T 1499231619 18<jff_[m]18>	since i've connected to size-allocate
-T 1499231634 18<jff_[m]18>	and i want to only scroll to top if im currently at the top when i prepend a row
-T 1499231636 18<jff_[m]18>	to the treeview
-T 1499247958 18<bugbot18>	dboles.src@gmail.com changed the Component on bug 784485 from Widget: GtkMenu to Class: GtkStyleContext.
-T 1499247959 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784485 Class: GtkStyleContext, normal, gtk-bugs, NEW , Incorrect/inconsistent styling of cellview and/or menuitem:nth-child(N)
-T 1499251766 18<dboles18>	Did someone mention that GTK+ 4 might be in the market for a replacement of ComboBox? I think I need to write a new version for my own use
-T 1499251833 18<dboles18>	Course, the existing one is a lot less nightmarish to reason about, now that I removed list mode and its 93423 conditional type-checks :D
-T 1499251957 18<dboles18>	If the answer is yes, I might try to implement this as a real widget in C, vs just using gtkmm and making an opaque class that contains all the widgets and only exposes the API I need
-T 1499252048 18<baedert18>	dboles: have you seen the one mclasen wrote?
-T 1499252102 18<dboles18>	baedert: I recall loading it up in a tab, not sure I got much further than that :)
-T 1499252131 18<dboles18>	If it supports accelerators in its options then it basically does what I need...
-T 1499252157 18<baedert18>	No idea, but I'd talk to mclasen about why he didn't pursue that one further
-T 1499252194 18<dboles18>	good point
-T 1499252256 18<dboles18>	I'll take a look, and if I need something different I might just code it in C anyway as an exercise
-T 1499252422 18<dboles18>	For the limited feature set I need, so far it seems easier than I expected to get it working
-T 1499252565 18<ebassi18>	dboles: https://git.gnome.org/browse/gtk+/log/?h=wip/combo
-T 1499252611 18<ebassi18>	dboles: And: https://mail.gnome.org/archives/gtk-devel-list/2014-December/msg00025.html
-T 1499252706 18<dboles18>	ebassi: thanks, will have a read through
-T 1499252743 18<ebassi18>	That was my initial review; I'd gladly do a new review/help out with the API/implementation: https://mail.gnome.org/archives/gtk-devel-list/2014-December/msg00050.html
-T 1499252866 18<dboles18>	ebassi: Appreciate the offer! Given how many features that one has, we'll have to wait and see if I come up with anything worth reviewing in comparison to that :) I may just end up with a much simpler class for my current needs
-T 1499252868 18<ebassi18>	Warning: that thread devolves in the usual whining about GTK deprecating stuff and being actively maintained
-T 1499252884 18<dboles18>	I'd only be surprised if it didn't :/
-T 1499253150 18<dboles18>	when people think 'you will be able to use this cool new widget' means 'we are taking your old widget away from you' >>>>>
-T 1499253384 18*	baedert deletes gtkiconview.{c,h}
-T 1499258454 18<ipun18>	Hi, what GTK method calls could make a draw signal be sent out?
-T 1499258544 18<baedert18>	almost all of them
-T 1499258993 18*	benzea would think the two major ones are gtk_widget_queue_draw and gtk_widget_queue_resize
-T 1499259255 18<ipun18>	benzea: im trying to fix an issue from our gtk2->gtk3 port thats causing some sort of draw signal spam
-T 1499259294 18<baedert18>	a) why is that a problem? b) nobody can help you with that little information
-T 1499259501 18<benzea18>	ipun: yeah, baedert is right really. first GTK+ doing a redraw seemingly randomly probably has a good reason
-T 1499259525 18<ipun18>	baedert: draw signal spam is causing problems as some objects are being redrawn in quick succession. On some monitors, it is visible as flickering. I just wanted to see what methods could cause a redraw so i can narrow it down 
-T 1499259528 18<benzea18>	ipun: I was first assuming you were missing an explicit queue_draw somewhere where it is needed
-T 1499259540 18<benzea18>	flickering?
-T 1499259549 18<benzea18>	are you disabling double buffering?
-T 1499259601 18<ipun18>	benzea: i dont believe so... we just have a reported issue about certain drawings flickering and its because of redraw signal spam
-T 1499259611 18<ipun18>	or, likely caused by it
-T 1499259612 18<baedert18>	ipun: as I said, almost all gtk+ api. they change widgets and that needs to be visible on screen, so they call gtk_widget_queue{draw,allocate,resize} at some point.
-T 1499259678 18<benzea18>	ipun: GTK+ will double buffer any drawing, even with excessive redraws you shouldn't see flickering from partial renderings
-T 1499259693 18<benzea18>	ipun: if you see flickering from partial redraws then you are doing something wrong …
-T 1499259950 18<benzea18>	other than that, not sure what is the best way to figure out what is triggering the redraws
-T 1499260833 18<ipun18>	benzea: thanks anyways. I've only sort of touched upon queue_draw when dealing with porting over, so i feel like it has to do with something related to that
-T 1499261192 18<benzea18>	ipun: what baffels me is that flicker sounds like partial redraw. And that would likely mean you are rendering directly on screen instead of the surface provided by GTK+
-T 1499261316 18<dboles18>	Is there a way to copy a GtkImage outright, without having to check which of its properties are set and copy those?
-T 1499261891 18<baedert18>	ipun: Are you caling gdk_window_process_updates anywhere related to that?
-T 1499261959 18<ipun18>	baedert: no not anymore we've removed that
-T 1499262693 18<ebassi18>	pwithnall__: Thanks for the review for bug 784528
-T 1499262694 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784528 gobject, normal, gtkdev, NEW , Rewrite glib-genmarshal in Python
-T 1499262801 18<pwithnall__18>	ebassi: np, I assume your latest version of the patch is not meant to address the review comments?
-T 1499262817 18<ebassi[m]18>	No, though it does add more comments.
-T 1499262830 18<ebassi[m]18>	I'm going to update it, and also fix the documentation — completely forgot about that
-T 1499262839 18<pwithnall__18>	++
-T 1499262853 18<pwithnall__18>	It would be useful if you could briefly list what’s changed in each iteration of the patch you upload
-T 1499262864 18<pwithnall__18>	because we’re not living in a glorious Phabricator interdiff future
-T 1499262911 18<baedert18>	umm
-T 1499262934 18<baedert18>	is checking for :mapped even valid befores size_allocate'ing a child widget?
-T 1499263036 18<pwithnall__18>	ebassi: The approach I’m tempted to take with glib-genmarshal is to get the patch into a state where there are no obvious bugs, then just merge it and see what breaks in CI
-T 1499263059 18<pwithnall__18>	vs asking you to put together some unit tests for it
-T 1499263087 18<pwithnall__18>	although such tests would increase my confidence in the rewrite
-T 1499263135 18<tpm18>	pwithnall__, how about we do the same for the glib-mkenums rewrite? ;)
-T 1499263221 18<pwithnall__18>	heh, it’s almost like I’ve voiced this phrasing before: https://bugzilla.gnome.org/show_bug.cgi?id=779332#c3
-T 1499263222 18<bugbot18>	Bug 779332: gobject, enhancement, gtkdev, NEW , Rewrite mkenums in Python
-T 1499263228 18*	baedert judges that is isn't
-T 1499263289 18<pwithnall__18>	tpm: since mkenums has demonstrably had more parser bugs in the followup comments, I think unit tests would be more desirable there
-T 1499263294 18<pwithnall__18>	but generally, unit tests are always desirable
-T 1499263308 18<tpm18>	of course
-T 1499263381 18<tpm18>	some might argue that the reason it has 'demonstrably had more parser bugs' is that it had actual real-world testing already and is thus more likely to work ;)
-T 1499263391 18<tpm18>	I just don't see anyone writing unit tests
-T 1499263791 18<ipun18>	benzea: so i think i found the source of the problem. The Scrollbar animation of it appearing/dissapearing is causing the draw signal spam
-T 1499263832 18<benzea18>	sounds like a reasonable redraw
-T 1499263854 18<ipun18>	benzea: if it causes the rest of the ramaining text to flicker, does that mean im having the scrollbar draw everything vs just redrawing itself?
-T 1499263878 18<benzea18>	ipun: it sounds like your redrawing mechanism is broken
-T 1499263896 18<benzea18>	ipun: i.e. you are drawing directly on screen instead of double buffered
-T 1499263905 18<benzea18>	or you disabled double buffering
-T 1499263913 18<benzea18>	(but I expect that isn't possible in GTK+ 3)
-T 1499263928 18<ipun18>	benzea: it might be drawing directly on the screen in that situation
-T 1499263950 18<ipun18>	would that be the problem of the text being redrawing directly on the screen or the scrollbar?
-T 1499263975 18<benzea18>	I assume the text yuo are talking about is yours?
-T 1499263981 18<benzea18>	you drawing, and not GTK+?
-T 1499263986 18<ipun18>	benzea: yes
-T 1499263989 18<benzea18>	or you are at least drawing something else underneath?
-T 1499264003 18<benzea18>	ipun: are you sure you are drawing in the draw handler and into the provided cr?
-T 1499264015 18<ipun18>	benzea: that might actually  be the issue then... I will take a look
-T 1499264054 18<ipun18>	appreicate your help
-T 1499264935 18<bugbot18>	ofourdan@redhat.com changed the Component on bug 784319 from Backend: Wayland to Widget: Other.
-T 1499264937 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784319 Widget: Other, normal, gtk-bugs, NEW , Sometimes tooltip_popup_timeout() in gtk/gtktooltip.c causes crash after closing a window
-T 1499265415 18<ebassi18>	pwithnall__: I'd use `git bz attach -e`, but it seems it's currently broken
-T 1499265452 18<pwithnall__18>	:(
-T 1499267142 18<mclasen18>	pwithnall__: I think you touched this last? GLib:ERROR:gdatetime.c:449:test_GDateTime_new_from_timeval_overflow: 'dt' should be NULL
-T 1499267162 18<pwithnall__18>	mclasen: I did. How are you getting this?
-T 1499267170 18<mclasen18>	I run make check
-T 1499267269 18<pwithnall__18>	x86_64, or i386?
-T 1499267309 18<mclasen18>	x86_64
-T 1499267950 18*	pwithnall__ tries to reproduce
-T 1499268103 18<pwithnall__18>	mclasen: wfm. Can you get the test output which includes `Maximum supported GTimeVal.tv_sec = blah`?
-T 1499268259 18<ricotz18>	pwithnall__, https://paste.debian.net/plain/974959
-T 1499268370 18<mclasen18>	pwithnall__: https://da.gd/bgV4
-T 1499268789 18<pwithnall__18>	mclasen: try with TZ=UTC set in your environment?
-T 1499268827 18<mclasen18>	that works
-T 1499268835 18<mclasen18>	do we need to set that for make check ?
-T 1499268929 18<pwithnall__18>	no, I’ll just drop the local assertion
-T 1499268938 18<pwithnall__18>	I’ll push a patch shortly, unless you want to review it?
-T 1499269406 18<pwithnall__18>	pushed
-T 1499269694 18<mclasen18>	thanks
-T 1499269886 18<ricotz18>	pwithnall__, push harder ;)
-T 1499269901 18<pwithnall__18>	uff
-T 1499269917 18<pwithnall__18>	actually pushed
-T 1499269924 18<ricotz18>	aah there it it
-T 1499270113 18<ebassi18>	pwithnall__: Turns out that we do have a marshaller test :-)
-T 1499270154 18<ebassi18>	And it actually contradicts the glib-genmarshal man page, as that says that only 16 argument slots are available :-)
-T 1499278092 18<ricotz18>	chpe, hi, could you take a look at https://bugzilla.gnome.org/show_bug.cgi?id=784456 too
-T 1499278093 18<bugbot18>	Bug 784456: general, normal, gtkdev, NEW , Update to Unicode 10.0.0
-T 1499278175 18<mclasen18>	ricotz: feel free to merge it
-T 1499278187 18<mclasen18>	I was going to do that but got distracted
-T 1499278238 18<ricotz18>	mclasen, especially the first hunk of https://git.gnome.org/browse/glib/diff/glib/tests/unicode.c?h=wip/ricotz/unicode-10.0&id=7be92c84ddc01c27015fdfb67eacbabfdf224fd8
-T 1499278289 18<mclasen18>	is there anything suspicious about it ?
-T 1499278309 18<ricotz18>	just a confirmation about the values
-T 1499278746 18<ricotz18>	mclasen, I am going to push it
-T 1499278761 18<mclasen18>	first hunk looks fine to me
-T 1499278778 18<mclasen18>	I checked the ucd and the examples are from the right ranges
-T 1499278835 18<ricotz18>	yeah, should always be the first one
-T 1499278859 18<mclasen18>	it isn't for nushu, but thats ok
-T 1499278883 18<mclasen18>	thanks for working on this
-T 1499278923 18<ricotz18>	ah, that would be 16FE1
-T 1499278995 18<bugbot18>	ricotz@t-online.de changed the Status on bug 784456 from NEW --- to RESOLVED FIXED.
-T 1499278995 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784456 general, normal, gtkdev, RESOLVED FIXED, Update to Unicode 10.0.0
-T 1499281263 18<chpe18>	ricotz, looks fine to me too (only checked the manually updated parts)
-T 1499283276 18<bugbot18>	jidanni@jidanni.org changed the Status on bug 784449 from NEW --- to RESOLVED WONTFIX.
-T 1499283276 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784449 Widget: GtkNotebook, enhancement, gtk-bugs, RESOLVED WONTFIX, Add numbers to the <     > on the edge of the screen to show how many tabs lie there hidden
-T 1499285869 18<bugbot18>	ernestask@gnome.org changed the Component on bug 784576 from File and Folder Operations to Widget: GtkEntry.
-T 1499285869 18<bugbot18>	ernestask@gnome.org changed the Product on bug 784576 from nautilus to gtk+.
-T 1499285869 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784576 Widget: GtkEntry, minor, gtk-bugs, NEW , Rename and search field should respect OS key movement shortcuts
-T 1499286336 18<bugbot18>	New glib bug 784579 filed by besticks@gmail.com.
-T 1499286336 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784579 win32, major, gtk-win32-maint, NEW , Calling g_dir_open on Missing Directory When Executable File Path Contains Unicode Hangs
-T 1499288412 18<bugbot18>	New glib bug 784581 filed by bugzilla@hadess.net.
-T 1499288413 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784581 gio, normal, gtkdev, NEW , docs: Fix cut'n'paste error in g_resources_get_info() doc
-T 1499288504 18<dboles18>	working custom widget properties? in MY inspector??
-T 1499290933 18<Celelibi18>	Hey there.
-T 1499291018 18<Celelibi18>	I'm trying to use GTK3 with python, and I'm having some troubles with the TimeVal type (to access all the pixbuf of an GdKPixbufAnimation at once).
-T 1499291075 18<Celelibi18>	GLib.get_current_time() return a float. While the binding for gdk_pixbuf_animation_iter_advance require a GLib.TimeVal instance.
-T 1499291129 18<Celelibi18>	I can probably instanciate and fill the TimeVal by myself, but there may be a better way.
-T 1499291477 18<bugbot18>	bugzilla@hadess.net changed the Status on bug 784581 from NEW --- to RESOLVED FIXED.
-T 1499291477 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784581 gio, normal, gtkdev, RESOLVED FIXED, docs: Fix cut'n'paste error in g_resources_get_info() doc
-T 1499294021 18<ross18>	question: static linking to gtk+3.  totally pointless still?
-T 1499294032 18<ross18>	ie lots of stuff is dynamically loaded at runtime
-T 1499295356 18<dboles18>	Celelibi: use this https://developer.gnome.org/glib/stable/glib-Date-and-Time-Functions.html#g-get-current-time
-T 1499295418 18<Celelibi18>	dboles: The python binding returns a float.
-T 1499295440 18<dboles18>	sounds weird to me
-T 1499295583 18<dboles18>	Celelibi: It is documented as populating a TimeVal given as an output parameter: https://lazka.github.io/pgi-docs/GLib-2.0/functions.html#GLib.get_current_time
-T 1499295605 18<dboles18>	Celelibi: so if you are calling it that way, and it somehow gives you a float, then something seems wrong
-T 1499295632 18<Celelibi18>	Well, type(GLib.get_current_time()) tells me it's a float.
-T 1499295645 18<dboles18>	again
-T 1499295648 18<dboles18>	It is documented as populating a TimeVal given as an output parameter
-T 1499295656 18<dboles18>	it RETURNS void, so you won't get anything useful from that
-T 1499295677 18<dboles18>	create an empty TimeVal, pass that, then check the TimeVal after the call
-T 1499295744 18<ebassi_afk18>	get_current_time() will give you the wall clock
-T 1499295747 18<ebassi_afk18>	It's useless
-T 1499295748 18<Celelibi18>	TypeError: get_current_time() takes 0 positional arguments but 1 was given
-T 1499295754 18<ebassi_afk18>	You want GLib.get_monotonic_time()
-T 1499295791 18<Celelibi18>	ebassi_afk: anything would be fine actually. I just want to enumerate all the Pixbuf from a GdkPixbufAnimation.
-T 1499295793 18<ebassi_afk18>	I think the GLib python bindings do some massaging and turn a GTimeVal into a floating point value of seconds.milliseconds
-T 1499295809 18*	dboles gives up trying to understand which, if any, of the 3rd party docs for PyGI are accurate
-T 1499295835 18<ebassi_afk18>	https://git.gnome.org/browse/pygobject/tree/gi/overrides/GLib.py#n626
-T 1499295839 18<Celelibi18>	It's pretty common that the python binding does things for convenience.
-T 1499295856 18<ebassi_afk18>	The python bindings API reference is generated from the introspection data
-T 1499295874 18<ebassi_afk18>	But the python bindings have overrides to paper over some less-than-pythonic C API
-T 1499295880 18<Celelibi18>	But in this case, it becomes incompatible with the pixbuf animation iterators.
-T 1499295886 18<dboles18>	ah right, yeah
-T 1499295890 18<ebassi_afk18>	And also to perpetuate some *very* bad decisions made at the time of pygtk
-T 1499295914 18<ebassi_afk18>	Celelibi: GTimeVal is not introspectable
-T 1499295942 18<ebassi_afk18>	(Nor should it be, because it's a bad data structure)
-T 1499295944 18<Celelibi18>	YOu mean I won't be able to set tv_sec and tv_?sec ?
-T 1499295990 18<dboles18>	To get the frames of an animation you just get the first, use it, then call advance()
-T 1499296011 18<TingPing18>	ebassi_afk, the lazka tools do actually import the python modules, dunno why some thigns still come out wrong
-T 1499296029 18<Celelibi18>	Well, I can set tv_{,u}sec from a GLib.TimeVal object in python.
-T 1499296050 18<dboles18>	from advance():
-T 1499296051 18<dboles18>	As a shortcut, pass 0.0 (the default) for the current time and the current time will automatically be determined an used. So you only need to explicitly pass current_time if you're doing something odd like playing the animation at double speed.
-T 1499296055 18<Celelibi18>	dboles: I could, but I want them all at once, I don't want to wait for the frames to be shown to get the associated pixbuf.
-T 1499296065 18<Celelibi18>	I want to resize the whole animation ASAP.
-T 1499296111 18<ebassi_afk18>	Mmh, you can create a GLib.TimeVal, and you can probably pass it around; it's a bit naff, but so is GdkPixbufAnimation
-T 1499296115 18<dboles18>	that instinctively seems like a strange api to me, i can understand why it has functionality for iterating to points in time, but not why it lacks functionality for just getting the next frame, time-be-damned
-T 1499296192 18<Celelibi18>	Indeed.
-T 1499296200 18<ebassi_afk18>	Because it's a fairly terrible API that is mostly meant to be consumed by GtkImage, not by people doing things with it :-)
-T 1499296260 18<ebassi_afk18>	Celelibi: Create a new GLib.TimeVal and set the tv_sec to gdk_pixbuf_animation_iter_get_delay_time()
-T 1499296289 18<ebassi_afk18>	And see if you can make that work
-T 1499296315 18<dboles18>	Celelibi: what file format are you loading? there's probably something that can consume it in a more normal way
-T 1499296368 18<Celelibi18>	ebassi_afk: setting tv_sec to a float cast it to an int, but it doesn't set tv_usec to the remaining part.
-T 1499296372 18<Celelibi18>	I'll have to do it myself.
-T 1499296381 18<ebassi_afk18>	Celelibi: Well, of course
-T 1499296412 18<Celelibi18>	dboles: gifs, mostly.
-T 1499296420 18<Celelibi18>	(beside jpegs, of course)
-T 1499296485 18<ebassi_afk18>	Celelibi: You have a value in seconds with a fractional part; you have to turn the integer part into a value in seconds and the fractional part into a value in microseconds
-T 1499296517 18<Celelibi18>	Yeah, it's not hard in absolute, but I'll have to do it myself.
-T 1499296541 18<ebassi_afk18>	Well, yes :-)
-T 1499296558 18<ebassi_afk18>	Unless you added a new API that took milliseconds or microseconds
-T 1499296567 18<ebassi_afk18>	But that wouldn't help you in the meantime
-T 1499297144 18<Celelibi18>	Well, one last thing. How do I know when I iterated over all the images of an animation?
-T 1499297189 18<Celelibi18>	Looks like setting a TimeVal myself works. But it always returns the same pointer.
-T 1499297451 18<Celelibi18>	I'm not sure how to know when I'm done.
-T 1499309434 18<hergertme18>	im generating some CSS right before running a transition, and the invalidations caused by add_provider_for_screen() (or reusing existing provider) seems to cause stutters. any suggestions for updating CSS and reducing damages?
-T 1499309458 18<hergertme18>	i wonder if making a custom style provider that is very specific would be any better
-T 1499320126 20*	Disconnected (20Connection reset by peer)
-T 1499320139 19*	Now talking on 22#gtk+
-T 1499320139 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
-T 1499320139 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
-T 1499324090 18<lazka18>	Celelibi, I've filed https://github.com/pygobject/pgi-docgen/issues/150
-T 1499331419 18<bugbot18>	New glib bug 784607 filed by j.a.harlow@letterboxes.org.
-T 1499331419 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784607 win32, normal, gtk-win32-maint, NEW , conflicting types for if_nametoindex
-T 1499334381 18<medeo18>	Hi there! I know that I can run an application with a specific theme with GTK_THEME=..., is it possible to set also a specific icon theme?
-T 1499334453 18<baedert18>	No
-T 1499334676 18<medeo18>	ok thanks
-T 1499335120 18<dboles18>	medeo: You can change it after starting with the Inspector though
-T 1499335130 18<dboles18>	medeo: or if it's your app, you can make it force a specific theme using GtkSettings
-T 1499335267 18<dboles18>	medeo: you could probably also do terrible hacks by overriding the XDG_ variables to look for various resources in other folders
-T 1499335522 18<dboles18>	GtkComboBox does this to set the CSS node name of its GtkIcon to "arrow": <property name="css-name">arrow</property> Can the equivalent of this be done in code?
-T 1499335557 18<dboles18>	(without having to create a new widget class)
-T 1499335878 18<baedert18>	dboles: inside gtk?
-T 1499335913 18<dboles18>	baedert: in a custom widget, not inside GTK+ itself
-T 1499335969 18<baedert18>	then no
-T 1499336018 18<dboles18>	baedert: what's the internal function that does that?
-T 1499336191 18<dboles18>	hrm, it looks like pressing Alt in a menu doesn't show the mnemonic underlines immediately like I'd expect, rather that gets delayed until the menu is redrawn, e.g. by moving the cursor over it
-T 1499336408 18<baedert18>	dboles: gtk css node set name iirc
-T 1499336417 18<baedert18>	imagine the underlines
-T 1499336507 18<dboles18>	ok, they show immediately if the menu is opened by key press, not click. still feel like there should be a queue_draw if Alt is pressed after opening by mouse though
-T 1499336529 18<dboles18>	also, the underlines never go away when the menu is closed, so once they've appeared once, they're around forever
-T 1499336537 18<dboles18>	that seems to contradict https://git.gnome.org/browse/gtk+/tree/gtk/gtkmenushell.c#n844
-T 1499337063 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 742587 from NEW --- to RESOLVED FIXED.
-T 1499337063 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=742587 docs, enhancement, gtkdev, RESOLVED FIXED, Wanted: GObject cheat sheet
-T 1499337351 18<dboles18>	maybe that's because 'keybard mode' is persistent, just like how once we show a focus outline it seems to be there for good
-T 1499338083 18<bugbot18>	New gtk+ bug 784610 filed by dboles.src@gmail.com.
-T 1499338083 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784610 Widget: GtkMenu, normal, gtk-bugs, NEW , Pressing Alt in a menu (opened by mouse) should reveal mnemonic underlines
-T 1499347226 18<bugbot18>	New gtk+ bug 784611 filed by benjamin@sipsolutions.net.
-T 1499347227 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784611 .General, normal, gtk-bugs, NEW , Event handler called twice if widget has focus and input grab (for unhandled events)
-T 1499351651 18<bugbot18>	New gtk+ bug 784615 filed by sardemff7+gnome@sardemff7.net.
-T 1499351651 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784615 Input Methods, normal, gtk-bugs, NEW , gtkimcontextsimple.c: Fix build on X11-free systems
-T 1499353810 18<ebassi18>	Oh, this is cute
-T 1499353838 18<ebassi18>	geoclue uses `glib-genmarshal --header --body` to generate the prototypes inside the marshaller's C source
-T 1499354019 18<ebassi18>	libgdata, yelp, vino, vte, gupnp, gssdp, libnotify, gupnp-av, and the media-keys module in gnome-settings-daemon
-T 1499354051 18<ebassi18>	These are all the modules in the gnome-apps-3.26 moduleset that do the same
-T 1499354062 18<ebassi18>	Well, I guess I'll have to allow that in the Python rewrite
-T 1499354123 18<ebassi18>	Or I could patch all these modules to either use --header or --body and bump the dependency to GLib 2.53
-T 1499354139 18<ebassi18>	As --body will automatically generate the prototypes
-T 1499354446 18<mertyildiran18>	Hi, my purpose is loading an animation using "gdk_pixbuf_animation_new_from_file". My animation is a sequence of PNG images. I'm currently doing that by converting them to GIF. Do you think there is a better file format to do that?
-T 1499354520 18<mertyildiran18>	I mean with more color support, animated and the file format supported by pixbuf?
-T 1499354962 18<dboles18>	mertyildiran, afaik any format that GdkPixbuf supports and which has multi-frame images will work
-T 1499355054 18<mertyildiran18>	dboles: what are these formats other than GIF?
-T 1499355076 18<dboles18>	i dunno, presumably a search might reveal what other image formats support that
-T 1499355094 18<mertyildiran18>	I don't want to use GIF becasue GIF only supports 256 colors.
-T 1499355119 18<mertyildiran18>	dboles: https://stackoverflow.com/a/40740651/2104879
-T 1499355149 18<mertyildiran18>	dboles: so which one of them is an alternative to GIF?
-T 1499355154 18<dboles18>	i don't know; do the research
-T 1499355171 18<mertyildiran18>	dboles: none of them.
-T 1499355174 18<dboles18>	APNG would be best i think but it doesn't seem to be natively supported, though there is https://github.com/berenm/gdk-pixbuf-loader-apng
-T 1499355326 18<ebassi18>	My suggestion would be to *not* use GdkPixbufAnimation at all, but have all the frames into a GResource and load each frame
-T 1499355340 18<ebassi18>	According to a timing function you decide, and is stored out of band
-T 1499355364 18<ebassi18>	Maybe in a plain text file stored in the same GResource
-T 1499355370 18<mertyildiran18>	ebassi: could you give me an example? a link?
-T 1499355388 18<ebassi18>	https://developer.gnome.org/gio/stable/GResource.html
-T 1499355420 18<ebassi18>	Well, that would actually be a nice way to define a new animated image format, to be honest
-T 1499355439 18<ebassi18>	Except it would be inefficient because it would not save the delta between frames
-T 1499355445 18<dboles18>	the movie is coming from INSIDE the executable
-T 1499355471 18<ebassi18>	But if you want efficient behaviour then you should probably use VP9 and a video playback, instead of PNGs and GdkPixbufAnimation
-T 1499355488 18<mertyildiran18>	ebassi: wouldn't it be a choppy result?
-T 1499355496 18<ebassi18>	mertyildiran: Define "choppy"
-T 1499355506 18<ebassi18>	It wouldn't be interpolated
-T 1499355513 18<ebassi18>	Unless you decide to do interpolation when rendering
-T 1499355530 18<mertyildiran18>	ebassi: I mean laggy under 24 fps
-T 1499355549 18<mertyildiran18>	ebassi: by the way I need to protect transparency.
-T 1499355570 18<ebassi18>	I think you're doing a ton of things wrong, then
-T 1499355578 18<mertyildiran18>	ebassi: I don't think VP9 or a video playback would provide transparency.
-T 1499355598 18<ebassi18>	If you have a bunch of frames you want to render in a sequence, then keep the frames and render them in a sequence
-T 1499355604 18<federico18>	hard to do things wrong when we don't support that easily out of the box
-T 1499355608 18<ebassi18>	Why do you need an animatable file format
-T 1499355628 18<tpm18>	(vp9 is supposed to support alpha channels fwiw)
-T 1499355647 18<ebassi18>	I think this is a case of "this is the API I found, now let's adapt my use case to the API" :-)
-T 1499355672 18<ebassi18>	Sunk cost and all that
-T 1499355691 18<ebassi18>	mertyildiran: Maybe let's back up a bit, and describe what it is that you want to achieve
-T 1499355763 18<mertyildiran18>	ebassi: what I mean opening and closing 24 PNG files in a second and also drawing them at the same time as you said could be inefficient. Could you give me an example program that doing a similar thing.
-T 1499355824 18<ebassi[m]18>	There are no example programs doing that
-T 1499355856 18<ebassi[m]18>	If you have 24 frames you want to display at 24fps then you have a video
-T 1499355857 18<ebassi[m]18>	Use a video
-T 1499355878 18<ebassi[m]18>	Find a codec that maintains the alpha channel
-T 1499355895 18<mertyildiran18>	ebassi[m]: hmm OK.
-T 1499355973 18<federico18>	mertyildiran: where do you intend to display this?
-T 1499355992 18<federico18>	GtkImage supports GdkPixbuf animations, but there is no way to construct a GdkPixbufAnimation out of individual frames
-T 1499356034 18<federico18>	it is *possible* to derive subclasses of GdkPixbufAnimation and GdkPixbufAnimationIter (e.g. it is how gdk-pixbuf/io-gif-animation.c works), and then display those in a GtkImage
-T 1499356093 18<federico18>	mertyildiran: if you really want to use a GdkPixbufAnimation for this (but how do you want to display it?), take a look at https://git.gnome.org/browse/gdk-pixbuf/tree/gdk-pixbuf/io-gif-animation.c
-T 1499356194 18<federico18>	mertyildiran: if you want to display the frames in a video widget, then yeah, probably the "most correct" thing is to create a video out of them.  You can also paint them by hand; gtk has a frame clock so you get the right timings
-T 1499356493 18<bugbot18>	New gtk+ bug 784624 filed by cassidy@elementaryos.org.
-T 1499356493 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784624 Widget: Other, normal, gtk-bugs, NEW , process-stop-symbolic hardcoded as app menu fallback
-T 1499356602 18<mertyildiran18>	federico: I have uploaded a video to show my current state and intend of use -> https://youtu.be/_IoK40d85UQ
-T 1499356653 18<mertyildiran18>	federico: this is the program that providing such a feature -> https://github.com/DragonComputer/Dragonfire/blob/master/dragonfire/realhud/realhud.c
-T 1499356959 18<federico18>	mertyildiran: hmmmmmm
-T 1499356995 18<federico18>	mertyildiran: so, the good news is that in gtk3, GtkWindow actually knows about composited displays and such - you don't need to do the low-level X stuff by hand
-T 1499357018 18<federico18>	mertyildiran: the bad news is still that there's no ready-made way to turn your PNG frames into what you want
-T 1499357738 18<mertyildiran18>	federico: I don't understand what should I do now?
-T 1499357868 18<mertyildiran18>	For example I'm iterating over the frames using "gdk_pixbuf_animation_get_iter" so how can I iterate over the video frames here? Also I'm not sure that will it support transparency.
-T 1499357900 18<mertyildiran18>	federico: could you give me an example project/code as a guide?
-T 1499359268 18<federico18>	mertyildiran: one sec
-T 1499359845 18<federico18>	mertyildiran: I *think* the easiest thing is to start by porting your code to Clutter instead of gtk, and just use clutter_stage_set_use_alpha() on your toplevel stage.
-T 1499359944 18<federico18>	mertyildiran: you can load your individual PNGs with non-animated GdkPixbuf, and display them in your clutter stage with their alpha channel.
-T 1499360614 18<mertyildiran18>	federico: will we be able to provide 24 fps on that case? Also do you consider to send a pull request to our project. I would be so happy to see the names of expert people like you on the contributors section. I'm not sure I will be able to do that. For example Uli Schlachter implemented the animation part.
-T 1499360663 18<Celelibi18>	When I load a gif in a GdkPixbufAnimation, can I get some GIF-specific informations?
-T 1499360667 18<Celelibi18>	Like the number of frames.
-T 1499360755 18<mertyildiran18>	Celelibi: I believe you can count them until gdk_pixbuf_animation_iter_advance() returns FALSE
-T 1499360832 18<Celelibi18>	Does it return false?
-T 1499360843 18<Celelibi18>	I may have missed that.
-T 1499360873 18<mertyildiran18>	Celelibi: https://developer.gnome.org/gdk-pixbuf/stable/gdk-pixbuf-Animations.html#gdk-pixbuf-animation-iter-advance
-T 1499360888 18<Celelibi18>	It's not that.
-T 1499360901 18<Celelibi18>	"Returns TRUE if the image may need updating"
-T 1499360926 18<mertyildiran18>	Celelibi: "If this function returns FALSE, there's no need to update the animation display"
-T 1499360951 18<Celelibi18>	Meaning, if the new current_time is greater than the previous time + the value return by get_delay_time.
-T 1499360970 18<mertyildiran18>	Celelibi: in what case it will return FALSE then?
-T 1499360984 18<Celelibi18>	If you call it too soon.
-T 1499361013 18<mertyildiran18>	Celelibi: hmm.. let me try
-T 1499361016 18<Celelibi18>	And get_pixbuf would return the same pixbuf.
-T 1499361040 18<Celelibi18>	(I mean, the same pixbuf content. In my experience, it's always tyhe same pointer.)
-T 1499361161 18<mertyildiran18>	Celelibi: yeah you right it does not work.
-T 1499361204 18<mertyildiran18>	Celelibi: do you know how we can catch the end of first loop?
-T 1499361218 18<mertyildiran18>	or the end of a no loop GIF
-T 1499361219 18<Celelibi18>	That's exactly what I'm after.
-T 1499361243 18<mertyildiran18>	Celelibi: lol I was also trying to achieve that currently.
-T 1499361244 18<Celelibi18>	I'm trying to resize some gifs to display animated thumbnails.
-T 1499361248 18<mclasen_18>	if your goal is to get at the individual frames, why load an animation in the first place ?
-T 1499361293 18<mertyildiran18>	mclasen_: talking to me?
-T 1499361307 18<Celelibi18>	The only way I found is to resize every single frame and put them in a GdkPixbufSimpleAnim.
-T 1499361325 18<mclasen_18>	just commenting on the topic of animations that is being discussed here
-T 1499361456 18<mertyildiran18>	mclasen_: my animation consists of 240 different PNG images 354 MB in total. But the GIF export using those PNGs is just 14.7 MB. I can not ship 345 MB.
-T 1499361517 18<mertyildiran18>	mclasen_: a video would also be < 50 MB which is reasonable.
-T 1499361538 18<Celelibi18>	Why not use a video?
-T 1499361575 18<Celelibi18>	Are your PNGs very similar?
-T 1499361635 18<mertyildiran18>	Celelibi: I have no idea how to convert them to video with keeping the transparency. Also I have no idea how to display the video in my program. This is my current state -> https://youtu.be/_IoK40d85UQ
-T 1499361690 18<mertyildiran18>	Celelibi: my PNGs are very similar yeah.
-T 1499361758 18<Celelibi18>	Tried zipping them?
-T 1499361848 18<mertyildiran18>	Celelibi: GIF and many video codecs I believe compress the frames by calculating delta. It's absolutely not a good way to load an image from 240 PNG files.
-T 1499361978 18<mertyildiran18>	Celelibi: I'm looking for an alpha channel supported video solution. But before that I want to know that how to catch the end when we use gdk_pixbuf_animation_get_iter()
-T 1499361979 18<Celelibi18>	Video formats have key frames, frames that are fully stored.
-T 1499362022 18<Celelibi18>	So to get any frame, you get the previous key frame and just play the deltas until you get the frame you want.
-T 1499362088 18<Celelibi18>	Just imagine how awfully long it would be to seek into a 2 hours long movie in 4K.
-T 1499362120 18<Celelibi18>	But alpha channel can be a problem. I was thinking about that lately.
-T 1499362182 18<Celelibi18>	Looks like H.264 codec has alpha channel, but it is an optional part of the spec.
-T 1499362376 18<mertyildiran18>	Celelibi: OK what do you suggest?
-T 1499362386 18<Celelibi18>	Nothing.
-T 1499362394 18<mertyildiran18>	lol
-T 1499362497 18<mertyildiran18>	Celelibi: let's return to "how we can catch the end of first loop" question.
-T 1499362510 18<mertyildiran18>	because I need that too :)
-T 1499362635 18<mertyildiran18>	Celelibi: I mean both of us need that :)
-T 1499362662 18<Celelibi18>	I agree.
-T 1499362735 18<mertyildiran18>	Celelibi: what does "TRUE if the frame we're on is partially loaded, or the last frame" mean in https://developer.gnome.org/gdk-pixbuf/stable/gdk-pixbuf-Animations.html#gdk-pixbuf-animation-iter-on-currently-loading-frame ?
-T 1499362749 18<mertyildiran18>	Maybe that's the function we are looking for?
-T 1499363197 18<mertyildiran18>	Celelibi: yep, that solved the problem -> https://github.com/DragonComputer/Dragonfire/commit/ed69bc4eb4541a7fab3ad787c3c2439fdb5c67c0
-T 1499363567 18<Celelibi18>	Hm. Nice.
-T 1499363583 18<Celelibi18>	I overlooked this function because it didn't seem related at all.
-T 1499364175 18<mertyildiran18>	Celelibi: yeah its name is a little bit confusing. :)
-T 1499364261 18<mertyildiran18>	Celelibi: do you know a method to restart the animation with a call whenever you want?
-T 1499365444 18<Celelibi18>	mertyildiran: It's on the GtkImage level that you should do this.
-T 1499365461 18<Celelibi18>	Probably just set the pixbuf again.
-T 1499365889 18<mertyildiran18>	Celelibi: actually it turns out I need to preload the file. That will give me a headache.
-T 1499365902 18<mertyildiran18>	Because it's a Python C extension smh.
-T 1499366147 18<Celelibi18>	Well, I can't work on it right now.
-T 1499366195 18<Celelibi18>	So I can't test.
-T 1499368018 18<mertyildiran18>	Celelibi: consider the code I send you. What can we use as an alternative to exit(1) to stop the animation?
-T 1499368049 18<mertyildiran18>	Celelibi: I mean exit(1) is killing the whole program. But I just want to stop the iteration.
-T 1499368136 18<bugbot18>	dboles.src@gmail.com changed the Status on bug 780327 from NEEDINFO --- to RESOLVED NOTABUG.
-T 1499368136 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=780327 Widget: GtkCalendar, normal, gtk-bugs, RESOLVED NOTABUG, GtkCalendar: Changes to CSS are not applied until the window is redrawn
-T 1499369170 18<mertyildiran18>	How can I close the connections that I opened with g_signal_connect() ?
-T 1499369885 18<dboles18>	well, there is a function called g_signal_handler_disconnect()
-T 1499369901 18<dboles18>	which takes an id that you can get from g_signal_connect()
-T 1499369909 18<dboles18>	or https://stackoverflow.com/questions/8037345/how-to-disconnect-a-signal-of-gtk
-T 1499371529 18<Celelibi18>	mertyildiran: set the pixbuf of the image to the current animation frame.
-T 1499371540 18<Celelibi18>	But you'll have troubles restarting it from that point.
-T 1499372431 18<mertyildiran18>	dboles: OK thank you so much.
-T 1499372455 18<mertyildiran18>	Celelibi: I found a different work around but thanks anyway.
-T 1499372468 18<dboles18>	mertyildiran: no prob
-T 1499372469 18<Celelibi18>	How did you do?
-T 1499372596 18<mertyildiran18>	Celelibi: because it's a Python C extension, I separated the loading process of GIF and playing/runing of GIF. Also I'm able to terminate the play because I'm controlling it from Python.
-T 1499372673 18<Celelibi18>	So you're actually not using the GtkImage widget to play your GIFs?
-T 1499372757 18<mertyildiran18>	Celelibi: that's the code take a look -> https://github.com/DragonComputer/Dragonfire/blob/master/dragonfire/realhud/realhud.c
-T 1499372775 18<mertyildiran18>	Celelibi: I'm drawing the frame using Cairo graphics library if that's what you are asking.
-T 1499372855 18<Celelibi18>	ok
-T 1499372876 18<Celelibi18>	So then you control the whole playing of the gif.
-T 1499372960 18<bugbot18>	New gtk+ bug 784635 filed by benjamin@sipsolutions.net.
-T 1499372960 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784635 Debugging, normal, gtk-bugs, NEW , inspector: cannot open/close containers using the keyboard (+/-) in the widget hierarchy treeview
-T 1499376594 18<mertyildiran18>	Celelibi: yep.
-T 1499376611 18<mertyildiran18>	Celelibi: do you consider to make contributions to our project Dragonfire?
-T 1499376628 18<Celelibi18>	I'm actually not sure what it is.
-T 1499376638 18<mertyildiran18>	Celelibi: I'm not really experienced in Gtk+.
-T 1499376645 18<Celelibi18>	Me neither.
-T 1499376653 18<mertyildiran18>	Celelibi: not sure about the realhud.c
-T 1499376690 18<mertyildiran18>	Celelibi: no problem. I just need to focus to another feature right now.
-T 1499376709 18<mertyildiran18>	Celelibi: maybe you can take the flag about a certain part.
-T 1499376746 18<Celelibi18>	Is it a kind of siri for Linux?
-T 1499376767 18<mertyildiran18>	Celelibi: yep :)
-T 1499376807 18<Celelibi18>	Well, I tend to contribute only to projects I use.
-T 1499376825 18<Celelibi18>	And even then, I don't have enough time to contribute to everything I would like to.
-T 1499376955 18<Celelibi18>	I might help with general knowledge of machine learning (without pretending to be an expert), but I leave bug fixing, UI designs and other engineering tasks to other people.
-T 1499388818 18<mertyildiran18>	How can I get rid off "Gtk-WARNING" messages when using GTK+ C library?
-T 1499389224 18<mertyildiran18>	OK solved with fclose(stdout); fclose(stderr);
-T 1499391814 18<ccgeek[m]18>	Need log info to few sites.. Anyone?
-T 1499397195 18<cassidyjames18>	Hm, we've started playing with GTK 3.22 for elementary OS (getting the stylesheet updated and whatnot), and the inspector feels like it has regressed. :(
-T 1499397237 18<cassidyjames18>	It appears the sidebar has been turned into a combobox, which is more clicks for something used constantly when hacking on a theme or app.
-T 1499397402 18<cassidyjames18>	Ah, I see I can git blame mclasen[m] ;) https://github.com/GNOME/gtk/commit/aa193ce4a4485ab37f703ea44e6342580a3d3eb6
-T 1499401789 18<baedert18>	a little late maybe
-T 1499414162 18<hjdskes18>	How do I get a GtkScale to respect the step_increment on the underlying GtkAdjustment when I drag the scale with the mouse? It does follow the page_increment with PgUp and PgDown...
-T 1499417059 18<hjdskes18>	I guess what I want is something similar to GtkSpinButton's snap-to-ticks property
-T 1499417135 18<baedert18>	I see a GtkScale in the widget factory doing that
-T 1499417281 18<hjdskes18>	baedert: indeed, I'll check it out
-T 1499417542 18<hjdskes18>	adding marks does the trick, thanks!
-T 1499418074 18<dboles18>	hjdskes, you want Scale:digits or Range:round-digits
-T 1499418089 18<dboles18>	depends on whether you draw the value: https://developer.gnome.org/gtk3/stable/GtkScale.html#gtk-scale-set-digits
-T 1499418134 18<dboles18>	hjdskes, marks work in the sense that they drag the slider towards themselves, kind of 'magnetically', but they don't enforce rounded values, and you may not want to see any marks
-T 1499418148 18<hjdskes18>	dboles: I don't want to round digits, I want the slider to snap to multiples of 50
-T 1499418206 18<dboles18>	hjdskes, right yeah, for some reason i assumed you were working with decimal numbers, nvm
-T 1499418217 18<hjdskes18>	dboles: no problem, thanks anyway :)
-T 1499418267 18<dboles18>	hjdskes, to enforce multiples, you could use signal change-value https://developer.gnome.org/gtk3/stable/GtkRange.html#GtkRange-change-value
-T 1499418301 18<dboles18>	or of course, use digits and track whole numbers internally, but multiply up by 50 wherever you use the value later, etc etc - lots of options :D
-T 1499418333 18<hjdskes18>	dboles: the documentation there mentions scroll action -- does it also apply to draggin the scale with the mouse?
-T 1499418357 18<hjdskes18>	dboles: nvm, I see GtkScrollType does have that
-T 1499418362 18<dboles18>	hjdskes, yes afaik that really applies to any type of change
-T 1499418939 18<hjdskes18>	dboles: thanks, this is a more elegant solution for my use case
-T 1499418961 18<dboles18>	hjdskes: cool!
-T 1499419124 18<dboles18>	hjdskes: did you go for using :change-value to enforce multiples of 50, or storing a rounded value internally then multiplying up later?
-T 1499419141 18<hjdskes18>	dboles: the first
-T 1499419187 18<hjdskes18>	dboles: python: scale.set_value(int(value - (value % 50)))
-T 1499419256 18<dboles18>	simple and effective!
-T 1499419264 18<hjdskes18>	exactly :)
-T 1499427368 18<mclasen18>	baedert: why not report baselines in button box ? that strikes me as a widget that could benefit from them
-T 1499427447 18<baedert18>	mclasen: hm?
-T 1499427464 18<mclasen18>	I saw a commit that removed baselines from bbox ?
-T 1499427468 18<baedert18>	I only removed buttonbox reporting a horizontal baseline
-T 1499427490 18<baedert18>	when the orientation passed to measure is horizontal I mean
-T 1499427491 18<mclasen18>	but isn't that what you want when you put a label next to it ?
-T 1499427502 18<mclasen18>	oh, I see
-T 1499427530 18<mclasen18>	wrt to vertical box baselines, I took a look at doing that for centerbox as a warm-up case
-T 1499427534 18<mclasen18>	but it is all sorts of annoying
-T 1499427648 18<baedert18>	I can imagine
-T 1499427759 18<mclasen18>	if the baseline child is the center child, and you're given some external baseline, you need to place the center child where the external baseline dictates, but that messes up the way we do centerin
-T 1499427761 18<mclasen18>	g
-T 1499430090 18<ipun18>	hi, when dealing with a draw signal that was initiated from a queue_draw() on a widget, I am having trouble getting the surface from the cairo_cr that is part of the draw signal. It doesnt seem to be able to grab the current surface, as drawing anything new to that cairo_cr will overrwrite what was there previously. Is this inherient?
-T 1499430594 18<baedert18>	all the focus stuff scatered in GtkWidget and/or GtkContainer is horribly confusing
-T 1499431865 18<baedert18>	mclasen: I had a local change that made ::snapshot return a bool and only draw the focus outline when that is TRUE btw. it kinda still breaks GtkRange where the focus outline is around the torugh but below the slider
-T 1499431880 18<baedert18>	could make both the slider and the trough direct children of the range of course
-T 1499432264 18<mclasen18>	I think it is intentional that it is below the slider >
-T 1499432266 18<mclasen18>	?
-T 1499432290 18<mclasen18>	I kinda like that, anyway
-T 1499432342 18<baedert18>	yes
-T 1499432360 18<baedert18>	but if you draw the focus outline after the trough widget... it's not drawn above the slider because the slider is a child of the trough
-T 1499432401 18<mclasen18>	oh, you're saying that you get the focus rectangle drawn over the slider now ?
-T 1499432428 18<baedert18>	yes
-T 1499434172 18<ebassi18>	https://sourceware.org/ml/libc-alpha/2017-01/msg00452.html — Another nail in the coffin of gslice?
-T 1499434398 18<mclasen18>	sounds like it
-T 1499434705 18<ebassi18>	https://paste.fedoraproject.org/paste/~pDv7x8efKy5mLfmau9Efg/
-T 1499434709 18<ebassi18>	^^^
-T 1499434779 18<ebassi18>	Now, if only glibc subsumed pthread and libm…
-T 1499434856 18<mclasen18>	You have my +1 on that
-T 1499434922 18<ebassi18>	Of course, I need to test with glibc 2.26 :-)
-T 1499434927 18<ebassi18>	I'll stick it into a bug
-T 1499435109 18<bugbot18>	New glib bug 784648 filed by ebassi@gmail.com.
-T 1499435109 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784648 general, normal, gtkdev, NEW , Disable GSlice when building against GNU libc 2.26
-T 1499436038 18<bugbot18>	New gtk+ bug 784650 filed by cfergeau@redhat.com.
-T 1499436039 18<bugbot18>	Trace: poll, send_dg, __libc_res_nsend, __GI___libc_res_nquery, __libc_res_nquerydomain (Possibly not interesting)
-T 1499436039 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784650 Printing, normal, gtk-bugs, NEW , Print dialog freezes for dozens of seconds every 10 seconds or so
-T 1499441598 18<hermoinil18>	Hi. Could any one help me regarding sending a 2 dimensional array of strings over dbus?
-T 1499441620 18<hermoinil18>	specifically, I'm trying to send "a(ia(s))"
-T 1499441677 18<hermoinil18>	The program crashes with the following error : g_variant_builder_end: assertion 'ensure_valid_builder (builder)' failed
-T 1499441755 20*	Disconnected (20Remote host closed socket)
-T 1499700005 20*	Disconnected (20Connection timed out)
-T 1499701832 20*	Disconnected (20Connection timed out)
+T 1502571580 18<Company18>	are there any APIs apart from GScanner I could use?
+T 1502571834 18<TingPing18>	don't believe so
+T 1502572279 18<Company18>	I don't like bison and flex because I don't understand what they do and they generate C code that looks like it's older than Xfree
+T 1502573623 18<freemangordon18>	anyone who can help:
+T 1502573626 18<freemangordon18>	(18,43,17) freemangordon: Hi there, I Think I found a bug in a piece of SW I am dealing with, but I need confirmation from a more knowledgeable one, as glib is not what I am best in. the code in question is: https://pastebin.com/kD5urRzy. both signals have signatures (V:S:S for "decode" and V:S for "error-decode") that differ to the marshallers passed to g_signal_new. Is that ok?
+T 1502573641 18<freemangordon18>	if this is not the right channel, please point me to the correct one
+T 1502574118 18<hergertme18>	freemangordon, the marshaler is wrong for both
+T 1502574141 18<hergertme18>	freemangordon, the first one will expect 3 string params where there is only 2
+T 1502574150 18<hergertme18>	and the second will expect 3 string params where there are only 1
+T 1502574172 18<hergertme18>	the easiest fix is to just replace those marshalers with NULL, and let the default libffi based marshaler generate the right thing
+T 1502574228 18<hergertme18>	you may also want to use G_TYPE_STRING|G_SIGNAL_TYPE_STATIC_SCOPE if the strings cannot be mutated by the callees for a bit of a speed boost (avoiding a strdup())
+T 1502574409 18<freemangordon18>	hergertme: thanks, I just wanted a confirmation that in both cases marshallers are wrong, and my understanding that nsv_marshal_VOID__STRING_STRING for the first signal and g_cclosure_marshal_VOID__STRING for the second are the corect ones.
+T 1502574480 18<freemangordon18>	those are correct right?
+T 1502574554 18<hergertme18>	i would expect so
+T 1502574568 18<freemangordon18>	ok, thanks a lot
+T 1502574630 18<hergertme18>	np
+T 1502576069 18<gnunn18>	I'm trying to use a SizeGroup to keep two Paned on sync, when the window is first shown the sizes match however resizing one Paned doesn't resize the other. Should it?
+T 1502576467 18<hergertme18>	gnunn, sizegroup should only keep their size-requests in sync, not the actual size-allocation
+T 1502576493 18<hergertme18>	(it will be based on the position child-property likely)
+T 1502576519 18<gnunn18>	hergertme: OK, so I guess I have to do it manually?
+T 1502576531 18<hergertme18>	in DzlMultiPaned, i made it so that it uses natural-sizes/expand/etc until the paned has been moved by the user, at which point it uses that drag position
+T 1502576550 18<hergertme18>	you can try, but im pretty sure it's going to be glitchy ...
+T 1502576626 18<hergertme18>	(it's also going to be re-entrant so you'll have to be careful, because changing position will queue another resize)
+T 1502576627 18<gnunn18>	I'm essentially trying to replicate what gedit does with the sidebar. They use a SizeGroup but I guess they must be doing something else as well, I'll look at the code
+T 1502576685 18<hergertme18>	oh i think i see what you mean now
+T 1502576695 18<hergertme18>	yeah moving the paned handle won't cause the window to grow
+T 1502577051 18<gnunn18>	OK thanks, I'll dig some more
+T 1502578367 18<gnunn18>	OK figured it out, gedit is binding the position property of the two Paned widgets
+T 1502578865 18<mclasen18>	baedert: my emoji rendering issue turned out to be unrelated to rendering 
+T 1502610393 18<baedert18>	mclasen: Now that I can look at the emoji chooser, what idles were you talking about?
+T 1502614603 18<cfoch18>	hi
+T 1502614683 18<cfoch18>	di yiu have an example about how to register an interface without using the C macros?
+T 1502618801 18<heftig18>	ebassi: https://bugzilla.gnome.org/show_bug.cgi?id=786232
+T 1502618891 18<ebassi18>	heftig: I don't even have that library installed on my fedora :-/
+T 1502618903 18<ebassi18>	heftig: I'm not wholly positive that we should expose the xlib_* API
+T 1502618922 18<heftig18>	yeah, i didn't notice anything either until someone complained icewm and xscreensaver are broken
+T 1502618934 18<heftig18>	ebassi: icewm uses it
+T 1502618943 18<heftig18>	it's also documented.
+T 1502618972 18<ebassi18>	heftig: Yeah, it's a public header; the namespace violation is utterly gross
+T 1502619000 18<ebassi18>	heftig: We could modify the meson.build and add a map file, but using _GDK_PIXBUF_EXTERN works just as well
+T 1502619033 18<baedert18>	Company: Have you thought about how to fix queue_resize inside size-allocate properly?
+T 1502619126 18<heftig18>	ebassi: if you review/commit please also look at https://bugzilla.gnome.org/show_bug.cgi?id=785964
+T 1502619369 18<ebassi18>	heftig: Done; thanks!
+T 1502619483 18<heftig18>	thanks
+T 1502619561 18<heftig18>	ebassi: ftr i don't have push rights, so i can't "add a comment before pushing to master"
+T 1502619582 18<ebassi18>	Okay, I'll do that then
+T 1502619608 18<ebassi18>	But consider this as a gentle nudge into getting the push bit on gnome.org ;-)
+T 1502619953 18<Company18>	baedert: i think there is no "proper" fix
+T 1502620083 18<Company18>	baedert: in theory nobody should be calling any APIs that queue_resize()
+T 1502620238 18<nacho18>	LRN, hey
+T 1502620240 18<nacho18>	LRN, anything to review?
+T 1502620250 18<LRN18>	not yet
+T 1502620258 18<LRN18>	i'm working on a patch for OLE2 DND
+T 1502620271 18<nacho18>	ok
+T 1502620396 18<nacho18>	pwithnall, hey, around?
+T 1502620409 18<baedert18>	Company: So I've had this patch that kept a per-GtkWindow list of "widget marked to be resized" around and gtk_widget_queue_resize/allocate just added to the resize/allocate list; then in the idle sizer it called the old gtk_widget_queue_resize/allocate on all those widgets, then cleared the lists.
+T 1502620426 18<baedert18>	Company: Yes but it's being done *everywhere*, including inside gtk+.
+T 1502620428 18<ebassi18>	nacho: Yo; I assume you noticed that gdk-pixbuf has now been meson-ified
+T 1502620433 18<ebassi18>	nacho: Testing is very much welcome
+T 1502620449 18<nacho18>	ebassi, I saw you wrote a post about it, that is great news
+T 1502620479 18<nacho18>	ebassi, I'll try to port gvsbuild to it
+T 1502620486 18<ebassi18>	Cool, thanks!
+T 1502620546 18<nacho18>	ebassi, so you added a with_gir option?
+T 1502620556 18<EmmanueleBassi18>	Yes
+T 1502620563 18<nacho18>	is that the new standard name to disable introspection?
+T 1502620576 18<nacho18>	I thought other modules used with_introspection or so
+T 1502620582 18<EmmanueleBassi18>	We don't have a standard; still waiting for Meson to allow defining options from modules
+T 1502620599 18<EmmanueleBassi18>	But, next cycle, we're going to try and have some common behaviour among projects using Meson
+T 1502620622 18<EmmanueleBassi18>	And I still hope to have gobject-introspection using Meson as well, so you don't have to disable it everywhere ;-)
+T 1502620638 18<nacho18>	EmmanueleBassi, let me know to change libgxps
+T 1502620652 18<nacho18>	EmmanueleBassi, btw I am having this strange issue with libgxps and meson
+T 1502620662 18<nacho18>	ninja: error: remove(test): Directory not empty
+T 1502620691 18<nacho18>	https://git.gnome.org/browse/libgxps/tree/test/meson.build <- do I need to specify anything to remove the directory?
+T 1502620699 18<EmmanueleBassi18>	Leaving behind generated files?
+T 1502620736 18<nacho18>	on the test dir I see a directory called test-gxps@exe
+T 1502620743 18<nacho18>	but that dir is empty...
+T 1502620755 18<nacho18>	this is when running ninja clean btw
+T 1502620773 18<nacho18>	pwithnall reported that this is a problem for the continues integration he has
+T 1502620781 18<ebassi18>	nacho: That meson.build file looks simple enough; may be worth asking on #mesonbuild
+T 1502620789 18<nacho18>	ok
+T 1502620792 18<nacho18>	thanks
+T 1502622018 18<ernestask18>	I think that’s a known issue
+T 1502622687 18<mclasen18>	baedert: I removed one of the idles. the one thats still in place you can see if you search in the emoji chooser for e.g. xxx - all emoji disappear, only the section heading are left
+T 1502622698 18<mclasen18>	and then, if you wait long enough, the idle kicks in and hides the headings
+T 1502622952 18<alex28518>	😆😊🦊😍😎😃 let me say a hell to matthias :mclasen 
+T 1502623020 18<baedert18>	mclasen: I see just the heading and then the placeholder, but "just the headings" is maybe there for .5s
+T 1502623033 18<mclasen18>	hmm, let me time it here
+T 1502623056 18<mclasen18>	and this is on page 1 of widget factory?
+T 1502623084 18<baedert18>	yes
+T 1502623111 18<alex28518>	mclasen: sorry foe the emoji spam, i just recorded the GTK emoji widget :)
+T 1502623117 18<alex28518>	mclasen: which is so super cool!
+T 1502623136 18<alex28518>	mclasen: apart that i cant make color emojis :/
+T 1502623177 18<alex28518>	mclasen: and btw i mean "hello" not "hell" sooryy!
+T 1502623191 18<baedert18>	mclasen: is it only starting to search at the second character btw?
+T 1502623208 18<mclasen18>	ctrl-shift-u has always been available, but not many people know the emoji codepoints by heart
+T 1502623265 18<alex28518>	mclasen: i know, but im talking about the widget!
+T 1502623273 18<alex28518>	mclasen: it is the best thing ever!
+T 1502623283 18<mclasen18>	baedert: looks like I do. not sure why, actually. we can just start right away
+T 1502623285 18<alex28518>	mclasen: btw colored emojis are supposed to work on GTK 3.22 right?
+T 1502623309 18<mclasen18>	alex285: I'm glad you like it. and yes, this is in 3.22 as well
+T 1502623341 18<baedert18>	Of course, most of the time when search is spent... snapshot'ing the treeview
+T 1502623400 18<alex28518>	mclasen: Colored Emojis work on Flatpak Polari, but when i tried on GTK Widget Factory with JHBuild i get non-colored, even if i have a correct fontconfig and Noto installed 
+T 1502623452 18<mclasen18>	you need unreleased cairo as well
+T 1502623472 18<alex28518>	mclasen: oh, i see! thank you!
+T 1502623504 18<alex28518>	mclasen: a last question! can such thing work in desktop level? with a Shell popup for example, so we can use an emoji widget on Chrome?
+T 1502623505 18<mclasen18>	ebassi: do we have any reasons to keep autotools around longer in gtk master ? 
+T 1502623562 18<baedert18>	I will be demotivated even more because the meson build takes ages linking
+T 1502623579 18<nirbheek18>	baedert, it takes longer than autotools?
+T 1502623584 18<mclasen18>	alex285: the chooser that I put in gtk will only work in applications
+T 1502623623 18<baedert18>	nirbheek: I only build in gtk/ using autotools
+T 1502623629 18<alex28518>	mclasen: i know, im just asking if it is possible to have something like Win10 emoji dialog that works everywhere
+T 1502623657 18<nirbheek18>	baedert, I know a way to fix that, and I've been thinking about adding it as a feature to meson
+T 1502623668 18<mclasen18>	if win10 does it, it is obviously possible...
+T 1502623671 18<nirbheek18>	i.e., the ability to (re)build only a specific subdirectory
+T 1502623687 18<nirbheek18>	baedert, if you bribe me, I could write a script for you that does the same thing :p
+T 1502623715 18<baedert18>	nirbheek: How is that not against the whole non-srcdir build idea?
+T 1502623719 18<alex28518>	mclasen:  🤣  and thanks for the cairo info!
+T 1502623742 18<nirbheek18>	baedert, because the idea is to correlate which targets are inside a specific source subdir and build those in the builddir
+T 1502623767 18<nirbheek18>	baedert, which is effectively what recursive make in a subdir does
+T 1502623912 18<nirbheek18>	Except that ninja is more accurate because it will rebuild specific targets concerning other source subdirs if needed, because you can easily have cross-dir dependencies
+T 1502623923 18<baedert18>	mclasen: Why is update_headings called in an idle?
+T 1502623965 18<mclasen18>	not sure we have a way to know when the flowbox filtering is up-to-date ?
+T 1502624026 18<baedert18>	hmm?
+T 1502624029 18<mclasen18>	I guess i could just rely on it being all sync right now
+T 1502624065 18<baedert18>	it looks like it's just being done at the next frame here
+T 1502624102 18<mclasen18>	I could imagine a future in which the filtering is done incrementally and async
+T 1502624128 18<mclasen18>	so we can take out the idle, but... why is the idle not working in the first place ?
+T 1502624186 18<baedert18>	it works here
+T 1502624210 18<baedert18>	Not an X/wayland difference, is it?
+T 1502624230 18<mclasen18>	I am currently testing with GDK_BACKEND=x11 to get a working popover
+T 1502624279 18<baedert18>	Heh, right
+T 1502624299 18<mclasen18>	if I look through all the flickering, wayland seems to behave the same here
+T 1502624368 18<mclasen18>	I do get the update to show up the moment I focus another window
+T 1502624616 18<baedert18>	Sounds more like a redraw/resize issue then
+T 1502624619 18<mclasen18>	which makes it sound more like a redraw problem, but adding printf shows that the idle really doesn't run until then
+T 1502624675 18<mclasen18>	i think I need dunfell
+T 1502624764 18<baedert18>	The GVariant on line 515 is leaked
+T 1502624815 18<mclasen18>	I've been writing too much g_auto code lately...
+T 1502625970 18<cfoch18>	how do I list the name of all registered types?
+T 1502626040 18<fuser18>	What are the different ways of rendering text with gtk? One way is using pango with gtk_render_layout, what else?
+T 1502626069 18<baedert18>	Why do you want another one?
+T 1502626359 18<fuser18>	No reason. I just suspected there were more ways and wanted to learn them.
+T 1502626746 18<fuser18>	baedert: Okay it seems there's a 'toy' cairo API if I want to use that.
+T 1502626752 18<fuser18>	text API
+T 1502627344 18<cfoch18>	all registered GType*
+T 1502627476 18<baedert18>	cfoch: https://git.gnome.org/browse/gtk+/tree/gtk/inspector/statistics.c#n129 ?
+T 1502627545 18<EmmanueleBassi18>	fuser: Don't use the toy Cairo API
+T 1502627553 18<EmmanueleBassi18>	fuser: Always use Pango
+T 1502627563 18<EmmanueleBassi18>	There's nothing to learn, there
+T 1502627604 18<EmmanueleBassi18>	fuser: If you're rendering text for GTK+, `gtk_render_layout()` is all you need to use. If you're rendering text with Cairo, use PangoCairo
+T 1502627672 18<fuser18>	EmmanueleBassi: What if I just need to render a line of text, nothing to do with paragraphs? The documentation on pango layouts says: "The objects and functions in this section provide a high-level driver for formatting entire paragraphs of text at once."
+T 1502627703 18<mclasen18>	a line of text is just a short paragraph
+T 1502627749 18<cfoch18>	why "type += (1 << G_TYPE_FUNDAMENTAL_SHIFT)"?
+T 1502627794 18<EmmanueleBassi18>	cfoch: Because all the bits before the shift are reserved
+T 1502627794 18<fuser18>	okay thanks both
+T 1502627828 18<EmmanueleBassi18>	cfoch: For fundamental types that GLib itself registers
+T 1502629092 18<mclasen18>	baedert: one finding so far is that we are occasionally leaking timeouts in https://git.gnome.org/browse/gtk+/tree/gtk/gtkscrolledwindow.c#n3750
+T 1502637815 18<jpwhiting18>	hi all, when using css in a gtk+ application on widgets etc. is there a way to get the current theme's background color and foreground color?
+T 1502637830 18<jpwhiting18>	maybe with @something ? I can't see anything about that in https://developer.gnome.org/gtk3/stable/chap-css-properties.html
+T 1502637976 18<baedert18>	foreground color yes, background color no
+T 1502638104 18<jpwhiting18>	baedert: window color? anyway, how do I get it
+T 1502638123 18<jpwhiting18>	or do I need to query the current theme and get the color's hex code?
+T 1502638189 18<tpm18>	baedert, might   ninja gtk/libgtk-4.0.so  do the trick?
+T 1502638191 18<jpwhiting18>	I wos hoping there was something like @warning_color etc.
+T 1502638203 18<jpwhiting18>	@warning_color, @success_color @foreground_color ?
+T 1502638904 18<EmmanueleBassi18>	jpwhiting: That's not how it works
+T 1502638922 18<baedert18>	jpwhiting: What's a window color?
+T 1502638932 18<EmmanueleBassi18>	jpwhiting: If you want to render something using the theme colors, use the `gtk_render_*` functions
+T 1502638933 18<baedert18>	you can get the current foreground color from a GtkStyleContext
+T 1502639146 18<baedert18>	ebassi: I do still get warnings because of missing previous prototypes for the marshallers here when building with meson btw
+T 1502639267 18<EmmanueleBassi18>	baedert: Meson in Git checks if GLib is ≥ 2.53.4 and automatically includes the marshaller header when generating files using `gnome.genmarshal()`
+T 1502639315 18<EmmanueleBassi18>	baedert: So the warnings should disappear with the next Meson release
+T 1502639437 18<EmmanueleBassi18>	https://github.com/mesonbuild/meson/commit/9683082c4cb4232610e088faaafe0f392484583b
+T 1502639444 18<EmmanueleBassi18>	https://github.com/mesonbuild/meson/commit/de45352d9d3736da78e47896d4fa5eeb76f561f1
+T 1502639567 18<baedert18>	tpm: touch gtkwidget.c && time ninja gtk/libgtk-4.0.so.0.9102.0 gives me ~30s
+T 1502639655 18<EmmanueleBassi18>	We should crowdfund a decent SSD for baedert
+T 1502639723 18<nirbheek18>	Or, baedert could use /tmp/gtk as his builddir ;)
+T 1502639728 18<nirbheek18>	Building in tmpfs is the best
+T 1502639737 18<EmmanueleBassi18>	Well, yes :-)
+T 1502639767 18<nirbheek18>	30 seconds is reaaalllyyy slow for linking; gtk+ isn't that big, surely?
+T 1502639819 18<baedert18>	It's huge and there are the other static libs...
+T 1502639864 18<jpwhiting18>	EmmanueleBassi: I don't want to render something using the current theme, I want to use the current theme colors in reverse to highlight words in a GtkTextView
+T 1502639894 18<jpwhiting18>	so I set a tag and set the background and foreground properties to black and white, now I need to make it use the opposite of the current theme colors instead (so when dark is chosen you can see the highlighting...)
+T 1502639925 18<jpwhiting18>	so I just need to get these colors from a GtkStyleContext and put them in my GtkTextView tag ?
+T 1502640088 18<EmmanueleBassi18>	baedert: `touch gtk/gtkwidget.c && ninja gtk/libgtk.so.blah.blah` is literally less than 1 second on my machine
+T 1502640121 18<EmmanueleBassi18>	0.75s of user time
+T 1502640171 18<baedert18>	let's talk in 10 minutes since I just needed to edit a meson.build file
+T 1502640371 18<tpm18>	baedert, ouch!
+T 1502640493 18<nirbheek18>	baedert, that really sucks
+T 1502643533 18<ricotz18>	baedert, EmmanueleBassi, hi :), https://paste.debian.net/plain/981205
+T 1502643578 18<dboles18>	ricotz: mclasen said about that "I don't have broadway enabled here, so there will be followup fixes to do there (as well as in win32 and quartz)"
+T 1502643632 18<ricotz18>	dboles, I see, although he touched this part already
+T 1502646774 18<fuser18>	What could cause my app to hang for maybe 10 seconds and then report "Failed to register: Timeout was reached"?
+T 1502646830 18<fuser18>	My app is TINY, I just started to develop it (just a single widget). But there's some big gtk turd somewhere. It was acting like this for a long time, I had inserted printf statements everywhere, then I closed down some old processes and all of the second now it works.
+T 1502646864 18*	baedert knows EVERYTHING
+T 1502646887 18<baedert18>	https://git.gnome.org/browse/gtk+/tree/gtk/gtkapplication-dbus.c#n325
+T 1502646889 18<baedert18>	This block.
+T 1502647043 18<fuser18>	Look, I hate being mean, but there's something fucked up if a '1' line app is being blocked from running by some dbus logic. I don't know what to make of your link
+T 1502647109 18<fuser18>	so im going to guess that dbus is badly designed, or something..
+T 1502647144 18<baedert18>	No
+T 1502647282 18<fuser18>	Then what? I was lead astray when trying to debug my app because there was hidden state somewhere in a file that I don't understand.
+T 1502647291 18<fuser18>	orrr not file but you know what i mean
+T 1502647339 18<baedert18>	Just GtkApplication doing it wrong
+T 1502647362 18<fuser18>	Since forever or is this something new?
+T 1502647426 18<baedert18>	looks like it's been there for a year
+T 1502647451 18<fuser18>	baedert: you linked wrong. You meant line 235 :)
+T 1502647480 18<fuser18>	i think
+T 1502647521 18<fuser18>	wait, no 
+T 1502647632 18<jmd18>	Cairo behaves absolutely bizzare, if one specifies a NAN coordinate.
+T 1502647670 18<TingPing18>	maybe don't do that
+T 1502647687 18<jmd18>	I try not to.
+T 1502647788 18<jmd18>	... it wouldn't be too bad if it immediately aborted or crashed, rather than carrying on and doing something bizarre a few hundred operations later.
+T 1502648772 18<estebon18>	Hi, I got a problem with a textview. It is inside a listboxrow. The listbox is in a scrolledwindow. The thing is, whenever the scrolledwindow grows, the textview grows and the text is rearranged accordingly in less lines
+T 1502648804 18<estebon18>	however, when the scrolled window shrinks, the textview stays the same size
+T 1502648822 18<estebon18>	so I have to scroll horizontally to see the whole textview
+T 1502648846 18<nirbheek18>	EmmanueleBassi, do you mind if I push a minor meson fix to glib that I need to build it on master? The pthread check *always* needs _GNU_SOURCE or pthread_setname_np isn't defined and gcc assumes the prototype is int pthread_setname_np(int)
+T 1502648857 18<nirbheek18>	Which isn't an error because we don't use -Wall -Werror for compiler checks
+T 1502648872 18<nirbheek18>	(because compiler checks often use really hacky code on purpose)
+T 1502651161 18<dboles18>	wtf, just adding G_BINDING_SYNC_CREATE to the bindings in testpopover, so that the widgets have the right initial values, causes the menubuttons to vexpand and the checkbuttons/comboboxes to become insensitive
+T 1502651281 18*	dboles sees what i did there
+T 1502651363 18<dboles18>	nope, still broken. bah
+T 1502651919 18<estebon18>	this textview refuses to take up less space when its window shrinks
+T 1502651976 18<dboles18>	do you mean that once it's grown, it won't shrink? or you just can't shrink it below some minimum that it enforces?
+T 1502652020 18<estebon18>	once it's grown it won't shrink back
+T 1502652085 18<estebon18>	when it grows, because of the wrap mode, the text occupies less lines and more width, but then just keeps that width
+T 1502652133 18<dboles18>	Is it increasing its size-request maybe? You could check with the inspector. Then if you want to cancel that, set a request of (-1, -1)
+T 1502655115 18<jmd18>	Is there any way to force a widget to redraw?
+T 1502655481 18<hergertme18>	jmd, gtk_widget_queue_draw()
+T 1502655585 18<jmd18>	No.  That merely requests a redraw at some indeterminate future time.
+T 1502655620 18<hergertme18>	(at the next frame cycle)
+T 1502655626 18<hergertme18>	so when the frame clock wakes up
+T 1502655662 18<jmd18>	So how do I wake it up?
+T 1502655670 18<hergertme18>	you can't force a draw to the backing buffers that go to the compositor
+T 1502655677 18<hergertme18>	the compositor wakes up the frame clock
+T 1502655694 18<jmd18>	I've no idea what the "compositor" is.
+T 1502655695 18<hergertme18>	in wayland, that happens via a wl_callback, on Xorg, if the compositor supports it, that happens based on Xproperty notifications
+T 1502655714 18<jmd18>	I'm on Xorg
+T 1502655728 18<hergertme18>	if none of those support it, it falls back to simple poll() timers based on what we guessed the framerate of the display to be
+T 1502655758 18<hergertme18>	but since you can't actually push the back buffers to the GPU except when the compositor does a vblank...
+T 1502655780 18<hergertme18>	obviously you can, if you want tearing, but you get the idea
+T 1502655798 18<hergertme18>	the client application is not in control of that, generally speaking, the compositor is
+T 1502655808 18<jmd18>	The issue is, that running under Xvfb draw events seem never to happen :(
+T 1502655828 18<hergertme18>	that sounds to me like there might be a problem with damage events then
+T 1502655841 18<jmd18>	Not even when I send the server xrefresh.
+T 1502655873 18<hergertme18>	i would try on a plain 'ol Xorg server without a compositor and see if you get the same issue
+T 1502655887 18<hergertme18>	if not, then that sounds like possibly a bug in Xvfb damage code
+T 1502655917 18<hergertme18>	also, everything i stated above is relative to gtk3, so if you happen to be gtk2 for some reason, everything is different :)
+T 1502655931 18<jmd18>	I don't know what you mean by an "Xorg server without a compositor".
+T 1502655942 18<jmd18>	Every other server I've tried works.
+T 1502655952 18<jmd18>	Including Xephyr
+T 1502655999 18<hergertme18>	i would suggest reading up on how modern window managers are designed then
+T 1502656005 18<hergertme18>	non-composited vs composited 
+T 1502656011 18<TingPing18>	jmd, what desktop are you testing this with?
+T 1502656023 18<jmd18>	What does it have to do with the window manager?
+T 1502656047 18<hergertme18>	you'll find out! :)
+T 1502656074 18<jmd18>	The set up is quite simple: A Gtk3 app with a single window and a drawing area. And a Xorg server.
+T 1502656090 18<hergertme18>	so no window manager?
+T 1502656097 18<jmd18>	The window manager (assuming there is one) doesn't play a role.
+T 1502656112 18*	hergertme facepalm
+T 1502656153 18<jmd18>	hergertme: So yeah:  No window manager.
+T 1502656174 18<hergertme18>	https://specifications.freedesktop.org/wm-spec/1.3/index.html <-- some portion of this may be required for a working system
+T 1502656268 18<jmd18>	Window managers are simply sugar on the top of the cake.  They should never be required for basic functionality.
+T 1502656289 18<hergertme18>	i know it feels like that should be true, but it hasn't been for 15 years
+T 1502656318 18<jmd18>	Well I certainly know that 15 months ago it worked.
+T 1502656337 18<hergertme18>	some things can work completely by accident
+T 1502656374 18<jmd18>	So Xfvb is useless then?
+T 1502656438 18<hergertme18>	trying to use gtk (or qt or any other toolkit on linux) without a window manager is a recipe for pain. sure, some stuff can be made to work, but to do that, you end up implementing a large portion of a window manager in the toolkit, which means its not configurable to the problems that people have when wanting to run a system that appears to not have a window manager (ie: kiosk)
+T 1502656528 18<hergertme18>	this is going to be further fun now that we are implementing portions of a window manager on the client for wayland ... but it's not exactly a fantastic overlap of feature set yet
+T 1502656611 18<jmd18>	I can understand that certain features would not be available.  But I would expect that a widget could draw itself.
+T 1502656620 18<hergertme18>	personally, i would too
+T 1502656664 18<hergertme18>	there is quite possibly a bug in one of those layers, but its sort of going to be a bug hunt you're unlikely to find help tracking down. but if you happen to, im sure it will get fixed.
+T 1502656743 18<jmd18>	Oh well, I guess we'll have to tell the customer they can't have it.  
+T 1502656751 18<jmd18>	Thanks for the chat, anyway.
+T 1502658373 18<estebon18>	this growing textview is not changing its size_request, it just grows, and doesn't shrink
+T 1502661937 18<jpwhiting18>	baedert: ok, so if I have a GtkStyleContext from a widget I use gtk_style_context_lookup_color to get the rgb value of the foreground and background colors?
+T 1502661960 18<jpwhiting18>	is there a list somewhere of what possible names I can use to lookup? foreground, or is it foreground_color or something ?
+T 1502667236 18<fuser18>	Does the init function of a custom widget call g_object_new?
+T 1502667251 18<fuser18>	or how do I initialize the base class
+T 1502667912 18<fuser18>	nvm
+T 1502671177 18<mezen18>	jpwhiting, https://developer.gnome.org/gtk3/stable/GtkStyleContext.html#GTK-STYLE-PROPERTY-BACKGROUND-COLOR:CAPS
+T 1502681528 18<benwaffle18>	Will these scroll effects be possible in GTK4? http://lab.hakim.se/scroll-effects/
+T 1502683292 18<TingPing18>	benwaffle, of you are dedicated enough im sure they are today
+T 1502686627 18<LRN18>	hey, i have a problem
+T 1502686965 18<LRN18>	h-m-m...maybe i should investigate more
+T 1502687161 18<LRN18>	a-ha
+T 1502687195 18<LRN18>	so, there's a DnD going on, and it creates a popup window that moves along with the mouse cursor, that's how it usually goes with DnD
+T 1502687247 18<LRN18>	problem is, that window is, technically, a toplevel, and thus it gets registered as a DnD target, like all other toplevels are (whether this is a good idea by itself is another question for another time)
+T 1502687311 18<LRN18>	so the mouse pointer moves over a widget, DnD enter is emitted, the popup is moved in sync, and now, due to popup being very square, mouse is *over* the popup, and since popup is also a drop target, the DnD switches to *it*
+T 1502687345 18<LRN18>	so this screws up all DnD where drag widget is highly-rectangular
+T 1502687382 18<LRN18>	How is this handled on X?
+T 1502687405 18<baedert18>	cool
+T 1502690347 18<LRN18>	baedert, it is handed on X coolly?
+T 1502690351 18<LRN18>	what does that even mean?
+T 1502696607 18<baedert18>	mclasen: Looking at the workaround for entries in GtkPopover, maybe it would be better to not select text when focusing entries and selectable labels altogether? I only ever hear people complain about that behavior
+T 1502698781 18<dboles18>	Could the gtk_widget_get_*_allocation() methods be added to GTK+ 3? I think get_border_allocation() is needed for https://bugzilla.gnome.org/show_bug.cgi?id=786209
+T 1502706988 18<baedert18>	Since 3.20 depends on glib 2.45.8 afaics, I can rely on 2.46 if my app depends on gtk+ 3.20 anyway, right?
+T 1502707035 18<ebassi18>	baedert: Yes
+T 1502707063 18<ebassi18>	It's highly unlikely that somebody installed a developers snapshot system-wide
+T 1502707134 18<baedert18>	ok thanks
+T 1502707545 18<baedert18>	ebassi: Are the warnings about gsettings-compile-{demos,examples}/foo an upstream meson issue? It doesn't seem to come from the gtk+ meson files
+T 1502707563 18<EmmanueleBassi18>	I keep forgetting to file it
+T 1502707570 18<EmmanueleBassi18>	Yes, we don't do anything special
+T 1502707579 18<EmmanueleBassi18>	So I think it's a Meson/gnome module issue
+T 1502708461 18<baedert18>	ebassi: I guess https://paste.xinu.at/zsk0a/ should be fine
+T 1502708486 18<ebassi18>	baedert: Yes
+T 1502709056 18<dboles18>	baedert, is there any way to get the 'outer' allocation in GTK+ 3, without having to add new functions to gtkwidget.c?
+T 1502709161 18<baedert18>	dboles: gtkwindow.c already has some shadow size fuckery in it
+T 1502709304 18<dboles18>	maybe, but gtk_popover_update_position() doesn't seem to take that into account (or have any way to, that I can see)
+T 1502709471 18<dboles18>	so in cases with large shadows and popovers near the edge of the window, the popover positions itself within the full allocation including shadows, so it can end up over the shadow, where no input is received
+T 1502711189 18<DMJC-L18>	trying to create a popup menu and GRAVITY_SOUTH is being ignored.
+T 1502711200 18<DMJC-L18>	popup keeps appearing off screen
+T 1502711322 18<DMJC-L18>	Gravity North is working correctly. It's weird
+T 1502711689 18<mclasen18>	ebassi: hey, I looked at that kde decoration protocol patch before last weeks release, but it wouldn't apply cleanly, so I skipped it
+T 1502711910 18<dboles18>	DMJC-L: do you mean it appears off screen, not attached at the right position to the other widget? or is it attached at the right position but too large to fit on screen?
+T 1502712279 18<ebassi18>	mclasen: Mmmh, I thought they updated the patch
+T 1502712296 18<mclasen18>	git-bz complained, and I moved on
+T 1502712332 18<ebassi18>	Fair enough; I'll have a look
+T 1502712359 18<ebassi18>	btw, I've updated the no-autotools branch with the updated docs
+T 1502712375 18<mclasen18>	thanks, I'll have a look
+T 1502715035 18<aleb18>	When enlarging a window by dragging a margin, is it possible to configure a widget such that it expands up to an optimum size, but after that the space is allocated to the other widgets? And when the window shrinks .. it should behave symmetrical. with the enlarging performed in the current operation. (There are more cases, but..)
+T 1502716420 18<dboles18>	aleb: There's not a nice way to set max sizes on widgets right now, but you could check the workarounds here https://stackoverflow.com/questions/39946206/gtkcontainer-gtkwidget-maximum-width I don't advise doing size-request within a size-allocate handler, though
+T 1502716470 18<dboles18>	aleb: you can also try ScrolledWindow and the max-content-height|width properties https://developer.gnome.org/gtk3/stable/GtkScrolledWindow.html#GtkScrolledWindow--max-content-height
+T 1502716586 18<aleb18>	Hm, custom container, why did I not think about that
+T 1502716599 18<aleb18>	Thanks for the pointers!
+T 1502716877 18*	ernestask snickers.
+T 1502716880 18<ernestask18>	pointers
+T 1502717195 18<dboles18>	"thanks for the pointers" said no C programmer ever :)
+T 1502717783 18<aleb18>	haha
+T 1502718247 18<dboles18>	Thanks to C for making an asterisk do multiple very different things, and C++ for adding references and making & and && also do completely different things
+T 1502718985 18<baedert18>	garnacho: Have you thought about what's gonna happen to gtk_widget_set_cursor?
+T 1502719134 18<garnacho18>	baedert: not a lot... currently leaning towards inverting the order and adding distinct api to push a global cursor for wait/progress cursors
+T 1502723784 20*	Disconnected (20Connection timed out)
+T 1502724058 19*	Now talking on 22#gtk+
+T 1502724058 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
+T 1502724058 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
+T 1502725024 20*	Disconnected (20Remote host closed socket)
+T 1502725037 19*	Now talking on 22#gtk+
+T 1502725037 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
+T 1502725037 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
+T 1502726661 18<dboles18>	garnacho: hey, did you ever get a chance to have a look at that GtkEntry patch for shift+selection?
+T 1502727514 18<baedert18>	running the testsuite in meson is a lot more comfortable though (are there tests missing? :p)
+T 1502727587 18<nirbheek18>	ebassi, ok to push this meson patch to glib? http://dpaste.com/2KPEBBN.txt
+T 1502727612 18<tpm18>	baedert, does the autotools one run test (binaries) in parallel?
+T 1502727660 18<EmmanueleBassi18>	nirbheek: Yes; I thought I already added that, though?
+T 1502727683 18<nirbheek18>	EmmanueleBassi, you added it to the linux test but not the osx test
+T 1502727688 18<nirbheek18>	So the osx test passes on linux
+T 1502727690 18<baedert18>	tpm: Dunno
+T 1502727693 18<EmmanueleBassi18>	nirbheek: Ah, only to the second check
+T 1502727696 18<baedert18>	tpm: I guess not
+T 1502727719 18<EmmanueleBassi18>	tpm: Not by default
+T 1502727723 18<nirbheek18>	EmmanueleBassi, I will probably have some more fixes that are needed to use glib as a subproject in gtk+ later
+T 1502727729 18<EmmanueleBassi18>	`make -j6 check` is a thing
+T 1502727757 18<EmmanueleBassi18>	But we make everything go through the automake TAP, and I don't know how parallelisable that it
+T 1502727762 18<tpm18>	right, so it should be automatic for people who have -jN in their MAKEFLAGS I guess
+T 1502727797 18<EmmanueleBassi18>	Don't ever try running a distcheck through parallel make, though :-)
+T 1502727830 18<nirbheek18>	Further proof that comparing meson with autotools is too low a bar :p
+T 1502727838 18<nirbheek18>	Meson should be compared with past versions of itself
+T 1502727854 18<nirbheek18>	I do want to fix baedert's use-case though
+T 1502727910 18<EmmanueleBassi18>	Well, yes; 30 odd years, and Autotools still gets parallelisation and dependencies wrong. Of course, when it was created, we had 1 core at most, and we had to do builds in the snow, forward and backward, uphill both ways
+T 1502727958 18<nirbheek18>	EmmanueleBassi, having fewer CPU cycles and slower disks should've been incentive to NOT use autotools
+T 1502727976 18<nirbheek18>	But it's only now when we have octa core CPUs and SSDs that we're moving away from autotools?
+T 1502727986 18<ebassi18>	Heh
+T 1502727994 18<krnowak18>	EmmanueleBassi: Not sure if somebody already pointed it out, but in your no-autotools branch in gtk, you likely want to remove mentions of libtool and autoconf in release how to.
+T 1502728005 18<ebassi18>	krnowak: I did, didn't I?
+T 1502728015 18<krnowak18>	Maybe I didn't refresh. Lemme see.
+T 1502728021 18<krnowak18>	It was the first sentence there.
+T 1502728023 18<ebassi18>	nirbheek: That ought to tell you how bad autotools are for the modern world :-)
+T 1502728032 18<ebassi18>	krnowak: I pushed two new commits this morning
+T 1502728049 18<krnowak18>	It's still there - "Make sure you have suitable versions of autoconf and libtool."
+T 1502728051 18<ebassi18>	Ah, no, those references are still there
+T 1502728113 18<tpm18>	(PS: no version is or ever will be suitable)
+T 1502728167 18<tpm18>	surprised no one has asked for meson to write its own INSTALL files yet :)
+T 1502728168 18<ebassi18>	krnowak: Thanks, branch updated
+T 1502728189 18<ebassi18>	 126 files changed, 447 insertions(+), 17557 deletions(-)
+T 1502728232 18<krnowak18>	Is there a full stop missing now? :)
+T 1502728407 18<ebassi18>	This is not really user docs ;-)
+T 1502728611 18*	ebassi notices the INSTALL.in file and removes it
+T 1502728617 18<baedert18>	I guess the reftests aren't really working with the meson build atm
+T 1502729680 18<elmsy18>	Is there anything that has to be taken into consideration when putting a derived widget in a template of another widget? Right now I get an invalid object type error...
+T 1502729741 18<baedert18>	g_type_ensure your widget type before
+T 1502729750 18<tpm18>	baedert, which test?
+T 1502729769 18<tpm18>	oh nm, gtk presumably
+T 1502729770 18<tpm18>	not glib
+T 1502729776 18<baedert18>	yes
+T 1502729861 18<elmsy18>	baedert: in the _init or something of the widget that goes into the template?
+T 1502729900 18<TingPing18>	elmsy, anywhere before the template is loaded
+T 1502729904 18<baedert18>	elmsy: No, somewehere before you create the template
+T 1502729943 18<elmsy18>	ah, ok
+T 1502729976 18<elmsy18>	yay, that worked. thanks
+T 1502731148 18<baedert18>	pwithnall: Do you know if there's a way for us to tell clang/scan-build that MY_TYPE_GET_CLASS never returns NULL?
+T 1502732347 18<pwithnall18>	baedert: hm, it should be able to figure that out for itself; do you have an example issue?
+T 1502733198 18<baedert18>	pwithnall: When I use it in gtk, I get hundreds of reports like https://paste.xinu.at/MnBWg/
+T 1502733654 18<pwithnall18>	baedert: you could try adding a `returns_nonnull` attribute to the `*_GET_CLASS` definition in the `G_DECLARE_DERIVABLE_TYPE` macro in `gobject/gtype.h`
+T 1502733667 18<pwithnall18>	I think that’s the one which is generating `GDK_DRAW_CONTEXT_GET_CLASS`
+T 1502733681 18<pwithnall18>	baedert: https://clang.llvm.org/docs/AttributeReference.html#returns-nonnull-gnu-returns-nonnull
+T 1502733688 18<steelcowboy18>	Hi, what might cause an address to get changed in a callback?
+T 1502733712 18<dboles18>	you'd need to be more specific as to which address and callback
+T 1502733757 18<steelcowboy18>	Ok, so basically in a function I have a struct, app_objects *globals. I then connect the delete event for my window to a callback I wrote, and the connect looks like this:
+T 1502733769 18<steelcowboy18>	g_signal_connect(window, "delete-event", G_CALLBACK(quit_app), globals);
+T 1502733819 18<steelcowboy18>	In quit_app, I case the gpointer udata to app_objects like app_objects *globals = udata
+T 1502733841 18<steelcowboy18>	The value of globals in the main function and callback function is different
+T 1502733892 18<dboles18>	just to check, how are you printing the value?
+T 1502733957 18<steelcowboy18>	printf("%p\n", globals)
+T 1502734666 18<dboles18>	Why is gtk_popover_update_position getting spammed when the popover is hidden?
+T 1502734821 18<baedert18>	because gtkwindow.c:popover_size_allocate
+T 1502734908 18<dboles18>	ah ok, thanks
+T 1502734926 18<dboles18>	anyway, the numbers with and without csd shadow confirm this fix is correct \o/
+T 1502734930 18<dboles18>	(overshoots)
+T 1502735632 18<jpwhiting18>	do I use g_object_set_property to set properties on a GtkTextTag object (and all objects I guess)
+T 1502735653 18<jpwhiting18>	is there a way to set multiple properties in one call like with _new where you pass in NULL to indicate no more properties?
+T 1502735655 18<jpwhiting18>	just curious
+T 1502735677 18<baedert18>	g_object_set
+T 1502735785 18<jpwhiting18>	erm, right, ok thx
+T 1502736435 18<jpwhiting18>	baedert: ok, I grabbed the style conetxt from my widget and tried gtk_style_context_lookup_color to look up the GTK_STYLE_PROPERTY_BACKGROUND_COLOR
+T 1502736442 18<jpwhiting18>	it's returning false though
+T 1502736472 18<jpwhiting18>	are those names not in the style context somehow?
+T 1502736493 18<jpwhiting18>	are they only there if I set them individually rather than just setting the gtk-theme on the gnome gsettings object ?
+T 1502736501 18<baedert18>	that's not the same thing
+T 1502736508 18<dboles18>	jpwhiting: don't you actually want https://developer.gnome.org/gtk3/stable/GtkStyleContext.html#gtk-style-context-get-background-color ?
+T 1502736509 18<baedert18>	there is generally not a background color, period
+T 1502736513 18<mclasen18>	a css style may not have a background color
+T 1502736513 18<baedert18>	that API is for getting named colors
+T 1502736527 18<mclasen18>	it may just have a background image
+T 1502736533 18<jpwhiting18>	baedert: no background color?
+T 1502736548 18<jpwhiting18>	if I use adwaita-dark theme, the background is black, is that an image instead of a solid color?
+T 1502736550 18*	dboles realises that's deprecated
+T 1502736555 18<baedert18>	it can be.
+T 1502736564 18<baedert18>	*generally*
+T 1502736600 18<dboles18>	jpwhiting: i think this from the link sums it up nicely: "This function is far less useful than it seems, and it should not be used in newly written code. CSS has no concept of "background color", as a background can be an image, or a gradient, or any other pattern including solid colors."
+T 1502736601 18<jpwhiting18>	I'm trying to "highlight" some words in a GtkTextView by inverting the background and foreground with a GtkTextTag
+T 1502736616 18<jpwhiting18>	works fine if I hard code the colors, but I need to get the theme colors so it will work for users that switch their theme
+T 1502736633 18<dboles18>	jpwhiting: lookup theme_bg_color, theme_fg_color, theme_selected_blah, etc.
+T 1502736671 18<dboles18>	these are used to apply or derive colours throught the standard themes. of course, relying on these assumes third-party themes also define those; you might want to check that at least the popular ones do this (i assume they do)
+T 1502736677 18<jpwhiting18>	I don't see those anywhere here... https://developer.gnome.org/gtk3/stable/GtkStyleContext.html
+T 1502736681 18<jpwhiting18>	theme_bg_color etc.
+T 1502736698 18<dboles18>	i didn't say they were there
+T 1502736708 18<baedert18>	They are defined by the theme and also not guaranteed to exist...
+T 1502736712 18<jpwhiting18>	dboles: yep, so those names are from the theme? interesting
+T 1502736731 18<jpwhiting18>	yeah, is there no way to get the color that will be used when rendering widgets with the current theme ?
+T 1502736742 18<jpwhiting18>	at least for foreground since that's usually a solid color, no?
+T 1502736753 18<jpwhiting18>	or does gtk+ support rendering text with a gradient and image etc. ?
+T 1502736761 18<dboles18>	just look 1 block up at the link i have you: https://developer.gnome.org/gtk3/stable/GtkStyleContext.html#gtk-style-context-get-color
+T 1502736766 18<dboles18>	s/have/gave
+T 1502736789 18<jpwhiting18>	yep, perfect, /me tries that
+T 1502736791 18<dboles18>	no trickery for fg color as far as i'm aware; you'd need cairo for that
+T 1502736813 18<dboles18>	so as you said, fg color as a concept *is* useful, unlike bg color
+T 1502736968 18<jpwhiting18>	gotcha, ok
+T 1502736981 18<jpwhiting18>	is there a way in gtk+ to get an inverse of a color possibly?
+T 1502736984 18<baedert18>	pwithnall: hmm looks like I'd have to annotate the ->g_class in _G_TYPE_GET_IGC as nonnull
+T 1502736986 18*	jpwhiting looks
+T 1502737032 18<dboles18>	jpwhiting: not that i know of, but then it's such a simple operation that it doesn't seem particularly worth including in GTK+/GDK
+T 1502737046 18<jpwhiting18>	dboles: gotcha
+T 1502737287 18<dboles18>	ebassi: seems the .doap file also needs a refresh where maintainers are concerned
+T 1502737363 18<dboles18>	(and maybe the website too?)
+T 1502738362 18<jpwhiting18>	ok, next question, in order to get changed::gtk-theme signal from gnome gsettings I need to get the value once after I connect to that signal
+T 1502738379 18<jpwhiting18>	so I'm getting the value with g_settings_get_string, but I don't need that string for anything
+T 1502738399 18<jpwhiting18>	so when building with warnings enabled I get this: " error: variable ‘string_to_ensure_we_get_notifications’ set but not used [-Werror=unused-but-set-variable]"
+T 1502738414 18<jpwhiting18>	what sorts of things can I do with this string I don't need to avoid that compile error...
+T 1502738417 18<dboles18>	do you really need to do that?
+T 1502738425 18<jpwhiting18>	need to get the value?
+T 1502738427 18<jpwhiting18>	yes
+T 1502738428 18<dboles18>	but, to make the compiler ignore an unused variable, just put in a (void)var
+T 1502738437 18<dboles18>	e.g. (void) string;
+T 1502738437 18<jpwhiting18>	read the last line of https://developer.gnome.org/gio/stable/GSettings.html#GSettings-changed
+T 1502738445 18<jpwhiting18>	added when I hit this problem 2 years ago :)
+T 1502738450 18<jpwhiting18>	ah, ok thx
+T 1502738462 18<dboles18>	huh, don't remember that one. thanks!
+T 1502738483 18<dboles18>	there are probably compiler attributes you can use, but none are standard, whereas a throwaway cast to void is
+T 1502738495 18<jpwhiting18>	yep, if you connect to a changed signal on gsettings then never query the key you get no notifications when it changes...
+T 1502738512 18<jpwhiting18>	yep, that worked, thanks a ton, saved me time searching for the c equivalent of Q_UNUSED
+T 1502738533 18<dboles18>	cool. hm, thinking about it, i don't think i ever connected to ::changed, so that'll be why i didn't remember that :)
+T 1502738546 18<jpwhiting18>	gotcha
+T 1502738551 18*	dboles digs up my main project from the depths of a month ago
+T 1502738557 18<jmd18>	so many widgets have a "changed" signal.
+T 1502738561 18<DMJC-L18>	dboles: thanks for trying to help, sorry I was asleep. I fixed the issue, I had to run show() before I set the gravity. It was an order of execution issue.
+T 1502738590 18<jpwhiting18>	jmd: yeah, this is just gsettings though
+T 1502738591 18<baedert18>	pwithnall: and that doesn't work of course, neither can you annotate struct members like that, so a wrapping function with returns_nonnull could work...
+T 1502738601 18<jpwhiting18>	most changed signals don't have this optimization I guess
+T 1502738696 18<dboles18>	DMJC-L: cool, thanks for the update!
+T 1502738862 18<dboles18>	jpwhiting: hm, i have one setting with ::changed connected, but it seems to work either way for me :S
+T 1502738885 18<jpwhiting18>	dboles: you're not getting the value of the setting after connecting to the ::Changed signal ?
+T 1502738892 18<jpwhiting18>	maybe they fixed it to always send, dunno
+T 1502738906 18<jpwhiting18>	I hit that with gtk 3.16 a couple of years ago
+T 1502738921 18<dboles18>	i use the same callback to apply the initial value and as the changed handler
+T 1502738921 18<jpwhiting18>	hmm, gtk_widget_get_style_context is segfaulting here...
+T 1502738940 18<jpwhiting18>	dboles: yep, same here, that queries the value in the handler, right?
+T 1502738983 18<dboles18>	yeah but i've swapped it so the initial check is done before connecting, and it still seems to work
+T 1502738991 18*	dboles rebuilds to be sure
+T 1502738993 18<jpwhiting18>	they figured everyone would do it that way (I was even newer to gtk+ when I wrote this stuff, so I did it in reverse, queried the value then connected to ::changed) and I never got 
+T 1502738995 18<jpwhiting18>	hmm, interesting
+T 1502739006 18<jpwhiting18>	maybe they keep track of if you've ever queried it or something now
+T 1502739025 18<jpwhiting18>	anyway, why would gtk_widget_get_style_context segfault for a valid GtkTextView object ?
+T 1502739072 18<jpwhiting18>	do you have to set a gtk_style_context on the widget before trying to get it ?
+T 1502739082 18<jpwhiting18>	i.e. is it not something automatic that all widgets get during creation
+T 1502739123 18<jpwhiting18>	dboles: ah, are you watching changed or changed::x ?
+T 1502739148 18<jpwhiting18>	I think only  the latter has that optimization
+T 1502739154 18<baedert18>	style contexts are created on demand
+T 1502739168 18<dboles18>	jpwhiting: gtkmm so not sure tbh, but the documentation doesn't imply that warning is conditional
+T 1502739191 18<jpwhiting18>	baedert: hmm, what am I doing wrong then?
+T 1502739197 18<jpwhiting18>	guess I need to take a look at the sources
+T 1502739203 18<baedert18>	Use a debugger
+T 1502739217 18<jpwhiting18>	yep, I am
+T 1502739231 18<dboles18>	jpwhiting: i guess this comment from your report clarifies why it might work anyway: https://bugzilla.gnome.org/show_bug.cgi?id=750257#c4
+T 1502739239 18*	jpwhiting installs debug symbols for gtk+
+T 1502739318 18<jpwhiting18>	heh
+T 1502739384 18*	dboles adds comment 	// Read after connect, or signal MAY not fire (does though)
+T 1502739509 18<jpwhiting18>	hmm, I have libgtk2.0-0-dbg but no libgtk-dbg in debian stretch, I wonder where the gtk 3.x debug symbols are...
+T 1502739539 18<dboles18>	I had a bunch of other settings but removed them as I decided it was easier and more maintainable just to enforce my preferences users O:-)
+T 1502739566 18<jpwhiting18>	heh, interesting
+T 1502739587 18<dboles18>	in reality, a lot of them were 'prompt before doing Destructive Thing?' and i added various levels of undo to make them redundant
+T 1502739607 18<dboles18>	which is far less disruptive to those who DO mean what they click
+T 1502739618 18<dboles18>	so it seems like a better pattern to me
+T 1502739650 18<dboles18>	I wonder when I'lll get rid of that 'Force Adwaita:dark theme and icons' choice :P
+T 1502739661 18<jpwhiting18>	dboles: heh, nice
+T 1502739667 18<dboles18>	really oughta test my app with the big 3rd-party themes and see if it's worth leaving the option open
+T 1502739675 18*	baedert got rid of it and received the expected reaction
+T 1502739680 18<baedert18>	(nobody gives a fuck)
+T 1502739694 18<dboles18>	haha
+T 1502739757 18*	dboles notices baedert is in gtkpopover.c and coughs in an exaggerated way
+T 1502739819 18<jpwhiting18>	ok, that function is pretty straightforward, check it's a widget, return the style context create it from the screen if needed
+T 1502739822 18<baedert18>	I AM EVERYWHERE
+T 1502739832 18<jpwhiting18>	maybe the widget I chose is not really a GtkWidget somehow...
+T 1502739847 18<baedert18>	It's not getting called before the gtk_init call, right?
+T 1502739881 18<jpwhiting18>	GtkTextView is a GtkWidget... hmm
+T 1502739896 18<jpwhiting18>	no, it's segfaulting when I change the theme in the ui (I connected the changed::gtk-theme to my handler
+T 1502739897 18<Black_Prince18>	ah, the joys of being C coder, PURE INSANITY intensifies
+T 1502739902 18<jpwhiting18>	Black_Prince: indeed
+T 1502739921 18<dboles18>	just use gtkmm, then you have twice as many calls in the backtrace
+T 1502739927 18<jpwhiting18>	yet I get a segfault in here every time somehow... maybe my callback needs to be different somehow
+T 1502739938 18<dboles18>	can you pastebin it?
+T 1502739983 18<Black_Prince18>	and a backtrace that's unreadable due to name manging
+T 1502739984 18<Black_Prince18>	mangling
+T 1502740024 18*	jpwhiting changes it to match the signature of other functions I have connected to changed:: signals instead
+T 1502740030 18<jpwhiting18>	that was probably part of the problem
+T 1502740057 18<dboles18>	lol
+T 1502740080 18<jpwhiting18>	yep, all better
+T 1502740081 18<jpwhiting18>	doh
+T 1502740099 18<jpwhiting18>	thanks G_CALLBACK for not being able to check my function signature was correct
+T 1502740101 18<dboles18>	the miracle of casting to void!
+T 1502740137 18<jpwhiting18>	ok, now my text tag is not getting the new colors, /me checks why
+T 1502740157 18<jpwhiting18>	if I change the properties of a GtkTextTag do I need to "apply" those changes back to the GtkTextView somehow maybe?
+T 1502740176 18<mclasen18>	ebassi: wip/ebassi/no-autotools has my blessing
+T 1502740244 18<jpwhiting18>	anything with no-autotools in the name is probably an improvement... :)
+T 1502740268 18<jpwhiting18>	hmm, nothing obvious in GtkTextBuffer docs
+T 1502740271 18*	jpwhiting reads
+T 1502740394 18<jpwhiting18>	ok, so the GtkTextTag is owned by the GtkTextTagTable that the buffer already has
+T 1502740436 18<jpwhiting18>	so, do I need to change the properties with something besides g_object_set so gtk_text_tag_changed will get sent (so the buffer will use the new tag colors instead of the old ones when I add tags to the text)
+T 1502740463 18<jpwhiting18>	or do I need to completely remove the tag and create a new one with the new colors with the same "highlight" name
+T 1502740505 18*	jpwhiting checks my code to change the colors is getting ran first
+T 1502740579 18<jpwhiting18>	nope, that's probably the problem here then :)
+T 1502740845 18<jpwhiting18>	ah, no it is getting called, I'm just always getting the color 0, 0, 0, for foreground no matter which theme I have... hmm
+T 1502740885 18<jpwhiting18>	does the GtkStyleContext not get new colors when the gtk-theme gsetting changes ?
+T 1502740887 18<jpwhiting18>	:/
+T 1502740951 18<dboles18>	it does
+T 1502740973 18<dboles18>	without a minimal test case there's not much we can say; as you've seen, the cause could be something totally different you haven't noticed yet
+T 1502741026 18<dboles18>	some widgets are odd with CSS though; iirc CellView didn't get updated with changes to currentColor, and Entry doesn't properly support animated border color or selection bgcolor, etc. (hey, i was being ridiculous on purpose)
+T 1502741080 18<jpwhiting18>	hmm, yeah, I'm currently trying gtk_style_context_get_color to get just the foreground color then am inverting to get a background color
+T 1502741100 18<jpwhiting18>	no matter if my theme is adwaita or adwaita-dark I'm getting black foreground always
+T 1502741118 18<jpwhiting18>	no, I take that back
+T 1502741133 18<jpwhiting18>	if the theme is adwaita-dark when I start my application it's getting white foreground
+T 1502741135 18<dboles18>	the injustice of accepted vs actual answers: https://stackoverflow.com/questions/18994609/how-to-git-pull-into-a-branch-that-is-not-the-current-one
+T 1502741160 18<jpwhiting18>	so maybe I just am getting the color before the style context has been updated in my handler for gtk-theme changed signal
+T 1502741192 18<dboles18>	maybe; you can try deferring getting the color to an idle handler
+T 1502741202 18<jpwhiting18>	yep
+T 1502741212 18<jpwhiting18>	what's an idle handler ?
+T 1502741230 18<dboles18>	https://developer.gnome.org/glib/stable/glib-The-Main-Event-Loop.html#g-idle-add
+T 1502741238 18<jpwhiting18>	I thought I was decent at c years ago, now I'm finding slowly that I hate it so badly :)
+T 1502741245 18<jpwhiting18>	ah, cool, thx
+T 1502741254 18<dboles18>	you may also need to tweak the priority
+T 1502741314 18<jpwhiting18>	hmm, or maybe I should be connecting to the style context's signal instead of the gnome gsettings changed::gtk-theme ?
+T 1502741315 18*	jpwhiting looks
+T 1502741344 18<dboles18>	jpwhiting: well that's the proper way to catch all changes to the color, yes
+T 1502741358 18<jpwhiting18>	style-updated on the widget maybe
+T 1502741363 18<jpwhiting18>	yep
+T 1502741414 18<dboles18>	as an example of idles: I have a function that shows/hides a bunch of widgets in a window then tries to scroll to a given position in it, but it needs to be PRIORITY_LOW so that it scrolls after the widgets and size have settled 
+T 1502741438 18<dboles18>	this kind of thing is pretty trial-and-error IME
+T 1502741542 18<jpwhiting18>	hmm, connecting to style-updated I'm always getting the same color after changing the theme as before changing it
+T 1502741543 18<jpwhiting18>	:/
+T 1502741619 18<dboles18>	which widget's style are you monitoring?
+T 1502741619 18<jpwhiting18>	I am getting the GtkStyleContext each time in my callback
+T 1502741628 18<jpwhiting18>	it's a GtkTextView
+T 1502742073 18<jpwhiting18>	https://developer.gnome.org/gtk3/stable/GtkWidget.html#GtkWidget-style-updated I connect to this signal like this, no? : 
+T 1502742075 18<jpwhiting18>	g_signal_connect (self->textview, "style-updated",
+T 1502742076 18<jpwhiting18>	                    G_CALLBACK(tnt_speaking_window_update_highlight_tag), self);
+T 1502742120 18<dboles18>	of course, it's impossible to say if that's right without seeing the signature of the handler
+T 1502742141 18<dboles18>	and what you do with the args
+T 1502742153 18<jpwhiting18>	tnt_speaking_window_update_highlight_tag(GtkWidget *widget,
+T 1502742154 18<jpwhiting18>	    gpointer   user_data)
+T 1502742156 18<jpwhiting18>	static void
+T 1502742165 18<jpwhiting18>	and TntSpeakingWindow *self = user_data; etc.
+T 1502742353 18<dboles18>	seems ok ofc
+T 1502742416 18<jpwhiting18>	k, fun another style mystery
+T 1502742452 18<jpwhiting18>	the other one being why does gtk+ rendering render checked GtkRadioButton and GtkCheckButtons as red squares if I set the gtk-theme gsetting...
+T 1502742454 18<jpwhiting18>	:)
+T 1502742479 18<steelcowboy18>	So I'm trying to make a user wait for some subprocesses to be done before they can close a dialog. So at the end of my subprocess callback, I connect my dialog widget's response field to its callback so it can be destroyed
+T 1502742494 18<steelcowboy18>	However, I'm trying to pass a data parameter and it's getting mangled
+T 1502742494 18<jpwhiting18>	meh, /me tries setting a timer for a few seconds after I get style-updated to see what colors it gets then
+T 1502742511 18<steelcowboy18>	So at the end of my subprocess callback I have
+T 1502742528 18<steelcowboy18>	g_signal_connect(diag, "response", G_CALLBACK(target_setup_done), globals);
+T 1502742550 18<steelcowboy18>	Where diag is actually a member of the globals struct. So I know in this callback my globals struct works
+T 1502742571 18<steelcowboy18>	However, when it calls target_setup_done I have it print the gpointer user_data and I get
+T 1502742589 18<steelcowboy18>	User data is 0xfffffffd
+T 1502742601 18<steelcowboy18>	Whereas right before I connected the signal it said
+T 1502742610 18<steelcowboy18>	User data is 0x10034db80
+T 1502742625 18<dboles18>	note the signature of the ::response handler: https://developer.gnome.org/gtk3/stable/GtkDialog.html#GtkDialog-response
+T 1502742628 18<dboles18>	how many args does your handler have?
+T 1502742641 18<dboles18>	sounds to me like you're interpreting a negative gint response_id as the gpointer user_data
+T 1502742654 18<steelcowboy18>	Ahhhh, thank you!
+T 1502742703 18<dboles18>	no prob - it's thanks to the fact that you told us what the before/after values were, as many people would just not and expect us to know what was going on :P
+T 1502742804 18<steelcowboy18>	Haha, well glad I could be a good inquirer :) 
+T 1502742817 18<jpwhiting18>	dboles: yep, if I set a timer to query the colors 3 seconds after the signal it gets the right colors
+T 1502742820 18<jpwhiting18>	fun
+T 1502742825 18*	jpwhiting tries shorter durations
+T 1502742849 18<dboles18>	jpwhiting: did you try doing that an idle handler yet, including with lower priorities than default
+T 1502742854 18<dboles18>	*that in an idle
+T 1502743453 18<jpwhiting18>	no, just a g_timer_add timer
+T 1502743463 18<jpwhiting18>	g_timeout_add_seconds rather
+T 1502743467 18<jpwhiting18>	trying 1 second now
+T 1502743501 18<dboles18>	you should use an idle wherever possible rather than guessing at arbitrary timeouts and hoping for the best
+T 1502743518 18<jpwhiting18>	1 second works
+T 1502743533 18<jpwhiting18>	idle sounds like a shot in the dark also, no?
+T 1502743549 18<jpwhiting18>	how do I know if the idle timeout will happen after the style has got the new colors etc. ?
+T 1502743611 18<dboles18>	my point is you should try it, under the assumption that stuff like that has a higher priority than the one you set, and therefore the idle will only run once all other queued tasks with a higher priortiy have completed
+T 1502743650 18<dboles18>	i.e. try the elegant code that says what it means first, and only hack around with arbitrary timeouts if somehow the good code can be proven never to work
+T 1502743662 18<jpwhiting18>	gotcha

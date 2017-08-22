@@ -1,0 +1,76 @@
+**** BEGIN LOGGING AT Wed Jul 12 12:23:20 2017
+
+[mistria has address ~mistria@ovpn-116-173.ams2.redhat.com]
+Jul 12 12:23:22 <lufimtse>	hey ya
+Jul 12 12:23:26 <lufimtse>	do you remember this guy?
+Jul 12 12:23:26 <lufimtse>	https://git.eclipse.org/r/#/c/81666/
+Jul 12 12:23:33 <mistria>	hi
+Jul 12 12:23:51 <lufimtse>	More specifically this one: https://git.eclipse.org/r/#/c/81666/17/tests/org.eclipse.swt.tests.fragments.feature/feature.xml
+Jul 12 12:23:53 <mistria>	a bit
+Jul 12 12:24:05 <mistria>	yes
+Jul 12 12:24:32 <lufimtse>	Ok, so I'm trying to test swt's junit via maven *on windows*. It works if I delete everything except the "win32.x86_64" related plugin.
+Jul 12 12:24:42 <lufimtse>	otherwise on windows instead it reads the first entry
+Jul 12 12:24:46 <lufimtse>	which is gtk 32 bit.
+Jul 12 12:24:49 <mistria>	ah
+Jul 12 12:24:58 <lufimtse>	any ideas if on Windows I can force it to read the correct one?
+Jul 12 12:25:04 <lufimtse>	some param/config?
+Jul 12 12:25:16 <mistria>	filtering and taking the right one is the purpose of p2 resolution
+Jul 12 12:25:35 <mistria>	can you have a look at the classpath you get for your plain tests?
+Jul 12 12:25:42 <mistria>	does it contain all the bundles or only one?
+Jul 12 12:27:34 <lufimtse>	http://i.imgur.com/ooJzgOo.png
+Jul 12 12:27:40 <lufimtse>	hmm, actually, 
+Jul 12 12:27:49 <lufimtse>	that log is of when there is only win32 plugin
+Jul 12 12:27:57 <lufimtse>	(working)
+Jul 12 12:28:06 <lufimtse>	Let me see what happens when all are present.
+Jul 12 12:30:44 <mistria>	I got disconneected. Did you add anything after "hmm, actually" ?
+Jul 12 12:30:57 <lufimtse>	yea,
+Jul 12 12:31:02 <lufimtse>	<lufimtse> that log is of when there is only win32 plugin
+Jul 12 12:31:02 <lufimtse>	<lufimtse> (working)
+Jul 12 12:31:02 <lufimtse>	<lufimtse> Let me see what happens when all are present.
+Jul 12 12:31:06 <lufimtse>	gimme a min.
+Jul 12 12:40:07 <lufimtse>	@mistria how do I find out classpath?
+Jul 12 12:40:24 <lufimtse>	I run tests like: mvn verify -Pbuild-individual-bundles    #-X
+Jul 12 12:46:04 <lufimtse>	ping ping
+Jul 12 12:48:05 <mistria>	again got disconnected and reconnected... last message I got was "gimme a min"
+Jul 12 12:48:20 <lufimtse>	meh
+Jul 12 12:48:26 <lufimtse>	<lufimtse> @mistria how do I find out classpath?
+Jul 12 12:48:26 <lufimtse>	<lufimtse> I run tests like: mvn verify -Pbuild-individual-bundles    #-X
+Jul 12 12:48:32 <lufimtse>	./received?
+Jul 12 12:50:00 <lufimtse>	hmm. It's also possible it's reading 32 bit instead of 64 bit win. Let me check.
+Jul 12 12:52:35 <lufimtse>	btw, do you have skype?
+Jul 12 12:52:44 <lufimtse>	or are you on mattermost somewhere?
+Jul 12 12:52:56 <mistria>	nope
+Jul 12 12:53:05 <mistria>	I stay on good old IRC and emails
+Jul 12 12:53:09 <mistria>	and bug trackers
+Jul 12 12:53:14 <mistria>	it's what scales and tracks best
+Jul 12 12:54:31 <lufimtse>	I see
+Jul 12 12:55:11 <lufimtse>	mistria ok, so summary: Win10 64 bit. I try to run maven, it picks up gtk32 bit plugin. Tests fail. If I remove all but win32 plugin in feature.xml, tests work
+Jul 12 12:55:16 <lufimtse>	you asked about classpath
+Jul 12 12:55:20 <lufimtse>	I asked how do I find it
+Jul 12 12:55:31 <lufimtse>	Any ideas?
+Jul 12 12:56:39 <mistria>	mvn -X should give the classpath properly, but if you have doubt, you can still run tests with debug from surefire, place a breakpoint and ask the classloader
+Jul 12 13:08:45 <lufimtse>	mistria I can't seem to find the classpath (Like I don't know what I'm looking for?). Relevant bit of log: https://paste.fedoraproject.org/paste/btN8xMxmqHQ~DjPUGNCGCg
+Jul 12 13:08:45 *	mistria :No such nick/channel
+[mistria has address ~mistria@ovpn-116-81.ams2.redhat.com]
+Jul 12 13:20:46 <mistria>	it seems to be the VPN that has issues. Anyway, any progress since my last answer?
+Jul 12 13:21:14 <lufimtse>	mistria might be a maven on windows bug
+Jul 12 13:21:19 <lufimtse>	it works on Linux/Cocoa
+Jul 12 13:21:42 <lufimtse>	I'm investigating
+Jul 12 13:22:15 <lufimtse>	at the moment the environments are read from feature.xml. I'm gonna try to list them directly in test's pom.xml
+Jul 12 13:22:22 <lufimtse>	I'll let you know how it goes.
+Jul 12 13:22:31 <mistria>	line 643 to 739 seem to be your classpath
+Jul 12 13:23:15 <mistria>	I see the non-win32 bundles listed, with an extra-indent
+Jul 12 13:23:21 <mistria>	not sure what that means
+Jul 12 13:24:08 <mistria>	but I think those shouldn't be here
+Jul 12 13:24:30 <mistria>	the bundle shouldn't depend on the feature, only tests should
+Jul 12 13:25:13 <lufimtse>	I see
+Jul 12 13:25:13 <lufimtse>	hmmm
+Jul 12 13:25:34 <lufimtse>	it's odd that cocoa/gtk are listed but not win32, on win
+Jul 12 13:25:48 <lufimtse>	derp.
+Jul 12 13:25:57 <lufimtse>	I'm off to gym. Back in an hour ish.
+Jul 12 13:27:10 <mistria>	win32 is listed just below, as a 1st-rank dependency
+Jul 12 13:28:56 <mistria>	try a `mvn dependency:tree` when you can and compare the result across the different OS
+Jul 12 16:05:43 <lufimtse>	mistria hey. I tried the command, but I get an error: [ERROR] Failed to execute goal on project org.eclipse.swt.fragments.localbuild: Could not resolve dependencies for project org.eclipse.swt:org.eclipse.swt.fragments.localbuild:eclipse-plugin:3.105.0-SNAPSHOT: Failure to find org.eclipse.swt:org.eclipse.swt:jar:3.106.100-SNAPSHOT in https://repo.eclipse.org/content/repositories/eclipse/ was cached in 
+Jul 12 16:05:43 <lufimtse>	the local repository, resolution will not be reattempted until the update interval of eclipse-hosted has elapsed or updates are forced -> [Help 1
+Jul 12 16:05:43 *	mistria :No such nick/channel
+Jul 12 16:05:43 *	mistria :No such nick/channel

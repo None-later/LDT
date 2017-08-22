@@ -1,0 +1,72 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Week 28 2017 ======
+09 July to 15 July
+
+====== Observations and Life Lessons ======
+
+====== Weekly Goals ======
+
+====== Weekly Report ======
+Highlights:
+- Reviewing old SWT patch submissions.
+  E.g Found a good patch that fixes highest voted SWT-linux bug, which was forgotten in time.
+  Currently working with author to revive/merge patch.
+- Investigated (SWT) Maven jUnit test breakage, problem was that it was pulling 4.7 swt instead of 4.8.
+
+
+Last Week:
+##########
+Maven:
+  Bug 519616 – Test failures in SWT gerrit jobs
+   - Investigated maven build failures in SWT tests. Maven spontaneously started failing some jUnits.
+   - Failures only occurred on Maven. Tests worked locally.
+   - After investigation, I found that maven was using new jUnits and testing against older SWT code base
+	 (4.8 jUnits, 4.7 SWT).
+   - Sravan patched the releng update site to point to 4.8 and tests pass again.
+
+  - Cross-Platform Test Servers:
+	Bug 519583 – [Win32][Maven] Running swt jUnits via maven fails due to wrong environment being picked up in features.xml
+	- Investigated why Maven jUnit tests were not running on windows 10.
+	- Found that on Windows, platform/environment was not identified correctly,
+	  (it thinks that jUnits are gtk on windows)
+	  If I hard-code Win/x64, then tests pass.
+	- Researching how to fix environment issue. (in progress)
+
+Patch Reviews:
+Bug 61190 Shortcut keys doesn't work with non-English keyboard (e.g Russian)
+ - Keyboard shortcuts like ctrl+s, c,x,v don't work on non-english layouts like Russian.
+   Patch originally submitted in 2014, but was forgotten in time.
+ - I did an extensive review/testing of submitted patch.
+ - Patch is good, just needed some polish. (fix a memory leak etc...)
+ - Will probably merge this week.
+ - Currently highest voted swt-linux bug
+
+Bug 508600 – [API] The average character width of a font is not integer
+  - Review took a while as patch introduced floating point comparison, which can be prone to subtle errors.
+  - Researched dangers of using floating point on java.
+
+Investigation/Triage:
+Bug 519439 – editor doesn't get focus after double click from package explorer
+ - Investigated bug report. (related to work I've done earlier)
+ - Doesn't reproduce on my system. Asked for more info.
+
+Other:
+Bug 519328 – [All] Add "Bug Snippets" folder to org.eclipse.swt.tests project
+ - Added "bug snippets" folder to our test project. Here we can put
+   snippet to reproduce issues that occur on all platforms.
+   Useful to verify bugfixes for situations where it's not possible to add a jUnit.
+
+Bug 519570 – [gtk] fix .project of org.eclipse.swt.tests.feature
+
+Upgraded to Fedora 26. Had some issues with shutdown/hibernation on my Mac,
+  installed a custom kernel to get that to work again.
+  Otherwise, F26 works well for me.
+
+
+This week:
+##########
+- Fix maven classpath issue on Windows, such that maven can be used on all platforms
+  for automated SWT tests.
+- Continue review of old SWT patches, revive them as needed.

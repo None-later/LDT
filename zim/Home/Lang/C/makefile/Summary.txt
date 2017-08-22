@@ -1,0 +1,42 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Summary ======
+Created Thursday 03 August 2017
+
+**Rules:**
+	target [target...] : [dependent ....]
+		[ command ...]
+	
+	   dependent is a file or target. Targets get scanned recursively, checked for changes.
+	   [tab] before a command.
+	   **-**command   #status ignored
+	   **@**command   #command not printed.
+
+**Macros:**
+	$@  - left of ':'
+	$^    - all items right of ':'  ($< is only first)
+	$?    - all input files newer than target
+	%.o   - regex matching *.o 
+	%.c   - regex matching *.c
+
+**Vars:** 
+	CFLAGS  = -O -systype bsd43
+	CFLAGS += appended_value
+	 make VAR = myString  #define var at command line
+	${CFLAGS}    # reference to var
+
+**Dependencies:**
+	all:main
+	
+	# main is dependent on objects 'main.o' and 'lib.o', which have to be checked/ran first.
+	main: main.o lib.o
+		gcc main.o lib.o -o main   #use main.o and lib.o to produce 'main'
+	
+	# generate a main.o if 'main.c' or 'lib.h' have been touched.
+	main.o: main.c lib.h
+		gcc -c main.c
+	
+	# generate lib.o if 'lib.c' or 'lib.h' have been touched. 
+	lib.o: lib.c lib.h
+		gcc -c lib.c
