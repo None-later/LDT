@@ -1,162 +1,3 @@
-T 1498592179 18<ericwill18>	every night?
-T 1498592199 18<akurtakov18>	ericwill: yes
-T 1498592269 18<ericwill18>	okay, cool
-T 1498592346 18<akurtakov18>	ericwill: unless there is broken build :)
-T 1498592356 18<akurtakov18>	in which case I-build repo will not be updated
-T 1498592414 18<ericwill18>	akurtakov I was just wondering when I push the JUnit tests with alpha
-T 1498592420 18<ericwill18>	it can wait
-T 1498592428 18<akurtakov18>	once you see good build
-T 1498592640 18<ericwill18>	akurtakov after removal of GDK drawing, what stands in the way of GTK2 removal?
-T 1498592663 18<akurtakov18>	people will :)
-T 1498592705 18<ericwill18>	ah yes, the political discussions
-T 1498592736 18<akurtakov18>	ericwill: I'm looking to remove rhel6 out of the equation by dropping cairo pre 1.10
-T 1498592767 18<akurtakov18>	that would silence many people :)
-T 1498593051 18<akurtakov18>	ericwill: I'm not pushing too much now 
-T 1498593066 18<akurtakov18>	as there are other changes which require pushing 
-T 1498593076 18<akurtakov18>	but gtk2 removal is about time
-T 1498593092 18<akurtakov18>	and once we have gtk4 betas we will claim it inevitable
-T 1498593131 18<ericwill18>	right, makes sense
-T 1498658398 20<lufimtse>30	https://dev.eclipse.org/mhonarc/lists/platform-releng-dev/
-T 1498658419 20<lufimtse>30	http://download.eclipse.org/eclipse/downloads/
-T 1498658425 20<lufimtse>30	ericwill, builds produced, but not yet linked.
-T 1498658449 18<akurtakov18>	I'm working on starting doing 4.7.1 maintenance builds as we speak
-T 1498658468 18<akurtakov18>	aiming that all this is fixed by eow
-T 1498658524 18<akurtakov18>	after all we have the release today
-T 1498658528 18<akurtakov18>	PARTYYY :)
-T 1498658591 18<ericwill18>	akurtakov :D
-T 1498658599 18<ericwill18>	a good reason to have some beers
-T 1498658784 18<ipun18>	oh yeah
-T 1498658787 18<ipun18>	todays the day :D
-T 1498658797 18<ipun18>	release party on blujeans it is
-T 1498744385 18<akurtakov18>	ipun: here ?
-T 1498744395 18<ipun18>	akurtakov: hey
-T 1498744409 18<akurtakov18>	what are you working on ?
-T 1498744476 18<ipun18>	i've been bug triaging this whole week but ive picked up https://bugs.eclipse.org/bugs/show_bug.cgi?id=4745
-T 1498744492 18<ipun18>	this one is pretty much done im just trying to see if i can set up a windows VM to test how it looks
-T 1498744508 18<ipun18>	im waiting for Leo to test it on OSX but hes not in yet
-T 1498744926 18<akurtakov18>	please look at TableDragSourceEffect 
-T 1498744937 18<akurtakov18>	or TreeDragSourceEffect
-T 1498744948 18<akurtakov18>	drawing is in if GTK3 block
-T 1498744956 18<ipun18>	there a bug id for that?
-T 1498744960 18<akurtakov18>	but doing cairo drawing should be suitable for all
-T 1498744963 18<akurtakov18>	no
-T 1498744968 18<akurtakov18>	just saw it
-T 1498744974 18<akurtakov18>	while looking at other things
-T 1498744997 18<akurtakov18>	I don't know how much porting would be needed
-T 1498745005 18<akurtakov18>	probably none for the actual drawing
-T 1498745015 18<akurtakov18>	but I would expect some "hooking" fun
-T 1498745023 18<akurtakov18>	as it doesn't work out of the box :)
-T 1498745270 18<ipun18>	okay i will take a look
-T 1498745459 18<akurtakov18>	feel free to open a bug
-T 1498745475 18<akurtakov18>	it's just smth I found while looking to remove gdkdraw
-T 1498745839 18<ipun18>	akurtakov: so did you want to remove cairo or remove the guard?
-T 1498745842 18*	ipun is slightly confused
-T 1498745854 18<akurtakov18>	remove the else clause
-T 1498745859 18<akurtakov18>	aka not cairo drawing
-T 1498746450 18<ipun18>	akurtakov: okay. But still have a solution for GTK2 i assume?
-T 1498748621 19<ericwill>	lufimtse color port tests ready to be reviewed once more
-T 1498760346 19<akurtakov>	lufimtse: http://download.eclipse.org/eclipse/downloads/
-T 1498760356 18<akurtakov18>	4.8 I builds are shown now 
-T 1498763653 20<lufimtse>30	akurtakov, ooeee
-T 1498763680 19<akurtakov>	lufimtse: 4.7.1 builds should be up by Tue
-T 1498763705 18<akurtakov18>	it involved me requesting resources and pde commit rights so I can speed it up in the future
-T 1498829430 18<akurtakov18>	ipun: how is the dnd effect stuff going ?
-T 1498829934 18<ipun18>	akurtakov: good, i was just about to msg you
-T 1498829954 18<ipun18>	i spent a while on #cairo and #gtk to figure this out
-T 1498829961 18<akurtakov18>	so sounds doable?
-T 1498829990 18<ipun18>	theres a small problem. The way that GTK gives us the drag icon differs in GTK2 vs GTK3
-T 1498830013 18<ipun18>	gtk_tree_view_create_row_drag_icon() is not deprecated and is in both versions, but they return different values
-T 1498830029 18<ipun18>	in GTK2 a GDKpixmap is returned, while GTK3 returns a cairo surface
-T 1498830069 18<ipun18>	they've dropped support for GdkPixmap for Cairo as of GTK3, which makes it difficult as there is no methods in GTK2 that will give us a cairo surface image instead
-T 1498830082 18<ipun18>	their fix was basically for GTK3, which kind of screws things up for us 
-T 1498830322 18<ipun18>	what do you think?
-T 1498830399 18<akurtakov18>	not sure I follow
-T 1498830408 18<akurtakov18>	we work dynamically
-T 1498830423 18<akurtakov18>	and GdkPixmap is smth we can use with cairo
-T 1498830430 18<akurtakov18>	on gtk2 
-T 1498830433 18<akurtakov18>	or not?
-T 1498830487 18<ipun18>	so basically in Gtk2 a GdkPixmap is returned, which is deprecated
-T 1498830493 18<ipun18>	but, we can convert the pixmap to cairo using gdk_cairo_set_source_pixmap
-T 1498830499 18<ipun18>	however, that method is removed in GTK3
-T 1498830518 18<akurtakov18>	which is fine
-T 1498830521 18<ipun18>	so we will still need a (OS.GTK3) conditional
-T 1498830525 18<akurtakov18>	ok
-T 1498830534 18<ipun18>	are you okay with that?
-T 1498830537 18<akurtakov18>	yes
-T 1498830543 18<ipun18>	kk
-T 1498830550 18<ipun18>	ill come up with something asap
-T 1498830553 18<akurtakov18>	having a cairo drawing (even if pixmap based) on gtk2
-T 1498830560 18<akurtakov18>	is better than gdkdrawable
-T 1498830570 18<akurtakov18>	which was deprecated even before that :)
-T 1498830583 18<akurtakov18>	and it allow me nuke all gdkdrawable stuff :)
-T 1498830614 18<ipun18>	sounds good, i think this is very possible then :)
-T 1498831607 18<akurtakov18>	one hell of a commit coming guys :)
-T 1498831965 18<akurtakov18>	https://git.eclipse.org/r/#/c/100472/ 
-T 1498831975 18<akurtakov18>	I would appreciate a quick glance
-T 1498832203 18<ipun18>	akurtakov: oh my...
-T 1498832212 19<ericwill>	lufimtse ^^
-T 1498832401 19<ipun>	i dont think lufimtse is here
-T 1498832405 18<ipun18>	hes not in the office
-T 1498832420 18<ipun18>	he'll show up though I talked to him last night
-T 1498832443 18<akurtakov18>	ericwill: btw, mylyn notification background is broken with the latest build
-T 1498832520 18<akurtakov18>	ericwill: anyway, I'll push it unless you find issue while I do same surgery to TextLayout :)
-T 1498832570 18<ericwill18>	akurtakov screenshot of breakage?
-T 1498832582 18<akurtakov18>	ericwill: for mylyn ?
-T 1498832585 18<ericwill18>	akurtakov yeah
-T 1498832742 18<akurtakov18>	meh, it worked now
-T 1498832752 18<akurtakov18>	worst case , doesn't happen everytime
-T 1498832767 18<akurtakov18>	ericwill: ok, open preferences
-T 1498832798 18<akurtakov18>	do you see the right column being all white background ?
-T 1498832831 18<ericwill18>	window -> preferences?
-T 1498832835 18<akurtakov18>	I think it's same thing there 
-T 1498832837 18<akurtakov18>	yes
-T 1498832900 18<ericwill18>	preferences window looks fine to me
-T 1498832920 18<ericwill18>	or is this under some specific preference?
-T 1498832967 18<akurtakov18>	ericwill: are you unde rwayland ?
-T 1498833006 18<ericwill18>	akurtakov no
-T 1498833010 18<ericwill18>	are you?
-T 1498833158 18<akurtakov18>	yes
-T 1498833195 18<ericwill18>	let me try it, brb
-T 1498833309 18<ericwill18>	akurtakov still looks fine to me
-T 1498833330 18<akurtakov18>	hmm ok
-T 1498833335 18<akurtakov18>	please stay on wayland
-T 1498833341 18<akurtakov18>	it might come later :)
-T 1498833352 18<ericwill18>	will do
-T 1498833357 18<akurtakov18>	good idea in general :)
-T 1498833391 18<ericwill18>	a wayland only color bug would be weird
-T 1498833403 18<akurtakov18>	it is so awkward
-T 1498833422 18<akurtakov18>	my swt involvement started with adding all these ifs for gtk3
-T 1498833438 18<akurtakov18>	actually with cairo in gtk 2.18 :)
-T 1498833451 18<akurtakov18>	feels like closing the loop now by removing the old stuff
-T 1498833490 18<ericwill18>	it's come full circle!
-T 1498833813 18<akurtakov18>	yeah
-T 1498833828 18<akurtakov18>	so fine to push GC stuff ?
-T 1498833884 18<ericwill18>	akurtakov I don't see anything bad looking, you know more about it than me :)
-T 1498833895 18<akurtakov18>	:)
-T 1498833912 18<akurtakov18>	worst part is probably I'm the only one in the project remembering this shit :)
-T 1498834767 18<akurtakov18>	ericwill: I had to restart my ide
-T 1498834772 18<akurtakov18>	preferences are now fine
-T 1498834784 18<akurtakov18>	so there is smth somewhere causing the issues later
-T 1498834812 18<ericwill18>	strange
-T 1498834828 18<ericwill18>	not re-drawing properly maybe?
-T 1498834930 20<lufimtse>30	ericwill, hello'
-T 1498835066 19<ericwill>	lufimtse hi, it's okay
-T 1498835072 18<ericwill18>	Alex already went ahead and merged
-T 1498836009 18<akurtakov18>	if you guys don't notice any change I did good job :)
-T 1498836272 18<akurtakov18>	ericwill: ok, so I got the preferences dialog background white again
-T 1498836304 18<ericwill18>	akurtakov anything specific to reproduce the issue?
-T 1498836317 18<akurtakov18>	ericwill: no, regular coding stuff
-T 1498836325 18<akurtakov18>	jump to navigation search for references and etc.
-T 1498836335 18<akurtakov18>	after an hour doing so I get it repro
-T 1498836363 18<ericwill18>	very weird
-T 1498836373 18<ericwill18>	if it happens only on Wayland -- even weirder
-T 1498836463 18<ipun18>	akurtakov: so its looking more doable to get this done but i might have to rewrite getSourceImage quite a bit, might take a bit longer than a few lines changed
-T 1498836481 18<akurtakov18>	hmm
-T 1498836496 18<akurtakov18>	that's unexpected :)
-T 1498836560 18<ipun18>	yeah basically i have to do some conversion so that might change the actual logic to it
-T 1498836568 18<ipun18>	but it shouldnt be a problem, it just might look different
-T 1498836614 18<akurtakov18>	you're off on monday, right?
-T 1498836638 18<ipun18>	no im gonna be working on monday
 T 1498836654 18<akurtakov18>	ok, I'll look into it on monday and we can talk once you appear
 T 1498836658 18<ipun18>	sure
 T 1498838588 20<lufimtse>30	facebook launched a "workplace" version. Interesting..
@@ -593,3 +434,113 @@ T 1502392430 19<ipun>	lufimtse_: https://bugs.eclipse.org/bugs/show_bug.c
 T 1502392434 18<ipun18>	no QA for this one 
 T 1502723727 20*	Disconnected (20Connection timed out)
 T 1502724852 19*	Now talking on 22#swt
+T 1504042767 19*	Now talking on 22#SWT
+T 1504100245 20*	Disconnected (20Connection timed out)
+T 1504102857 19*	Now talking on 22#SWT
+T 1504276643 19*	Now talking on 22#SWT
+T 1504278301 19*	Now talking on 22#SWT
+T 1504279114 19*	Now talking on 22#SWT
+T 1504279979 19*	Now talking on 22#SWT
+T 1506355613 19*	Now talking on 22#SWT
+T 1506357975 18<ericwill18>	lufimtse https://redhat.slides.com/
+T 1506358580 18<ericwill18>	akurtakov any specific multi-page wizard where you see the color issue?
+T 1506359658 18<akurtakov18>	ericwill: update 
+T 1506359856 18<ericwill18>	akurtakov okay, thanks
+T 1506359993 18<ericwill18>	happens every time or just once in awhile?
+T 1506366252 19*	Now talking on 22#SWT
+T 1506372739 19<ericwill>	lufimtse https://redhat.slides.com/
+T 1506433110 19<akurtakov>	lufimtse: here?
+T 1506433125 18<akurtakov18>	I can reproduce it 100%
+T 1506433133 18<akurtakov18>	but have hard time finding out 
+T 1506433141 18<akurtakov18>	the root cause
+T 1506433145 18<akurtakov18>	if only there was java part pointing to the issue
+T 1506433169 18<akurtakov18>	my gut feeling is some race 
+T 1506433414 20<lufimtse>30	hey
+T 1506433434 20<lufimtse>30	I'll upgrade my webkit package to see if I can reproduce the issue.
+T 1506433450 20<lufimtse>30	or upgrade to f27...
+T 1506436190 18<akurtakov18>	or use a vm 
+T 1506436662 18<akurtakov18>	ericwill: I have just tested with orca
+T 1506436668 18<akurtakov18>	and I got some content read
+T 1506436671 18<akurtakov18>	pretty nice
+T 1506436708 18<ericwill18>	akurtakov :) there are some pieces missing, but basic support is there + no crashing/hanging
+T 1506436713 18<ericwill18>	I am going to write a blog post and tweet about it
+T 1506436779 18<akurtakov18>	ericwill: cool
+T 1506436786 18<akurtakov18>	buttons are not yet read, right?
+T 1506436848 18<ericwill18>	which buttons
+T 1506436880 18<ericwill18>	they should be, if they have focus or are clicked
+T 1506436966 18<akurtakov18>	I tried with Snippet 20
+T 1506437031 18<ericwill18>	might be because it is a child of coolbar
+T 1506437043 18<ericwill18>	the support for emulated widgets is still a work in progress
+T 1506437048 18<akurtakov18>	ok, I see
+T 1506438641 19<akurtakov>	lufimtse: any clue for that 
+T 1506438644 18<akurtakov18>	bug
+T 1506438651 18<akurtakov18>	we have 1a rc2 this week
+T 1506438747 20<lufimtse>30	I've done an initial scan of things, can't see anything obvious wrong :-\
+T 1506438751 20<lufimtse>30	May take a while.
+T 1506438770 20<lufimtse>30	100% of my attention is on fixing this crasher first thou. 
+T 1506438909 20<lufimtse>30	btw
+T 1506438915 20<lufimtse>30	do you know much about rawhide-debuginfo?
+T 1506438938 20<lufimtse>30	Is there a way to install a webkitgtk4 with debug infos of sorts, that would give me more info
+T 1506438950 20<lufimtse>30	I noticed my stack trace is much more generic than the one that you posted,
+T 1506439003 19<akurtakov>	lufimtse: I attached to the process with gdb
+T 1506439031 18<akurtakov18>	and generated the backtrace from there after the sigkill
+T 1506439065 19<akurtakov>	lufimtse: so I'm speaking to get the fix in 1a if we manage to make it soon enough
+T 1506439071 18<akurtakov18>	so I'm looking into it also
+T 1506439077 18<akurtakov18>	but so far not a clue
+T 1506439191 20<lufimtse>30	Let me try to attach as you did.
+T 1506439528 20<lufimtse>30	akurtakov, I now remember that gdb produces better output if I download the ".debug" packages. Forgot about those. Will investigate.
+T 1506441531 19<akurtakov>	lufimtse: better with gdb attach ?
+T 1506441744 20<lufimtse>30	I've installed a bunch of debug libs and can debug the crash on the webkit side a bit.
+T 1506441746 20<lufimtse>30	akurtakov, 
+T 1506441754 20<lufimtse>30	investigating now..
+T 1506441773 19<akurtakov>	lufimtse: I'm done for now, please send me an email so hopefully I can pick up tomorrow
+T 1506441780 20<lufimtse>30	akurtakov, ok
+T 1506441781 18<akurtakov18>	if you haven't done it by then :)
+T 1506516493 19<akurtakov>	lufimtse: hey
+T 1506520771 19*	Now talking on 22#SWT
+T 1506520821 20<lufimtse>30	akurtakov, morning
+T 1506520916 20<lufimtse>30	akurtakov, I typed up a comment in the bug, but forgot to submit it yesteday. Posted it just now.
+T 1506520933 20<lufimtse>30	I have a workaround to fix crash, but currently investigating root cause.
+T 1506524910 19<akurtakov>	lufimtse: hey 
+T 1506524923 18<akurtakov18>	I wonder why the container_add causes it
+T 1506524937 20<lufimtse>30	my theory is that during display dispose, it disposes webkit
+T 1506524941 20<lufimtse>30	then webkit tries to dispose again
+T 1506524949 20<lufimtse>30	display disposes recursivley down...
+T 1506524950 20<lufimtse>30	maybe
+T 1506525067 20<lufimtse>30	As a sidenode, the coverage tool helped a lot narrowing down code that ran and code that didn't
+T 1506525284 18<akurtakov18>	well, display dispose should end up calling browser dispose
+T 1506525292 18<akurtakov18>	which should dispose webkit
+T 1506525301 18<akurtakov18>	and webkit shouldn't try to dispose later
+T 1506525322 20<lufimtse>30	*shouldn't* :-)
+T 1506525366 20<lufimtse>30	In the exit handler, in jvm, it seems gblib-c does a call like "g_object_unref(webView)"
+T 1506525370 20<lufimtse>30	I'm curious as to why...
+T 1506525385 18<akurtakov18>	what calls it ?
+T 1506525386 20<lufimtse>30	That call then triggers the assertion
+T 1506525429 20<lufimtse>30	__libc_start_main ... __run_exit_handlers () ... g_object_unref(..)
+T 1506525445 20<lufimtse>30	I need to investigate these exit handlers manybe
+T 1506525631 18<akurtakov18>	hmm if it's webkit own exit handler
+T 1506525641 18<akurtakov18>	maybe we shouldn't dispose it ourself
+T 1506525658 20<lufimtse>30	hmm
+T 1506525660 20<lufimtse>30	may be the case
+T 1506525684 20<lufimtse>30	I looked into glib's exit.c, it's basically a mechanism to run clean-up tasks after main loop finishes
+T 1506525693 20<lufimtse>30	it runs functions that were registered there
+T 1506525703 20<lufimtse>30	(who registered cleanup function I wonder...)
+T 1506525709 20<lufimtse>30	maybe they added that in webkit
+T 1506526010 18<akurtakov18>	yeah, that would be my geuss
+T 1506526049 20<lufimtse>30	akurtakov, I'll tinker around with native snippets. I'll also investigate if we can somehow prevent display disposing webkit if added as container etc...
+T 1506533673 18<akurtakov18>	ipun: here?
+T 1506534198 18<ericwill18>	akurtakov he left his machine in the office on, he isn't here
+T 1506534482 18<akurtakov18>	was he in the office lately ?
+T 1506534518 18<ericwill18>	nope, he moved back to Vancouver for school
+T 1506535117 18<akurtakov18>	ok, I thought so but wondered cause of irc :)
+T 1506542441 19<ericwill>	lufimtse https://www.eclipse.org/articles/swt-design-2/sleak.htm
+T 1506614291 18<akurtakov18>	hey guys
+T 1506614300 18<akurtakov18>	ready for quick chat ?
+T 1506701344 20<lufimtse>30	Eric works from home today
+T 1506701350 20<lufimtse>30	maybe monday?
+T 1506701999 19<ericwill>	lufimtse what was the question?
+T 1506702019 20<lufimtse>30	ericwill, Alex suggested a small chat between the 3 of us. 
+T 1506702027 20<lufimtse>30	ericwill, probably monday after meeting.
+T 1506702046 19<ericwill>	lufimtse sure, sounds good
+T 1506702201 19<ericwill>	lufimtse though I can take calls from home, should the need ever arise :)
+T 1506702213 20<lufimtse>30	ok.

@@ -1,0 +1,78 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Chap 4 Network Port Security ======
+Created Monday 02 October 2017
+
+===== Managing Firewalld =====
+**Theory**
+- dissable iptables if using firewalld
+- Zones categorized via 'source address'/source rule. Also from zone.
+
+**Methods**
+firewall-cmd    (cmd)
+firewall-config (gui)
+[[/etc/firewalld]]  # to copy config across systems. Not normally edited.
+
+**firewall-cmd** 
+	--permenent  # make persistent
+	--zone=<ZONE>
+	--get-default-zone
+	--get-zones
+	--get-active-zones
+	--add-source=<CIDR>
+	--remove-source=<CIDR>
+	--list-all
+	--list-all-zones  #including non-configured once.
+	--add-service=<SERVICE>  #--remove..
+	--add-port=<PORT>	 #--remove..
+
+firewall-cmd --reload  #run after making changes to permenent config.
+
+**Example**
+firewall-cmd --set-default-zone=dmz
+firewall-cmd --permenent --zone=internal --add-source=192.168.0.0/24
+firewall-cmd --permenent --zone=internal --add-service=mysql
+firewall-cmd --reload
+
+**Services defined:**
+[[/usr/lib/firewalld/services]]   #system managed folder.
+[[/etc/firewalld/services]]       #put your custom definitions here. (not into [[/usr]])
+
+**Man pages:**
+firewalld   #lists dirs
+
+==== [x] Practice ====
+[ ] To Anki 
+systemctl status firewalld.service
+yum install httpd mod_ssl -y
+systemctl enable httpd.service
+systemctl start httpd.service  #status...
+[[/var/www/html/index.html]]  # COFFEE!     #  to find: 'locate www | grep html'
+
+firewall-cmd --set-default-zone=dmz
+firewall-cmd --permanent --zone=work --add-source=172.25.0.0/24
+firewall-cmd --permanent --zone=work --add-service=https
+firewall-cmd --reload 
+
+firewall-cmd --get-default-zone  # see current zone
+firewall-cmd --zone=work --list-all  #observe 'https' & 'ssh' are allowed.
+
+curl http://server0.example.com
+curl -k https://server0.example.com   #-k == insecure 
+
+
+===== Managing Rich Rules =====
+
+
+Man Pages:
+firewalld.richlanguage
+
+
+
+
+===== Masquerading and Port Forwarding =====
+
+===== Managing SELinux Port Labeling =====
+
+===== Lab =====

@@ -1,0 +1,40 @@
+#!/bin/bash
+clip=`getclip`
+
+MSG="assert "
+printf "Webkit1:  "
+grep $clip webkitversion1
+if [ "$?" -ne 0 ]; then
+	WEBKIT1=0
+	echo ""
+else
+	MSG=$MSG'WEBKIT1'
+	WEBKIT1=1	
+fi
+
+printf "Webkit2:  "
+grep $clip webkitversion2 
+if [ "$?" -ne 0 ]; then
+	WEBKIT2=0
+	echo ""
+	#echo "Not found in webkit2"
+else
+	if [ $WEBKIT1 == "1" ]; then
+		MSG=$MSG" || "
+	fi
+	MSG=$MSG"WEBKIT2"
+	WEBKIT2=1
+	echo ""
+	#echo "Found in webkit2"
+fi
+# MSG=$MSG";"
+
+if [ $WEBKIT1 == "1" -a $WEBKIT2 == "1" ]; then
+	MSG=$MSG";"
+elif [ $WEBKIT1 == "1" ]; then
+	MSG=$MSG" : Webkit1AssertMsg;"
+elif [ $WEBKIT2 == "1" ]; then
+	MSG=$MSG" : Webkit2AssertMsg;"
+fi
+
+sleep 2 && xdotool type "$MSG"

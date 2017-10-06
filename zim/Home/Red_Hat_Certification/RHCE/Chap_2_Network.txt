@@ -1,0 +1,100 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Chap 2 Network ======
+Created Thursday 10 August 2017
+
+===== nmcli =====
+nmcli dev status   #device
+nmcli dev dis
+
+nmcli con show
+nmcli con show NAME   | grep ipv4
+nmcli con add con-name NAME ..
+nmcli con mod NAME + ipv4.dns 123...    #remove space after +.
+nmcli con reload
+nmcli con up NAME
+nmcli con del NAME
+
+ip addr show
+
+hostnamectl set-hostname MyPc
+
+[[/etc/sysconfig/network-scripts/ifcfg-NAME]]   place to edit connections manually
+(!)- If you change a dynamic connection to static, you should set **ipv4.method manual.**
+connection.autoconnect yes  # automatically activate this on boot.
+
+Summary @ pg 30.
+
+===== Ipv6  (2.3) Theory =====
+See: [[Tech, OS:Networking:IPv6]]
+
+
+===== Ipv6 (2.4) Configuration =====
+#----------- Assignment 
+nmcli con show example | grep ipv6
+nmcli con mod example ipv6.address 'fddb:fe2a:ab1e::d/64 fddb:....'  #ip/gw
+nmcli con mod example ipv6.method manual
+
+# to reload settings:
+nmcli con dev dis eno1
+nmcli con up example
+
+#----------- Config 
+# Statically assign address with [[/64]] scope.
+nmcli con add con-name eno2 type ethernet ifname eno2 ip6 2001:db8:0:1::c000:207**/64** gw6 2001:db8:0:1::1 ip4 192.0.2.7/24 gw4 192.0.2.1
+nmcli con show static-eth0 | grep ipv6
+nmcli con mod static-eth0 ipv6.address "2001:db8:0:1::a00:1/64 2001:db8:0:1::1"
+
+(!) Changes from auto/dhcp to manual need to be accomponied by setting ipv6.method = manual  
+	ipv6.method= manual | auto (SLAAC) | dhcp (but not SLAAC)
+
+#------------- troubleshooting
+ip -6 route show 
+ping6 fddb:fe2a .... 
+ping6 ff02::1%eno1    #ping local pc's 
+
+tracepath6
+traceroute -6
+
+ss -A inet -n
+netstat -46n 
+
+ss/netstat args
+  -n  show numbers instead of port names
+  -t -u show tcp/udp sockets
+  -l  show only listening ports
+  -a  show all listening and established sockets
+  -p  show processes using the sockets
+  -A inet (inet46 - show ipv4 and ipv6 info)
+
+
+===== Ipv6 practice =====
+
+ip link   #show interfaces. 
+nmcli con show
+nmcli con add con-name eno1 type ethernet ifname eno1
+
+
+[*] Anki 
+Q: Configure eno1 to have a static IPv6 address of fddb:fe2a:ab1e::c0a8:1 with a standard /64 subnet prefix. 
+Use fddb:fe2a:ab1e::c0a8:fe as the IPv6 gateway. 
+
+A:
+nmcli con mod eno1 ipv6.addresses 'fddb:fe2a:ab1e::c0a8:1/64 fddb :fe2a:ab1e::c0a8:fe'
+nmcli con mod eno1 ipv6.method manual   #<<< 
+
+nmcli con down eno1  # restart
+nmcli con up eno1
+
+nmcli addr show dev eno1 # confirm configuration 
+
+ip -6 route    # find routing info for ipv6
+
+ping6 ff02::1%eno1  #ping all hosts on network. (maybe not anki?)
+
+
+====== Resources ======
+nmcli nice youtube vid:
+Sander van Vugt, RhatCertification
+https://www.youtube.com/watch?v=ptoOJFfH5iI

@@ -1,0 +1,19 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Headers and Libraries order ======
+Created Thursday 14 September 2017
+
+===== About =====
+When **compiling** (e.g generating object code), gcc needs to be told where to look for include files (CFLAGS).
+  exact location for CFLAGS doesn't seem to matter, but often near beginning.
+ gcc **-I/usr/include/gtk-3.0** -c hello.c #generates a "hello.o"
+
+When **linking**, gcc needs libraries **AFTER**.
+  gcc -g -o hello hello.o **-lgtk3 -l...**
+
+===== When using with pkg-config =====
+CFLAGS=`pkg-config --cflags gtk+-3.0` -g3 -Wall    # 	-I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib64/glib/include
+LIBS=`pkg-config --libs`			   # 	-lgtk -lgdk -lXi -lXext -lX11 -lm -lglib
+**$(CC) $(CFLAGS) -o $@-bin $@.c $(LIBS)**
+

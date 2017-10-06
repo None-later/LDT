@@ -1,0 +1,61 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== IPv6 ======
+Created Monday 11 September 2017
+
+==== Features ====
+- No nat
+- Stateless autoconfig 
+- IPsec built in.
+
+==== About ====
+- Ipv4: 32 bits.
+- Ipv6: 128 bit number, (16bits * 8)
+- leading zeros in group don't need to be written. e.g:   2001:10:0:1:... 
+- Only one '::' can be substituted for a group of :0000:0000...    (left most preferred in)
+- lower case hex
+- ip with port enclosed:   [2001:...::1]:80
+- Subnet is standard [[/64]] , provider provides [[/48]] & 16 bits can be used for subnets. 
+{{./pasted_image.png}}
+
+==== Types ====
+	- **Unicast** - one address 
+		- global - public, 2000::/3 -> 001...  (see http://study-ccna.com/ipv6-global-unicast-addresses/)  
+		- unique local - (like 10.*). FD00::/8. (see http://study-ccna.com/ipv6-unique-local-addresses/ )
+		- link local - only to local subnet. Used by every i6 interface. prefix FE80
+	- **Anycast** - one or more, (e.g load balancing
+	- **Multicast** - one to many hosts.
+		- FF00:: [[/8]]  , then 8 bits for scope. (1 interface local, 2 link local...) see: http://study-ccna.com/ipv6-multicast-addresses/
+		- ex: 	ping ff02::1%eth  - pings all local pcs.
+		
+	(ipv4 broadcast = anycast/multicast)
+
+
+==== Special addresses: ====
+::1/128 - localhost
+::  - unspecified like  0.0.0.0
+
+2000:/3 - global 
+FD00::/8  - local
+FE80:: [[/10]] - link local addresses 
+	Constructed from MAC address 
+	network interface must be appended with **scope identifier** %. e.g  ping6 fe80:....:bbcc%eth0
+FF00::/8 Multicast 
+	also uses scope identifier
+	special: ff02::1 - all-nodes link-local -> 546 client
+
+
+==== Address Configurations ====
+Static addressing.
+	Not usable:
+	- 0000:...:0000 interface ID is router
+	- [[fdff : ff ..... : ff80]] - ...ffff 
+
+Dynamic
+	1) client -> udp msg [ff02::1:2]547 -> server -> 
+	2) SLAAC - stateless  
+
+
+==== Misc Sources ====
+http://study-ccna.com/what-is-ipv6/ 

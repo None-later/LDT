@@ -1,0 +1,125 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Chap 3 Link Aggregation and Bridging ======
+Created Saturday 16 September 2017
+
+====== [x] 3.1 Configure Network Teaming ======
+- **Team interface** (master/logical, ip/gw, type=team)
+	- port interface 1  (slave/physical, connected to interface, type=team-slave)
+	- port interface 2
+	...
+
+Making team interface:
+	nmcli con add type **team** con-name team0 ifname team0 config '{"runner": {"name": "loadbalance"}}'  [2]
+	nmcli con mod team0 ipv4.addresses 1.2.3.4/24
+	nmcli con mod team0 ipv4.method manual
+
+Adding port interfaces:
+	nmcli con add type **team-slave** ifname eth1 master team0    # optional: con-name team0-eth1
+
+Turn on/off
+	nmcli con up team0  #logical
+	nmcli dev dis eth0  #physical
+
+teamdctl team0 state   #info
+
+misc:
+	ip link  # show links.
+
+
+==== Practice ====
+++ Teaming interface:	
+	nmcli con add type team con-name team0 ifname team0 config '{"runner": {"name": "activebackup"}}'
+	nmcli con mod team0 ipv4.addresses '192.168.0.100/24'
+	nmcli con mod team0 ipv4.method manual
+
+++ Slaves:
+	nmcli con add type team-slave con-name team0-port1 ifname eno1 master team0
+	nmcli con add type team-slave con-name team0-port2 ifname eno2 master team0
+
+Inquire about current state:
+	**teamdctl team0 state**
+
+
+===== Man pages: =====
+[1] nmcli-examples 
+[2] teamd.conf   # Json explanation.  (see also 'teamd')
+	teamdctl
+
+
+====== [x] 3.3 Managing Network Teaming ======
+[[/etc/sysconfig/network-scripts]]
+For manual reloads:
+	nmcli con load ifcfg-...
+	nmcli con down/up team0
+
+example JSON's and ifcfg's 
+	[[/usr/share/doc/teamd/]]	    [X] Anki 
+
+nmcli con mod IFACE **team.config** JSON  [X] Anki
+
+Troubleshoot:
+	teamnl team0 [ports|option]    #see info about state of things.  [] Anki?
+	teamdctl team0 state
+	teamdctl team0 config dump
+
+Turning on after modification:
+- turn on 'team' connection
+- turn on 'port' devices
+
+===== Practice =====
+[*] Anki
+nmcli con mod team0 team.config '{"runner": {"name": "roundrobin"}}'
+teamdctl team0 state
+teamdctl team0 config dump
+teamnl team0 options
+
+
+
+
+====== [x] 3.5 Software Bridges ======
+connection: bridge
+	port (bridge-slave) port1, port2... 
+[*] Anki 	
+nmcli con add **type bridge** con-name br0 ifname br0
+nmcli con add **type bridge-slave** con-name br0-port1 ifname eth1 master br0
+nmcli con add type bridge-slave con-name br0-port2 ifname eth2 master br0
+brctl show
+
+
+====== [] Lab ======
+[*] Need to watch the video
+[*] I need to figure out how to memorize all those manual config changes? Or practice on regular basis...
+	Problem seems to be the ifcfg-brteam0, can't memorize which lines should go in there.
+	Let's try to use nmcli to create a dummy for me.
+
+
+nmcli con add type team con-name team0 ifname team0 config '{"runner": {"name": "activebackup"}}'
+nmcli con add type team-slave con-name team0-port1 ifname eno1 master team0
+nmcli con add type team-slave con-name team0-port2 ifname eno2 master team0
+
+nmcli dev dis team0
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+
+Edit:
+ifcfg-team0
+	++BRIDGE=brteam0
+
+ifcfg-team0-port1 & 2
+	<remove 'ip' info>
+
+nmcli con add type bridge con-name brteam0 ifname brteam0 ip 192.168.100/24   # use as base.
+ifcfg-brteam0
+	<keep only relevant lines>
+	DEVICE=brteam0
+	ONBOOT=yes
+	TYPE=Bridge
+	IPADDR0=192.168.0.100
+	PREFIX0=24
+
+systemctl restart network
+ping -I brteam0 192.168.0.254
+
+nm-settings-ifcfg-rh << not on RHEL 7 vm?

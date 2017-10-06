@@ -4530,3 +4530,147 @@ Aug 14 11:15:27 *	Disconnected (Connection timed out)
 Aug 14 11:34:12 *	Now talking on #swt
 **** ENDING LOGGING AT Mon Aug 14 16:50:14 2017
 
+**** BEGIN LOGGING AT Tue Aug 29 17:39:27 2017
+
+Aug 29 17:39:27 *	Now talking on #SWT
+Aug 30 09:37:25 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Aug 30 09:37:25 2017
+
+**** BEGIN LOGGING AT Wed Aug 30 10:20:57 2017
+
+Aug 30 10:20:57 *	Now talking on #SWT
+**** ENDING LOGGING AT Wed Aug 30 12:26:59 2017
+
+**** BEGIN LOGGING AT Fri Sep  1 10:37:23 2017
+
+Sep 01 10:37:23 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Sep  1 10:58:57 2017
+
+**** BEGIN LOGGING AT Fri Sep  1 11:05:01 2017
+
+Sep 01 11:05:01 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Sep  1 11:05:31 2017
+
+**** BEGIN LOGGING AT Fri Sep  1 11:18:34 2017
+
+Sep 01 11:18:34 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Sep  1 11:21:19 2017
+
+**** BEGIN LOGGING AT Fri Sep  1 11:32:59 2017
+
+Sep 01 11:32:59 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Sep  1 11:43:28 2017
+
+**** BEGIN LOGGING AT Mon Sep 25 12:06:53 2017
+
+Sep 25 12:06:53 *	Now talking on #SWT
+Sep 25 12:46:15 <ericwill>	lufimtse https://redhat.slides.com/
+Sep 25 12:56:20 <ericwill>	akurtakov any specific multi-page wizard where you see the color issue?
+Sep 25 13:14:18 <akurtakov>	ericwill: update 
+Sep 25 13:17:36 <ericwill>	akurtakov okay, thanks
+Sep 25 13:19:53 <ericwill>	happens every time or just once in awhile?
+**** ENDING LOGGING AT Mon Sep 25 15:04:07 2017
+
+**** BEGIN LOGGING AT Mon Sep 25 15:04:12 2017
+
+Sep 25 15:04:12 *	Now talking on #SWT
+Sep 25 16:52:19 <ericwill>	lufimtse https://redhat.slides.com/
+Sep 26 09:38:30 <akurtakov>	lufimtse: here?
+Sep 26 09:38:45 <akurtakov>	I can reproduce it 100%
+Sep 26 09:38:53 <akurtakov>	but have hard time finding out 
+Sep 26 09:39:01 <akurtakov>	the root cause
+Sep 26 09:39:05 <akurtakov>	if only there was java part pointing to the issue
+Sep 26 09:39:29 <akurtakov>	my gut feeling is some race 
+Sep 26 09:43:34 <lufimtse>	hey
+Sep 26 09:43:54 <lufimtse>	I'll upgrade my webkit package to see if I can reproduce the issue.
+Sep 26 09:44:10 <lufimtse>	or upgrade to f27...
+Sep 26 10:29:50 <akurtakov>	or use a vm 
+Sep 26 10:37:42 <akurtakov>	ericwill: I have just tested with orca
+Sep 26 10:37:48 <akurtakov>	and I got some content read
+Sep 26 10:37:51 <akurtakov>	pretty nice
+Sep 26 10:38:28 <ericwill>	akurtakov :) there are some pieces missing, but basic support is there + no crashing/hanging
+Sep 26 10:38:33 <ericwill>	I am going to write a blog post and tweet about it
+Sep 26 10:39:39 <akurtakov>	ericwill: cool
+Sep 26 10:39:46 <akurtakov>	buttons are not yet read, right?
+Sep 26 10:40:48 <ericwill>	which buttons
+Sep 26 10:41:20 <ericwill>	they should be, if they have focus or are clicked
+Sep 26 10:42:46 <akurtakov>	I tried with Snippet 20
+Sep 26 10:43:51 <ericwill>	might be because it is a child of coolbar
+Sep 26 10:44:03 <ericwill>	the support for emulated widgets is still a work in progress
+Sep 26 10:44:08 <akurtakov>	ok, I see
+Sep 26 11:10:41 <akurtakov>	lufimtse: any clue for that 
+Sep 26 11:10:44 <akurtakov>	bug
+Sep 26 11:10:51 <akurtakov>	we have 1a rc2 this week
+Sep 26 11:12:27 <lufimtse>	I've done an initial scan of things, can't see anything obvious wrong :-\
+Sep 26 11:12:31 <lufimtse>	May take a while.
+Sep 26 11:12:50 <lufimtse>	100% of my attention is on fixing this crasher first thou. 
+Sep 26 11:15:09 <lufimtse>	btw
+Sep 26 11:15:15 <lufimtse>	do you know much about rawhide-debuginfo?
+Sep 26 11:15:38 <lufimtse>	Is there a way to install a webkitgtk4 with debug infos of sorts, that would give me more info
+Sep 26 11:15:50 <lufimtse>	I noticed my stack trace is much more generic than the one that you posted,
+Sep 26 11:16:43 <akurtakov>	lufimtse: I attached to the process with gdb
+Sep 26 11:17:11 <akurtakov>	and generated the backtrace from there after the sigkill
+Sep 26 11:17:45 <akurtakov>	lufimtse: so I'm speaking to get the fix in 1a if we manage to make it soon enough
+Sep 26 11:17:51 <akurtakov>	so I'm looking into it also
+Sep 26 11:17:57 <akurtakov>	but so far not a clue
+Sep 26 11:19:51 <lufimtse>	Let me try to attach as you did.
+Sep 26 11:25:28 <lufimtse>	akurtakov, I now remember that gdb produces better output if I download the ".debug" packages. Forgot about those. Will investigate.
+Sep 26 11:58:51 <akurtakov>	lufimtse: better with gdb attach ?
+Sep 26 12:02:24 <lufimtse>	I've installed a bunch of debug libs and can debug the crash on the webkit side a bit.
+Sep 26 12:02:26 <lufimtse>	akurtakov, 
+Sep 26 12:02:34 <lufimtse>	investigating now..
+Sep 26 12:02:53 <akurtakov>	lufimtse: I'm done for now, please send me an email so hopefully I can pick up tomorrow
+Sep 26 12:03:00 <lufimtse>	akurtakov, ok
+Sep 26 12:03:01 <akurtakov>	if you haven't done it by then :)
+Sep 27 08:48:13 <akurtakov>	lufimtse: hey
+**** BEGIN LOGGING AT Wed Sep 27 09:59:31 2017
+
+Sep 27 09:59:31 *	Now talking on #SWT
+**** ENDING LOGGING AT Wed Sep 27 10:00:17 2017
+
+Sep 27 10:00:21 <lufimtse>	akurtakov, morning
+Sep 27 10:01:56 <lufimtse>	akurtakov, I typed up a comment in the bug, but forgot to submit it yesteday. Posted it just now.
+Sep 27 10:02:13 <lufimtse>	I have a workaround to fix crash, but currently investigating root cause.
+Sep 27 11:08:30 <akurtakov>	lufimtse: hey 
+Sep 27 11:08:43 <akurtakov>	I wonder why the container_add causes it
+Sep 27 11:08:57 <lufimtse>	my theory is that during display dispose, it disposes webkit
+Sep 27 11:09:01 <lufimtse>	then webkit tries to dispose again
+Sep 27 11:09:09 <lufimtse>	display disposes recursivley down...
+Sep 27 11:09:10 <lufimtse>	maybe
+Sep 27 11:11:07 <lufimtse>	As a sidenode, the coverage tool helped a lot narrowing down code that ran and code that didn't
+Sep 27 11:14:44 <akurtakov>	well, display dispose should end up calling browser dispose
+Sep 27 11:14:52 <akurtakov>	which should dispose webkit
+Sep 27 11:15:01 <akurtakov>	and webkit shouldn't try to dispose later
+Sep 27 11:15:22 <lufimtse>	*shouldn't* :-)
+Sep 27 11:16:06 <lufimtse>	In the exit handler, in jvm, it seems gblib-c does a call like "g_object_unref(webView)"
+Sep 27 11:16:10 <lufimtse>	I'm curious as to why...
+Sep 27 11:16:25 <akurtakov>	what calls it ?
+Sep 27 11:16:26 <lufimtse>	That call then triggers the assertion
+Sep 27 11:17:09 <lufimtse>	__libc_start_main ... __run_exit_handlers () ... g_object_unref(..)
+Sep 27 11:17:25 <lufimtse>	I need to investigate these exit handlers manybe
+Sep 27 11:20:31 <akurtakov>	hmm if it's webkit own exit handler
+Sep 27 11:20:41 <akurtakov>	maybe we shouldn't dispose it ourself
+Sep 27 11:20:58 <lufimtse>	hmm
+Sep 27 11:21:00 <lufimtse>	may be the case
+Sep 27 11:21:24 <lufimtse>	I looked into glib's exit.c, it's basically a mechanism to run clean-up tasks after main loop finishes
+Sep 27 11:21:33 <lufimtse>	it runs functions that were registered there
+Sep 27 11:21:43 <lufimtse>	(who registered cleanup function I wonder...)
+Sep 27 11:21:49 <lufimtse>	maybe they added that in webkit
+Sep 27 11:26:50 <akurtakov>	yeah, that would be my geuss
+Sep 27 11:27:29 <lufimtse>	akurtakov, I'll tinker around with native snippets. I'll also investigate if we can somehow prevent display disposing webkit if added as container etc...
+Sep 27 13:34:33 <akurtakov>	ipun: here?
+Sep 27 13:43:18 <ericwill>	akurtakov he left his machine in the office on, he isn't here
+Sep 27 13:48:02 <akurtakov>	was he in the office lately ?
+Sep 27 13:48:38 <ericwill>	nope, he moved back to Vancouver for school
+Sep 27 13:58:37 <akurtakov>	ok, I thought so but wondered cause of irc :)
+Sep 27 16:00:41 <ericwill>	lufimtse https://www.eclipse.org/articles/swt-design-2/sleak.htm
+Sep 28 11:58:11 <akurtakov>	hey guys
+Sep 28 11:58:20 <akurtakov>	ready for quick chat ?
+Sep 29 12:09:04 <lufimtse>	Eric works from home today
+Sep 29 12:09:10 <lufimtse>	maybe monday?
+Sep 29 12:19:59 <ericwill>	lufimtse what was the question?
+Sep 29 12:20:19 <lufimtse>	ericwill, Alex suggested a small chat between the 3 of us. 
+Sep 29 12:20:27 <lufimtse>	ericwill, probably monday after meeting.
+Sep 29 12:20:46 <ericwill>	lufimtse sure, sounds good
+Sep 29 12:23:21 <ericwill>	lufimtse though I can take calls from home, should the need ever arise :)
+Sep 29 12:23:33 <lufimtse>	ok.

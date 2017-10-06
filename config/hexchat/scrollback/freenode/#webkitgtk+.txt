@@ -1,158 +1,3 @@
-T 1496673828 18<annulen18>	if there was no IPC, it couldn't work at all :P
-T 1496673875 18<quinq18>	Nothing exposed
-T 1496673917 18<quinq18>	I'd be glad to reuse any existing IPC if possible
-T 1496673962 18<annulen18>	I'm afraid you'll need to contribute patches
-T 1496673999 18<quinq18>	I don't code C++ :/
-T 1496674002 18<keis18>	quinq: in uzbl we added a dirty IPC over pipe() to the web extensions
-T 1496674016 18<matzipan18>	but the protocol is sort of transparent to you anyway...
-T 1496674030 18<quinq18>	keis, I did that a few years ago, it ended up in something horrible
-T 1496674089 18<quinq18>	keis, you mean you're able to pass fd's between UIprocess and Webprocess?
-T 1496674105 18<keis18>	it's the same basic mechanism as any ipc
-T 1496674127 18<quinq18>	Or did you use named pipes
-T 1496674132 18<keis18>	yeah, you can inherit the fd from the ui process
-T 1496674151 18<quinq18>	Because annulen just told me those were separated process so no fd inheritage
-T 1496674156 18<quinq18>	ahhhh…
-T 1496674183 18<quinq18>	Better
-T 1496674216 18<annulen18>	I wou;dn't rely on inherited fd's because webprocess may be restarted
-T 1496674260 18<keis18>	but what would restart that if not the parent process?
-T 1496674279 18<annulen18>	indeed
-T 1496694879 20*	Disconnected (20Connection timed out)
-T 1496694901 19*	Now talking on 22#webkitgtk+
-T 1496694901 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.3, unstable: 2.17.3 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1496694901 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@48.red-79-151-132.dynamicip.rima-tde.net (24Wed May 24 08:23:23 2017)
-T 1497278905 19*	Now talking on 22#webkitgtk+
-T 1497278905 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.3, unstable: 2.17.3 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1497278905 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@48.red-79-151-132.dynamicip.rima-tde.net (24Wed May 24 08:23:24 2017)
-T 1497284258 20*	Disconnected (20Connection timed out)
-T 1497284283 19*	Now talking on 22#webkitgtk+
-T 1497284283 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.3, unstable: 2.17.3 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1497284283 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@48.red-79-151-132.dynamicip.rima-tde.net (24Wed May 24 08:23:24 2017)
-T 1497284768 18<quinq18>	hi :)
-T 1497284820 18<quinq18>	Is there a solid way I would have missed to detect when there is a change of page, from a webkitextension?
-T 1497285063 18<KaL18>	quinq: what do you mean by a change of page? a navigation?
-T 1497285083 18<quinq18>	yes
-T 1497285103 18<KaL18>	quinq: you can monitor WebKitWebPage:uri property, I think
-T 1497285114 18<KaL18>	connecting to notify::uri signal
-T 1497285116 18<quinq18>	I was using the document-loaded signal, but it's not triggered on history navigation
-T 1497285156 18<quinq18>	KaL, I think it's too early, my goal is to get the DOM document
-T 1497285174 18<KaL18>	window-object-cleared
-T 1497285209 18<quinq18>	Will I get this on history too?
-T 1497285233 18<quinq18>	Good idea anyway, let-me try that, thanks :)
-T 1497285269 18<KaL18>	I think so
-T 1497285328 18<KaL18>	maybe document-loaded should also be emitted when restoring a page from the history cache
-T 1497285440 18<quinq18>	That would help me, but I think “loaded” implies networking in the current API
-T 1497285488 18<KaL18>	I think I've discussed this in the past with apple devs, but I don't remember
-T 1497285515 18<quinq18>	(for example the Setting auto-load-images is only checked when there is an actual network load, not on history navigation)
-T 1497285534 18<quinq18>	ok
-T 1497285615 18<quinq18>	But I'd be glad if it was checked everytime :)
-T 1497285836 18<quinq18>	Is there a unique ScriptWorld per webprocess for different pages?
-T 1497286028 18<KaL18>	quinq: there's a default one, but the signal passes the page as parameter
-T 1497286065 18<KaL18>	and frame, because it's per frame too, you can check if it's the main frame, which is what you want
-T 1497286103 18<quinq18>	Yes, but I was asking regarding the connection to the object-cleared signal :)
-T 1497286119 18<quinq18>	(but I got my answer)
-T 1497286991 18<quinq18>	KaL, actually window-object-cleared isn't triggered on history navigation either
-T 1497287023 18<quinq18>	Which is strange, I wonder nobody reported this before
-T 1497287123 18<KaL18>	I'm surprised too
-T 1497287147 18<KaL18>	I wonder how the ephy overview works, for example when loaded from history cache
-T 1497287283 18<quinq18>	KaL, it looks like it's linked to navigation events
-T 1497287324 18<quinq18>	Surely from the UI over dbus
-T 1497287338 18<quinq18>	ephy_web_overview_model_urls_changed() in embed/web-extension/ephy-web-overview.c
-T 1497459420 18<Tirifto18>	Hello all!
-T 1497459557 18<Tirifto18>	I'm trying to compile webkit2gtk on Parabola (Arch Linux derivative), but it fails to check the signatures because of unknown public key. Is my understanding right that I first need to import the packager's key from somewhere, and if so, then where can I find it?
-T 1497460030 18<quinq18>	Tirifto, ask parabola
-T 1497513284 18<berto18>	Trevinho: the signatures are here https://webkitgtk.org/releases/
-T 1497513298 18<berto18>	the public key should be in the usual public key repositories
-T 1497513357 18<berto18>	https://pgp.mit.edu/pks/lookup?search=0xD7FCF61CF9A2DEAB31D81BD3F3D322D0EC4582C3&op=vindex
-T 1497540583 18<sideca18>	Hi, I've been having a major headache trying to get webkitgtk working with a Java application (Pentaho Spoon).  Every time I open a new dialog box from the base application it appears as blank.
-T 1497540616 18<sideca18>	I'm using the version of webkitgtk that ships with my version of Red Hat (6.5 64-bit):  webkitgtk-1.2.6-5.el6.x86_64
-T 1497540659 18<sideca18>	Originally the only error message that was showing was the following:
-T 1497540672 18<sideca18>	https://thepasteb.in/p/r0hwJLy8zXrfK
-T 1497540804 18<sideca18>	webkitgtk-1.4 provides the required library (libwebkitgtk-1.0), whoever if I use that version of webkitgtkt the Java application refuses to launch with a fatal JVM crash.
-T 1497540888 18<sideca18>	Therefore I stuck with webgtk-1.2.  I copied the library (/usr/lib64/libwebkitgtk-1.0.so.0.7.3) whilst 1.4 was installed.and manually linked the library successfully:
-T 1497540907 18<sideca18>	[root@FW1AE1-PTHo1 data-integration]# ldconfig -p | grep webkitgtk-1.0
-T 1497540907 18<sideca18>	        libwebkitgtk-1.0.so.0 (libc6,x86-64) => /usr/lib64/libwebkitgtk-1.0.so.0
-T 1497540957 18<sideca18>	This left the application 100% error free.  However the problem still persists and I have no clue what I'm missing.
-T 1497540984 18<sideca18>	Is this a familiar scenario for anyone?  Any ideas please?
-T 1497540990 18<annulen18>	is this commercial application? if yes, better ask those who sold it to you
-T 1497541015 18<sideca18>	No, it's the Community Edition
-T 1497541031 18<annulen18>	do they support rhel 6?
-T 1497541065 18<annulen18>	did you install binaries or compiled from source?
-T 1497541090 18<sideca18>	I believe so, will double check.
-T 1497541098 18<sideca18>	Installed from binaries.
-T 1497541121 18<annulen18>	it may sound stupid to compile java app, but there must be jni or smth like that to interact with libwebkitgtk, and issue may be in ABI incompatibility
-T 1497541234 18<sideca18>	The commercial version definitely supports RHEL 6 64-bit
-T 1497541268 18<sideca18>	I guess I can give compiling the java app a go.  Haven't explored that path yet.
-T 1497564826 18<sideca18>	thanks for your help annulen - have set up ant and am working through issues building the source.
-T 1497619251 18<quinq18>	Hi
-T 1497619314 18<quinq18>	Whith enable-write-console-messages-to-stdout true, while emitting a non-ascii character, I get unproper encoding
-T 1497619363 18<quinq18>	ie: if I type in the Console from the inspector: console.log("→");
-T 1497619380 18<quinq18>	On my terminal I can see: CONSOLE LOG â
-T 1497619410 18<quinq18>	My locale is UTF-8 (and default charset on webkit is set to UTF-8 too, but I doubt this is related anyway)
-T 1497619419 18<quinq18>	Is there something I am missing?
-T 1497619510 18<annulen18>	quinq: it might be that font taht you use in terminal doesn't have →
-T 1497619528 18<quinq18>	nope
-T 1497619531 18<annulen18>	or that enable-write-console-messages-to-stdout
-T 1497619534 18<annulen18>	corrupts output
-T 1497619556 18<quinq18>	How do you mean?
-T 1497619571 18<annulen18>	by using latin1
-T 1497619578 18<quinq18>	Yes, that was my point :)
-T 1497619583 18<annulen18>	insted of utf8
-T 1497619589 18<quinq18>	Indeed
-T 1497619626 18<annulen18>	if you find the code that performs output I can tell how to fix
-T 1497619633 18<quinq18>	Do you know if it's a know issue?
-T 1497619658 18<annulen18>	no idea
-T 1497619669 18<quinq18>	You know how to fix it, but not where it's done?
-T 1497620170 18<quinq18>	Looks like it's in JavaScriptCore/runtime/ConsoleClient.cpp anyway
-T 1497620180 18<quinq18>	printConsoleMessage
-T 1497620509 18<annulen18>	indeed, and it uses utf8
-T 1497620739 18<quinq18>	Yeah? How do you see that?
-T 1497620757 18<annulen18>	WTFLogAlways("%s", builder.toString().utf8().data());
-T 1497620765 18<quinq18>	Yeah but
-T 1497620794 18<quinq18>	ah nevermind, I thought WTF was another logging facility and the actual message was written out before that
-T 1497620830 18<quinq18>	So the issue is somewhere else
-T 1497620965 18<quinq18>	annulen, aren't you able to reproduce the issue?
-T 1497621091 18<annulen18>	it reproduces in gtk port and doesn't reproduce in qt
-T 1497621098 18<annulen18>	weird
-T 1497621134 18<KaL18>	libxml2 version maybe? it could be a problem with the parser
-T 1497621141 18<annulen18>	same
-T 1497621150 18<KaL18>	weird, then
-T 1497624725 18<annulen18>	quinq: sorry, printConsoleMessageWithArguments wasn't used in Qt port. When it's used, same thing happens
-T 1497625035 18<annulen18>	quinq: https://0x0.st/lP8.txt
-T 1497625041 18<annulen18>	proposed fix
-T 1497625076 18<annulen18>	when builder gets char* it assumes latin1
-T 1497625804 18<quinq18>	thanks annulen
-T 1497626660 18<annulen18>	quinq: https://bugs.webkit.org/show_bug.cgi?id=173470
-T 1497629019 18<quinq18>	You rock :)
-T 1497629032 18<annulen18>	\m/
-T 1497639770 18<sideca18>	Hi annulen
-T 1497639792 18<annulen18>	hi
-T 1497639794 18<sideca18>	I tried building the Pentaho Spoon Java app from source.
-T 1497639805 18<sideca18>	Built successfully
-T 1497639823 18<sideca18>	Although ran out of disk space whilst I was at lunch :(
-T 1497639851 18<sideca18>	There was no improvement with either the WebKitGTK nor the Mozilla renderers
-T 1497639873 18<sideca18>	Will see if that's still the case in a few hours once the build has completed.
-T 1497647408 18<sideca18>	Hi annulen
-T 1497647419 18<sideca18>	Just finished rebuilding the source.
-T 1497647429 18<sideca18>	Still the problem continues :(
-T 1497647442 18<sideca18>	Do you have any other ideas please?
-T 1497683119 18<drtan18>	Hi! I am building WebKitGtk+ from source. Where can I find the public key for F3D322D0EC4582C3?
-T 1497857309 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.16.3, unstable: 2.17.4 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1497863988 18<austriancoder18>	are there some wip patches to add an api to support webkit's PluginReplacement?
-T 1497875596 18<hussam18>	is it possible 2.16.3 builds correctly with gcc7.1.1 and 2.17.4 does not? I had to add #include <funcational> in a few files.
-T 1497875633 18<KaL18>	hussam: https://bugs.webkit.org/show_bug.cgi?id=173544
-T 1497875636 18<KaL18>	yes
-T 1497875652 18<hussam18>	KaL: thank you very much.
-T 1497885543 20*	Disconnected (20Connection timed out)
-T 1497885568 19*	Now talking on 22#webkitgtk+
-T 1497885568 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.3, unstable: 2.17.4 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1497885568 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@240.red-81-37-177.dynamicip.rima-tde.net (24Mon Jun 19 03:28:30 2017)
-T 1497889147 20*	Disconnected (20Connection timed out)
-T 1497889173 19*	Now talking on 22#webkitgtk+
-T 1497889173 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.3, unstable: 2.17.4 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
-T 1497889173 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@240.red-81-37-177.dynamicip.rima-tde.net (24Mon Jun 19 03:28:29 2017)
-T 1497895876 18<hussam18>	Anyone else seeing tearing in gmail.com after you open a chat dialog in 2.17.4?
-T 1497933063 18<zutt18>	hussam: i see it on 2.16.3 already
-T 1497944516 18<KaL18>	tpopela: is r217650 also needed in 2.16 branch?
 T 1497945455 18<tpopela18>	KaL, you can put it there, but JSC will crash without https://bugs.webkit.org/show_bug.cgi?id=132333 and that's not reviewed.. but include it there.. one less patch to include downstream..
 T 1497947919 18<tpopela18>	yusukesuzuki, Hi Yusuke, do you have a minute to discuss one of your changes?
 T 1497948038 18<yusukesuzuki18>	tpopela: sure,!but plz wait. I'm now out of office. I'll back 20 mins later ;)
@@ -553,3 +398,111 @@ T 1502725783 20*	Disconnected (20Connection timed out)
 T 1502725806 19*	Now talking on 22#webkitgtk+
 T 1502725806 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.90 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.14.x | https://trac.webkit.org/wiki/WebKitGTK/2.16.x | "HTML is useful for a web content rendering engine."
 T 1502725806 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Wed Aug  9 06:56:50 2017)
+T 1504042778 19*	Now talking on 22#webkitgtk+
+T 1504042778 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504042778 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1504093478 18<RdlP18>	tpopela, without instrospection support it compile fine
+T 1504093538 18<tpopela18>	RdlP, nice!
+T 1504093548 18<RdlP18>	one question, after compilation in build dir I can see a lib folder, when I do make install is these content's folder the files that install under /usr/lib?
+T 1504093562 18<RdlP18>	tpopela, by the way. Thanks for your support
+T 1504094214 18<tpopela18>	tpopela, no problem! :) no it will end in /usr/local..
+T 1504094219 18<tpopela18>	RdlP, ^
+T 1504094399 18<tpopela18>	RdlP, if you want it to end under /usr you have to pass -DDCMAKE_INSTALL_PREFIX=/usr to cmake - but that will need to recompile the whole WebKit..
+T 1504094456 18<tpopela18>	KaL, Hi Carlos sorry for the version numbers..
+T 1504100224 20*	Disconnected (20Connection timed out)
+T 1504102871 19*	Now talking on 22#webkitgtk+
+T 1504102871 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504102871 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1504276655 19*	Now talking on 22#webkitgtk+
+T 1504276655 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504276655 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1504278315 19*	Now talking on 22#webkitgtk+
+T 1504278315 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504278315 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1504279128 19*	Now talking on 22#webkitgtk+
+T 1504279128 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504279128 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1504279992 19*	Now talking on 22#webkitgtk+
+T 1504279992 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.16.6, unstable: 2.17.91 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1504279992 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@85.red-79-153-67.dynamicip.rima-tde.net (24Fri Aug 18 07:12:23 2017)
+T 1506355625 19*	Now talking on 22#webkitgtk+
+T 1506355625 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.0, unstable: 2.17.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1506355625 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@252.red-81-35-229.dynamicip.rima-tde.net (24Mon Sep 11 03:54:06 2017)
+T 1506360666 18<nikolasc18>	building webkitgtk+ -fsanitize=address is not showing any stacktrace just shows me "dmesg" WebKitWebProcess crashing, how can I build it using asan too?
+T 1506360672 18<nikolasc18>	any help?
+T 1506363053 18<nikolasc18>	is this channel dead?
+T 1506363186 18<antoyo18>	nikolasc: There's not a lot of action in this channel, indeed.
+T 1506363381 18<nikolasc18>	sad, can't find help
+T 1506364461 18<ramblurr18>	nikolasc: try the mailing list ? https://lists.webkit.org/mailman/listinfo/webkit-gtk
+T 1506364510 18<nikolasc18>	I hate mailing lists, emails keep there without any suitable answer for years
+T 1506364633 18<annulen18>	irc messages have even more chances to be left unanswered
+T 1506366264 19*	Now talking on 22#webkitgtk+
+T 1506366264 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.0, unstable: 2.17.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1506366264 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@252.red-81-35-229.dynamicip.rima-tde.net (24Mon Sep 11 03:54:06 2017)
+T 1506366413 18<kkuehl18>	hi
+T 1506366446 18<kkuehl18>	im getting a compilation failure on an instrospect dump
+T 1506366459 18<kkuehl18>	how do you troubleshoot that? using cmake and verbose=1
+T 1506366525 18<kkuehl18>	Command '['/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspect5xs5u61c/WebKit2-4.0', '--introspect-dump=/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspect5xs5u61c/functions.txt,/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspect5xs5u61c/dump.xml']' returned non-zero exit status 1
+T 1506366525 18<kkuehl18>	Command '['/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspectkk4eyk0x/WebKit2-4.0', '--introspect-dump=/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspectkk4eyk0x/functions.txt,/home/kkuehl/Downloads/webkit/build/Source/WebKit/tmp-introspectkk4eyk0x/dump.xml']' returned non-zero exit status 1
+T 1506366541 18<annulen18>	are you building trunk?
+T 1506366573 18<kkuehl18>	yes
+T 1506366610 18<kkuehl18>	well the snapshot of the source tree
+T 1506366660 18<annulen18>	how did you iobtain that snapshot?
+T 1506366671 18<kkuehl18>	 wget http://nightly.webkit.org/files/WebKit-SVN-source.tar.bz2
+T 1506366685 18<kkuehl18>	i can do svn or git if that makes a difference
+T 1506366838 18<kkuehl18>	my download was from saturday, redownloading,testing now
+T 1506367204 18<kkuehl18>	also using cmake if that makes a difference
+T 1506367738 18<nikolasc18>	building webkitgtk+ -fsanitize=address is not showing any stacktrace just shows me "dmesg" WebKitWebProcess crashing, how can I build it using asan too?
+T 1506368265 18<kkuehl18>	this is how i do asan builds, but it might not be correct
+T 1506368268 18<kkuehl18>	wget --no-check-certificate http://nightly.webkit.org/files/WebKit-SVN-source.tar.bz2 -O /WebKit-SVN-source.tar.bz2 && \
+T 1506368268 18<kkuehl18>	    tar jxvf /WebKit-SVN-source.tar.bz2 && \
+T 1506368268 18<kkuehl18>	    cd /webkit && \
+T 1506368268 18<kkuehl18>	    echo Y | Tools/gtk/install-dependencies  && \
+T 1506368268 18<kkuehl18>	    Tools/Scripts/update-webkitgtk-libs && \
+T 1506368269 18<kkuehl18>	    export CC=/usr/local/bin/clang && \
+T 1506368269 18<kkuehl18>	    export CCX=/usr/local/bin/clang++ && \
+T 1506368270 18<kkuehl18>	    mkdir build && \
+T 1506368270 18<kkuehl18>	    cd build && \
+T 1506368271 18<kkuehl18>	    cmake -DPORT=GTK -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="-fno-omit-frame-pointer -fsanitize=address" -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer -fsanitize=address"  -DUSE_LD_GOLD=OFF -DENABLE_PLUGIN_PROCESS_GTK2=OFF -DENABLE_GEOLOCATION=OFF ../ && \
+T 1506368271 18<kkuehl18>	    make VERBOSE=1 -j16
+T 1506368491 18<pochu18>	kkuehl: s/CCX/CXX/ ?
+T 1506368639 18<kkuehl18>	CMAKE_CXX_FLAGS
+T 1506368640 18<kkuehl18>	the compiler flags for compiling C++ sources. Note you can also specify switches with ADD_COMPILE_OPTIONS().
+T 1506368909 18<pochu18>	kkuehl: I mean your export CCX=/usr/local/bin/clang++
+T 1506368917 18<pochu18>	that's unlikely to work :)
+T 1506368923 18<kkuehl18>	oh lol yeah
+T 1506440090 18<ManDay18>	magomez: I'm afraid that stuff that we thought fixed (the on-demand stuff that crashed webkit) wasn't really.
+T 1506440111 18<ManDay18>	Though it might the different in cause, I'm still having problems of that kind.
+T 1506440124 18<magomez18>	ManDay :(
+T 1506440131 18<ManDay18>	yah :-(
+T 1506440137 18<magomez18>	can you create a bug report, please?
+T 1506440149 18<magomez18>	I'll lookk into it as soon as I have a moment
+T 1506440174 18<ManDay18>	magomez: Sure, I'll try to narrow it down as far as I can and then report. After building nightly I get crashes where I got the old "flickering" issue (between when you committed that fix and now)
+T 1506440206 18<magomez18>	thanks!
+T 1506440281 18<ManDay18>	just a quick question: Will I have to make any particular preparations for getting a good coredump, considering that there is a seperate WebProcess?
+T 1506441976 18<rishi`18>	Is there a way to cancel all activity inside WebView? eg., I don't want to receive any further WebView::decide-policy emissions.
+T 1506442029 18<rishi`18>	webkit_web_view_stop_loading !
+T 1506443775 18<ManDay18>	RelWithDebug already takes 1.3 gigabytes at 13%... by applying higher math I arrive at 10 gigabytes in total o_O
+T 1506443800 18<ManDay18>	i hope that my math is not correct
+T 1506443828 18<ManDay18>	oh wait, that was 1.3 gigs free
+T 1506443830 18<ManDay18>	2.6 used
+T 1506443834 18<ManDay18>	*calculating*
+T 1506443838 18<ManDay18>	o_O !
+T 1506443846 18<ManDay18>	20 bloddy gigs
+T 1506444022 18<ManDay18>	I guess heavy code*heavy buildsystem = heavy^2 build
+T 1506456674 20<lufimtse>30	Hello guys. Eclipe's Browser uses Webkitgtk. In 2.16 all is fine, in 2.18 we have a crash after a java snippet closes. It seems that g_object_unref () is now called on webview, which leads to a crash in libjavascriptcoregtk-4.0. If I g_object_ref(webview), the crash doesn't occur. Anyone know of any relevant bugfixes that could cause this?
+T 1506456723 18<antoyo18>	I also have some process crashes in my webbrowser since 2.18. I was wondering if it was my fault or not.
+T 1506456752 20<lufimtse>30	this is on Linux/x11
+T 1506456781 18<antoyo18>	I'm on the same platform.
+T 1506456792 20<lufimtse>30	antoyo, what's your stacktrace?
+T 1506456802 20<lufimtse>30	Mine kinda looks like this: https://etherpad.openstack.org/p/EclipseBug522733
+T 1506456841 18<antoyo18>	I don't think I have the same issue. In my case, it's the web process (not the UI process) that crashes.
+T 1506520785 19*	Now talking on 22#webkitgtk+
+T 1506520785 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.0, unstable: 2.17.92 | Homepage: http://webkitgtk.org/ |  http://trac.webkit.org/wiki/WebKitGTK/2.16.x | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
+T 1506520785 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@252.red-81-35-229.dynamicip.rima-tde.net (24Mon Sep 11 03:54:07 2017)
+T 1506547968 19<clopez>	lufimtse: can you please report that problem a bug at https://bugs.webkit.org/enter_bug.cgi?product=WebKit ? (select component "WebKit Gtk" )
+T 1506554677 20<lufimtse>30	clopez, thank you. I submitted a bug report: https://bugs.webkit.org/show_bug.cgi?id=177577
+T 1506554691 20<lufimtse>30	Although I'm having a hard time reproducing it in a snippet, because it occurs in the context of a jvm
+T 1506599420 18<ManDay18>	With nightly, rendering of textareas is broken
+T 1506599436 18<ManDay18>	(at least editing them)
+T 1506599615 18<ManDay18>	At least certain styled ones...

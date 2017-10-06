@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [[ "$1" == "-h" ]]; then
+	echo "Script to upload files and with '-s' param optionally shorten url."
+	echo "links are pasted to clipbord."
+	echo "Note, uploading same file twice yields same link."
+	echo "Note, editing and updating the same file yields new link"
+fi
+
+if [[ "$1" == "-s" ]]; then
+	echo "urls will be shortened"
+	VAR_SHORTURL="true"
+	shift
+fi
+
+for i in "$@"
+do
+        sha=`sha1sum "$i" | cut -f 1 -d' '`
+        ssh people.redhat.com mkdir -p "public_html/misc/${sha}"
+        scp "$i" "people.redhat.com:public_html/misc/${sha}/"
+        ssh people.redhat.com chmod a+r "public_html/misc/${sha}/$(basename "$i")"
+	fileurl="https://people.redhat.com/~lufimtse/misc/${sha}/$(basename ${i})"
+	if [[ "$VAR_SHORTURL" == "true" ]]; then
+		fileurl=$(l.bitly "${fileurl}")
+	fi
+        urllist="$urllist file:${i}  @ url: ${fileurl} \n"
+done
+
+printf "$urllist" | tee /dev/stderr | setclip

@@ -1,276 +1,3 @@
-T 1499701896 19*	Now talking on 22#eclipse
-T 1499701896 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499701896 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499701896 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499713340 18<webczat18>	how to do automated deployment of plugins and features?
-T 1499713354 18<webczat18>	I mean creating my own plugins to then deploy them somewhere
-T 1499713759 18<nitind18>	You can use the director application or other means. https://wiki.eclipse.org/Equinox/p2/Director_application
-T 1499714485 18<webczat18>	well I actually mean how to make a plugin and then release it to an update site/etc
-T 1499714506 18<webczat18>	especially if I want it to be build by a ci system
-T 1499716597 18<transhuman18>	hi I installed eclipse with PyDev my program I am building uses pandas so I went and did a pip install pandas into the main python but eclipse doesn't see it...how do i fix ...thanks in advance
-T 1499718403 18<webczat18>	transhuman: not sure if you will receive an answer here as py-dev is not a plugin released with eclipse... but maybe
-T 1499718503 18<transhuman18>	I think its a general question for eclipse .."how do i install a python module?"
-T 1499718559 18<webczat18>	py-dev is a 3'rd party plugin afaik
-T 1499718681 18<transhuman18>	is there a channel you know of anywhere for py-dev ?
-T 1499718730 18<webczat18>	unfortunately not, but pydev homepage may have links to irc channels or mailing lists
-T 1499718751 18<transhuman18>	ok thanks
-T 1499720732 18<davidmichaelkarr18>	I'm having trouble installing subversive in oxygen.  The main plugin installs fine, but when I try to select connectors, the dialog just goes away without doing anything.  There's nothing of significance in the log.
-T 1499720763 18<webczat18>	well if that happens maybe try installing with eclipse marketplace client?
-T 1499720776 18<davidmichaelkarr18>	I tried, but I can't find the connectors there.
-T 1499720812 18<webczat18>	hmm not sure then
-T 1499720819 18<webczat18>	I do not use subversive in oxygen :)
-T 1499720861 18<davidmichaelkarr18>	Ah, looks like several people have hit this. It's noted in the forum.  Looking at the workaround.
-T 1499720893 18<davidmichaelkarr18>	I'd prefer not to use SVN either, but I still have to collaborate with groups using legacy systems.
-T 1499721316 18<webczat18>	fortunately I do not have to work with that so I did not install subversive this time
-T 1499763902 18<chibby0ne18>	Does anyone know how to set the jre for Eclipse, by creating a jre directory inside the Eclipse directory on MacOSX? For Windows/Linux you can just create a directory named jre inside the eclipse directory and next to features, plugins, configuration, etc.. and copy the contents of the jre into it and Eclipse would use this jre for launching. Does anyone know how to achieve the same thing in MacOS?
-T 1499777252 18<webczat18>	hey, if I use things like baseURL etc to download eclipse during automated plugin/feature building (I meant settings in build.properties) do I still need another base eclipse to actually invoke the build script?
-T 1499779116 18<daemon87_18>	hello, I have a question related to the Display class usage, anyone that can help me with this?
-T 1499779155 18<daemon87_18>	The jboss tools call a Display.getDefault().asyncExec(new Runnable() { during the start of the bundle, which means that the Display class gets registered with the loading thread of osgi
-T 1499779211 18<daemon87_18>	and this causes failure with the rest of the eclipse framework of course ... Is there a place where i can put the init of this class (should be somewhere in a main thread)
-T 1499779216 18<daemon87_18>	any pointers? :-)
-T 1499779259 18<daemon87_18>	would be great if someone could unblock me, except uninstalling the jboss tools, since that would be annoying :-)
-T 1499783790 18<dementorr18>	a
-T 1499784417 18<nitind18>	daemon87_: What's it doing that's so heavy that it needs passing it off to an async?
-T 1499784611 18<daemon87_18>	https://github.com/jbosstools/jbosstools-base/blob/master/common/plugins/org.jboss.tools.common/src/org/jboss/tools/common/CommonPlugin.java#L43
-T 1499784634 18<daemon87_18>	it tries to load in a class and it has always been like that it seems
-T 1499784665 18<daemon87_18>	that function is called in the 'Start Level: Equinox Container: 710f71bc-337e-4a04-b147-a0153c33' -thread, while the other functions are loaded in the main thread
-T 1499784697 18<daemon87_18>	resulting in the famous - but PITA- message org.eclipse.swt.SWTException: Invalid thread access
-T 1499784734 18<daemon87_18>	I mean executed instead of loaded
-T 1499784735 18<eclipse-mm18>	<nitind> Why not just not do that there? It's a singleton, ripe for lazy initialization.
-T 1499784813 18<daemon87_18>	I was thinking of adding a simple Display.asyncExec with a message in org.eclipse.core.runtime.adaptor.EclipseStarter
-T 1499784846 18<daemon87_18>	but that wouldn't really be nice :-) Since that class is executed in the main thread ...
-T 1499784960 18<daemon87_18>	but it would get rid of all plugins that are using the Display in the start of the bundle, since that could always cause issues with the wrong thread being used I guess
-T 1499785042 18<daemon87_18>	<eclipse-mm> if you do this in the start of the bundle it would cause the dreaded 'org.eclipse.swt.SWTException: Invalid thread access' since the Display wasn't initialised yet in the main thread
-T 1499785053 18<daemon87_18>	i don't know if that makes sense what i'm saying :-)
-T 1499785115 18<daemon87_18>	since you have two threads: one because of the lazy initiliaser in 'Start Level: Equinox Container:'-thread and one in the main-thread
-T 1499785299 18<daemon87_18>	any idea?
-T 1499785490 18<nitind18>	Yes, just don't do that during plug-in start. It's a singleton that will initialize itself the first time it's actually used.
-T 1499785534 18<daemon87_18>	I'm not the developer of that plugin, only a simple user of the jboss tools :-)
-T 1499785573 18<daemon87_18>	I know it's bad, or i'll create a pull-request and submit a patch for it
-T 1499785951 18<daemon87_18>	thanks for the confirmation :-)
-T 1499786968 18<nitind18>	thanks for diagnosing it
-T 1499787257 18<daemon87_18>	<nitind>: you are welcome, was an interesting experience :-)
-T 1499787426 18<daemon87_18>	I'm especially looking forward to experimenting with the DI in the new eclipse framework
-T 1499787426 18<daemon87_18>	it looks like fun
-T 1499795239 19*	Now talking on 22#eclipse
-T 1499795239 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499795239 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:56 2017)
-T 1499795239 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499796119 Python interface unloaded
-T 1499796307 19*	Now talking on 22#eclipse
-T 1499796307 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499796307 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:03:58 2017)
-T 1499796307 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499796585 19*	Now talking on 22#eclipse
-T 1499796585 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499796585 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499796585 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499796930 19*	Now talking on 22#eclipse
-T 1499796930 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499796930 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499796930 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499801521 19*	Now talking on 22#eclipse
-T 1499801521 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499801521 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499801521 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499812008 18<webczat18>	can you build eclipse plugins using gradle?
-T 1499871258 18<Brilpikk3wyn18>	yo
-T 1499871284 18<Brilpikk3wyn18>	im working with a fragile proprietary codebase, which had decided to break itself
-T 1499871405 18<Brilpikk3wyn18>	after relocating my workspace, eclipse is reporting that most of the abstract classes + interfaces do not have most of the attributes which are used in code
-T 1499871454 18<Brilpikk3wyn18>	and seems to be using the wrong version of many of its dependencies
-T 1499871484 18<Brilpikk3wyn18>	can anyone shed some light on things which tend to break when relocating workspaces?
-T 1499885903 18<georgelappies18>	hi all, can one install the JBoss tools and Spring tools installed in one Eclipse or do they cause conflicts and where stuff to happen?
-T 1499918820 18<Nodon18>	good morning, I'm using eclipse neon and for a plugin i'm making I need to set a target platform which downloads things form "install new software" but I'm gettting the error: "Unable to read repository at http://download.eclipse.org/releases/neon/compositeContent.xml." whenever I go to that site in my browser it also says it does not exist. Anyone know how I can fix this ?
-T 1499920113 18<eclipse-mm18>	<nitind> Try it with Oxygen?
-T 1499921162 18<Nodon18>	@nitind I'll give that a try
-T 1499921364 18<Nodon18>	well I'll try it ones I'm able to reach the download site, forwarded me to ftp.hearnet.ie (but can't reach that apperently)
-T 1499921398 18<Nodon18>	ok tried another mirror :)
-T 1499922395 18<Nodon18>	cool it worked
-T 1499922415 18<Nodon18>	bit sad stuff is broken
-T 1499928756 18<karab4418>	hello
-T 1499928756 18<Arbalest18>	Welcome! If you have a question, just ask, or take a look at our FAQ - http://wiki.eclipse.org/IRC_FAQ :) Try typing ~faq to see more FAQs! If you have errors or logs to show, see ~pastebin. If you have screenshots to share, see ~image. You need to describe your problem in detail,so  please provide some ~info about your setup. Don't ask to ask, just ask. You might also want to try http://mattermost.eclipse.org
-T 1499928773 18<karab4418>	I am using ubuntu
-T 1499928810 18<karab4418>	but I forgot how to go to declaration using a direct link in code
-T 1499928823 18<karab4418>	was this CTRL + LMB ?
-T 1499928862 18<karab4418>	My issue is that there is nothing happening on mouse hover and clicking does nothing. My eclipse is neon CDT
-T 1499928880 18<karab4418>	oxygen, sorry
-T 1499928921 18<karab4418>	if I choose from menu go to declaration it works
-T 1499928958 18<mvvvv18>	karab44, ctrl+F2 or F3
-T 1499929048 18<karab4418>	mvvvv: yes it works
-T 1499929061 18<karab4418>	but vars don't underline/highlight on hover
-T 1499929081 18<karab4418>	and I can't ctrl+click it
-T 1499929102 18<karab4418>	it was working first time I installed it
-T 1499929121 18<karab4418>	rebuilding index did not help
-T 1499929186 18<karab4418>	it works in new C++ project without any problems
-T 1499929333 18<mvvvv18>	karab44, there are still a lot of problem with GTK3. did you try to use GTK2 lib ?
-T 1499929383 18<mvvvv18>	karab44, what is the eclipse version you installed ?
-T 1499929699 18<karab4418>	oxygen
-T 1499929773 18<karab4418>	it works just fine in another project
-T 1499929787 18<karab4418>	C++ hello world
-T 1499929807 18<karab4418>	in the same workspace
-T 1499935838 18<karab4418>	it doesn't work in any way
-T 1499935845 18<karab4418>	I think it's another annoying bug
-T 1499935879 18<karab4418>	I already deleted workspace, reinstalled Eclipse and so on
-T 1499937944 18<karab4418>	it is so bad
-T 1499938022 18<karab4418>	Eclipse <ctrl>-click Hyperlink Not Working
-T 1499938036 18<karab4418>	maybe it's time to move to other IDE
-T 1499942545 18<karab4418>	it is defenitely bug
-T 1499945452 18<karab4418>	I wish I could use Simple Mode Installer to install older versions
-T 1499946479 18<karab4418>	sorry but Neon works great. Much better than Oxygen
-T 1499946510 18<karab4418>	So I wasted half day
-T 1499947198 18<karab4418>	but it's fine. I am happy that at least Neon works
-T 1499961723 18<webczat18>	how to localize java applications? I mean: eclipse does support string externalization, but what then? if I create another properties wiles for translation, then all accented characters are turned to \uxxxx so they cannot easily be edited/seen, and there is no way of checking for missing keys in derived properties files
-T 1499969864 18<mag__18>	hi evryone...
-T 1499969892 18<mag__18>	just a kwick question.. anybody knows how to get in touch with the orion dev team?
-T 1499969924 18<mag__18>	all 'official' channels and forums seem to be down/dead...
-T 1499972438 18<devguy18>	Hello
-T 1499972438 18<Arbalest18>	Welcome! If you have a question, just ask, or take a look at our FAQ - http://wiki.eclipse.org/IRC_FAQ :) Try typing ~faq to see more FAQs! If you have errors or logs to show, see ~pastebin. If you have screenshots to share, see ~image. You need to describe your problem in detail,so  please provide some ~info about your setup. Don't ask to ask, just ask. You might also want to try http://mattermost.eclipse.org
-T 1499972510 18<devguy18>	I am trying to use the ecj JAR file outside of Eclipse. I want to use the Batch Compiler to compile a Java project. However, a few errors that are not reported in the IDE (because they aren't genuine) are being reported by the Batch Compiler.
-T 1499972599 18<devguy18>	For example, I have 3 classes: Rectangle, Image and User. Rectangle has a public method called getVal(). Image extends Rectangle. In the User class, when I do Image x = new Image(); x.getVal(), the Batch Compiler throws an error that the method is undefined for the type Image. However, the IDE is able to recognize the method coming from the Rectangle class.
-T 1499972631 18<devguy18>	Any one have any ideas why this could be?
-T 1499972709 18<webczat18>	how to localize java applications? I mean: eclipse does support string externalization, but what then? if I create another properties wiles for translation, then all accented characters are turned to \uxxxx so they cannot easily be edited/seen, and there is no way of checking for missing keys in derived properties files
-T 1499980913 19*	Now talking on 22#eclipse
-T 1499980913 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499980913 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499980913 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499981048 19*	Now talking on 22#eclipse
-T 1499981048 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499981048 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499981048 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499982222 19*	Now talking on 22#eclipse
-T 1499982222 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499982222 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499982222 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499982840 19*	Now talking on 22#eclipse
-T 1499982840 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499982840 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499982840 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499983066 19*	Now talking on 22#eclipse
-T 1499983066 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499983066 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499983067 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1499984110 20*	Disconnected (20Invalid argument)
-T 1499984133 19*	Now talking on 22#eclipse
-T 1499984133 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1499984133 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1499984133 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500040408 20*	Disconnected (20Connection timed out)
-T 1500040434 19*	Now talking on 22#eclipse
-T 1500040434 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500040434 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1500040434 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500042585 18<nitind18>	localh0st: literally "it's not correct", or something more?
-T 1500056330 18<circ-user-vrIPx18>	Oxygene installer fails for me. How do I download Eclipse version for java developers?
-T 1500056419 18<circ-user-vrIPx18>	Ok, I have found something here https://www.eclipse.org/downloads/packages/release/Oxygen/R
-T 1500385833 19*	Now talking on 22#eclipse
-T 1500385833 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500385833 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1500385833 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500409987 18<upgrdman18>	im trying to clean up some code. is it possible to see if a header is ever used in a project? im finding lots of dead code :(
-T 1500410008 18<upgrdman18>	something like the find-references-in-project, but for a file instead of text
-T 1500410043 18<nitind18>	You could search for its name as text from the Search menu, but it helps to mention what language you're working with.
-T 1500410080 18<upgrdman18>	c
-T 1500416259 18<raynold18>	ahh it's a wonderful day
-T 1500471842 18<trioxin_18>	should I install the eclipse version for each language I code in?
-T 1500472728 18<mbooth18>	Trioxin: Eclipse is plugin based, so it's perfectly normal to download the "Eclipse for Java" and install the CDT plugins to get C/C++ support, or vice versa
-T 1500492259 19*	Now talking on 22#eclipse
-T 1500492259 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500492259 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:56 2017)
-T 1500492259 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500563684 19*	Now talking on 22#eclipse
-T 1500563684 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500563684 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1500563684 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500563747 FiSHLiM plugin unloaded
-T 1500563747 Python interface unloaded
-T 1500643320 18<arkver18>	I have a problem where Eclipse Oxygen's indexer fails to handle operator-> of a unique_ptr. Anyone else seen this?
-T 1500643341 18<arkver18>	shared_ptr is fine. operator* is also fine.
-T 1500656373 18<gizmore18>	Bug: the text editor boolean property "Use spaces instead of a tab" is ignored here, and uses always spaces instead of a tab character
-T 1500656521 18<nitind18>	"here" where?
-T 1500657176 18<gizmore18>	localhost :)
-T 1500657214 18<gizmore18>	gentoo oracle jdk8 latest eclipse oxygen
-T 1500657273 18<gizmore18>	you all should know me, as i activated error reports and it reported a lot a few weeks ago!   *kiddings of course*
-T 1500657281 18<gizmore18>	;D
-T 1500657388 18<nitind18>	I meant where *in* Eclipse. The actual Text Editor? Some editors ignore that in favor of their own preference, or adherence to their formatting preferences.
-T 1500658011 18<gizmore18>	nitind: general text editors, thanks.... i search more
-T 1500658123 18<gizmore18>	sorry, cannot find anything ... using PDT
-T 1500658135 18<gizmore18>	there is only that single option
-T 1500660745 18<eclipse-mm18>	<nitind> Look at the bottom of its Typing preference page.
-T 1500661349 19*	Now talking on 22#eclipse
-T 1500661349 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500661349 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1500661349 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1500662054 18<nitind18>	gizmore: ^^^
-T 1500662217 18<gizmore18>	mh?  @ nitind
-T 1500662243 18<nitind18>	It mentions where to look with a string that I can't copy out of there.
-T 1500662318 18<gizmore18>	you playing with the bots? i have good irc bots
-T 1500662323 18<gizmore18>	much wow
-T 1500662341 18<gizmore18>	one in php... with a big (mmo)rpg / mud
-T 1500662364 18<gizmore18>	and one in ruby with a quirky featureset and syntax
-T 1500662389 18<nitind18>	eclipse-mm is a bridge to the Mattermost installation, not a bot. Arbalest is a bot.
-T 1500662389 18<eclipse-mm18>	Valid commands are: [users, help]
-T 1500662412 18<gizmore18>	i have all developed with eclipse :D
-T 1500662506 18<gizmore18>	AptanaStudio and PDT are not the best software on the planet... but still cheaper and better than netbeans or jetbrains... jetbrains shortcuts are for retards anyway
-T 1500662632 18<gizmore18>	i once tried jetbrains ruby debugger setup for my irc bot, and it couldnt handle the threading :P
-T 1500662670 18<gizmore18>	the only working debugger i know is sap/abap
-T 1500662901 19*	Now talking on 22#eclipse
-T 1500662901 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1500662901 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1500662901 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501112813 19*	Now talking on 22#eclipse
-T 1501112813 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1501112813 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1501112813 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501123831 20*	Disconnected (20Connection timed out)
-T 1501123856 19*	Now talking on 22#eclipse
-T 1501123856 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1501123856 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:03:58 2017)
-T 1501123856 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501214085 19*	Now talking on 22#eclipse
-T 1501214085 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1501214085 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1501214085 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501262182 20*	Disconnected (20Connection timed out)
-T 1501262205 19*	Now talking on 22#eclipse
-T 1501262205 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1501262205 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
-T 1501262205 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501270095 20*	Disconnected (20Connection timed out)
-T 1501270119 19*	Now talking on 22#eclipse
-T 1501270119 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
-T 1501270119 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:03:58 2017)
-T 1501270119 22*	Channel 22#eclipse url: 24http://eclipse.org
-T 1501270136 18<folatt18>	https://i.snag.gy/f2p6ba.jpg
-T 1501270230 18<folatt18>	So what value needs to be changed?
-T 1501270253 18<nitind18>	On the "Web Project Settings" page.
-T 1501270313 18<folatt18>	There is only "Web Content Setting" as you can see in the image.
-T 1501270466 18<folatt18>	https://i.snag.gy/hqDPMz.jpg
-T 1501271195 18<nitind18>	Right. That's part of the Java EE tools for some reason.
-T 1501302251 18<folatt18>	Anyone here?
-T 1501302261 18<folatt18>	https://stackoverflow.com/questions/45363560/eclipse-static-web-project-http-preview-server-module-conflicts-with-relative-pa
-T 1501317616 18<folatt18>	https://stackoverflow.com/questions/45363560/eclipse-static-web-project-http-preview-server-module-conflicts-with-relative-pa
-T 1501345032 18<kristjan101110118>	https://www.facebook.com/martin.manner.1656 http://imgur.com/a/GZeEy
-T 1501354594 18<Sash18>	Hi, just switched from neon to oxygen. Sadly there are no improvements on the high dpi support :( Are there any plans on working on this? I could not find any info about it. my workaround >>echo Xft.dpi: 190 | xrdb -merge<< still works only in the main view. any dialog or pop up window is unreadable tiny :(
-T 1501362320 18<Blankspace18>	Hi
-T 1501362320 18<Arbalest18>	Welcome! If you have a question, just ask, or take a look at our FAQ - http://wiki.eclipse.org/IRC_FAQ :) Try typing ~faq to see more FAQs! If you have errors or logs to show, see ~pastebin. If you have screenshots to share, see ~image. You need to describe your problem in detail,so  please provide some ~info about your setup. Don't ask to ask, just ask. You might also want to try http://mattermost.eclipse.org
-T 1501362341 18<Blankspace18>	How to configure build path
-T 1501362351 18<Blankspace18>	In eclipse
-T 1501362630 18<Blankspace18>	Hi please someone tell me
-T 1501362642 18<Blankspace18>	I have java 1.8 installed
-T 1501362650 18<Blankspace18>	And just installed eclipse
-T 1501362670 18<Blankspace18>	Now what setup do I need to do to run a java program in eclipse
-T 1501366022 18<folatt18>	https://stackoverflow.com/questions/45363560/eclipse-static-web-project-http-preview-server-module-conflicts-with-relative-pa
-T 1501366060 18<folatt18>	Got any solution to this Arbalest ?
-T 1501377820 18<eclipse-mm18>	<nitind> Blankspace: try running through some tutorials, like http://www.vogella.com/tutorials/eclipseide.html , or even the built-in Java development user guide.
-T 1501377891 18<eclipse-mm18>	<nitind> folatt: Arbalest is a bot.
-T 1501388384 18<folatt18>	eclipse-mm, Blankspace left the channel.
-T 1501388384 18<eclipse-mm18>	Valid commands are: [users, help]
-T 1501388410 18<folatt18>	users
-T 1501388417 18<folatt18>	eclipse-mm, users
-T 1501446991 18<cores18>	do a lot of eclipse projects use recursive make?
-T 1501446996 18<cores18>	eclipse based
-T 1501447024 18<eclipse-mm18>	<rcjsuen> Not sure I follow. Most Eclipse.org projects are written in Java. They don't use `make`, no.
-T 1501447041 18<cores18>	cdt i should say
 T 1501447067 18<cores18>	i meant people who use eclipse cdt to develop c/c++ applications
 T 1501478836 18<GK1wmSU18>	.�
 T 1501504113 18<folatt18>	https://stackoverflow.com/questions/45363560/eclipse-static-web-project-http-preview-server-module-conflicts-with-relative-pa
@@ -639,3 +366,221 @@ T 1502725806 22*	Channel 22#eclipse url: 24http://eclipse.org
 T 1502734985 18<gizmore18>	I get  freezes once in a while in PDT when the autocompletion is .... quirking
 T 1502734999 18<gizmore18>	every 15 min :)
 T 1502735019 18<gizmore18>	i suppose it wont send an error report then ;(
+T 1504042778 19*	Now talking on 22#eclipse
+T 1504042778 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504042778 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504042778 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504100224 20*	Disconnected (20Connection timed out)
+T 1504102871 19*	Now talking on 22#eclipse
+T 1504102871 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504102871 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504102871 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504110419 Python interface unloaded
+T 1504276655 19*	Now talking on 22#eclipse
+T 1504276655 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504276655 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504276655 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504278315 19*	Now talking on 22#eclipse
+T 1504278315 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504278315 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504278315 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504278331 FiSHLiM plugin unloaded
+T 1504279128 19*	Now talking on 22#eclipse
+T 1504279128 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504279128 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504279129 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504279992 19*	Now talking on 22#eclipse
+T 1504279992 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1504279992 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1504279992 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1504279994 20<lufimtse_>30	meh
+T 1504280004 20<lufimtse_>30	^ ignore.
+T 1506355625 19*	Now talking on 22#eclipse
+T 1506355625 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1506355625 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1506355625 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1506364714 18<zarzar118>	is there a single spot in project properties for include paths that all compilers linkers need?
+T 1506365280 18<ziongate18>	hi all
+T 1506365375 18<ziongate18>	i am trying to have some custom macro of linux kernel as accepted from the eclipse syntax checking
+T 1506365420 18<ziongate18>	without the red underlined error. I looked for some articles but no one seems to work for me
+T 1506366247 FiSHLiM plugin unloaded
+T 1506366264 19*	Now talking on 22#eclipse
+T 1506366264 22*	Topic for 22#eclipse is: Oxygen and Eclipse 4.7 have been Released! Stay connected after you ask a question or connect using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1506366264 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Jun 28 11:02:55 2017)
+T 1506366280 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1506367805 18<zarzar118>	i am getting version `GLIBCXX_3.4.21' not found errors when cross compiling for beaglebone, i can build the same program on target and it works, but on ubuntu with eclipse it does nto work
+T 1506374383 18<supernovah18>	Hey anyone around
+T 1506374409 18<supernovah18>	Is there a way to see what variables in the IDE are equal to when I'm trying to build include paths from the variables menu's
+T 1506374509 18<supernovah18>	Ah finally found it after like not knowing for five months
+T 1506374534 18<supernovah18>	Project Explorer->Properties->C/C++ Build->Build Variables->:)
+T 1506412167 18<brovoo18>	Hello, i want to run the php's server in eclipse php on different port. Is there a way to do it? I am on a unix system.
+T 1506413727 18<lemmster18>	Hi, the TLA+ IDE is built on top of Eclipse RCP. In order to improve the user experience, we want to render (mathematical) formulas in the editor with Unicode rather than ASCII chars. However, files on disk can't be updated to support Unicode. What would be the best approach to handle this? The current prototype maintains two IDocuments which it uses to translate between Unicode and ASCII.
+T 1506434742 18<plop18>	quick question. how can I add mysql gem to eclipse che? I try to install it with "gem install mysql" but i get an error.
+T 1506436943 18<zarzar118>	i'm getting an assembler not found error after installing an older version of arm-linux-gnueabihf: /bin/sh: 1: arm-linux-gnueabihf-as-4.9: not found
+T 1506437162 18<zarzar218>	 i'm getting an assembler not found error after installing an older version of arm-linux-gnueabihf: /bin/sh: 1: arm-linux-gnueabihf-as-4.9: not found, not sure how to set the assembler options
+T 1506439826 18<TrueGreen18>	Hi, I'm trying to install Eclipse C++, but it is saying that it can not connect to the Repo, is this because Sourceforge is down?
+T 1506442177 18<mbooth18>	TrueGreen: Sourceforge‽ This sounds suspect, what repo are you installing from?
+T 1506442337 18<TrueGreen18>	@mboooth, I used the default installer with the default options. I ultimately ended up using the offline installer and it worked fine, Thanks
+T 1506442411 18<TrueGreen18>	I think it may have been a firewall issue on our end though
+T 1506450040 18<zarzar218>	i am getting a stat errno 2 error when debugging an application but no error when running binary from command line, how do i diagnose?
+T 1506450103 18<nitind18>	Well, do you know what errno 2 means?
+T 1506450180 18<zarzar218>	nitind: i know it means either file or diectory DNE
+T 1506450225 18<nitind18>	Do you know which file or directory it's referring to?
+T 1506450229 18<zarzar218>	i don't know why there is no error when running exe from command line but error when runnig via debugger\
+T 1506450243 18<zarzar218>	yes, i am remote debugging by the way
+T 1506450246 18<zarzar218>	via ssh\
+T 1506450271 18<zarzar218>	i checked the file and it has chmod 0777
+T 1506450419 18<nitind18>	How are you referring to it? Would that fail in any circumstance?
+T 1506450511 18<zarzar218>	nitind: i'm not that savvy, not sure what that means
+T 1506450576 18<nitind18>	The path that you're using to access whatever that file or directory is. Is it absolute? Will it always go to the right location?
+T 1506450640 18<zarzar218>	it is not absolute, maybe the issue is the debugger does not execute the binary from the right directory
+T 1506450848 18<zarzar218>	nitind: how do i verify or control the directory used by debugger? is it possible to control that when remote debugging?
+T 1506451007 18<nitind18>	I have no idea. Is the debugger actually launching the remote binary, or just attaching to an existing process?
+T 1506451118 18<zarzar218>	nitind: i'm not sure, i'll ask that on elinux or eclipse-linux
+T 1506472270 18<smoking-peanuts18>	I am working with Eclipse 3.8 .. I am using a tool that generates some src files that I must reference.. These files are stored in build/generated/ sub-directory .. which allows compiles to work .. but eclipse doesn't appear to be able to use build/ as a src directory .. which means that IDE doesn't allow me to use these objects .. Even when making these file a part of the build path Eclipse will not recognize these generate f
+T 1506472272 18<smoking-peanuts18>	iles as accessible
+T 1506504556 18<diphtherial18>	is the code for loading a file as stdin common across eclipse, or is it specific to the CDT?
+T 1506504628 18<diphtherial18>	i'm having a funny issue where redirecting a file to stdin when running a test program from the console works fine (cin.get() eventually hits the EOF marker and returns a falsy value), but not when using eclipse's "input file" setting
+T 1506504646 18<diphtherial18>	if the file doesn't end in a newline, it just hangs forever, assumedly waiting for input that will never come
+T 1506505410 18<chele18>	i am trying to run apache tomcat with eclipse on https scheme but if I removed the http schema connector eclipse timeouts and stops the server. if i have both of the enabled it runs fine. How do I only enable https connector for apache tomcat in eclipse oxygen?
+T 1506510165 18<chele18>	i am trying to run apache tomcat with eclipse on https scheme but if I removed the http schema connector eclipse timeouts and stops the server. if i have both of the enabled it runs fine. How do I only enable https connector for apache tomcat in eclipse oxygen?
+T 1506511513 18<diphtherial18>	i am trying to run apache tomcat with eclipse on https scheme but if I removed the http schema connector eclipse timeouts and stops the server. if i have both of the enabled it runs fine. How do I only enable https connector for apache tomcat in eclipse oxygen?
+T 1506511816 18<TiTanT18>	hi
+T 1506511816 18<Arbalest18>	Welcome! If you have a question, just ask, or take a look at our FAQ - http://wiki.eclipse.org/IRC_FAQ :) Try typing ~faq to see more FAQs! If you have errors or logs to show, see ~pastebin. If you have screenshots to share, see ~image. You need to describe your problem in detail,so  please provide some ~info about your setup. Don't ask to ask, just ask. You might also want to try http://mattermost.eclipse.org
+T 1506511825 18<TiTanT18>	I need a little bit help to setup my eclipse :/
+T 1506511862 18<TiTanT18>	I installed jdk 9 from oracle.com
+T 1506511871 18<TiTanT18>	then I installed eclipse from eclipse.org
+T 1506511911 18<TiTanT18>	When I launch eclipse I get an error with following log: https://pastebin.com/sTR3aecw
+T 1506511935 18<TiTanT18>	I reinstalled eclipse a few times
+T 1506511946 18<TiTanT18>	I'm using windows 10 64bit
+T 1506512778 18<mbooth18>	TiTanT: The latest Eclipse was released before Java 9, so you can either try Java 8 or read this to use Java 9: https://wiki.eclipse.org/Configure_Eclipse_for_Java_9
+T 1506514946 18<TiTanT18>	mbooth: Why nobody make it runable?
+T 1506514963 18<mbooth18>	TiTanT: ?
+T 1506515023 18<TiTanT18>	mbooth: The newest release is jre 9, so why doesn't eclipse developers support it
+T 1506515043 18<mbooth18>	TiTanT: They do... Did you not read the link I sent you?
+T 1506515096 18<TiTanT18>	11 october is soon
+T 1506515105 18<TiTanT18>	...
+T 1506515181 18<mbooth18>	TiTanT: Yes and in the meantime, some configuration is needed.
+T 1506515184 18<TiTanT18>	The links doesn't help
+T 1506515190 18<TiTanT18>	No change
+T 1506515202 18<TiTanT18>	I added : -vm C:\Program Files\Java\jdk-9\bin\javaw.exe -vmargs ...
+T 1506515218 18<TiTanT18>	don't start anymore
+T 1506515256 18<mbooth18>	TiTanT: And did you add "--add-modules=ALL-SYSTEM" ?
+T 1506515281 18<LunaSela18>	I suppose you have to wait some more weeks for Java 9. Even if you start Eclipse with Java 8, launching a Tomcat with Java 9 is not possible yet.
+T 1506515309 18<LunaSela18>	And I suppose there are other problems if you do not use Tomcat too
+T 1506515430 18<TiTanT18>	mbooth:
+T 1506515431 18<TiTanT18>	fu
+T 1506515433 18<TiTanT18>	you are right
+T 1506515451 18<TiTanT18>	Now it runs
+T 1506515453 18<TiTanT18>	thank you
+T 1506516560 18<LunaSela18>	Is there any chance that https://bugs.eclipse.org/bugs/show_bug.cgi?id=507338 gets fixed with Oxygen.1a?
+T 1506517930 18<nitind18>	.1a is seriously only meant for Java 9 compatibility.
+T 1506517934 18<nitind18>	~507338
+T 1506517935 18<Arbalest18>	Bug 507338 - http://bugs.eclipse.org/507338 - WTP ServerTools / wst.server / unspecified - PC / Linux - NEW /  / normal / - Assignee: wst.server-inbox - Java 9 support not well integrated with Tomcat webserver (/apache-tomcat-8.5.6/endorsed is not supported)
+T 1506518147 18<LunaSela18>	I would consider that bug a "Java 9 compatibility" issue. It is hardly possible to start developing for Java 9 if Eclipse is unable to launch Tomcat with a JDK 9
+T 1506518204 18<nitind18>	All the same, I doubt it will be done in time for .1a.
+T 1506518538 18<LunaSela18>	So we will probably have to try switching IDE or web container if we want to start testing before end of December? That is bad news.
+T 1506519342 18<zarzar218>	the ctrl h replace functionality and dialogs are weird, seems like it would be better to have something like notepad++ functionality, very easy to use
+T 1506519704 18<nitind18>	LunaSela: Or run Tomcat itself using Java 8.
+T 1506519826 18<LunaSela18>	nitind: That is what we do just now, but we want to evaluate / use Java 9 features. How can we do this when Tomcat runs with Java 8 (and as a consequence the application to be tested)
+T 1506519827 22*	26nitind has changed the topic to: Oxygen.1 and Eclipse 4.7.1 have been Released! Stay connected after you ask a question or lurk using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1506519896 18<nitind18>	LunaSela: I personally don't know. I've only ever fixed one server tools bug, and that was for today's release.
+T 1506520115 18<mbooth18>	LunaSela: You could try making some noise on one of the WTP mailing lists: https://dev.eclipse.org/mailman/listinfo/
+T 1506520197 18<diphtherial18>	so, if i specify a file as input to my program in this dialog ( https://help.eclipse.org/oxygen/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Flaunchers%2Fcommon.htm ), it seems that if it doesn't end in a newline eclipse never sends the program an EOF marker and it just hangs
+T 1506520222 18<diphtherial18>	(this is on OS X building a command-line C++ program using CDT)
+T 1506520260 18<diphtherial18>	whereas if i redirect a file as stdin into the program from the terminal (e.g. ./myprogram < file.txt), it does get an EOF and terminates correctly
+T 1506520297 18<diphtherial18>	any idea why that might be? my guess is that eclipse is hitting the EOF when it's piping in the input, but it's not courteous enough to pass it along
+T 1506520305 18<diphtherial18>	this obviously isn't a show-stopper, but it bothers me
+T 1506520405 18<LunaSela18>	mbooth: which would be most suitable? wtp-dev?
+T 1506520438 18<mbooth18>	LunaSela: Probably yeah, I don't remember seeing a server tools specific list
+T 1506520464 18<mbooth18>	LunaSela: If not, I'm sure someone on the list can point you to the right place
+T 1506520495 18<mbooth18>	Quickest way to get the right answer on the internet is to be wrong on the internet :-)
+T 1506520516 18<nitind18>	Usually that would go through Bugzilla. ~bugs
+T 1506520516 18<Arbalest18>	Bugzilla is the bug tracking system used by Eclipse. Open new bug reports and/or enhancement requests https://bugs.eclipse.org/bugs/enter_bug.cgi / Search for existing bugs and/or enhancement requests https://bugs.eclipse.org/bugs/query.cgi
+T 1506520785 19*	Now talking on 22#eclipse
+T 1506520785 22*	Topic for 22#eclipse is: Oxygen.1 and Eclipse 4.7.1 have been Released! Stay connected after you ask a question or lurk using https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+T 1506520785 22*	Topic for 22#eclipse set by 26nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (24Wed Sep 27 09:43:48 2017)
+T 1506520785 22*	Channel 22#eclipse url: 24http://eclipse.org
+T 1506520817 Python interface unloaded
+T 1506525019 18<theMagnumOrange18>	what do I put in "c/c++ application" in the Configuration section?
+T 1506525025 18<theMagnumOrange18>	the source file?
+T 1506526074 18<nitind18>	theMagnumOrange: What Configuration section are you talking about?
+T 1506526083 18<theMagnumOrange18>	nm i got it
+T 1506529361 18<LunaSela18>	nitind: thanks for the Gerrit change
+T 1506530495 18<nitind18>	Haven't managed to test it with a JRE yet.
+T 1506531828 18<nitind18>	Hmm, and it's no good for JREs.
+T 1506535859 18<nitind18>	LunaSela: Sanity check something for me, since I don't have access to certain platforms at the moment?
+T 1506536625 18<LunaSela18>	nitind: you need a method to detect a JRE9?
+T 1506537099 18<LunaSela18>	which platforms do you miss?
+T 1506537917 18<LunaSela18>	nitind: I supposed Eclipse already does Java verison detection anywhere. . A better hint for Java 9 probably is the lib/modules file. Could check that with Oracle JRE/ServerJRE/JDK on Linux+Windows, maybe Mac Too
+T 1506538200 18<LunaSela18>	parsing the "release" file at the jdk/jre root might work too, although it seems only be available since Java 7
+T 1506539214 18<nitind18>	LunaSela: Just wondering what the first line of the output of "java -version" is.
+T 1506542778 18<LunaSela18>	nitind: I probably could check that.
+T 1506542944 18<LunaSela18>	But it is late today. (GMT+2) Would it be enough to attach the info to the bug?
+T 1506542966 18<LunaSela18>	Might be able to do that tomorrow morning
+T 1506542970 18<LunaSela18>	Which platforms?
+T 1506543134 18<nitind18>	I was thinking Windows, but I found a better way that won't need that info.
+T 1506543443 18<LunaSela18>	ok, cool. So I don't have to launch my Windows VM
+T 1506543849 18<LunaSela18>	Soon I will be offline for today. Thanks for your effort
+T 1506606540 18<sab3r18>	Hey! I am using Eclipse Oxygen 4.7 and I just installed Eclipse Marketplace Client. However when I am trying to connect to the marketplace I get a window with this error message: "Error resolving “org.eclipse.ui.intro”: Name or service not known"
+T 1506606568 18<sab3r18>	I am new to eclipse and can't find proper results from my friend, Google..
+T 1506606638 18<mbooth18>	sab3r: Weird, how did you install Eclipse? I thought market place client came as standard
+T 1506606671 18<sab3r18>	I am using Fedora 26 and I installed it with dnf install eclipse
+T 1506606677 18<sab3r18>	mbooth:
+T 1506606712 18<mbooth18>	sab3r: And you installed market place client from dnf also?
+T 1506606745 18<sab3r18>	no, I installed it from Help -> Install New Software
+T 1506606749 18<sab3r18>	(through eclipse)
+T 1506606825 18<sab3r18>	mbooth: Didn't know its found on dnf aswell.. Gonna try installing it from there
+T 1506606830 18<mbooth18>	Oh, FWIW you can install it from Fedora repos with "dnf install eclipse-mpc"
+T 1506606946 18<sab3r18>	mbooth: Yes it worked now, thanky you!
+T 1506606966 18<mbooth18>	:-)
+T 1506608579 18<zarzar18>	the formatter settings for arrays is not being applied in my oxygen eclipse CDT install
+T 1506608822 18<zarzar18>	randomly the tab width in one part of a file is 8 but is 4 in the rest of the file
+T 1506609041 18<g1118>	Are older plugins compatible with the latest version of Eclipse?
+T 1506609072 18<zarzar18>	why is the tab width within array brackets different than the rest of the file?????
+T 1506609208 18<mbooth18>	zarzar: Could be a bug -- do you have simple reproduction case?
+T 1506609377 18<zarzar18>	how long has the formatter been around?
+T 1506609942 18<zarzar18>	what is the "component" of the formatter?
+T 1506610208 18<mbooth18>	zarzar: You mean in bugzilla?
+T 1506610223 18<zarzar18>	found it: editor
+T 1506610392 18<zarzar18>	this bug forces users to disable auto format on save
+T 1506615087 18<sab3r18>	To completely uninstall eclipse from a linux machine is it safe to delete .eclipse folder created on install?
+T 1506615102 18<sab3r18>	after I have removed eclipse with the package manager (dnf)
+T 1506616149 18<sab3r18>	apparently not :=
+T 1506616554 18<sab3r18>	So I cleared the whole eclipse install and installed eclipse and eclipse-mpc again. Then from that clean install I went to the marketplace and installed spring boot and after restarting Eclipse it won't start anymore and I get multiple errors in workspace log: https://pastebin.com/Zw49uTrA
+T 1506616575 18<sab3r18>	System is Fedora 26
+T 1506616577 18<sab3r18>	any ideas
+T 1506616617 18<sab3r18>	%s/spring boot/spring tools/
+T 1506617163 18<rgrunber18>	bugzilla unresponsive for others ?
+T 1506617406 18<rgrunber18>	nvm.. http://status.eclipse.org/ useful
+T 1506619039 18<StephenLynx18>	anyone else having major memory leaks using neon? I got the c/c++ and lua plugins.
+T 1506619044 18<StephenLynx18>	also I got nodeclipse installed.
+T 1506619080 18<StephenLynx18>	second time this week that when I notice, it is eating up 8gb of RAM
+T 1506619098 18<StephenLynx18>	first time it happened on a computer with 4gb, then it started using swap
+T 1506619101 18<StephenLynx18>	then java got killed
+T 1506619138 18<StephenLynx18>	second time I noticed when it started using swap after using 8gb , but the system was usable because I have an ssd on this other computer.
+T 1506619998 18<sparrowsword18>	Hello! Was encountering this error when trying to install eclipse-oxygen ERROR: org.eclipse.equinox.p2.metadata.repository code=1002 Unable to read repository at http://download.eclipse.org/releases/oxygen
+T 1506620455 18<zarzar18>	what's the trick to click on the pop up for a misspelled word? yesterday i was able to hover over the word and then move to the pop up dialog and click add to dictionary, today the pop up dissappears when i try to move mouse to it
+T 1506620971 18<zarzar18>	found it, nevermind
+T 1506622491 18<sparrowsword18>	Hello! Was running into an installation error and was hoping someone could help... A traceback: https://paste.pound-python.org/show/SYo9IIVjnqb27e5thUuf/
+T 1506629260 18<nitind18>	sparrowsword: Possible network issues. The wiki was offline earlier today, as well, and there was just a new release.
+T 1506683809 18<aboya18>	Is there a way to find out why C++ code analysis is not working in Eclipse? For instance, I wrote `#define MYMACRO` in someheader.h, included it from a .cpp file first thing in the file and then added an `#ifdef MYMACRO` block but it's being grayed out.
+T 1506683869 18<aboya18>	Ctrl+clicking `#include <someheader.h>` works without issues
+T 1506688928 18<sab3r18>	Sorry to ask this again, but I had a clean install of eclipse and eclipse mpc (no previous workspace or .eclipse directory) and after I installed Spring Tools from the marketplace and eclipse wont start anymore
+T 1506689221 18<sab3r18>	https://pastebin.com/N2ua5j77 <-- here is the logs, where's multiple errors
+T 1506690950 18<mbooth18>	sab3r: Can you try invoking eclipse with "-clean" ?
+T 1506693487 18<StephenLynx18>	eclipse ate all by 8gb RAM again
+T 1506693490 18<StephenLynx18>	in the blink of an eye.
+T 1506694499 18<sab3r18>	mbooth: I ran eclipse with "-clean" but it doesn't show spring tools installed..
+T 1506694863 18<Coder20618>	Hello! I hope you are doing well! I am unable to start Eclipse Oxygen June 2017 and September 2017, I am given a path to a log file that I have trouble understanding the messages. Would anyone have time to help out?
+T 1506695401 18<mbooth18>	Coder206: You should make the log available to us
+T 1506695404 18<mbooth18>	~pastebin
+T 1506695404 18<Arbalest18>	Please paste the relevant information onto a pastebin. The submission will then generate a URL, please copy/paste the generated URL back to the channel - http://pastebin.com - http://pastebin.ca - http://gist.github.com
+T 1506695468 18<Coder20618>	Yes, here it is: https://paste.gnome.org/pkbgvpth8
+T 1506695621 18<mbooth18>	Coder206: Java 9 will not be supported out-of-the box until Oxygen.1a is released in October
+T 1506695673 18<mbooth18>	If you want to use java 9 before then, you need to read this doc: https://wiki.eclipse.org/Configure_Eclipse_for_Java_9
+T 1506695711 18<Coder20618>	mbooth: Thanks for the information! Much appreciated, looking forward to the Oxygen.1a release :D
+T 1506700782 18<g1118>	Hello. I'm trying to install an older plugin ("Bytecode Visualizer") which was made for the 4.5 version of Eclipse, which I am using.
+T 1506700786 18<g1118>	When I try to install it from the Eclipse Marketplace I get an error: "Unable to read repository at http://sourceforge.net/projects/drgarbagetools/files/eclipse/4.5/stable/content.xml. Received fatal alert: handshake_failure"
+T 1506700934 18<g1118>	The link in the error points to a 'content.xml' which does not exist. Instead there is a 'content.jar'.
+T 1506713164 18<zarzar18>	anyone know what this error is caused by: ignoring nonexistent directory "/usr/local/include/arm-linux-gnueabihf"
