@@ -1,635 +1,558 @@
-T 1506613273 18<Company18>	22% gsk_vulkan_image_new_from_data
-T 1506613295 18<benzea18>	huh?
-T 1506613318 18<benzea18>	it looks like I have a gedit window where mouse events are delivered to the notebook rather than the source code editor
-T 1506613351 18<benzea18>	keyboard input works :-/
-T 1506613387 18<Company18>	54% in libintel_vulkan
-T 1506613389 18<Company18>	yay!
-T 1506613522 18<benzea18>	hah, I can't interact with the headerbar either
-T 1506613532 18<benzea18>	except for dragging the window
-T 1506614552 18<mclasen18>	Company: adding a fence to the command submission in uploader_upload, I see it taking only neglegible amounts of time: 0.3ms and that doesn't change much at all when I add the shadow fallback back
-T 1506614667 18<baedert18>	So, if I do https://paste.xinu.at/4ppEm/ in glib and https://paste.xinu.at/6y2/ in gtk+, I get https://paste.xinu.at/oTq6/ from running the widget-factory under valgrind
-T 1506614684 18<baedert18>	(fontconfig and gquark leaks removed)
-T 1506614688 18<baedert18>	forgot the gio one though
-T 1506621378 18<Company18>	mclasen: thinking about that fence more, what does a fence actually signal?
-T 1506621402 18<mclasen18>	it signals that the main render pass has finished its drawing commands
-T 1506621406 18<mclasen18>	and thus the entire frame is drawn
-T 1506621408 18<Company18>	mclasen: does it signal completion of the transaction on the gpu?
-T 1506621421 18<Company18>	mclasen: or does it just signal that all commands have been sent?
-T 1506621421 18<mclasen18>	since all the secondary render passes are linked to the main one with semaphores
-T 1506621477 18<Company18>	if you fence behind a present_to_screen() command that meaning is kinda obvious
-T 1506621504 18<Company18>	but if you fence after a layout transition from TRANSFER_DST to SHADER_OPTIMAL?
-T 1506621663 18<mclasen18>	I think I've seen some language that says you need to worry about memory ordering separately, with barriers
-T 1506621742 18<Company18>	yeah, but that barrier
-T 1506621754 18<Company18>	you make that the last command before you fence
-T 1506621776 18<Company18>	what does it mean when the fence signals? Is the barrier finished executing on the GPU?
-T 1506622108 18<mclasen18>	I think so ?
-T 1506622153 18<Company18>	i have no idea how fences work
-T 1506623410 18<mclasen18>	Company: do you have any thoughts about rendre node public vs private api ?
-T 1506623425 18<mclasen18>	currently it seems we have most (but not all) child node getters public
-T 1506623429 18<mclasen18>	and all the other getters private
-T 1506623440 18<mclasen18>	and the inspector can use private api anyway
-T 1506623471 18<Company18>	no
-T 1506623487 18<Company18>	but either all getters should be public or none should
-T 1506623566 18<Company18>	it depends on if we think that render nodes are something public API should be able to work with
-T 1506623619 18<Company18>	or if we think public API should be fine with GtkSnapshot
-T 1506623644 18<Company18>	I can answer that question after I've seen use cases
-T 1506623656 18<Company18>	and that requires a few (10s) of apps to have been ported
-T 1506623723 18<mclasen18>	gtksnapshot is not quite there yet as public api either
-T 1506623728 18<mclasen18>	you can't create your own
-T 1506623738 18<baedert18>	And only one year left, right?
-T 1506623740 18<mclasen18>	so you can't stash child nodes away
-T 1506623744 18<Company18>	right
-T 1506623753 18<Company18>	but if nodes aren't public API
-T 1506623761 18<Company18>	you don't need to create your own snapshot
-T 1506623953 18<mclasen18>	true
-T 1506623978 18<Company18>	there's multiple levels we could expose nodes:
-T 1506624014 18<Company18>	1) not at all - worst case you get the ability to render to cairo or get cairo_surfaces with already painted stuff
-T 1506624063 18<Company18>	2) as an opaque struct with few APIs - you could create them from snapshots, add them to new snapshots and have APIs to render them and maybe query their bounds
-T 1506624123 18<Company18>	3) complete tree - that way you can write code to inspect them and do everything the inspector does (like using subnodes and drawing trees)
-T 1506624147 18<Company18>	4) full access including creation of new nodes - go wild and do whatever
-T 1506624224 18<Company18>	If you asked me today, I'd probably lean towards (2)
-T 1506624259 18<Company18>	because it seems like GskRenderNode is a better thing to pass around than cairo_surface_t
-T 1506624282 18<Company18>	or GdkPixbuf
-T 1506624342 18<mclasen18>	yeah, the ability to snapshot children and insert a few effect nodes is powerful
-T 1506624360 18<Company18>	well, you can do that part with GtkSnapshot already
-T 1506624367 18<mclasen18>	sadly now
-T 1506624369 18<mclasen18>	no
-T 1506624375 18<mclasen18>	because you can't create a snapshot
-T 1506624383 18<mclasen18>	I tried and couldn't do it in gtk-demo
-T 1506624398 18<Company18>	no, not if you want to store the node
-T 1506624421 18<Company18>	buit you can gtk_snapshot_push_some_effect(); snapshot_child (child, snapshot);
-T 1506624430 18<mclasen18>	I guess that is true
-T 1506624431 18<Company18>	in your draw func
-T 1506624443 18<mclasen18>	it would not let you do things like the overlay blur
-T 1506624456 18<mclasen18>	where you reuse the child snapshot multiple times
-T 1506624461 18<Company18>	not if you want to reuse the node, right
-T 1506624473 18<Company18>	though that would magically start working if we cached snapshots
-T 1506624489 18<Company18>	*cached render nodes for widgets
-T 1506624493 18<mclasen18>	or any kind of ui where content appears in several places
-T 1506624514 18<Company18>	but the interesting parts are the magnifier or dnd icons
-T 1506624599 18<Company18>	but if we used render nodes in those places, we'd get to ask ourselves interesting questions like having gtk_image_set_from_render_node()
-T 1506624698 18<Company18>	another interesting question:
-T 1506624715 18<Company18>	if we cached nodes, we could have a read-only GtkWidget::render-node roperty
-T 1506624731 18<Company18>	that queue_draw() would NULL and snapshot() would set it again
-T 1506624753 18<Company18>	you could then connect magnifiers to those
-T 1506624953 18<Company18>	mclasen: all of that also involves alex' patches vs the node caching - because with alex' caching nodes are all tangled together in memory regions and with node caching they are way longer-lived and independent
-T 1506625225 18<mclasen18>	right
-T 1506625238 18*	mclasen will focus on figuring out where the scrollbars went first
-T 1506633492 18<bugbot18>	New glib bug 788315 filed by andrew.g.r.holmes@gmail.com.
-T 1506633492 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788315 gio, enhancement, gtkdev, NEW , Implement 'fingerprint()' function on Gio.TlsCertificate
-T 1506633680 18<kulzen_18>	Hello. I have a gtk window inside which I add gtk socket. Once I get plug id, I attach the plug to socket. Now, I want to "cut" a part of the window so that that portion becomes transparent.
-T 1506633690 18<kulzen_18>	How can I achieve that via gtk/gtkmm?
-T 1506633703 18<kulzen_18>	On windows, I could use setWindowRgn,  excreateregion but looking for gtk alternatives for linux
-T 1506633791 18<Company18>	lul
-T 1506633801 18<Company18>	the glsl syntax is so broken
-T 1506633865 18<Company18>	so you can have an assignment_expression
-T 1506633871 18<Company18>	which is defined like this:
-T 1506633887 18<Company18>	assignment_expression: unary_expression EQUAL expression
-T 1506633934 18<Company18>	where unary_expression is the part that does array indexing or member access of variables and swizzling
-T 1506633994 18<Company18>	so that you can do "somestruct.colors[i].rgb = vec3(r, g, b)"
-T 1506634041 18<Company18>	now there's 2 problems here
-T 1506634057 18<Company18>	problem 1: unary_expression resolves to primary_expression
-T 1506634104 18<Company18>	which is the expression that does variable accesses
-T 1506634148 18<Company18>	but primary_expression also allows: constants, function calls and best of all LEFT_LAREN expression RIGHT_PAREN
-T 1506634177 18<Company18>	so syntactically, (3, cos(4), 5 + 7) = 15; is valid GLSL
-T 1506635012 18<kulzen_18>	Company: any suggestions on solving my query?
-T 1506635194 18<Company18>	kulzen_: i'm not touching plug/socket with a 10ft pole
-T 1506635199 18<Company18>	so i have no idea
-T 1506635239 18<kulzen_18>	Company: err but there's no other way to embed a widget running in another application in my application:(
-T 1506635254 18<feaneron18>	very few people know how to deal with plug/socket
-T 1506635265 18<Company18>	embedding widgets running in another application is something nobody should ever do
-T 1506635272 18<Company18>	it's just wrong
-T 1506635281 18<Company18>	unles you happen to be a window manager
-T 1506635285 18<kulzen_18>	even if we remove plug/socket part, how can I cut off a part of window so I can see what is behind
-T 1506635389 18<kulzen_18>	Company, feaneron: the reason I've to do that is ccause i want that widget to run in its own process so it doesn't crash my process. And I need to control its movement,resizing etc so I need to embed it in my window.
-T 1506635484 18<Company18>	kulzen_: why do you want to develop a crashing application?
-T 1506635535 18<kulzen_18>	Company: Don't dishearten me! Err, I already have that running on windows and now I've to port to linux so :(
-T 1506635566 18<Company18>	kulzen_: you said that you go through all this pain because part of your stuff is crashing, no?
-T 1506635598 18<kulzen_18>	kulzen_: till now , nothing is crashing luckily 
-T 1506635598 18<Company18>	you could avoid all that crap if your stuff wouldn't crash
-T 1506635620 18<Company18>	back when I started out, it was a recurring idea of gstreamer
-T 1506635625 18<kulzen_18>	everything is running smoothly as of now..
-T 1506635647 18<Company18>	that we would write plugins for sucky libraries, but we would deal with that by handling SEGVs and restarting the video decoding process
-T 1506635652 18<kulzen_18>	but now, I have to implement functionality where I can cut off part of window given the co-ordinates so that I can see what is behind
-T 1506635654 18<Company18>	which was a terrible idea
-T 1506635671 18<kulzen_18>	hmm I agree
-T 1506635675 18<Company18>	we decided to instead fix all those plugins - not just to not crash, but also to provide the APIs that we wanted them to have
-T 1506635682 18<Company18>	that made gstreamer a lot easier
-T 1506635688 18<Company18>	and those libs a lot better
-T 1506635700 18<Company18>	and the libs' developers like us a lot more because we worked with them
-T 1506635700 18<kulzen_18>	I see your point of view but I don't have any alternatives, do I?
-T 1506635702 18<Company18>	win-win-win
-T 1506635728 18<Company18>	only problem: we had to spend some time fixing other people's libs to not crash
-T 1506635732 18<kulzen_18>	I *have* to port this app to linux and I am making steady progress and from what I researched and what ya all advised, plug/socket is only way to achieve
-T 1506635756 18<kulzen_18>	what I want to though if there are alternatives, I am up to listen/prototype!
-T 1506635794 18<Company18>	use only 1 process
-T 1506635976 18<kulzen_18>	can't..I am running cef and I can't use it in same process
-T 1506635988 18<kulzen_18>	if cef crashes for some reason, my entire software goes down
-T 1506635998 18<Company18>	you're fucked then
-T 1506636029 18<kulzen_18>	so in your opinion, you say this application shouldn't be supported on linux?
-T 1506636063 18<Company18>	no, i mean I wouldn't want to support this application
-T 1506636098 18<Company18>	we've spent a decade getting rid of this plug/socket stuff because it just was a pita
-T 1506636124 18<Company18>	early gnome 2 used it everywhere
-T 1506636134 18<Company18>	by the time 3.0 came out, we had almost gotten rid of it
-T 1506636153 18<kulzen_18>	well, i can't have it in same process, Use of socket/plug is not recommended, I *have* to port this application to linux
-T 1506636158 18<Company18>	by now, nobody is using it and just some legacy support for very old apps exists in few places
-T 1506636189 18<kulzen_18>	it's weird that there's no other alternative besides using it in 1 process only :S
-T 1506636249 18<Company18>	i'm sure you can make it work if you use that old gnome 2 technology
-T 1506636255 18<kulzen_18>	1 crazy alternative might be to launch cef in separate process and use pipe to communicate all resizing/location/hide/unhide information
-T 1506636266 18<Company18>	but I don't remember what works or how, I gladly forgot everything I ever knew
-T 1506636271 18<kulzen_18>	but that'd be tremendous pita modifying cef code
-T 1506636474 18<Company18>	kulzen_: can't you just write the whole app using chromium?
-T 1506636495 18<Company18>	you'd get an amazing electorn app, yay!
-T 1506636840 18<kulzen_18>	Company: I can't unfortunately. I've simplified what I want to achieve. I can provide you more details in PM
-T 1506636873 18<kulzen_18>	but the gist is that I cannot use chromium or anything else
-T 1506636930 18<kulzen_18>	if there are no viable alternatives, I think bosses would be fine with plug/socket and shipping with gtkmm3.0 libs
-T 1506636991 18<Company18>	i'm sure it's possible to do it
-T 1506637014 18<Company18>	but it's not gonna be fun and you'll have to figure out things yourself
-T 1506637052 18<kulzen_18>	hmm I understand and I am probably willing to go down rabbit hole to get it working. 
-T 1506637076 18<kulzen_18>	Though right now, the main help I need is a way to cut out a piece of window so it can reveal the desktop lying underneath
-T 1506637133 18<kulzen_18>	I see API's like set_clip etc but I am not too sure
-T 1506637330 18<kulzen_18>	any suggestions/tips for that Company?
-T 1506637361 18<Company18>	you probably need to do that on the X layer
-T 1506637372 18<Company18>	I'd look into the shape APIs maybe
-T 1506637548 18<kulzen_18>	alright thanks 
-T 1506637572 18<kulzen_18>	I totally understand your concerns regarding plug/socket but as you know, my hands are tied \_o_/
-T 1506638402 18<mclasen18>	Company: having some fun with the recorder
-T 1506638615 18<Company18>	mclasen: that sounds like awesome videos are about to come out
-T 1506638677 18<mclasen18>	nah, just making it more useful
-T 1506638944 18<Company18>	i am all for that
-T 1506638969 18<Company18>	we also need to future-proof it and replace all those treeviews with listboxes ;)
-T 1506641581 18<Company18>	i get to line 17 of rounded-rect.glsl before I get an error
-T 1506641592 18<Company18>	next step: builtin functions
-T 1506641655 18<Company18>	best thing is that i cleaned up the parser to not emit an error for every token once it gets confused
-T 1506641671 18<Company18>	but instead just tries to resync at the next semicolon, closing parenthesis or whatever
-T 1506641730 18<Company18>	https://paste.fedoraproject.org/paste/qbWhj1NQEIErrRjyMt7NQA
-T 1506641762 18<Company18>	$> build/gtk/gtk4-glsl -p gsk/resources/vulkan/rounded-rect.glsl
-T 1506641769 18<Company18>	if anyone wants to play with it
-T 1506674897 18<baedert18>	Is there a clever trick of saving an additional bit for a pointer? Google fails me and a Pointer->bit hash table seems like a lot of waste
-T 1506675393 18<baedert18>	"pointer tagging" gives more results, not that they are useful
-T 1506683411 18<ricotz18>	mclasen, hi, are you planning to do a new gtk+-4.0 pre-release soon?
-T 1506683421 18<mclasen18>	no
-T 1506683487 18<ricotz18>	so no release within like the next months?
-T 1506683506 18<mclasen18>	you've asked this before... why did you ask again if  you didn't want a different answer ?
-T 1506683565 18<ricotz18>	I am asking because there seemed are going to be some regular snapshots
-T 1506683593 18<ricotz18>	and I am trying to keep vala bindings updated
-T 1506683613 18<ricotz18>	so I am curious if there is any kind of release schedule
-T 1506683709 18<mclasen18>	it needs to be in reasonable shape otherwise a release is not very useful
-T 1506683727 18<mclasen18>	there's just too many unfinished things atm, in my view
-T 1506683750 18<ricotz18>	that is understandable, while the last 3.91.x were made pretty regular
-T 1506683773 18<mclasen18>	Company: on that note, I though I had gotten the viewport setup for dependent render passes right, but it is still wrong, and I just can't figure it out
-T 1506683786 18<mclasen18>	I'd appreciate if you could take a look
-T 1506683790 18<ricotz18>	mclasen, alright
-T 1506683808 18<mclasen18>	two obvious places where it goes wrong are: a) scrollbars are missing and b) the blur example in testoverlay
-T 1506683856 18<Company18>	ricotz: people aren't excited about GTK4 snapshots unless there are any features that make apps go "i want that in my app"
-T 1506683864 18<Company18>	ricotz: and those things don't exist
-T 1506683926 18<ricotz18>	Company, right, still getting the api changes into releases makes it easier to adapt to them
-T 1506683939 18<ricotz18>	of course they are still moving target
-T 1506683952 18<Company18>	ricotz: no apps are doing that though, so I'm not sure how useful that is really
-T 1506683967 18<Company18>	we did a few releases at the beginning but I'm not sure if wnybody used them
-T 1506684045 18<ricotz18>	ok, mostly people are asking for tags/release which they can work against
-T 1506684061 18<ricotz18>	of course if you are not aware of any users doesnt mean there are none
-T 1506684096 18<Company18>	i think mclasen realized it's not worth it after the last release
-T 1506684121 18<ricotz18>	alright
-T 1506684130 18<Company18>	people were all excited about doing releases with 3.90 and 3.91 but after that the excitement kinda stopped
-T 1506684144 18<mclasen18>	I just want to reach a reasonable place with gsk before doing the next one
-T 1506684165 18<Company18>	i'm not even sure what "reasonable" means with GSK
-T 1506684186 18<ricotz18>	usually having a release also means it get tested in more environments
-T 1506684190 18<Company18>	because to me GSK is not a problem in current GTK
-T 1506684222 18<Company18>	ricotz: nobody uses GTK4 - all that gets tested is building it
-T 1506684223 18<ricotz18>	so simple things like build failures gets easily discovered
-T 1506684257 18<Company18>	GTK4 building has rarely been a problem, because it's very boring code
-T 1506684260 18<mclasen18>	reasonable to me means: it shouldn't eat scrollbars, and it should get blur clipping right, etc
-T 1506684285 18<ebassi18>	Also, the rendering of text in labels should probably not be blurry on hidpi
-T 1506684288 18<heftig18>	demo and widget-factory is not testing?
-T 1506684313 18<mclasen18>	as always, helping out with any of these things is appreciated
-T 1506684325 18<Company18>	heftig: it's kinda meh to me, because testing GTK to me means making sure the APIs make sense and work, not running the demo apps
-T 1506684328 18<ricotz18>	with glsl shaders there is also the gpu hardware variable
-T 1506684393 18<Company18>	mclasen: getting blur clipping right will be HARD until somebody reorgs queue_draw()
-T 1506684411 18<mclasen18>	ebassi: I'm out of hidpi hw atm, so not much chance of me fixing that by myself
-T 1506684416 18<Company18>	mclasen: i would expect implementing it to eat enough CPU to be not worth it
-T 1506684448 18<ebassi18>	mclasen: I'll have a look at it; it may be just a case of the texture atlas for the glyph cache using the wrong scaling factor
-T 1506684459 18<Company18>	ebassi: I'd expect that
-T 1506684481 18<Company18>	ebassi: the atlas glyphs are certain;y created in a place where we know about the scale factor
-T 1506684489 18<baedert18>	(building it doesnt work fwiw)
-T 1506684490 18<Company18>	we probably need to look at the mvp
-T 1506684503 18<Company18>	and not just at the node
-T 1506684529 18<mclasen18>	that is what I thought this morning, but no obviously right answer materialized
-T 1506684529 18<Company18>	that would also solve scaling
-T 1506684556 18<mclasen18>	unless you are talking about glyphs, not viewport setup
-T 1506684566 18<Company18>	mclasen: i'm talking glyphs
-T 1506684592 18<Company18>	what's the state of GDK windows btw?
-T 1506684600 18<Company18>	are they gone and we can do scaling containers?
-T 1506684626 18<Company18>	because if we had a scaling container demo, we could use that to test hidpi stuff without hidpi
-T 1506684681 18<mclasen18>	and now I wonder if I get the scale factor right in the dependent render passes too
-T 1506684688 18<baedert18>	windows, popovers and textviews have the last windows
-T 1506684708 18<mclasen18>	I always use scale-factor 1 there, hmm
-T 1506684712 18<Company18>	mclasen: probably not
-T 1506684761 18<Company18>	mclasen: the problem is that you need to render the dependent pass not at the scale-factor of the window but of the scale factor that prvides best accuracy for the input you're gonna process
-T 1506684794 18<Company18>	so if i have a transform node that scales up by a factor of 2, then you want to render the dependent pass on a factor of 4
-T 1506684822 18<Company18>	this gets really complicated if the transform node doesn't just scale but also rotates 45 degrees in the z direction
-T 1506684876 18<mclasen18>	but my viewport setup is broken even without any scale factors
-T 1506684878 18<Company18>	do you then draw the render pass untransformed and transform while rendering?
-T 1506684890 18<Company18>	or do you render already transformed and just copy pixels?
-T 1506684993 18<baedert18>	I really hope the same person thought of "GdkDrawContext" and "GdkDrawingContext"
-T 1506685146 18<Company18>	baedert: no
-T 1506685174 18<Company18>	baedert: ebassi's GdkDrawingContext was first, mine came second
-T 1506685198 18<Company18>	baedert: but I take suggestions for the name of the base class of GL context and Vulkan Context
-T 1506685209 18<Company18>	baedert: not GdkDrawingContext though, that one's taken!
-T 1506685250 18<ebassi18>	I couldn't call it GdkGraphicsContext — or GdkGC, for short
-T 1506685257 18<mclasen18>	Company: copy pixels ? the renderpass renders to a texture, the texture gets used
-T 1506685303 18<Company18>	mclasen: but how do you use the texture?
-T 1506685319 18<mclasen18>	the same way we use any other texture
-T 1506685324 18<Company18>	mclasen: you can do texture(texture, pixel) and you can do texture(texture, pixel * mvp)
-T 1506685348 18<Company18>	mclasen: in both cases, you need to render onto the texture differently
-T 1506685350 18<mclasen18>	you act like I should know this
-T 1506685381 18<baedert18>	garnacho: Do you have any plans for re-picking on size-allocate? I currently have a case where a button gets destroyed on click and replaced with another one, and now you can't click the new button until you moved the mouse
-T 1506685400 18<mclasen18>	Company: but I don't, which is why I'm asking for help
-T 1506685422 18<mclasen18>	given that we want to reuse the same shaders, we need to make the texture work the same way as our other textures
-T 1506685426 18<mclasen18>	right ?
-T 1506685442 18<Company18>	yeah, I think that's true in the general case
-T 1506685464 18<Company18>	which kinda means we need to copy the mvp somehow
-T 1506685502 18<Company18>	like, if i scale by a factor of 2
-T 1506685512 18<Company18>	your code will not notice that
-T 1506685522 18<Company18>	because you use the node bounds
-T 1506685537 18<Company18>	and the node bounds stay the same
-T 1506685544 18<mclasen18>	yes, I got the feeling that the mvp needs to carry over somehow
-T 1506685547 18<Company18>	because the scale is inside a transform node further up the tree
-T 1506685557 18<mclasen18>	but just how exactly has eluded me so far
-T 1506685586 18<mclasen18>	and the breakage I see clearly depends on having some sort of transform higher up in the tree
-T 1506685605 18<mclasen18>	thats why it works for the simple things in widget-factory, but breaks for scrollbars
-T 1506685618 18<Company18>	what do scrollbars do that make them special?
-T 1506685633 18<Company18>	aren't they just regular widgets like the rest of widget-factory, too?
-T 1506685640 18<mclasen18>	I haven't investigated in detail, but I assumed the overlay shenanigans play a role
-T 1506685682 18<mclasen18>	anyway, I have to give my daughter a ride, so you have 30 minutes to figure it out!
-T 1506685686 18<Company18>	should investigate the node tree
-T 1506685691 18<Company18>	i'm not gonna figure it out
-T 1506685696 18<Company18>	i'm writing a glsl compiler
-T 1506685744 18<Company18>	ebassi: what's the minimum glsl version you'd want to target?
-T 1506685830 18<Company18>	i know older glsl has issues with loops and conditionals
-T 1506685862 18<Company18>	and was wondering if i need to think about that or if that's way too old
-T 1506686022 18<Company18>	mclasen_afk: seems scrollbars get their being special because they use an opacity node and that causes another render pass
-T 1506686065 18<ebassi18>	Company: GLSL did not have issues with loops and conditionals; GPU drivers did :-)
-T 1506686078 18<Company18>	hehe
-T 1506686078 18<ebassi18>	So it's not really an issue of a minimum version
-T 1506686101 18<Company18>	i always thought early versions had no loop statements
-T 1506686111 18<ebassi18>	Of course, when targeting GL, we can ask for a minimum version of GLSL tied to the version of the GL spec
-T 1506686137 18<Company18>	yeah, i'm mostly wondering if we can warn about stuff that won't work on endless
-T 1506686158 18<Company18>	so that the compiler complains
-T 1506686211 18<Company18>	or if there's stuff like detecting loops with constant conditionals and unrolling them that would help
-T 1506686211 18<ebassi18>	On Endless we either care about GL ≥ 3.2+ (for Intel) which means GLSL ≥ 1.50
-T 1506686224 18<ebassi18>	Or, for ARM, we care about GLES 2.0
-T 1506686264 18<Company18>	that's all reasonably modern though
-T 1506686281 18<Company18>	because afaik the web glsl spec runs on gles 1.0, no?
-T 1506686405 18<ebassi18>	The GLES 2.0 GLSL language is pretty much the same as GLSL < 1.50 on big GL (varying, attribute)
-T 1506686416 18<ebassi18>	It's missing the layout bits, AFAIR
-T 1506686431 18<ebassi18>	Those came with GLES 3.0
-T 1506686443 18<ebassi18>	I'd have to double check the GLES spec
-T 1506686449 18<Company18>	yeah
-T 1506686463 18<Company18>	but we can fix our code to not use the layout bits
-T 1506686486 18<Company18>	which we should do anyway because then we can share them between GL and Vulkan
-T 1506686494 18<ebassi18>	In any case, Endless is not going to jump into GTK4, especially because our current target ARM platform is pretty crappy
-T 1506686495 18<Company18>	I think currently we use vulkan-specific stuff
-T 1506686546 18<Company18>	so we shouldn't concern ourselves much with supporting older GL versions
-T 1506686554 18<Company18>	everything that's in Mesa is fine
-T 1506686556 18<Company18>	I suppose?
-T 1506686714 18<ebassi18>	Generally speaking, as far as I'm concerned: yes
-T 1506686731 18<baedert18>	Make it work on my laptop!!
-T 1506686800 18<ebassi18>	baedert: Apart from poking fun at your puny laptop, I haven't really asked: which CPU/GPU do you have?
-T 1506687054 18<baedert18>	g-c-c says the cpu is an "i5 CPU M 520 @ 2.40GHz × 4" the gpu is an ironlake mobile apparently
-T 1506687081 18<baedert18>	"OpenGL shading language version string: 1.20" ha!
-T 1506687399 18<ebassi18>	ironlake? Eeeeh
-T 1506687415 18<ebassi18>	That was a botched integrated GPU :-/
-T 1506687444 18<ebassi18>	Released right before Sandybridge, but completely different; and it even had hardware bugs, AFAIR
-T 1506687463 18<ebassi18>	And yes, it's not really going to support GL 3.2+
-T 1506687512 18<garnacho18>	baedert: Hmm, I had the impression that was already handled through update_cursor_on_state_change() in gtkwidget.c
-T 1506687515 18<ebassi18>	I managed to skip it and go from 965 straight to Sandybridge, by stretching my Intel laptop refresh
-T 1506687598 18<dj-death18>	my ilk worked great!
-T 1506687648 18<ebassi18>	After everyone else in the graphics team moved to Sandybridge? :-)
-T 1506687889 18<baedert18>	2012: "I'm not going to play games anyway who cares" 2017: "gtk3-demo uses vulkan now"
-T 1506688020 18<Company18>	baedert: 5 years is an okay time for new computers still ;)
-T 1506688059 18<Company18>	by 2020 GTK will probably use OpenCL to do CSS matching
-T 1506688175 18<mclasen18>	how about using it for layout ?
-T 1506688210 18<Company18>	i don't even know what OpenCL is good for
-T 1506688222 18<Company18>	but the problem with layout in general is parallelizability
-T 1506688245 18<Company18>	for css you can compute multiple nodes at the same time, for layout, that's tricky
-T 1506688268 18<baedert18>	multiple stack pages at the same time!
-T 1506688269 18<mclasen18>	with emeus it is just a big matrix no ?
-T 1506688308 18<Company18>	yeah, an emeus approach might work on OpenCL
-T 1506688333 18<Company18>	when you don't ahve to deal with custom measure() vfuncs anymore
-T 1506688412 18<baedert18>	garnacho: That's just the cursor though, not the target widget (we only pick on MOTION events in gtkmain.c afaics)?
-T 1506688476 18<ebassi18>	Eeeh
-T 1506688495 18<ebassi18>	The Cassowary algorithm is not really well versed for GPU registers
-T 1506688544 18<ebassi18>	Unless you reduce all reads to 4 floats, which is not really possible
-T 1506688562 18<ebassi18>	Well, "4 floats" or "4 ${whatever}"
-T 1506688569 18<garnacho18>	baedert: ugh, yeah... that won't help with crossing event emission
-T 1506688583 18<garnacho18>	although the GtkPointerFocus should be repicked
-T 1506688710 18<baedert18>	all the pointer focus api in gtkwindow.c is voodoo to me
-T 1506689172 18<baedert18>	I see the stuck hover when leaving the toplevel is fixed
-T 1506689231 18<garnacho18>	baedert: it just tries to update GtkPointerFocus elems whenever a widget in the chain from focus->toplevel to focus->target changed state
-T 1506689255 18<garnacho18>	baedert: yeah, toplevel leave events were silently consumed...
-T 1506689657 18<baedert18>	hmm we repick for RELEASE events so I do get the release events for the right widget
-T 1506689812 18<baedert18>	https://paste.xinu.at/rUk5/ Doesn't break anything obvious so it must be right
-T 1506691163 18<mclasen18>	Company: giving up on this. I'm more confused now than I was an hour ago. I have no idea how these transforms and viewport and scale factors combine
-T 1506691222 18<Company18>	yeah, i always hate those coordinate space math stuff, too
-T 1506691371 18<baedert18>	garnacho: https://paste.xinu.at/rUk5/ ? Repicking on press events as well?
-T 1506691379 18<mclasen18>	when I get the mvp from the middle of a render pass, it consists of 3 things, right ?
-T 1506691412 18<mclasen18>	it has the scale factor scale, the viewport -> 0-1 projection, and any other transforms that we picked up in the nodes
-T 1506691429 18<mclasen18>	and then I start a new render pass, and I want to keep the mvp, but change the viewport
-T 1506691452 18<mclasen18>	but the projection sits in the middle there ? it leaves me confused
-T 1506691453 18<Company18>	it transforms from the node's space into the 0,1 space of the render area I think
-T 1506691473 18<Company18>	where (0,0) is the top left of the window and (1,1) the bottom right
-T 1506691528 18<Company18>	I  *think*
-T 1506691580 18<Company18>	when I'm wrong, it actually transform to the actual cutout that we render to, but I think that's all done with scissoring
-T 1506691595 18<Company18>	so on a 400x300 hidpi window it should be an 800x600 scale
-T 1506691607 18<mclasen18>	so what do I do ? put a matrix that goes from texture size to the window size on the other end ? but what about the scale factor ?
-T 1506691610 18<Company18>	(or the inverse)
-T 1506691629 18*	mclasen goes to do something else
-T 1506691671 18<Company18>	you need one that transforms from the node's coordinate system so that (0,0) is top left of the texture and (1, 1) is bottom right
-T 1506691690 18<Company18>	actually, that's not true
-T 1506691711 18<Company18>	you need one that transforms from the node's coordinate system to the coordinate system that the texxture user expects as input
-T 1506691759 18<mclasen18>	the texture users are our existing shaders
-T 1506691769 18<Company18>	yeah, for now
-T 1506691865 18<Company18>	but that means you need to create a texture that is completely independent of the actual node you want to render
-T 1506691870 18<mclasen18>	why does this seems so simple on the cairo side ? we just translate, and done
-T 1506691882 18<Company18>	because the texture you care about is dependent on the parent
-T 1506691902 18<mclasen18>	we create just the same size image for the cairo case
-T 1506691909 18<Company18>	do you know what cairo does internally when you translate?
-T 1506691944 18<Company18>	cairo fiddles with pattern matrices and device transforms and whatnot internally
-T 1506691957 18<Company18>	which is essentially what we do here, too
-T 1506691966 18<Company18>	only that we do it in 3D, not in 2D
-T 1506691982 18<Company18>	but for the texture you want to create
-T 1506691989 18<mclasen18>	I don't think the third dimension is what causes the headache here
-T 1506691996 18<Company18>	not yet, no
-T 1506692036 18<Company18>	but with scaling it's already 4 members of the 2d matrix that are involved
-T 1506692084 18<Company18>	anyway, the texture size shouldn't really matter
-T 1506692130 18<Company18>	because our current shaders render the resulting texture so that top left of that texture ends up at the top left of the node and the same for bottom right
-T 1506692155 18<Company18>	so the size of the node is only relevant to avoid pixelation
-T 1506692172 18<mclasen18>	I understand that in theory
-T 1506692173 18<Company18>	and to make pixels match up you need to create a texture that is as large as the resulting pixels on screen
-T 1506692189 18<mclasen18>	in practice, there's a viewport and a clip and a transform to fill with the right numbers
-T 1506692200 18<mclasen18>	and they all seem to depend on the texture size in some way
-T 1506692201 18<Company18>	which means you need to transform it by mvp minus the (0,0)=>(1,1) transform
-T 1506692266 18<Company18>	yeah, clearly the texture size influences the matrix you render to, because you want to make sure that the bottom right of the texture matches the amount of pixels the parent shader expects at the bottom right
-T 1506692313 18<mclasen18>	in the fallback case, we don't do any clever texture sizing - we just use the node bounds to size the surface
-T 1506692316 18<Company18>	so if you double the texture pixels, the parent shader will just shrink it
-T 1506692326 18<mclasen18>	I guess that means if there's a scale involved it'll be blocky
-T 1506692360 18<Company18>	or blurry, depending on how we select from the texture, yes
-T 1506692375 18<Company18>	I think the sampler uses LINEAR, so probably blocky
-T 1506692384 18<mclasen18>	one problem with this theory is that we don't have 'mvp minus 0-1' available
-T 1506692402 18<Company18>	that's true
-T 1506692413 18<Company18>	there was no need to keep it around, so we don't
-T 1506692468 18<Company18>	in the setup code, modelview I think is the part that transforms to the actual pixels
-T 1506692486 18<Company18>	and the projection does the stuff going to (0, 1)
-T 1506692499 18<mclasen18>	well, modelview is just the scale factor
-T 1506692505 18<Company18>	obviously
-T 1506692514 18<Company18>	because for the root node that's all you need
-T 1506692540 18<Company18>	then we copy it into the pushconstants and update it as needed
-T 1506692559 18<garnacho18>	baedert: hmm, I wouldn't really expect x/y to be different from the last motion event's... do you get that or is it to workaround the lack of repicking?
-T 1506692585 18<garnacho18>	(not bad for paranoia though, I guess)
-T 1506692618 18<Company18>	mclasen: that's what happens in the GSK_TRANSFORM_NODE part in gskvulkanrenderpass.c
-T 1506692642 18<mclasen18>	yeah, the matrix multiplication is in gsk_vulkan_push_constants_transform
-T 1506692656 18<Company18>	right
-T 1506692684 18<Company18>	and that matrix contains 3 parts: node coordinate system => root node coordinate system => on-screen-pixels => (0, 1)
-T 1506692714 18<Company18>	and then we pass that matrix to the vertex shader
-T 1506692732 18<Company18>	the vertex shader mutliplies it with the rect we passed
-T 1506692757 18<Company18>	and that way Vulkan knows which pixels to touch
-T 1506692762 18<Company18>	and runs the pixel shader for those
-T 1506692821 18<Company18>	while computing the pixels, it also linearly transforms all the vertex out / fragment in variables that are not marked as "flat"
-T 1506692854 18<Company18>	that's how we get the correct x/y coordinates in the fragment shader
-T 1506692881 18<Company18>	and the right texcoords to use for the texture() calls
-T 1506692926 18*	mclasen still not any closer to working out what to do to fix this
-T 1506692928 18<mclasen18>	moving on
-T 1506694791 18<mclasen18>	Company: things do get blocky when scaling up: https://i.imgur.com/UztiIKy.png
-T 1506694805 18<mclasen18>	thats with sneaking a x3 scale into gtk_window_snapshot
-T 1506694829 18<Company18>	makes sense
-T 1506694840 18<mclasen18>	I also wonder what up with the text in the selected row
-T 1506694899 18<Company18>	probably some shader messing up something
-T 1506694943 18<mclasen18>	but its not visible in normal operation - you only see it in a screenshot
-T 1506694964 18<mclasen18>	in the window, the text looks white-on-blue, as expected
-T 1506694964 18<Company18>	how do you take the screenshot?
-T 1506694976 18<mclasen18>	gnome-screenshot -w
-T 1506694983 18<Company18>	huh
-T 1506694987 18<Company18>	okay, no idea then
-T 1506695036 18<Company18>	maybe there's an alpha channel and a wrong pixel encoded with that alpha channel
-T 1506695046 18<Company18>	though i'd have no idea where that'd come from
-T 1506695447 18<baedert18>	garnacho: lack of repicking
-T 1506695878 18<mclasen18>	Company: could be because we use different blend factors for the text pipeline and I got it wrong, maybe ?
-T 1506696061 18<garnacho18>	baedert: I'd prefer that crossing events were correctly queued up after map/unmap, taking note for future refactors
-T 1506696226 18<Company18>	mclasen: maybe
-T 1506696280 18<Company18>	mclasen: it looks like it maybe ends up with sth like #FF000080 which is an oversaturated broken pixel
-T 1506696369 18<mclasen18>	for glow-in-the-dark text
-T 1506698324 18<misterdanb18>	Hi! I'm a little confused over the bevaviour of GtkPopover. It seems like it unrealizes all its children when popping down and even is changing its GdkWindow when popping up the next time. Probably that's the intended behaviour, but this causes the glcontext for this window to be destroyed doesn't it? is there any way to circumvent this (losing the shared gl context for the popovers window)?
-T 1506698393 18<baedert18>	do you have a backtrace of the popover unrealizing?
-T 1506698533 18<misterdanb18>	what do you mean by backtrace? it didn't crash or anything, but is printed the pointers of its gdkwindow and they differed
-T 1506698583 18<misterdanb18>	baedert: okay, i didn't test for the popover itself, perhaps ONLY its children unrealize and itself only changes the gdkwindow or something
-T 1506698694 18<baedert18>	well unrealizing should usually not happen on a simple hide I think.
-T 1506698906 18<misterdanb18>	baedert: okay, hm, then perhaps there is something else that i am doing wrong, i'll have a closer look again, thx
-T 1506700019 18<misterdanb18>	baedert: okay, i solved my problem and it seems like it had to do with the popover being set as the popover property of a GtkMenuButton
-T 1506700232 18<bugbot18>	New gtk+ bug 788343 filed by mclasen@redhat.com.
-T 1506700232 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788343 Scene Graph, normal, gtk-bugs, NEW , issue: blur needs enlarged clip
-T 1506700334 18<bugbot18>	New gtk+ bug 788344 filed by mclasen@redhat.com.
-T 1506700334 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788344 Scene Graph, normal, gtk-bugs, NEW , avoid glow-in-the-dark text
-T 1506700457 18<bugbot18>	New gtk+ bug 788345 filed by mclasen@redhat.com.
-T 1506700457 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788345 Scene Graph, normal, gtk-bugs, NEW , fix transformations for dependent render passes
-T 1506700530 18<bugbot18>	New gtk+ bug 788346 filed by mclasen@redhat.com.
-T 1506700530 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788346 Scene Graph, normal, gtk-bugs, NEW , handle hidpi for text
-T 1506700662 18<bugbot18>	New gtk+ bug 788348 filed by mclasen@redhat.com.
-T 1506700662 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788348 Scene Graph, normal, gtk-bugs, NEW , fallback code for node-as-texture doesn't handle scaling right
-T 1506702103 18<bugbot18>	New gtk+ bug 788350 filed by mclasen@redhat.com.
-T 1506702103 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788350 Scene Graph, normal, gtk-bugs, NEW , vulkan: implement blur for outset shadows
-T 1506702235 18<bugbot18>	New gtk+ bug 788351 filed by mclasen@redhat.com.
-T 1506702235 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=788351 Scene Graph, normal, gtk-bugs, NEW , vulkan: implement repeat nodes
-T 1506703962 18<bugbot18>	mclasen@redhat.com changed the Status on bug 774224 from NEW --- to RESOLVED FIXED.
-T 1506703962 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=774224 Scene Graph, normal, gtk-bugs, RESOLVED FIXED, blend modes don't work
-T 1506704070 18<mclasen18>	Company: do we have a plan for glarea with vulkan rendering ?
-T 1506704090 18<Company18>	yes and no
-T 1506704111 18<Company18>	yes, because we want to use GskTexture nodes and let glarea render into a texture
-T 1506704130 18<Company18>	and no, because today this involves downloading the texture into CPU memory and reuploading it
-T 1506704170 18<Company18>	essentially that's the same approach we used for glarea in GTK3
-T 1506704255 18<Company18>	there's a few things I haven't thought about (like how the API for gsk_texture_new_from_gl () is supposed to look)
-T 1506704320 18<Company18>	we'd do the same approach with vulkan
-T 1506704379 18<Company18>	and in an optimized case that should essentially result in what you implemented in Vulkan right now: a renderpass into a texture
-T 1506704519 18<Company18>	essentially, I want to figure out an API that supports 2 cases: An optimized native-speed one when renderer and application code match
-T 1506704530 18<Company18>	and a generic one that ALWAYS works
-T 1506704543 18<baedert18>	the glarea didn't work for me on wayland+cairo 
-T 1506704543 18<mclasen18>	makes sense
-T 1506704582 18<mclasen18>	works here
-T 1506704622 18<mclasen18>	but it also seems to work with wayland+vulkan
-T 1506704636 18<mclasen18>	do we already have a fallback in place, or how does this work today ?
-T 1506704641 18<Company18>	cairo
-T 1506704652 18<Company18>	we use the old GTK3 code to download the GL stuff into a cairo texture
-T 1506704664 18<Company18>	or rather: into a cairo node
-T 1506704691 18<mclasen18>	I guess that is the 'always works' case, which won't really support actual gl workloads beyond a triangle
-T 1506704735 18<Company18>	well, it's gonna be slow, but not *that* slow
-T 1506704754 18<Company18>	you'll definitely get a few fps, so for static images it should always work fine
-T 1506704824 18<Company18>	but yeah, if you want to run a doom (the new one) level editor, it's probably gonna be noticeable
-T 1506705000 18*	Company curses GLSL for a bit
-T 1506705025 18<Company18>	GLSL needs to figure out the difference between constructors and functions
-T 1506705102 18<Company18>	i mean
-T 1506705110 18<Company18>	it's neat what constructors let you do
-T 1506705122 18<Company18>	but they always behave in weird ways
-T 1506705130 18<Company18>	like
-T 1506705149 18<Company18>	constructors can convert between any types in any direction
-T 1506705156 18<Company18>	so they're like casts
-T 1506705174 18<Company18>	int (2.0) is the only way to convert from a float to an int for example
-T 1506705191 18<Company18>	and it's the only way to do that
-T 1506705220 18<Company18>	and constructors are the only thing that can take variable amounts of arguments of any basic type
-T 1506705239 18<Company18>	so int(dvec4(...)) is fine
-T 1506705295 18<Company18>	BUT
-T 1506705311 18<Company18>	constructors don't support overloading (obviously, because they already support anything)
-T 1506705429 18<Company18>	and then GLSL generates constructors for new struct types that you declare
-T 1506705452 18<Company18>	which sounds fine
-T 1506705465 18<Company18>	until you learn that those constructors behave like regualr functions
-T 1506705478 18<Company18>	so the simple conversion rules apply
-T 1506705490 18<Company18>	i'm not even sure if you can overload them with regular functions
-T 1506705523 18<Company18>	you can't
-T 1506705762 18<Company18>	HOLY SHIT
-T 1506705772 18<Company18>	glsl generates constructors for arrays
-T 1506705803 18<Company18>	int x[2] = int[2] (1, 2);
-T 1506705809 18<Company18>	and that works with structs
-T 1506705821 18<Company18>	struct s { int x, y; };
-T 1506705838 18<dboles18>	yay, c++ style aggregate initialisation
-T 1506705841 18<Company18>	s x[2] = s[2] (s(1, 2), s(3, 4));
-T 1506705861 18<Company18>	now, here's the question: Which conversion rules apply?
-T 1506705871 18<Company18>	the ones for builtin constructors or the ones for structs?
-T 1506708741 18<Company18>	mclasen comments on a bug, phoronix writes an article, reddit opens a thread about it
-T 1506708758 18<Company18>	somebody is approaching the upper levels of fame here!
-T 1506708766 18*	mclasen will blissfully ignore this
-T 1506708781 18<mclasen18>	if only these transforms worked
-T 1506708840 18<mclasen18>	I have a working theory now, but it still doesn't work. here is what I think, maybe you see my mistake:
-T 1506708863 18<mclasen18>	we keep separate mv and p matrices in the renderpass - mv gets updated as we walk the tree by prepending the node transforms
-T 1506708871 18<mclasen18>	p is derived from the viewport
-T 1506708897 18<mclasen18>	when we get to node-as-texture, we take the bounds of the node, transform them with the current mv to get a viewport in screen coords
-T 1506708918 18<mclasen18>	then we create a texture with that size, and set up a render pass with the same mv and that viewport
-T 1506708944 18<baedert18>	nobody cares when I comment on bugs :(
-T 1506708996 18<mclasen18>	as long as the stock stays up, I assume my comments were ok...
-T 1506709126 18<mclasen18>	Company: do you see a hole in that logic ? ^
-T 1506709271 18<Company18>	mclasen: sounds good
-T 1506709282 18<mclasen18>	actually, it may just my clipping thats off now
-T 1506709287 18<Company18>	mclasen: one thing I wonder is if that requires keeping the inverse somewhere 
-T 1506709296 18<mclasen18>	in testoverlay, the image appears continuous
-T 1506709308 18<mclasen18>	just that its clipped wrong, let screenshot that
-T 1506709330 18<Company18>	but no, shouldn't be the case
-T 1506709364 18<Company18>	the clip is in node coordinates
-T 1506709374 18<mclasen18>	https://i.imgur.com/VsoUg75.png
-T 1506709394 18<mclasen18>	it is ? that seems dubious, looking at the code
-T 1506709422 18<Company18>	isn't it?
-T 1506709422 18<mclasen18>	maybe I should just forget about clipping dependent passes. no need...
-T 1506709442 18<Company18>	certainly in your case the offset is wrong
-T 1506709462 18<Company18>	ie it's exactly offset by the node's top left
-T 1506709466 18<mclasen18>	and no, don't need to keep an inverse - I just keep a copy of the original mv when appending a transform, and copy it back afterwards
-T 1506709478 18<Company18>	size of window decorations + headerbar
-T 1506709488 18<mclasen18>	it seems so, yes
-T 1506709535 18<Company18>	do you look at clip when creating the texture?
-T 1506709783 18<mclasen18>	no
-T 1506709790 18<mclasen18>	we look at the clip when drawing
-T 1506709791 18<Company18>	because if not gtk4-demo --run=listbox with listbox { filter: grayscale(1.0); }
-T 1506709805 18<Company18>	is gonna create a 500.000px high texture
-T 1506709832 18<mclasen18>	there's a 'XXX intersect with clip' comment somewhere
-T 1506709867 18<Company18>	thats kinda important to do that I would argue ;)
-T 1506709890 18<mclasen18>	anyway, taking the clip out of the picture doesn't fix this
-T 1506710085 18<Company18>	462 x 43648
-T 1506710100 18<Company18>	size of the color amtrix filter
-T 1506710135 18<Company18>	list { background: beige; filter: grayscale(0.5); }
-T 1506710137 18<mclasen18>	https://i.imgur.com/BdsM9Ph.png
-T 1506710146 18<Company18>	cairo needs 1.1s to render it :D
-T 1506710150 18<mclasen18>	the offset doesn't look like 26, 26 in the drawing
-T 1506710160 18<mclasen18>	or am I missing a y axis flip here ?
-T 1506710250 18<Company18>	i love how it completely messes up the text drawing
-T 1506710254 18<Company18>	sparkle!
-T 1506710592 18<lovetox18>	how can i get the numbers of rows in a grid?
-T 1506710598 18<lovetox18>	it there an easy way?
-T 1506710841 18<baedert18>	hmm no
-T 1506710880 18<dboles18>	Bear in mind that the number of rows may differ depending on which column you ask...
-T 1506710881 18<mclasen18>	a grid has no fixed number or rows
-T 1506710908 18<mclasen18>	you probably want to find the lowest and highest numbrered rows that have any children in them, and take their difference ?
-T 1506710922 18<mclasen18>	of course, there could be empty rows in between
-T 1506710943 18<lovetox18>	actually i just want to insert a row at the end
-T 1506710949 18<lovetox18>	but the method needs a row arg
-T 1506710952 18<lovetox18>	position arg
-T 1506710983 18<lovetox18>	so i have to keep track everytime i add or remove something from the grid, to supply the correct position
-T 1506711027 18<dboles18>	That sounds about right. If there's an easier way, I never found it
-T 1506711084 18<dboles18>	wait, using insert_row()? that's for inserting rows between existing ones, not appending at the end
-T 1506711110 18<dboles18>	that said, i'd start a new row using attach(), and you'd still need to maintain the position for that
-T 1506711118 18<lovetox18>	yes ^^
-T 1506711132 18<lovetox18>	ok no problem, just wanted to know if im missing something
-T 1506711144 18<lovetox18>	thanks
-T 1506711225 18<lovetox18>	would the container method add() not add a new row?
-T 1506711239 18<baedert18>	just attach with a y of 10000, then read the new y child property value back, BINGO
-T 1506711263 18<dboles18>	lovetox: if the orientation is vertical, but i can't remember what it does with the width/height of the added child
-T 1506711294 18<Company18>	baedert: what if it's 10000?
-T 1506711307 18<baedert18>	then your ui sucks!
-T 1506711327 18<dboles18>	at least use INT_MAX :P
-T 1506711372 18<baedert18>	I'm pretty sure it will always give you the value you provided anyway
-T 1506711611 18<baedert18>	Why does GListModel have a _get_type vfunc again?
-T 1506711667 18<Company18>	baedert: so you can report the type oif your items
-T 1506711676 18<baedert18>	Yes. What for?
-T 1506711684 18<Company18>	sanity checking
-T 1506711735 18<Company18>	like if you use template files to setup your listbox and the template file binds to properties on the listmodel items
-T 1506711744 18<Company18>	you want to make sure those actually exist
-T 1506711782 18<Company18>	also, you could insist on listmodels providing a certain type for your use cases
-T 1506711823 18<Company18>	ie the filechooser could have a method that displays a GListModel of GFile
-T 1506711871 18<Company18>	introspection could also support that with (element-type)
-T 1506711880 18<Company18>	if people would actually use listmodels ;)
-T 1506711927 18*	baedert uses them everywhere
-T 1506712344 18<baedert18>	I'd still like a GListModel backed by a GArray that doesn't use objects
-T 1506712363 18<Company18>	shouldn't be too ahrd to write?
-T 1506712419 18<TingPing18>	well they have to be gobjects
-T 1506712445 18<baedert18>	they only have to be because GListBox calls unref on them, you can write your own bind_model that doesn't
-T 1506712504 18<TingPing18>	that would be broken if you use g-i
-T 1506712538 18<baedert18>	I can't use any of my dirty hacks if I use g-i :P
-T 1506712980 18*	mclasen found the missing offset
-T 1506713043 18<jpwhiting18>	hi all, I have an array of timers I'm creating with g_timeout_add if an event happens, is there a way in my GSourceFunc to know which of the timers triggered it ?
-T 1506713060 18<jpwhiting18>	I'm using the user_data to know my object pointer, so can't use that
-T 1506713076 18<jpwhiting18>	something like Qt's "sender()" to know which object sent the signal we are getting called by
-T 1506713085 18<jpwhiting18>	except s/object/timer/
-T 1506713121 18<baedert18>	One remaining problem I still have with listbox-c is that I simply have to add child widgets inside size_allocate now and then
-T 1506713146 18<mclasen18>	jpwhiting: you can always wrap things in an extra level of indirection: pass a struct that contains the actual userdata as a field
-T 1506713155 18<jpwhiting18>	gotcha, ok
-T 1506713165 18<jpwhiting18>	heh, xclaesse just suggested the same thing
-T 1506713170 18<jpwhiting18>	guess that's how it's typically done :)
-T 1506713454 18<mclasen18>	Company: the render_pass_get_node_as_texture code has a check for whether the node bounds are the same as the parent nodes
-T 1506713507 18<mclasen18>	I don't really understand wh that is necessary - is there any point in forcing the use of cairo to scale the texture, instead of letting the gpu do it ?
-T 1506713607 18<dboles18>	Can Raleigh be removed from gtk-3-22, or does it have to remain despite currently being totally broken?
-T 1506713628 18<dboles18>	asking because, due to having hilariously bad priorities, I have a wip branch that gets it into a somewhat usable state
-T 1506713652 18<dboles18>	but figured i'd better check whether there's any point in continuing with it
-T 1506713791 18<dboles18>	imo it's not like it looks good, so it wouldn't be a loss to formally remove it, but if it has to stay in the codebase then surely it should at least actually render a widget or two
-T 1506713859 18<mclasen18>	I wouldn't remove it simply for reasons of 'don't touch it'
-T 1506713879 18<baedert18>	csoriano: Nautilus doesn't ship a listbox based view, right? Just the one using flowbox?
-T 1506713899 18<csoriano18>	baedert: yeah, I have a wip branch for the list view
-T 1506713918 18<csoriano18>	but is missing basic stuff, and most importantly, the replacement for the columns
-T 1506714102 18<baedert18>	*sigh*
-T 1506714248 18<baedert18>	of course gnome-photos only uses flowbox ever so rishi will forever complain about that
-T 1506714978 18<dboles18>	Does -gtk-icon-effect do anything anywhere?
-T 1506719534 18<Company18>	dboles: not on symbolic icons i think
-T 1506719545 18<Company18>	dboles: but it should work on regular icons
-T 1506719632 18<Company18>	* { -gtk-icon-effect: dim; ‑gtk‑icon‑style: regular; }
-T 1506719654 18<Company18>	also
-T 1506719662 18<Company18>	how the heck do we not have g_list_filter()?
-T 1506719673 18<dboles18>	Company: good guess, i had only checked symbolic so far. thanks!
-T 1506719728 18<Company18>	that wasn't a guess
-T 1506719747 18<Company18>	the "i think" was more because I wasn't sure if it's maybe broken ;)
-T 1506719768 18<dboles18>	yeah, imprecise word; i meant you immediately knew why it wasn't working for me
-T 1506719770 18<Company18>	i replaced it with -gtk-icon-filter somewhere, but that might've been gtk4
-T 1506719787 18<dboles18>	just realised -gtk-icon-style existed today - bye, lots of stupid code appending -symbolic to icon names
-T 1506719802 18<Company18>	there's a difference
-T 1506719818 18<Company18>	appending symbolic to the name specifies what you get without a theme
-T 1506719828 18<Company18>	and then themes get to override it
-T 1506719848 18<Company18>	i think the highcontrast theme wanted to force symbolic for example
-T 1506719872 18<Company18>	KDE themes might want to force regular (I don't think KDE has symbolic icons?)
-T 1506719923 18<dboles18>	yeah, that's the other benefit
-T 1506720356 18<Company18>	THAT DOES NOT MAKE SENSE, GLSL SPEC!
-T 1506720360 18<Company18>	dammit
-T 1506720441 18<Company18>	To determine whether the conversion for a single argument in one match is better than that for another match, the following rules are applied, in order:
-T 1506720441 18<Company18>	1. An exact match is better than a match involving any implicit conversion.
-T 1506720441 18<Company18>	2. A match involving an implicit conversion from float to double is better than a match involving any other implicit conversion.
-T 1506720441 18<Company18>	3. A match involving an implicit conversion from either int or uint to float is better than a match involving an implicit conversion from either int or uint to double.
-T 1506720467 18<Company18>	now, can there ever be a chance that both 2. and 3. can happen?
-T 1506720487 18<Company18>	like, we're talking a conversion from float in (2)
-T 1506720493 18<Company18>	and a conversion from int or uint in (3)
-T 1506720510 18<Company18>	and we're comparing the same argument that we want to convert
-T 1506720519 18<Company18>	so it's either float *or* int/uint
-T 1506720550 18<Company18>	also, floats can only be converted to doubles, so there is no other conversion
-T 1506720552 18<Company18>	wtf?
-T 1506720592 18<Company18>	I suspect this thing is writtein in a way to deal with extended types, but those extended types aren't listed anywhere
+T 1510178148 18<kulzen18>	the window, and gtksocket gets resized but not the gtkplug
+T 1510178515 18<benzea18>	Hi, Benjamin!
+T 1510178540 18<benzea18>	oh, middle mouse button paste fail …
+T 1510178803 18<hergertme18>	kulzen, why are you returning true from configure event? that prevents further functions from responding to the signal (and possibly the one that would propagate the change to the plug)
+T 1510178829 18<hergertme18>	you probably want false, or GDK_EVENT_PROPAGATE (which is == false)
+T 1510178892 18<kulzen18>	hergertme: err i always get confused with that. Changed to false but still no luck
+T 1510179241 18<hergertme18>	kulzen, are you gtk3 or gtk2?
+T 1510179249 18<kulzen18>	hergertme: gtk2
+T 1510179268 18<hergertme18>	two things i dont touch: gtk2 and gtksocket/plug 
+T 1510179272 18<hergertme18>	but anyway 
+T 1510179282 18<hergertme18>	Xembed works by sending a configure-event, like a normal window manager 
+T 1510179301 18<hergertme18>	and that is done in the size_allocate function of GtkSocket 
+T 1510179336 18<hergertme18>	so you might check your code in the external process and see if it's handling an XConfigureEvent and updating it's size manually 
+T 1510179385 18<hergertme18>	because gtk is not in control of your external process, the best we can do is say, "hey, here is your new size and position" 
+T 1510179385 18<hergertme18>	and of course, you can find this all out by .. reading the code ;)
+T 1510179432 18<hergertme18>	https://git.gnome.org/browse/gtk+/tree/gtk/gtksocket.c?h=gtk-2-24#n560
+T 1510180709 18<kulzen18>	how do i check if my code is handling xconfigureevent hergertme?
+T 1510180741 18<hergertme18>	kulzen, i dont know what your other process is doing, or even if it's using gtk, so i can't answer that 
+T 1510180826 18<hergertme18>	if the process containing the plugged widget is using gtk, it should happen automatically. if its something like rdesktop or a video player, or some other app/library that uses raw XIDs, it's going to be different.
+T 1510180985 18<kulzen18>	hergertme: other process is cef
+T 1510181096 18<kulzen18>	https://github.com/kuscsik/chromiumembedded/blob/eaceb1a1ba7b85882460d366da99a9109e7e9b65/libcef/browser/window_x11.cc
+T 1510181514 18<hergertme18>	well your problem just gained so much complexity that the chance of me being able to help reaches 0
+T 1510181551 18<hergertme18>	you might try with another program that you know works, like a small Gtk app with a gtkplug, to rule out any gtk bugs (which are very unlikely, given how much ive used plug/socket in gtk2 and how it hasn't really changed in 8 years)
+T 1510181681 18<kulzen18>	that's non motivating hergertme:P but good idea
+T 1510181686 18<kulzen18>	i'll try that
+T 1510181732 18<hergertme18>	there aren't enough CPU resources in the world to get me to compile cef
+T 1510181750 18<hergertme18>	and if the bug is there ...
+T 1510181772 18<hergertme18>	that code looks like it only responds to the ConfigureEvent in certain cases, and i dont know enough about that code to say whether it's appropriate 
+T 1510181868 18<kulzen18>	hergertme: I use builds from here http://opensource.spotify.com/cefbuilds/index.html and it doesn't take much cpu resources
+T 1510182792 18<kulzen18>	hergertme: so I made a hello world app. Without overriding any signal handlers, the plug size was same even on socket resize
+T 1510182810 18<kulzen18>	then I overrode on_Configure_Event and on_size_allocate methods for plug
+T 1510182819 18<kulzen18>	but still they weren't invoked when the socket was resized
+T 1510184096 18<hergertme18>	you might want to experiment with xtrace to see what events are passing through then 
+T 1510184771 18<mclasen18>	grr
+T 1510184802 18<mclasen18>	replacing a surface column with a gicon column in a list store should be easy
+T 1510184817 18<mclasen18>	but not if it is the file chooser
+T 1510184824 18*	mclasen gives up on it for now
+T 1510184872 18<kulzen18>	alright hergertme. One quick question - is gtksocket-plug done using XReparentWindow?
+T 1510185436 18<jpwhiting18>	hey all, I have a GtkComboBox with a GtkEntry in it, I've set css properties on the GtkComboBox combobox so left and right arrow keys will select the next and previous item in the model, but since I have a GtkEntry, left and right keys are getting consumed by the GtkEntry
+T 1510185461 18<jpwhiting18>	how can I make my GtkEntry ignore left and right key presses so the GtkCombobox will get them and let me select suggestions with them
+T 1510185463 18<mclasen18>	?
+T 1510185475 18<jpwhiting18>	limited platform that doesn't have tab, up and down arrow keys
+T 1510185478 18<jpwhiting18>	and no mouse. :/
+T 1510185493 18<jpwhiting18>	trying to let users select a name from a contact list
+T 1510185493 18<mclasen18>	there are no css properties that would affect this
+T 1510185505 18<hergertme18>	kulzen, read the code. every question you ask me results in me reading the code on your behalf.
+T 1510185513 18<jpwhiting18>	  -gtk-key-bindings: ComboBoxMovement
+T 1510185520 18<kulzen18>	hergertme: :| wokay
+T 1510185534 18<hergertme18>	unlike trump, my memory is not one of the best ever
+T 1510185543 18<mclasen18>	I would suggest to just go with the default gtk keybindings
+T 1510185544 18<jpwhiting18>	and this: https://pastebin.ca/3906728
+T 1510185566 18<jpwhiting18>	mclasen: oh? aren't they up and down keys, and tab, etc. ?
+T 1510185582 18<mclasen18>	yes. whatever they are, they exist
+T 1510185590 18<jpwhiting18>	I'm mapping left and right to up and down for many other things in my ui since I don't have up and down keys on this keyboard
+T 1510185656 18<jpwhiting18>	hmm, /me looks
+T 1510185658 18<mclasen18>	oh well, in that case
+T 1510185741 18<jpwhiting18>	can I globally bind left and right to up and down somehow instead ?
+T 1510185821 18<mclasen18>	if this is a single-app system and you are in full control, there is no reason why you can't have a custom keymap
+T 1510185835 18<jpwhiting18>	yes it is and yes I do
+T 1510185847 18<jpwhiting18>	but in most cases I need left and right to do left and right
+T 1510185855 18<jpwhiting18>	in vertical widgets I need it to do up and down instead
+T 1510185869 18<jpwhiting18>	so in SpinButtons and ListBoxes I have -gtk-key-bindings set
+T 1510185880 18<jpwhiting18>	which works fine, just not in this one case where I have a popup from a GtkComboBox
+T 1510185986 18<jpwhiting18>	hmm, can I map left to left and up and right to right and down in my keymap? worth a shot I guess
+T 1510187350 18<bugbot18>	egmont@gmail.com changed the Component on bug 771899 from general to .General.
+T 1510187350 18<bugbot18>	egmont@gmail.com changed the Product on bug 771899 from gnome-terminal to gtk+.
+T 1510187351 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=771899 .General, major, gtk-bugs, REOPENED , VTE scrollbar update delayed
+T 1510190012 18<jpwhiting18>	mclasen: I can't map one key to multiple keys in the keymap, I do need left/right to act as left/right in horizontal widgets like GtkEntry etc., so I guess I need to leave the keymap as is
+T 1510192535 20*	Disconnected (20No route to host)
+T 1510192548 19*	Now talking on 22#gtk+
+T 1510192548 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
+T 1510192548 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
+T 1510192583 18<mclasen18>	Company: wip/matthiasc/file-icons could use a pair of eyes - it should work, but doesn't
+T 1510192792 18<Company18>	mclasen: what doesn't work?
+T 1510192822 18<mclasen18>	if you open the pickers example in gtk-demo, which has a file chooser button, you get criticals from g_object_unref
+T 1510192962 18<Company18>	mclasen: https://developer.gnome.org/gio/stable/GFileInfo.html#g-file-info-get-icon says tranfer: none
+T 1510192966 18<Company18>	so you might need to ref that?
+T 1510193002 18<mclasen18>	the model should ref it
+T 1510193006 18<mclasen18>	I should probably just not unref it
+T 1510193015 18<Company18>	no, i mean in _gtk_file_info_get_icon()
+T 1510193022 18<mclasen18>	thanks, let me go over that
+T 1510193843 18<mclasen18>	fun question for the evening: should we kill immodules and just have a single supported input framework per platform ?
+T 1510196574 18<hergertme18>	mclasen, how many do we support today? none and ibus? should we make a f.d.o spec for an abstraction and then push them all out of gtk into the abstraction?
+T 1510196610 18<mclasen18>	no
+T 1510196623 18<mclasen18>	we ship a whole zoo of modules that nobody uses
+T 1510196644 18<hergertme18>	i don't like how we have all of those needing to be done inside of gtk, rather than a single implementation and push the boundary of crap somewhere else 
+T 1510196646 18<mclasen18>	and the 'abstraction' is ibus, for all I care
+T 1510196661 18<mclasen18>	or in the future, the wayland text protocol
+T 1510196716 18<mclasen18>	we ship a number of 'platform' modules: ime on windows, broadway for ... broadway, a quartz module, ibus for linux
+T 1510196729 18<hergertme18>	i also wish we had a different way to specify how to place the input window so we don't have to roundtrip so much in the layout phase 
+T 1510196731 18<mclasen18>	those should stay (and possibly be de-module-ized)
+T 1510196765 18<hergertme18>	the 2 roundtrips in textview comes to mind 
+T 1510221911 18<bugbot18>	gicmo@gnome.org changed the Status on bug 790093 from NEW --- to RESOLVED FIXED.
+T 1510221911 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790093 gio, normal, gtkdev, RESOLVED FIXED, gio-tool: fix inverted logic in monitor tool
+T 1510221980 18<m_tadeu18>	hi...which store should I use for the icon view? the list store or the tree store?
+T 1510222533 18<ebassi18>	m_tadeu: list
+T 1510222543 18<ebassi18>	The IconView does not support trees
+T 1510222549 18<ebassi18>	At the moment
+T 1510222578 18<ebassi18>	(Well, or forever, since we're trying to phase TreeView and IconView out)
+T 1510222646 18<m_tadeu18>	ebassi: oh I see...what is the replacement for that?
+T 1510222669 18<ebassi18>	m_tadeu: GtkFlowBox
+T 1510222745 18<m_tadeu18>	ebassi: hmmm...can't find it in glade...not there yet?
+T 1510222767 18<ebassi18>	m_tadeu: I have no idea, I don't normally use Glade
+T 1510222778 18<ebassi18>	It may depend on your version of Glade
+T 1510222915 18<m_tadeu18>	ebassi: ok so for now, just one more thing, if you can help me out...
+T 1510222965 18<m_tadeu18>	my icon view has the icons with some text for each icon....but it's orienting the icons horizontaly instead of vertically...
+T 1510222972 18<m_tadeu18>	using the list store
+T 1510223018 18<m_tadeu18>	is there a way to orient it vertically, without messing up the icon/text order?
+T 1510224177 18<ebassi18>	m_tadeu: Sorry, I don't understand what you're trying to achieve
+T 1510224272 18<m_tadeu18>	ebassi: I have icon+text (icon name) for each item...but the icon view is distributing icons in lines (huge lines), not columns
+T 1510224304 18<m_tadeu18>	and if I change the icon view orientation, it will set the text in front of the icon, not under it
+T 1510224367 18<krnowak18>	Maybe gtk_icon_view_set_columns could help here?
+T 1510224384 18<ebassi18>	m_tadeu: Yes, the IconView is a grid
+T 1510224415 18<ebassi18>	It will fill from left to right (or right to left, depending on text direction), and then reflow
+T 1510224432 18<ebassi18>	IconView does not implement GtkOrientable, so you cannot tell it to fill top to bottom, and then reflow
+T 1510224465 18<ebassi18>	The item orientation is for the orientation inside each cell
+T 1510224565 18<m_tadeu18>	krnowak: might, but since it's resizable, that will miss the auto relayout, correct?
+T 1510224576 18<m_tadeu18>	ebassi: thanks for the clarification
+T 1510224665 18<krnowak18>	I dunno, never used icon view. But reading the docs tells me that you can hardcode the number of columns to be used, or set it to -1 so icon view will use as many column as it deems necessary to fill the available space.
+T 1510224822 18<m_tadeu18>	yeah...thanks again
+T 1510228881 18<memeka18>	hi, i get a segmentation fault on wayland when switching from egl content (surface) to non-egl content in the same window - e.g. in totem when pressing the < (back) button to go from (egl) playing video to (non-egl) recent thumbnail of videos. i reported this to the gpu (arm mali) driver team, and they said it's application/gtk's fault. can i have some feedback from here as well? here's a stack trace of the issue:
+T 1510228881 18<memeka18>	https://community.arm.com/graphics/f/discussions/9338/mali-egldestroysurface-causes-segmentation-fault
+T 1510229671 18<stranger__18>	hi. i have this issue https://bbs.archlinux.org/viewtopic.php?id=225553 anyone knows what is the culprit?
+T 1510229723 18<stranger__18>	font size ignored too
+T 1510229735 18<stranger__18>	settings.ini exists and gtk parses it
+T 1510229752 18<stranger__18>	overriding via GTK_THEME works
+T 1510229845 18<stranger__18>	same issue in weston
+T 1510231337 18<lovetox18>	i want to achieve a blinking icon inside a Gtk.TreeView Row/Column, any tips how to achieve easily?
+T 1510234644 18<baedert18>	man I'm trying to create an empty opengl texture that I fill with opaque green and somehow there are DUCKS in my output
+T 1510235149 18<mclasen18>	good that we have a printing portal... looks like we have a problem linking against cups in the future
+T 1510235189 18<alex18>	mclasen: hehe
+T 1510235201 18<ofourdan18>	you mean because of cups relicensing?
+T 1510235207 18<mclasen18>	yes
+T 1510236032 18<heftig18>	lovetox: you could use some CSS to animate opacity
+T 1510236242 18<heftig18>	hmm, or maybe not, since the cells aren't nodes
+T 1510239253 18<baedert18>	So I can either render normally with everything upside down, or to texture and everything's upside down.
+T 1510239305 18<mclasen18>	rotte the screen to compensate ?
+T 1510239437 18<baedert18>	but then moving the mouse is awkward!
+T 1510241134 18<m_tadeu18>	is there a way for an app not to output ** CRITICAL ** messages to the output?
+T 1510241570 18<bugbot18>	New glib bug 790126 filed by xclaesse@gmail.com.
+T 1510241570 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790126 gio, normal, gtkdev, NEW , gengiotypefuncs.py is missing from tarballs
+T 1510241868 18<kmelva18>	Can GTK+ (on linux, x11 or wayland) create a window shape of a donut? That is, with a transparent hole in the middle, with clicks passing through?
+T 1510242182 18<alex18>	kmelva: yes, using shapes
+T 1510242273 18<kmelva18>	alex: that would be X11 extension, right? any ideas about Wayland? 
+T 1510242336 18<alex18>	both wayland and x11 supports input shapes in gtk+
+T 1510242359 18<alex18>	for actual transparency you need to use alpha on wayland
+T 1510242382 18<alex18>	which you could use on x11 too, with a new enough WM
+T 1510242394 18<kmelva18>	great to hear (i don't need full transparency, just binary on/off)! before I'm off on that path... how hacky is that? :)
+T 1510242395 18<alex18>	for older WMs there is shapes
+T 1510242452 18<alex18>	kmelva: here is a shaped window demo https://git.gnome.org/browse/gtk+/tree/tests/testgtk.c?h=gtk-3-22#n6838
+T 1510242489 18<alex18>	i guess it needs minor tweaks to do input shapes instead
+T 1510242496 18<alex18>	like add _input_ in some call
+T 1510242520 18<kmelva18>	Great, thanks! That'll keep me busy for a night or two :>
+T 1510243671 18<baedert18>	mclasen: since you were talking about input methods, is fcitx one of those?
+T 1510244441 18<mclasen18>	baedert: its an example for an alternative framework
+T 1510244456 18<mclasen18>	that comes with its own immodule, yes
+T 1510244513 18<baedert18>	mclasen: can I test those somehow?
+T 1510244539 18<mclasen18>	who knows. probably
+T 1510244575 18<mclasen18>	part of the misery of input methods is that the plethora of frameworks means that it is impossible to have a central configuration
+T 1510244626 18<baedert18>	"environment independent language support" wat
+T 1510244653 18<baedert18>	but installing it seems to require me to logout + login, nah
+T 1510246650 18<baedert18>	argh the render nodes in the unit tests don't have names :(
+T 1510247562 18<baedert18>	So apparently https://paste.xinu.at/y5MML/ is the diff between my output and testsuite/gsk/opacity.png
+T 1510247577 18<baedert18>	Not sure what this tells me
+T 1510247665 18<mclasen18>	baedert: there's no way to guarantee pixel-perfect results
+T 1510247687 18<mclasen18>	I've added a way to have per-backend ref images, but that may not be good enough, since gl != gl
+T 1510247837 18<baedert18>	mclasen: Any idea why I might hit https://paste.xinu.at/EdXiy/ when trying to use colors.node? ref_surface comes from testsuite/gsk/colors.png
+T 1510248121 18<baedert18>	anyway, apart from pixel differences, I can do cairo.node, transform.node and opacity.node
+T 1510248193 18<baedert18>	colors is completely broken for some reason
+T 1510248285 18<baedert18>	heh, the unpremultiplication again!
+T 1510248439 18<mclasen18>	yay
+T 1510248566 18<baedert18>	for some reason now I'm not getting any differences with the opacity test anymore
+T 1510248574 18<baedert18>	and since fallback to cairo works, all tests pass
+T 1510248576 18<baedert18>	\o/
+T 1510259394 18<elmsy18>	Hi, why do my Gtk.ScrolledWindows always get a black background?
+T 1510259429 18<elmsy18>	like in this example https://paste.gnome.org/pkjpvvknm
+T 1510259441 18<elmsy18>	when the window is small enough so that a scrollbar appears
+T 1510259709 18<elmsy18>	it looks like this: https://imgur.com/a/LxWcx
+T 1510262151 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Component on bug 790126 from gio to build.
+T 1510262151 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790126 build, normal, gtkdev, NEW , gengiotypefuncs.py is missing from tarballs
+T 1510263838 18<dboles18>	is there a working example of gtk_icon_theme_add_resource_path() anywhere?
+T 1510263850 18<dboles18>	gtk-demo/shortcuts.c calls it, but seems to refer to a path that does not exist in the gresource
+T 1510265573 18<mclasen18>	GtkApplication calls it
+T 1510265655 18<mclasen18>	recipes relies on icons to be accessible that way
+T 1510265665 18<mclasen18>	dboles: ^
+T 1510265913 18<bugbot18>	New glib bug 790145 filed by wengxt@gmail.com.
+T 1510265913 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790145 gdbus, normal, gtkdev, NEW , GDBus Server does not work with sd-bus.
+T 1510265993 18<dboles18>	mclasen: thanks, will have a look! i found the HowDoI page too
+T 1510266313 18<mclasen18>	https://git.gnome.org/browse/recipes/tree/src/recipes.gresource.xml#n44 shows how the resources are placed
+T 1510266322 18<mclasen18>	symbolic garlic :-/
+T 1510266475 18<dboles18>	haha
+T 1510266603 18<dboles18>	thanks for the details, i'll puzzle over them more some other time; as the first time doing this, there are a lot of details i might've gotten wrong at the moment
+T 1510266683 18<dboles18>	aha... i was unregistering the resource, but obviously that's not going to work with CellRendererPixbuf:icon-name
+T 1510268310 18<dboles18>	do i need the -symbolic.symbolic.png extension for symbolic icons to work, and is it #bebebe i need to use for the fg colour or something else? getting weird results here
+T 1510268470 18<dboles18>	well, used #000000 like recipes, so cargo-cult it is!
+T 1510268728 18<mclasen18>	-symbolic.symbolic.png gets created from -symbolic.svg by gtk-encode-symbolic-svg
+T 1510268750 18<mclasen18>	probably best to keep using that tool instead of trying to reverse engineer how to manually create suitable pngs
+T 1510268784 18<dboles18>	ah, ok. will do, once i have svgs :)
+T 1510268850 18<dboles18>	i'm just experimenting with making some CellRendererPixbufs look nicer, so started hacking from the existing pngs
+T 1510269033 18<mclasen18>	dboles: it would be great to see your name on this list, btw: https://wiki.gnome.org/Hackfests/GTK2018
+T 1510273261 18<israel18>	Hi all, I have a question about Treeview and Liststore I would like answered
+T 1510273300 18<dboles18>	post away, and if anyone can answer, they will
+T 1510273367 18<israel18>	I am new to GTK, and have done a fair amount in FLTK which has a totally different way of doing something similar to TreeView.  In FLTK there was a method for items in the Treeview (in GTK this would be the Treeview Row) which could hide the item, is there anything similar to this in GTK+  I could find nothing in the docs
+T 1510273419 18<israel18>	I know there is a removal function, but I would like to know if there is a way to simply hide it from the GUI temporarily, rather than deleting the row and then adding it again later.
+T 1510273501 18<dboles18>	one thing that springs to mind is making your view show a GtkTreeModelFilter over your model, rather than the model directly
+T 1510273553 18<israel18>	dboles: thanks so with that I can change the filter and yet keep the current content of the list?
+T 1510273593 18<israel18>	I will look the documentation up to see if this fits my use case.  I am learning the GTK api by converting some of my FLTK programs to GTK.
+T 1510273618 18<dboles18>	yeah, you can set a VisibleFunc for example: https://developer.gnome.org/gtk3/stable/GtkTreeModelFilter.html#gtk-tree-model-filter-set-visible-func
+T 1510273649 18<dboles18>	the underlying model can stay the same, but you change the criteria by which its rows are shown in the TreeModelFilter, and because you make your TreeView (or whatever) show that, it shows the filtered version
+T 1510273680 18<dboles18>	or you can have a column in the original model from which the FilterModel will determine visibility: https://developer.gnome.org/gtk3/stable/GtkTreeModelFilter.html#gtk-tree-model-filter-set-visible-column
+T 1510273691 18<israel18>	thanks so much dboles GTK is much different so sometimes it is hard to know exactly what to look for!
+T 1510273754 18<dboles18>	tell me about it! in an ideal world, i'll never have to learn another toolkit :P
+T 1510273821 18<israel18>	 :D Well, I am sure the GTK API will continue to adapt as the technology continues to advance so you will probably have to continue learning GTK when GTK++ comes out :P
+T 1510274194 18<israel18>	dboles: another quick question, I was told there might be something other tool than autotools on the horizon as a standard for building GTK programs do you know what this might be, or where I could look into it?  If not that is ok.
+T 1510274252 18<dboles18>	GTK+ master has moved to use Meson only
+T 1510274282 18<dboles18>	it's good; check it out at http://mesonbuild.com/
+T 1510274288 18<israel18>	dboles thanks, you are a wealth of information!
+T 1510274304 18<dboles18>	A lot of GNOME projects are moving to that. I converted one of my toy projects, though I can't face doing my main one yet...
+T 1510274342 18<dboles18>	you can of course use Meson for your own project even while using GTK+ 3
+T 1510274406 18<israel18>	dboles thanks, I am thinking of trying out Vala for my current adventure.  I started with straight GTK+, then tried another in GTKMM so I figure Vala is the next thing to learn about :D
+T 1510274503 18<dboles18>	I use gtkmm a lot, never tried Vala though. Whether to use it for new projects has been quite hotly debated recently if you are ever bored... I have no opinion though
+T 1510274513 18<dboles18>	Vala, that is
+T 1510274631 18<dboles18>	so Ubuntu is blogging about writing a new theme, and still mentioning a GTK+ 2 component... yikes
+T 1510274655 18<dboles18>	It's time to let go
+T 1510274656 18<israel18>	dboles: It reminds me of haXe in so many ways, and I like haXe for mobile apps so I figure why not, those languages are usually easier to code more complicated things more quickly, since a lot of the conversion/checking stuff is condensed or built in to the syntax
+T 1510274704 18<dboles18>	for sure, the design always looked nice to me, and like most things it's probably best to just enjoy it and ignore all online discussion :P
+T 1510274775 18<israel18>	dboles I don't know any of the discussions, I am new to GTK.  But I figure if a programming language is going to do a lot of the manual labor for me.... why not use it?
+T 1510274788 18<dboles18>	i'm happy enough with C++ for most of what i do. i'd like to give more time to Python once i start a project where it seems a good fit, can't see myself rushing into any other languages though
+T 1510274862 18<israel18>	dboles I use C++ for most of my stuff too.  I like vectors and that strings are empty rather than null.
+T 1510274934 18<israel18>	dboles, I gotta go the wife needs my help on something.  Thanks so much for your help I will be back to hang out some time
+T 1510274939 18<dboles18>	for me, it's mostly about automatic memory management (obviously), then templates and lambdas!
+T 1510275374 18<bugbot18>	New glib bug 790147 filed by bugzilla@tecnocode.co.uk.
+T 1510275374 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790147 build, normal, gtkdev, NEW , build: Drop data-to-c.pl in favour of data-to-c.py
+T 1510275635 18<mclasen18>	garnacho: still around ?
+T 1510275819 18<bugbot18>	New glib bug 790148 filed by robert.ayrapetyan@gmail.com.
+T 1510275819 18<bugbot18>	Trace: thr_kill, g_assertion_message, g_assertion_message_expr, g_file_monitor_source_handle_event, g_settings_create_action (Possibly not interesting)
+T 1510275820 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790148 gio, major, gtkdev, NEW , Reaching an "unreachable code" when moving folders
+T 1510277007 18<bugbot18>	bugzilla@tecnocode.co.uk marked bug 790148 as a duplicate of unknown bug.
+T 1510277007 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790148 gio, major, gtkdev, RESOLVED DUPLICATE, Reaching an "unreachable code" when moving folders
+T 1510297830 18<bugbot18>	t.i.m@zen.co.uk changed the Status on bug 790126 from NEW --- to RESOLVED FIXED.
+T 1510297830 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790126 build, normal, gtkdev, RESOLVED FIXED, gengiotypefuncs.py is missing from tarballs
+T 1510309454 18<baedert18>	soooo glGetTexImage gives me RGBA (or BGRA) data. I need to convert that to a cairo surface though, do we have something somethere to convert it to ARGB?
+T 1510309666 18<bugbot18>	New glib bug 790157 filed by bugzilla@tecnocode.co.uk.
+T 1510309667 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790157 docs, normal, gtkdev, NEW , gmessages: Give examples of G_DEBUG with gdb in the documentation
+T 1510310040 18<ebassi18>	baedert: You're reading back memory from a GL texture?
+T 1510310100 18<baedert18>	yes
+T 1510310157 18<ebassi18>	baedert: Why?
+T 1510310199 18<baedert18>	So I can implement render_to_texture
+T 1510310314 18<ebassi18>	baedert: Use format=GL_BGRA and type=GL_UNSIGNED_INT_8_8_8_8_REV
+T 1510310323 18<pwithnall18>	ebassi: fancy some patch review of 790147 and 790157? :)
+T 1510310350 18<ebassi18>	bugbot: 790147
+T 1510310351 18<bugbot18>	ebassi: Error: "790147" is not a valid command.
+T 1510310355 18<ebassi18>	bugbot: bug 790147
+T 1510310356 18<bugbot18>	ebassi: Bug https://bugzilla.gnome.org/show_bug.cgi?id=790147 build, normal, gtkdev, NEW , build: Drop data-to-c.pl in favour of data-to-c.py
+T 1510310369 18<ebassi18>	bugbot: bug 790157
+T 1510310370 18<bugbot18>	ebassi: Bug https://bugzilla.gnome.org/show_bug.cgi?id=790157 docs, normal, gtkdev, NEW , gmessages: Give examples of G_DEBUG with gdb in the documentation
+T 1510310444 18<ebassi18>	baedert: Why do you want to use "render to texture" with an intermediate Cairo surface, though?
+T 1510310448 18<ebassi18>	It's going to be slow
+T 1510310468 18<ebassi18>	I assume "render to texture" means "render this render nodes tree to a GdkTexture"
+T 1510310487 18<baedert18>	ebassi: yes but I don't use that during normal rendering, just for gsk_renderer_render_texture
+T 1510310488 18<ebassi18>	In which case it would be best to have a GdkTexture with a GL texture id, and then speed up the thing
+T 1510310576 18<ebassi18>	Admittedly, I need to catch up with some of the GdkTexture internals…
+T 1510310846 18<baedert18>	that format sounds a lot like it should work but it doesn't
+T 1510310853 18*	baedert goes back to doing things he should actually be doing
+T 1510311254 18<slomo18>	baedert: worst case you can use a shader to reshuffle the components ;)
+T 1510311965 18<ebassi18>	baedert: That sounds like a driver issue
+T 1510311980 18<ebassi18>	baedert: Or a Mesa one
+T 1510313803 18<bugbot18>	New glib bug 790163 filed by morten@tiljeset.com.
+T 1510313803 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790163 docs, normal, gtkdev, NEW , Incorrect URLs in documentation for GIO and GObject
+T 1510314459 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 790157 from NEW --- to RESOLVED FIXED.
+T 1510314460 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790157 docs, normal, gtkdev, RESOLVED FIXED, gmessages: Give examples of G_DEBUG with gdb in the documentation
+T 1510314632 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 790147 from NEW --- to RESOLVED FIXED.
+T 1510314632 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790147 build, normal, gtkdev, RESOLVED FIXED, build: Drop data-to-c.pl in favour of data-to-c.py
+T 1510320463 18<bugbot18>	New gtk+ bug 790168 filed by gtk-bugzilla@cmpwn.com.
+T 1510320463 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790168 Backend: Wayland, normal, gtk-bugs, NEW , Incorrect cursor scale when window moved from scale=1 output to scale=2 output
+T 1510320616 18<Company18>	how to crash GTK4 with code that works fine in GTK3:
+T 1510320635 18<Company18>	gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL, "font", &font_desc, NULL);
+T 1510320652 18<Company18>	and no compiler warnings
+T 1510320757 18<Company18>	I wonder if we should change the protoype for that function to avoid that
+T 1510320979 18<Company18>	baedert: I have a fun question, and it involves https://git.gnome.org/browse/gtk+/tree/tests/testoverlay.c#n79
+T 1510320994 18<Company18>	baedert: in particular the use of gtk_widget_translate_coordinates() there
+T 1510320999 18<ebassi18>	Company: Why is it crashing? The property changed type?
+T 1510321008 18<Company18>	ebassi: we removed the state argument
+T 1510321039 18<Company18>	ebassi: it's gtk_style_context_get (GtkStyleContext *, ...) now
+T 1510321045 18<ebassi18>	Company: No, it won't really be fixable
+T 1510321060 18<ebassi18>	Variadic arguments are problematic, in C
+T 1510321064 18<Company18>	ebassi: we could make it gtk_style_context_get (GtkStyleContext *, char *, ...)
+T 1510321070 18<ebassi18>	Mmh
+T 1510321079 18<ebassi18>	const char *first_property_name, ...
+T 1510321084 18<Company18>	yeah
+T 1510321085 18<ebassi18>	That may work
+T 1510321099 18<Company18>	then you couldn't call gtk_style_context_get (context, NULL);
+T 1510321109 18<Company18>	but I'm not sure anybody wants to do that
+T 1510321110 18<ebassi18>	Well, why would you want to do that anyway :-)
+T 1510321120 18<Company18>	if anybody wanted to, it'd be bindings
+T 1510321135 18<ebassi18>	Bindings cannot call functions with variadic arguments
+T 1510321143 18<ebassi18>	Because they cannot marshal the values
+T 1510321147 18<Company18>	then we should be fine
+T 1510321402 18<Company18>	baedert: gtk_widget_translate_coordinates() checks that the widgets are realized, which is not yet true the first time this function is called (it's called during toplevel realize)
+T 1510321444 18<Company18>	baedert: so what's the correct check we should do there? No check?
+T 1510321576 18<ebassi18>	Mmh, bad news
+T 1510321577 18<Company18>	baedert: oh yeah: if you run testoverlay, it's the "Custom positioning" window, the overlays will only show up once you start typing (or resize the window or cause a queue_resize() in another way)
+T 1510321587 18<ebassi18>	https://paste.fedoraproject.org/paste/Z-LO4BQ5J4lvNSEBB-XNAA — This doesn't give me any warning when compiling
+T 1510321643 18<Company18>	ebassi: hrm
+T 1510321646 18<ebassi18>	Not even with -Wextra
+T 1510321657 18<Company18>	ebassi: does BAR give you one?
+T 1510321659 18<ebassi18>	Well, -Wextra gives me warnings about unused arguments
+T 1510321675 18<Company18>	FOO is 0 and 0 can be cast to const char * fine
+T 1510321698 18<ebassi18>	Yes
+T 1510321724 18<Company18>	does it warn if you create a variable?
+T 1510321755 18<Company18>	ie Foo x = FOO;  style_context_get3 (foo, x, ...)
+T 1510321759 18<ebassi18>	Yes
+T 1510321789 18<Company18>	then it wouldn't have caught my case, but it'll catch all the other ones
+T 1510321792 18<Company18>	in real code
+T 1510321795 18<ebassi18>	Yep
+T 1510321811 18<ebassi18>	I mean, it's still worth doing it
+T 1510321817 18<Company18>	i'll do it
+T 1510321822 18<ebassi18>	But there are corner cases because C is terrible
+T 1510321846 18<Company18>	I wonder if gcc has a warning flag for that
+T 1510321855 18<Company18>	"using 0 without casting to pointer"
+T 1510323486 18<bugbot18>	New gtk+ bug 790171 filed by kjellahlstedt@gmail.com.
+T 1510323487 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790171 .General, normal, gtk-bugs, NEW , gtk+4, GtkCssImageIconTheme: Don't unref a NULL pointer
+T 1510324572 18<baedert18>	Company: !needs_resize for both?
+T 1510324658 18<Company18>	baedert: but wouldn't we require that for get_allocation(), too then?
+T 1510324667 18<Company18>	baedert: and wouldn't it break in tons of cases?
+T 1510324702 18<Company18>	baedert: also, we'd need that check for every parent up to ancestor, not just the 2 arguments, no?
+T 1510324763 18<baedert18>	We can also remove them and say that allocations are valid until the end of the frame. But we should probably do that in snapshot too
+T 1510324800 18<Company18>	I have *no* idea what we should do
+T 1510324819 18<Company18>	the correct thing would be insisting on !needs_resize
+T 1510324834 18<Company18>	but noby is gonna check that ever
+T 1510324907 18<baedert18>	The current queue_resize immediately invalidates everything it touches, but when we change that and only call it during layout, it won't be much of a problem
+T 1510324915 18<baedert18>	I'd just remove the checks from translate_coordinates for now
+T 1510324939 18<Company18>	yeah, I think that's best, too
+T 1510324996 18<Company18>	mclasen, garnacho: gdk_device_get_position_double() is crashing - reproducer is clicking the mic button on page 2 of widget-factory. Who do I get to blame for that?
+T 1510325013 18<mclasen18>	probably a victim of fervent refactoring
+T 1510325059 18<mclasen18>	garnacho: another (fun) victim of refactoring: I somehow broke dnd on X - text gets duplicated when you drop it. 'abc' turns into 'abcabc'
+T 1510325059 18<Company18>	but you both did that, so I have no idea who to shout at :(
+T 1510325108 18<Company18>	baedert: and while we're speaking about scalebuttons, what's going on here: https://git.gnome.org/browse/gtk+/tree/gtk/gtkscalebutton.c#n821
+T 1510325113 18<Company18>	?
+T 1510325130 18<baedert18>	that mclasen code
+T 1510325137 18<baedert18>	so the popover fits in narrow windows
+T 1510325138 18*	Company finds all these things by hunting get_allocated_width/height calls
+T 1510325156 18<baedert18>	was a "tiny radio player app" request or something
+T 1510325181 18<Company18>	but in GTK4 we're using subsurfaces, so that's not a problem anymore?
+T 1510325183 18<mclasen18>	oh, the flipping thing ?
+T 1510325199 18<mclasen18>	you meant: in gtk4 we're _not_ using subsurface
+T 1510325202 18<baedert18>	Company: but we aren't
+T 1510325203 18<mclasen18>	at least atm
+T 1510325217 18<Company18>	also, why are we subtracting shadows?
+T 1510325260 18<Company18>	and why does the code assume that the allocated width of the GtkWindow includes the shadows? Does it?
+T 1510325370 18<Company18>	actually
+T 1510325380 18<Company18>	how does GtkWindow behave?
+T 1510325386 18<Company18>	and how should GtkWindow behave?
+T 1510325438 18<baedert18>	ofourdan made consistent that get_allocation includes shadoes and get_size doesn't I think
+T 1510325468 18<Company18>	hrm
+T 1510325476 18*	ofourdan hides
+T 1510325483 18<Company18>	but for GTK4 that's wrong, isn't it?
+T 1510325518 18<Company18>	for a start, gtkwindow.c should make sure (0,0) is the top left of the content area in all its vfuncs
+T 1510325537 18<Company18>	so the subclasses overriding them (like ApplicationWindow etc) do the right thing
+T 1510325577 18<Company18>	of course, then get_allocation() would return negative x/y values which would be some extra fun
+T 1510325585 18<Company18>	but would make it consistent with regular widgets
+T 1510325609 18<baedert18>	the gtk3 way was largely to keep existing applications working I think...
+T 1510325610 18<Company18>	unless we made get_allocation() relative to the GdkWindow
+T 1510325651 18<Company18>	existing applications need to be redone anyway
+T 1510325664 18<Company18>	so they can drop all their border and padding shenanigans
+T 1510325678 18<Company18>	and stop drawing backgrounds + frames
+T 1510325679 18<garnacho18>	Company: hmm, can't reproduce that.
+T 1510325692 18<Company18>	garnacho: might be X11 only
+T 1510325704 18<bugbot18>	brooks@12oclocker.com changed the Status on bug 780568 from RESOLVED NOTABUG to REOPENED ---.
+T 1510325705 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=780568 Widget: GtkTreeView, normal, gtktreeview-bugs, REOPENED , GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID does not work for gtk_tree_sortable_set_sort_column_id
+T 1510325724 18<garnacho18>	Company: ah yeah, there I do
+T 1510325744 18<garnacho18>	mclasen: hmm, perhaps the root window changes? hard to see how that would affect though...
+T 1510325767 18<mclasen18>	I was guessing that I got the filtering changes wrong - maybe we create duplicate events now
+T 1510325792 18<Company18>	how is gdk_device_get_position() supposed to work without a GdkWindow anyway?
+T 1510325796 18<Company18>	in Wayland?
+T 1510325807 18<garnacho18>	yeah, duplicate events sounds likely, just managed to dnd into the dnd'ed text...
+T 1510325853 18<Company18>	i mean, we don't have root coords anymore, do we?
+T 1510325934 18<garnacho18>	Company: that function should go, indeed.
+T 1510326310 18<mclasen18>	a question that just came up from the firefox team: should we have window signals for monitor changes ? 
+T 1510326325 18<mclasen18>	basically reflecting output-enter/-leave in the wayland protocol
+T 1510326373 18<Company18>	the whole monitor situation is terrible
+T 1510326377 18<Company18>	in both directions
+T 1510326401 18<Company18>	we don't tell people anything about monitors, they have to poke at anything themselves
+T 1510326416 18<Company18>	but if we wanted to automate that we'd need a huge amount of infrastructure
+T 1510326424 18<Company18>	and almost nobody cares about it
+T 1510326475 18<mclasen18>	what infrastructure do we need, really ? what questions need answering ?
+T 1510326484 18<Company18>	mclasen: gtk_window_get_monitor()
+T 1510326486 18<mclasen18>	what monitors is this window on ?
+T 1510326489 18<Company18>	mclasen: gdk_window_get_monitor()
+T 1510326494 18<mclasen18>	and tell me when that changes
+T 1510326497 18<Company18>	mclasen: potentially gdk_device_get_monitor()
+T 1510326510 18<Company18>	yeah, and change notifications for them
+T 1510326551 18<Company18>	and of course, if monitor geometry changes, all these things need updating, too
+T 1510326577 18<Company18>	mclasen: also maybe gdk_window_is_partially_on (window, monitor);
+T 1510326593 18<Company18>	mclasen: and/or gdk_window_get_all_monitors (window);
+T 1510326605 18<mclasen18>	that gets into global positions, which we may not have on all backends
+T 1510326622 18<mclasen18>	but yes, I was expecting get_monitors() to return a list
+T 1510326633 18<garnacho18>	gdk_device_get_monitor() has pretty much the same concerns than gdk_device_get_position...
+T 1510326670 18<Company18>	garnacho: yeah, you'd probably want gdk_window_get_monitor_at_point()
+T 1510326691 18<Company18>	and then you could match that with device position yourself
+T 1510326720 18<Company18>	mclasen: looking at monitor APIs, we have gdk_display_get_monitor_at_point() which again is global coords
+T 1510326746 18<mclasen18>	well, we haven't really done the root-coord-ectomy yet
+T 1510326756 18<Company18>	mclasen: as well as gdk_monitor_get_geometry() and gdk_monitor_get_workarea() whihc report x/y
+T 1510326761 18<bugbot18>	New gtk+ bug 790173 filed by brooks@12oclocker.com.
+T 1510326761 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790173 .General, enhancement, gtk-bugs, NEW , memory leaks
+T 1510326787 18<mclasen18>	yeah, those all need some thought
+T 1510326806 18<Company18>	mclasen: with those, there's still also my problem about monitor scales
+T 1510326811 18<heftig18>	what's the use of having the monitor of a point?
+T 1510326825 18<Company18>	that nobody cared about because it's kinda tricky
+T 1510326832 18<garnacho18>	Company: on wayland you'll get different enter/leave pairs for each output the surface is on, but you don't know how much of the surface overlaps on each output
+T 1510326838 18<baedert18>	you can start with 0 and in crease in steps of 1, and find out the size of a monitor!
+T 1510326851 18<baedert18>	*increase
+T 1510326871 18<Company18>	garnacho: does Wayland give you the monitor a window is primarily on?
+T 1510326922 18<Company18>	heftig: good question - it might just be used to find the monitor for a window (by looking up win.x + win.width/2, win.y + win.height/2)
+T 1510326924 18<ofourdan18>	the wayland compositor give the enter/leave events on outputs, gdk wayland backends track this to tell on which monitors the surface is on, but not how much of it 
+T 1510326935 18<garnacho18>	Company: no
+T 1510326961 18<Company18>	ofourdan: the main question I'd expect people to have is "which monitor is most of my window on?"
+T 1510326985 18<mclasen18>	Company: not having a good answer is different from not caring...
+T 1510327004 18<Company18>	heftig: it might also be relevant for "how large do i make my popup, though I guess we do that with window creation APIs
+T 1510327014 18<garnacho18>	and yeah, most usual cases for knowing monitor coordinates are moving windows to these coordinates yourself, if gdk solves the question there's not much point in exposing the output coordinate space
+T 1510327017 18<ofourdan18>	Company: I guess the wayland compositor could send one enter whenevent when the windis is "most" on tht output?
+T 1510327027 18<ofourdan18>	huh
+T 1510327038 18<ofourdan18>	sorry for my friday afternoon typing style ....
+T 1510327072 18<mclasen18>	we did quite a bit of work to come up with that popup positioning protocol for wayland
+T 1510327076 18<heftig18>	at some point I think hiding the desktop coordinate system(s) might have been a mistake
+T 1510327097 18<Company18>	heftig: I've been saying that from day 1 ;)
+T 1510327118 18<Company18>	but now we decided doing that, so we're totally pulling through
+T 1510327148 18<Company18>	we can still decide against it by making every window fullscreen and setting input shapes!
+T 1510327149 18<mclasen18>	most of the things you can do with window positions are really better left to the compositor...
+T 1510327154 18<ofourdan18>	heftig: for desktop use maybem but it doesn;t make much sense for some other Wayland use (like ivi, as pq pointed out a while ago, iirc)
+T 1510327256 18<ofourdan18>	Company: that could possibly work :)
+T 1510327293 18<Company18>	ofourdan: I know - I point that out whenever people claim not having global coords is relevant for security
+T 1510327327 18<ofourdan18>	oh, I never actually thought of not having global coordinates as a security mechanism...
+T 1510327363 18<Company18>	it's relevant for security if you want to fake OS features
+T 1510327371 18<Company18>	like a shell password prompt
+T 1510327387 18<ofourdan18>	I always thought of it as a way to  make people's life harder to force them to think out of the box^W coordinate system :)
+T 1510327469 18<Company18>	if I know the browser is maximized and assume the default shell theme, I can fake a perfect shell password prompt using fullscreen
+T 1510327479 18<Company18>	from inside a browser even
+T 1510327527 18<mclasen18>	you can't know if it is maximized
+T 1510327585 18<halfline18>	but browsers are often maximized, so if you have a large enough audience you'll fool some of them
+T 1510327601 18<Company18>	and in GTK/Wayland you can know
+T 1510327622 18<Company18>	because Wayland tells you everything about window placement so you can draw the right decorations
+T 1510327632 18<Company18>	the only thing Wayland doesn't tell you is the actual coords
+T 1510327635 18<halfline18>	doesn't tell the web page
+T 1510327644 18<alex28518>	can we disable the - - - - - scroll indicators from a GTK theme?
+T 1510327661 18<baedert18>	when writing one, yes
+T 1510327683 18<mclasen18>	the theme draws them, the theme can decide not to draw them
+T 1510327694 18<Company18>	halfline: flatpak is the new frontier
+T 1510327709 18<alex28518>	mclasen:  weird because i cant find that, is on Adwaita?
+T 1510327726 18<mclasen18>	but maximized is not actually what you want. you need fullscreen
+T 1510327728 18<bugbot18>	New gtk+ bug 790174 filed by bugs@xenhideout.nl.
+T 1510327728 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790174 Widget: Other, enhancement, gtk-bugs, NEW , ListBox doesn't skip unselectable items when cursor moving but...
+T 1510327733 18<Company18>	alex285: it's overshoot/undershoot i think
+T 1510327751 18<alex28518>	Company:  that that .. the other property ..the dotted lines 
+T 1510327759 18<Company18>	mclasen: you want to create a maximized window that looks like the desktop
+T 1510327772 18<alex28518>	Company: i meant not that*
+T 1510327787 18<Company18>	oh right
+T 1510327805 18<halfline18>	no, mclasen is right.  a maximized window can be deceptive, but not fully convincing
+T 1510327822 18<halfline18>	since it won't vignette the top bar
+T 1510327842 18<halfline18>	it's gotta be full screen to be fully convincing
+T 1510327853 18<baedert18>	alex285: it's either overshoot or undershoot and the css docs of GtkScrolledWindow mention them
+T 1510327866 18<Company18>	halfline: yes, but it needs to be fullscreen *and* be able to draw the full desktop
+T 1510327879 18<halfline18>	right
+T 1510327888 18<halfline18>	which means it's gotta guess what extensions the user has
+T 1510327902 18<Company18>	halfline: ubuntu default
+T 1510327920 18<halfline18>	well that's the real point i guess.
+T 1510327932 18<halfline18>	this thing is only going to work on a small percentage of users
+T 1510327941 18<halfline18>	and all linux users combined are already small
+T 1510327964 18<halfline18>	so it's only going to fool a small group of a small group
+T 1510327965 18<mclasen18>	we should portalize maximization/fullscreening for flatpak
+T 1510327972 18<Company18>	it's only a small percentage as long as everyone has a different panel
+T 1510327996 18<Company18>	and the gnome ui nazis are trying to fix that!!!!!
+T 1510328025 18<baedert18>	literal ui hitlers
+T 1510328076 18<halfline18>	mclasen: yea though
+T 1510328089 18<halfline18>	we already portalize key grabbing
+T 1510328091 18<Company18>	baedert: Herr Heiler you mean?
+T 1510328101 18<halfline18>	mclasen: so we gotta be careful for the gnome-boxes case
+T 1510328126 18<halfline18>	we don't want the user to have to click okay twice every time they hit full screen on their vm
+T 1510328143 18<halfline18>	well not portalize key grabbing, but require confirmation
+T 1510328151 18<mclasen18>	there will be a whitelist in the permission store
+T 1510328192 18<halfline18>	yea but the "your vm wants to take control" dialog, doesn't use the permission store i think
+T 1510328203 18<Company18>	halfline: if you run a flatpak in a gnome-boxes flatpak, do you need to agree to everything twice?!
+T 1510328212 18<mclasen18>	fmuellner: has anybody looked into that ? locking down fullscreening ?
+T 1510328254 18<mclasen18>	halfline: it should
+T 1510328269 18<mclasen18>	I'm not in love with that dialog to begin with
+T 1510328294 18<halfline18>	maybe, but then maybe the permsision store should be split out from flatpak
+T 1510328295 18<fmuellner18>	mclasen: not to my knowledge
+T 1510328295 18<mclasen18>	or rather, with the way we randomly trigger it when people open modal dialogs
+T 1510328317 18<alex28518>	baedert  Company you had right! found it! i thought under/overshoot was only drawing the effects, thanks
+T 1510328338 18<halfline18>	alternatively, maybe fullscreen for non-flatpak apps should show the same dialog
+T 1510328371 18<alex28518>	you were right*
+T 1510328407 18<Company18>	meh
+T 1510328414 18*	Company goes hating on GtkFlowBox
+T 1510328431 18<Company18>	it uses get_allocation() everywhere
+T 1510329124 18<bugbot18>	kjellahlstedt@gmail.com changed the Status on bug 790171 from NEW --- to RESOLVED FIXED.
+T 1510329124 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790171 .General, normal, gtk-bugs, RESOLVED FIXED, gtk+4, GtkCssImageIconTheme: Don't unref a NULL pointer
+T 1510329189 18<baedert18>	https://paste.xinu.at/m-lcNhp/ What I get vs. what I should get.
+T 1510329192 18*	baedert shrugs
+T 1510329325 18<mclasen18>	baedert: I forget what that was about, but I've seen it before
+T 1510345934 19*	Now talking on 22#gtk+
+T 1510345934 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
+T 1510345934 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
+T 1510347023 18<Company18>	mclasen, garnacho: Can I remove gtk_widget_set_device_enabled() and gdk_window_set_(device_)events()?
+T 1510347051 18<Company18>	in particular gtk_widget_set_device_enabled()
+T 1510347076 18<mclasen18>	I have no idea what that does or why one would use it
+T 1510347095 18<Company18>	it makes widget ignore input from a given device
+T 1510347118 18<Company18>	by calling set_device_events(0) on widget's window
+T 1510347124 18<mclasen18>	but I have a similar question: can I remove the sole occurrence of #ifdef GDK_MULTIHEAD_SAFE ? (in gtkicontheme.h)
+T 1510347171 18<Company18>	I was wondering if that was still used when I found it
+T 1510347198 18<Company18>	but yes, that can go
+T 1510347207 18<mclasen18>	the answer is no - we removed all occurances in gdk
+T 1510347219 18<mclasen18>	I think this one crept back in from the deprecated/ subdirectory
+T 1510347231 18<Company18>	ideally gtk_icon_size_lookup() can go too, but I never finished that branch
+T 1510347336 18*	Company still struggling to figure out how to deal with size allocation
+T 1510347699 18<mclasen18>	what was the plan for icon sizes ?
+T 1510347761 18<Company18>	css property
+T 1510347811 18<mclasen18>	and you have a branch ?
+T 1510347858 18<Company18>	https://git.gnome.org/browse/gtk+/log/?h=wip/otte/icon-size
+T 1510348020 18<Company18>	mclasen: https://git.gnome.org/browse/gtk+/diff/gtk/theme/Adwaita/_common.scss?h=wip/otte/icon-size&id=fd16897b2aca5b03af006fac4dfae268bc582efb is the primary idea that branch revolves around
+T 1510348117 18<Company18>	mclasen: and that style class is set via https://git.gnome.org/browse/gtk+/tree/gtk/gtkiconhelper.c?h=wip/otte/icon-size&id=fd16897b2aca5b03af006fac4dfae268bc582efb#n892
+T 1510348153 18<Company18>	which gets called via gtk_image/cell_renderer_pixbuf/whatever_set_icon_size()
+T 1510348230 18<mclasen18>	I see. whats missing in the branch ?
+T 1510348240 18<Company18>	i don't remember
+T 1510348265 18<Company18>	there were lots of cases where icon sizes were still used
+T 1510348282 18<Company18>	like the filechooser stuff (though that's what you fixed a few days ago)
+T 1510348282 18<mclasen18>	alright
+T 1510348293 18<mclasen18>	I probably did, yes
+T 1510348304 18<Company18>	and I think figuring out the use cases inside ui files
+T 1510348348 18<Company18>	because they all still say <property name="icon-size">$X</property>
+T 1510348377 18<mclasen18>	ha, you fixed simple.c
+T 1510348381 18<mclasen18>	now even simpler
+T 1510348388 18<Company18>	yeah, that was the best thing
+T 1510348395 18<Company18>	it's now fewer lines
+T 1510348404 18<Company18>	but more text I suppose
+T 1510348516 18<mclasen18>	coming back to gtk_widget_set_device_enabled - I think garnacho needs to decide that
+T 1510348532 18<Company18>	it's been @Since: 3.0
+T 1510348564 18<Company18>	so if somebody wanted to use it, it should be existing by now ;)
+T 1510348940 18<Company18>	ebassi: do you have an opinion on graphene_matrix_equal() ?
+T 1510349041 18<Company18>	ebassi: context: size_allocate() does a position_changed check, and if I make gtk_widget_allocate() take a matrix, I would need a comparison
+T 1510349776 18<garnacho18>	Company: sounds good to remove these indeed
+T 1510349838 18<garnacho18>	mclasen: could you paste somewhere those IM musings? got too late to ask you for that earlier...
+T 1510349881 18<mclasen18>	garnacho: basically, should we drop immodules, and just have built-in per-platform support
+T 1510349900 18<mclasen18>	surely, all the random immodules that we have in-tree are useless and unused
+T 1510350099 18<Company18>	i bet they all have at least 1 user
+T 1510350116 18<Company18>	https://xkcd.com/1172/ etc
+T 1510350166 18<garnacho18>	mclasen: indeed, running random code in-app sounds overkill when we just want text back
+T 1510350196 18<garnacho18>	and ibus seems to pretty much have won the race for linux
+T 1510354861 18<mclasen18>	I guess I'll prepare a branch to do those removals then
+T 1510355760 18<bugbot18>	piotrdrag@gmail.com changed the Resolution on bug 790173 from FIXED to NOTABUG.
+T 1510355760 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790173 .General, enhancement, gtk-bugs, RESOLVED NOTABUG, memory leaks
+T 1510585085 20*	Disconnected (20Connection timed out)
+T 1510585099 19*	Now talking on 22#gtk+
+T 1510585099 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2017
+T 1510585099 22*	Topic for 22#gtk+ set by 26Company (24Mon Dec  5 07:13:09 2016)
+T 1510586624 18<Company18>	anyone want to explain to me how in a perfect GTK4 world GdkEvents pass through our widgetry?
+T 1510586676 18<Company18>	i'm trying to code inspector support for "i refactored code and now this event isn't firing anymore"
+T 1510587011 18<Company18>	is there a way to enumerate all event controllers/gestures interest in an ongoing event sequence?
+T 1510587026 18<Company18>	is there a way to enumerate all running event sequnces?

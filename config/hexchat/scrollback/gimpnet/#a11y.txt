@@ -1,39 +1,3 @@
-T 1491475985 18<mclasen18>	I just looked at a11y vs sandboxes again
-T 1491475993 18<mclasen18>	and did a quick experiment
-T 1491476003 18<mclasen18>	point d-feet at the a11y bus
-T 1491476007 18<mclasen18>	locate the bus name of gnome-shell
-T 1491476017 18<mclasen18>	and randomly call DoAction(20) on some object
-T 1491476025 18<mclasen18>	for a  very sudden exit from your session :-(
-T 1491476046 18<mclasen18>	so I am coming to the conclusion that we can't allow the a11y bus into sandboxes at all, with the current state of affairs
-T 1491476228 18<TheMuso18>	No idea on whether anybody else has tested a11y with flatpack GTK apps. I certainly haven't so this doesn't surprise me.
-T 1491476243 18<mclasen18>	its not about flatpak at all
-T 1491476263 18<mclasen18>	just about allowing everybody to inject unvalidated command into everybody else
-T 1491476274 18<TheMuso18>	Oh right.
-T 1491476368 18<mclasen18>	my simpleminded idea before this experiment was that maybe this needs to be split into a 'sendkeys' interface on the AT / registry side that sandboxed apps would be allowed to talk to, and an 'injectcommands' interface that they expose, but can't talk to
-T 1491476432 18<mclasen18>	but there's too many layers here for me to say how feasible this is
-T 1491476447 18<TheMuso18>	If you are talking about keyboard/mouse input specifically, then there is actually work needing to be done there indeed.
-T 1491476467 18<mclasen18>	that is the only thing that apps need to actively send out over the bus, right ?
-T 1491476529 18<TheMuso18>	Well, there is a couple of things I think. There is the atk/at-spi action API/object, and then there is tools like orca needing to intercept input events to allow the user to execute keyboard shortcuts to control Orca.
-T 1491476555 18<mclasen18>	it would be nicer if ATs could get their input interception done at the compositor 
-T 1491476573 18<TheMuso18>	Yep, GTK currently does the work now.
-T 1491476578 18<mclasen18>	but thats a bit complementary
-T 1491476595 18<TheMuso18>	Funny you should say that, I've been looking into what is needed spec wise to coordinate and coolaborate on getting such a thing into the comositor.
-T 1491476611 18<mclasen18>	we're in the same spot with input methods:
-T 1491476618 18<TheMuso18>	Right.
-T 1491476634 18<mclasen18>	would be nice to do compositor-side (text protocol) but we're using the client-side ibus approach just fine for now
-T 1491476643 18<mclasen18>	and unsurprisingly, it has a similar issue with sandboxes
-T 1491476649 18<TheMuso18>	I was needing to look into this for Unity 8... Even though that is no longer a thing, the work still needs doing.
-T 1491476671 18<mclasen18>	but a bit more manageable, since there's not 'inject arbitrary commands' api that goes with it
-T 1491476698 18<TheMuso18>	Orca via at-spi using X also controls the mouse pointer, which again is something needing to be done with the compositor.
-T 1491476741 18<mclasen18>	yeah, that calls for a privileged DeviceEventController api in the compositor
-T 1491476782 18<TheMuso18>	Right. Down the road, Orca will also want to intercept touch events too.
-T 1491476813 18<TheMuso18>	At least I think it will.
-T 1491476816 18<TheMuso18>	Others may disagree.
-T 1491476868 18<mclasen18>	I would be happy to find a solution that makes actual screen reading work in sandboxes
-T 1491476881 18<mclasen18>	no need to go all in, some things in orca may just not be a good idea...
-T 1491476990 18<TheMuso18>	Right, I need to better familiarize myself with this I guess.
-T 1491478500 18<mclasen18>	as always I come away thinking a simple client-side 'call out to pulseaudio' solution would get us 80% of the way for screen reading :-(
-T 1491478568 18<TheMuso18>	Well Orca uses speech-dispatcher, which in turn uses pulseaudio.
 T 1491478639 18<mclasen18>	I'm just pining for the simplicitly of 'no bus, no abstraction, no mess'
 T 1491478714 18<mclasen18>	but I need to be on my way. Later!
 T 1491503381 18<ahmed18>	a
@@ -500,3 +464,39 @@ T 1506366255 19*	Now talking on 22#a11y
 T 1506520775 19*	Now talking on 22#a11y
 T 1506701806 18<seb12818>	hey there
 T 1506701830 18<seb12818>	does anybody know what component is starting orca when it's being enabled in e.g the gnome-shell accessibility menu?
+T 1507820085 19*	Now talking on 22#a11y
+T 1508171497 19*	Now talking on 22#a11y
+T 1508172934 20*	Disconnected (20Connection reset by peer)
+T 1508172947 19*	Now talking on 22#a11y
+T 1508176564 20*	Disconnected (20Remote host closed socket)
+T 1508176578 19*	Now talking on 22#a11y
+T 1508200864 20*	Disconnected (20Connection reset by peer)
+T 1508200877 19*	Now talking on 22#a11y
+T 1508253851 18<ericwill18>	hello, I see that atk_text_get_text_[before/at/after]_offset is deprecated, but when I replace my implementation of those with atk_text_get_string_at_offset, text which was previously read by Orca is not read at all
+T 1509483446 19*	Now talking on 22#a11y
+T 1509523704 20*	Disconnected (20Remote host closed socket)
+T 1509523717 19*	Now talking on 22#a11y
+T 1509523919 20*	Disconnected (20Remote host closed socket)
+T 1509523932 19*	Now talking on 22#a11y
+T 1509558045 20*	Disconnected (20Connection timed out)
+T 1509558059 19*	Now talking on 22#a11y
+T 1509563045 18<Papoune18>	https://cryptosrevolution.wixsite.com/beta
+T 1509630605 20*	Disconnected (20Connection timed out)
+T 1509630619 19*	Now talking on 22#a11y
+T 1509632157 20*	Disconnected (20Connection timed out)
+T 1509632170 19*	Now talking on 22#a11y
+T 1509643084 20*	Disconnected (20Connection timed out)
+T 1509643097 19*	Now talking on 22#a11y
+T 1509663366 20*	Disconnected (20Connection timed out)
+T 1509663384 19*	Now talking on 22#a11y
+T 1509710275 19*	Now talking on 22#a11y
+T 1509982519 19*	Now talking on 22#a11y
+T 1510149032 18<lolek18>	hello, not sure if I missed soemthing but at least I'm unabel to find it in the docs so a question is if there's a way using atspi to access widget tooltip text?
+T 1510168294 18<lolek18>	I'll repeat my question maybe this time someone will be able to answer:  not sure if I missed something but at least I'm unable to find it in the docs so a question is if there's a way using atspi to access widget tooltip text?
+T 1510170690 18<Ryuno-Ki[m]18>	Couldn't find anything about it in this channel since 1st August. I'm not familiar with ATSPI on my own.
+T 1510180758 18<lolek18>	Ryuno-Ki[m]: mhm thx
+T 1510192535 20*	Disconnected (20No route to host)
+T 1510192548 19*	Now talking on 22#a11y
+T 1510345934 19*	Now talking on 22#a11y
+T 1510585085 20*	Disconnected (20Connection timed out)
+T 1510585099 19*	Now talking on 22#a11y
