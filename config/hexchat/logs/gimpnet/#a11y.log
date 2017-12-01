@@ -3235,3 +3235,250 @@ Nov 13 09:58:05 *	Disconnected (Connection timed out)
 **** BEGIN LOGGING AT Mon Nov 13 09:58:19 2017
 
 Nov 13 09:58:19 *	Now talking on #a11y
+Nov 13 11:13:44 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Nov 13 11:13:44 2017
+
+**** BEGIN LOGGING AT Mon Nov 13 11:13:57 2017
+
+Nov 13 11:13:57 *	Now talking on #a11y
+**** BEGIN LOGGING AT Wed Nov 15 10:24:22 2017
+
+Nov 15 10:24:22 *	Now talking on #a11y
+Nov 17 05:08:30 <lolek>	infapi00: hi, you there? It seems there's more with gtknotebookaccessible
+Nov 17 05:08:55 <lolek>	for example instead of having label, one may put there a gtkbo with label and a button
+Nov 17 05:09:09 <lolek>	with current atk implementation there's no way of accessing that button
+Nov 17 05:22:26 <infapi00>	lolek, well, if that button is intended to be interactable, then yes, not exposing that button seems like a bug
+Nov 17 05:22:45 <infapi00>	lolek, did you check if it is included on the hierarchy as one of the notebook accessible children?
+Nov 17 05:23:06 <lolek>	infapi00: yeah I did check it with accercisser 
+Nov 17 05:23:22 <lolek>	and there no button children etc :(
+Nov 17 05:25:35 <infapi00>	lolek, then yes, it looks like a bug
+Nov 17 05:25:44 <lolek>	hmm
+Nov 17 05:26:29 <lolek>	infapi00: so, you wanna geta  bug report for this?:)
+Nov 17 05:28:21 <infapi00>	lolek, I can't right now, I think it would be better if you report the bug. You also know better the details, as you were looking at it
+Nov 17 05:28:34 <lolek>	ok no problem
+Nov 17 05:28:39 <lolek>	I'll pass you a bug no once done
+Nov 17 05:29:30 <lolek>	infapi00: also is there any way to close a tab from atk?
+Nov 17 05:31:28 <infapi00>	lolek, do you mean a specific atk action or something like that?
+Nov 17 05:31:44 <infapi00>	I didn't check the tab itself, but unless it was a button to close the tab
+Nov 17 05:31:51 <infapi00>	I don't think so
+Nov 17 05:32:21 <lolek>	hmm
+Nov 17 05:32:23 <lolek>	well anything
+Nov 17 05:32:30 <lolek>	tbh I don't see any actions, nothing :(
+Nov 17 05:33:02 <lolek>	so it seems that it's a p1 bug from the user point of view as he can't close the tab
+Nov 17 05:33:18 <infapi00>	as far as I remember, the actions being implemented right now on gtk are mostly press-button and similar
+Nov 17 05:33:27 <infapi00>	there isn't anything so high level as close tab
+Nov 17 05:33:44 <infapi00>	lolek, there isn't a key combination for that?
+Nov 17 05:34:01 <lolek>	hmm
+Nov 17 05:34:12 <lolek>	not by default
+Nov 17 05:34:26 <lolek>	well ok it has to be handled by the developer
+Nov 17 05:34:38 <infapi00>	lolek, well, so how a non-orca user closes a tab?
+Nov 17 05:35:07 <lolek>	ok that wil sound stupid but... using a keyboard shortcut if it was defined by the dev, or using button or using middle click 
+Nov 17 05:35:12 <lolek>	all has to be defined by the dev
+Nov 17 05:35:29 <infapi00>	lolek, ok, but what I mean is that the a11y tools are there to expose existing functionality
+Nov 17 05:35:47 <infapi00>	so if there is a way to close a tab, yes, I think that it would be good if atk exposes it
+Nov 17 05:35:51 <lolek>	ok then for sure the missing button and label in the acc tree is a bug
+Nov 17 05:36:01 <lolek>	I'm thinking also If i should report a missing action iface
+Nov 17 05:36:17 <lolek>	cause then that would be perfect
+Nov 17 05:36:19 <infapi00>	but if there isn't any way to close a tab, I don't think that is a bug atk not providing a way to close a tab
+Nov 17 05:36:38 <lolek>	hmm true
+Nov 17 05:37:23 <infapi00>	lolek, about the action: if there is a way to close a tab, that is not exposed by atk, then yes, suggesting a action to expose it would make sense. 
+Nov 17 05:37:32 <infapi00>	but again, if there is no way to close a tab
+Nov 17 05:37:38 <lolek>	yeah I got it
+Nov 17 05:37:41 <infapi00>	ok
+Nov 17 05:37:51 <infapi00>	sorry, Im not explaining myself really well today
+Nov 17 05:37:58 <lolek>	no no it's good 
+Nov 17 05:38:00 <lolek>	no worry :)
+Nov 17 05:38:28 <lolek>	ok an idea...
+Nov 17 05:38:36 <lolek>	button by default expose press action
+Nov 17 05:38:41 <lolek>	it's obvious cause you can click it
+Nov 17 05:38:56 <lolek>	the tab then could expose similar action cause... you can click it
+Nov 17 05:39:22 <lolek>	this is something that can be handled
+Nov 17 05:39:50 <lolek>	following this idea, there should be action for hmm maybe context menu? but it's not standard 
+Nov 17 05:40:09 <lolek>	situation is that the tab page can handle lmb, mmb, rmb
+Nov 17 05:40:17 <lolek>	each one can have different action assigned
+Nov 17 05:40:22 <lolek>	and it's hard to describe this
+Nov 17 05:40:33 <lolek>	as I don't think you'd want them to appear in the action list like that
+Nov 17 07:28:35 <lolek>	infapi00: #790496
+Nov 17 09:58:02 <Nalin-x-Linux>	@joanie  what about https://github.com/GNOME/orca/pull/5 ?
+Nov 17 10:01:37 <joanie>	Nalin-x-Linux: why?
+Nov 17 10:02:01 <joanie>	also we don't use github in GNOME; we use bugzilla
+Nov 17 10:02:56 <joanie>	anyway, I'm in the middle of something else
+Nov 17 10:03:14 <joanie>	but I don't see why we need yet another setting
+Nov 17 10:04:12 <joanie>	and what would be super is if the toolkits and user agents supported sentence boundaries
+Nov 17 10:04:32 <joanie>	so sending patches to, for instance, Firefox would be greatly preferred
+Nov 17 10:06:06 <Nalin-x-Linux>	joanie: Please check how orca read when text given. We are facing this issue from ubuntu 12.04 onwards 
+Nov 17 10:07:15 <joanie>	where is the text given?
+Nov 17 10:07:41 <joanie>	also I am going to be redoing all of Orca's text support soon
+Nov 17 10:07:51 <Nalin-x-Linux>	In gedit or any other gtk editable. Yup I agree that it's not a issue with orca.
+Nov 17 10:08:11 <joanie>	ok, then providing a patch to Gtk+ would be the way to go
+Nov 17 10:08:24 <joanie>	I'm not convinced we need a new setting
+Nov 17 10:08:46 <joanie>	and don't want to add a setting and translatable string just to rip it out soon after
+Nov 17 10:09:05 <joanie>	so while I work on redoing Orca's text support, perhaps you could work on fixing the issue in Gtk+?
+Nov 17 10:09:43 <Nalin-x-Linux>	I will try :) If it's simple for a11y team please solve it immediatly.
+Nov 17 10:10:00 <joanie>	if it needs to be fixed in Gtk+, please fix it there.
+Nov 17 10:10:14 <joanie>	I won't ask for immediately though
+Nov 17 10:10:16 <joanie>	;)
+Nov 17 10:10:32 <joanie>	I need to resume debugging a webkitgtk bug now (amongst other things)
+Nov 17 10:11:22 <Nalin-x-Linux>	Okay I will try. Thanks :)
+Nov 17 22:09:46 <slimerzz>	CALL 415-349-5666 L0DE RADIO HOUR
+Nov 17 22:09:46 <slimerzz>	https://www.youtube.com/watch?v=E7XNn2GzRbs
+Nov 17 22:09:47 <slimerzz>	TheMuso texou kmaraas m_tadeu_ Company heftig ankh lufimtse msanchez schoppenhauer kevin-brown fredp Ralesk dustinm` stanluk jpwhiting jrocha[m] Ryuno-Ki[m] mgorse ueno joanie tbsaunde
+Nov 21 04:36:57 <lolek>	infapi00: regarding the #790496 I've made a patch for that could you take a look if this is something that can work? 
+Nov 21 04:37:00 <lolek>	btw hi :)
+Nov 21 04:37:18 <infapi00>	lolek, hi, well, ok I could take a look
+Nov 21 04:37:45 <infapi00>	but take into account that Im not a maintainer/reviewer of gtk, so it would not be enough to approve it
+Nov 21 04:39:42 <lolek>	well from what I understand you're the maintainer of Accessibility right?
+Nov 21 04:41:45 <lolek>	and for gtk I understand that mclasen should be fine?
+Nov 21 04:51:20 <infapi00>	lolek, no, Im the maintainer of ATK, not accessibility as a whole
+Nov 21 04:51:40 <lolek>	infapi00: oh ok
+Nov 21 04:51:41 <infapi00>	if it is a gtk patch, any reviewer from gtk need to give the last +1
+Nov 21 04:51:49 <lolek>	hmm 
+Nov 21 04:52:02 <lolek>	maybe then Company^^?
+Nov 21 06:00:40 <lolek>	infapi00: thx for the review, so you think I should wait for gtk+ dev and then make a change in the patch or do them now?
+Nov 21 06:01:22 <infapi00>	lolek, probably would be better to update the patch first
+Nov 21 06:01:30 <lolek>	ok
+**** BEGIN LOGGING AT Tue Nov 21 11:50:15 2017
+
+Nov 21 11:50:15 *	Now talking on #a11y
+**** BEGIN LOGGING AT Wed Nov 22 15:29:31 2017
+
+Nov 22 15:29:31 *	Now talking on #a11y
+Nov 23 04:56:41 <benstankovich>	s
+Nov 23 04:56:49 <benstankovich>	as
+Nov 23 04:56:58 <benstankovich>	das
+Nov 23 04:57:01 <benstankovich>	fdas
+Nov 23 04:57:04 <benstankovich>	sssss
+Nov 23 04:57:15 <benstankovich>	snakey noises tdfg
+Nov 24 17:30:40 <xtq>	CALL 415-349-5666 L0DE RADIO HOUR
+Nov 24 17:30:44 <xtq>	https://www.youtube.com/watch?v=DIZqYgaOchY
+Nov 24 17:30:53 <xtq>	Heidie m_tadeu Company schoppenhauer texou jhernandez lufimtse ueno joanie tbsaunde mgorse Ryuno-Ki[m] jrocha[m] jpwhiting stanluk dustinm` Ralesk msanchez heftig fredp ankh kevin-brown
+Nov 24 20:04:09 <ppt>	CALL 415-349-5666 L0DE RADIO HOUR
+Nov 24 20:04:15 <ppt>	https://www.youtube.com/watch?v=DIZqYgaOchY
+Nov 24 20:04:17 <ppt>	JOIN #LRH EFNET TO JOIN THE DISCUSSION
+Nov 24 20:04:25 <ppt>	Heidie ankh m_tadeu Company schoppenhauer texou jhernandez lufimtse kevin-brown fredp heftig msanchez Ralesk dustinm` stanluk jpwhiting jrocha[m] Ryuno-Ki[m] mgorse ueno joanie tbsaunde
+Nov 27 03:36:50 <lolek>	infapi00: hello, got a moment for a - hope so - quick conv? It's regarding additional property we've talked some time ago
+Nov 27 08:40:46 <lolek>	infapi00: ^^?
+Nov 27 08:41:19 <infapi00>	lolek, ups sorry, I missed your ping before
+Nov 27 08:41:25 <lolek>	:D
+Nov 27 08:41:26 <lolek>	no prob
+Nov 27 08:41:31 <lolek>	do you have a moment now?
+Nov 27 08:41:31 <infapi00>	in any case, I have time as far as is "quick"
+Nov 27 08:41:37 <lolek>	well ok 
+Nov 27 08:41:40 <lolek>	so first a recall
+Nov 27 08:42:02 <lolek>	a button if I recall properly
+Nov 27 08:42:07 <lolek>	erm no
+Nov 27 08:42:09 <lolek>	a notebookpagetab
+Nov 27 08:42:10 <lolek>	sorry
+Nov 27 08:42:26 <lolek>	when you set a acc name you get the name, but when you don't set it, you'll get a label text
+Nov 27 08:42:27 <lolek>	right?
+Nov 27 08:43:05 <lolek>	infapi00: ^
+Nov 27 08:43:26 <lolek>	so if you remember this, is seems that the same "problem" is with the menuitem
+Nov 27 08:43:33 <lolek>	you either can get acc name or the text
+Nov 27 08:43:36 <lolek>	y ou can't access both
+Nov 27 08:43:56 <lolek>	so it seems this is a gtk limitation 
+Nov 27 08:44:14 <lolek>	and it would be good to have some solution for it
+Nov 27 08:44:36 <lolek>	a two possibilities come to my head
+Nov 27 08:45:23 <lolek>	1st: add new property called title or caption, that will provide the text visible to the user while acc_name will be for acc 
+Nov 27 08:45:23 <lolek>	2nd: use text interface to provide the missing info as it's for the label
+Nov 27 08:46:03 <lolek>	with the ifrst approach the api will change which may not be a good idea, with the second option, the api will stay the same with even possible backport to older 3.x versions 
+Nov 27 08:46:46 <infapi00>	 probably Im missing details
+Nov 27 08:46:54 <infapi00>	but my first thought with option 2
+Nov 27 08:47:05 <infapi00>	if I understand it properly
+Nov 27 08:47:15 <infapi00>	the name will have some text
+Nov 27 08:47:20 <infapi00>	and the text will have a different one, right?
+Nov 27 08:49:56 <lolek>	yeah
+Nov 27 08:50:19 <infapi00>	infapi00, well, although Im talking just using my memory
+Nov 27 08:50:23 <infapi00>	that can be confusing
+Nov 27 08:50:28 <infapi00>	for example, with a gtklabel
+Nov 27 08:50:29 <lolek>	yes I understand it
+Nov 27 08:50:36 <infapi00>	both the name and the text from atktext are the same
+Nov 27 08:50:38 <lolek>	well label works like this I think, let me check src
+Nov 27 08:50:49 <infapi00>	atktext is basically a sugar-friendly way to get the text
+Nov 27 08:51:14 <infapi00>	oh well, true there is a corner case
+Nov 27 08:51:23 <infapi00>	if the user sets manually a name
+Nov 27 08:51:30 <lolek>	well ok, just checked label and no label works properly :)
+Nov 27 08:51:31 <infapi00>	then in that case, label name and label text can be different
+Nov 27 08:51:38 <lolek>	I've got here a label with acc name, acc description
+Nov 27 08:51:48 <lolek>	and when I get the acc_name it's different than the text
+Nov 27 08:51:50 <lolek>	so it's ok
+Nov 27 08:52:16 <lolek>	ok so I'll try to make a patch for menuitem
+Nov 27 08:52:23 <lolek>	just need some idea from you
+Nov 27 08:52:36 <lolek>	can you take a look at the source of the a11y/gtklabel...?
+Nov 27 08:52:43 <lolek>	there's a func gtk_label_accessible_get_run_attributes
+Nov 27 08:53:03 <lolek>	the thing is that it's getting the properties from the pango layout... but menu_item doesn't have any
+Nov 27 08:53:12 <lolek>	I'd have to get menuitem parent and calculate it somehow
+Nov 27 08:55:24 <infapi00>	hmm, ok, but now Im lost
+Nov 27 08:55:38 <infapi00>	before you were talking about the pagenotebook
+Nov 27 08:55:47 <infapi00>	lolek, but what happens with menuitem?
+Nov 27 08:56:04 <lolek>	erm could be I did confuse you
+Nov 27 08:56:09 <lolek>	ok so the label works properly
+Nov 27 08:56:17 <infapi00>	or in other words, why you would be interested on a menuitem having an accessible name and a different accessible text?
+Nov 27 08:56:35 <lolek>	cause I can set two different things there
+Nov 27 08:57:11 <lolek>	but let's say I've got an app that's translated
+Nov 27 08:57:39 <lolek>	acc name will be always the same while the text on it will be translated so can be in different lang ununderstandable for me
+Nov 27 08:58:30 <lolek>	but as I said, this is just an example
+Nov 27 08:58:48 <infapi00>	but shouldn't the acc name be translated too?
+Nov 27 08:59:01 <lolek>	no
+Nov 27 08:59:04 <infapi00>	I assumed that a user would expect their name translated
+Nov 27 08:59:08 <infapi00>	unless you are talking
+Nov 27 08:59:13 <infapi00>	about automatic testing case
+Nov 27 08:59:23 <lolek>	yeah that can be another example
+Nov 27 08:59:32 <lolek>	ewen better than mine
+Nov 27 09:00:17 <infapi00>	well, but lets forget about automatic testing for now
+Nov 27 09:00:30 <infapi00>	in what case you don't want the accessible name of a menu item translated?
+Nov 27 09:00:34 <lolek>	nah, it's better example
+Nov 27 09:00:41 <lolek>	let's focus on it
+Nov 27 09:00:49 <lolek>	dogtail is using that
+Nov 27 09:01:03 <lolek>	so yeah you can't get the menu item text if you set the acc name
+Nov 27 09:01:07 <lolek>	so you can't test it
+Nov 27 09:02:33 <infapi00>	yes, I get that, you would be forced to test always in the default language
+Nov 27 09:02:40 <infapi00>	but Im still curious about a non-testing use case
+Nov 27 09:04:07 <lolek>	honestly right now I can't give you anything else out of my head
+Nov 27 09:07:14 <infapi00>	well, I think that automatic testing support is secondary (curious as my first step on atk was through dogtail)
+Nov 27 09:07:20 <infapi00>	in any case, I will take a look
+Nov 27 09:07:37 <infapi00>	just in case there are more stuff 
+Nov 27 09:07:44 <infapi00>	created just for automatic testing
+Nov 27 09:10:58 <infapi00>	lolek, having said so, I need to disconnect now, as I said, it needed to be a sort chat
+Nov 27 09:11:17 <infapi00>	see you later
+Nov 27 09:11:41 <lolek>	ok
+Nov 27 11:15:20 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Nov 27 11:15:20 2017
+
+**** BEGIN LOGGING AT Mon Nov 27 11:15:36 2017
+
+Nov 27 11:15:36 *	Now talking on #a11y
+Nov 27 11:57:35 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Mon Nov 27 11:57:35 2017
+
+**** BEGIN LOGGING AT Mon Nov 27 11:57:48 2017
+
+Nov 27 11:57:48 *	Now talking on #a11y
+**** BEGIN LOGGING AT Tue Nov 28 10:50:49 2017
+
+Nov 28 10:50:49 *	Now talking on #a11y
+**** BEGIN LOGGING AT Wed Nov 29 09:01:21 2017
+
+Nov 29 09:01:21 *	Now talking on #a11y
+**** ENDING LOGGING AT Wed Nov 29 09:02:50 2017
+
+Nov 29 09:21:39 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Nov 29 09:21:39 2017
+
+**** BEGIN LOGGING AT Wed Nov 29 09:21:52 2017
+
+Nov 29 09:21:52 *	Now talking on #a11y
+Nov 29 09:49:23 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Wed Nov 29 09:49:23 2017
+
+**** BEGIN LOGGING AT Wed Nov 29 09:49:36 2017
+
+Nov 29 09:49:36 *	Now talking on #a11y
+Nov 29 14:38:16 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Wed Nov 29 14:38:16 2017
+
+**** BEGIN LOGGING AT Wed Nov 29 14:38:29 2017
+
+Nov 29 14:38:29 *	Now talking on #a11y
+**** BEGIN LOGGING AT Thu Nov 30 17:01:13 2017
+
+Nov 30 17:01:13 *	Now talking on #a11y

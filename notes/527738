@@ -1,0 +1,76 @@
+[] Figure out existing w1 mechanism.
+[] Figure out if I can get SoupMessage and manipulate it in the webextension.
+  [] Mabye investigate example webextensions, see if I can hack it.
+
+GET:
+$$$$$$$$$$$
+  <html>
+  <body onload="GetPage('http://127.0.0.1/page2.html');">
+  <script>
+  function GetPage(URL){
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status == 200) {
+              document.documentElement.innerHTML =this.responseText;
+  }
+  };
+      xhttp.open("GET", URL, true);
+      xhttp.send();
+  }
+  </script>
+  </body>
+  </html>
+
+POST:
+$$$$$$$$$$
+var http = new XMLHttpRequest();
+var url = "get_data.php";
+var params = "lorem=ipsum&name=binny";
+http.open("POST", url, true);
+
+//Send the proper header information along with the request
+http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+http.onreadystatechange = function() {//Call a function when the state changes.
+    if(http.readyState == 4 && http.status == 200) {
+        alert(http.responseText);
+    }
+}
+http.send(params);
+
+
+Mushed code:
+###########
+
+function loadPage(URL, params) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+                // document.documentElement.innerHTML = this.responseText;
+                document.write(this.responseText)
+    }
+  };
+  xhttp.open("POST", URL, true);
+  xhttp.send(params);
+  form.submit();
+}
+var params = "emailassigned_to1=1&bug_severity=enhancement&bug_status=NEW&email1=platform-swt-inbox&emailtype1=substring";
+loadPage("https://bugs.eclipse.org/bugs/buglist.cgi", params)
+
+---------------
+whenthi
+
+
+INFO:
+############
+https://bugs.eclipse.org/bugs/buglist.cgi
+emailassigned_to1=1&bug_severity=enhancement&bug_status=NEW&email1=platform-swt-inbox&emailtype1=substring
+
+Form types: https://www.w3schools.com/tags/tag_form.asp
+application/x-www-form-urlencoded
+multipart/form-data
+text/plain
+------------
+java/settext idea:
+https://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/
+alert(window.location.href)

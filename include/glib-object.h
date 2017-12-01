@@ -1,1 +1,0 @@
-/home/lufimtse/jhbuild/checkout/glib/glib/glib-object.h
