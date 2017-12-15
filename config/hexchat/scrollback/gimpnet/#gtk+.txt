@@ -1,579 +1,704 @@
-T 1511975558 18<Company18>	so the destroy loop is not necessary
-T 1511975607 18<Company18>	the destroy vfunc needs to die anyway
-T 1511975619 18<baedert18>	https://git.gnome.org/browse/gtk+/log/?h=wip/baedert/gtk-widget-destroy still exists it seems
-T 1511975732 18<Company18>	i'm sometimes wondering
-T 1511975741 18<Company18>	if gtk_window_new() shouldn't give you a new reference
-T 1511975763 18<Company18>	and not have GTK keep one
-T 1511975776 18<Company18>	but I suppose that would break too many apps
-T 1511976142 22*	26Company has changed the topic to: https://wiki.gnome.org/Hackfests/GTK2018
-T 1511976195 18<bugbot18>	New glib bug 790998 filed by xclaesse@gmail.com.
-T 1511976195 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790998 build, normal, gtkdev, NEW , Meson: invalid arguments passed to gnome.gtkdoc()
-T 1511976377 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 790982 from NEEDINFO --- to RESOLVED NOTABUG.
-T 1511976378 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790982 general, normal, gtkdev, RESOLVED NOTABUG, warning ; wrong pathname during installation (jhbuild)
-T 1511976998 18<bugbot18>	xclaesse@gmail.com changed the Status on bug 790998 from NEW --- to RESOLVED NOTGNOME.
-T 1511976998 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=790998 build, normal, gtkdev, RESOLVED NOTGNOME, Meson: invalid arguments passed to gnome.gtkdoc()
-T 1511977179 18<mcatanzaro18>	mclasen: My next fun discovery is that the inhibit portal does not work when running outside of flatpak, since it relies on flatpak to get the app ID to pass to GNOME SessionManager, which refuses to inhibit without an app ID
-T 1511977199 18<mclasen18>	oh, sorry
-T 1511977213 18<mcatanzaro18>	So testing is very difficult. ;) At this point, I'm tempted to patch WebKit on the SDK builder, and wait until tomorrow to test
-T 1511977223 18<federico18>	grrrrr
-T 1511977235 18<federico18>	gsize gdk_pixbuf_get_byte_length (const GdkPixbuf *pixbuf);
-T 1511977251 18<mcatanzaro18>	But our WebKit build is broken currently, because the SDK builder is missing a Perl module that's needed for the build... I've been trading mails with alex but haven't figured out how to handle that yet.
-T 1511977260 18<federico18>	guchar *gdk_pixbuf_get_pixels_with_length (const GdkPixbuf *pixbuf, guint           *length)
-T 1511977278 18<federico18>	I'm really hating those "type for the size of something" discrepancies
-T 1511977852 18<mcatanzaro18>	Let's see if I can figure out how to rebuild a flatpak runtime....
-T 1511980221 18<Company18>	federico_: that size stuff is something 15+ year old APIs do wrong
-T 1511980232 18<Company18>	federico_: GArray and friends also use guint
-T 1511980242 18<Company18>	modern APIs all use gsize
-T 1511980366 18<Company18>	ebassi, ptomato[m]: API design question - I'm starting to name functions that return a reference foo_ref_bar() instead of foo_get_bar(). (1) Is that a good idea, even in C? (2) If we do that, should we rename those functions to get_foo() in introspection?
-T 1511980415 18<halfline18>	also i don't like the word "length" in this context 
-T 1511980429 18<ptomato[m]18>	at least in GJS, "ref" has no meaning so I'd advocate renaming it if that's what you decide to call it in C
-T 1511980433 18<halfline18>	byte length is a little better, but usually when talking about bytes you talk about size not length
-T 1511980440 18<EmmanueleBassi18>	Company: I don't particularly like the term "ref" in the API
-T 1511980446 18<halfline18>	length should be the number of elements (pixels)
-T 1511980466 18<EmmanueleBassi18>	The typical assumption is that `get` functions return a reference, and `peek` functions return a pointer
-T 1511980470 18<Company18>	halfline: that should still be a gsize though ;)
-T 1511980475 18<EmmanueleBassi18>	For refcounted types
-T 1511980505 18<EmmanueleBassi18>	From a language binding perspective, the returned value's transfer rule is part of the annotation, and the language will always take a reference anyway
-T 1511980532 18<Company18>	ebassi: is it? gtk_bin_get_child() etc all don't return references and i wouldn't expect them to
-T 1511980533 18<EmmanueleBassi18>	i.e. if you do `foo = bar.ref_foo()` or `foo = bar.get_foo()`, you'll still get a reference out of it
-T 1511980548 18<Company18>	yeah, that's why i'm asking
-T 1511980558 18<EmmanueleBassi18>	Company: I didn't say that the API is consistent
-T 1511980558 18<Company18>	for bindigns ref vs get vs peek doesn't make sense
-T 1511980590 18<Company18>	but for C code it makes a lot of sense to differentiate between ref and no ref
-T 1511980592 18<EmmanueleBassi18>	I've seen people use `foo_dup_bar()`
-T 1511980598 18<EmmanueleBassi18>	To indicate transfer rule with the name
-T 1511980610 18<EmmanueleBassi18>	And I've seen people use `foo_peek_bar()` for the same
-T 1511980613 18<mclasen18>	I find dup confusing as a name
-T 1511980621 18<mclasen18>	since it somewhat implies making an actual copy
-T 1511980624 18<EmmanueleBassi18>	I just don't like "ref"; it reads wrong
-T 1511980640 18<Company18>	yeah, we've used dup for strings
-T 1511980652 18<Company18>	and boxeds that get copied
-T 1511980655 18<halfline18>	also ref and dup both suck because they're only part of a word instead of a full word
-T 1511980660 18<EmmanueleBassi18>	I also don't like `g_object_ref()` and `g_object_unref()`, because an "unreference" isn't a thing
-T 1511980678 18<Company18>	should be deref you mean?
-T 1511980688 18<mclasen18>	cairo's destroy is just as bad though
-T 1511980694 18<EmmanueleBassi18>	acquire/release
-T 1511980696 18<Company18>	no, cairo's destroy is worse
-T 1511980703 18<EmmanueleBassi18>	You acquire a reference, and you release a reference
-T 1511980723 18<Company18>	yeah, that'd be fine with me (even though acquire is long)
-T 1511980725 18<EmmanueleBassi18>	destroy() is pretty terrible, indeed
-T 1511980728 18<halfline18>	should be take_reference / drop_reference
-T 1511980736 18<EmmanueleBassi18>	It conflicts with destroy() in GTK
-T 1511980747 18<halfline18>	oh acquire/release is betetr than take/drop
-T 1511980748 18<Company18>	destroy in gtk is also terrible
-T 1511980753 18<mclasen18>	all of those are too long, I feel
-T 1511980764 18<Company18>	but i don't like destroy because the object isn't guaranteed to be destroyed
-T 1511980803 18<Company18>	I just would like to have a clear differentiation in getters between "transfer full" and "transfer none"
-T 1511980816 18<halfline18>	kernel does put/get right ?
-T 1511980832 18<EmmanueleBassi18>	Anyway, as long as you annotate the function correctly, the language bindings won't care
-T 1511980834 18<halfline18>	(i don't like that, but just throwing it out there)
-T 1511980865 18<Company18>	well, the language binding users care because they suddenly have functions called "ref" instead of "get"
-T 1511980870 18<Company18>	which is a leaky abstraction right there
-T 1511980931 18<Company18>	i noticed it yesterday because I had named it contentprovider.ref_formats instead of contentprovider.get_formats because I made it return a ref at some point
-T 1511980952 18<Company18>	and started wondering if that was good API
-T 1511982165 18<ptomato[m]18>	yeah separate from whether it's good API for C, I don't think it is for language bindings
-T 1511982277 18<Company18>	ptomato[m]: if we decide it's good for C, should we rename C APIs to consistently be "get" in bindings (instead of peek or ref)?
-T 1511982303 18<federico_18>	I'm going to leave this here
-T 1511982309 18<federico_18>	https://gitlab.gnome.org/federico/gdk-pixbuf/tree/rust-loader/gdk-pixbuf/rust
-T 1511982320 18<ptomato[m]18>	Company: my opinion is yes
-T 1511982366 18<ptomato[m]18>	if you have both get and peek, or ref and peek, pick one of the two to be introspectable, and rename it to get
-T 1511982380 18<ptomato[m]18>	well, for memory managed languages that is
-T 1511982399 18<mclasen18>	federico_: at this point, I'm not comfortable with rust in the gtk build deps
-T 1511982399 18<ptomato[m]18>	I think I have a bug open for marking functions as only useful for bindings to languages with manual memory management
-T 1511982485 18<ptomato[m]18>	https://bugzilla.gnome.org/show_bug.cgi?id=785933
-T 1511982486 18<bugbot18>	Bug 785933: g-ir-scanner, enhancement, gobject-introspection-maint, NEW , Unref and free functions should not be exposed to memory-managed languages
-T 1511982492 18<rishi18>	federico_: \m/
-T 1511982494 18<mclasen18>	federico_: i'd rather see out-of-process, sandboxed loaders
-T 1511982511 18<mclasen18>	I won't care about the language those are written in then
-T 1511982549 18<rishi18>	mclasen: Is GTK+ moving away from GdkPixbuf to load icons? That was the objection when this was last discussed - "out of process will be slow".
-T 1511982801 18<federico_18>	mclasen: "why not both?" :)
-T 1511982807 18<mcatanzaro18>	The times they are a-changing... out of process, sandboxed image decoding is a great idea.
-T 1511982822 18<rishi18>	federico_: I am interested in Rust-ified loaders, but not for GdkPixbuf, but GeglBuffer. Although I am not sure how (a) C loaders out of process vs (b) Rust loaders in-process fare in the immediate short-term.
-T 1511982841 18<mclasen18>	federico_: again, not comfortable with rust in the gtk build 
-T 1511982841 18<rishi18>	I'd have left a comment on your blog, but you're clever - NO COMMENTS! :)
-T 1511982858 18<federico_18>	mclasen: yeah, understood
-T 1511982862 18<rishi18>	mcatanzaro: GIMP has been doing it for years.
-T 1511982872 18<federico_18>	mclasen: ... we can still have external loaders
-T 1511982906 18<mclasen18>	I know it has huge fanboys
-T 1511982915 18<mclasen18>	, but to me, it still looks like a startup before the second round of funding...
-T 1511982926 18<federico_18>	mclasen: I think the hard part is writing/porting loaders with an API that gdk-pixbuf likes (feed them bytes, get notifications for area_updated and such); the rest is just gmodule glue
-T 1511982969 18<federico_18>	mclasen: I'm all for sandboxing; I think that's the way to go for Complex(tm) loaders like jpeg and png
-T 1511982988 18<Company18>	if jpeg and png are complex loaders
-T 1511982994 18<rishi18>	Compared to GIF, those are nothing.
-T 1511983001 18<Company18>	why are the security vulnerabilities always in the other laoders?
-T 1511983027 18<Company18>	fwiw, GdkPixbuf needs to die anyway
-T 1511983050 18<Company18>	it's only alive because people aren't interested enough in killing it
-T 1511983100 18<rishi18>	Company: Will you kill gtk_image_new_from_pixbuf ?
-T 1511983118 18<Company18>	rishi: it's the last pixbuf function in GTK that I will kill
-T 1511983141 18<rishi18>	I used that as an example. Or, will GTK+ stop using GdkPixbuf?
-T 1511983143 18<Company18>	rishi: GtkImage is the thing that should display any pixel type in existence
-T 1511983160 18<Company18>	GTK is already transitioning away from GdkPixbuf
-T 1511983170 18<Company18>	to GdkTexture
-T 1511983188 18<Company18>	though gdk_texture_new_from_pixbuf() is the most common call with textures so far
-T 1511984296 20*	Disconnected (20Connection reset by peer)
-T 1511984309 19*	Now talking on 22#gtk+
-T 1511984309 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2018
-T 1511984309 22*	Topic for 22#gtk+ set by 26Company (24Wed Nov 29 12:22:21 2017)
-T 1511984314 18<Company18>	mclasen: yes, we could remove pixbufs from the public API much earlier
-T 1511984334 18<Company18>	mclasen: though I don't think it makes sense to remove it from the public API as long as we use it internally
-T 1511984345 18<mclasen18>	maybe not such a big problem for png, but svg and jpg are inherently scalable formats - loading them as a bunch of pixels is a shame, if you're eog
-T 1511984394 18<rishi18>	Company: I meant "today", in future hopefully eog/shotwell would use gegl. I was speaking with the assumption that the decoders tend to be security sensitive, but if GTK+ has some super simple ones then probably there isn't much to worry.
-T 1511984402 18<mclasen18>	Company: I guess we would do it as the other cleanups - progressively replace pixbufs with textures internally
-T 1511984417 18<mclasen18>	GtkIconTheme is probably the biggest stumbling block for that
-T 1511984438 18<Company18>	mclasen: yeah, that's what we're doing pretty much
-T 1511984463 18<federico_18>	so, how does one load a GeglBuffer from an image file?
-T 1511984465 18<Company18>	mclasen: and then we're left with GtkImage and GdkTexture as the ones having GdkPixbuf APIs
-T 1511984481 18<rishi18>	mclasen: I didn't quite understand what you meant.
-T 1511984484 18<mclasen18>	and cell renderers
-T 1511984488 18<rishi18>	federico_: It's fucked up. :P
-T 1511984504 18<Company18>	mclasen: i'm still hopeful cell renderers die before GdkPixbuf ;)
-T 1511984507 18<mclasen18>	rishi: by using gdk_pixbuf, you're giving up a bunch of useful features that image formats have
-T 1511984527 18<Company18>	eog already uses librsvg directly
-T 1511984528 18<rishi18>	mclasen: Oh, of course. That's why I don't want to use it. :)
-T 1511984529 18<rishi18>	GeglBuffer already supports 16-bit and single-channel PNGs, so that's a plus from GdkPixbuf.
-T 1511984822 18<mclasen18>	Company: so, how close is your clipboard branch at this point ?
-T 1511984889 18<federico_18>	uh, where are the gegl docs?
-T 1511984911 18<Company18>	mclasen: needs 3 things still: (1) Wayland backend (2) clipboard_store() (3) the last widget needs to be converted
-T 1511984932 18<mclasen18>	whats the last widget ?
-T 1511984936 18<Company18>	entry
-T 1511984942 18<Company18>	i just haven't done it yet
-T 1511984962 18<mclasen18>	wayland backend should be easier than X, hopefully ?
-T 1511984973 18<Company18>	hopefully
-T 1511984986 18<mclasen18>	and we leave win32 to LRN and quartz to whoever happens to come by ?
-T 1511984987 18<Company18>	it's just I don't run Wayland, so testing is more annoying
-T 1511984995 18<Company18>	yes
-T 1511985004 18<Company18>	i don't block on win32 and quartz
-T 1511985020 18<mclasen18>	hard to block on it when you can't build it...
-T 1511985027 18<mclasen18>	I guess you could build win32
-T 1511985048 18<Company18>	i've wondered if one could make it build against libwine
-T 1511985112 18<TingPing18>	Company, shouldn't be hard to cross compile with mingw and run in wine
-T 1511985158 18<Company18>	TingPing: famous last words
-T 1511985202 18<ebassi18>	For all intents and purposes, GTK should just drop https://github.com/nothings/stb and load its own PNG/JPEG with that :-P
-T 1511985236 18<ebassi18>	Anything you need to load into a widget should come in a linear buffer of pixel data
-T 1511985263 18<TingPing18>	Company, maybe, but people have been cross compiling gtk for years and add on top meson making it even cleaner..
-T 1511985292 18<ebassi18>	You can pretty easily cross-compile GTK on Fedora
-T 1511985295 18<federico_18>	rishi: where are the gegl docs?  I can't find them
-T 1511985300 18<ebassi18>	With the mingw toolchain
-T 1511985302 18<ebassi18>	And Meson
-T 1511985306 18<ebassi18>	(Or autotools)
-T 1511985336 18<Company18>	ebassi: reading from a stream is the one thing that we need for images
-T 1511985341 18<Company18>	ebassi: or writing to one
-T 1511985352 18<ebassi18>	federico_: http://gegl.org/operation-api.html
-T 1511985382 18<Company18>	but you can implement that by splicing to a memorystream and then using its output buffer \o/
-T 1511985716 18<federico_18>	ebassi: that just links to header files?
-T 1511986057 18<ebassi18>	federico_: gegl has its own documentation generator
-T 1511986070 18<ebassi18>	You'll have to ask pippin
-T 1511992246 18<Company18>	a clipboard that does not support storing its contents, should that report success or failure?
-T 1511992309 18<Company18>	"storing" in this context means transferring clipboard data to the clipboard manager upon application exit
-T 1511992481 18<Company18>	I suppose the same question goes for "what should we report on X if no clipboard manager is running?"
-T 1511992531 18*	Company decides "failure"
-T 1511992563 18<Company18>	because otherwise there's no way to differentiate between "sucessfully stored in manager" and "not supported here"
-T 1511994069 18<mclasen18>	Company: yes, that's right. the function returns whether the data has been stored. no clipboard manager, no storage...
-T 1511994440 18<Company18>	wait a minute
-T 1511994497 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gtk/gtkapplication.c#n314 and https://git.gnome.org/browse/gtk+/tree/gtk/gtkmain.c#n999
-T 1511994504 18<Company18>	why is that copy and pasted with big warnings?
-T 1511994526 18<Company18>	shouldn't that just be a common function that both places call?
-T 1511994532 18<Company18>	am I missing something obvious?
-T 1511995129 18<bugbot18>	New gtk+ bug 791004 filed by gnome@genodeftest.de.
-T 1511995130 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791004 Widget: GtkFileChooser, major, gtk-bugs, NEW , Crash when searching in file chooser after using location bar
-T 1511995484 18<lapo18>	csoriano: wassup with double tap (on a touchscreen) and nautilus list view? It doesn't seem to work there, while it does in icon view
-T 1511995531 18<lapo18>	garnacho: any ideas?
-T 1511996302 18<lapo18>	csoriano: ok, found the related bugs
-T 1511997173 18<garnacho18>	lapo: what's the bug#?
-T 1511997193 18<lapo18>	https://bugzilla.gnome.org/show_bug.cgi?id=786909
-T 1511997194 18<bugbot18>	Bug 786909: Desktop, normal, nautilus-maint, RESOLVED DUPLICATE, Touching on white space in Nautilus does a drag-like select
-T 1511997276 18<lapo18>	garnacho: not your fault, nautilus views not taking touch events into consideration (or something more hacker-language correct :-)
-T 1511997457 18<garnacho18>	lapo: was pretty sure of that :p, still good to have the bug# handy
-T 1511997479 18<garnacho18>	csoriano: use GtkGesture! :)
-T 1511997490 18<garnacho18>	(as if that were straightforward)
-T 1511997513 18<lapo18>	it's unfortunate that makes nautilus totally unusable on a touchscreen, you can just browse files basically
-T 1512079273 19*	Now talking on 22#gtk+
-T 1512079273 22*	Topic for 22#gtk+ is: https://wiki.gnome.org/Hackfests/GTK2018
-T 1512079273 22*	Topic for 22#gtk+ set by 26Company (24Wed Nov 29 12:22:21 2017)
-T 1512081388 18<mclasen18>	Company: I needed gdk_texture_download_surface in several spots - maybe it should be public ? or should we have gdk_cairo_set_source_texture ?
-T 1512081462 18<Company18>	we should absolutely not have gdk_texture_download_surface()
-T 1512081488 18<Company18>	textures are not meant to be an abstraction that is shuffled to and from cairo surfaces and GdkPixbufs
-T 1512081533 18<Company18>	I want to make it hard to do that
-T 1512081544 18<Company18>	now, gdk_cairo_set_source_texture() is interesting
-T 1512081593 18<Company18>	I don't like it a lot either for the same reason, but it has 2 advantages:
-T 1512081611 18<Company18>	(1) you can optimize it for textures that already contain cairo surfaces
-T 1512081626 18<Company18>	(2) it makes it awkward to do the texture <=> surface shuffling
-T 1512081676 18<Company18>	mclasen: what kind of places did you need the download_surface()?
-T 1512081692 18<Company18>	was that more backwards-compat APIs like gtk_render_something()?
-T 1512081711 18<mclasen18>	gtkcssstylefuncs.c, gtkrender.c gtktextdisplay.c
-T 1512081717 18<Company18>	or was that more places where you ported code to textures that maybe should have stayed cairo surfaces?
-T 1512081754 18<Company18>	cssstylefuncs should be dead
-T 1512081762 18<Company18>	gtkrender.c is backwards compat
-T 1512081779 18<Company18>	and textdisplay is just waiting for textview to stop using cairo
-T 1512081831 18<Company18>	so i wonder if that's all cases of gently nudging people to fix the surrouding code by making it awkward to use textures
-T 1512081899 18<mclasen18>	its refreshingly few places, anyway. not an emergency
-T 1512081931 18<Company18>	my goal with the API was to make it easy to create textures
-T 1512081942 18<Company18>	and hard to create anything from them
-T 1512081957 18<Company18>	to steer everyone naturally towards using them
-T 1512081974 18<Company18>	so that we don't end up with the pixbuf <=> surface mess we have everywhere
-T 1512082007 18<Company18>	"oh i need a scale factor, so i transition to a surface here", "oh, now I need to save it, so let's use pixbufs again", ...
-T 1512082054 18<Company18>	mclasen: if you're on master, you could try just deleting cssstylefuncs.c
-T 1512082066 18<Company18>	mclasen: it seems it's not used anymore?
-T 1512082103 18<Company18>	a bunch of files seem to still include it, but not use it
-T 1512082123 18<Company18>	or my git grep skills have lost me
-T 1512082244 18<Company18>	indeed
-T 1512082346 18<Company18>	mclasen: https://paste.fedoraproject.org/paste/T4WFM-NSc4LWKhWo-UpdkQ
-T 1512085232 18<mclasen18>	cool, less code is always good
-T 1512085494 18<hergertme18>	can someone boot jswagner if they keep flapping?
-T 1512085728 22*	26Company sets ban on 18*!jswagner@104.131.138.174
-T 1512086217 18<Company18>	mclasen: if you're interestedwith your textures: One missing fun project is turning vulkan images into textures and adding a GtkVulkanArea
-T 1512086238 18<Company18>	mclasen: culminating in porting vkcube to gtk-demo
-T 1512086254 18<mclasen18>	so you want pull the uploader part from gsk into gdk ?
-T 1512086275 18<Company18>	it can also stay in gsk I guess
-T 1512086298 18<Company18>	i haven't thought about how to do it in detail
-T 1512086316 18<Company18>	like, this could all stay private API and all the GTK widget does is hand you the VkImage to draw to
-T 1512086350 18<Company18>	or it could be all public and inside GDK and you do a gdk_vulkan_context_create_texture (context, width, height); or so
-T 1512086532 18<Company18>	and then you can do a fishbowl port where instead of GtkImages you add more VkCubes!
-T 1512086548 18<mclasen18>	I'll be out for a long weekend, I think I will not take a gtk project with me
-T 1512086558 18<Company18>	hehe
-T 1512086625 18<mclasen18>	but adding a nice showcase of vulkan to gtk-demo sounds good to me
-T 1512086704 18<mclasen18>	not sure if vkcube really qualifies
-T 1512086706 18<Company18>	I want to ultimately do a demo where you can dnd around a few static widgets on a GtkFixed
-T 1512086736 18<Company18>	as a demo of dnd
-T 1512086744 18<Company18>	like images and labels and spinners
-T 1512086760 18<mclasen18>	vkcube as a dnd demo _would_ be nice
-T 1512086762 18<Company18>	one could add GL Areas and Vulkan Areas and Drawing Areas to that demo
-T 1512086767 18<mclasen18>	drag the cube while it spins
-T 1512086783 18<Company18>	i've always wanted that to work
-T 1512086802 18<Company18>	but nobody cared much about implementing it, so I have no idea if it works
-T 1512086827 18<Company18>	in theory you can set a dnd widget but I have no idea what happens if that queue_draw()s
-T 1512086828 18<mclasen18>	it should, really. you can set a widget as drag icon, and it gets drawn like normal
-T 1512086859 18<Company18>	that was the one dnd thing I wanted
-T 1512086874 18<Company18>	the other thing was the destination being allowed to take control over the dnd icon
-T 1512086914 18<Company18>	so that when you drag around a notebook tab and arrive over a notebook, that notebook can move the tab to where it wants
-T 1512086924 18<Company18>	same for treeview rows
-T 1512087501 18<mcatanzaro18>	Company: Yes, make it even more complicated! :D
-T 1512087529 18<Company18>	mcatanzaro: make what more complicated?
-T 1512087537 18<mcatanzaro18>	(But seriously, not sure if that would be a good idea, even if it would be pretty.)
-T 1512087544 18<mcatanzaro18>	Company: dnd protocol
-T 1512087568 18<Company18>	the problem with the dnd protocol is that it's shit
-T 1512087576 18<Company18>	it's so shit that people don't use it
-T 1512087596 18<Company18>	but instead write all their dnd code twice: once for in-app dnd and once when being forced to use real dnd
-T 1512087625 18<Company18>	which more than doubles their dnd code *and* makes the UI worse
-T 1512087641 18<Company18>	see notebook tab dnd, which moves the tab nicely
-T 1512087650 18<Company18>	until you mvoe the moust too far and yank it out
-T 1512087675 18<Company18>	and then it's tab dragging v2 that works completely different but essentially does the same thing
-T 1512087683 18<Company18>	why is that a good idea?
-T 1512087750 18<Company18>	also, dragging tabs in epiphany is a catastrophe
-T 1512088034 18<mcatanzaro18>	Actually dragging tabs works fine for me
-T 1512088063 18<mcatanzaro18>	You can usually even drag to another window without it crashing!
-T 1512088075 18<Company18>	i was talking about the ui
-T 1512088092 18<mcatanzaro18>	What would you improve?
-T 1512088131 18<KombuchaKip18>	Can anyone help me with this question? https://lists.gnu.org/archive/html/automake/2017-11/msg00044.html
-T 1512088134 18<Company18>	(1) there's 2 ways to drag tabs, get rid of one
-T 1512088171 18<Company18>	(2) why does the tab bar randomly grow when i drag a tab over it?
-T 1512088197 18<Company18>	why doesn't it shrink back again?
-T 1512088224 18<Company18>	(3) why do i get a green box around tabs sometimes and sometimes not?
-T 1512088257 18<Company18>	(4) where is my tab actually gonna go once I release? Why is there no indication?
-T 1512088284 18<Company18>	(5) why is there sometimes a hole where the tab I dragged from was and why does it randomly disappear at some point?
-T 1512088311 18<Company18>	(6) if i accidentally release the button wrongly I get a new window
-T 1512088323 18<Company18>	but how do i take the tab from that window and drag it back?
-T 1512088370 18<Company18>	only way i've figured out so far is opening a new tab so i get the tab bar, move the tab back that I care about, then close the window with now just 1 empty tab
-T 1512088415 18<Company18>	(7) when dragging from another window, I must apprently not make the green box appear or dnd won't work
-T 1512088424 18<mcatanzaro18>	(Yes, that's the solution for #6 I'm afraid)
-T 1512088428 18<Company18>	what's up with that?
-T 1512088471 18<mcatanzaro18>	OK, point taken :D
-T 1512088477 18<mcatanzaro18>	I wonder what is even drawing the green box.
-T 1512088498 18<Company18>	i suspect it's some :dnd(active) style
-T 1512088531 18<Company18>	btw, I can tell you what I actually want:
-T 1512088547 18<Company18>	I want dnd to always work like the first mode, the initial one
-T 1512088568 18<Company18>	once i come into contact with the tabbar, the tab snaps back into place and behaves like it did before
-T 1512088713 18<mclasen18>	at that point, you're talking about a custom protocol
-T 1512088746 18<Company18>	no, i'm not
-T 1512088783 18<Company18>	especially not in this case, because it's all in-process and can bypass any WM protocol
-T 1512088822 18<Company18>	but really, the only feature we need is turning off the dnd icon
-T 1512088845 18<mclasen18>	i don't think bypassing is helpful if you want to avoid (1)
-T 1512088872 18<Company18>	I don't mean bypasding on the widget level, I mean on the GDK level
-T 1512088895 18<Company18>	and we're already doing that anyway because otherwise  you couldn't drag GtkWidgets
-T 1512089021 18<Company18>	the problem here is creating 2 kinds of tabs in GtkNotebook: a DndTargetTab and a DndSourceTab
-T 1512089037 18<Company18>	maybe you only need the target tab
-T 1512089070 18<Company18>	the target tab just draws the contents of the dnd data
-T 1512089076 18<Company18>	the source tab draws nothing
-T 1512089119 18<Company18>	we have the target tab today and use it for the first mode
-T 1512089124 18<Company18>	so all the code is there
-T 1512089143 18<Company18>	it's just that it takes its data from the "real" tab instead of looking at the dnd data
-T 1512089248 18<Company18>	in gtk4 it should be somewhat easier to unify this because we had to get rid of all the hacks in the notebook code
-T 1512089264 18<Company18>	though there's probably some hacks left before it gets easy to fix
-T 1512089529 18<Company18>	my goal still stands: whenever you drag something in gtk, even if it's just inside your widget, it should involve a GdkDragContext
-T 1512089544 18<Company18>	not because of policy, but because that's the easiest way to do it
-T 1512089582 18<Company18>	rubberbanding: sure, that can be a local dragging operation
-T 1512089613 18<Company18>	dragging around a marker on a map? DragContext
-T 1512089632 18<Company18>	dragging around a widget in glade? DragContext?
-T 1512089640 18<Company18>	s/?$/!/
-T 1512089696 18<Company18>	the paned handle probably doesn't need a dragcontext either
-T 1512089704 18<Company18>	or the scrollbar
-T 1512091103 18<kulzen18>	Hello, I've a class xyz : public gtk::window. Now objects of xyz are on UI thread. How do I delete this objects?
-T 1512091125 18<kulzen18>	I want to close the window and free up the resources
-T 1512097480 18<LRN18>	is there a need to do something when WM_TRANSIENT_FOR property is set for a window?
-T 1512097493 18<LRN18>	i see that it's being killed off in gtk4
-T 1512097507 18<LRN18>	but it's still mentioned in one place in gtkwindow.c
-T 1512098502 18<mclasen18>	killed off ?
-T 1512100664 18<Company18>	fun fact: gsd-clipboard is not very resilient
-T 1512102178 18<LRN18>	mclasen, in a385a50260be7e55731525fd89c39a7df3e69f86 and 7aec96b95f1f1cbe36edee4a076b4025b70077b0
-T 1512102359 18<susurrus18>	I'm having some problems with a small drag and drop example with GTK+.
-T 1512102373 18<susurrus18>	It works for me on Fedora but doesn't work on Ubuntu or Windows.
-T 1512102423 18<susurrus18>	I have a code example here: https://gist.github.com/Susurrus/780af57a1a217ec2ff3e863f2e304daf
-T 1512102508 18<susurrus18>	On "bad" platforms you'll see "DEBUG: received 1 .. DEBUG: received 2.." printed, like the drop event triggers twice.
-T 1512103226 18<LRN18>	here, on W32, if i use DROPFILES protocol, i get "received 1", then the first file name, then "received 2" and the second file name, then, automatically, "received 3" and the first (!) file name again
-T 1512103243 18<LRN18>	and it repeats (every time i drop something, the previous filename is received immediately after that)
-T 1512103271 18<LRN18>	if i use OLE2 protocol, the result is the same as the one you've described above (data is received twice)
-T 1512103294 18<susurrus18>	I actually found a bug that I think is exactly the problem I'm talking about: https://bugzilla.gnome.org/show_bug.cgi?id=150141
-T 1512103295 18<bugbot18>	Bug 150141: Widget: GtkTextView, normal, gtk-bugs, RESOLVED INCOMPLETE, GtTextView sends drag_data_received signal twice.
-T 1512103311 18<susurrus18>	I don't know what the difference is between the DROPFILES or the OLE2 protocol, or how that's being set on W32.
-T 1512103430 18<susurrus18>	LRN: Can you try my example again where you replace `GTK_DEST_DEFAULT_ALL` with 0?
-T 1512103434 18<susurrus18>	That's what the bug suggested.
-T 1512103711 18<LRN18>	susurrus, that fixed the problem
-T 1512103749 18<LRN18>	seems like it's a GTK-side bug indeed
-T 1512103784 18<susurrus18>	LRN: Yeah, that bug seems to describe exactly what's going on, and I think it's still a valid bug report.
-T 1512103808 18<susurrus18>	Should I post in there asking to reopen it?
-T 1512103979 18<LRN18>	m-m-m
-T 1512103991 18<LRN18>	wait a bit, maybe i'll be able to find out what's going on
-T 1512104014 18<susurrus18>	Okay, thanks!
-T 1512104324 18<LRN18>	okay, i'll need to rebuild gtk...that'll take a while. And anyway, the bug comments seem to describe what's happening well enough
-T 1512104357 18<LRN18>	there's even a comment from mclasen
-T 1512104434 18<LRN18>	though that was in the gtk2 era 
-T 1512104448 18<LRN18>	from the context it seems that gtk3 wasn't even released at that time
-T 1512104470 18<LRN18>	i can't believe that this bug is still valid after all that time...
-T 1512104521 18<susurrus18>	Yeah, seems crazy to me but it seems to be correct.
-T 1512108099 18<baedert18>	ORRR
-T 1512108102 18<baedert18>	where's company
-T 1512109532 18<baedert18>	alex ruined my snapshot patch!
-T 1512109637 18<baedert18>	also the vulkan patch :|
-T 1512110013 18<baedert18>	alex: https://git.gnome.org/browse/gtk+/commit/?id=d95cbb275729370a2dd67e24570ac1c68b62b697 is not even using merged_clip afterwards
-T 1512110046 18<baedert18>	alex: Also, re-applying https://paste.xinu.at/ipQL0/ from my branch makes that patch dead code here...
-T 1512110109 18<susurrus18>	LRN: My buddy just tested the workaround on both Win10 and Ubuntu and it resolves there issue there as well.
-T 1512110117 18<susurrus18>	Don't know if that info helps at all.
-T 1512114667 18<bugbot18>	ofourdan@redhat.com marked bug 784879 as a duplicate of unknown bug.
-T 1512114667 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=784879 Backend: Wayland, normal, gtk-bugs, RESOLVED DUPLICATE, Unpredictable actions from scrollbar drag on non-maximized window
-T 1512115019 18<bugbot18>	New gtk+ bug 791057 filed by ofourdan@redhat.com.
-T 1512115020 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791057 Backend: Wayland, normal, gtk-bugs, NEW , [wayland] Gtk4 API - add an api for shortcut inhibitor since individual device grabs shall/should probably go
-T 1512115170 18<alex18>	baedert: argh.
-T 1512115179 18<alex18>	baedert: in my sample both clips where identical
-T 1512115236 18<alex18>	baedert: hmm, your alternative looks better
-T 1512115249 18<alex18>	baedert: what about the vulkan patch?
-T 1512115282 18<baedert18>	alex: Nothing, just I just had an identical one preventing the crash if vulkan is enabled but no vulkan hardware is available
-T 1512115298 18<baedert18>	alex: I left your clip stuff in now
-T 1512115314 18<alex18>	i can revert it, as your should do the same
-T 1512115349 18<alex18>	baedert: actually, they are not quite the same are they 
-T 1512115366 18<alex18>	if the inner clip is smaller then mine causes it to be only the smaller clip in a node
-T 1512115413 18<baedert18>	mine too, it would not create the outer clip node
-T 1512115429 18<baedert18>	if the inner one is contained entirely in the outer one
-T 1512115642 18<alex18>	I'll revert mine then
-T 1512115730 18<baedert18>	I wantd to do https://paste.xinu.at/fxqQm/ too for uneven borders with all border_width>0 sides transparent
-T 1512115743 18<baedert18>	But lapo is too smart and this doesn't affect adwaita at all :|
-T 1512116946 18<alex18>	baedert: i wish there was some tagging on the nodes
-T 1512116967 18<alex18>	baedert: that way its much easier to to a diff if say a node was inserted
-T 1512117438 18<bugbot18>	New gtk+ bug 791062 filed by jadahl@gmail.com.
-T 1512117438 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791062 Backend: Wayland, normal, gtk-bugs, NEW , Fix mapping window with complete xdg-foreign state
-T 1512119616 18<baedert18>	I'd be interested in code to avoid shadow nodes unless they are necessary
-T 1512119630 18<baedert18>	Like, a shadow node with blur_radius=0 ist just an offset+color matrix
-T 1512119869 18<baedert18>	I guess that would be bad for broadway though
-T 1512122595 18<baedert18>	garnacho: Dragging on a scrollbar, then releasing the button on a listbox row sends the release to the row and activates it. Is that new (with mclasen's listbox changes maybe)?
-T 1512122616 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 791036 from NEW --- to RESOLVED FIXED.
-T 1512122616 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791036 gio, critical, gtkdev, RESOLVED FIXED, Guard for g_output_stream_vprintf makes no sense
-T 1512128344 18<LRN18>	susurrus, so yeah, it's pretty much like that. Both gtk_text_view_drag_drop() (a custom textview drop handler) and gtk_drag_dest_drop() (the default drop handler) call gtk_drag_get_data(), which results in data-received signal being emitted eventually
-T 1512128788 18<LRN18>	specifically, first hit is from when gtk_drag_find_widget() queries widgets, second hit is from the textview drop handler
-T 1512128841 18<baedert18>	"While the variable gl_VertexIndex is always present, its value is not always defined"
-T 1512128842 18<baedert18>	GOOD
-T 1512128958 18<LRN18>	susurrus, gtk_drag_dest_drop() only calls gdk_drag_get_data() when site->flags & GTK_DEST_DEFAULT_DROP, hence the workaround you've mentioned earlier
-T 1512129005 18<baedert18>	Company: Did your widget transform work change size allocation (esp. widget vfuncs/API) in an incompatible way?
-T 1512129060 18<Company18>	no, i didn't go that far
-T 1512129072 18<Company18>	before stopping
-T 1512129083 18<baedert18>	But it would?
-T 1512129092 18<Company18>	also, what's "an incompatible way" here?
-T 1512129122 18<baedert18>	an API break
-T 1512129128 18<Company18>	yes
-T 1512129145 18<Company18>	I want to change the size_allocate() vfunc to be just width, height, baseline
-T 1512129189 18<Company18>	but that's not a fundamental change, because the x/y are 0 already
-T 1512129236 18<Company18>	the other thing i want is a gtk_widget_allocate (graphene_matrix_t *position, width, height, baseline)
-T 1512129311 18<baedert18>	That sounds like it would just allocate memory, like graphene_matrix_alloc
-T 1512129331 18<Company18>	that is true
-T 1512129347 18<Company18>	gimme better name then!
-T 1512129398 18<Company18>	the other thing I want is better API for querying children
-T 1512129420 18<Company18>	that is conceptually not parent/child bound
-T 1512129469 18<Company18>	ie instead of gtk_widget_get_allocation() have gtk_widget_get_bounds (widget, other, &bounds); which gives you the bounds of @widget in @other's coordinate system
-T 1512129472 18<baedert18>	Company: gl_VertexIndex ranges between 0 and 5 (or 1 and 6?) in the vulkan shaders right?
-T 1512129497 18<Company18>	baedert: yes - 0 and 5 I believe or the array indexes wouldn't work
-T 1512129507 18<baedert18>	shit
-T 1512129517 18<Company18>	baedert: the bounds shader uses a higher number, too
-T 1512129521 18<Company18>	*borders
-T 1512129572 18<baedert18>	that's the one I'm looking at atm
-T 1512129588 18<baedert18>	not really sure how to know what corner a pixel in the fragment shader belongs to
-T 1512129600 18<Company18>	me neither, that one is bonkers
-T 1512129615 18<Company18>	but it creates 8 rectangles, so 48 points?
-T 1512129638 18<Company18>	one for every corner and one for every edge
-T 1512129644 18<Company18>	4 + 4 = 8
-T 1512129659 18<baedert18>	Oh I still only have 6 vertices for border nodes
-T 1512129678 18<Company18>	i did that so that borders for a maximized window don't have to render so many pixels
-T 1512129684 18<Company18>	that are all irrelevant
-T 1512131781 18<baedert18>	Company: we only draw solid border in the shader right? The rest is cairo nodes?
-T 1512131819 18<Company18>	i don't remember
-T 1512131832 18<Company18>	but yes, a bunch of stuff is still cairo nodes
-T 1512131861 18<baedert18>	I looked at the webrender shaders for all the different border types, it's insane
-T 1512133295 18<bugbot18>	New gtk+ bug 791081 filed by stransky@redhat.com.
-T 1512133295 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791081 Widget: Other, normal, gtk-bugs, NEW , gtk_widget_realize() throws In pixman_region32_init_rect: Invalid rectangle passed
-T 1512133547 18<baedert18>	Company: Does the vulkan shader render solid border with uneven widths correct?
-T 1512133628 18<Company18>	i have no idea
-T 1512134653 18<baedert18>	The border color in insensitive spinbuttons is wrong with the vulkan renderer because the shader does not pre multiply the alpha of the colors
-T 1512134667 18<baedert18>	Someone fix that!
-T 1512135282 18<Company18>	baedert: https://paste.fedoraproject.org/paste/nec06uHEAJon9OZQU0Spyw
-T 1512135328 18<baedert18>	Company: perfect
-T 1512135344 18<baedert18>	I assume the wrong color of the progressbar label has a similar problem
-T 1512135550 18<Company18>	is that done with the mask shader?
-T 1512135581 18<baedert18>	no idea, I only know those bugs from videos i saw :P
-T 1512135668 18<Company18>	where do I see that?
-T 1512135735 18<baedert18>	widget factory, right in the middle is a progressbar with a label above
-T 1512135743 18<baedert18>	should be dimmed but wasn't last time I saw it
-T 1512135826 18<Company18>	all those mclasen shaders, sheesh!
-T 1512135873 18<Company18>	yep, that was the mask shader
-T 1512135888 18<Company18>	it conveniently ignored the alpha channel of the in color completely
-T 1512135923 18<baedert18>	what's the name of the parameter initializer tingy again that looks like (SomeStruct){a, b, c, d}?
-T 1512135984 18<Company18>	https://wiki.gnome.org/Projects/GLib/CompilerRequirements says "designated initializers"
-T 1512136036 18<Company18>	actually no, it's "compound literals"
-T 1512136086 18<Company18>	designated initializers is int is_prime[4] = { [2] = TRUE, [3]=TRUE };
-T 1512136087 18<ebassi18>	designated initializers are: (SomeStruct) { .field_a = a, .field_b = b }
-T 1512136109 18<baedert18>	Please file the bug with the maintainers of the C standard. The syntax they created is impossible to parse in a simple way.
-T 1512136112 18<ebassi18>	And the index initialization as well
-T 1512136120 18<baedert18>	cool
-T 1512136137 18<Company18>	anyway, those terms are on that wiki page
-T 1512136144 18<Company18>	that's the important message i wanted to convey :)
-T 1512136148 18<ebassi18>	baedert: That was true once they added a C pre-processor
-T 1512136175 18<Company18>	I think the syntax is kinda okay
-T 1512136178 18<baedert18>	ebassi: that was a quote from a vim bug report about it screwing up the highlighting
-T 1512136224 18<Company18>	but yeah, vim needs to start using a real C preprocessor for syntax parsing
-T 1512136232 18<Company18>	it's the one thing I hate rms for
-T 1512136244 18<Company18>	making the open source world unable to parse C properly
-T 1512136334 18<baedert18>	eh the "fix" doesn't work for me either
-T 1512136470 18*	baedert will have to write his OWN TEXT EDITOR! before continuing
-T 1512136598 18<Company18>	please do
-T 1512136621 18<Company18>	unless of course that wouldn't involve a new text widget for GTK
-T 1512136769 18<krnowak18>	Company: Isn't there a typo (with COMPUND) - https://git.gnome.org/browse/gtk+/tree/gdk/x11/gdkclipboard-x11.c?h=wip/otte/clipboard&id=92265f105c99d95c217424e590c0b10783a4df70#n282
-T 1512136986 18<Company18>	krnowak: i totally can not see anything wrong in https://git.gnome.org/browse/gtk+/tree/gdk/x11/gdkclipboard-x11.c?h=wip/otte/clipboard#n282
-T 1512136989 18*	Company whistles
-T 1512137056 18<Company18>	it seems my testing with motif was not extensive enough ¯\_(ツ)_/¯ 
-T 1512137618 18<Company18>	ugh
-T 1512137639 18<Company18>	saving a texture seems kinda complicated
-T 1512137659 18<Company18>	(1) download texture
-T 1512137668 18<Company18>	(2) wrap download into cairo surface
-T 1512137680 18<Company18>	(3) call pixbuf_new_from_surface()
-T 1512137687 18<Company18>	(4) Success!
-T 1512137695 18<Company18>	only 3 memory copies necessary!
-T 1512137718 18<Company18>	and we're just doing this step 14 times anyway!
-T 1512137730 18<baedert18>	In case I screw up border, I can simply fall back to the cairo implementation, which is also wrong. yay.
-T 1512137767 18<Company18>	(because the clipboard manager just grabs all formats)
-T 1512137773 18<Company18>	but!
-T 1512137783 18<Company18>	we send all those 14 formats at the same time using 14 threads
-T 1512137797 18<baedert18>	finally that quadcore gets used
-T 1512137813 18<Company18>	except we only use 1 more core
-T 1512137845 18<Company18>	because 1 core was our app shoveling data, 1 core is X shovelling data and one core is gsd-clipboard shovelling data
-T 1512137938 18<Company18>	but then, the 4th core is also just shovelling data, because that's what converting a GdkPixmap to image/bmp, image/x-bmp, image/x-ms-bmp, image/x-icon, image/x-ico, image/x-win-bitmap and image/vnd.microsoft.icon essentially is
-T 1512137986 18<Company18>	also application/ico, image/ico, image/icon and text/ico
-T 1512137997 18<Company18>	i hadn't scrolled far enough
-T 1512138099 18<Company18>	whoever came up with text/ico must have been the ultimate expert on mime types
-T 1512138613 18<Company18>	soooo
-T 1512138631 18<Company18>	if i want to add a page to the docs that just contains text
-T 1512138635 18<Company18>	how do i do that?
-T 1512138667 18<Company18>	does that still involve me writing docbook xml?
-T 1512138716 18<Company18>	because then it's gonna be roughly <para>I'm not gonna write docbook. You gonna figure that shit out by reading source code.</para>
-T 1512139033 18<lovetox18>	can someone tell me please how can i get the default key bindings of a window and how to modify them, for example if i have some widgets in a window and press TAB it jumps from one to the next, i can not overwrite this with add_accel_group()
-T 1512139070 18<lovetox18>	i know i can catch the key_press_event, but is this the prefered way? or is this meant to be done differently
-T 1512139137 18<Company18>	TAB is meant to be done differently (the term you want to google/search in docs is focus chain)
-T 1512139170 18<Company18>	but other than that, key_press_event is often the preferred method
-T 1512139255 18<lovetox18>	hm thanks, thought the whole AccelMaps, and AccelGroups etc would give a nicer way to have all keybindings in one place and modify them
-T 1512139338 18<Company18>	well yes, if it is a keybinding
-T 1512139383 18<Company18>	actually, tab is a keybinding
-T 1512139402 18<Company18>	on the toplevel
-T 1512139446 18<lovetox18>	can i get all keybinding of the toplevel somehow so i can see them all?
-T 1512139487 18<lovetox18>	or is there a place where they are documented
-T 1512139514 18<Company18>	dunno what the preferred way to inspect them is
-T 1512139520 18<Company18>	I looked in the source code
-T 1512139548 18<Company18>	also, keybindings are looked up from the current focus widget down to the toplevel
-T 1512139571 18<Company18>	so which ones apply does depend on all widgets in the chain
-T 1512139611 18<Company18>	https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1247 are the ones for GtkWindow
-T 1512139717 18<lovetox18>	ok thanks that helps
-T 1512143742 18<baedert18>	PERFECT
-T 1512143746 18<baedert18>	https://jsfiddle.net/2Lpaar9j/
-T 1512143754 18<baedert18>	gives completely different results in firefox vs. chrome
-T 1512143766 18<baedert18>	that means I can also do whatever the hell I want
-T 1512143938 18<feaneron18>	how dare you forget epiphany? https://i.imgur.com/MHpGQLr.png
-T 1512144067 18<baedert18>	The epiphany result makes the most sense to me
-T 1512144100 18<baedert18>	since it's the exact same thing as that div with border-radius:0, just... border radius applied
-T 1512144509 18<baedert18>	https://jsfiddle.net/2Lpaar9j/3/ is just broken
-T 1512144518 18<baedert18>	* in firefox
-T 1512144539 18<baedert18>	still looks broken in chrome of course
-T 1512144558 18<baedert18>	can we replace CSS with GSS?
-T 1512144570 18<baedert18>	Gnomescadic Stylesheets
-T 1512146210 18<susurrus18>	LRN: Thanks for digging into it some more.
-T 1512146285 18<susurrus18>	Does that seem like "correct" behavior and my code should be altered or does this actually seem like incorrect behavior?
-T 1512146289 18<susurrus18>	I can't tell from what you said.
-T 1512146360 18<susurrus18>	IIUC there is a default handler for TextView that's enabled when you specify gtk_drag_dest_set().
-T 1512146446 18<susurrus18>	Which is documented for gtk_drag_dest_set() (though I wish it enumerated all widget types that actually had default handlers.)
-T 1512146473 18<susurrus18>	But I'm not certain if what I'm doing is correct and should work like it does for me on Fedora or if the Windows/Ubuntu behavior is correct.
-T 1512146484 18<Company18>	baedert: IE does what ephy does
-T 1512146528 18<Company18>	3 triangles
-T 1512146541 18<Company18>	and rounded on all sides
-T 1512146646 18<baedert18>	that's also what I can do now
-T 1512146656 18<baedert18>	But I remember creating some more fucked up test cases
-T 1512146677 18<baedert18>	also the inner rect is never rounded atm
-T 1512147301 18<baedert18>	Company: how do I create a border that's also rounded inside?
-T 1512147458 18<Company18>	by making the radius larger than the width
-T 1512147518 18<Company18>	the border is essentially drawn between 2 rounded rects
-T 1512147533 18<baedert18>	https://jsfiddle.net/2Lpaar9j/4/ omg
-T 1512147583 18<baedert18>	Yeah so one of those cases I was talking about is https://jsfiddle.net/2Lpaar9j/5/
-T 1512147600 18<baedert18>	ff and chrome agree at least
-T 1512147604 18<baedert18>	unfortunately
-T 1512147617 18<Company18>	ie is different
-T 1512147675 18<Company18>	smoooth
-T 1512147709 18<Company18>	ff for me has edges in the outer ellipsis, which is definitely wrong
-T 1512147758 18<baedert18>	with https://jsfiddle.net/2Lpaar9j/4/ ? yes
-T 1512147979 18<Company18>	baedert: yes
-T 1512148010 18<baedert18>	that looks pretty screwed up in chrome as well
-T 1512148015 18<baedert18>	but not in the "clearly a bug" kind
-T 1512148050 18<Company18>	IE looks like ephy
-T 1512148835 18<pwithnall18>	ebassi: https://bugzilla.gnome.org/show_bug.cgi?id=741167 review?
-T 1512148836 18<bugbot18>	Bug 741167: gdbus, normal, zeuthen, NEW , gdbus-codegen fix for boxed out parameters
-T 1512149435 18<lovetox18>	do i see this correctly that when a listbox applys a filter it does not issue a child-notify event
-T 1512149436 18<lovetox18>	https://github.com/GNOME/gtk/blob/master/gtk/gtklistbox.c#L2051
-T 1512149438 18<EmmanueleBassi18>	Can we please change the default QA for gdbus? I doubt davidz is looking at bugmail
-T 1512149448 18<lovetox18>	in particular interesting would be child-notify::visible
-T 1512149687 18<baedert18>	child-notify? visible is not a child property
-T 1512149708 18<baedert18>	and the rows won't get hidden, it just does gtk_widget_set_child_visible(row, FALSE)
-T 1512149820 18<lovetox18>	i currently use get_child_visible()
-T 1512149828 18<lovetox18>	to determine if a row is hidden in a listbox
-T 1512149845 18<lovetox18>	the docs say i should never need that method
-T 1512149862 18<lovetox18>	but i dont see another way to get if a row is hidden or not
-T 1512149865 18<lovetox18>	at least in python
-T 1512149886 18<baedert18>	Company: gtk3 does /5/ correct
-T 1512151315 18<Jehan18>	Hello!
-T 1512151381 18<Jehan18>	Does anyone mind if we push this to the 2.24 branch: https://bugzilla.gnome.org/show_bug.cgi?id=781020
-T 1512151382 18<bugbot18>	Bug 781020: Themes, major, gtk-bugs, REOPENED , GIMP UI vector icons are drawn way too small
-T 1512151384 18<Jehan18>	?
-T 1512151523 18<Jehan18>	mclasen[m]: ^ ?
-T 1512151805 18<baedert18>	I hereby pronounce this border rendering "good enough"
-T 1512151928 18<baedert18>	Company: https://jsfiddle.net/2Lpaar9j/6/ Is broken in ephy though
-T 1512151957 18<baedert18>	https://paste.xinu.at/WL8/
-T 1512154015 18<xjuan18>	Hello, I just found out that changing a button's css color on hover state triggers a size allocation on the parent widgets, is this a know issue?
-T 1512154109 18<baedert18>	sure it's not the box shadow changing?
-T 1512154135 18<xjuan18>	I do not think so, I have a minimal test case
-T 1512154140 18<xjuan18>	on sec
-T 1512154225 18<xjuan18>	baedert, https://paste.fedoraproject.org/paste/q22g-TzO3eb7URX7JM-Tiw
-T 1512154263 18<xjuan18>	if you change background instead of color, size allocation is not triggered 
-T 1512154328 18<baedert18>	I did some work on that in master but I don't remember the details
-T 1512154351 18<xjuan18>	ohh yeah I am talking about 3.0
-T 1512154378 18<baedert18>	there's a style-changed handler in gtkwidget.c that's important, as well as the flags in gtkcssstyleproperties.c
-T 1512154438 18*	xjuan looks
-T 1512154471 18<baedert18>	you can print the GtkCssStyleChange in the style-updated(or changed?) handler and see all the things that changed
-T 1512154744 18<xjuan18>	          if (change == NULL ||
-T 1512154744 18<xjuan18>	              gtk_css_style_change_affects (change, GTK_CSS_AFFECTS_SIZE) ||
-T 1512154744 18<xjuan18>	              (has_text && gtk_css_style_change_affects (change, GTK_CSS_AFFECTS_TEXT)))
-T 1512154744 18<xjuan18>	            gtk_widget_queue_resize (widget);
-T 1512154773 18<xjuan18>	that looks like if the css affects the text it will trigger a resize
-T 1512154817 18<baedert18>	yeah, I made that more fine-grained in master
-T 1512154839 18<baedert18>	you can check those commits, maybe they work for gtk-3-22
-T 1512154866 18<xjuan18>	yeah I will
-T 1512157531 18<Jehan18>	mclasen[m]: anyone here? :-)
+T 1513188033 18<Company18>	so we now have to figure out what each variable means in those 3 cases x 12 states
+T 1513188067 18<Company18>	AND MY HEAD IS EXPLODING BECAUSE OF IT
+T 1513190801 18<Company18>	man, regexps
+T 1513190817 18<Company18>	git grep .et_property is slow
+T 1513190823 18<Company18>	git grep [gs]et_property is not
+T 1513190850 18<Company18>	actually, that's not true
+T 1513190867 18<Company18>	the speed depends on the length of the string
+T 1513190923 18<Company18>	git grep .et_property is kinda fast, but git grep .et_property\ \(GtkCellArea is slow
+T 1513191141 18<Company18>	#include <com/ubuntu/content/glib/content-hub-glib.h>
+T 1513191163 18<Company18>	clearly we need to copy Java more
+T 1513191312 18<EmmanueleBassi18>	I started using ripgrep to replace git grep as well as grep; it respects git ignore files, and the parallelism makes it really fast
+T 1513191346 18<EmmanueleBassi18>	Plus, “rg” is shorter than either
+T 1513191358 18<mclasen18>	clearly, we need gpugrep
+T 1513191399 18<Company18>	ignoring for a moment that the upload costs for the files would kill you
+T 1513191404 18<EmmanueleBassi18>	Hehe: upload all text files to the GPU as texture buffers then run a fragment shader to check if a regexp lights up a pixel
+T 1513191405 18<Company18>	this might not be a bad idea
+T 1513191438 18<Company18>	you might want to use OpenCL or other GPGPU stuff and not regular shaders though
+T 1513191451 18<EmmanueleBassi18>	So, should we also ship a bitcoin miner in the GTK shaders?
+T 1513191469 18<EmmanueleBassi18>	Profits sent to the GNOME Foundation
+T 1513191469 18<Company18>	i was just about to say: compile the regexp into a bitcoin transaction
+T 1513191482 18<EmmanueleBassi18>	Distributed grep!
+T 1513191493 18<TingPing18>	use machine learning to guess where the most likely matches are
+T 1513191494 18<EmmanueleBassi18>	The results are on the blockchain
+T 1513191519 18<EmmanueleBassi18>	(Ugh “blockchain” is in the iOS dictionary for the auto completion)
+T 1513191524 18<baedert18>	use amazon mechanical clerk whatever-it-was and let 100k indians search for your string
+T 1513191593 18<Company18>	register a facebook person for every character in every text file and friend adjacent ones, create an ad specification for the regexp, look how much money you lost?
+T 1513191680 18<baedert18>	just keep your gtk checkout in a directory scanned by tracker so you can do a full text search?
+T 1513191726 18<Company18>	i think doing the facebook thing manually might be faster?
+T 1513192135 18<baedert18>	I wonder how tracker even behaves on frequent branch changes
+T 1513192303 18<mclasen18>	git worktree helps for that
+T 1513192541 18<Company18>	argh
+T 1513192562 18<Company18>	so Wayland *does* create 2 drag contexts for in-app dnd it seems
+T 1513192739 18<Company18>	o.O
+T 1513192783 18<Company18>	wayland creates 1 drop context per seat
+T 1513192791 18<Company18>	and reuses it for every drop operation
+T 1513192804 18<Company18>	that is *not* how dnd is supposed to work, wayland
+T 1513192876 18<ali123418>	with GtkTreeView, how can i display strings from two different columns in one cell?
+T 1513192995 18<Company18>	ali1234: assuming you mean treemodel column when you say "column" and treeview column when you say "cell", adding a 2nd text cell renderer to the column might work
+T 1513193029 18<mclasen18>	alternatively, use a cell data function to combine the two strings in some way
+T 1513193042 18<Company18>	ali1234: other options would be writing a custom cell data func that concatenates the 2 texts or adding a 3rd column to the model that contaions the combined text
+T 1513193070 18<mclasen18>	you may also be able to do a filter model that creates the new column on the fly
+T 1513193084 18<ali123418>	oh sorry, i fotgot to mention i want them stacked :)
+T 1513193087 18<baedert18>	or 2 treeviews in an overlay and switch between them very fast!
+T 1513193131 18<Company18>	or by using a listbox
+T 1513193141 18<Company18>	and a GListModel instead of a TreeModel
+T 1513193146 18<ali123418>	basically i have this: http://i.imgur.com/tRm6hNN.png
+T 1513193160 18<mclasen18>	you can look at testcellarea for some examples of what is possible
+T 1513193166 18<ali123418>	and i want "gpioexpand" to be written under "GPIO expansion board" instead of next to it
+T 1513193173 18<mclasen18>	in the gtk tree, tests/testcellarea.c
+T 1513193185 18<baedert18>	pretty obvious use case for a listbox
+T 1513193201 18<Company18>	yeah, I'd go with listbox for that example
+T 1513193213 18<ali123418>	i think this program is written in gtk+2 :(
+T 1513193234 18<Company18>	then suicide sounds like an acceptabl;e solution :/
+T 1513193244 18<Company18>	of the program, not the coder!
+T 1513193274 18<Company18>	i think the best solution in that case is cell data func or extra column
+T 1513193348 18<ali123418>	it has a GtkListStore, and a GtkTreeView, with a GtkTreeViewColumn for the icon, and a GtkTreeView which contains the "GPIO expansion board" string, and i'm trying to add the second string to that
+T 1513193372 18<Company18>	yeah, change the liststore
+T 1513193376 18<Company18>	to have 1 more column
+T 1513193385 18<ali123418>	it already has 3 columns
+T 1513193395 18<ali123418>	the third one currently is not shown
+T 1513193395 18<Company18>	so?
+T 1513193406 18<ali123418>	so what should i put in the extra column?
+T 1513193452 18<Company18>	text_of_column1 + "\n" + text_of_column2
+T 1513193465 18<Company18>	you can even get creative and add markup
+T 1513193493 18<Company18>	and then you use that column for the cell renderer
+T 1513193853 18<ali123418>	okay next question, what is the proper way to iterate over XDG_DATA_DIRS, XDG_DATA_HOME etc, looking for data files?
+T 1513193981 18<TingPing18>	ali1234, g_get_system_data_dirs() g_get_user_data_dir()
+T 1513193992 18<ali123418>	thanks
+T 1513193994 18<TingPing18>	just loop over em, nothing fancy
+T 1513196576 18<baedert18>	https://paste.xinu.at/phoNAm/
+T 1513196578 18<baedert18>	O_o
+T 1513196612 18<baedert18>	Company: There's a bunch of leaks in the selection handling stuff btw
+T 1513196643 18<Company18>	baedert: yeah, i'm kinda aware of that
+T 1513196664 18<Company18>	as in: i haven't checked it's leak-free, which usually means there's leaks in there
+T 1513196688 18<baedert18>	and now I'm curious about mesa's hashtable implementation
+T 1513200299 18<GPolonkai18>	If I have a library with GObjects under three different namespaces (Matrix, MatrixEvent, and MatrixMessage), should I aim for one .gir file, or three different ones?
+T 1513203727 18<feaneron18>	is there any particular reason for the gl renderer take twice the memory the cairo renderer takes on startup?
+T 1513203841 18<hergertme18>	feaneron, have you used "heaptrack" ? its pretty great
+T 1513203856 18<hergertme18>	it should make where the allocations are coming from pretty clear
+T 1513203866 18<hergertme18>	(remember to use G_SLICE=always-malloc though)
+T 1513203892 18<feaneron18>	hm, not really. i was just wondering what might cause this difference on an architectural level
+T 1513203920 18<feaneron18>	perhaps the gl renderer creates lots of auxiliary structures to get the rendering done
+T 1513203927 18<feaneron18>	i'll take a look at it, thanks!
+T 1513204162 18<hergertme18>	feaneron, it can also be driver specific, since you're loading mesa in process and it could be doing all sorts of fancy caching/etc that you don't see
+T 1513204169 18<hergertme18>	(or even worse, if its say the nvidia libgl)
+T 1513204185 18<hergertme18>	the drivers often do lots of funny mmap'ing tricks too, to avoid TLB shootdowns 
+T 1513204196 18<ali123418>	with pango markup, what is the best way to create text which is "pale"?
+T 1513204221 18<hergertme18>	ali1234, if you want it to be usable across lots of themes ...
+T 1513204227 18<ali123418>	set fgcolor to a light color, or set fgalpha?
+T 1513204228 18<hergertme18>	you want the foreground-rgba setting 
+T 1513204252 18<ali123418>	so do it with 50% alpha?
+T 1513204264 18<hergertme18>	ali1234, set fgalpha to 32767 for 50%
+T 1513204288 18<hergertme18>	ali1234, but iirc, that didn't get added until around gtk 3.18 or 3.20 (something around there)
+T 1513204299 18<hergertme18>	so if you need to support an older gtk, something to keep in mind 
+T 1513204318 18<ali123418>	hmm ... stuck with gtk 2
+T 1513204337 18<hergertme18>	if you have a new enough pango, that *might* work?
+T 1513204346 18<ali123418>	trying it...
+T 1513204497 18<ali123418>	the markup didn't get parsed at all apparently
+T 1513204554 18<ali123418>	ah
+T 1513204592 18<Company18>	feaneron: I would point towards Mesa
+T 1513204617 18<Company18>	feaneron: the GskRenderers don't allocate much memory
+T 1513204635 18<Company18>	feaneron: though I have no idea if caching for textures is counted as memory somehow
+T 1513204639 18<feaneron18>	i am actually wrong. on startup, it consumes ~40% more memory
+T 1513204679 18<feaneron18>	but appearently it's still leaking a little bit, and it grew to twice the cairo's startup memory consumption
+T 1513204684 18<Company18>	i never measured Vulkan, but all huge memory amounts would be in textures, I don't think GSK itself allocates much
+T 1513204704 18<feaneron18>	vulkan is leaking like if there's no tomorrow
+T 1513204714 18<feaneron18>	it is really eager to eat all my memory =/
+T 1513204721 18<Company18>	good thing is I can blame mclasen for that now!
+T 1513204769 18<feaneron18>	let me exercise my gtk skills fixing up some memleaks
+T 1513204782 18<Company18>	\o/
+T 1513205119 18<feaneron18>	it's funny how literally everything seems challenging and exciting when one has to write academic papers
+T 1513205330 18<Company18>	for me that usually is the case when I have to clean
+T 1513205430 18<feaneron18>	heh we all have our weak spots :)
+T 1513205448 18<feaneron18>	damn, heaptrack depends on qt
+T 1513206118 18<feaneron18>	looks like vulkan's leak gates are all in libvulkan_intel.so
+T 1513206301 18<feaneron18>	i don't know if that means libvulkan_intel.so is leaking, or if gtk is not correctly releasing the vulkan resources
+T 1513206393 18<feaneron18>	dj-death: any thoughts on ^ ?
+T 1513206622 18<Company18>	feaneron: I bet we're not correctlty releasing resources
+T 1513206651 18<Company18>	feaneron: the debug machinery counts resources I think, so looking there for which number grows might be a good way to find it
+T 1513206683 18<feaneron18>	well, i'm not yet intimate to GSK debugging tools, let me check
+T 1513206846 18<Company18>	I think it's part of GDK_VULKAN
+T 1513206856 18<Company18>	and I mean the native Vulkan debugging
+T 1513206861 18<feaneron18>	oh, right
+T 1513206905 18<Company18>	you've used that more than me so far ;)
+T 1513206931 18*	Company is on a  R A M P A G E
+T 1513206964 18<Company18>	last commit was -1500 lines
+T 1513206969 18<feaneron18>	i have to repage that code to memory again
+T 1513206969 18<Company18>	this one is -1800
+T 1513206971 18<feaneron18>	\o/
+T 1513206974 18<Company18>	and I'm not done yet!
+T 1513207127 18<ali123418>	how do i get the iter of the first row in a GtkListStore?
+T 1513207250 18<Company18>	isn't there a get_iter_first() ?
+T 1513207274 18<Company18>	yup: https://developer.gnome.org/gtk3/stable/GtkTreeModel.html#gtk-tree-model-get-iter-first
+T 1513207290 18<Company18>	or https://developer.gnome.org/gtk2/stable/GtkTreeModel.html#gtk-tree-model-get-iter-first :)
+T 1513207325 18<ali123418>	maybe there is a better way to do what i want to do
+T 1513207345 18<ali123418>	i have a list store defined in a .ui file, it defines one row
+T 1513207365 18<ali123418>	i want to dynamically add a bunch of rows to it, and then have my static row be the last row
+T 1513207382 18<ali123418>	i could move the first row to the end
+T 1513207389 18<ali123418>	but is there some other way to do it?
+T 1513207425 18<Company18>	ali1234: https://developer.gnome.org/gtk2/stable/GtkListStore.html#gtk-list-store-insert-after
+T 1513207434 18<Company18>	"If sibling is NULL, then the row will be prepended to the beginning of the list."
+T 1513207557 18<feaneron18>	hm...
+T 1513207574 18<feaneron18>	$ GSK_RENDERER=vulkan GDK_DEBUG=vulkan GDK_VULKAN=validate gtk4-widget-factory
+T 1513207589 18<feaneron18>	am i missing an env var? it's still not spewing debug messages
+T 1513207641 18<Company18>	GDK_VULKAN=all !
+T 1513207667 18<Company18>	(that probably includes GDK_VULKAN=disabled so uhm...)
+T 1513207678 18<Company18>	but GDK_VULKAN=help may have info
+T 1513207690 18<Company18>	and after that it's stepping through the instance creation code in a debugger
+T 1513207699 18<ali123418>	nah, that's not what i want
+T 1513207718 18<ali123418>	i want to insert items in the second to last position in the list
+T 1513207724 18<ali123418>	but i realised something
+T 1513207738 18<ali123418>	this design is bad anyway... the static row should be a separate button
+T 1513207767 18<ali123418>	it's a dialog along the lines of "choose something from this list, or open a file browser and pick your own"
+T 1513207783 18<ali123418>	so the file browser option should be a dedicated button i think
+T 1513207902 18<feaneron18>	Company: no, GDK_VULKAN really only accepts 'validate'
+T 1513207914 18<feaneron18>	static const GDebugKey gdk_vulkan_keys[] = {
+T 1513207917 18<feaneron18>	  { "disable",               GDK_VULKAN_DISABLE },
+T 1513207918 18<feaneron18>	  { "validate",              GDK_VULKAN_VALIDATE },
+T 1513207920 18<feaneron18>	};
+T 1513208118 18<mclasen18>	garnacho: the event-as-object branch looks ok to me
+T 1513208354 18<garnacho18>	mclasen: cool :). Feel free to push drag-source and I sort out the last conflict
+T 1513208366 18<mclasen18>	ok
+T 1513208739 18<Company18>	haha!
+T 1513208743 18<Company18>	first!
+T 1513208758 18*	Company makes mclasen and garnacho rebase again
+T 1513208796 18<Company18>	that wasn't on purpose though, so hopefully the conflicts are small
+T 1513208811 18<Company18>	and they should prettty much all just involve deleting stuff
+T 1513208822 18*	Company nuked 4k lines of selection code
+T 1513208827 18<garnacho18>	conflicts are easy when code goes away
+T 1513208878 18<Company18>	i'm about to nuke PropertyNotify, I guess I want to prepare dinner so you can push your stuff?
+T 1513209045 18<garnacho18>	if you didn't start yet, that'd be appreciated :)
+T 1513209053 18<Company18>	i didn't
+T 1513209385 18<mclasen18>	Company: yay for nuking selections
+T 1513209416 18<Company18>	and i'm not even done!
+T 1513209531 18<Company18>	the one nasty part that's still left is porting all the widgets
+T 1513209555 18<Company18>	because without any widget noticing so far I have completely replaced how dnd data transfers work
+T 1513209579 18<Company18>	but widgets still think they need to implement drag_data_get and drag_data_received
+T 1513210038 18<dj-death18>	feaneron: if you have specifics, I could look into it
+T 1513210052 18<dj-death18>	aka review some of the driver code
+T 1513210084 18<garnacho18>	Company, mclasen: just pushed
+T 1513210355 18<feaneron18>	i appearently am inapt to make lunarg validation layers work
+T 1513210385 18<feaneron18>	OH NO, wait!
+T 1513210401 18<feaneron18>	AHA!
+T 1513210941 18<feaneron18>	how's the gsk profiler supposed to be used?
+T 1513211214 18<Company18>	feaneron: yes
+T 1513211239 18<Company18>	that is the right question to ask
+T 1513211284 18<feaneron18>	i hope it has the right answer already
+T 1513211350 18<Company18>	most likely it doesnt
+T 1513211368 18<Company18>	btw
+T 1513211378 18<Company18>	i'm still looking for names for the DragContext splitup!
+T 1513211389 18<Company18>	i should summon halfline if nobody has any suggestions
+T 1513212185 18<mclasen18>	Company: drag source and drop target ? 
+T 1513212279 18<Company18>	mclasen: that's source and target widgets, not the actual operations
+T 1513212315 18<Company18>	GdkOngoingDrag is kinda what I want
+T 1513212322 18<mclasen18>	data offer and data receiver ?
+T 1513212340 18<Company18>	GdkDragOperation or GdkDragContext would work, but those words are so generic
+T 1513212351 18<Company18>	nah, it's not just about data
+T 1513212466 18<Company18>	the drag side is some object for a running operation, kinda like a GSubProcess
+T 1513212482 18<Company18>	the drop side is more like an EventSequence that wants some feedback
+T 1513212500 18<mclasen18>	just call them drag and drop ?
+T 1513212522 18<mclasen18>	or laurel and hardy
+T 1513212538 18<Company18>	that is indeed pretty genius
+T 1513212543 18<Company18>	GdkDrag, GdkDrop
+T 1513212656 18<feaneron18>	Company: ack to push https://paste.gnome.org/p5gkph3sw and https://paste.gnome.org/pplgawj8f ?
+T 1513212694 18<mclasen18>	and here I thought we were validation-warning-free
+T 1513212731 18<Company18>	feaneron: the first one is fine
+T 1513212770 18<feaneron18>	second?
+T 1513212786 18<Company18>	feaneron: I wonder if the 2nd one needs ifdefs (because older vulkan doesn't have that value
+T 1513212842 18<feaneron18>	hm...
+T 1513212859 18<Company18>	also, someone should add a proper error message there
+T 1513212952 18<Company18>	fun fact: nobody added a proper message to the vulkan spec for that thing either
+T 1513212965 18<Company18>	2nd fun fact: the vulkan spec needs @Since tags
+T 1513213036 18<feaneron18>	wth is going on; the vulkan renderer is really growing 7~12 MB/s here
+T 1513213087 18<Company18>	run with memcheck and ctrl-c it?
+T 1513213114 18<Company18>	i'm pretty sure we're leaking textures though
+T 1513213124 18<Company18>	otherwise 7-12MB is hard to get I think
+T 1513213169 18<Company18>	it's ~100x250px textures
+T 1513213184 18<Company18>	per frame
+T 1513213190 18<Company18>	so it could be like 10 icons
+T 1513213196 18<Company18>	or a fallback surface
+T 1513213355 18<feaneron18>	well, the validation layers tell me that only 4 objects are leaking when widget-factory is closed
+T 1513213386 18<feaneron18>	looks like every created object is paired with a destruction proper
+T 1513213767 18<feaneron18>	\o/ found the last destroy-memory-before-resource issue
+T 1513213932 18*	Company kicks garnacho 
+T 1513213949 18<Company18>	garnacho: --enable-broadway please
+T 1513214013 18*	Company fixes
+T 1513214103 18*	garnacho doesn't remember disabling it...
+T 1513214164 18<feaneron18>	Company: ack https://paste.gnome.org/pi3rztcg5 ?
+T 1513214180 18<Company18>	garnacho: you shall be excused :)
+T 1513214195 18<Company18>	garnacho: let's blame a meson update screwing your config
+T 1513214210 18<Company18>	feaneron: yup
+T 1513214216 18<feaneron18>	pushign
+T 1513214238 18<feaneron18>	validation layer are clean now
+T 1513215078 18<Company18>	garnacho: are you un-consting the GdkEvent usage in GTK, in aprticular gestures?
+T 1513215905 18<Company18>	mclasen: https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n3380
+T 1513215931 18<Company18>	mclasen: what's the correct way to do that without gdk_property_delete()?
+T 1513215985 18<mclasen18>	make gdk_window_set_transient_for (window, NULL) work ?
+T 1513215992 18<Company18>	actually
+T 1513216007 18<Company18>	that property doesn't even exist?
+T 1513216024 18<Company18>	or is that a property that XSetTransientForHint() does?
+T 1513216034 18<mclasen18>	yes
+T 1513216052 18<mclasen18>	I noticed recently that xlib has the same inconsistency
+T 1513216054 18<mclasen18>	no way to unset it
+T 1513216371 18<feaneron18>	looks like libvulkan_intel.so is not valgrind-friendly :/
+T 1513216405 18<Company18>	feaneron: it should be
+T 1513216414 18<garnacho18>	Company: could stick there to gdk_event_copy, but that's a shame...
+T 1513216436 18<Company18>	garnacho: well, the thing is that GObjects are never const
+T 1513216462 18*	feaneron looks for a hidden supression file
+T 1513216469 18<Company18>	feaneron: it requires compiling mesa with valgrind headers, but fedora should do that
+T 1513216474 18<garnacho18>	yeah, I guess it's easier to change the vfuncs
+T 1513216486 18<feaneron18>	i guess arch doesn't
+T 1513216505 18<Company18>	feaneron: time for a recompile!
+T 1513216523 18<feaneron18>	time to sleep :)
+T 1513217514 18<hergertme18>	now that im doing DnD with treeview... activate-on-single-click is really getting in the way
+T 1513217672 18<mclasen18>	thats why you can turn it off
+T 1513218319 18<hergertme18>	mclasen, oh i want single-click (otherwise our treeviews and listboxes in Builder would be inconsistent interaction), i just don't want it to fire if im starting a drag 
+T 1513219620 18<mclasen18>	Company: all the GDK_TARGET_... atoms can surely go ?
+T 1513219689 18<mclasen18>	hergertme: there's some things we need to work around around gesture interaction
+T 1513221194 18<Company18>	mclasen: they're already gone
+T 1513221229 18<mclasen18>	still see them in gdkselection.h and the docs
+T 1513221553 18<Company18>	that's because i just pushed
+T 1513222604 18<Company18>	there's so much cruft everywhere now that can be deleted
+T 1513222607 18<Company18>	kinda cool
+T 1513222632 18<Company18>	there's also lots of things that need to be fixed
+T 1513222649 18<Company18>	that are barely held together now
+T 1513222902 18<Company18>	6k loc deleted
+T 1513222903 18<Company18>	so far
+T 1513222984 18<mclasen18>	lots of nice cleanups
+T 1513223001 18<Company18>	what's missing of the top of my head:
+T 1513223017 18<Company18>	There's a bunch of GdkDisplay APIs that are useless
+T 1513223054 18<Company18>	gdkproperty.h has the text conversion stuff that should be removed (and the X11 version be kept private to X11)
+T 1513223076 18<mclasen18>	right
+T 1513223078 18<Company18>	gdk/wayland/gdkselection-wayland.c needs to be folded into gdkdnd-wayland.c
+T 1513223091 18<Company18>	atoms need to die
+T 1513223104 18<Company18>	GtkWidget's selection signals need to go
+T 1513223124 18<Company18>	that's the simple stuff
+T 1513223168 18<Company18>	the harder stuff is getting rid of the ipc widget
+T 1513223175 18<Company18>	splitting drag and drop
+T 1513223190 18<mclasen18>	the string conversion functions are still used in gtkselection.c ?
+T 1513223191 18<Company18>	hooking up the clipboard conversion machinery
+T 1513223207 18<Company18>	oh yeah
+T 1513223222 18<Company18>	because that's not hooked up yet
+T 1513223248 18<Company18>	gtkselection.c needs to die
+T 1513223301 18<Company18>	but that requires porting read/write of dnd from drag-data-get/received to gdk_drop_read_async() / content providers
+T 1513223310 18<mclasen18>	right
+T 1513223311 18<Company18>	and that requires convenience APIs
+T 1513223321 18<Company18>	and that requires local dnd shortcuts
+T 1513223333 18*	mclasen goes to kill the selection signals
+T 1513223392 18<mclasen18>	atoms are just interned strings now, so we just replace the atom apis by that ?
+T 1513223431 18<Company18>	there are no atom APIs
+T 1513223442 18<Company18>	apart from GtkSelection
+T 1513223454 18<mclasen18>	gdk_atom_intern
+T 1513223457 18<mclasen18>	gdk_atom_name
+T 1513223491 18<Company18>	we delete those
+T 1513223500 18<mclasen18>	right, thats what I meant
+T 1513223509 18<Company18>	device labels use atoms
+T 1513223520 18<Company18>	somebody gotta figure out what to do there
+T 1513223535 18<Company18>	*device axis labels
+T 1513223554 18<Company18>	I'd probably use regular strings
+T 1513223557 18<mclasen18>	just return the string ?
+T 1513223566 18<Company18>	there's some search APIs
+T 1513223575 18<Company18>	that need to be changed to use g_str_equal()
+T 1513223811 18<mclasen18>	replacing gdk_atom_name (atom) by (const char *)atom is ok ?
+T 1513224284 18<hergertme18>	GtkSelectionData is very broken when it comes down to COPY vs MOVE and text/uri-list 
+T 1513224293 18<hergertme18>	"who should do the delete?"
+T 1513224316 18<hergertme18>	well ... the delete signal is for the source, but you wouldn't want to implement a move between the same mount as a copy + delete so ...
+T 1513224325 18<Company18>	mclasen: the very hard part is this:
+T 1513224345 18<Company18>	mclasen: no public API must assume a string is interned
+T 1513224359 18<Company18>	everything else doesn't matter
+T 1513224376 18<Company18>	unfortunately, every public GdkAtom API assumes an interned string
+T 1513224396 18<Company18>	so just replacing by const char * doesn't work in those cases
+T 1513224416 18<Company18>	and even for private or semi-private APIs the internedness thing is tricky
+T 1513224429 18<Company18>	i've already done that wrong a few times just in the clipboard code...
+T 1513224505 18<Company18>	hergertme: you'll need to special-case that I guess
+T 1513224534 18<Company18>	hergertme: for in-app moves
+T 1513224575 18<Company18>	hergertme: because unless there's a spec somewhere, MOVE means copy + delete and that means the other app will copy if it's the destination and delete if it's the source
+T 1513224635 18<Company18>	hergertme: this gets even more fun if you offer text/uri-list AND text/plain (to allow pasting into textfields)
+T 1513224657 18<Company18>	hergertme: now you offer COPY and MOVE for those
+T 1513224667 18<Company18>	hergertme: and then somebody decides to MOVE into a textfield
+T 1513224690 18<Company18>	clearly, you shouldn't delete anything now
+T 1513225049 18*	Company => bed
+T 1513225357 18<hergertme18>	is there a common pattern to make Escape cancel a DnD?
+T 1513225365 18<hergertme18>	what widget would get the event while in a drag?
+T 1513225433 18<mclasen18>	gdk handles it for you with managed dnd
+T 1513225442 18<mclasen18>	or gtk does with unmanaged dnd
+T 1513225450 18<mclasen18>	we have passive grabs in place for that
+T 1513225453 18<mclasen18>	with X that is
+T 1513225492 18<mclasen18>	its the same code that makes arrow keys work for navigating dnd
+T 1513225659 18<hergertme18>	hrmm, it doesn't work for me in builder on wayland at least
+T 1513225668 18<hergertme18>	i drag in the tree view, hit escape, nothing happens 
+T 1513226076 18<hergertme18>	i guess in not using gdk_drag_context_manager_dnd() though 
+T 1513226454 18<mclasen18>	X-only
+T 1513226473 18<mclasen18>	in wayland, the compositor would handle it
+T 1513226484 18<mclasen18>	but it doesn't currently
+T 1513226569 18<hergertme18>	ah okay
+T 1513236078 18<hergertme18>	baedert, 492469a94af35c2b102bcf7f07046ef2d09b2b3d seems to be breaking gtk+-3-22 
+T 1513236087 18<hergertme18>	baedert, that commit broke opening files in Builder at least 
+T 1513236101 18<baedert18>	good thing I don't push to that branch
+T 1513236225 18<bugbot18>	christian@hergert.me changed the Status on bug 791281 from RESOLVED FIXED to REOPENED ---.
+T 1513236225 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791281 .General, normal, gtk-bugs, REOPENED , Backport size allocation optimization from master to 3.22
+T 1513244593 18<Balreign18>	hello people, I have a little issue with stylizing a button using gtkmm, I use an image that is supposed to cover the whole button as a mask and I change the background color on mouse over, all goes well except the button is created with 8 extra pixels on the side
+T 1513244682 18<baedert18>	check with the inspector if the button has padding set from your desktop theme
+T 1513244724 18<Balreign18>	well it had but I set the padding to 0 with the GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+T 1513244957 18<Balreign18>	I tried changing padding (which I do for the button) and margin and the weird part is that it change the size of the button
+T 1513245396 18<Balreign18>	well it seems I fucked up somewhere because all my buttons are 8pixels larger than what I ask :p
+T 1513245994 18<Balreign18>	baedert: thanks for the hint, I may have missed something with the theme, I'll look into it. think you are right ^^
+T 1513248775 18<bugbot18>	nirbheek.chauhan@gmail.com changed the Status on bug 791460 from NEW --- to RESOLVED FIXED.
+T 1513248775 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791460 osx, normal, gtkdev, RESOLVED FIXED, meson: fixes for OSX
+T 1513249879 18<hadess18>	what's the way to print error messages in a GTest, in a way that shows up in logs, but isn't fatal?
+T 1513249903 18<hadess18>	right now i need to run --verbose to see the g_test_message()...
+T 1513250810 18<ebassi_out18>	hadess: You can use g_print()
+T 1513252035 18<hadess18>	that seems to work, thanks
+T 1513252296 18<Balreign18>	so so so, back with my size issue, (my buttons are larger than I want them to be, and it happens to be the allocation that seems to allocate 8 pixels more, I manage to get the size I wanted by changing the valign and halign of my buttons but the buttonbox I use to pack them doesn't change
+T 1513252487 18<Company18>	holy shit, we have bad code
+T 1513252566 18<Balreign18>	^ most certainly... but it's not as if the doc was extremely precise :p
+T 1513252609 18<Company18>	I wasn't talking about your buttons :p
+T 1513252706 18<Company18>	hrm no, this code wouldn't crash, just spew weird warnings
+T 1513252991 18<arik18>	Did you try to change the GtkButtonBoxStile with gtk_button_box_set_layout ()??
+T 1513253011 18<Balreign18>	yup
+T 1513253035 18<Company18>	you can't really force button sizes wthout halign/valign
+T 1513253069 18<Company18>	containers can allocate any size they want to their children
+T 1513253118 18<Balreign18>	that's weird
+T 1513253146 18<Company18>	the question you can ask all the time however is "why did the container not end up the size I wanted it to be"
+T 1513253161 18<Company18>	and then you end up debugging container sizing algorithms
+T 1513253212 18<Balreign18>	seems someone is on it, at least according to the blog posts from june
+T 1513253280 18<baedert18>	if your buttons all have an image child and the images all have the same size and you control the css anyway... I don't understand what the problem is.
+T 1513253295 18<Company18>	baedert: neither does Balreign! :D
+T 1513253330 18<Balreign18>	lol
+T 1513253413 18<Balreign18>	the problem is that I want the buttons to have a fixed size (that varies according to their role) I need them to have a certain position too and the fact they are larger than what I want makes the whole application look weird
+T 1513253441 18<Company18>	might be fixable by setting hexpand/vexpand on the right widgets
+T 1513253448 18<arik18>	using a GtkGrid instead a GtkButttonBox?
+T 1513253475 18<Balreign18>	I might to switch to grid yes
+T 1513253479 18<baedert18>	post a screenshot so we know wtf is even going on.
+T 1513253835 18<Balreign18>	it's ok to post links?
+T 1513254107 18<Company18>	Balreign: sure
+T 1513254116 18<Balreign18>	https://ibb.co/eZ7DVR 
+T 1513254123 18<Balreign18>	this is the issue
+T 1513254148 18<Balreign18>	buttons should be stick to each other with no gap
+T 1513254690 18<krnowak18>	Company:  Is using bit and instead of logical and on purpose here? https://git.gnome.org/browse/gtk+/tree/gdk/x11/gdkselectionoutputstream-x11.c#n312
+T 1513254696 18<krnowak18>	And line 618 too.
+T 1513254724 18<Company18>	krnowak: woah no, it's not
+T 1513254729 18<Company18>	krnowak: i'll fix that
+T 1513254741 18<Company18>	probably not causing issues, but still
+T 1513254762 18<krnowak18>	Yeah, thought so too, but it's better to ask.
+T 1513254932 18<sadiq18>	Company: I think you can consider "-Wlogical-op" :)
+T 1513255047 18<Company18>	sadiq: that's enabled
+T 1513255062 18<Company18>	according to meson.build
+T 1513255082 18<sadiq18>	hm.. Well may it works only the other way round. ie, when a logical is used instead of bitwise
+T 1513255084 18<Company18>	seems gcc thinks if (foo() & bar()) is legit
+T 1513255316 18<Company18>	DELETE MORE CODE!!!!
+T 1513255362 18<krnowak18>	Neodymium magnets are good at it, I heard.
+T 1513255575 18<Company18>	they suck at git push'ing
+T 1513255675 18<krnowak18>	You'd need to use it on the server hosting the cod.e
+T 1513256378 18<Balreign18>	grid it is, works as expected, thx all
+T 1513258218 18<panta18>	Hello everyone! Text that I copy to the clipboard is not available anymore after my application is closed. Does anybody know if I am doing something wrong? https://gist.github.com/friedrich/4a147ee844c4efb368cbd4acd1a18a60
+T 1513258259 18<tpopela18>	panta, running on Wayland?
+T 1513258263 18<panta18>	Yes
+T 1513258322 18<tpopela18>	panta, that sadly won't work.. the clipboard content is not "saved" to some place when the app is closed.. 
+T 1513258344 18<tpopela18>	mclasen, garnacho could have the technical background for it..
+T 1513258399 18<panta18>	Okay, that's a pity. Thank you!
+T 1513258471 18<garnacho18>	yeah, that's known... mutter atm doesn't act as a clipboard manager there
+T 1513258479 18<mcatanzaro18>	clipboard content is saved in X11
+T 1513258495 18<tpopela18>	mcatanzaro, that's why I asked about Wayland ;)
+T 1513258519 18<mcatanzaro18>	garnacho: Planning to create a clipboard manager extension so we can get gtk_clipboard_store() working in Wayland?
+T 1513258726 18<garnacho18>	mcatanzaro: it's somewhere in the todo :)
+T 1513259528 18<mclasen18>	Company: since clipboard managers were just being discussed - whats the fate of storing clipboards - I see you've removed the api
+T 1513259561 18<mclasen18>	oh, I see. moved to GdkClipboard
+T 1513260679 18<Company18>	mclasen: should all be working still, yeah
+T 1513260698 18<Company18>	as in: I've closed widget-factory after ctrl-c and was still able to apste
+T 1513260988 18<halfline18>	Company: re drag terminology
+T 1513260994 18<halfline18>	maybe Active or Pending should be in the name
+T 1513261032 18<mclasen18>	would make sense... if we had objects representing archived drags
+T 1513261142 18<Company18>	halfline: hrm?
+T 1513261155 18<Company18>	halfline: one is the object you get when you gdk_drag_begin()
+T 1513261179 18<Company18>	halfline: the thing that then manages the dnd operation for you and emits signals telling you what's going on
+T 1513261199 18<Company18>	halfline: until you get a finished signal and then you discard it
+T 1513261218 18<halfline18>	and you like GdkOngoingDrag
+T 1513261228 18<Company18>	halfline: the other is the object attached to DRAG_ENTER/MOTION/LEAVE/DROP signals
+T 1513261258 18<Company18>	halfline: and you can request the dnd data from it and tell it if you can accept its drop
+T 1513261276 18<Company18>	and when the drop happens, you accept or reject it
+T 1513261288 18<Company18>	by calling functions on that object
+T 1513261299 18<Company18>	it gets delivered to you by events
+T 1513261452 18<halfline18>	yea dunno.  GdkDrag / GdkDrop is fine i guess
+T 1513261548 18<halfline18>	there's also the somewhat related GtkGestureDrag
+T 1513261687 18<halfline18>	might make sense to ensure the terminology between the two is as parallel as applicable
+T 1513261723 18<mclasen18>	GdkDropMeMaybe
+T 1513263272 18<Company18>	halfline: true
+T 1513263286 18<Company18>	halfline: we can worry about that when we clean up gestures
+T 1513265783 18<ali123418>	Is there a glib function to strip newlines from a string?
+T 1513265843 18<ali123418>	g_strstrip() i guess
+T 1513265853 18<ebassi18>	ali1234: g_strchomp()?
+T 1513265876 18<ali123418>	strip = chomp and chung right?
+T 1513265880 18<ali123418>	*chug
+T 1513265886 18<ebassi18>	Yep
+T 1513265892 18<ebassi18>	It depends where the whitespace is
+T 1513265896 18<bugbot18>	dboles.src@gmail.com changed the Status on bug 791176 from NEW --- to RESOLVED FIXED.
+T 1513265896 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791176 Documentation, normal, gtk-bugs, RESOLVED FIXED, GtkFileChooser: gtk4 defaults local_only to FALSE so docs need to be updated
+T 1513265899 18<ebassi18>	leading, trailing, or both
+T 1513265922 18<ali123418>	yeah, i need both i guess
+T 1513265924 18<ebassi18>	ali1234: It's all whitespace, not just newlines
+T 1513265929 18<ali123418>	that's fine
+T 1513265940 18<ali123418>	don't need to remove "internal" ones either
+T 1513265962 18<ali123418>	do i have to g_free the string it returns?
+T 1513265997 18<ali123418>	i guess not
+T 1513266041 18<ali123418>	hmm but if it modifies the string in-place, then how do i free it later?
+T 1513266071 18<mclasen18>	just free it
+T 1513266088 18<ali123418>	but it now points to different memory... how does that work?
+T 1513266095 18<mclasen18>	it doesn't
+T 1513266104 18<mclasen18>	it shifts the content to remove leading whitespace
+T 1513266111 18<ali123418>	ah i see
+T 1513266136 18<mclasen18>	slightly less efficient, but also less memory corruption due to bad frees
+T 1513266475 18<bugbot18>	dboles.src@gmail.com marked bug 791569 as a duplicate of unknown bug.
+T 1513266475 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791569 Documentation, normal, gtk-bugs, RESOLVED DUPLICATE, GTK window icons are not honoured by wayland backend
+T 1513266720 18<alex18>	ebassi: hey, i bumped epoxy from 1.4.1 to 1.4.3 in fd.o
+T 1513266729 18<alex18>	ebassi: but got some EGL build failure in gtk3
+T 1513266730 18<alex18>	had to revert
+T 1513266782 18<EmmanueleBassi18>	Yes, you need master; I'm going to do a release as soon as I figure out why the tests are failing under Wayland
+T 1513266785 18<alex18>	https://paste.fedoraproject.org/paste/Gw8GK4uQTwAjN3p2LASKIA
+T 1513266813 18<EmmanueleBassi18>	Yep, that was fixed in master
+T 1513266859 18<EmmanueleBassi18>	https://github.com/anholt/libepoxy/commit/ebe3a53db1c0bb34e1ca963b95d1f222115f93f8
+T 1513266909 18<EmmanueleBassi18>	Or you may need a newer version of Mesa
+T 1513266913 18<EmmanueleBassi18>	But basically if you try with master it should work
+T 1513266927 18<alex18>	I just reverted the update :)
+T 1513266953 18<ebassi18>	alex: No worries; I'm going to ping you once I release a newer version
+T 1513268922 18<nacho_18>	pwithnall, hey, you just gave me a few ours of painful bisect :)
+T 1513268940 18<pwithnall18>	nacho_: My pleasure
+T 1513268943 18<pwithnall18>	What happened?
+T 1513268971 18<nacho_18>	pwithnall, we updated to glib 2.54.2 and to my surprise something so simple as getting the system bus was blocking
+T 1513268990 18<nacho_18>	pwithnall, the culprit seems to be 88ad0dab214799f17f0ddc463d10f44c00587dbf
+T 1513269055 18<pwithnall18>	I can’t see how that’s possible, but please file a bug
+T 1513269119 18<nacho_18>	pwithnall, it happens when building glib on centos 6 btw
+T 1513269142 18<nacho_18>	pwithnall, and this is the test case https://paste.fedoraproject.org/paste/aUYa3cm3opxhDMXMuzWv~Q
+T 1513269146 18<nacho_18>	I'll file a ticket
+T 1513269158 18<pwithnall18>	File a bug please
+T 1513269190 18<pwithnall18>	thanks
+T 1513269208 18<pwithnall18>	Please also take another look at your bisection, because I’m pretty sure that commit cannot possibly have introduced a bug
+T 1513269248 18<pwithnall18>	Like, the one line it changes which isn’t a comment, introduces a g_steal_pointer() call just before the end of a function, and we don’t use g_autoptr(), so all it does it NULLify a local variable which is about to go out of scope
+T 1513269325 18<nacho_18>	pwithnall, I will double check but I am pretty sure it is that commit
+T 1513269353 18<pwithnall18>	Then either I’m blind, or everything I thought I knew about C is false :)
+T 1513269374 18<nacho_18>	pwithnall, in fact, do you time for a screen session?
+T 1513269375 18<pwithnall18>	Probably the former, but what’s a Thursday without some hyperbole?
+T 1513269395 18<nacho_18>	I can give you the ec2 instance to see it by your own :)
+T 1513269397 18<pwithnall18>	Nope, sorry
+T 1513269411 18<pwithnall18>	I’m half way through something which I should have finished this morning
+T 1513269419 18<nacho_18>	ok
+T 1513269428 18<pwithnall18>	and 0% of the way through what I actually should have been doing today
+T 1513269455 18<pwithnall18>	The more of the fix you can do, the faster this will get fixed, I suspect :)
+T 1513269469 18<pwithnall18>	anyway, whack all the details into a bug report and I’ll try and take a look this evening
+T 1513269768 18<nacho_18>	pwithnall, double checked it is that commit
+T 1513269772 18<nacho_18>	the previous commit works fine
+T 1513269795 18<pwithnall18>	wat.
+T 1513269991 18<bugbot18>	New glib bug 791622 filed by nacho.resa@gmail.com.
+T 1513269991 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791622 gdbus, critical, gtkdev, NEW , Regression when getting the system bus
+T 1513270008 18<nacho_18>	pwithnall, ^^
+T 1513270542 18<mclasen18>	pwithnall: while I don't immediately see how that commit causes the issue, it is an example of a misleading commit message
+T 1513270560 18<mclasen18>	since the one-line change in cquestion is not really just "Some annotation"
+T 1513270771 18<pwithnall18>	mclasen: I don’t see what’s misleading about it. The comment changes add annotations
+T 1513270782 18<mclasen18>	yes, they do
+T 1513270789 18<mclasen18>	but then there is this one code change
+T 1513270793 18<pwithnall18>	The g_steal_pointer() addition is basically a (transfer) annotation in the code
+T 1513270842 18<pwithnall18>	nacho_: I can’t reproduce the failure with your test case with GLib master
+T 1513271002 18<nacho_18>	pwithnall, I can't repro either on centos 7
+T 1513271009 18<nacho_18>	pwithnall, only when building with centos 6
+T 1513271038 18<nacho_18>	I will try now to change that g_steal_pointer
+T 1513271152 18<nacho_18>	pwithnall, yup, changed the g_steal and it works
+T 1513271161 18<nacho_18>	not sure if there is anything I can try though
+T 1513271187 18<pwithnall18>	nacho_: Are there any other vendor patches on CentOS 6?
+T 1513271190 18<pwithnall18>	That makes no sense
+T 1513271208 18<pwithnall18>	`task` goes out of scope immediately afterwards
+T 1513271237 18<nacho_18>	pwithnall, I have no other patches in my jhbuild for glib
+T 1513271326 18<nacho_18>	pwithnall, maybe the config.log can help you?
+T 1513271347 18<pwithnall18>	I can’t see why it should
+T 1513271361 18<pwithnall18>	Stepping through with gdb to find the failure point is what needs to happen next
+T 1513271502 18<pwithnall18>	The test case also passes for me with 2.54.2, built on JHBuild
+T 1513271558 18<nacho_18>	pwithnall, I know
+T 1513271559 18<pwithnall18>	(built from the `2.54.2` tag)
+T 1513271570 18<nacho_18>	you are I guess building with an older system?
+T 1513271612 18<nacho_18>	I mean, are you building with centos6?
+T 1513271616 18<pwithnall18>	I’m building on F27
+T 1513271629 18<pwithnall18>	I am not downloading and setting up a CentOS 6 image to test this
+T 1513271645 18<nacho_18>	sure, it works fine also on centos 7
+T 1513271648 18<nacho_18>	pwithnall, just use mock
+T 1513271653 18<nacho_18>	dnf install mock
+T 1513271662 18<nacho_18>	mock -r epel-6-x86_64 init
+T 1513271678 18<nacho_18>	I can give you all the instructions
+T 1513271679 18<pwithnall18>	I am not downloading all of the packages for CentOS 6 just to test this
+T 1513271687 18<pwithnall18>	If you have the test case failing in front of you, I’d really appreciate it if you could debug this
+T 1513271695 18<nacho_18>	pwithnall, as said I can also give you access to the ec2 instance
+T 1513271772 18<pwithnall18>	I don’t have time to faff around with that; I’ve already spent too much time on this synchronously
+T 1513271817 18<LRN18>	okay, looks like DnD drop failures are a direct result of dest_window being NULL (whereas previously it used to be a non-NULL root window)
+T 1513271829 18<LRN18>	question: what do i do?
+T 1513271924 18<LRN18>	the code was originally just copied from the X11 backend - the gdk_dnd_handle_button_event() function
+T 1513271951 18<LRN18>	wayland backend doesn't seem to have anything like that
+T 1513272227 18<mclasen18>	LRN: treat NULL like you would your root window, before
+T 1513272237 18<LRN18>	okay
+T 1513272262 18<LRN18>	i did try that, and now DnD crashes, because W32 backend has no read_async method
+T 1513272273 18<LRN18>	i guess this is a "success", for some definitions of "success"
+T 1513273061 18<mclasen18>	LRN: yeah, a lot of change here..
+T 1513276155 18<xjuan18>	baedert, hi quick question is it right to say that if gtk_style_context_get_change() returns NULL then there is no actual change in gtk_widget_real_style_updated() ?
+T 1513276174 18<xjuan18>	see https://bugzilla.gnome.org/show_bug.cgi?id=791281#c4
+T 1513276175 18<bugbot18>	Bug 791281: .General, normal, gtk-bugs, REOPENED , Backport size allocation optimization from master to 3.22
+T 1513276300 18<baedert18>	xjuan: No, NULL means everything changed
+T 1513276377 18<xjuan18>	IC
+T 1513276755 18<xjuan18>	baedert, https://bug791281.bugzilla-attachments.gnome.org/attachment.cgi?id=365555
+T 1513276785 18<xjuan18>	I think that patch should fix the segfault on gnome-builder
+T 1513276839 18<xjuan18>	which should be applied to master too
+T 1513276868 18<mclasen18>	assignment hidden in condition considered evil
+T 1513276888 18<xjuan18>	ohh hehe
+T 1513276891 18<xjuan18>	ok good to know
+T 1513277329 18<LRN18>	Company, GdkContentProvider is optional, i take it?
+T 1513277382 18<LRN18>	currently it's not implemented in any of the backends
+T 1513277490 18<LRN18>	or is it a GTK+-level interface that takes place of the shortcut we used to have (where you can get the data directly from the widget, if it's all inside the same process)?
+T 1513278313 18<xjuan18>	mclasen, baedert https://bugzilla.gnome.org/attachment.cgi?id=365557&action=diff
+T 1513278439 18<mclasen18>	looks good to me, although I question if widget->priv->context can actually be NULL - we check that in quite a few places, not sure we need to
+T 1513278443 18<mclasen18>	Company: ^ ?
+T 1513278849 18<baedert18>	it can technically be NULL until the first call to get_style_context
+T 1513286763 18<LRN18>	do i understand correctly that clipboard claim() implementation calls gdk_clipboard_real_claim()?
+T 1513286962 18<LRN18>	i'm also a bit unsure about the difference between "local" and "remote" clipboard claims
+T 1513287473 18<thewisenoob18>	Does anybody know how to make a scrollbar look like how pavucontrol does?
+T 1513287481 18<thewisenoob18>	With the pointed end on the part you grab.
+T 1513287546 18<thewisenoob18>	https://i.imgur.com/NaIp7l4.png
+T 1513287548 18<thewisenoob18>	Like that
+T 1513287579 18<mclasen18>	GtkScale does that when you put marks on it
+T 1513287609 18<thewisenoob18>	Whops. I meant to say scale, not scrollbar. 
+T 1513287615 18<thewisenoob18>	Thanks!
+T 1513287622 18<mclasen18>	see gtk_scale_add_mark
+T 1513287627 18<thewisenoob18>	I've never used marks which is probably why I didn't know.
+T 1513290083 18<bugbot18>	christian@hergert.me changed the Status on bug 791281 from REOPENED --- to RESOLVED FIXED.
+T 1513290083 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791281 .General, normal, gtk-bugs, RESOLVED FIXED, Backport size allocation optimization from master to 3.22
+T 1513293312 18<Company18>	LRN: so far all clipboard claims call clipboard_class->claim()
+T 1513293338 18<Company18>	LRN: a local claim is when the application claims the clipboard (via clipboard_set_*())
+T 1513293382 18<Company18>	LRN: a remote claim is when another app claimed the clipbaoard - ie when the windowing system sends you a notification that the clipboard changed
+T 1513293461 18<Company18>	LRN: and the GdkContentProvider is the object that holds the local contents of the clipboard - ie it's NULL when the clipboard was cleared or when it's remote
+T 1513293479 18<LRN18>	okay
+T 1513293504 18<Company18>	but
+T 1513293540 18<Company18>	you should generally not look at the content provider in the backends, but instead rely on gtk_clipboard_write_async()
+T 1513293570 18<Company18>	not sure if we want to make exceptions for windows with its non-asyncness, but both Wayland and X11 use write_async() exclusively
+T 1513303181 18<kulzen18>	Hello. A very stupid error is bothering me since quite a while. Can someone help pleasE?
+T 1513303193 18<kulzen18>	https://paste.fedoraproject.org/paste/QJlwsabgFqBTpOb2uS3E9w line 42-43
+T 1513303241 18<kulzen18>	Why is Glib:wrap(GdkWindow*) returning a glib::refptr<gdk::drawable> when documentation states it should be Glib::Refptr<Gdk:Window> :S
+T 1513303477 18<kulzen18>	Company: can thou help?
+T 1513304745 18<kulzen18>	phew nevermind. Solved it
+T 1513309023 18<mclasen18>	Company: the numerical values of event types have no relevance or do they ?
+T 1513310251 18<Company18>	mclasen: I think they used to correspond to X Event types?
+T 1513310259 18<mclasen18>	thats what I figured
+T 1513310266 18<mclasen18>	but changing them didn't break anything
+T 1513310268 18<mclasen18>	so I just did
+T 1513310288 18<Company18>	i didn't do it because i didn't want to find the one place in the code where it matters
+T 1513310298 18<Company18>	i'm all for someone else doing it though :)
+T 1513310333 18<mclasen18>	the only thing that I was dubious about is that GDK_NOTHING was -1 - there might have been a type >= 0 check somewhere
+T 1513310362 18<Company18>	could we just delete GDK_NOTHING?
+T 1513310623 18<mclasen18>	it is used a bunch in backends, not sure what for
+T 1513310641 18<mclasen18>	surely, if an event of that type ever reaches the frontend, bad things will happen ?
+T 1513311012 18<Company18>	nah
+T 1513311035 18<Company18>	it'll just run into default branches of switches and not do anything
+T 1513311043 18<mclasen18>	I see
+T 1513311053 18<Company18>	because code is built so that we can easily add new event types
+T 1513311068 18<Company18>	at least i would guess that's what's gonna happen
+T 1513312037 18<mclasen18>	Company: looks like we never ever generate GDK_DAMAGE events ?
+T 1513312114 18<Company18>	not since 3.0.0 I don't think
+T 1513312183 18<Company18>	or maybe we dooh, offscreen windows use them
+T 1513312208 18<Company18>	s/dooh/do\noh/
+T 1513312224 18<mclasen18>	grepping for GDK_DAMAGE finds no gdk_event_new calls
+T 1513312312 18<Company18>	yeah, GDK4 has no offscreens
+T 1513322827 18<LRN18>	Company, just how common is the case of transferring large amounts of data via clipboard?
+T 1513322883 18<LRN18>	oh, great, he's not here
+T 1513323155 18<bugbot18>	New gtk+ bug 791647 filed by daniel.van.vugt@canonical.com.
+T 1513323155 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791647 .General, major, gtk-bugs, NEW , _gtk_style_provider_private_get_settings(provider==0) crashes with SIGSEGV at gtkstyleproviderprivate.c:123, called from gtk_css_value_initial_compute, gtk_css_static_style_compute_value, _gtk_css_lookup_resolve, gtk_css_static_style_new_compute(0,0,0)
+T 1513324676 18<thewisenoob18>	Would anybody happen to know why me revealing the children in a revealer shows everything without a transition?
+T 1513324684 18<thewisenoob18>	I set the transition to crossfade
+T 1513324692 18<thewisenoob18>	and time to 200 ms
+T 1513324708 18<thewisenoob18>	duration 
+T 1513324978 18<LRN18>	maybe animations are off?
+T 1513324997 18<LRN18>	just saying
+T 1513327231 18<bugbot18>	nacho.resa@gmail.com changed the Status on bug 791622 from NEW --- to RESOLVED NOTABUG.
+T 1513327231 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791622 gdbus, critical, gtkdev, RESOLVED NOTABUG, Regression when getting the system bus
+T 1513330706 18<heftig18>	argh. -fno-strict-aliasing is not a "fix"
+T 1513334307 18<ebassi18>	ricotz: Hey; did the librsvg vapi/introspection got moved?
+T 1513334324 18<ebassi18>	I'm getting a failure for iagno: http://build.gnome.org/continuous/buildmaster/builds/2017/12/15/13/build/log-iagno.txt
+T 1513334408 18<ebassi18>	Ah, yes it was
+T 1513335128 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 546357 from NEW --- to RESOLVED OBSOLETE.
+T 1513335128 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=546357 general, normal, gtkdev, RESOLVED OBSOLETE, Compiler warnings
+T 1513335147 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 791622 from RESOLVED NOTABUG to REOPENED ---.
+T 1513335147 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791622 gdbus, critical, gtkdev, REOPENED , Regression when getting the system bus
+T 1513336754 18<bugbot18>	New gtk+ bug 791650 filed by pmenzel+bugzilla.gnome@molgen.mpg.de.
+T 1513336754 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791650 Printing, normal, gtk-bugs, NEW , Do not warn about missing colord systemd service unit
+T 1513339248 18<baedert18>	HAH! Free at last
+T 1513339436 18<ricotz18>	ebassi, yes, those are shipped upstream and supposed to be used
+T 1513339524 18<ricotz18>	ebassi, same goes for gtksourceview, libgdata and libgnome-keyring
+T 1513339582 18<ebassi18>	baedert: 👏 👏 👏
+T 1513339760 18<ebassi18>	ricotz: I do hope those modules a) enable vapi generation by default; b) have been tested in non-srcdir builds
+T 1513339848 18<ebassi18>	librsvg didn't do a), and thus b) failed pretty much immediately
+T 1513339914 18<ricotz18>	ebassi, I didn't test those, they build/ship vala bindings for a long time
+T 1513340147 18<ebassi18>	Okay, we'll see if something else breaks
+T 1513344345 18<xjuan18>	mclasen, hi I think we should commit this patch to master as well 
+T 1513344346 18<xjuan18>	https://bugzilla.gnome.org/attachment.cgi?id=365585&action=diff
+T 1513344361 18<mclasen18>	it didn't apply, so I left it
+T 1513344406 18<xjuan18>	yeah, it had one conflict
+T 1513344434 18<xjuan18>	that patch is for master
+T 1513344437 18<mclasen18>	if you fix it up, feel free to push it
+T 1513344443 18<xjuan18>	ok
+T 1513344457 18<mclasen18>	but the pre-receive hook is broken atm, so no pushing until thats fixed...
+T 1513344474 18<mclasen18>	oh, works now
+T 1513344485 18<xjuan18>	ok I will give it a try then
+T 1513344661 18<xjuan18>	done!
+T 1513345313 18<LRN18>	mclasen, just how common is the case of transferring large amounts of data via clipboard?
+T 1513345332 18*	mclasen looks into his magic 8ball
+T 1513345343 18<mclasen18>	'it happens'
+T 1513345370 18<LRN18>	i can optimize the code for such cases, but that requires *lots* of extra code
+T 1513345399 18<mclasen18>	that would be premature, imo
+T 1513345404 18<LRN18>	and it will only work if both the server and the client cooperate
+T 1513345495 18<LRN18>	(so best-case scenario is when you DnD or copy/paste between two GTK apps - then we'd be able to transfer any number of bytes efficiently)
+T 1513345612 18<LRN18>	for 90% of all other cases there's no memory-use advantage (the data is put into a global memory object by the server, and no matter how many fancy things i do client-side, there's now magic that can improve over this)
+T 1513345691 18<LRN18>	(same goes for the server: no matter how many bells and whistles i implement, if the client calls GetClipboardData() and does not support fancy OLE tech, we *have* to put the data into a global memory object)
+T 1513345741 18<mclasen18>	if you copy huge amounts of data, you probably expect that to require some memory
+T 1513345748 18*	mclasen not loosing sleep over this
+T 1513345848 18<LRN18>	On my machine, with a 32-bit test app, i was able to create a ~1500MB-large memory object and set the clipboard with that. That took a couple of seconds (though i didn't copy anything into that buffer, just allocated it and set the clipboard to be backed by it, with whatever junk that it had initially)
+T 1513345880 18<LRN18>	when going past the ~1500MB mark, i get OOM errors more often than not
+T 1513345988 18<LRN18>	if i stretch copying over multiple reasonably-sized chunks, spinning the main loop between copying chunks, performance should be acceptable
+T 1513346207 18<heftig18>	LRN: wouldn't using a worker be better than chunking?
+T 1513346252 18<heftig18>	i.e. g_task_run_in_thread()
+T 1513346258 18<LRN18>	for the clipboard that might be doable, for DnD it is *way* harder 
+T 1513346269 18<LRN18>	OLE is thread-restricted
+T 1513346352 18<baedert18>	mclasen: you said merge the gl branch before christmas, hard deadline would be the 23.?
+T 1513346362 18<heftig18>	LRN: are we talking about windows-only right now?
+T 1513346370 18<LRN18>	yes
+T 1513346371 18<mclasen18>	ideally, I want to do a release before xmas
+T 1513346400 18<mclasen18>	so, I would rather have it merged early in the week, so I can do release preparation while I'm in ny and not on xmas eve
+T 1513346427 18<mclasen18>	I guess I can do release preparations without the merge
+T 1513346429 18<heftig18>	LRN: so the call that's taking so long is not a program-controlled memcpy but something inside OLE?
+T 1513346526 18<LRN18>	heftig, no, the call *is* a program-controlled memcpy, but in some places i will have to do that from an OLE callback, from which i can't return until i'm done
+T 1513346584 18<heftig18>	ah, darn.
+T 1513346601 18<heftig18>	and of course all that runs on the main event loop
+T 1513346697 18<mclasen18>	LRN: does dnd work now, or is that still up in the air ?
+T 1513346732 18<LRN18>	mclasen, i haven't pushed anything yet
+T 1513346743 18<mclasen18>	ah, ok
+T 1513346760 18<mclasen18>	you're invited to get things pushed before xmas too :-)
+T 1513346762 18<LRN18>	still figuring out the new clipboard/dnd stream-based API
+T 1513346811 18<LRN18>	it's way simpler than the old X-based model, but i still need to re-write a lot of stuff to fit it
+T 1513346821 18*	LRN is afk
+T 1513346938 18<mclasen_afk18>	LRN: thanks for all the work!
+T 1513347144 18<baedert18>	sitting at the train station with no laptop or book. perfect.
+T 1513348675 18<mclasen18>	LRN: btw, you would be more than welcome at https://wiki.gnome.org/Hackfests/GTK2018/
+T 1513348747 18<Company18>	heftig: the problem with windows dnd is that it synchronous and must happen in the main thread
+T 1513348779 18<Company18>	which is fine in 99% of cases
+T 1513348805 18<Company18>	because what people usually copy around are URLs or other chunks of text that are <50 bytes
+T 1513348890 18<Company18>	the problem is the 1% of cases where somebody goes "i shouldn't continue editing this file in notepad but use a real editor" and then goes ctrl-a, ctrl-c, switch to gedit, ctrl-n, ctrl-v
+T 1513349525 18<nacho_18>	pwithnall, the problem with strict-aliasing was just insane
+T 1513349536 18<nacho_18>	pwithnall, anyway I agree we should add the flag by default in glib
+T 1513349708 18<pwithnall18>	++
+T 1513351173 18<mclasen18>	garnacho: I haven't had access to a touchscreen laptop in a while... any chance that we mess up secondary clicks there ? ( bug 791427 )
+T 1513351174 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791427 Widget: GtkTextView, normal, gtk-bugs, NEW , Context menus do not appear for Gtk text areas upon right-click
+T 1513352118 18<garnacho18>	mclasen: I wouldn't think that's touch related, but can't single out a cause...
+T 1513352147 18<garnacho18>	eg. I can believe that a stuck grab makes the shell happy enough to pop up its menus, but then why it'd work on nautilus
+T 1513352186 18<mclasen18>	yeah, dubious
+T 1513352932 18<garnacho18>	I really can think only of external causes, patches or some gtk module doing fishy stuff (setting up event filters and whatnot)
+T 1513352958 18<garnacho18>	entry and textview seem to well targeted, yet too different between them
+T 1513353328 18<bugbot18>	New gtk+ bug 791656 filed by gtk-bugzilla@cmpwn.com.
+T 1513353329 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=791656 Backend: Wayland, normal, gtk-bugs, NEW , GTK misbehaves at scale factors >2
+T 1513353851 18<LRN18>	what is the expected lifetime of a stream that allows a client process to read clipboard contents from the clipboard owner?
+T 1513353922 18<LRN18>	does its existence block anything in any way (like, for example, if the clipboard owner decides to update the data while it's still being read, what would happen? Or if another process claims ownership during that time?)
+T 1513354250 18<LRN18>	i could copy the data into a local buffer, and back the stream with *that*, but that would disallow smart data processing (where stream reader parses the data as it goes, and does things with it right away, instead of just reading it into a big buffer and then doing things with the whole thing)
+T 1513354393 18<LRN18>	(i.e. with local copying the amount of available memory should be twice as large, if only momentarily)
+T 1513358785 18<IanLiu18>	I've configured my Wacom Tablet to Relative position, but it is still absolute. I've changed the configuration on Gnome Settings. Any hints why this is happening? I'm using Arch Linux

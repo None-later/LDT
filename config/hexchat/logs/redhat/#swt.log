@@ -5196,3 +5196,653 @@ Dec 01 14:55:09 <lufimtse>	to minimize potential side effects I guess
 Dec 01 14:55:17 <rgrunber>	lufimtse: :) this hack only activates when postData is not null.. otherwise old behaviour is honoured
 Dec 01 14:55:25 <lufimtse>	kk
 Dec 01 14:55:34 <rgrunber>	i thought the same thing.. risky to change the code flow in any other case.
+Dec 01 15:05:56 <lufimtse>	rgrunber, btw, I would suggest to pull master and work on top of the browserFunction patch. It's quite extensible, just to avoid merge conflicts.
+Dec 01 15:06:21 <rgrunber>	yeah, already on top of it. i'm seeing print messages to console about it..
+Dec 01 15:06:24 <lufimtse>	.. s/extensible/changes a lot of code/
+Dec 01 15:06:35 <rgrunber>	SWT_LIB_Gtk:3.22.26
+Dec 01 15:06:35 <rgrunber>	SWT_LIB  Webkit2   Webkitgtk:2.18.3  (webkitgtk >=2.5 is Webkit2)
+Dec 01 15:06:35 <rgrunber>	   Implemented: BrowserFunction over GDBus, 
+Dec 01 15:06:35 <rgrunber>	   not finished: setUrl(..postData)
+Dec 01 15:06:43 <lufimtse>	ah yea.
+Dec 01 15:06:44 <lufimtse>	he he
+Dec 01 15:06:59 <lufimtse>	We can update the setUrl bit.
+Dec 01 15:07:25 <lufimtse>	Just want to get info from people who will be using the webkitport, to know which version they're on.
+**** BEGIN LOGGING AT Mon Dec  4 09:27:16 2017
+
+Dec 04 09:27:16 *	Now talking on #SWT
+Dec 04 13:38:21 <lufimtse>	akurtakov, about webkit extension
+Dec 04 13:38:43 <lufimtse>	akurtakov, (maybe I'm missing something also, so let me explain)
+Dec 04 13:39:08 <lufimtse>	for webkit to load extension, there must only be a single .so in the webextensions folder
+Dec 04 13:39:26 <lufimtse>	e.g libswt-webkit...-48...so
+Dec 04 13:39:35 <lufimtse>	if there are two different versions, then it'll try to load both as extensions
+Dec 04 13:39:56 <lufimtse>	if the folder doesn't have a version, then when we rebuild locally, there will be the old extension in that folder and a new one.
+Dec 04 13:40:01 <lufimtse>	so local development breaks
+Dec 04 13:40:27 <akurtakov>	ok, that's easily fixable
+Dec 04 13:40:41 <akurtakov>	we can chaange build.sh to wipe out on install
+Dec 04 13:40:41 <lufimtse>	if the extracted folder name is the same, then next time you update eclipse, you'll have two libswt-webkitextension.so files
+Dec 04 13:41:08 <akurtakov>	hmm, why would I have two files
+Dec 04 13:41:23 <akurtakov>	this happens in osgi.config.area
+Dec 04 13:41:28 <lufimtse>	suppose you have swt 4801, then you update and have swt 4802
+Dec 04 13:41:31 <akurtakov>	and old content will be wiped out
+Dec 04 13:41:36 <lufimtse>	then the ~/.swt/.. contains both .so files.
+Dec 04 13:41:50 <lufimtse>	problem is when you update eclipse...
+Dec 04 13:41:57 <akurtakov>	ah, so this is for standalone swt not for eclipse usage
+Dec 04 13:42:11 <lufimtse>	well, the eclipse usage extracts the .so's also.
+Dec 04 13:42:14 <lufimtse>	to ~/.swt
+Dec 04 13:42:14 <akurtakov>	eclipse is not extracting anything in .swt
+Dec 04 13:42:36 <lufimtse>	akurtakov, now it is :-)
+Dec 04 13:42:54 <lufimtse>	akurtakov, webkit2 must have a folder with .so in it.
+Dec 04 13:43:22 <lufimtse>	akurtakov, unfortunatley webkit2 cannot load a file on it's own, the only api given is to specify a directory.
+Dec 04 13:43:23 <akurtakov>	why not doing same as other so file
+Dec 04 13:43:30 <lufimtse>	as per above
+Dec 04 13:43:40 <lufimtse>	akurtakov, webkit2 api is not great :-/
+Dec 04 13:44:13 <akurtakov>	all so files go into install_dir/configuration/org.eclipse.osgi/${bundle_id}/.cp....
+Dec 04 13:44:24 <lufimtse>	hmmm
+Dec 04 13:44:26 <lufimtse>	akurtakov, basically
+Dec 04 13:44:59 <akurtakov>	did you manually specify .swt somewhere
+Dec 04 13:45:09 <lufimtse>	 /home/lufimtse/.swt/lib/linux/x86_64/webkitextensions  <<
+Dec 04 13:45:15 <lufimtse>	the .swt is put into your home folder.
+Dec 04 13:45:18 <akurtakov>	let's make an experiment
+Dec 04 13:45:27 <akurtakov>	rm -fr ~/.swt
+Dec 04 13:45:32 <akurtakov>	stop eclipse
+Dec 04 13:45:34 <akurtakov>	start it again
+Dec 04 13:45:37 <akurtakov>	look for ~/.swt
+Dec 04 13:45:49 <lufimtse>	yea, did that, it basically
+Dec 04 13:46:05 <lufimtse>	creates .swt/lib/linux/.../webextensions/libswt-web...ext..so
+Dec 04 13:46:14 <lufimtse>	~/.swt/..
+Dec 04 13:46:41 <lufimtse>	akurtakov, so basically for browserFunction to work, it must have a temp folder on the system.
+Dec 04 13:46:52 <lufimtse>	with the extension inside it.
+Dec 04 13:46:55 <akurtakov>	and no other swt.so file ?
+Dec 04 13:47:17 <akurtakov>	where do you think the other swt.so files are
+Dec 04 13:47:27 <akurtakov>	go in your install_dir/configuration 
+Dec 04 13:47:32 <lufimtse>	for eclipse, yes, only webextension. For standalone .swt, it extracts 3 more (--pi3-...so  etc..)
+Dec 04 13:47:33 <akurtakov>	and search for *.so file
+Dec 04 13:47:41 <akurtakov>	when you run eclipse
+Dec 04 13:47:45 <lufimtse>	sec
+Dec 04 13:48:00 <akurtakov>	the webextension should be together with all other *.so files
+Dec 04 13:48:06 <akurtakov>	once this is fixed
+Dec 04 13:48:23 <akurtakov>	this leaves the issue with standalone swt yes
+Dec 04 13:49:11 <lufimtse>	akurtakov, yes, to confirm. With an eclipse, only the webkitextensions .. so is extracted. the other libs are picked up by OSGI mechanism s
+Dec 04 13:49:12 <lufimtse>	.swt
+Dec 04 13:49:12 <lufimtse>	└── lib
+Dec 04 13:49:12 <lufimtse>	    └── linux
+Dec 04 13:49:12 <lufimtse>		└── x86_64
+Dec 04 13:49:12 <lufimtse>	            └── webkitextensions
+Dec 04 13:49:12 <lufimtse>	                └── libswt-webkit2extension-gtk-4840.so
+Dec 04 13:49:41 <lufimtse>	by standalone swt all other .so's are extracted also.
+Dec 04 13:49:45 <lufimtse>	into x86_64
+Dec 04 13:49:50 <akurtakov>	how did you specify this folder btw?
+Dec 04 13:49:56 <akurtakov>	it should even go in x86_64
+Dec 04 13:50:34 <lufimtse>	the folder name is generated in Library.java
+Dec 04 13:50:42 <lufimtse>	USER_HOME + SWT_LIB_DIR
+Dec 04 13:50:55 <lufimtse>	where SWT_LIB_DIR is .swt + lib + os() + arch()
+Dec 04 13:51:09 <lufimtse>	it is then created in Library.java
+Dec 04 13:51:33 <lufimtse>	ok, so there are 2 fixes possible:
+Dec 04 13:51:50 <lufimtse>	1) Append version to webkitextensions folder 
+Dec 04 13:52:13 <lufimtse>	2) package webkitextension in the same way as other .so, but extact it into a folder with version prefix
+Dec 04 13:52:41 <lufimtse>	for 1), this would require the build scripts to be able to include webkitextensions*  < with asteric
+Dec 04 13:53:21 <akurtakov>	now, let me start with issue when running from inside eclipse
+Dec 04 13:53:32 <akurtakov>	it should not use ~/.swt
+Dec 04 13:53:38 <lufimtse>	akurtakov, not possible :-/
+Dec 04 13:53:42 <akurtakov>	in your install folder
+Dec 04 13:53:49 <akurtakov>	cd configuration
+Dec 04 13:53:53 <lufimtse>	akurtakov, ah,
+Dec 04 13:53:56 <akurtakov>	find -name *.so
+Dec 04 13:54:06 <lufimtse>	akurtakov, so extract it into your install folder instead?
+Dec 04 13:54:11 <akurtakov>	./configuration/org.eclipse.osgi/2597/0/.cp/libswt-webkit-gtk-4840.so
+Dec 04 13:54:22 <akurtakov>	how do you think this ends up there ?
+Dec 04 13:55:09 <lufimtse>	akurtakov, ah I see. HMmm, no idea, have to investigate
+Dec 04 13:55:16 <lufimtse>	give me 15 mins.
+Dec 04 13:55:38 <lufimtse>	akurtakov, so basically you want me to extract into install ~/.configuration/..../webkitextension/ folder
+Dec 04 13:55:49 <akurtakov>	yes
+Dec 04 13:55:54 <akurtakov>	but it's not extract at runtime
+Dec 04 13:55:57 <lufimtse>	akurtakov, this could work, even without folder version
+Dec 04 13:56:04 <akurtakov>	it's done at publishing
+Dec 04 13:56:12 <lufimtse>	at publishing?
+Dec 04 13:56:37 <akurtakov>	this is done by osgi environment 
+Dec 04 13:56:43 <akurtakov>	let me find you a reference for it
+Dec 04 13:58:23 <lufimtse>	akurtakov, from what I gather, that ./configuration/org...osgi/.. stuff is extracted at run time.
+Dec 04 13:59:34 <akurtakov>	yes
+Dec 04 14:00:00 <akurtakov>	but this is not smth swt does at startup
+Dec 04 14:00:09 <akurtakov>	it is smth the osgi env does on bundle load
+Dec 04 14:00:18 <lufimtse>	akurtakov, do you know, do I specify these libswt-webkit-gtk-XXX in swt project, or somewhere in some pom.xml of sorts?
+Dec 04 14:00:33 <lufimtse>	like would the fix be in swt project for this or would I have to hunt somewhere else...
+Dec 04 14:00:49 <akurtakov>	it would be elsewhere
+Dec 04 14:00:53 <lufimtse>	from what I can see, the osgi mechanism does support folders
+Dec 04 14:00:54 <akurtakov>	in equinox most probably
+Dec 04 14:01:22 <lufimtse>	e.g some has /.cp/icons/obj16/file.ext
+Dec 04 14:01:35 <lufimtse>	so it could be done for webkitextensions theoretically
+Dec 04 14:01:57 <akurtakov>	please verify/push the other patches while I find you entry point
+Dec 04 14:02:02 <lufimtse>	akurtakov, Sami's patch did include a bit on the osgi thing.
+Dec 04 14:02:31 <akurtakov>	pointer ?
+Dec 04 14:02:35 <lufimtse>	sec
+Dec 04 14:04:16 <lufimtse>	https://git.eclipse.org/r/#/c/25157/13/bundles/org.eclipse.swt/Eclipse+SWT+PI/common_j2se/org/eclipse/swt/internal/Library.java 
+Dec 04 14:04:19 <lufimtse>	see line 370
+Dec 04 14:04:48 <lufimtse>	akurtakov, the only thing is that that code doesn't put the extension into it's own folder.
+Dec 04 14:05:20 <lufimtse>	it's hard for me to test the code as it requires a rebuild of eclipse, but given enough rebuilds I could make it work that way
+Dec 04 14:09:06 <lufimtse>	akurtakov, ok, from what I gather, we need to do the following:
+Dec 04 14:09:28 <lufimtse>	1) WebkitextensionsXXX  should have a version number at the end so that local development doesn't break.
+Dec 04 14:09:45 <lufimtse>	2) I should implement code so that local .swt/ extracts into a versioned folder
+Dec 04 14:10:09 <lufimtse>	3) I should investigate how to extract this with OSGI 
+Dec 04 14:10:34 <akurtakov>	only for 1) it should keep the same format as we ship
+Dec 04 14:10:53 <akurtakov>	thus it should stay webkitextensions but install should wipe previous files in the dir
+Dec 04 14:11:25 <akurtakov>	btw, what exactly happens when having multiple *so files ? does it crash ?
+Dec 04 14:11:51 <lufimtse>	akurtakov, have not tried, but I extect pretty bad things.
+Dec 04 14:12:15 <lufimtse>	akurtakov, both extensions will be loaded and there will be conflicts
+Dec 04 14:12:38 <akurtakov>	the issue with folder is wiping out/creating dir on every rebuild
+Dec 04 14:12:53 <lufimtse>	akurtakov, the wiping thing is not done for other .so files
+Dec 04 14:13:00 <lufimtse>	akurtakov, it could be done...
+Dec 04 14:13:22 <akurtakov>	it's not done as it knows what to load
+Dec 04 14:13:33 <lufimtse>	akurtakov, another solution is to package the webkitextension.so just like all the other .so files, and simply extract into a versioned folder 
+Dec 04 14:13:54 <akurtakov>	btw, do you have bug opened for webkit to load so file instead of dir ?
+Dec 04 14:14:01 <lufimtse>	akurtakov, hmmm, although that would break local development a bit...
+Dec 04 14:14:18 <lufimtse>	akurtakov, let me check
+Dec 04 14:15:33 <lufimtse>	akurtakov, no, I think I spoke with WebkitGtk folks on IRC, they pointed out that it can only be done via the directory and that was the end of it. I could submit a request thou?
+Dec 04 14:15:47 <akurtakov>	yes please
+Dec 04 14:16:17 <lufimtse>	ok. That would be a potential improvement in the future. For the time being we need to figure out the versioning business
+Dec 04 14:16:27 <lufimtse>	do you wanna bluejeans?
+Dec 04 14:16:35 <akurtakov>	no
+Dec 04 14:16:38 <akurtakov>	too late
+Dec 04 14:16:41 <lufimtse>	ok.
+Dec 04 14:16:42 <lufimtse>	hmm
+Dec 04 14:16:47 <akurtakov>	kids in bed already :)
+Dec 04 14:17:05 <akurtakov>	so better keep quiet for sometime :)
+Dec 04 14:17:40 <lufimtse>	akurtakov, we need to figure out if 1) delete old webkitextensions/webkitextesion.so files or 2) create webkitextensionsXXXX/web..so 
+Dec 04 14:18:09 <lufimtse>	1) is not done for any other .so file from what I gather
+Dec 04 14:18:17 <lufimtse>	so it would be a new mechanism of sorts
+Dec 04 14:18:41 <akurtakov>	well, get ti that way
+Dec 04 14:18:49 <lufimtse>	could be done, although a bit out of sync with other code.
+Dec 04 14:18:52 <lufimtse>	2)  << 
+Dec 04 14:18:53 <akurtakov>	if we have webkitextensionsXXx
+Dec 04 14:19:06 <akurtakov>	this would pile in the dir
+Dec 04 14:19:19 <lufimtse>	2) from what I gather , all files are created for a maven build from scratch anyway, including the versioned folder?
+Dec 04 14:19:37 <lufimtse>	akurtakov, why do you think it would pile up?
+Dec 04 14:19:57 <lufimtse>	akurtakov, does the current code remove the *.so files or is the whole folder re-created each time?
+Dec 04 14:20:18 <lufimtse>	I get the sense that it just wipes and re-creates the whole thing
+Dec 04 14:20:20 <akurtakov>	remove the so files
+Dec 04 14:20:27 <lufimtse>	so then it wouldn't pile up version numbers
+Dec 04 14:20:37 <akurtakov>	http://git.eclipse.org/c/platform/eclipse.platform.swt.binaries.git/commit/?id=4d32c3babe08510fac3ec82c0e569f0599cf7bc1
+Dec 04 14:20:37 <lufimtse>	akurtakov, ah, so it removes the .so files?
+Dec 04 14:20:50 <akurtakov>	webkitextensions dir is there
+Dec 04 14:21:28 <akurtakov>	this would mean tweaking all the build machines, piling up stuff from local builds, unclear git history and so on
+Dec 04 14:22:17 <akurtakov>	so let's go for 1) wipe out *.so from webextensions on install
+Dec 04 14:22:26 <lufimtse>	akurtakov, so implement 1), which would delete old webextension.so files before copying new one?
+Dec 04 14:22:33 <lufimtse>	akurtakov, ok, I can do that.
+Dec 04 14:22:50 <akurtakov>	2) extract versioned in ~/.swt
+Dec 04 14:23:06 <akurtakov>	doh, that would not work
+Dec 04 14:23:13 <akurtakov>	sigh
+Dec 04 14:23:14 <lufimtse>	akurtakov, ok, so I can do as following: 1) wipe .so files.  2) Implement so that locally .swt/ extracted into versioned folder.   3) (if I can get it done in time) implement the osgi load mechanismo
+Dec 04 14:23:48 *	akurtakov doesn't want to deal with crappy build configs again
+Dec 04 14:23:49 <lufimtse>	akurtakov, I can extract into versioned webkitextension folder even if the .jar doesn't have versioned folder name.
+Dec 04 14:24:06 <lufimtse>	akurtakov, I think I can get it done without messing with build server config files.
+Dec 04 14:24:15 <lufimtse>	 *probably
+Dec 04 14:24:23 <akurtakov>	well, the issue is what happens with osgi load 
+Dec 04 14:24:42 <lufimtse>	osgi loads don't care about versioning. I think?
+Dec 04 14:24:49 <lufimtse>	hmm
+Dec 04 14:24:49 <akurtakov>	as osgi load will probably have to have the same structure as the local
+Dec 04 14:25:12 <akurtakov>	thus if it's versioned in one place will have to be in the other for the loadLibrary call to work
+Dec 04 14:25:47 <lufimtse>	akurtakov, hmm, 
+Dec 04 14:26:32 <lufimtse>	akurtakov, I don't quite know osgi well enough. What happens after you update eclipse to newer version. Would the ./configuration/ ... have multiple sets of .so files in the same folder or different folders?
+Dec 04 14:26:51 <akurtakov>	different folder
+Dec 04 14:26:56 <akurtakov>	it's the bundleid
+Dec 04 14:27:03 <akurtakov>	as in integer
+Dec 04 14:27:08 <lufimtse>	akurtakov, what is the bundleID?
+Dec 04 14:27:29 <akurtakov>	every bundle in the runtime has an integer identifier
+Dec 04 14:27:34 <akurtakov>	and on swt update
+Dec 04 14:27:41 <akurtakov>	the old one is removed and new one created
+Dec 04 14:27:56 <lufimtse>	akurtakov, ah, so that explains why I only have one set of .so files in my eclipse ./configuration
+Dec 04 14:28:08 <lufimtse>	akurtakov, in that case, we can get away without versioned folder in osgi
+Dec 04 14:28:26 <lufimtse>	akurtakov, the versioned folder in that case is only needed for local .swt/...
+Dec 04 14:28:36 <akurtakov>	yes and it explains why I didn't understand your concern as we can never have duplicated if properly done
+Dec 04 14:28:52 <akurtakov>	but the trick is in the loadLibrary call
+Dec 04 14:29:01 <lufimtse>	akurtakov, yes, that makes sense. I need to read an osgi book :-).
+Dec 04 14:29:05 <akurtakov>	it has to know the dir from which to load
+Dec 04 14:29:20 <akurtakov>	and whether versioned or not matters in this case
+Dec 04 14:29:21 <lufimtse>	akurtakov, well
+Dec 04 14:29:35 <lufimtse>	akurtakov, I need it to put it into a folder and give me File in return
+Dec 04 14:29:39 <akurtakov>	as I don't want to see this ifed
+Dec 04 14:29:41 <lufimtse>	I can then get parent of file
+Dec 04 14:29:56 <lufimtse>	File.getParent()
+Dec 04 14:30:19 <lufimtse>	akurtakov, this seems possible. other files in ./configuration/ seem to be inside folders.
+Dec 04 14:31:03 <lufimtse>	eg
+Dec 04 14:31:10 <lufimtse>	./2852/0/.cp/icons/wizban/import_wiz.png
+Dec 04 14:31:10 <lufimtse>	./2852/0/.cp/icons/etool16
+Dec 04 14:31:10 <lufimtse>	./2852/0/.cp/icons/etool16/createRepository.png
+Dec 04 14:31:19 <lufimtse>	wizban, etool16
+Dec 04 14:31:30 <lufimtse>	so just need to figure out how to put stuff into a particular folder.
+Dec 04 14:31:58 <akurtakov>	no, this should not happen from swt
+Dec 04 14:32:02 <akurtakov>	for swt it shouldn't matter
+Dec 04 14:32:03 <lufimtse>	akurtakov, I suggest that perhaps I'll first work on 1 and 2, and then look into the osgi business. That way we'd have something working for M4.
+Dec 04 14:32:07 <akurtakov>	whether osgi or not
+Dec 04 14:32:13 <lufimtse>	akurtakov, I see
+Dec 04 14:32:19 <lufimtse>	hmmm
+Dec 04 14:32:23 <akurtakov>	but what we chose for 1) and 2)
+Dec 04 14:32:31 <akurtakov>	depend on 3)
+Dec 04 14:32:56 <akurtakov>	so if you go versioned dir
+Dec 04 14:33:12 <akurtakov>	1 and 2 should be doable and it should not be an issue for 3)
+Dec 04 14:34:01 <akurtakov>	and this would involve another tweak of the build machines
+Dec 04 14:34:03 <akurtakov>	sigh
+Dec 04 14:34:26 <lufimtse>	akurtakov, hmmm
+Dec 04 14:34:50 <lufimtse>	akurtakov, how does osgi figure out which file to extract? does it override loadLib of sorts?
+Dec 04 14:34:54 <lufimtse>	loadLibrary
+Dec 04 14:34:57 <lufimtse>	or does it use URL?
+Dec 04 14:35:10 <lufimtse>	I'm looking at Library.loadLibrary()
+Dec 04 14:35:15 <lufimtse>	where does it interact with osgi
+Dec 04 14:35:26 <akurtakov>	so go versioned
+Dec 04 14:35:51 <akurtakov>	I'll have to tweak the build servers
+Dec 04 14:36:27 <akurtakov>	go versioned
+Dec 04 14:36:42 <akurtakov>	it has issues but at least it won't break with osgi
+Dec 04 14:36:45 <akurtakov>	sigh
+Dec 04 14:37:55 <lufimtse>	akurtakov, hmmm
+Dec 04 14:40:50 <akurtakov>	please make sure to not break the build with the changes though :)
+Dec 04 14:47:00 <lufimtse>	akurtakov, so if I understand corretly, I should  1) update the build.properties  s/webkitextensions/webkitextensions*     2) Update SWT WebKit.java to look for a versioned folder.
+Dec 04 14:47:19 <lufimtse>	Are there build server changes that have to be done to facilitate the versioned thing?
+Dec 04 14:47:26 <akurtakov>	1) remove webextensions dir too
+Dec 04 14:47:35 <lufimtse>	and remove dir in build.sh
+Dec 04 14:47:52 <lufimtse>	assuming those will be done, will you have to do some modifications to build servers?
+Dec 04 14:48:13 <akurtakov>	not sure about the build server 
+Dec 04 14:48:20 <akurtakov>	sigh, I hate that part
+Dec 04 14:48:28 <akurtakov>	please do 1) and 2)
+Dec 04 14:48:34 <akurtakov>	if it breaks it will break
+Dec 04 14:49:00 <akurtakov>	I just remember latest build was using IBM machines
+Dec 04 14:49:07 <akurtakov>	so I even can't fix anything there
+Dec 04 14:49:07 <lufimtse>	From my testing, with 1), maven builds the .jar with /webkitextensionXXX/lib...so inside it. 
+Dec 04 14:49:30 <lufimtse>	i.e, the build.properties does include it.
+Dec 04 14:50:25 <lufimtse>	ok, I'll go for it and see what happens.
+Dec 04 14:50:55 <lufimtse>	it must be pretty late for you. Should I just merge stuff when ready or set for review and let you inspect first?
+Dec 04 15:00:57 <akurtakov>	just merge
+Dec 04 15:01:09 <akurtakov>	and merge the other patches too
+Dec 04 15:01:30 <akurtakov>	I don't want to see them on Wed build :)
+Dec 04 15:49:14 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Dec  4 15:49:14 2017
+
+**** BEGIN LOGGING AT Mon Dec  4 17:46:55 2017
+
+Dec 04 17:46:55 *	Now talking on #SWT
+Dec 05 08:34:15 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Dec  5 08:34:15 2017
+
+**** BEGIN LOGGING AT Tue Dec  5 10:19:32 2017
+
+Dec 05 10:19:32 *	Now talking on #SWT
+**** BEGIN LOGGING AT Tue Dec  5 11:41:26 2017
+
+Dec 05 11:41:26 *	Now talking on #SWT
+**** ENDING LOGGING AT Tue Dec  5 11:41:35 2017
+
+**** ENDING LOGGING AT Tue Dec  5 17:54:13 2017
+
+**** BEGIN LOGGING AT Wed Dec  6 10:53:52 2017
+
+Dec 06 10:53:52 *	Now talking on #SWT
+Dec 06 10:54:54 <akurtakov>	ericwill, lufimtse: https://issues.jboss.org/secure/RapidBoard.jspa?rapidView=4243&selectedIssue=ERT-544&quickFilter=14551
+Dec 06 10:55:09 <akurtakov>	please move your tasks to proper state
+Dec 06 10:55:48 <lufimtse>	akurtakov, hey
+Dec 06 10:56:35 <lufimtse>	akurtakov, ok
+Dec 06 10:57:24 <ericwill>	akurtakov do you mean closing the ones that are done?
+Dec 06 10:57:27 <ericwill>	or something else
+Dec 06 10:57:33 <ericwill>	(I am not familiar with jira)
+Dec 06 10:57:51 <akurtakov>	ericwill: move them to the Done column
+Dec 06 10:58:38 <ericwill>	okay
+Dec 06 10:59:25 <akurtakov>	ericwill: and these that you work on, to in progress column
+Dec 06 10:59:33 <ericwill>	akurtakov got it :)
+Dec 06 11:25:26 <akurtakov>	ericwill: 886 SWT/GTK open bugs 
+Dec 06 11:25:32 <akurtakov>	new record low :)
+Dec 06 11:26:04 <ericwill>	akurtakov nice :) maybe this year we can get it under 500
+Dec 06 11:26:17 <akurtakov>	hmm in the next 24 days ? :)
+Dec 06 11:27:19 <ericwill>	I meant next year :P
+Dec 06 11:27:23 <akurtakov>	i plan nice christmas vacation but if you volunteer :)
+Dec 06 11:28:26 <akurtakov>	if we kill gtk2 it's doable :)
+Dec 06 11:32:23 <ericwill>	fingers crossed
+Dec 06 12:36:49 <ericwill>	akurtakov more info on setBackgroundMode stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=519416#c7
+Dec 06 13:10:23 <akurtakov>	ericwill: hmm, I can't help much with that :)
+Dec 06 13:10:31 <akurtakov>	it will be try and error again
+Dec 06 13:10:44 <akurtakov>	but it would be nice if we document/test more for the next round 
+Dec 06 13:10:47 <akurtakov>	aka gtk4 :)
+Dec 06 13:11:13 <ericwill>	yes, I am in uncharted territory :) will do
+Dec 06 13:11:43 <akurtakov>	ericwill: at the time this was done there was no transparency to start with :)
+Dec 06 13:12:03 <ericwill>	akurtakov I can see that haha
+Dec 06 13:12:07 <ericwill>	this has been broken for awhile
+Dec 06 13:12:17 <ericwill>	sadly
+Dec 06 13:18:44 <akurtakov>	880 - donefor today :)
+Dec 06 13:20:29 <akurtakov>	ericwill: while looking at https://bugs.eclipse.org/bugs/attachment.cgi?id=269289
+Dec 06 13:20:56 <akurtakov>	if you get group to inherit proper that would fix many(most?) instances due to how eclipse UI is contructed
+Dec 06 13:22:33 <ericwill>	akurtakov the blue background is set on group
+Dec 06 13:22:49 <ericwill>	fixing it makes it worse as now all its children that are broken are inheriting it :)
+Dec 06 13:23:09 <ericwill>	that screenshot is old, let me show you what it looks like now
+Dec 06 13:23:31 <akurtakov>	ok, I was going to say "so group doesn't set background proper?"
+Dec 06 13:25:25 <ericwill>	akurtakov this is what it looks like now: https://bugs.eclipse.org/bugs/attachment.cgi?id=271800
+Dec 06 13:25:50 <akurtakov>	aka no diff :)
+Dec 06 13:26:08 <ericwill>	yup
+Dec 06 13:26:22 <ericwill>	I will keep at it
+Dec 06 13:26:25 <ericwill>	I have some ideas
+Dec 06 13:26:28 <akurtakov>	ok, this stuff is tiresome :)
+Dec 06 13:26:46 <ericwill>	very...
+Dec 06 15:22:46 <lufimtse>	rgrunber, -Dnative=gtk.linux.x86_64
+**** ENDING LOGGING AT Fri Dec  8 18:14:45 2017
+
+**** BEGIN LOGGING AT Mon Dec 11 09:29:53 2017
+
+Dec 11 09:29:53 *	Now talking on #SWT
+Dec 11 10:26:50 <akurtakov>	lufimtse, ericwill: here?
+Dec 11 10:27:06 <ericwill>	akurtakov hello
+Dec 11 10:27:13 <lufimtse>	akurtakov, yes.
+Dec 11 10:35:25 <akurtakov>	so what do you guys think of the openFile crash?
+Dec 11 10:35:40 <akurtakov>	is the approach viable in your opinion?
+Dec 11 10:38:29 <ericwill>	akurtakov haven't looked into it yet
+Dec 11 10:38:47 <akurtakov>	when are your vacations guys?
+Dec 11 10:39:18 <ericwill>	I am off from the 25th - 2nd
+Dec 11 10:39:25 <ericwill>	might take the 21st or the 22nd off
+Dec 11 10:41:57 <akurtakov>	this Friday is last for me for this year
+Dec 11 10:42:09 <akurtakov>	so if I haven't provided a fix for the crash
+Dec 11 10:42:28 <akurtakov>	I would ask you to look into it next week
+Dec 11 10:42:37 <ericwill>	sounds good to me
+Dec 11 10:42:48 <akurtakov>	my approach could be plain stupid but that's what I managed to come up with so far
+Dec 11 10:44:22 <ericwill>	I will look into it this afternoon
+Dec 11 11:16:18 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Dec 11 11:16:18 2017
+
+**** BEGIN LOGGING AT Mon Dec 11 12:01:25 2017
+
+Dec 11 12:01:25 *	Now talking on #SWT
+Dec 11 13:54:12 <ericwill>	akurtakov what is the procedure for making a method public? say if someone wanted to expose CTabFolder.shouldHighlight()?
+Dec 11 13:54:17 <ericwill>	is it a complicated process?
+Dec 11 13:54:27 <ericwill>	i.e. add it to the API
+Dec 11 13:54:54 <akurtakov>	ericwill: well, open bz to make it public
+Dec 11 13:55:02 <akurtakov>	document it proper 
+Dec 11 13:55:24 <akurtakov>	if it's ws-specific document it in all ws subdirs
+Dec 11 13:55:44 <akurtakov>	ideally have tests for it
+Dec 11 13:55:58 <ericwill>	okay
+Dec 11 13:56:17 <ericwill>	I ask because in this CTabFolder gerrit the guy asked about making it public to make junit testing easier
+Dec 11 14:13:04 <akurtakov>	well, just for unit testing is bad 
+Dec 11 14:13:12 <akurtakov>	it must have some real usage
+Dec 11 14:13:37 <akurtakov>	if doesn't have such usage it's internal 
+Dec 11 14:23:05 <ericwill>	akurtakov right now they are accessing the method in a junit test case using reflection
+Dec 11 14:36:10 <rgrunber>	lufimtse: think i fixed the issue with putting everything in a separate thread and calling asyncExec from that separate thread on just the loadbytes part.. seems to avoid freezing ui.
+Dec 11 14:36:31 <lufimtse>	rgrunber, I left a comment in patch
+Dec 11 14:36:49 <lufimtse>	rgrunber, tennativley, seems good, but haven't tested yet.
+Dec 11 14:39:12 <ericwill>	akurtakov how do you test this launcher issue?
+Dec 11 14:40:20 <akurtakov>	ericwill: I build the natives
+Dec 11 14:40:29 <akurtakov>	and copy the so file in launcher plugin
+Dec 11 14:40:47 <akurtakov>	and eclipse executable in topdir of eclipse
+Dec 11 14:40:51 <akurtakov>	that's separate eclipse I have 
+Dec 11 14:40:56 <akurtakov>	just for that purporse
+Dec 11 14:43:50 <rgrunber>	lufimtse: makes sense, i'll make the changes
+Dec 11 14:43:57 <ericwill>	akurtakov hmm okay
+Dec 11 14:44:05 <lufimtse>	rgrunber, kk. Let me know when ready for review.
+Dec 11 14:44:16 <ericwill>	not sure I fully understand but I am not ready to test yet so I'll figure it out later
+Dec 11 14:45:04 <akurtakov>	ericwill: launcher testing is quite complicated
+Dec 11 14:45:17 <akurtakov>	ericwill: you download eclipse
+Dec 11 14:45:49 <akurtakov>	cd rt.equinox.framework/features/executable.feature
+Dec 11 14:46:13 <akurtakov>	rt.equinox.framework/features/org.eclipse.equinox.executable.feature/library/gtk
+Dec 11 14:46:19 <akurtakov>	./build.sh
+Dec 11 14:46:43 <akurtakov>	there are two files produced 'eclipse' and 'eclipse_1628.so'
+Dec 11 14:46:50 <akurtakov>	in the newly extracted eclipse
+Dec 11 14:46:59 <akurtakov>	cp eclipse in the topdir
+Dec 11 14:47:13 <akurtakov>	cp eclipse_1628.so in the plugins/*.launcher/
+Dec 11 14:47:31 <akurtakov>	and launch eclipse using the just copied eclipse executable 
+Dec 11 14:47:46 <ericwill>	akurtakov okay got it
+Dec 11 15:30:00 <ericwill>	akurtakov your patch might be segfaulting in gdk_window_new() because you need to pass the address of GdkWindowAttr
+Dec 11 15:30:19 <ericwill>	i.e. &attributes, not just attributes
+Dec 11 15:30:24 <ericwill>	this is the first thing that comes to mind
+Dec 11 15:30:35 <akurtakov>	ericwill: huh, I get compile warning if I try to pass attribs
+Dec 11 15:30:39 <akurtakov>	no idea why
+Dec 11 15:30:56 <akurtakov>	ericwill: too late for me
+Dec 11 15:31:09 <ericwill>	akurtakov I will play around with it
+Dec 11 15:31:24 <akurtakov>	it's worth trying whehter window is found enough via gdkatom at all
+Dec 11 15:31:35 <akurtakov>	as I have a feeling this doesn't work
+Dec 11 15:31:44 <akurtakov>	feel free to comment in the bz or gerrit
+Dec 11 15:31:49 <akurtakov>	g'night
+Dec 11 15:34:18 <ericwill>	goodnight!
+Dec 11 16:20:18 <lufimtse>	rgrunber, setUrl good for merge/
+Dec 11 16:20:19 <lufimtse>	?
+Dec 11 16:40:11 <rgrunber>	lufimtse: hmm do you really like those block statements ?
+Dec 11 16:47:14 <lufimtse>	rgrunber, If the function is more than a page long, then the blocks help reason about a function because they clarify scope of variables.
+Dec 11 16:47:36 <lufimtse>	rgrunber, otherwise it's kinda hard to read the code.
+Dec 11 16:47:47 <rgrunber>	i find it hard to read with the extra curlies :P
+Dec 11 16:48:11 <lufimtse>	rgrunber, do you suggest to remove the curlies?
+Dec 11 16:48:31 <rgrunber>	i don't mind, just didn't know if it was some kind of standard used within swt or not.
+Dec 11 16:49:05 <lufimtse>	rgrunber, it's not an swt standard. But we have a lot of code in SWT that's like 3-4 pages per function.
+Dec 11 16:49:14 <lufimtse>	reading and debugging that is a pain.
+Dec 11 16:49:25 <lufimtse>	especially considering the C/Java type conversion business.
+Dec 11 16:49:45 <lufimtse>	My line of logic is that if it's more than a page, then the code should either be put into blocks or a separate function.
+Dec 11 16:49:51 <lufimtse>	as per clean-code guideline/
+Dec 11 16:50:17 <lufimtse>	rgrunber, btw, patch looks good. Are we good to merge setUrl?
+Dec 11 16:50:36 <rgrunber>	yeah, it should be fine now. tests can be added afterwards.
+Dec 11 16:51:08 <rgrunber>	not too crazy about that 'final' stuff i had to do near the end but it's mainly just to pass in those variables.
+Dec 11 17:10:49 <lufimtse>	rgrunber, still found another bug :-)
+Dec 11 17:10:52 <lufimtse>	posted comment.
+Dec 11 17:11:01 <lufimtse>	I'm off. C u Tomorrow.
+Dec 11 17:11:09 <rgrunber>	k
+Dec 12 10:20:33 <akurtakov>	ericwill: hey Eric
+Dec 12 10:20:39 <akurtakov>	what are you up to?
+Dec 12 10:21:00 <ericwill>	akurtakov hey, wayland launcher business and patch reviews
+Dec 12 10:21:36 <akurtakov>	ericwill: I just pushed the latest changes 
+Dec 12 10:21:44 <akurtakov>	using selection for display
+Dec 12 10:21:50 <akurtakov>	but still it doesn't get any window
+Dec 12 10:21:58 <akurtakov>	not sure what's going on
+Dec 12 10:22:04 <akurtakov>	regarding reviews
+Dec 12 10:22:17 <akurtakov>	just take the easiest ones first to reduce the noise :)
+Dec 12 10:22:47 <ericwill>	akurtakov I am planning on reviewing those two CTabFolder patches from Andrey/Simeon
+Dec 12 10:23:07 <akurtakov>	ok, whatever works for you :)
+Dec 12 10:23:18 <akurtakov>	having them batched eases testing I guess 
+Dec 12 10:23:44 <ericwill>	correct
+Dec 12 10:23:58 <ericwill>	also for the launcher thing I see you filled out the GdkWindowAttr struct
+Dec 12 10:24:06 <ericwill>	that was going to be my next suggestion :)
+Dec 12 10:24:13 <ericwill>	I'll keep investigating today
+Dec 12 10:25:24 <akurtakov>	ericwill: I can't make the window = gtk.gdk_selection_owner_get_for_display(display, launcherWindowAtom); return a window
+Dec 12 10:25:36 <akurtakov>	it's always null ptr
+Dec 12 10:26:06 <akurtakov>	ericwill: if you have any change/progress
+Dec 12 10:26:22 <akurtakov>	feel free to push it when you're done today so I start from there
+Dec 12 10:26:30 <akurtakov>	or mail with findings works too
+Dec 12 10:27:00 <ericwill>	okay will do
+Dec 12 10:30:23 <akurtakov>	ericwill: additionaly, if you make it work 
+Dec 12 10:31:01 <akurtakov>	you'll need to modify swt to look for gdk atom and not x11 atom to see openFile really working
+Dec 12 10:31:37 <akurtakov>	I'll prep a gerrit for that but just have it as low prio due to not really sure of gdk atom
+Dec 12 10:32:05 <akurtakov>	there is smth about "known to the process" in gtk doc that troubles me
+Dec 12 10:41:58 <ericwill>	akurtakov yeah I was just looking at that as well
+Dec 12 10:42:07 <ericwill>	is the window being created in another process maybe?
+Dec 12 10:42:21 <akurtakov>	yes
+Dec 12 10:42:24 <akurtakov>	but that is the case
+Dec 12 10:42:40 <akurtakov>	I can't launch new eclipse in the same process
+Dec 12 11:04:52 <ericwill>	akurtakov for the launcher thing, is there an explicit need to check if a launcher window exists? why not create a fresh one each time?
+Dec 12 11:04:57 <ericwill>	just thinking out loud
+Dec 12 12:07:47 <ericwill>	akurtakov also when I do F3 on some of these GDK struct members, I get pointed to the gtk2 GDK stuff
+Dec 12 12:07:54 <ericwill>	is equinox using GTK2 libs?
+Dec 12 12:13:46 <ericwill>	looks like it is
+Dec 12 12:15:19 <ericwill>	ah nvm figured it out
+Dec 12 12:55:35 <akurtakov>	ericwill|lunch: the case should be if there is almost simultaneous launch 
+Dec 12 12:59:19 <ericwill>	akurtakov okay
+Dec 12 13:01:16 <akurtakov>	ericwill: the whole design is questionable IMHO
+Dec 12 13:01:49 <akurtakov>	as the way it's implemented if you launch multiple eclipse instances at different version it's kind of weird
+Dec 12 13:02:08 <ericwill>	agreed
+Dec 12 13:02:14 <ericwill>	also I was reading the GdkSelection API
+Dec 12 13:02:23 <ericwill>	and this is in the general description: "The X selection mechanism provides a way to transfer arbitrary chunks of data between programs."
+Dec 12 13:02:37 <ericwill>	will gdk_selection_* work on Wayland?
+Dec 12 13:04:04 <akurtakov>	ericwill: I think this is stale doc
+Dec 12 13:05:45 <ericwill>	kk
+Dec 12 13:07:40 <akurtakov>	ericwill: https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkwindow-wayland.c?h=gtk-3-22
+Dec 12 13:12:37 <akurtakov>	ericwill: actually https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkdevice-wayland.c?h=gtk-3-22#n1151
+Dec 12 13:12:51 <akurtakov>	if gtk devs use it in gdkdevice-wayland.c
+Dec 12 13:12:56 <akurtakov>	it must be implemented
+Dec 12 13:13:11 <ericwill>	yeah there is also gdkselection-wayland.c
+Dec 12 13:13:18 <ericwill>	so I think you're right, just a stale doc
+Dec 12 13:14:14 <akurtakov>	ericwill: it's worth opening a bug against gtk thought 
+Dec 12 13:14:25 <akurtakov>	it will at least show them you RTFM :)
+Dec 12 13:14:48 <ericwill>	will do
+Dec 12 13:15:00 <ericwill>	so when I run this, if it doesn't segfault it hangs for about a minute before launching
+Dec 12 13:15:03 <akurtakov>	should gain you some good will on your next question :)
+Dec 12 13:15:03 <ericwill>	do you get that as well?
+Dec 12 13:15:10 <akurtakov>	yes
+Dec 12 13:15:13 <akurtakov>	that's normal
+Dec 12 13:15:22 <akurtakov>	if you look deeper in the code
+Dec 12 13:15:31 <akurtakov>	it has a timeout of 60 sec
+Dec 12 13:16:18 <akurtakov>	ericwill: look for openFileTimeout
+Dec 12 13:16:28 <akurtakov>	if you don't pass openFile there is no delay
+Dec 12 13:16:54 <ericwill>	okay so that's what that is
+Dec 12 13:16:57 <ericwill>	interesting
+Dec 12 13:17:28 <akurtakov>	I was so close to starting it from scratch
+Dec 12 13:17:46 <akurtakov>	but what I'm afraid of are these many undocumented cases which will bite us
+Dec 12 13:18:34 <akurtakov>	ericwill: I still not get how it's decided to run jvm in process or fork it
+Dec 12 13:19:24 <akurtakov>	this is one thing I remember on 32bit jvm is run in process of the launcher (aka no separate java process) on 64bit it's forked
+Dec 12 13:20:00 <ericwill>	yeah this code is very confusing
+Dec 12 13:20:05 <ericwill>	still the segfault is mysterious
+Dec 12 13:20:11 <akurtakov>	oh yeah
+Dec 12 13:20:20 <akurtakov>	it doesn't make sense at all
+Dec 12 13:20:29 <akurtakov>	and the fact it's every second call
+Dec 12 13:23:25 <ericwill>	so for gdk_window_new(), the bitmask has to represent certain parameters that were missing
+Dec 12 13:23:36 <ericwill>	but after I changed that it still didn't fix it
+Dec 12 13:24:56 <ericwill>	hmm
+Dec 12 13:25:08 <ericwill>	CurrentTime is a macro in X11/X.h
+Dec 12 13:46:33 <akurtakov>	oops, I missed that
+Dec 12 13:56:24 <ericwill>	even changing it to GDK_CURRENT_TIME doesn't fix it
+Dec 12 14:03:00 <akurtakov>	well, please push changes like that so we have less possible causes :)
+Dec 12 14:06:49 <ericwill>	will do at the end of the day, right now I am just experimenting around with stuff
+Dec 12 14:11:16 <akurtakov>	sure
+Dec 13 10:00:02 <ericwill>	akurtakov any updates on the launcher stuff? I see you made some changes
+Dec 13 10:02:47 <akurtakov>	I fixed the crash
+Dec 13 10:02:52 <akurtakov>	and the delay
+Dec 13 10:03:04 <akurtakov>	ericwill: the crash was stupid me failing with function declaration sigh
+Dec 13 10:03:21 <akurtakov>	now it's up to atom not finding launcher
+Dec 13 10:03:45 <akurtakov>	I have issue with not understanding how this whole thing work
+Dec 13 10:04:26 <akurtakov>	ericwill: I mean how does it relate atom to window
+Dec 13 10:04:43 <ericwill>	you mean GdkWindowAttr* instead of just GdkWindowAttr :)
+Dec 13 10:04:46 <ericwill>	I hate these little things
+Dec 13 10:05:05 <ericwill>	okay I will continue to look at it today, at least now it isn't crashing which is good
+Dec 13 10:05:21 <akurtakov>	and the one min delay is gone too :)
+Dec 13 10:07:10 <ericwill>	excellent, I see you added gdk_flush too
+Dec 13 10:09:38 <ericwill>	akurtakov btw unrelated to this, but yesterday in the gtk IRC channel mclasen and Benjamin were talking about the future of a11y on GTK4
+Dec 13 10:10:04 <ericwill>	mclasen said they will not drop a11y support but there are very few people to maintain/fix it
+Dec 13 10:10:52 <ericwill>	Benjamin wants to drop support for it as he doesn't have the time to maintain it
+Dec 13 10:10:56 <ericwill>	just something you should be aware of
+Dec 13 10:20:36 <akurtakov>	ericwill: well, I don't think it will be dropped
+Dec 13 10:20:43 <akurtakov>	it's mandatory for some government stuff
+Dec 13 10:21:31 <akurtakov>	removing it will render gtk apps out of such env
+Dec 13 10:21:59 <ericwill>	I don't think it will be dropped either
+Dec 14 09:21:05 <akurtakov>	lufimtse: hey Leo
+Dec 14 09:21:08 <akurtakov>	congrats on the promotion
+Dec 14 10:06:52 <ericwill>	akurtakov I think DBus is the way to go
+Dec 14 10:07:01 <ericwill>	I spoke to lufimtse about it yesterday, he may have some thoughts
+Dec 14 10:21:33 <lufimtse>	akurtakov, omg
+Dec 14 11:31:03 <akurtakov>	ericwill: about dbus?
+Dec 14 11:31:26 <ericwill>	akurtakov yes, we just spoke about some generalities
+Dec 14 11:31:55 <akurtakov>	ok, how does it sound?
+Dec 14 11:33:07 <akurtakov>	ericwill: I would like to see launcher fixed
+Dec 14 11:33:26 <akurtakov>	having a crasher is definetely not what I want to see
+Dec 14 11:33:36 <akurtakov>	I have added it to the plan 
+Dec 14 11:33:48 <akurtakov>	assigned to me but I can reasign it to you if you want
+Dec 14 11:34:07 <akurtakov>	it is smth that both of us will keep an eye on
+Dec 14 11:34:27 <ericwill>	I think the dbus approach is doable since now we are re-writing it instead of trying to fix the old design
+Dec 14 11:34:46 <akurtakov>	yup
+Dec 14 11:35:03 <akurtakov>	have you seen that property_notify is removed
+Dec 14 11:35:06 <akurtakov>	in gtk4 now
+Dec 14 11:35:26 <ericwill>	I saw
+Dec 14 11:36:06 <ericwill>	IMO this is the least of our worries for GTK4 :) they are changing the drawing vfuncs for GtkWidgetClass
+Dec 14 11:36:09 <akurtakov>	so I feel really bad changing smth now that is likely to crash on me in the next year again (assuming gtk 4.0 is released and we start porting)
+Dec 14 11:36:28 <akurtakov>	ericwill: well, true 
+Dec 14 11:36:43 <akurtakov>	but on the other hand we should do some forward thinking when we write things
+Dec 14 11:37:13 <ericwill>	agreed
+Dec 14 11:37:31 <ericwill>	okay so for this sprint and next one (since PTO is a half of this sprint) I will look at launcher dbus and a11y
+Dec 14 12:03:22 <akurtakov>	lufimtse: do you have any concern over dbus in swt ?
+Dec 14 12:05:56 <lufimtse>	akurtakov, what do you mean?
+Dec 14 12:06:16 <akurtakov>	lufimtse: for the launcher
+Dec 14 12:06:19 <lufimtse>	akurtakov, at the moment DBus is localized to webkit extension. But I could extract it and make it a more global interface
+Dec 14 12:06:30 <akurtakov>	you have read my email, right?
+Dec 14 12:06:45 <akurtakov>	to the team list
+Dec 14 12:07:03 <akurtakov>	with link to the launcher bug and proposal how to do it over dbus
+Dec 14 12:07:58 <lufimtse>	akurtakov, ah, I didn't quite get to email yet
+Dec 14 12:08:01 *	lufimtse reading
+Dec 14 12:09:54 <lufimtse>	akurtakov, I don't see any issues with having dbus in swt, except it would be confined to linux.
+Dec 14 12:10:10 <lufimtse>	I'd be happy to work on it.
+Dec 14 12:10:15 <akurtakov>	well, x11 stuff is there too 
+Dec 14 12:10:20 <lufimtse>	wouldn't take me that long as I know dbus mostly.
+Dec 14 12:11:00 <akurtakov>	lufimtse: you think the idea is viable ?
+Dec 14 12:11:34 <akurtakov>	if ericwill is willing to trade with your bugfixes that would be fine with me
+Dec 14 12:11:58 <akurtakov>	as I've been keeping him in the loop for the launcher changes
+Dec 14 12:12:29 <ericwill>	I am willing to trade as lufimtse knows more about dbus
+Dec 14 12:12:33 <akurtakov>	maybe even Leo does the swt interface implementation, Eric does the launcher changes to poll for the service and call the method
+Dec 14 12:12:36 <ericwill>	which bugfixes do you speak of?
+Dec 14 12:12:52 <akurtakov>	ericwill: gtk3 general issues
+Dec 14 12:12:53 <lufimtse>	akurtakov, I am happy to work on *
+Dec 14 12:13:02 <lufimtse>	where * is what is the most important.
+Dec 14 12:13:24 <akurtakov>	well, the launcher fix is smth I would like to see ASAP :)
+Dec 14 12:13:50 <akurtakov>	and having a proper working dbus interface exposed by swt would be quite nice
+Dec 14 12:16:40 <ericwill>	it will probably be faster for Leo to work on the launcher business as he knows more about dbus than I do
+Dec 14 12:16:51 <ericwill>	I wouldn't mind working on the menu popup bug that we have in the RH BZ
+Dec 14 12:17:02 <ericwill>	alongside a11y
+Dec 14 12:17:27 *	rgrunber mumbles something about slow trees on linux
+Dec 14 12:19:32 <akurtakov>	ericwill: agreed
+Dec 14 12:19:41 <akurtakov>	but I would like to see more bugs
+Dec 14 12:20:18 <akurtakov>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528789
+Dec 14 12:20:22 <akurtakov>	as you opened it
+Dec 14 12:20:47 <ericwill>	akurtakov as I said this morning to Leo, "he who discovers the bug shall be the one to fix it"
+Dec 14 12:20:53 <ericwill>	I'll work on it
+Dec 14 12:20:55 <ericwill>	np
+Dec 14 12:23:33 <ericwill>	I will update my spring stuff in JIRA
+Dec 14 12:23:42 <akurtakov>	ok
+Dec 14 12:23:54 <akurtakov>	lufimtse: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528346
+Dec 14 12:24:03 <akurtakov>	is there anything left for this one or we should fix it?
+Dec 14 12:26:20 <akurtakov>	close it I mean
+Dec 14 12:29:55 <lufimtse>	akurtakov, I think probably close as it would be too time consuming to weedout stuff from webkit1. Can I look into it later today/tomorrow and post a definitive comment/close it?
+Dec 14 12:30:08 <akurtakov>	lufimtse: sure
+Dec 14 12:30:34 <akurtakov>	as long as it's either closed or it's clear what's left it works for me
+Dec 14 12:40:32 <akurtakov>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528155
+Dec 14 12:40:44 <akurtakov>	lufimtse: I have a request for better bug handling
+Dec 14 12:40:59 <akurtakov>	would you please spend up to one hour per day
+Dec 14 12:41:10 <akurtakov>	on triaging/reviewing patches and etc.
+Dec 14 12:42:25 <ericwill>	akurtakov I'll take a look
+Dec 14 12:42:55 <akurtakov>	and https://bugs.eclipse.org/bugs/show_bug.cgi?id=528284
+Dec 14 12:43:11 <akurtakov>	that should be enough for now
+Dec 14 12:43:27 <ericwill>	akurtakov I saw that one, was waiting for the bug reporter to respond to Andrey
+Dec 14 12:48:33 <lufimtse>	akurtakov, ok on bug handling.
+Dec 14 12:49:44 <lufimtse>	akurtakov, I've emailed you/Sopot a list of project options 
+Dec 14 12:49:56 <lufimtse>	akurtakov, with voting system :-)
+Dec 14 12:50:04 <lufimtse>	akurtakov, s/vote/point
+Dec 14 12:53:09 <lufimtse>	akurtakov, btw, I've added the DBus bindings thing as "GDBus bindings in SWT" on the project list.
+Dec 14 12:53:23 <lufimtse>	akurtakov, Line 16
+Dec 14 12:53:50 <akurtakov>	well, I don't get that part
+Dec 14 12:54:05 <akurtakov>	what such a binding is about
+Dec 14 12:54:05 <lufimtse>	akurtakov, I don't know either :-)
+Dec 14 12:54:24 <lufimtse>	akurtakov, you/eric talk about this dbus stuff, not really sure what needs to be done yet.
+Dec 14 12:54:39 <lufimtse>	akurtakov, I just know how dbus works and can do  what is needed.
+Dec 14 12:54:41 <akurtakov>	lufimtse: read the bug
+Dec 14 12:54:52 <lufimtse>	akurtakov, ok.
+Dec 14 12:55:02 <akurtakov>	there is a link in the mail where what's needed is detailed
+Dec 14 12:55:45 <akurtakov>	IMHO this work shouldn't take more than 2 weeks 
+Dec 14 12:56:03 <lufimtse>	akurtakov, I do want to outline that it would be good to update the swt website documentation, as we've now had 4 people say that they wanted to contribute to swt but found the documentation very confusing.
+Dec 14 12:56:21 <lufimtse>	akurtakov, it's a fairly short project and hash high long-term pay off.
+Dec 14 12:56:24 <lufimtse>	*potential
+Dec 14 12:56:27 <akurtakov>	lufimtse: this is not a project
+Dec 14 12:56:35 <akurtakov>	this is constant ongoing thing
+Dec 14 12:56:46 <akurtakov>	whenever smth is spotted it should be changed ASAP
+Dec 14 12:56:51 <akurtakov>	at the cost of 1/2 h
+Dec 14 12:56:54 <akurtakov>	and so on
+Dec 14 12:56:58 <lufimtse>	akurtakov, we're off to lunch
+Dec 14 12:57:01 <lufimtse>	back in an hour ish
+Dec 14 12:57:54 <akurtakov>	I'm not signing off someone spending time on website or swt tools as anything but side project to be improved on the go
+Dec 14 14:48:10 <ericwill>	fun fact: gerrit has file matching, you can filter patches that only touch linux files
+Dec 14 14:48:21 <ericwill>	using this gerrit search term: project:platform/eclipse.platform.swt file:gtk status:open
+Dec 14 14:48:31 <ericwill>	lufimtse ^
+Dec 14 15:39:11 <lufimtse>	r
+Dec 15 09:09:28 <akurtakov>	hey guys
+Dec 15 09:20:32 <ericwill>	hello
+Dec 15 09:24:33 <akurtakov>	ericwill: I'm leaving you guys with 850 open bugs :)
+Dec 15 09:24:46 <akurtakov>	try to not let it increase by Jan 3rd :)
+Dec 15 09:25:09 <ericwill>	haha
+Dec 15 09:25:20 <ericwill>	akurtakov we will keep the house nice and tidy for you while you're gone :)
+Dec 15 09:25:37 <akurtakov>	ericwill: the way I like it :)
+Dec 15 11:49:34 <akurtakov>	do you guys use java 9 ?
+Dec 15 12:02:05 <ericwill>	akurtakov no
+Dec 15 12:08:18 <ericwill>	akurtakov lufimtse can we have a monthly SWT call? I feel it would be useful to keep everyone on track and up to date
+Dec 15 12:08:39 <ericwill>	doesn't have to be long, maybe 30mins
+Dec 15 12:09:00 <lufimtse>	maybe once a month after main call or something.
+Dec 15 12:09:12 <lufimtse>	or in separate time, I don't mind either way.
+Dec 15 12:09:33 <akurtakov>	ericwill: I deny discussing such thing right before vacation :)
+Dec 15 12:09:49 <akurtakov>	remind me next year :P
+Dec 15 12:11:05 <ericwill>	akurtakov haha okay :)
+Dec 15 12:18:13 <lufimtse>	akurtakov, ok. SWT Plan is ready for your/Sopot review. (Not urgent, can be reviewed next year if you like. Just a verification of what we talked about).
+Dec 15 12:18:21 <lufimtse>	-> emailed.
+Dec 15 12:19:40 <lufimtse>	akurtakov, I shall now begin my journey to Fedora 27 and Wayland. My enlightenment shall begin. See you on the other side.
+Dec 15 12:19:59 <akurtakov>	:)
+Dec 15 12:25:09 <akurtakov>	I have provided some feedback 
+Dec 15 12:25:37 <akurtakov>	please incorporate it in the doc :)

@@ -1,0 +1,65 @@
+470872 – (webkitFocusListener) [Webkit1][Webkit2] SWT Browser widget does not notify Focus Listener.
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=470872
+[] - do tasks in order.
+() - tasks can be done in parallel.
+-i-  - info.
+
+[] Add code:
+ create() .. connect focusin/out
+ procDom .. user_data == focusin/out.
+ Then life is good.
+
+
+
+
+Overview tasks:
+[] Need to visually map out signal handling logic, Webkit1/Webkit2-ise it.
+
+() Check all key/mouse listeners are working.
+() Check that everything works irrelevant of if javascript is enabled or not.
+() Mark pathways used by webkit1 only.
+() Consider removing pre webkit1.4 code.
+    It is so old, bleh. Btw, 1.4 released on 2013-04-18.
+
+! [] DOM events?
+   -i- Like what if you add a dom mouse listener to an html button. Does it work in webkit1?
+
+[X] Mose enter/exit?
+
+
+Info, Code snippets
+##################################
+
+OS.g_signal_connect (webView, OS.button_press_event, JSDOMEventProc.getAddress (), 1);
+OS.g_signal_connect (webView, OS.button_release_event, JSDOMEventProc.getAddress (), 2);
+OS.g_signal_connect (webView, OS.key_press_event, JSDOMEventProc.getAddress (), 4);
+OS.g_signal_connect (webView, OS.key_release_event, JSDOMEventProc.getAddress (), 5);
+OS.g_signal_connect (webView, OS.scroll_event, JSDOMEventProc.getAddress (), 0);
+OS.g_signal_connect (webView, OS.motion_notify_event, JSDOMEventProc.getAddress (), 0);
+
+if (WEBKIT2) {
+  OS.g_signal_connect (webView, OS.focus_in_event, JSDOMEventProc.getAddress (), 5);
+  OS.g_signal_connect (webView, OS.focus_out_event, JSDOMEventProc.getAddress (), 6);
+}
+
+
+switch ((int)user_data) {
+    case 1:
+      System.out.println("Wk button press");
+      break;
+    case 2:
+      System.out.println("Wk button release");
+      break;
+    case 3:
+      System.out.println("WK key press");
+      break;
+    case 4:
+      System.out.println("WK Key release");
+      break;
+    case 5:
+      System.out.println("WK focus in event");
+      break;
+    case 6:
+      System.out.println("WK focus out event");
+      break;
+}

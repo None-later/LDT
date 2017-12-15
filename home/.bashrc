@@ -1,3 +1,10 @@
+#################
+# Development helpers. (most is temporary code)
+#################
+export SWT_WEBKIT2=1
+export SWT_LIB_VERSIONS=1
+export SWT_WEBKIT_DEBUG_MSGS=1
+
 
 ##################
 ## Terminal Conig
@@ -117,6 +124,9 @@ alias lld="ll -d */"
 alias lsd="ls -d */"
 alias less="less -r"  # read coloured output.
 # alias lock="gnome-screensaver-command -l"
+
+# list date/time file only.
+alias lst='ls -alh | while read perm bsize user group size month day time file; do echo $size $month $day $time $file; done'
 
 # m
 #alias man="man -P most"

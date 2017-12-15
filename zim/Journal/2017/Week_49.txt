@@ -1,0 +1,68 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Week 49 2017 ======
+03 December to 09 December
+
+
+====== Weekly Report ======
+
+Highlights:
+#######
+
+Webkit2:
+- Implemented support for webkit to load extension via OSGI mechanism. 
+- BrowserFunction & webextension complete and verified.
+
+Webkit2 port:
+- Dependencies:
+  * Browser function (Complete)
+  * setUrl(.. postData ..) (Probably to be completed this week)
+- Non blocking:
+  * Found new issue with Mouse/Keybaord listeners. 
+	(Not critical, but can probably fix this week)
+
+Last 7 days:
+#######
+
+Webkit2:
+- Me/Eric/Roland Researched how to build local *swt*.jar with changes to local code base.
+  * Used mechanism to develop and verify OSGI functionality when SWT runs as OSGI bundle.
+	(extracting webextension via OSGI mechanism)
+  * Build required one to set contextQuantified to old date (e.g year 2000), for it to
+	read fresh SWT sources.
+  * Wrote/submitted a script to do this automatically. Bug 528274 
+  * This is to be documented later in SWT documentation refresh.
+
+- Implemented mechanism for SWT to extract webextension via OSGI mechanism.
+
+- Upgraded build scrpit for webextension:
+  * Now deletes old webextension (as per Alex's suggestion)
+  * Skips building of webextension (printing a warning) if system is missing
+	relevant packages. (ppc & some older distro's might not have them.)
+  * Fixed 32 bit warning.
+
+- 526909 Minimum Webkit2gtk version guards
+  * Added guards around functions, signals and properties that should not be
+	called on newer webkitgtk versions, to prevent potential JVM crashes
+	on older versions.
+
+Review & QA:
+- Bug 527738 [Webkit2] implement setUrl(...POST..) support. (snippet 330)
+  * Found U.I blocking behaviour, would benefit from running in separate thread.
+
+- (In progress) SWT Browser widget does not notify Focus Listener. 
+  * Was investigating how to implement focus listener, 
+  * found that signal was not hooked into webkit widget.
+  * Found some issues with other listeners on Webkit2, (e.g mouse click). Need to fix.
+
+Triage
+  323565 – [Launcher] vmargs in .ini file not being used when restart RCP by calling PlatformUI.getWorkbench().restart()
+  522733 – [Gtk][Webkit2] Crash on close with webkitgtk 2.18
+  528132 – Disable timetracl or make it private
+  Bug 1523114 – eclipse: Segfault in libjavascriptcoregtk-4.0.so.18 
+
+Next 7 days:
+#######
+- SWT Browser widget does not notify Focus Listener.
+- Mouse/Keyboard Listener quirks on webkit2.

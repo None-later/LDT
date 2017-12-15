@@ -1,0 +1,43 @@
+
+
+# Get list of updated symbols.
+cd ~/tmp
+curl "https://webkitgtk.org/reference/webkit2gtk/unstable/" | grep "new symbols" | grep -o -E "api-index-2-[0-9]+" > versions
+
+# download all symbols.
+cat versions | while read line ; do curl "https://webkitgtk.org/reference/webkit2gtk/unstable/${line}.html" > $line;  done
+
+# get a list of webkit2 functions in swt:
+cd "~/git/eclipse.platform.swt/bundles/org.eclipse.swt/Eclipse SWT WebKit/gtk/org/eclipse/swt/internal/webkit"
+grep -B 1 WEBKIT2 WebKitGTK.java | grep -v WEBKIT2 | grep static | grep -E -o "webkit_.*\(" | cut -f1 -d " "  > ~/tmp/webkit2Functions
+
+# get a list of which version of webkitgtk2 functions were introduced in:
+cat webkit2Functions | while read line;do grep ${line} api-index-2*; done
+
+-------------
+# Copy signals from WebkitGtk.java to a file 'signals'
+cat signal | g -E "public .* webkit2" | grep -oP '"\K[^"\047]+(?=["\047])'
+
+
+TODOS:
+[X] Guard.
+  close  2.8    << for other. We're good.
+  finished 2.8  << for color not webdown.  OK>
+
+[] min 2.4
+  initialize-web-extensions 2.4
+  (no functions inhibit, although authentication introduced in 2.2)
+
+[] Properties
+  [] allow_universal_access_from_file_urls 2.14  << guard.
+
+WebKitGTK.webkit_get_minor_version ();
+
+INFO:
+https://webkitgtk.org/news.html
+
+Project:
+[X] Functions
+[X] Signals
+[X] Properties
+[] Don't load pre 2.4 (no webextension). April 2014

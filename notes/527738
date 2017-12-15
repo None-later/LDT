@@ -1,6 +1,34 @@
-[] Figure out existing w1 mechanism.
-[] Figure out if I can get SoupMessage and manipulate it in the webextension.
-  [] Mabye investigate example webextensions, see if I can hack it.
+
+
+Leo's modification: Patchest 9 notes:
+- Added g_bytes_unref() to prevent memory leakage.
+- Making g_bytes_* dynamic otherwise we'll get jvm crash on gtk2.
+  (g_byte* introduced in glib 2.32, but gtk2 only has glib 2.26(ish)).
+- Move data type conversion logic into one place. (html converted where it's used)
+- Reduced size of if statment, it was scary.
+- Add scope to code for clarity.
+- Don't touch this.postData & this.headers, they're only used by webkit1.
+  Webkit2 shouldn't touch what it doesn't use.
+- Added if (Webkit1) guards around variables only used by webkit1.
+- Refactoring.
+- Avoid passing null value to webkit_web_view_load_bytes(.) if connection is not HTML.
+- Instead of passing empty array to encoding type, pass array with only a single 0.
+- Modified Snippet330.java to include some more examples for better testing and learning.
+- Verified:
+ - against (modified) Snippet330
+ - jUnit tests.
+
+Observed issue: (pathset 9)
+- Java's getting of content blocks/freezes UI.
+  Have tried to run in Display.async(..), but still freezes ui as that's run in UI
+  as well. Maybe we should try to run this in a separate thread?
+
+
+[] Create followup bug. (implement with native features.)
+
+ARCHIVE:
+#############################################
+#############################################
 
 GET:
 $$$$$$$$$$$
@@ -57,8 +85,75 @@ function loadPage(URL, params) {
 var params = "emailassigned_to1=1&bug_severity=enhancement&bug_status=NEW&email1=platform-swt-inbox&emailtype1=substring";
 loadPage("https://bugs.eclipse.org/bugs/buglist.cgi", params)
 
+
+### form method:
+
+function post_to_url(url, params) {
+    var form = document.createElement('form');
+    form.action = url;
+    form.method = 'POST';
+    form.target = '_self'
+
+    for (var i in params) {
+        if (params.hasOwnProperty(i)) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = i;
+            input.value = params[i];
+            form.appendChild(input);
+        }
+    }
+
+    form.submit();
+};
+post_to_url('https://bugs.eclipse.org/bugs/buglist.cgi', {'bug_status': 'NEW'});
+
+
+Js Bookmarklet
+javascript:post_to_url('https://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/', {'bug_status': 'NEW'});
+
+
+
+------- JQuery.
+function postToUrl(url, params, newWindow)
+{
+    var form = $('<form>');
+    form.attr('action', url);
+    form.attr('method', 'POST');
+    if(newWindow){ form.attr('target', '_blank'); }
+
+    var addParam = function(paramName, paramValue){
+        var input = $('<input type="hidden">');
+        input.attr({ 'id':     paramName,
+                     'name':   paramName,
+                     'value':  paramValue });
+        form.append(input);
+    };
+
+    // Params is an Array.
+    if(params instanceof Array){
+        for(var i=0; i<params.length; i++){
+            addParam(i, params[i]);
+        }
+    }
+
+    // Params is an Associative array or Object.
+    if(params instanceof Object){
+        for(var key in params){
+            addParam(key, params[key]);
+        }
+    }
+
+    // Submit the form, then remove it from the page
+    form.appendTo(document.body);
+    form.submit();
+    form.remove();
+};
+postToUrl('https://bugs.eclipse.org/bugs/buglist.cgi', {'bug_status': 'NEW'}, "_self");
+
+
 ---------------
-whenthi
+
 
 
 INFO:

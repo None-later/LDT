@@ -1,0 +1,60 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+
+====== Week 48 ======
+03 December to 09 December
+
+====== Weekly Report ======
+Highlights:
+##########
+Webkit2: Fixed javascript deadlock and javascript scope regression.
+Webkit2: Verified no webkit1-only logic is used by webkit2.
+
+Last Week:
+##########
+Webkit2:
+  - Found and fixed deadlock in javascript execution. #527564
+	* Casued due to (internal call) recursive invocation of javascript from callbacks.
+	* Turns out those execution's didn't require a return value, so I made
+	  them execute without waiting for return value, which fixed deadlock.
+	* Did a root-cause analysis and set all simmilar code to not ask for
+	  a return value if none needed.
+	* Patch awaiting merge.
+  - Found and fixed a regression in scope of execute() for javascript execution #527737
+	* 'execute()' was wrapping code into functions like 'evalute()', which
+	  broke scope as two exectue() statements may rely on being in the same scope.
+	* Fix was to only wrap 'evaluate()' calls into a function and run execute()
+	  calls directly.
+	* patch awaiting merge.
+  - Verified that no webkit1 signals are called by webkit2 #514859
+	* This completes internal check that no webkit1 methods/properties/signals
+	  are called by webkit2 anymore.
+	* Added relevant documentaion. 
+  - Me/Roland investigated hackaround to implement setUrl(..) with postData, #527738
+	* Webkit2 doesn't provide api, so we have to make due with alternative.
+	* Roland came up with method that uses java Connection and pass return
+	  data to Webkit. (work in progress)
+	* If Rolands java-Connection doesn't work, I may have a javascript alternative
+	  ready for next week/M5.
+	* This is the last api to implement for webkit2 port to be complete.
+
+Webkit2 port overview:
+  - Assuming Webkit2 BrowserFunction works, we just need to finish setUrl(..postData..)
+	and then we can set Webkit2 to be default.
+
+Triage:
+	461963 – UI freeze of 2.1s in Browser.<init> (99)
+	471824 – Diagnosing errant uses of Display.getDefault() is hard
+	4745 – [StyledText] StyledText does not provide a disabled look (1GG00JX)
+	522733 – [Gtk][Webkit2] Crash on close with webkitgtk 2.18
+	527564 – (webkit2ExecHang) [Webkit2] Deadlock due to blocking javascript execution in a synchronous callback from webkit2
+	527806 – Ship all themes (Win, GTK...) for all OS, and let users pick whichever they want
+	527880 – [Gtk3] Menu "Open Implementation ..." do not work when "Allow different sources for each window" is enabled in Gnome
+
+This Week:
+##########
+Webkit2
+- Little bit of webkit2 code cleaning. (remove some warnings, only compile lib if underlying packages are available etc..)
+- Add guards around some calls that require certain webkit2 versions. (~1/2 days work)
+- Investigate how some Nebula widgets that use Webkit2 behave. Verify that they work well. (to see if there are any webkit2 regressions)
+- Webkit2 focus listener

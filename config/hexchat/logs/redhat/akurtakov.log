@@ -4780,3 +4780,364 @@ Nov 23 16:28:44 <lufimtse>	kk
 Nov 23 16:59:43 <lufimtse>	btw, I have no idea if this will work on anything other than linux x86_64. (aix/ppc/solaris... )
 Nov 24 00:09:42 <akurtakov>	it doesn't matter
 Nov 27 11:14:27 *	Disconnected (Connection timed out)
+**** BEGIN LOGGING AT Fri Dec  8 11:38:21 2017
+
+[akurtakov has address ~akurtakov@ovpn-200-18.brq.redhat.com]
+Dec 08 11:38:23 <lufimtse>	hey
+Dec 08 11:38:24 <lufimtse>	btw
+Dec 08 11:38:57 <lufimtse>	side note, what's the policy on patches having names of bug title. Does it have to be 1:1 exact, or 'simmilar' ish?
+Dec 08 11:39:17 <lufimtse>	like, when I have a bug and 5 patches for it, having all use the same title makes it hard to differentiate them in the git history
+Dec 08 11:39:24 <akurtakov>	1:1 for Eclipse TLP
+Dec 08 11:39:27 <lufimtse>	TLP?
+Dec 08 11:39:32 <akurtakov>	top level project
+Dec 08 11:39:41 <lufimtse>	what is meant by that?
+Dec 08 11:39:44 <akurtakov>	aka PDE/PLatform/Equinox/JDT
+Dec 08 11:39:59 <akurtakov>	https://projects.eclipse.org/projects/eclipse
+Dec 08 11:40:10 <lufimtse>	is that required for some script to crawl them properly, or a style guide line?
+Dec 08 11:40:29 <akurtakov>	a style guide line that IBMers insist on
+Dec 08 11:40:46 <akurtakov>	no idea whether they have some internal tool relying on it tbh
+Dec 08 11:41:14 <lufimtse>	hmmm
+Dec 08 11:42:00 <lufimtse>	I just find it a bit awkward to deal with multiple patches in the same bug if their title is identical. Maybe I should create sub-bug or something.
+Dec 08 11:42:35 <lufimtse>	At one point I'd like to investigate further about the patch naming policy... but I guess kinda busy atm.
+Dec 08 11:42:48 <akurtakov>	one should pick his battles
+Dec 08 11:42:52 <akurtakov>	I don't like this policy
+Dec 08 11:43:16 <akurtakov>	but it's way more important to relase often and keep support for recent libs not everything under the sun
+Dec 08 11:43:27 <akurtakov>	and if I start war on every front I will not win
+Dec 08 11:43:45 <akurtakov>	it's a gradual process of simplifications
+Dec 08 11:44:11 <lufimtse>	makes sense. Although the 1:1 is veeerryy annoying. Meh. One day... 
+Dec 08 11:44:20 <lufimtse>	ok, I'll stick to the 1:1 naming for now.
+Dec 08 11:46:23 <akurtakov>	this year I finally managed to make gio the only implementation in Program
+Dec 08 11:46:33 <akurtakov>	9 years after doing the initial port :)
+Dec 08 11:46:39 <akurtakov>	don't hurry man
+Dec 08 11:46:44 <lufimtse>	gio?
+Dec 08 11:46:58 <lufimtse>	gio lib?
+Dec 08 11:47:05 <akurtakov>	yes
+Dec 08 11:47:55 <lufimtse>	btw, are you really sure it's exactly 1:1 or is it that the bug number must be in the commit message?
+Dec 08 11:48:03 <lufimtse>	for example, suppose the bug title is changed.
+Dec 08 11:48:13 <akurtakov>	I'm sure it's 1:1 as a guideline
+Dec 08 11:48:32 <akurtakov>	many people don't follow it exactly
+Dec 08 11:48:39 <akurtakov>	and Dani kind of lost hope on it
+Dec 08 11:49:09 <akurtakov>	but it is not helping in any conversation with him if trying to change a guideline/rule by not following it first
+Dec 08 11:49:17 <akurtakov>	he blindly vetoes in this case
+Dec 08 11:49:22 <lufimtse>	I see
+Dec 08 11:49:24 <akurtakov>	and things go south
+Dec 08 11:49:42 <lufimtse>	I wonder if doing bugid-alias-custom message might work as a future suggestion...
+Dec 08 11:50:00 <akurtakov>	no
+Dec 08 11:50:07 <lufimtse>	thoughts?
+Dec 08 11:50:09 <akurtakov>	git has a 80 chars cummary
+Dec 08 11:50:18 <akurtakov>	for git short history to work
+Dec 08 11:50:27 <akurtakov>	everything above 80 is not shown in short history
+Dec 08 11:50:33 <lufimtse>	alias are short.
+Dec 08 11:50:40 <lufimtse>	20<
+Dec 08 11:50:51 <lufimtse>	bug titles are sometimes longer.
+Dec 08 11:50:56 <lufimtse>	just a thought...
+Dec 08 11:51:00 <akurtakov>	well, you can try
+Dec 08 11:51:26 <lufimtse>	Hmm. May I investigate after webkit2 port is done?
+Dec 08 11:51:54 <akurtakov>	yes, all you need is to send request to eclipse-pmc list proposing this to be acceptable format
+Dec 08 11:52:01 <lufimtse>	ah
+Dec 08 11:52:07 <lufimtse>	eclipse-pmc, interesting.
+Dec 08 11:52:08 <akurtakov>	if we vote it on pmc  - it can be used
+Dec 08 11:52:21 <akurtakov>	if downvoted - it stays as it is now
+Dec 08 11:53:19 <lufimtse>	I've subscribed to eclipse-pmc list for time being.
+Dec 08 11:53:28 *	lufimtse working on submitting webkit2 patches
+Dec 08 12:13:31 <lufimtse>	akurtakov btw, do you know of any wiki article/place that talks about the 1:1 message requirement? (Or would I need to hunt it down).
+Dec 08 12:25:08 <lufimtse>	anyhows, the OSGI logic works with the webextension being in a versioned directory in the swt.jar. I've verified it with a child eclipse, into which I injected a compiled swt.jar. It extracted it to /eclipse/configuration/...osgi/NNN/N/.cp/webextensions4NNN/lib..web..extension.so.
+Dec 08 12:25:08 <lufimtse>	https://git.eclipse.org/r/#/c/113091/2/bundles/org.eclipse.swt/Eclipse+SWT+PI/common_j2se/org/eclipse/swt/internal/Library.java
+Dec 08 12:25:20 <lufimtse>	I'll verify with tomorrow's I-Build.
+Dec 08 12:33:48 <lufimtse>	akurtakov btw, could you take a quick glance at this guy? https://git.eclipse.org/r/#/c/113031/
+Dec 08 12:33:56 <lufimtse>	looking good?
+Dec 08 12:39:06 <lufimtse>	ok, I'll merge for now. But if you find any issues let me know.
+Dec 08 12:51:00 <lufimtse>	You're good to do your stuff for webkit. 
+Dec 08 13:31:14 <akurtakov>	please resolve bugs and set them for according M
+Dec 08 13:31:16 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=526909
+Dec 08 13:31:28 <akurtakov>	whenever there was some change that went in during this timeframe
+Dec 08 13:31:40 <akurtakov>	if you resolve/close the bug 
+Dec 08 13:31:57 <akurtakov>	without any change in it's fine to do whatever fits
+Dec 08 13:32:10 <lufimtse>	he
+Dec 08 13:33:00 <lufimtse>	What do you mean? https://bugs.eclipse.org/bugs/show_bug.cgi?id=526909  << target milestone set to M5?
+Dec 08 13:33:17 <akurtakov>	closed vs resolved
+Dec 08 13:33:57 <akurtakov>	I hate it that there are two statuses but the norm is resolved :)
+Dec 08 13:34:09 <lufimtse>	this bug doesn't need verification I'd ray
+Dec 08 13:34:10 <lufimtse>	say
+Dec 08 13:34:17 <lufimtse>	or not worth the effort
+Dec 08 13:34:19 <lufimtse>	how to proceed?
+Dec 08 13:34:41 <akurtakov>	just mark it as fixed/verified 
+Dec 08 13:35:00 <lufimtse>	https://www.bugzilla.org/docs/2.18/html/lifecycle.html
+Dec 08 13:35:03 <akurtakov>	that way it will not popup as smth that needs verification
+Dec 08 13:35:08 <lufimtse>	from what I gather closed is final state
+Dec 08 13:35:25 <lufimtse>	assigned -> resolved -> verified -> closed.
+Dec 08 13:35:38 <lufimtse>	but verified can be skipped.
+Dec 08 13:35:43 <akurtakov>	this is up to project usually 
+Dec 08 13:36:02 <akurtakov>	I'm telling you what's the norm usually
+Dec 08 13:36:10 <akurtakov>	inside platform project
+Dec 08 13:36:45 <lufimtse>	ok, trying to understand. For bugs that don't really need to be verified, if it's fixed, do I set it to "resolved" and keep it there?
+Dec 08 13:36:57 <lufimtse>	and what do I do with them when verification time comes?
+Dec 08 13:37:14 <lufimtse>	is there any documentation/wiki page on this?
+Dec 08 13:37:34 <akurtakov>	if you're sure in them just straight mark them to verified
+Dec 08 13:38:50 <lufimtse>	hmm, you sure? even if they weren't verified? 
+Dec 08 13:39:00 <lufimtse>	kinda feels confusing.
+Dec 08 13:39:28 <akurtakov>	you can always wait for next I-build and then mark it as verified
+Dec 08 13:39:43 <akurtakov>	otherwise at verification time you'll be asked about it as noone looks at all bugs
+Dec 08 13:39:52 <akurtakov>	even if its website change
+Dec 08 13:40:00 <lufimtse>	like there are bugs that kinda don't need verification. E.g documentation updates.
+Dec 08 13:40:02 <akurtakov>	the thing is people query bz and send the list
+Dec 08 13:40:14 <lufimtse>	force setting to verified doesn't seem to make sense? O_o?
+Dec 08 13:40:20 <lufimtse>	just saying..
+Dec 08 13:41:55 <akurtakov>	that's why when I'm sure in it I mark it verified
+Dec 08 13:42:08 <akurtakov>	usually after a build (if there was a code commit)
+Dec 08 13:42:46 <akurtakov>	https://wiki.eclipse.org/Development_Resources/HOWTO/Bugzilla_Use
+Dec 08 13:43:05 <akurtakov>	a bit outdated
+Dec 08 13:43:07 *	lufimtse reading
+Dec 08 13:43:16 <akurtakov>	as verification is not done on I-builds but on M-builds now
+Dec 08 13:43:56 <akurtakov>	tbh, as always we have people not following procedures
+Dec 08 13:44:19 <akurtakov>	but it's worth streghtening procedures
+Dec 08 13:44:29 <akurtakov>	to make it easier and faster for everyone
+Dec 08 13:45:00 <lufimtse>	I read the article. It talks about the case where you actually verify a bug,
+Dec 08 13:45:15 <lufimtse>	it doesn't say that that applies to bug that you don't verify
+Dec 08 13:45:42 <lufimtse>	hmm
+Dec 08 13:46:14 <lufimtse>	and the diagram indicates that you can skip verification step.
+Dec 08 13:46:47 <lufimtse>	was there a hard requirement to make use of "verified"?
+Dec 08 13:47:26 <akurtakov>	it was when there were assigned QEs that were verifying every single commit
+Dec 08 13:47:37 <akurtakov>	it's not the case anymore but the process hasn't changed
+Dec 08 13:47:54 <lufimtse>	I mean the article says that someone (who is not you) has to do the QA. Which in our case is quite often not the case.
+Dec 08 13:48:09 <akurtakov>	yup, that's where it's outdated
+Dec 08 13:48:35 <akurtakov>	it's much like with swt web site :)
+Dec 08 13:48:42 <akurtakov>	need update and someone to find the time to update it :)
+Dec 08 13:49:13 <lufimtse>	So basically if I understand correctly, thou shall not skip "verified"  status?
+Dec 08 13:49:21 <lufimtse>	I.e, not jump from assigned/resolved to closed?
+Dec 08 13:49:46 <akurtakov>	yes, that would remove the cases where you'll get requests
+Dec 08 13:50:03 <lufimtse>	"you'll get requests" < what do you mean?
+Dec 08 13:50:54 <akurtakov>	https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&classification=Eclipse&component=SWT&list_id=17035731&product=Platform&query_format=advanced&resolution=FIXED&target_milestone=4.8%20M4
+Dec 08 13:50:58 <akurtakov>	this is the query
+Dec 08 13:51:12 <akurtakov>	we got for M4
+Dec 08 13:51:27 <akurtakov>	note that it looks for both RESOLVED and CLOSED
+Dec 08 13:51:59 <akurtakov>	so the fact that you closed it doesn't skip the verification request
+Dec 08 13:52:48 <lufimtse>	well, I mean it'll popup on the query but since it'll be "CLOSED", it wouldn
+Dec 08 13:52:53 <lufimtse>	wouldn't require further actions
+Dec 08 13:52:54 <lufimtse>	^_^?
+Dec 08 13:52:55 <lufimtse>	meh
+Dec 08 13:53:00 <lufimtse>	idk
+Dec 08 13:53:18 <akurtakov>	what I mean is the people responsible just look for verified case
+Dec 08 13:53:34 <akurtakov>	and it's easier to have one state assuring proper action than two :)
+Dec 08 14:03:27 <akurtakov>	https://git.eclipse.org/r/#/c/113099/
+Dec 08 14:03:32 <akurtakov>	I'll push this one
+Dec 08 14:03:37 <lufimtse>	hey
+Dec 08 14:03:47 <akurtakov>	but will keep the bug open in case you have more stuff to push there
+Dec 08 14:05:36 <lufimtse>	btw
+Dec 08 14:05:39 <lufimtse>	webkitgtk.h
+Dec 08 14:06:07 <lufimtse>	it claims  libwebkit-1.0.so.2= webkit 1.2 and    libwebkit-1.0.so.0   is webkit 1.4>
+Dec 08 14:06:10 <lufimtse>	see ending:
+Dec 08 14:06:13 <lufimtse>	libwebkit-1.0.so.2  1.2
+Dec 08 14:06:17 <lufimtse>	libwebkit-1.0.so.0    1.4+
+Dec 08 14:06:24 <lufimtse>	.2 and .0
+Dec 08 14:06:31 <lufimtse>	kinda feels it should be the other way around?
+Dec 08 14:06:54 <lufimtse>	but idk, just checking?
+Dec 08 14:06:59 <lufimtse>	like maybe comment is off.
+Dec 08 14:07:09 <akurtakov>	read more carefully https://git.eclipse.org/r/#/c/113099/1/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/library/webkitgtk.h 
+Dec 08 14:07:30 <lufimtse>	ah
+Dec 08 14:07:32 <lufimtse>	gtk*
+Dec 08 14:07:34 <lufimtse>	I see
+Dec 08 14:07:36 <akurtakov>	you would have been right if the lib name was the same yeah :)
+Dec 08 14:08:00 <lufimtse>	ok, I'll have some stuff to add to that patch
+Dec 08 14:08:05 <lufimtse>	potentially
+Dec 08 14:08:15 <akurtakov>	ok, you'll handle it as separate commits
+Dec 08 14:08:31 <lufimtse>	ok
+Dec 08 14:10:40 <akurtakov>	are you still on f26 ?
+Dec 08 14:10:55 <lufimtse>	yea, kinda need Webkit1 for now.
+Dec 08 14:11:01 <lufimtse>	but planning on upgrading soon.
+Dec 08 14:11:07 <akurtakov>	I ask exactly for this reason
+Dec 08 14:11:14 <akurtakov>	as there is no webkit1 on f27 :)
+Dec 08 14:11:17 <lufimtse>	X-D
+Dec 08 14:11:33 <lufimtse>	me and Roland spent a little bit of time trying to get webkit1 to work on fedora 27, but gave up.
+Dec 08 14:11:45 <lufimtse>	I can test webkit1 stuff
+Dec 08 14:11:52 <akurtakov>	not worth the effort :)
+**** ENDING LOGGING AT Fri Dec  8 18:14:45 2017
+
+**** BEGIN LOGGING AT Mon Dec 11 13:36:37 2017
+
+[akurtakov has address ~akurtakov@ovpn-200-20.brq.redhat.com]
+Dec 11 13:36:38 <lufimtse>	ping
+Dec 11 13:36:53 <akurtakov>	yes ?
+Dec 11 13:36:57 <lufimtse>	Article https://wiki.eclipse.org/Development_Resources/Contributing_via_Git#The_Commit_Record   suggests that  1) Bug id be in summary,  2) Bug link be in commit.
+Dec 11 13:36:58 <lufimtse>	doesn
+Dec 11 13:37:04 <lufimtse>	doesn't say that summary has to be 1:1
+Dec 11 13:37:05 <lufimtse>	?
+Dec 11 13:37:11 <lufimtse>	You sure the title has to be 1:1
+Dec 11 13:37:11 <lufimtse>	?
+Dec 11 13:37:50 <lufimtse>	even in the example given, the summary is not a 1:1 of the bug title
+Dec 11 13:38:27 <akurtakov>	I was sure :)
+Dec 11 13:38:37 <lufimtse>	he he 
+Dec 11 13:38:47 <akurtakov>	but now that you show me smth else written - it is the written truth :)
+Dec 11 13:38:52 <akurtakov>	which wins :)
+Dec 11 13:38:54 <lufimtse>	ok
+Dec 12 16:31:33 <lufimtse>	hey
+Dec 13 00:20:38 <akurtakov>	what's up leo?
+Dec 13 10:34:47 <lufimtse>	hmm
+Dec 13 10:34:50 <lufimtse>	can't remember
+Dec 13 10:34:53 <lufimtse>	was gonna ask you something
+Dec 13 10:35:04 <lufimtse>	must not have been that important :-)
+Dec 13 10:35:04 <akurtakov>	ok 
+Dec 13 10:35:12 <akurtakov>	I assume it self fixed
+Dec 13 10:35:20 <lufimtse>	probably*
+Dec 13 10:35:32 <lufimtse>	or it'll come back to me when I bump into it again.
+Dec 13 10:38:10 <akurtakov>	:)
+Dec 13 10:38:15 <akurtakov>	that works too
+Dec 13 10:38:24 <akurtakov>	so how do we stand with webkit stuff ?
+Dec 13 10:39:06 <lufimtse>	I expect to be done with the mouse signal stuff today/tomorrow ish
+Dec 13 10:39:07 <lufimtse>	AH
+Dec 13 10:39:11 <lufimtse>	I REMEMBER
+Dec 13 10:43:55 <lufimtse>	what was that browser pop-out issue thing that you talked abuot?
+Dec 13 10:43:59 <lufimtse>	I can't seem to reproduce it
+Dec 13 10:44:09 <lufimtse>	something about it not dissapaearing when you wanted it to go away?
+Dec 13 10:44:38 <lufimtse>	after the signal thing, I think we're probably good to set webkit2 default?
+Dec 13 10:44:45 <akurtakov>	so open browser editor
+Dec 13 10:44:55 <lufimtse>	brwoser editor?
+Dec 13 10:45:08 <lufimtse>	You mean internal browser view
+Dec 13 10:45:09 <lufimtse>	?
+Dec 13 10:45:11 <akurtakov>	no 
+Dec 13 10:45:20 <akurtakov>	I mean browser open in editors place
+Dec 13 10:45:56 <akurtakov>	e.g. in javadoc
+Dec 13 10:46:02 <akurtakov>	write http://google.com
+Dec 13 10:46:08 <akurtakov>	ctrl+click on it
+Dec 13 10:46:15 <akurtakov>	and it will open in browser editor view
+Dec 13 10:46:36 <akurtakov>	minimize your console view
+Dec 13 10:46:54 <akurtakov>	then click on it's icon so it displays as fast view
+Dec 13 10:47:04 <akurtakov>	now click in the browser under it
+Dec 13 10:47:18 <akurtakov>	see how the fast view is not closed
+Dec 13 10:47:29 <akurtakov>	if under the fast view is normal editor it minimizes
+Dec 13 10:47:38 <lufimtse>	hmm
+Dec 13 10:49:13 <lufimtse>	Can't seem to reproduce, the fast view goes away for me.
+Dec 13 10:49:22 <lufimtse>	Can you test with today's nightly?
+Dec 13 10:50:23 <lufimtse>	Can you provide some screenshots so that I can verify I'm doing proper?
+Dec 13 10:50:27 <lufimtse>	or maybe screen recording?
+Dec 13 10:50:41 <lufimtse>	is there a bug on this anywhere?
+Dec 13 10:51:24 <akurtakov>	https://akurtakov.fedorapeople.org/bug.webm
+Dec 13 10:53:54 <akurtakov>	this is with today I-build
+Dec 13 10:57:41 <lufimtse>	ah
+Dec 13 10:58:28 <akurtakov>	so you reproduced it ?
+Dec 13 11:00:30 <lufimtse>	ok, now I reproduced,
+Dec 13 11:00:34 <lufimtse>	will investigate
+Dec 13 11:09:37 <lufimtse>	akurtakov seems to work with the signal fix that I have in place
+Dec 13 11:09:49 <lufimtse>	akurtakov will keep you posted.
+Dec 13 11:12:52 <lufimtse>	yea, I tested before/after fix, it fixes it. More specifically it was because mouseDown event was being swallowed by Webkit.java and not propagated as it should.
+Dec 13 11:13:03 <akurtakov>	I see
+Dec 13 11:13:09 <akurtakov>	works for me :)
+Dec 13 11:13:15 <lufimtse>	I'll check that it doesn't break stuff, will merge later on. 
+Dec 13 11:13:20 <akurtakov>	this has been annoying me for more than a year :)
+Dec 13 11:13:23 <lufimtse>	X-D
+Dec 13 11:13:27 <lufimtse>	5 line fix.
+Dec 13 11:13:29 <akurtakov>	but it has always been too low prio
+[akurtakov has address ~akurtakov@ovpn-200-43.brq.redhat.com]
+Dec 14 11:38:09 <akurtakov>	here?
+Dec 14 11:49:19 <lufimtse>	hello
+Dec 14 11:49:27 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=516838
+Dec 14 11:49:43 <lufimtse>	Webkit2 port is more or less done.
+Dec 14 11:49:52 <lufimtse>	all dependants implemented
+Dec 14 11:50:08 <lufimtse>	I"m writing a documentation/refactoring patch, but then we're good.
+Dec 14 11:50:17 <lufimtse>	Set webkit2 as default?
+Dec 14 11:50:39 <akurtakov>	I'll handle that early next year
+Dec 14 11:50:45 <lufimtse>	I'm also investigating what work to be done next. (SWT performance/etc...). Will have a list for you to review shortly.
+Dec 14 11:51:03 <akurtakov>	yes bug fixing is due now
+Dec 14 11:51:37 <lufimtse>	I'll have list in about 30 mins for you.
+Dec 14 11:51:46 <akurtakov>	perfect
+Dec 14 11:53:12 <akurtakov>	btw, really great 5 lines fix
+Dec 14 11:53:28 <akurtakov>	saves me 100+ clicks per day :)
+Dec 14 12:05:23 <lufimtse>	X-D
+Dec 14 12:05:26 <lufimtse>	does it work for you?
+Dec 14 12:05:36 <akurtakov>	yup
+Dec 14 12:14:50 <akurtakov>	please share the bug list on swt so eric can see it too
+Dec 14 12:14:59 <akurtakov>	or I can come up with a list if you want 
+Dec 14 12:15:07 <akurtakov>	if you're taking dbus stuff
+Dec 14 12:20:15 <lufimtse>	ok
+Dec 14 12:20:41 <akurtakov>	nevermind, don't bother with bugs list
+Dec 14 12:20:53 <akurtakov>	Eric and me will come up with one
+Dec 14 13:45:13 <akurtakov>	back ?
+Dec 14 14:44:45 <akurtakov>	hey
+Dec 14 15:40:46 <akurtakov>	so do you have 10 mins to discuss the dbus stuff now ?
+Dec 14 15:41:50 <lufimtse>	hey
+Dec 14 15:41:58 <lufimtse>	akurtakov sure
+Dec 14 15:42:20 <akurtakov>	so I guess you read https://bugs.eclipse.org/bugs/show_bug.cgi?id=528414#c4
+Dec 14 15:42:32 <akurtakov>	any concerns over that ?
+Dec 14 15:42:40 <lufimtse>	lemme read
+Dec 14 15:42:42 <lufimtse>	sec
+Dec 14 15:46:58 <lufimtse>	akurtakov now read. Tennativley sounds plausible. Only problem is to consider what if there are multiple eclipse's open, which to channel to. I.e, we can postfix the PID to interface name to get around that. (that's what I did with the webextension)
+Dec 14 15:47:20 <akurtakov>	no
+Dec 14 15:47:33 <akurtakov>	we need stable end point 
+Dec 14 15:48:03 <akurtakov>	thus if the interface is already registered swt does nothing
+Dec 14 15:48:36 <lufimtse>	But you'd like to pass a file with equinox
+Dec 14 15:48:38 <akurtakov>	aka only single instance
+Dec 14 15:49:01 <lufimtse>	also what about the scenario with multiple eclipse instances (i.e, users) on single server.
+Dec 14 15:49:17 <lufimtse>	what's the motivation with single instance?
+Dec 14 15:49:32 <akurtakov>	regarding multiple users 
+Dec 14 15:49:36 <akurtakov>	each of them has session bus
+Dec 14 15:49:46 <lufimtse>	I see
+Dec 14 15:49:48 <lufimtse>	that's a good point.
+Dec 14 15:49:53 <akurtakov>	and that's where the interface lives so no issue
+Dec 14 15:50:02 <akurtakov>	regarding single instance
+Dec 14 15:50:09 <akurtakov>	if you have 3 started eclipse
+Dec 14 15:50:25 <akurtakov>	and you do eclipse --launcher.openFile 
+Dec 14 15:50:37 <akurtakov>	that would be separate process started
+Dec 14 15:50:49 <akurtakov>	it has no way of knowing the pid
+Dec 14 15:50:55 <akurtakov>	of the otehr one
+Dec 14 15:51:19 <akurtakov>	all it has to do is invoke the method of the interface
+Dec 14 15:51:29 <lufimtse>	hmmm
+Dec 14 15:51:32 <akurtakov>	so the first one that registered acts
+Dec 14 15:52:03 <lufimtse>	technically broadcasting can be used to discover info, but I see your case for single instance.
+Dec 14 15:52:09 <lufimtse>	hmmm
+Dec 14 15:52:19 <akurtakov>	what do you mean broadcasting
+Dec 14 15:52:34 <akurtakov>	if you have 3 started eclispes and you say openFile each of them opens it ?
+Dec 14 15:53:17 <lufimtse>	hmm
+Dec 14 15:53:17 <akurtakov>	note that these eclipse instances might be at different version and so on
+Dec 14 15:53:21 <lufimtse>	give me 2 mins to think.
+Dec 14 15:53:25 <lufimtse>	<processing>
+Dec 14 15:57:32 <lufimtse>	no, not broadcasting file to every instance. Broadcasting can be used to identify information about clients. (who is there?  << responses). 
+Dec 14 15:57:45 <lufimtse>	But I agree it doesn't make sense to open a file in all 3 instances
+Dec 14 15:57:47 <lufimtse>	only 1 instance
+Dec 14 15:57:52 <lufimtse>	however
+Dec 14 15:58:41 <lufimtse>	something to consider is open the file in the *first/last* instance launched, or in the *most recently focused* instance.
+Dec 14 15:59:02 <lufimtse>	e.g firefox from command line will open in the firefox which was most recently opened.
+Dec 14 15:59:10 <lufimtse>	but this is a different problem
+Dec 14 15:59:17 <lufimtse>	I see, I agree a single interface name makes sense
+Dec 14 16:00:08 <lufimtse>	btw, do you have time to talk about projects
+Dec 14 16:00:18 <akurtakov>	that's what we do now ?
+Dec 14 16:00:46 <lufimtse>	do we? I  have no idea.
+Dec 14 16:01:05 <akurtakov>	we speak for the most pressing project :)
+Dec 14 16:01:35 <lufimtse>	I'm talking about a year's of work, not just 2-3 weeks :-)
+Dec 14 16:02:04 <akurtakov>	sure
+Dec 14 16:02:10 <akurtakov>	there is one prereq
+Dec 14 16:02:15 <akurtakov>	any new development
+Dec 14 16:02:32 <akurtakov>	will start once there is no reason for someone to use gtk2
+Dec 14 16:02:39 <akurtakov>	and we are rock solid under wayland :)
+Dec 14 16:02:50 <lufimtse>	do you have time for a quick call?
+Dec 14 16:02:53 <lufimtse>	whattsapp?
+Dec 14 16:02:59 <lufimtse>	kinda lazy about typing. 
+Dec 14 16:03:02 <lufimtse>	or kids asleep?
+Dec 14 16:03:03 <akurtakov>	ok
+Dec 14 16:03:09 <lufimtse>	do you have whattsapp?
+Dec 14 16:03:23 <lufimtse>	I use whattsapp to talk to sister in South Africa
+Dec 14 16:03:25 <lufimtse>	works well
+Dec 14 16:03:28 <akurtakov>	nope
+Dec 14 16:03:30 <lufimtse>	meh
+Dec 14 16:03:42 <lufimtse>	what do you have?
+Dec 14 16:03:50 <akurtakov>	bluejeans :)
+Dec 14 16:03:59 <akurtakov>	skype
+Dec 14 16:04:02 <akurtakov>	viber
+Dec 14 16:04:56 <akurtakov>	https://bluejeans.com/8966058510/
+Dec 14 16:05:06 <lufimtse>	sec
+Dec 14 17:00:08 <akurtakov>	https://github.com/jnr
+Dec 14 17:03:26 <akurtakov>	http://openjdk.java.net/jeps/191
+Dec 14 17:07:55 <akurtakov>	d-feet
+Dec 14 17:56:50 *	[akurtakov] (~akurtakov@ovpn-200-43.brq.redhat.com): Alexander Kurtakov
+Dec 14 17:56:50 *	[akurtakov] #desktop #SWT #devtoolset-eng #java #devel #eclipse 
+Dec 14 17:56:50 *	[akurtakov] irc.devel.redhat.com :Red Hat Internal IRC Server
+Dec 14 17:56:50 *	[akurtakov] 10.40.200.43 :actually using host
+Dec 14 17:56:50 *	[akurtakov] idle 00:48:55, signon: Thu Dec 14 07:52:57
+Dec 14 17:56:50 *	[akurtakov] End of WHOIS list.
+Dec 14 17:58:42 <lufimtse>	thanks for the chat and links. I'll work on compiling task list tomorrow. (launcher, gtk3 bugs, wayland bugs, perf etc...) and I crossed off the website as project.
+Dec 14 17:59:30 <akurtakov>	btw https://bugs.eclipse.org/bugs/show_bug.cgi?id=525957
+Dec 14 17:59:44 <akurtakov>	this is smth I believe should be fairly easy to do 
+Dec 14 18:00:14 <akurtakov>	scaling is not propagated from/to browser imho
+Dec 15 09:48:03 <lufimtse>	ok
+Dec 15 12:00:11 <lufimtse>	SWT work plan is ready. I've sent it to Eric for review, once he had a look at it I'll send it to you and Sopot for sign off. (Today/Monday).
+[akurtakov has address ~akurtakov@ovpn-200-20.brq.redhat.com]
+Dec 15 12:02:00 <akurtakov>	I'll look into it next year :)
