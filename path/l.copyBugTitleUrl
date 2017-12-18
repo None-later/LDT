@@ -1,0 +1,27 @@
+#!/bin/bash
+
+HOST=$(hostname)
+
+# Example: 507072 – (LinuxIDEColorTracker) Implement fitting Linux colors for various IDE components
+
+# Default: Strip alias and dash out of title.
+# Eg: Bug 507072 Implement fitting Linux colors for various IDE components
+TITLE=$(wmctrl -xl | grep -i firefox | grep -o "${HOST}.*" | sed "s/$HOST //" | sed 's/ - Mozilla Firefox//' | sed 's/ – ([a-z]\+)//gI')
+
+# Keep only _alias. Useful if you submit multiple patches for a single bug.
+# Eg: 507072 (LinuxIDEColorTracker)
+if [ "$1" == 'a' ]; then
+   shift
+   TITLE=$(wmctrl -xl | grep -i firefox | grep -o "${HOST}.*" | sed "s/${HOST} //" | sed 's/ - Mozilla Firefox//' | grep -E -i -o '[0-9]+ – \([a-z]+)' | sed 's/ – / /')
+fi
+
+
+BUGID=$(echo $TITLE | tr -dc '0-9')
+if [ "$1" != 'nl' ]; then
+   # Default, append bug link. (as requried by: https://wiki.eclipse.org/Development_Resources/Contributing_via_Git )
+   printf "Bug ${TITLE}\nBug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=${BUGID}" | xsel -b
+else
+   # If 'nl' (no link) is specified, only put title into clipboard
+   printf "Bug ${TITLE}" | xsel -b
+fi	
+	
