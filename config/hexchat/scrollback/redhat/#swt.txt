@@ -1,818 +1,504 @@
-T 1512079274 18<rgrunber18>	pfft
-T 1512079278 18<ericwill18>	https://stackoverflow.com/questions/133925/javascript-post-request-like-a-form-submit
-T 1512079278 20<lufimtse>30	https://stackoverflow.com/questions/5684303/javascript-window-open-pass-values-using-post
-T 1512134143 19<akurtakov>	lufimtse: hey
-T 1512134146 18<akurtakov18>	is Eric around ?
-T 1512134947 18<akurtakov18>	ericwill: hey Eric
-T 1512134967 18<akurtakov18>	another round of the color issue 
-T 1512135030 18<ericwill18>	akurtakov regression from the patch you pushed today?
-T 1512135035 18<ericwill18>	or separate
-T 1512135038 18<akurtakov18>	yes, see the bug
-T 1512135054 18<akurtakov18>	it happens even with themes enabled 
-T 1512135058 18<akurtakov18>	if you oopen form editor
-T 1512135069 18<akurtakov18>	the first time top level toolbar is gray
-T 1512135083 18<akurtakov18>	change the tabs
-T 1512135096 18<akurtakov18>	and it becomes white (which should have been the initial case)
-T 1512135181 18<akurtakov18>	ericwill: wdyt?
-T 1512135208 18<akurtakov18>	should we revert or you're going to fix it today ?
-T 1512135211 18<akurtakov18>	:)
-T 1512135230 18<ericwill18>	akurtakov in a call in Sopot atm, will take a look in 30 mins
-T 1512135271 18<akurtakov18>	ok
-T 1512135766 18<akurtakov18>	let me know when you're done
-T 1512136497 18<ericwill18>	akurtakov okay done
-T 1512136500 18<ericwill18>	let me take a look
-T 1512136593 18<ericwill18>	hmm
-T 1512136930 18<ericwill18>	akurtakov no guarantee I can fix this today, if I can get it done before lunch then I
-T 1512136936 18<ericwill18>	will push, if not I'll revert
-T 1512137038 18<akurtakov18>	ok
-T 1512137105 18<akurtakov18>	ericwill: please come up with tests for these theing
-T 1512137117 18<akurtakov18>	even if small parts we need some automation
-T 1512137207 18<ericwill18>	yes I will do that
-T 1512137214 18<ericwill18>	they might end up in the platform specific tests
-T 1512137220 18<ericwill18>	to start
-T 1512137238 18<akurtakov18>	hmm no
-T 1512137248 18<akurtakov18>	we need them to be run as part of the regular builds
-T 1512137256 18<akurtakov18>	otherwise they would just be lost
-T 1512137307 18<ericwill18>	okay
-T 1512137351 18<ericwill18>	akurtakov what do you think about using getData to return the contents of the GtkCSSProvider
-T 1512137357 18<akurtakov18>	I don't see why e.g. creating ctabfolder with toolbar and playing with colors in this toolbar 
-T 1512137366 18<akurtakov18>	needs to be platform specific
-T 1512137376 18<akurtakov18>	what content ?
-T 1512137399 18<ericwill18>	so I think the issue here lies that the GTK CSS applied to the widget doesn't always equal what SWT returns
-T 1512137416 18<ericwill18>	getting access to the CSS would help parse "actual" colors vs. what the SWT API reports
-T 1512137447 18<ericwill18>	and it wouldn't be hard to have getData just spit out the contents of the GTK CSS
-T 1512137461 18<akurtakov18>	that would be fine with me
-T 1512137470 18<akurtakov18>	as long as you keep it under some internal key
-T 1512137494 18<ericwill18>	okay
-T 1512137773 18<akurtakov18>	ericwill: I would like ot see this coloring issue fixed before going back to a11y
-T 1512137828 18<ericwill18>	akurtakov agreed, now it's just straight up annoying me :)
-T 1512138156 19<akurtakov>	lufimtse: how confident are you in your browserfunction changes?
-T 1512139616 18<ericwill18>	akurtakov so the regression with the toolbars in the formeditor were there with the original patch as well
-T 1512139619 18*	ericwill sighs
-T 1512139624 18<ericwill18>	back to the drawing board
-T 1512141406 18<akurtakov18>	ericwill: I don't remember
-T 1512142089 18<akurtakov18>	ericwill: so do you have an idea what's going on ?
-T 1512142108 18<akurtakov18>	what troubles me is it changes colors on changing tabs
-T 1512142145 18<ericwill18>	akurtakov not concretely
-T 1512142152 18<ericwill18>	and yes that makes it more confusing for me as well
-T 1512142176 18<ericwill18>	but that doesn't happen when theming is disabled
-T 1512142205 18<ericwill18>	I'm also curious how this theming even happens, does it set the bg color for every widget? or is there some inheritance scheme going on
-T 1512142447 18<ericwill18>	I also think this all stems from setBackgroundMode being broken
-T 1512142456 18<ericwill18>	and now that we have transparent colors it's more of an issue than before
-T 1512142799 18<akurtakov18>	ericwill: probably,you're right
-T 1512142821 18<akurtakov18>	regarding theming it is quite dummy and not effective
-T 1512142830 18<akurtakov18>	it blindly sets the color always
-T 1512142907 18<ericwill18>	I am not a big fan of these themes
-T 1512142909 18<ericwill18>	they cause headaches
-T 1512142931 18<ericwill18>	at least on GTK, can't speak for Win32 or cocoa
-T 1512143290 18<akurtakov18>	ericwill: I'm not a fan of them either
-T 1512143310 18<akurtakov18>	but this doesnt' change the fact we dont' have the manpower to introduce proper theming at swt level
-T 1512143320 18<akurtakov18>	and it's really wanted feature
-T 1512143324 18<akurtakov18>	so we have to live with it
-T 1512143364 18<ericwill18>	what would be the option for proper theming
-T 1512143371 18<ericwill18>	write a GTK theme to ship with SWT?
-T 1512143380 18<ericwill18>	or more API
-T 1512144682 20<lufimtse>30	akurtakov, hey
-T 1512144723 18<akurtakov18>	well, IMHO the setStyle(String css)
-T 1512144736 18<akurtakov18>	which is a real one and consults parent for keys missing :)
-T 1512144745 20<lufimtse>30	akurtakov, at this moment I don't know of anything that would make the browserfunction more stable, we just have to merge and see what happens. I haven't found any issues with it, seems to work well, feels good.
-T 1512144786 19<akurtakov>	lufimtse: I ment giving access to Lucas so he can test how the GTK theme works under windows and vice-versa
-T 1512144821 20<lufimtse>30	akurtakov, how does giving lucas access to one of the eclipse test machines relate to browserfunction?
-T 1512144832 19<akurtakov>	lufimtse: it doesnt'
-T 1512144837 20<lufimtse>30	lufimtse, ok, 
-T 1512144851 20<lufimtse>30	akurtakov, the laptop is idle on my desk, can be taken at any time.
-T 1512144860 20<lufimtse>30	or remoted into via vnc
-T 1512144968 19<akurtakov>	lufimtse: when I asked about confident I ment in terms of build scripts
-T 1512145534 19<akurtakov>	lufimtse: so do you want to commit it now ? the build system should pick it up proper, right?
-T 1512145644 18<ericwill18>	this business of shipping other OS themes is cool
-T 1512145825 20<lufimtse>30	akurtakov, so build servers are ready?
-T 1512145838 20<lufimtse>30	akurtakov, I need to submit binary repo patch first,
-T 1512145840 19<akurtakov>	lufimtse: should be
-T 1512145853 20<lufimtse>30	does it take a while for swt repo to pickup on changes in binary repo?
-T 1512145895 18<akurtakov18>	it doesn't pick them
-T 1512145903 18<akurtakov18>	I don't know what you mean by that actually?
-T 1512145911 20<lufimtse>30	sec
-T 1512146011 20<lufimtse>30	https://git.eclipse.org/r/#/c/112215/
-T 1512146018 20<lufimtse>30	akurtakov, has to be merged first
-T 1512146043 20<lufimtse>30	then so that when maven builds, it reads the webextension folder
-T 1512146061 20<lufimtse>30	akurtakov, the only thing about the browserfunction patch is that I haven't tested on 32bit.
-T 1512146091 18<akurtakov18>	so you have to push the 2 patches at the same time?
-T 1512146195 20<lufimtse>30	I guess? the binary patch doesn't depend on the browserFunction patch, but the BrowserFunction patch depends on the binary repo patch.
-T 1512146349 20<lufimtse>30	Ok, so I guess I should merge in the binary patch then.
-T 1512146355 20<lufimtse>30	akurtakov, 
-T 1512146376 18<akurtakov18>	ok, so merge them both
-T 1512146380 20<lufimtse>30	kk
-T 1512146475 20<lufimtse>30	akurtakov, as heads up/fyi. it's possible that browserFunction may not work on linuxs390*, ppc, arm,hpux,aix.  ~I'll start merging.
-T 1512146503 18<akurtakov18>	as long as it doesn't break builds I'm fine with that :)
-T 1512146540 20<lufimtse>30	akurtakov, ok. Hmm, maybe I should prevent webkit being build on anything non-linuxx86_64 related?
-T 1512146546 20<lufimtse>30	i mean the extension
-T 1512146555 18<akurtakov18>	no, please don't bother with it
-T 1512146560 20<lufimtse>30	akurtakov, linux_x86_*
-T 1512146571 20<lufimtse>30	it might break aix/s390 builds
-T 1512146579 18<akurtakov18>	if it fails them we will remove them
-T 1512146584 20<lufimtse>30	ok.
-T 1512146594 20<lufimtse>30	should I send something out on mailing list about the patch?
-T 1512146617 18<akurtakov18>	it shouldn't break x86, x86_64, ppc64 and ppc64le
-T 1512146635 18<akurtakov18>	all 4 machines should have webkitgkt4 -devel installed
-T 1512146643 20<lufimtse>30	ok, then should work.
-T 1512146681 19<akurtakov>	lufimtse: btw, https://git.eclipse.org/r/#/c/112215/ doesn't include ppc
-T 1512146713 18<akurtakov18>	ericwill: so no color fix for M4 it is ?
-T 1512146720 20<lufimtse>30	akurtakov, good point. I guess I could add to ppc. should I also add to other gtk platforms?
-T 1512146735 18<akurtakov18>	no just these 4
-T 1512146739 20<lufimtse>30	ok
-T 1512146756 18<ericwill18>	akurtakov no fix for M4. I want to fix the setBackgroundMode issue first
-T 1512146766 18<ericwill18>	otherwise it is just a mess of bandaid fixes
-T 1512146769 20<lufimtse>30	akurtakov, do you know what is ppc64le?
-T 1512146775 20<lufimtse>30	le*
-T 1512146782 18<ericwill18>	but I am making these color issues the highest priority for M5
-T 1512146783 18<akurtakov18>	little endian
-T 1512146795 18*	akurtakov is the one that maintains the build machine :)
-T 1512146815 18<akurtakov18>	https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_8.xml#target_environments
-T 1512146836 19<akurtakov>	lufimtse: it's the only other non x86 platform
-T 1512146976 20<lufimtse>30	akurtakov, ah
-T 1512147127 20<lufimtse>30	akurtakov, https://git.eclipse.org/r/#/c/112722/ ?
-T 1512147189 18<akurtakov18>	looks good
-T 1512147492 19<rgrunber>	lufimtse: fyi, certainly possible to do it in pure java libs https://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/ .  i don't mind having a look later today, unless you're already working on it.
-T 1512147512 20<lufimtse>30	rgrunber, hey
-T 1512147519 20*	lufimtse 30reading myyong
-T 1512147609 18<rgrunber18>	URL has openConnection which gives an HTTPURLConnection. from there you can set the method, attributes, and get an outputstream to write the payload directly.
-T 1512147627 20<lufimtse>30	rgrunber, can we make webkit think that the webpage url changed?
-T 1512147649 20<lufimtse>30	like, not just set the text, but suppose the js on the page want's to know which url/domain it's on, will git get the new domain?
-T 1512147706 18<rgrunber18>	could we do a setURL that just does a GET the first time, and then go through java api and setText the second time ?
-T 1512147731 18<rgrunber18>	ah i c what you mean.. 
-T 1512147754 18<rgrunber18>	can't delay executing the js, might look different by the time we get the data..
-T 1512147776 20<lufimtse>30	rgrunber, hmm. 
-T 1512147784 20<lufimtse>30	rgrunber, like:   alert( "The full URL of this page is:<br>" + window.location.href)
-T 1512147793 20<lufimtse>30	should return url of post request url
-T 1512147795 20<lufimtse>30	not the old one.
-T 1512147827 18<rgrunber18>	they'd be the same.. the url of the post request is the same as if we just did a get.. post just specifies what data we send to that url.
-T 1512148027 20<lufimtse>30	I mean once we got something in java, how do we set webkit to that data such that the webpageURL is also set properly?
-T 1512148128 20<lufimtse>30	rgrunber, as a sidenote, the javascript/form hack doesn't deal with headers. So we'd either be able to set url with custom headers or url with postdata, but not both.
-T 1512148132 18<rgrunber18>	by calling setURL with no post data the first time , the url would be correct.
-T 1512148165 20<lufimtse>30	rgrunber, so call url, then call url with postdata and set page data with the result we got from java?
-T 1512148196 20<lufimtse>30	rgrunber, I wonder if we can set the url, but then stop loading via signal, then set the page data
-T 1512148202 20<lufimtse>30	hmmm
-T 1512148210 20<lufimtse>30	rgrunber, that could prevent double load.
-T 1512148231 20<lufimtse>30	brb.
-T 1512148272 18<rgrunber18>	another possibility is in setText() itself of browser. it calls webkit_web_view_load_html. that function takes a base_uri as the last argument, because the render the html it might have to resolve things like images, relative to the base uri, so it does some additional GET requests.. i wonder if webkit might handle setting the url to base_uri..
-T 1512148344 18<rgrunber18>	currently we only pass in about:blank, or file:/// for setText().. but we could add some special field there, that if set, passes the actual base_uri from setURL..
-T 1512148863 18<akurtakov18>	rgrunber: what did the webkit dev said about it ?
-T 1512148926 18<rgrunber18>	akurtakov: haven't proposed this to him at that time, he just mentioned he'd speak to webkit devs about a possible solution and get back to us.
-T 1512148946 18<akurtakov18>	ok
-T 1512148954 18<akurtakov18>	did you point him to sami's bz?
-T 1512148994 18<rgrunber18>	we were looking at ways outside of webkit api. yes pointed him to it.
-T 1512150221 20<lufimtse>30	rgrunber, maybe we should make it clear that we need to be able to do post+headers, not necesserily access to soupmessage
-T 1512150237 20<lufimtse>30	that seems like more reasonable api than requesting soupmessage access
-T 1512150278 20<lufimtse>30	rgrunber, webkit_web_view_load_html(..) seems promising..
-T 1512150291 20<lufimtse>30	maybe do the java thing and then use webkit_web_view_load_html(..)
-T 1512150428 20<lufimtse>30	rgrunber, do you think you can wip together a prototype that uses java + webkit_web_view_load_html(..), test with the bugzilla query from snippet330?
-T 1512150431 18<rgrunber18>	yeah i'll send a clarifying email.. since even the bug mentioned being able to possible append to the data
-T 1512150452 20<lufimtse>30	maybe even clarify in the bug that we just need setUrl/postData/headers
-T 1512150455 20<lufimtse>30	at least.
-T 1512150524 18<rgrunber18>	yeah, and i at least wanna try out putting a wip together.. from just thinking about it, it "should work", but i won't know what other issues may come up unless i try it.
-T 1512150533 20<lufimtse>30	he he 
-T 1512150540 20<lufimtse>30	ok. back in 15 min.
-T 1512154214 19<ericwill>	lufimtse just saw you are merging a ~2200 line change on the Friday before M4
-T 1512154217 18<ericwill18>	may god be with you
-T 1512154234 20<lufimtse>30	ericwill, ^__^
-T 1512154281 20<lufimtse>30	 /s/god/God/ :P
-T 1512154302 18<ericwill18>	:)
-T 1512157722 20<lufimtse>30	rgrunber, any joy with the setUrl business?
-T 1512157764 18<rgrunber18>	it works.. about to see if passing the baseurl to the webkit_web_view_load_html also resolves other images...
-T 1512157770 18<rgrunber18>	*partially works
-T 1512157864 18<rgrunber18>	woohoo!
-T 1512157896 18<rgrunber18>	yup looks good.. i'll post a basic WIP of it ..
-T 1512157909 20<lufimtse>30	weee
-T 1512157912 20<lufimtse>30	keeewwll
-T 1512157994 18<rgrunber18>	only one dirty hack (on top of the fact that we're bypassing webkit api).. and that's adding the field 'url' kind of like we have headers and postData.. because setText has no way to pass in the base url.
-T 1512158020 18<rgrunber18>	just have to set it to null when we're done with it, like is done for postData/headers..
-T 1512158053 20<lufimtse>30	rgrunber, I see
-T 1512158082 20<lufimtse>30	rgrunber, might be sensible to use the java hackaround only if postData is not null. Use current meachanism for when it is null.
-T 1512158109 20<lufimtse>30	to minimize potential side effects I guess
-T 1512158117 19<rgrunber>	lufimtse: :) this hack only activates when postData is not null.. otherwise old behaviour is honoured
-T 1512158125 20<lufimtse>30	kk
-T 1512158134 18<rgrunber18>	i thought the same thing.. risky to change the code flow in any other case.
-T 1512158756 20<lufimtse>30	rgrunber, btw, I would suggest to pull master and work on top of the browserFunction patch. It's quite extensible, just to avoid merge conflicts.
-T 1512158781 18<rgrunber18>	yeah, already on top of it. i'm seeing print messages to console about it..
-T 1512158784 20<lufimtse>30	.. s/extensible/changes a lot of code/
-T 1512158795 18<rgrunber18>	SWT_LIB_Gtk:3.22.26
-T 1512158795 18<rgrunber18>	SWT_LIB  Webkit2   Webkitgtk:2.18.3  (webkitgtk >=2.5 is Webkit2)
-T 1512158795 18<rgrunber18>	   Implemented: BrowserFunction over GDBus, 
-T 1512158795 18<rgrunber18>	   not finished: setUrl(..postData)
-T 1512158803 20<lufimtse>30	ah yea.
-T 1512158804 20<lufimtse>30	he he
-T 1512158819 20<lufimtse>30	We can update the setUrl bit.
-T 1512158845 20<lufimtse>30	Just want to get info from people who will be using the webkitport, to know which version they're on.
-T 1512397636 19*	Now talking on 22#SWT
-T 1512412701 20<lufimtse>30	akurtakov, about webkit extension
-T 1512412723 20<lufimtse>30	akurtakov, (maybe I'm missing something also, so let me explain)
-T 1512412748 20<lufimtse>30	for webkit to load extension, there must only be a single .so in the webextensions folder
-T 1512412766 20<lufimtse>30	e.g libswt-webkit...-48...so
-T 1512412775 20<lufimtse>30	if there are two different versions, then it'll try to load both as extensions
-T 1512412796 20<lufimtse>30	if the folder doesn't have a version, then when we rebuild locally, there will be the old extension in that folder and a new one.
-T 1512412801 20<lufimtse>30	so local development breaks
-T 1512412827 18<akurtakov18>	ok, that's easily fixable
-T 1512412841 18<akurtakov18>	we can chaange build.sh to wipe out on install
-T 1512412841 20<lufimtse>30	if the extracted folder name is the same, then next time you update eclipse, you'll have two libswt-webkitextension.so files
-T 1512412868 18<akurtakov18>	hmm, why would I have two files
-T 1512412883 18<akurtakov18>	this happens in osgi.config.area
-T 1512412888 20<lufimtse>30	suppose you have swt 4801, then you update and have swt 4802
-T 1512412891 18<akurtakov18>	and old content will be wiped out
-T 1512412896 20<lufimtse>30	then the ~/.swt/.. contains both .so files.
-T 1512412910 20<lufimtse>30	problem is when you update eclipse...
-T 1512412917 18<akurtakov18>	ah, so this is for standalone swt not for eclipse usage
-T 1512412931 20<lufimtse>30	well, the eclipse usage extracts the .so's also.
-T 1512412934 20<lufimtse>30	to ~/.swt
-T 1512412934 18<akurtakov18>	eclipse is not extracting anything in .swt
-T 1512412956 20<lufimtse>30	akurtakov, now it is :-)
-T 1512412974 20<lufimtse>30	akurtakov, webkit2 must have a folder with .so in it.
-T 1512413002 20<lufimtse>30	akurtakov, unfortunatley webkit2 cannot load a file on it's own, the only api given is to specify a directory.
-T 1512413003 18<akurtakov18>	why not doing same as other so file
-T 1512413010 20<lufimtse>30	as per above
-T 1512413020 20<lufimtse>30	akurtakov, webkit2 api is not great :-/
-T 1512413053 18<akurtakov18>	all so files go into install_dir/configuration/org.eclipse.osgi/${bundle_id}/.cp....
-T 1512413064 20<lufimtse>30	hmmm
-T 1512413066 20<lufimtse>30	akurtakov, basically
-T 1512413099 18<akurtakov18>	did you manually specify .swt somewhere
-T 1512413109 20<lufimtse>30	 /home/lufimtse/.swt/lib/linux/x86_64/webkitextensions  <<
-T 1512413115 20<lufimtse>30	the .swt is put into your home folder.
-T 1512413118 18<akurtakov18>	let's make an experiment
-T 1512413127 18<akurtakov18>	rm -fr ~/.swt
-T 1512413132 18<akurtakov18>	stop eclipse
-T 1512413134 18<akurtakov18>	start it again
-T 1512413137 18<akurtakov18>	look for ~/.swt
-T 1512413149 20<lufimtse>30	yea, did that, it basically
-T 1512413165 20<lufimtse>30	creates .swt/lib/linux/.../webextensions/libswt-web...ext..so
-T 1512413174 20<lufimtse>30	~/.swt/..
-T 1512413201 20<lufimtse>30	akurtakov, so basically for browserFunction to work, it must have a temp folder on the system.
-T 1512413212 20<lufimtse>30	with the extension inside it.
-T 1512413215 18<akurtakov18>	and no other swt.so file ?
-T 1512413237 18<akurtakov18>	where do you think the other swt.so files are
-T 1512413247 18<akurtakov18>	go in your install_dir/configuration 
-T 1512413252 20<lufimtse>30	for eclipse, yes, only webextension. For standalone .swt, it extracts 3 more (--pi3-...so  etc..)
-T 1512413253 18<akurtakov18>	and search for *.so file
-T 1512413261 18<akurtakov18>	when you run eclipse
-T 1512413265 20<lufimtse>30	sec
-T 1512413280 18<akurtakov18>	the webextension should be together with all other *.so files
-T 1512413286 18<akurtakov18>	once this is fixed
-T 1512413303 18<akurtakov18>	this leaves the issue with standalone swt yes
-T 1512413351 20<lufimtse>30	akurtakov, yes, to confirm. With an eclipse, only the webkitextensions .. so is extracted. the other libs are picked up by OSGI mechanism s
-T 1512413352 20<lufimtse>30	.swt
-T 1512413352 20<lufimtse>30	└── lib
-T 1512413352 20<lufimtse>30	    └── linux
-T 1512413352 20<lufimtse>30		└── x86_64
-T 1512413352 20<lufimtse>30	            └── webkitextensions
-T 1512413352 20<lufimtse>30	                └── libswt-webkit2extension-gtk-4840.so
-T 1512413381 20<lufimtse>30	by standalone swt all other .so's are extracted also.
-T 1512413385 20<lufimtse>30	into x86_64
-T 1512413390 18<akurtakov18>	how did you specify this folder btw?
-T 1512413396 18<akurtakov18>	it should even go in x86_64
-T 1512413434 20<lufimtse>30	the folder name is generated in Library.java
-T 1512413442 20<lufimtse>30	USER_HOME + SWT_LIB_DIR
-T 1512413455 20<lufimtse>30	where SWT_LIB_DIR is .swt + lib + os() + arch()
-T 1512413469 20<lufimtse>30	it is then created in Library.java
-T 1512413493 20<lufimtse>30	ok, so there are 2 fixes possible:
-T 1512413510 20<lufimtse>30	1) Append version to webkitextensions folder 
-T 1512413533 20<lufimtse>30	2) package webkitextension in the same way as other .so, but extact it into a folder with version prefix
-T 1512413561 20<lufimtse>30	for 1), this would require the build scripts to be able to include webkitextensions*  < with asteric
-T 1512413601 18<akurtakov18>	now, let me start with issue when running from inside eclipse
-T 1512413612 18<akurtakov18>	it should not use ~/.swt
-T 1512413618 20<lufimtse>30	akurtakov, not possible :-/
-T 1512413622 18<akurtakov18>	in your install folder
-T 1512413629 18<akurtakov18>	cd configuration
-T 1512413633 20<lufimtse>30	akurtakov, ah,
-T 1512413636 18<akurtakov18>	find -name *.so
-T 1512413646 20<lufimtse>30	akurtakov, so extract it into your install folder instead?
-T 1512413651 18<akurtakov18>	./configuration/org.eclipse.osgi/2597/0/.cp/libswt-webkit-gtk-4840.so
-T 1512413662 18<akurtakov18>	how do you think this ends up there ?
-T 1512413709 20<lufimtse>30	akurtakov, ah I see. HMmm, no idea, have to investigate
-T 1512413716 20<lufimtse>30	give me 15 mins.
-T 1512413738 20<lufimtse>30	akurtakov, so basically you want me to extract into install ~/.configuration/..../webkitextension/ folder
-T 1512413749 18<akurtakov18>	yes
-T 1512413754 18<akurtakov18>	but it's not extract at runtime
-T 1512413757 20<lufimtse>30	akurtakov, this could work, even without folder version
-T 1512413764 18<akurtakov18>	it's done at publishing
-T 1512413772 20<lufimtse>30	at publishing?
-T 1512413797 18<akurtakov18>	this is done by osgi environment 
-T 1512413803 18<akurtakov18>	let me find you a reference for it
-T 1512413903 20<lufimtse>30	akurtakov, from what I gather, that ./configuration/org...osgi/.. stuff is extracted at run time.
-T 1512413974 18<akurtakov18>	yes
-T 1512414000 18<akurtakov18>	but this is not smth swt does at startup
-T 1512414009 18<akurtakov18>	it is smth the osgi env does on bundle load
-T 1512414018 20<lufimtse>30	akurtakov, do you know, do I specify these libswt-webkit-gtk-XXX in swt project, or somewhere in some pom.xml of sorts?
-T 1512414033 20<lufimtse>30	like would the fix be in swt project for this or would I have to hunt somewhere else...
-T 1512414049 18<akurtakov18>	it would be elsewhere
-T 1512414053 20<lufimtse>30	from what I can see, the osgi mechanism does support folders
-T 1512414054 18<akurtakov18>	in equinox most probably
-T 1512414082 20<lufimtse>30	e.g some has /.cp/icons/obj16/file.ext
-T 1512414095 20<lufimtse>30	so it could be done for webkitextensions theoretically
-T 1512414117 18<akurtakov18>	please verify/push the other patches while I find you entry point
-T 1512414122 20<lufimtse>30	akurtakov, Sami's patch did include a bit on the osgi thing.
-T 1512414151 18<akurtakov18>	pointer ?
-T 1512414155 20<lufimtse>30	sec
-T 1512414256 20<lufimtse>30	https://git.eclipse.org/r/#/c/25157/13/bundles/org.eclipse.swt/Eclipse+SWT+PI/common_j2se/org/eclipse/swt/internal/Library.java 
-T 1512414259 20<lufimtse>30	see line 370
-T 1512414288 20<lufimtse>30	akurtakov, the only thing is that that code doesn't put the extension into it's own folder.
-T 1512414320 20<lufimtse>30	it's hard for me to test the code as it requires a rebuild of eclipse, but given enough rebuilds I could make it work that way
-T 1512414546 20<lufimtse>30	akurtakov, ok, from what I gather, we need to do the following:
-T 1512414568 20<lufimtse>30	1) WebkitextensionsXXX  should have a version number at the end so that local development doesn't break.
-T 1512414585 20<lufimtse>30	2) I should implement code so that local .swt/ extracts into a versioned folder
-T 1512414609 20<lufimtse>30	3) I should investigate how to extract this with OSGI 
-T 1512414634 18<akurtakov18>	only for 1) it should keep the same format as we ship
-T 1512414653 18<akurtakov18>	thus it should stay webkitextensions but install should wipe previous files in the dir
-T 1512414685 18<akurtakov18>	btw, what exactly happens when having multiple *so files ? does it crash ?
-T 1512414711 20<lufimtse>30	akurtakov, have not tried, but I extect pretty bad things.
-T 1512414735 20<lufimtse>30	akurtakov, both extensions will be loaded and there will be conflicts
-T 1512414758 18<akurtakov18>	the issue with folder is wiping out/creating dir on every rebuild
-T 1512414773 20<lufimtse>30	akurtakov, the wiping thing is not done for other .so files
-T 1512414780 20<lufimtse>30	akurtakov, it could be done...
-T 1512414802 18<akurtakov18>	it's not done as it knows what to load
-T 1512414813 20<lufimtse>30	akurtakov, another solution is to package the webkitextension.so just like all the other .so files, and simply extract into a versioned folder 
-T 1512414834 18<akurtakov18>	btw, do you have bug opened for webkit to load so file instead of dir ?
-T 1512414841 20<lufimtse>30	akurtakov, hmmm, although that would break local development a bit...
-T 1512414858 20<lufimtse>30	akurtakov, let me check
-T 1512414933 20<lufimtse>30	akurtakov, no, I think I spoke with WebkitGtk folks on IRC, they pointed out that it can only be done via the directory and that was the end of it. I could submit a request thou?
-T 1512414947 18<akurtakov18>	yes please
-T 1512414977 20<lufimtse>30	ok. That would be a potential improvement in the future. For the time being we need to figure out the versioning business
-T 1512414987 20<lufimtse>30	do you wanna bluejeans?
-T 1512414995 18<akurtakov18>	no
-T 1512414998 18<akurtakov18>	too late
-T 1512415001 20<lufimtse>30	ok.
-T 1512415002 20<lufimtse>30	hmm
-T 1512415007 18<akurtakov18>	kids in bed already :)
-T 1512415025 18<akurtakov18>	so better keep quiet for sometime :)
-T 1512415060 20<lufimtse>30	akurtakov, we need to figure out if 1) delete old webkitextensions/webkitextesion.so files or 2) create webkitextensionsXXXX/web..so 
-T 1512415089 20<lufimtse>30	1) is not done for any other .so file from what I gather
-T 1512415097 20<lufimtse>30	so it would be a new mechanism of sorts
-T 1512415121 18<akurtakov18>	well, get ti that way
-T 1512415129 20<lufimtse>30	could be done, although a bit out of sync with other code.
-T 1512415132 20<lufimtse>30	2)  << 
-T 1512415133 18<akurtakov18>	if we have webkitextensionsXXx
-T 1512415146 18<akurtakov18>	this would pile in the dir
-T 1512415159 20<lufimtse>30	2) from what I gather , all files are created for a maven build from scratch anyway, including the versioned folder?
-T 1512415177 20<lufimtse>30	akurtakov, why do you think it would pile up?
-T 1512415197 20<lufimtse>30	akurtakov, does the current code remove the *.so files or is the whole folder re-created each time?
-T 1512415218 20<lufimtse>30	I get the sense that it just wipes and re-creates the whole thing
-T 1512415220 18<akurtakov18>	remove the so files
-T 1512415227 20<lufimtse>30	so then it wouldn't pile up version numbers
-T 1512415237 18<akurtakov18>	http://git.eclipse.org/c/platform/eclipse.platform.swt.binaries.git/commit/?id=4d32c3babe08510fac3ec82c0e569f0599cf7bc1
-T 1512415237 20<lufimtse>30	akurtakov, ah, so it removes the .so files?
-T 1512415250 18<akurtakov18>	webkitextensions dir is there
-T 1512415288 18<akurtakov18>	this would mean tweaking all the build machines, piling up stuff from local builds, unclear git history and so on
-T 1512415337 18<akurtakov18>	so let's go for 1) wipe out *.so from webextensions on install
-T 1512415346 20<lufimtse>30	akurtakov, so implement 1), which would delete old webextension.so files before copying new one?
-T 1512415353 20<lufimtse>30	akurtakov, ok, I can do that.
-T 1512415370 18<akurtakov18>	2) extract versioned in ~/.swt
-T 1512415386 18<akurtakov18>	doh, that would not work
-T 1512415393 18<akurtakov18>	sigh
-T 1512415394 20<lufimtse>30	akurtakov, ok, so I can do as following: 1) wipe .so files.  2) Implement so that locally .swt/ extracted into versioned folder.   3) (if I can get it done in time) implement the osgi load mechanismo
-T 1512415428 18*	akurtakov doesn't want to deal with crappy build configs again
-T 1512415429 20<lufimtse>30	akurtakov, I can extract into versioned webkitextension folder even if the .jar doesn't have versioned folder name.
-T 1512415446 20<lufimtse>30	akurtakov, I think I can get it done without messing with build server config files.
-T 1512415455 20<lufimtse>30	 *probably
-T 1512415463 18<akurtakov18>	well, the issue is what happens with osgi load 
-T 1512415482 20<lufimtse>30	osgi loads don't care about versioning. I think?
-T 1512415489 20<lufimtse>30	hmm
-T 1512415489 18<akurtakov18>	as osgi load will probably have to have the same structure as the local
-T 1512415512 18<akurtakov18>	thus if it's versioned in one place will have to be in the other for the loadLibrary call to work
-T 1512415547 20<lufimtse>30	akurtakov, hmm, 
-T 1512415592 20<lufimtse>30	akurtakov, I don't quite know osgi well enough. What happens after you update eclipse to newer version. Would the ./configuration/ ... have multiple sets of .so files in the same folder or different folders?
-T 1512415611 18<akurtakov18>	different folder
-T 1512415616 18<akurtakov18>	it's the bundleid
-T 1512415623 18<akurtakov18>	as in integer
-T 1512415628 20<lufimtse>30	akurtakov, what is the bundleID?
-T 1512415649 18<akurtakov18>	every bundle in the runtime has an integer identifier
-T 1512415654 18<akurtakov18>	and on swt update
-T 1512415661 18<akurtakov18>	the old one is removed and new one created
-T 1512415676 20<lufimtse>30	akurtakov, ah, so that explains why I only have one set of .so files in my eclipse ./configuration
-T 1512415688 20<lufimtse>30	akurtakov, in that case, we can get away without versioned folder in osgi
-T 1512415706 20<lufimtse>30	akurtakov, the versioned folder in that case is only needed for local .swt/...
-T 1512415716 18<akurtakov18>	yes and it explains why I didn't understand your concern as we can never have duplicated if properly done
-T 1512415732 18<akurtakov18>	but the trick is in the loadLibrary call
-T 1512415741 20<lufimtse>30	akurtakov, yes, that makes sense. I need to read an osgi book :-).
-T 1512415745 18<akurtakov18>	it has to know the dir from which to load
-T 1512415760 18<akurtakov18>	and whether versioned or not matters in this case
-T 1512415761 20<lufimtse>30	akurtakov, well
-T 1512415775 20<lufimtse>30	akurtakov, I need it to put it into a folder and give me File in return
-T 1512415779 18<akurtakov18>	as I don't want to see this ifed
-T 1512415781 20<lufimtse>30	I can then get parent of file
-T 1512415796 20<lufimtse>30	File.getParent()
-T 1512415819 20<lufimtse>30	akurtakov, this seems possible. other files in ./configuration/ seem to be inside folders.
-T 1512415863 20<lufimtse>30	eg
-T 1512415870 20<lufimtse>30	./2852/0/.cp/icons/wizban/import_wiz.png
-T 1512415870 20<lufimtse>30	./2852/0/.cp/icons/etool16
-T 1512415870 20<lufimtse>30	./2852/0/.cp/icons/etool16/createRepository.png
-T 1512415879 20<lufimtse>30	wizban, etool16
-T 1512415890 20<lufimtse>30	so just need to figure out how to put stuff into a particular folder.
-T 1512415918 18<akurtakov18>	no, this should not happen from swt
-T 1512415922 18<akurtakov18>	for swt it shouldn't matter
-T 1512415923 20<lufimtse>30	akurtakov, I suggest that perhaps I'll first work on 1 and 2, and then look into the osgi business. That way we'd have something working for M4.
-T 1512415927 18<akurtakov18>	whether osgi or not
-T 1512415933 20<lufimtse>30	akurtakov, I see
-T 1512415939 20<lufimtse>30	hmmm
-T 1512415943 18<akurtakov18>	but what we chose for 1) and 2)
-T 1512415951 18<akurtakov18>	depend on 3)
-T 1512415976 18<akurtakov18>	so if you go versioned dir
-T 1512415992 18<akurtakov18>	1 and 2 should be doable and it should not be an issue for 3)
-T 1512416041 18<akurtakov18>	and this would involve another tweak of the build machines
-T 1512416043 18<akurtakov18>	sigh
-T 1512416066 20<lufimtse>30	akurtakov, hmmm
-T 1512416090 20<lufimtse>30	akurtakov, how does osgi figure out which file to extract? does it override loadLib of sorts?
-T 1512416094 20<lufimtse>30	loadLibrary
-T 1512416097 20<lufimtse>30	or does it use URL?
-T 1512416110 20<lufimtse>30	I'm looking at Library.loadLibrary()
-T 1512416115 20<lufimtse>30	where does it interact with osgi
-T 1512416126 18<akurtakov18>	so go versioned
-T 1512416151 18<akurtakov18>	I'll have to tweak the build servers
-T 1512416187 18<akurtakov18>	go versioned
-T 1512416202 18<akurtakov18>	it has issues but at least it won't break with osgi
-T 1512416205 18<akurtakov18>	sigh
-T 1512416275 20<lufimtse>30	akurtakov, hmmm
-T 1512416450 18<akurtakov18>	please make sure to not break the build with the changes though :)
-T 1512416820 20<lufimtse>30	akurtakov, so if I understand corretly, I should  1) update the build.properties  s/webkitextensions/webkitextensions*     2) Update SWT WebKit.java to look for a versioned folder.
-T 1512416839 20<lufimtse>30	Are there build server changes that have to be done to facilitate the versioned thing?
-T 1512416846 18<akurtakov18>	1) remove webextensions dir too
-T 1512416855 20<lufimtse>30	and remove dir in build.sh
-T 1512416872 20<lufimtse>30	assuming those will be done, will you have to do some modifications to build servers?
-T 1512416893 18<akurtakov18>	not sure about the build server 
-T 1512416900 18<akurtakov18>	sigh, I hate that part
-T 1512416908 18<akurtakov18>	please do 1) and 2)
-T 1512416914 18<akurtakov18>	if it breaks it will break
-T 1512416940 18<akurtakov18>	I just remember latest build was using IBM machines
-T 1512416947 18<akurtakov18>	so I even can't fix anything there
-T 1512416947 20<lufimtse>30	From my testing, with 1), maven builds the .jar with /webkitextensionXXX/lib...so inside it. 
-T 1512416970 20<lufimtse>30	i.e, the build.properties does include it.
-T 1512417025 20<lufimtse>30	ok, I'll go for it and see what happens.
-T 1512417055 20<lufimtse>30	it must be pretty late for you. Should I just merge stuff when ready or set for review and let you inspect first?
-T 1512417657 18<akurtakov18>	just merge
-T 1512417669 18<akurtakov18>	and merge the other patches too
-T 1512417690 18<akurtakov18>	I don't want to see them on Wed build :)
-T 1512420554 20*	Disconnected (20Connection timed out)
-T 1512427615 19*	Now talking on 22#SWT
-T 1512480855 20*	Disconnected (20Connection timed out)
-T 1512487172 19*	Now talking on 22#SWT
-T 1512492086 19*	Now talking on 22#SWT
-T 1512575632 19*	Now talking on 22#SWT
-T 1512575694 19<akurtakov>	ericwill, lufimtse: https://issues.jboss.org/secure/RapidBoard.jspa?rapidView=4243&selectedIssue=ERT-544&quickFilter=14551
-T 1512575709 18<akurtakov18>	please move your tasks to proper state
-T 1512575748 20<lufimtse>30	akurtakov, hey
-T 1512575795 20<lufimtse>30	akurtakov, ok
-T 1512575844 18<ericwill18>	akurtakov do you mean closing the ones that are done?
-T 1512575847 18<ericwill18>	or something else
-T 1512575853 18<ericwill18>	(I am not familiar with jira)
-T 1512575871 18<akurtakov18>	ericwill: move them to the Done column
-T 1512575918 18<ericwill18>	okay
-T 1512575965 18<akurtakov18>	ericwill: and these that you work on, to in progress column
-T 1512575973 18<ericwill18>	akurtakov got it :)
-T 1512577526 18<akurtakov18>	ericwill: 886 SWT/GTK open bugs 
-T 1512577532 18<akurtakov18>	new record low :)
-T 1512577564 18<ericwill18>	akurtakov nice :) maybe this year we can get it under 500
-T 1512577577 18<akurtakov18>	hmm in the next 24 days ? :)
-T 1512577639 18<ericwill18>	I meant next year :P
-T 1512577643 18<akurtakov18>	i plan nice christmas vacation but if you volunteer :)
-T 1512577706 18<akurtakov18>	if we kill gtk2 it's doable :)
-T 1512577943 18<ericwill18>	fingers crossed
-T 1512581809 18<ericwill18>	akurtakov more info on setBackgroundMode stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=519416#c7
-T 1512583823 18<akurtakov18>	ericwill: hmm, I can't help much with that :)
-T 1512583831 18<akurtakov18>	it will be try and error again
-T 1512583844 18<akurtakov18>	but it would be nice if we document/test more for the next round 
-T 1512583847 18<akurtakov18>	aka gtk4 :)
-T 1512583873 18<ericwill18>	yes, I am in uncharted territory :) will do
-T 1512583903 18<akurtakov18>	ericwill: at the time this was done there was no transparency to start with :)
-T 1512583923 18<ericwill18>	akurtakov I can see that haha
-T 1512583927 18<ericwill18>	this has been broken for awhile
-T 1512583937 18<ericwill18>	sadly
-T 1512584324 18<akurtakov18>	880 - donefor today :)
-T 1512584429 18<akurtakov18>	ericwill: while looking at https://bugs.eclipse.org/bugs/attachment.cgi?id=269289
-T 1512584456 18<akurtakov18>	if you get group to inherit proper that would fix many(most?) instances due to how eclipse UI is contructed
-T 1512584553 18<ericwill18>	akurtakov the blue background is set on group
-T 1512584569 18<ericwill18>	fixing it makes it worse as now all its children that are broken are inheriting it :)
-T 1512584589 18<ericwill18>	that screenshot is old, let me show you what it looks like now
-T 1512584611 18<akurtakov18>	ok, I was going to say "so group doesn't set background proper?"
-T 1512584725 18<ericwill18>	akurtakov this is what it looks like now: https://bugs.eclipse.org/bugs/attachment.cgi?id=271800
-T 1512584750 18<akurtakov18>	aka no diff :)
-T 1512584768 18<ericwill18>	yup
-T 1512584782 18<ericwill18>	I will keep at it
-T 1512584785 18<ericwill18>	I have some ideas
-T 1512584788 18<akurtakov18>	ok, this stuff is tiresome :)
-T 1512584806 18<ericwill18>	very...
-T 1512591766 20<lufimtse>30	rgrunber, -Dnative=gtk.linux.x86_64
-T 1513002593 19*	Now talking on 22#SWT
-T 1513006010 19<akurtakov>	lufimtse, ericwill: here?
-T 1513006026 18<ericwill18>	akurtakov hello
-T 1513006033 20<lufimtse>30	akurtakov, yes.
-T 1513006525 18<akurtakov18>	so what do you guys think of the openFile crash?
-T 1513006540 18<akurtakov18>	is the approach viable in your opinion?
-T 1513006709 18<ericwill18>	akurtakov haven't looked into it yet
-T 1513006727 18<akurtakov18>	when are your vacations guys?
-T 1513006758 18<ericwill18>	I am off from the 25th - 2nd
-T 1513006765 18<ericwill18>	might take the 21st or the 22nd off
-T 1513006917 18<akurtakov18>	this Friday is last for me for this year
-T 1513006929 18<akurtakov18>	so if I haven't provided a fix for the crash
-T 1513006948 18<akurtakov18>	I would ask you to look into it next week
-T 1513006957 18<ericwill18>	sounds good to me
-T 1513006968 18<akurtakov18>	my approach could be plain stupid but that's what I managed to come up with so far
-T 1513007062 18<ericwill18>	I will look into it this afternoon
-T 1513008978 20*	Disconnected (20Connection timed out)
-T 1513011685 19*	Now talking on 22#SWT
-T 1513018452 18<ericwill18>	akurtakov what is the procedure for making a method public? say if someone wanted to expose CTabFolder.shouldHighlight()?
-T 1513018457 18<ericwill18>	is it a complicated process?
-T 1513018467 18<ericwill18>	i.e. add it to the API
-T 1513018494 18<akurtakov18>	ericwill: well, open bz to make it public
-T 1513018502 18<akurtakov18>	document it proper 
-T 1513018524 18<akurtakov18>	if it's ws-specific document it in all ws subdirs
-T 1513018544 18<akurtakov18>	ideally have tests for it
-T 1513018558 18<ericwill18>	okay
-T 1513018577 18<ericwill18>	I ask because in this CTabFolder gerrit the guy asked about making it public to make junit testing easier
-T 1513019584 18<akurtakov18>	well, just for unit testing is bad 
-T 1513019592 18<akurtakov18>	it must have some real usage
-T 1513019617 18<akurtakov18>	if doesn't have such usage it's internal 
-T 1513020185 18<ericwill18>	akurtakov right now they are accessing the method in a junit test case using reflection
-T 1513020970 19<rgrunber>	lufimtse: think i fixed the issue with putting everything in a separate thread and calling asyncExec from that separate thread on just the loadbytes part.. seems to avoid freezing ui.
-T 1513020991 20<lufimtse>30	rgrunber, I left a comment in patch
-T 1513021009 20<lufimtse>30	rgrunber, tennativley, seems good, but haven't tested yet.
-T 1513021152 18<ericwill18>	akurtakov how do you test this launcher issue?
-T 1513021220 18<akurtakov18>	ericwill: I build the natives
-T 1513021229 18<akurtakov18>	and copy the so file in launcher plugin
-T 1513021247 18<akurtakov18>	and eclipse executable in topdir of eclipse
-T 1513021251 18<akurtakov18>	that's separate eclipse I have 
-T 1513021256 18<akurtakov18>	just for that purporse
-T 1513021430 19<rgrunber>	lufimtse: makes sense, i'll make the changes
-T 1513021437 18<ericwill18>	akurtakov hmm okay
-T 1513021445 20<lufimtse>30	rgrunber, kk. Let me know when ready for review.
-T 1513021456 18<ericwill18>	not sure I fully understand but I am not ready to test yet so I'll figure it out later
-T 1513021504 18<akurtakov18>	ericwill: launcher testing is quite complicated
-T 1513021517 18<akurtakov18>	ericwill: you download eclipse
-T 1513021549 18<akurtakov18>	cd rt.equinox.framework/features/executable.feature
-T 1513021573 18<akurtakov18>	rt.equinox.framework/features/org.eclipse.equinox.executable.feature/library/gtk
-T 1513021579 18<akurtakov18>	./build.sh
-T 1513021603 18<akurtakov18>	there are two files produced 'eclipse' and 'eclipse_1628.so'
-T 1513021610 18<akurtakov18>	in the newly extracted eclipse
-T 1513021619 18<akurtakov18>	cp eclipse in the topdir
-T 1513021633 18<akurtakov18>	cp eclipse_1628.so in the plugins/*.launcher/
-T 1513021651 18<akurtakov18>	and launch eclipse using the just copied eclipse executable 
-T 1513021666 18<ericwill18>	akurtakov okay got it
-T 1513024200 18<ericwill18>	akurtakov your patch might be segfaulting in gdk_window_new() because you need to pass the address of GdkWindowAttr
-T 1513024219 18<ericwill18>	i.e. &attributes, not just attributes
-T 1513024224 18<ericwill18>	this is the first thing that comes to mind
-T 1513024235 18<akurtakov18>	ericwill: huh, I get compile warning if I try to pass attribs
-T 1513024239 18<akurtakov18>	no idea why
-T 1513024256 18<akurtakov18>	ericwill: too late for me
-T 1513024269 18<ericwill18>	akurtakov I will play around with it
-T 1513024284 18<akurtakov18>	it's worth trying whehter window is found enough via gdkatom at all
-T 1513024295 18<akurtakov18>	as I have a feeling this doesn't work
-T 1513024304 18<akurtakov18>	feel free to comment in the bz or gerrit
-T 1513024309 18<akurtakov18>	g'night
-T 1513024458 18<ericwill18>	goodnight!
-T 1513027218 20<lufimtse>30	rgrunber, setUrl good for merge/
-T 1513027219 20<lufimtse>30	?
-T 1513028411 19<rgrunber>	lufimtse: hmm do you really like those block statements ?
-T 1513028834 20<lufimtse>30	rgrunber, If the function is more than a page long, then the blocks help reason about a function because they clarify scope of variables.
-T 1513028856 20<lufimtse>30	rgrunber, otherwise it's kinda hard to read the code.
-T 1513028867 18<rgrunber18>	i find it hard to read with the extra curlies :P
-T 1513028891 20<lufimtse>30	rgrunber, do you suggest to remove the curlies?
-T 1513028911 18<rgrunber18>	i don't mind, just didn't know if it was some kind of standard used within swt or not.
-T 1513028945 20<lufimtse>30	rgrunber, it's not an swt standard. But we have a lot of code in SWT that's like 3-4 pages per function.
-T 1513028954 20<lufimtse>30	reading and debugging that is a pain.
-T 1513028965 20<lufimtse>30	especially considering the C/Java type conversion business.
-T 1513028985 20<lufimtse>30	My line of logic is that if it's more than a page, then the code should either be put into blocks or a separate function.
-T 1513028991 20<lufimtse>30	as per clean-code guideline/
-T 1513029017 20<lufimtse>30	rgrunber, btw, patch looks good. Are we good to merge setUrl?
-T 1513029036 18<rgrunber18>	yeah, it should be fine now. tests can be added afterwards.
-T 1513029068 18<rgrunber18>	not too crazy about that 'final' stuff i had to do near the end but it's mainly just to pass in those variables.
-T 1513030249 20<lufimtse>30	rgrunber, still found another bug :-)
-T 1513030252 20<lufimtse>30	posted comment.
-T 1513030261 20<lufimtse>30	I'm off. C u Tomorrow.
-T 1513030269 18<rgrunber18>	k
-T 1513092033 18<akurtakov18>	ericwill: hey Eric
-T 1513092039 18<akurtakov18>	what are you up to?
-T 1513092060 18<ericwill18>	akurtakov hey, wayland launcher business and patch reviews
-T 1513092096 18<akurtakov18>	ericwill: I just pushed the latest changes 
-T 1513092104 18<akurtakov18>	using selection for display
-T 1513092110 18<akurtakov18>	but still it doesn't get any window
-T 1513092118 18<akurtakov18>	not sure what's going on
-T 1513092124 18<akurtakov18>	regarding reviews
-T 1513092137 18<akurtakov18>	just take the easiest ones first to reduce the noise :)
-T 1513092167 18<ericwill18>	akurtakov I am planning on reviewing those two CTabFolder patches from Andrey/Simeon
-T 1513092187 18<akurtakov18>	ok, whatever works for you :)
-T 1513092198 18<akurtakov18>	having them batched eases testing I guess 
-T 1513092224 18<ericwill18>	correct
-T 1513092238 18<ericwill18>	also for the launcher thing I see you filled out the GdkWindowAttr struct
-T 1513092246 18<ericwill18>	that was going to be my next suggestion :)
-T 1513092253 18<ericwill18>	I'll keep investigating today
-T 1513092324 18<akurtakov18>	ericwill: I can't make the window = gtk.gdk_selection_owner_get_for_display(display, launcherWindowAtom); return a window
-T 1513092336 18<akurtakov18>	it's always null ptr
-T 1513092366 18<akurtakov18>	ericwill: if you have any change/progress
-T 1513092382 18<akurtakov18>	feel free to push it when you're done today so I start from there
-T 1513092390 18<akurtakov18>	or mail with findings works too
-T 1513092420 18<ericwill18>	okay will do
-T 1513092623 18<akurtakov18>	ericwill: additionaly, if you make it work 
-T 1513092661 18<akurtakov18>	you'll need to modify swt to look for gdk atom and not x11 atom to see openFile really working
-T 1513092697 18<akurtakov18>	I'll prep a gerrit for that but just have it as low prio due to not really sure of gdk atom
-T 1513092725 18<akurtakov18>	there is smth about "known to the process" in gtk doc that troubles me
-T 1513093318 18<ericwill18>	akurtakov yeah I was just looking at that as well
-T 1513093327 18<ericwill18>	is the window being created in another process maybe?
-T 1513093341 18<akurtakov18>	yes
-T 1513093344 18<akurtakov18>	but that is the case
-T 1513093360 18<akurtakov18>	I can't launch new eclipse in the same process
-T 1513094692 18<ericwill18>	akurtakov for the launcher thing, is there an explicit need to check if a launcher window exists? why not create a fresh one each time?
-T 1513094697 18<ericwill18>	just thinking out loud
-T 1513098467 18<ericwill18>	akurtakov also when I do F3 on some of these GDK struct members, I get pointed to the gtk2 GDK stuff
-T 1513098474 18<ericwill18>	is equinox using GTK2 libs?
-T 1513098826 18<ericwill18>	looks like it is
-T 1513098919 18<ericwill18>	ah nvm figured it out
-T 1513101335 18<akurtakov18>	ericwill|lunch: the case should be if there is almost simultaneous launch 
-T 1513101559 18<ericwill18>	akurtakov okay
-T 1513101676 18<akurtakov18>	ericwill: the whole design is questionable IMHO
-T 1513101709 18<akurtakov18>	as the way it's implemented if you launch multiple eclipse instances at different version it's kind of weird
-T 1513101728 18<ericwill18>	agreed
-T 1513101734 18<ericwill18>	also I was reading the GdkSelection API
-T 1513101743 18<ericwill18>	and this is in the general description: "The X selection mechanism provides a way to transfer arbitrary chunks of data between programs."
-T 1513101757 18<ericwill18>	will gdk_selection_* work on Wayland?
-T 1513101844 18<akurtakov18>	ericwill: I think this is stale doc
-T 1513101945 18<ericwill18>	kk
-T 1513102060 18<akurtakov18>	ericwill: https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkwindow-wayland.c?h=gtk-3-22
-T 1513102357 18<akurtakov18>	ericwill: actually https://git.gnome.org/browse/gtk+/tree/gdk/wayland/gdkdevice-wayland.c?h=gtk-3-22#n1151
-T 1513102371 18<akurtakov18>	if gtk devs use it in gdkdevice-wayland.c
-T 1513102376 18<akurtakov18>	it must be implemented
-T 1513102391 18<ericwill18>	yeah there is also gdkselection-wayland.c
-T 1513102398 18<ericwill18>	so I think you're right, just a stale doc
-T 1513102454 18<akurtakov18>	ericwill: it's worth opening a bug against gtk thought 
-T 1513102465 18<akurtakov18>	it will at least show them you RTFM :)
-T 1513102488 18<ericwill18>	will do
-T 1513102500 18<ericwill18>	so when I run this, if it doesn't segfault it hangs for about a minute before launching
-T 1513102503 18<akurtakov18>	should gain you some good will on your next question :)
-T 1513102503 18<ericwill18>	do you get that as well?
-T 1513102510 18<akurtakov18>	yes
-T 1513102513 18<akurtakov18>	that's normal
-T 1513102522 18<akurtakov18>	if you look deeper in the code
-T 1513102531 18<akurtakov18>	it has a timeout of 60 sec
-T 1513102578 18<akurtakov18>	ericwill: look for openFileTimeout
-T 1513102588 18<akurtakov18>	if you don't pass openFile there is no delay
-T 1513102614 18<ericwill18>	okay so that's what that is
-T 1513102617 18<ericwill18>	interesting
-T 1513102648 18<akurtakov18>	I was so close to starting it from scratch
-T 1513102666 18<akurtakov18>	but what I'm afraid of are these many undocumented cases which will bite us
-T 1513102714 18<akurtakov18>	ericwill: I still not get how it's decided to run jvm in process or fork it
-T 1513102764 18<akurtakov18>	this is one thing I remember on 32bit jvm is run in process of the launcher (aka no separate java process) on 64bit it's forked
-T 1513102800 18<ericwill18>	yeah this code is very confusing
-T 1513102805 18<ericwill18>	still the segfault is mysterious
-T 1513102811 18<akurtakov18>	oh yeah
-T 1513102820 18<akurtakov18>	it doesn't make sense at all
-T 1513102829 18<akurtakov18>	and the fact it's every second call
-T 1513103005 18<ericwill18>	so for gdk_window_new(), the bitmask has to represent certain parameters that were missing
-T 1513103016 18<ericwill18>	but after I changed that it still didn't fix it
-T 1513103096 18<ericwill18>	hmm
-T 1513103108 18<ericwill18>	CurrentTime is a macro in X11/X.h
-T 1513104393 18<akurtakov18>	oops, I missed that
-T 1513104984 18<ericwill18>	even changing it to GDK_CURRENT_TIME doesn't fix it
-T 1513105380 18<akurtakov18>	well, please push changes like that so we have less possible causes :)
-T 1513105609 18<ericwill18>	will do at the end of the day, right now I am just experimenting around with stuff
-T 1513105876 18<akurtakov18>	sure
-T 1513177202 18<ericwill18>	akurtakov any updates on the launcher stuff? I see you made some changes
-T 1513177367 18<akurtakov18>	I fixed the crash
-T 1513177372 18<akurtakov18>	and the delay
-T 1513177384 18<akurtakov18>	ericwill: the crash was stupid me failing with function declaration sigh
-T 1513177401 18<akurtakov18>	now it's up to atom not finding launcher
-T 1513177425 18<akurtakov18>	I have issue with not understanding how this whole thing work
-T 1513177466 18<akurtakov18>	ericwill: I mean how does it relate atom to window
-T 1513177483 18<ericwill18>	you mean GdkWindowAttr* instead of just GdkWindowAttr :)
-T 1513177486 18<ericwill18>	I hate these little things
-T 1513177505 18<ericwill18>	okay I will continue to look at it today, at least now it isn't crashing which is good
-T 1513177521 18<akurtakov18>	and the one min delay is gone too :)
-T 1513177630 18<ericwill18>	excellent, I see you added gdk_flush too
-T 1513177778 18<ericwill18>	akurtakov btw unrelated to this, but yesterday in the gtk IRC channel mclasen and Benjamin were talking about the future of a11y on GTK4
-T 1513177804 18<ericwill18>	mclasen said they will not drop a11y support but there are very few people to maintain/fix it
-T 1513177852 18<ericwill18>	Benjamin wants to drop support for it as he doesn't have the time to maintain it
-T 1513177856 18<ericwill18>	just something you should be aware of
-T 1513178436 18<akurtakov18>	ericwill: well, I don't think it will be dropped
-T 1513178443 18<akurtakov18>	it's mandatory for some government stuff
-T 1513178491 18<akurtakov18>	removing it will render gtk apps out of such env
-T 1513178519 18<ericwill18>	I don't think it will be dropped either
-T 1513261265 19<akurtakov>	lufimtse: hey Leo
-T 1513261268 18<akurtakov18>	congrats on the promotion
-T 1513264012 18<ericwill18>	akurtakov I think DBus is the way to go
-T 1513264021 19<ericwill>	I spoke to lufimtse about it yesterday, he may have some thoughts
-T 1513264893 20<lufimtse>30	akurtakov, omg
-T 1513269063 18<akurtakov18>	ericwill: about dbus?
-T 1513269086 18<ericwill18>	akurtakov yes, we just spoke about some generalities
-T 1513269115 18<akurtakov18>	ok, how does it sound?
-T 1513269187 18<akurtakov18>	ericwill: I would like to see launcher fixed
-T 1513269206 18<akurtakov18>	having a crasher is definetely not what I want to see
-T 1513269216 18<akurtakov18>	I have added it to the plan 
-T 1513269228 18<akurtakov18>	assigned to me but I can reasign it to you if you want
-T 1513269247 18<akurtakov18>	it is smth that both of us will keep an eye on
-T 1513269267 18<ericwill18>	I think the dbus approach is doable since now we are re-writing it instead of trying to fix the old design
-T 1513269286 18<akurtakov18>	yup
-T 1513269303 18<akurtakov18>	have you seen that property_notify is removed
-T 1513269306 18<akurtakov18>	in gtk4 now
-T 1513269326 18<ericwill18>	I saw
-T 1513269366 18<ericwill18>	IMO this is the least of our worries for GTK4 :) they are changing the drawing vfuncs for GtkWidgetClass
-T 1513269369 18<akurtakov18>	so I feel really bad changing smth now that is likely to crash on me in the next year again (assuming gtk 4.0 is released and we start porting)
-T 1513269388 18<akurtakov18>	ericwill: well, true 
-T 1513269403 18<akurtakov18>	but on the other hand we should do some forward thinking when we write things
-T 1513269433 18<ericwill18>	agreed
-T 1513269451 18<ericwill18>	okay so for this sprint and next one (since PTO is a half of this sprint) I will look at launcher dbus and a11y
-T 1513271002 19<akurtakov>	lufimtse: do you have any concern over dbus in swt ?
-T 1513271156 20<lufimtse>30	akurtakov, what do you mean?
-T 1513271176 19<akurtakov>	lufimtse: for the launcher
-T 1513271179 20<lufimtse>30	akurtakov, at the moment DBus is localized to webkit extension. But I could extract it and make it a more global interface
-T 1513271190 18<akurtakov18>	you have read my email, right?
-T 1513271205 18<akurtakov18>	to the team list
-T 1513271223 18<akurtakov18>	with link to the launcher bug and proposal how to do it over dbus
-T 1513271278 20<lufimtse>30	akurtakov, ah, I didn't quite get to email yet
-T 1513271281 20*	lufimtse 30reading
-T 1513271394 20<lufimtse>30	akurtakov, I don't see any issues with having dbus in swt, except it would be confined to linux.
-T 1513271410 20<lufimtse>30	I'd be happy to work on it.
-T 1513271415 18<akurtakov18>	well, x11 stuff is there too 
-T 1513271420 20<lufimtse>30	wouldn't take me that long as I know dbus mostly.
-T 1513271460 19<akurtakov>	lufimtse: you think the idea is viable ?
-T 1513271494 18<akurtakov18>	if ericwill is willing to trade with your bugfixes that would be fine with me
-T 1513271518 18<akurtakov18>	as I've been keeping him in the loop for the launcher changes
-T 1513271549 19<ericwill>	I am willing to trade as lufimtse knows more about dbus
-T 1513271553 18<akurtakov18>	maybe even Leo does the swt interface implementation, Eric does the launcher changes to poll for the service and call the method
-T 1513271556 18<ericwill18>	which bugfixes do you speak of?
-T 1513271572 18<akurtakov18>	ericwill: gtk3 general issues
-T 1513271573 20<lufimtse>30	akurtakov, I am happy to work on *
-T 1513271582 20<lufimtse>30	where * is what is the most important.
-T 1513271604 18<akurtakov18>	well, the launcher fix is smth I would like to see ASAP :)
-T 1513271630 18<akurtakov18>	and having a proper working dbus interface exposed by swt would be quite nice
-T 1513271800 18<ericwill18>	it will probably be faster for Leo to work on the launcher business as he knows more about dbus than I do
-T 1513271811 18<ericwill18>	I wouldn't mind working on the menu popup bug that we have in the RH BZ
-T 1513271822 18<ericwill18>	alongside a11y
-T 1513271847 18*	rgrunber mumbles something about slow trees on linux
-T 1513271972 18<akurtakov18>	ericwill: agreed
-T 1513271981 18<akurtakov18>	but I would like to see more bugs
-T 1513272018 18<akurtakov18>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528789
-T 1513272022 18<akurtakov18>	as you opened it
-T 1513272047 18<ericwill18>	akurtakov as I said this morning to Leo, "he who discovers the bug shall be the one to fix it"
-T 1513272053 18<ericwill18>	I'll work on it
-T 1513272055 18<ericwill18>	np
-T 1513272213 18<ericwill18>	I will update my spring stuff in JIRA
-T 1513272222 18<akurtakov18>	ok
-T 1513272234 19<akurtakov>	lufimtse: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528346
-T 1513272243 18<akurtakov18>	is there anything left for this one or we should fix it?
-T 1513272380 18<akurtakov18>	close it I mean
-T 1513272595 20<lufimtse>30	akurtakov, I think probably close as it would be too time consuming to weedout stuff from webkit1. Can I look into it later today/tomorrow and post a definitive comment/close it?
-T 1513272608 19<akurtakov>	lufimtse: sure
-T 1513272634 18<akurtakov18>	as long as it's either closed or it's clear what's left it works for me
-T 1513273232 18<akurtakov18>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528155
-T 1513273244 19<akurtakov>	lufimtse: I have a request for better bug handling
-T 1513273259 18<akurtakov18>	would you please spend up to one hour per day
-T 1513273270 18<akurtakov18>	on triaging/reviewing patches and etc.
-T 1513273345 18<ericwill18>	akurtakov I'll take a look
-T 1513273375 18<akurtakov18>	and https://bugs.eclipse.org/bugs/show_bug.cgi?id=528284
-T 1513273391 18<akurtakov18>	that should be enough for now
-T 1513273407 18<ericwill18>	akurtakov I saw that one, was waiting for the bug reporter to respond to Andrey
-T 1513273713 20<lufimtse>30	akurtakov, ok on bug handling.
-T 1513273784 20<lufimtse>30	akurtakov, I've emailed you/Sopot a list of project options 
-T 1513273796 20<lufimtse>30	akurtakov, with voting system :-)
-T 1513273804 20<lufimtse>30	akurtakov, s/vote/point
-T 1513273989 20<lufimtse>30	akurtakov, btw, I've added the DBus bindings thing as "GDBus bindings in SWT" on the project list.
-T 1513274003 20<lufimtse>30	akurtakov, Line 16
-T 1513274030 18<akurtakov18>	well, I don't get that part
-T 1513274045 18<akurtakov18>	what such a binding is about
-T 1513274045 20<lufimtse>30	akurtakov, I don't know either :-)
-T 1513274064 20<lufimtse>30	akurtakov, you/eric talk about this dbus stuff, not really sure what needs to be done yet.
-T 1513274079 20<lufimtse>30	akurtakov, I just know how dbus works and can do  what is needed.
-T 1513274081 19<akurtakov>	lufimtse: read the bug
-T 1513274092 20<lufimtse>30	akurtakov, ok.
-T 1513274102 18<akurtakov18>	there is a link in the mail where what's needed is detailed
-T 1513274145 18<akurtakov18>	IMHO this work shouldn't take more than 2 weeks 
-T 1513274163 20<lufimtse>30	akurtakov, I do want to outline that it would be good to update the swt website documentation, as we've now had 4 people say that they wanted to contribute to swt but found the documentation very confusing.
-T 1513274181 20<lufimtse>30	akurtakov, it's a fairly short project and hash high long-term pay off.
-T 1513274184 20<lufimtse>30	*potential
-T 1513274187 19<akurtakov>	lufimtse: this is not a project
-T 1513274195 18<akurtakov18>	this is constant ongoing thing
-T 1513274206 18<akurtakov18>	whenever smth is spotted it should be changed ASAP
-T 1513274211 18<akurtakov18>	at the cost of 1/2 h
-T 1513274214 18<akurtakov18>	and so on
-T 1513274218 20<lufimtse>30	akurtakov, we're off to lunch
-T 1513274221 20<lufimtse>30	back in an hour ish
-T 1513274274 18<akurtakov18>	I'm not signing off someone spending time on website or swt tools as anything but side project to be improved on the go
-T 1513280890 18<ericwill18>	fun fact: gerrit has file matching, you can filter patches that only touch linux files
-T 1513280901 18<ericwill18>	using this gerrit search term: project:platform/eclipse.platform.swt file:gtk status:open
-T 1513280911 19<ericwill>	lufimtse ^
-T 1513283951 20<lufimtse>30	r
-T 1513346968 18<akurtakov18>	hey guys
-T 1513347632 18<ericwill18>	hello
-T 1513347873 18<akurtakov18>	ericwill: I'm leaving you guys with 850 open bugs :)
-T 1513347886 18<akurtakov18>	try to not let it increase by Jan 3rd :)
-T 1513347909 18<ericwill18>	haha
-T 1513347920 18<ericwill18>	akurtakov we will keep the house nice and tidy for you while you're gone :)
-T 1513347937 18<akurtakov18>	ericwill: the way I like it :)
-T 1513356574 18<akurtakov18>	do you guys use java 9 ?
-T 1513357325 18<ericwill18>	akurtakov no
-T 1513357698 19<ericwill>	akurtakov lufimtse can we have a monthly SWT call? I feel it would be useful to keep everyone on track and up to date
-T 1513357719 18<ericwill18>	doesn't have to be long, maybe 30mins
-T 1513357740 20<lufimtse>30	maybe once a month after main call or something.
-T 1513357752 20<lufimtse>30	or in separate time, I don't mind either way.
-T 1513357773 18<akurtakov18>	ericwill: I deny discussing such thing right before vacation :)
-T 1513357789 18<akurtakov18>	remind me next year :P
-T 1513357865 18<ericwill18>	akurtakov haha okay :)
-T 1513358293 20<lufimtse>30	akurtakov, ok. SWT Plan is ready for your/Sopot review. (Not urgent, can be reviewed next year if you like. Just a verification of what we talked about).
-T 1513358301 20<lufimtse>30	-> emailed.
-T 1513358380 20<lufimtse>30	akurtakov, I shall now begin my journey to Fedora 27 and Wayland. My enlightenment shall begin. See you on the other side.
-T 1513358399 18<akurtakov18>	:)
-T 1513358709 18<akurtakov18>	I have provided some feedback 
-T 1513358737 18<akurtakov18>	please incorporate it in the doc :)
+T 1515099064 18<akurtakov18>	anyway, do the other one 
+T 1515099126 18<akurtakov18>	looks quite similar to the issue I pushed today to me
+T 1515168735 19*	Now talking on 22#SWT
+T 1515172346 18<akurtakov18>	ericwill: would you please take the positioning bug as a prio after the current one
+T 1515172357 18<ericwill18>	akurtakov yes
+T 1515172358 18<ericwill18>	will do
+T 1515172369 18<akurtakov18>	ericwill: cool
+T 1515172374 18<ericwill18>	one more table/tree patch to be merged today and then I will get started on it
+T 1515172381 18<akurtakov18>	perfect
+T 1515172394 18<akurtakov18>	is it the not rendered button ?
+T 1515172454 18<ericwill18>	no, it's this one: https://bugs.eclipse.org/bugs/show_bug.cgi?id=528155
+T 1515172465 18<ericwill18>	haven't investigated the missing button one yet
+T 1515172468 18<akurtakov18>	ah ok
+T 1515172476 18<akurtakov18>	I forgot about this one
+T 1515172486 18<akurtakov18>	better to concentrate on the easy wins I agree
+T 1515172499 18<akurtakov18>	but client issues have their prio too :)
+T 1515172556 18<ericwill18>	that paintitem bug ended up being more difficult than I thought
+T 1515172562 18<ericwill18>	the menu one is important yeah
+T 1515172576 18<ericwill18>	as I see these mis-positioned menus all over the place
+T 1515175117 19<ericwill>	lufimtse rgrunber_afk webkit crash on hudson, is this something you guys are expecting/know about? https://hudson.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/5938/console
+T 1515175207 20<lufimtse>30	webkit1 by the looks
+T 1515175214 18<ericwill18>	kk will re-trigger
+T 1515176543 18<akurtakov18>	ericwill: centos2 is 7.4 so it has webkit2 but hippcentos is 7.2 so webkit1
+T 1515176555 18<ericwill18>	akurtakov aha
+T 1515176556 18<ericwill18>	kk
+T 1515176569 18<akurtakov18>	I convinced webmaster to update only one machine before christmas :)
+T 1515183416 19<rgrunber>	lufimtse++ for adding that sys.err statement guard
+T 1515183477 20<lufimtse>30	:D
+T 1515435676 19*	Now talking on 22#SWT
+T 1515436059 18<ericwill18>	akurtakov do you only see this issue on Wayland with the arrow button on CTabFolder? or do you see the right click problem as well
+T 1515448534 19*	Now talking on 22#SWT
+T 1515520767 19*	Now talking on 22#SWT
+T 1515527077 18<ericwill18>	so many table/tree fixes lately
+T 1515527094 18<ericwill18>	this one today with the validation button will be the third one in a row
+T 1515529352 20<lufimtse>30	ericwill, I have just what you need.
+T 1515529355 20<lufimtse>30	ericwill, https://images.homedepot-static.com/productImages/260f8d3e-e2d6-4f9a-8b43-85b4c62c3a32/svn/spectracide-lawn-insect-pest-control-hg-96057-64_1000.jpg
+T 1515529414 19<ericwill>	lufimtse or maybe this: https://wwwassets.rand.org/content/rand/pubs/monographs/MG1234/jcr:content/par/teaser.aspectfit.0x1200.jpg/1495316027515.jpg
+T 1515529507 20<lufimtse>30	ha ha
+T 1515593879 20*	Disconnected (20Connection timed out)
+T 1515682779 19*	Now talking on 22#SWT
+T 1515692633 18<ericwill18>	akurtakov just curious: what is the timeline for supporting only one version of GTK3 (3.22)?
+T 1515693325 18<akurtakov18>	ericwill: it would not happen in the next 2 years 
+T 1515693361 18<akurtakov18>	it depends on flatpak being de-facto standard distribution for eclipse IMHO
+T 1515693376 18<ericwill18>	okay
+T 1515693379 18<ericwill18>	I was just curious
+T 1515693468 18<akurtakov18>	ericwill: unless we ship with flatpak by default we would never be able to rely on single gtk version
+T 1515693486 18<akurtakov18>	ericwill: this doesn't mean I'm not going to try to remove gtk 2 support soon
+T 1515693521 18<ericwill18>	:)
+T 1515693544 18<akurtakov18>	as soon as there is gtk4 beta declared
+T 1515693552 18<akurtakov18>	I'll use that as an excuse 
+T 1515693561 18<akurtakov18>	aka we start to prepare the codebase for it
+T 1515693573 18<akurtakov18>	have you heard of any timeline for it ?
+T 1515693719 18<ericwill18>	no
+T 1515693726 18<ericwill18>	but based on the roadmap: https://wiki.gnome.org/Projects/GTK%2B/Roadmap/GTK4
+T 1515693728 18<ericwill18>	I would say at least a year
+T 1516035633 18<akurtakov18>	ericwill: hey Eric
+T 1516035670 18<ericwill18>	akurtakov hey, what's up
+T 1516035680 18<akurtakov18>	ericwill: any idea about https://bugs.eclipse.org/bugs/show_bug.cgi?id=500703
+T 1516035737 18<ericwill18>	akurtakov that is a tough bug. with GTK3.20 and above it's almost impossible to get widgets smaller than their min-size
+T 1516035807 18<ericwill18>	IIRC I can fix the overdrawing but the Combo will still get cutoff on the side
+T 1516035884 18<akurtakov18>	hmm
+T 1516035920 18<akurtakov18>	so "almost" should be removed from your statement :)
+T 1516035951 18<akurtakov18>	I think I get the 
+T 1516035959 18<akurtakov18>	idea of the toolbar 
+T 1516035983 18<ericwill18>	well we can shrink the parent container, it's just that the widgets inside the container don't get smaller past their min-size
+T 1516035988 18<ericwill18>	what about mean about the toolbar
+T 1516036019 18<akurtakov18>	it's ptobably toolitem size vs button size 
+T 1516036070 18<ericwill18>	for the TCF thing?
+T 1516036076 18<ericwill18>	yes
+T 1516036080 18<ericwill18>	toolbuttons are a lot smaller
+T 1516036106 18<akurtakov18>	so how does the fix looks
+T 1516036116 18<akurtakov18>	for the combo bug
+T 1516036123 18<akurtakov18>	can you give me a screenshot
+T 1516036156 18<ericwill18>	for the garbled combo issue? sure give me a second
+T 1516036396 18<ericwill18>	akurtakov if you run that snippet that comes with the bug, this is what the largest item in the combo looks like if you make the window smaller than the min-size: https://i.imgur.com/BD9bmE1.png
+T 1516036430 18<ericwill18>	not ideal as the drop drown button is missing, but better than having the overdrawing of text IMO
+T 1516036441 18<akurtakov18>	does it fix the preference page ?
+T 1516036478 18<ericwill18>	where in the preferences page does it happen
+T 1516036480 18<ericwill18>	I can check
+T 1516036508 18<akurtakov18>	ericwill: https://bugzilla.redhat.com/show_bug.cgi?id=1533913
+T 1516036615 18<ericwill18>	it fixes the overdrawing, but if the name selected in the combo is short then you don't see the text at all
+T 1516036618 18<ericwill18>	not an ideal fix IMO
+T 1516036759 18<ericwill18>	akurtakov I guess we have to honor SWT API and allow any size to be set right? we can't enforce GTK's min sizes right?
+T 1516036773 18<akurtakov18>	no we can't
+T 1516036787 18<akurtakov18>	dinner time
+T 1516036789 18<akurtakov18>	ttyl
+T 1516036836 18<ericwill18>	okay see ya
+T 1516039232 18<akurtakov18>	so the fix doesn't work for the Keys page right?
+T 1516039750 18<ericwill18>	akurtakov it's not ideal. so I say no
+T 1516039771 18<ericwill18>	akurtakov about the TCF bug...what do you think is the best way to fix it. Try to fix it in SWT or re-write their code
+T 1516039780 18<ericwill18>	if it is a min-size issue then fixing it will be tough
+T 1516039842 18<akurtakov18>	well, both
+T 1516039856 18<akurtakov18>	rewrite and fix the min size issue
+T 1516039888 18<akurtakov18>	in any order :)
+T 1516039901 18<ericwill18>	ha
+T 1516039902 18<ericwill18>	:P
+T 1516039918 18<ericwill18>	okay I'll keep working on it
+T 1516041611 18<akurtakov18>	ericwill: about combo
+T 1516041620 18<akurtakov18>	I have a feeling the issue is entry's size
+T 1516041667 18<ericwill18>	akurtakov yeah it is. Combo determines its min-size based on the size of the largest entry
+T 1516041668 18<akurtakov18>	if you look at control example 
+T 1516041683 18<akurtakov18>	any change in size caused terrible breakage
+T 1516041754 18<akurtakov18>	ericwill: but adding if (entryHandle != 0) OS.gtk_entry_set_width_chars(entryHandle, 0); at line 1976
+T 1516041760 18<akurtakov18>	improves a lot
+T 1516041795 18<akurtakov18>	so if some pango calculation is done to trim the visible part
+T 1516041798 18<akurtakov18>	it might work
+T 1516041840 18<akurtakov18>	although I don't know whether it feasible to differ between visible and invisible size
+T 1516041870 18<akurtakov18>	s/size/content/
+T 1516041882 18<ericwill18>	let me look one sec
+T 1516041924 18<ericwill18>	so you want to set the width of the entry to 0 if the Combo is being resized?
+T 1516041973 18<ericwill18>	but doesn't the bug happen when a long combo item is selected?
+T 1516042305 18<ericwill18>	also I think this issue you speak of is different, entryHandle is only used for editable Combo boxes
+T 1516042316 18<akurtakov18>	yeah
+T 1516042321 18<akurtakov18>	I know I can't set it that way
+T 1516042349 18<akurtakov18>	if it would worlk it must be dynamic calculated from pango
+T 1516042390 18<akurtakov18>	so the given width parameter
+T 1516042413 18<akurtakov18>	is used to determine first N chars that fit in it
+T 1516042431 18<akurtakov18>	and max_width_chars is set to N
+T 1516042459 18<akurtakov18>	I assume READ_ONLY combo uses labels
+T 1516042471 18<akurtakov18>	in which case some similar trimming would have to be done
+T 1516042594 18<ericwill18>	hmm we have access to the cellHandle
+T 1516042599 18<akurtakov18>	hmm, it's GtkToggleButton
+T 1516042708 18<ericwill18>	yeah
+T 1516042714 18<akurtakov18>	anyway, this is the direction I think towards
+T 1516042724 18<ericwill18>	okay
+T 1516042735 18<ericwill18>	how do we determine the max width to trim to?
+T 1516043567 18<akurtakov18>	pango_layout_get_width/size 
+T 1516043570 18<akurtakov18>	or smth similar
+T 1516043588 18<akurtakov18>	see TextLayout.getBoundsInPixels
+T 1516043656 18<ericwill18>	okay
+T 1516044951 18<akurtakov18>	what about https://www.w3schools.com/cssref/pr_dim_min-width.asp ?
+T 1516045591 18<ericwill18>	should work
+T 1516045606 18<ericwill18>	I have never experimented with min-width CSS but it's part of the GTK3 API
+T 1516047415 18<akurtakov18>	btw
+T 1516047417 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=511133
+T 1516047428 18<akurtakov18>	this looks like invisible button issue again right?
+T 1516047430 18<akurtakov18>	is it a dupe
+T 1516047472 18<akurtakov18>	ericwill: ^^
+T 1516047502 18<ericwill18>	akurtakov looks like a dupe to me
+T 1516047512 18<akurtakov18>	please verify and mark as such
+T 1516047574 18<akurtakov18>	if it truey is
+T 1516047614 18<akurtakov18>	er
+T 1516047617 18<akurtakov18>	ericwill: btw
+T 1516047625 18<akurtakov18>	open resource dialog
+T 1516047635 18<akurtakov18>	click on the "Show in" button
+T 1516047640 18<akurtakov18>	see where the popup appears
+T 1516047649 18<akurtakov18>	under wayland
+T 1516047651 18<akurtakov18>	everytime
+T 1516047669 18<ericwill18>	akurtakov nice, a reproducer
+T 1516047671 18<ericwill18>	this will help
+T 1516047678 18<akurtakov18>	glad to help
+T 1516047712 18<akurtakov18>	started from http://git.eclipse.org/c/pde/eclipse.pde.ui.git/commit/?id=2ceaba32ad961bb49614ea700b18adcb046f8d13 :)
+T 1516047720 18<akurtakov18>	can you believe where things lead :)
+T 1516047768 18<ericwill18>	all these things are interconnected in the strangest of ways haha
+T 1516047890 18<ericwill18>	akurtakov so https://bugs.eclipse.org/bugs/show_bug.cgi?id=511133 is not a dupe
+T 1516047895 18<ericwill18>	I can still reproduce the issue on master
+T 1516047904 18<akurtakov18>	huh?
+T 1516047914 18<akurtakov18>	I thought you fixed it :0
+T 1516047925 18*	akurtakov jokes
+T 1516048023 18<ericwill18>	har har har :P
+T 1516048069 18<ericwill18>	akurtakov do you want me to add that bug to my to-do list?
+T 1516048088 18<akurtakov18>	well, how long it is?
+T 1516048198 18<ericwill18>	TCF issue, menu popup issue, that's it as of today
+T 1516049283 18<akurtakov18>	ok
+T 1516049288 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=493213
+T 1516049297 18<akurtakov18>	is it a dupe of the bug I thought as dupe ?
+T 1516049330 18<ericwill18>	yup :)
+T 1516049332 18<ericwill18>	same window
+T 1516049980 18<akurtakov18>	816 open
+T 1516049990 18<akurtakov18>	next goal <800
+T 1516051665 18<ericwill18>	nice :) maybe we can get under 500 by the end of the year
+T 1516051778 18<akurtakov18>	this https://bugs.eclipse.org/bugs/show_bug.cgi?id=379369 should be fixed right?
+T 1516051840 18<akurtakov18>	ericwill: ^
+T 1516051877 18<ericwill18>	akurtakov yes it should be
+T 1516116520 18<ericwill18>	akurtakov Christian Hergert is looking for someone to add OmniSharp language server support to GNOME builder
+T 1516117880 18<akurtakov18>	ericwill: not gonna be us :)
+T 1516117987 18<akurtakov18>	ericwill: or you want to do that ?
+T 1516118006 18<ericwill18>	akurtakov no, I was just sharing since there is all the hype about language servers now :)
+T 1516118012 18<rgrunber18>	if they already support adding language server clients, which iirc they do.. it shouldn't be that complicated.. mostly boilerplate code if they have something like lsp4e.. either way..
+T 1516118032 18<rgrunber18>	^ mainly implying anyone could probably do it.. so doesn't really need to be us.
+T 1516118117 18<rgrunber18>	or maybe it's a WIP.. https://builder.readthedocs.io/en/latest/plugins/langserv.html
+T 1516118216 18<akurtakov18>	the issue is going to be mostly having omnisharp behave proper
+T 1516118393 18<akurtakov18>	is Leo at work?
+T 1516118528 19<ericwill>	yes, lufimtse ^
+T 1516118559 20<lufimtse>30	hai
+T 1516118567 20<lufimtse>30	I'm at work todya.
+T 1516118623 20<lufimtse>30	akurtakov, sup
+T 1516118645 20<lufimtse>30	akurtakov, https://bugs.eclipse.org/bugs/show_bug.cgi?id=525305  << I expected 1-2 days of work. Worth it?
+T 1516118655 20<lufimtse>30	After launcher patch is tested/merged.
+T 1516118660 20<lufimtse>30	wdyt?
+T 1516121235 18<akurtakov18>	not this week
+T 1516121248 18<akurtakov18>	I would like to see as much bug fixes as possible to go for M5
+T 1516121261 18<akurtakov18>	next week is quiet week so it's fine to work on openURL
+T 1516122920 19<akurtakov>	lufimtse: so does the launcher work for under Wayland ?
+T 1516123108 18<akurtakov18>	btw, under 800 :)
+T 1516123129 18<akurtakov18>	let's see when will we hit 750
+T 1516128540 19<akurtakov>	lufimtse: what's broken
+T 1516128800 20<lufimtse>30	akurtakov, working on figuring out that part :-)
+T 1516128815 20<lufimtse>30	akurtakov, maybe I build something wrong. Investigating.
+T 1516129935 20<lufimtse>30	akurtakov, I think posted a false alarm. Actually seems to work.
+T 1516129953 20<lufimtse>30	some build issue on my computer.
+T 1516129965 19<akurtakov>	lufimtse: that's the issues I prefer 
+T 1516129972 18<akurtakov18>	PEBKAC :)
+T 1516129983 20<lufimtse>30	PEBKAC?
+T 1516130057 18<akurtakov18>	https://en.wiktionary.org/wiki/PEBKAC
+T 1516130116 18<ericwill18>	lmao
+T 1516130118 18<ericwill18>	I never heard this one before :)
+T 1516130130 20<lufimtse>30	ha ha
+T 1516202355 19<rgrunber>	lufimtse: i'll be bugging you about a mac box very soon
+T 1516202427 20<lufimtse>30	rgrunber, ok
+T 1516207003 18<akurtakov18>	ericwill: do you have tcf gerrit ?
+T 1516207032 18<ericwill18>	akurtakov no, I'm about to post in the bug filed against TCF
+T 1516207047 18<ericwill18>	I want to see if I can get some discussion going
+T 1516207062 18<akurtakov18>	ericwill: ok, I wonder whether I can push to tcf
+T 1516207114 18<akurtakov18>	ah Martin is there
+T 1516207123 18<akurtakov18>	I'll ping him as soon as you have patch
+T 1516207157 18<ericwill18>	I mean the patch is just a one-line fix
+T 1516207169 18<ericwill18>	ideally they will change this contribution to something a little more sane
+T 1516207188 18<ericwill18>	i.e. a ToolItem instead of this label/label/button scheme
+T 1516207245 18<akurtakov18>	it must be wrapped in toolitem ?
+T 1516207255 18<akurtakov18>	otherwise it can't be put in the toolbar
+T 1516207264 18<akurtakov18>	btw, don't expect too much
+T 1516207284 18<akurtakov18>	tcf is in deep maintenance mode so best we will achieve is get our patch pushed
+T 1516207331 18<ericwill18>	okay maybe I will just push the patch then haha
+T 1516207344 18<ericwill18>	I don't want to get stuck maintaining this code anyways, it's setup is weird
+T 1516207419 18<akurtakov18>	well, maintain no 
+T 1516207425 18<akurtakov18>	not until gtk4 breaks it :)
+T 1516207526 18<ericwill18>	okay
+T 1516207530 18<ericwill18>	I will push the patch
+T 1516208127 18<ericwill18>	akurtakov https://git.eclipse.org/r/115547
+T 1516208527 18<akurtakov18>	ericwill: btw, have you attached old vs new to the tcf bug ?
+T 1516208533 18<akurtakov18>	after both swt and your change
+T 1516208564 18<akurtakov18>	ericwill: btw, but ID is weird in this patch :)
+T 1516208576 18*	akurtakov is quite surprised :)
+T 1516208615 18<ericwill18>	I haven't, I will soon
+T 1516208621 18<ericwill18>	also which ID is weird? :P
+T 1516208692 18<akurtakov18>	ericwill: 52874 
+T 1516208697 18<akurtakov18>	5 digit only bug ?
+T 1516208706 18<ericwill18>	akurtakov oops
+T 1516208706 18<akurtakov18>	GTK3 was not a thing back then
+T 1516208714 18<ericwill18>	yeah that is typo, I'll fix it
+T 1516208727 18<ericwill18>	I also just realized there is compile warning with the SWT
+T 1516208728 18<ericwill18>	derp
+T 1516208731 18*	ericwill fixes
+T 1516209271 18<ericwill18>	done
+T 1516209274 18<akurtakov18>	ok
+T 1516209308 18<akurtakov18>	ericwill|lunch: it doesn't look good yet
+T 1516209312 18<akurtakov18>	but better at least
+T 1516210991 18<ericwill18>	akurtakov the way the thing is set up is really ugly. I think it worked on GTK2 because everything was small and fit nicely
+T 1516210996 18<ericwill18>	GTK3...different story :)
+T 1516211935 18<akurtakov18>	ericwill: well, the only constant thing is change
+T 1516211937 18<akurtakov18>	:)
+T 1516212024 18<akurtakov18>	ericwill: wow, your patch pushed
+T 1516212208 18<ericwill18>	akurtakov I saw :) it was a simple fix I guess
+T 1516212231 18<akurtakov18>	do you think you can easily change it to smth sane ?>
+T 1516212241 18<akurtakov18>	I mean in a day (at most) effort
+T 1516212315 18<ericwill18>	akurtakov maybe...I'd have to think about it
+T 1516212328 18<ericwill18>	right now I want to try and fix the egit icons before M5
+T 1516213229 18<akurtakov18>	ericwill: +1
+T 1516213262 18<akurtakov18>	ericwill: are you obsessed with tree cell renderers now :)
+T 1516213302 18<ericwill18>	akurtakov I have spent enough time in Table/Tree code the last few weeks that it is becoming too familiar :)
+T 1516287806 19*	Now talking on 22#SWT
+T 1516378848 19<akurtakov>	lufimtse: hey
+T 1516378850 18<akurtakov18>	any progress on the crash?
+T 1516378852 18<akurtakov18>	what about rhel 7 testing ?
+T 1516382222 20<lufimtse>30	akurtakov, crash? Lemmme check
+T 1516382239 19<akurtakov>	lufimtse: the one you were supposed to work on
+T 1516382249 20<lufimtse>30	The Segfault
+T 1516382250 20<lufimtse>30	ah,
+T 1516382256 18<akurtakov18>	sefault if you prefer it that way :)
+T 1516382260 20<lufimtse>30	ha ha, my brain didn't link 
+T 1516382283 20<lufimtse>30	Still kinda researching
+T 1516382289 20<lufimtse>30	also had a quick glance at this guy:
+T 1516382290 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=525305
+T 1516382301 20<lufimtse>30	linux side is lacking
+T 1516382307 20<lufimtse>30	adding support is like 3 lines of code
+T 1516382313 20<lufimtse>30	low-hanging fruit.
+T 1516382327 18<akurtakov18>	ok
+T 1516382354 20<lufimtse>30	did you have chance to review make_linux patch?
+T 1516382383 19<akurtakov>	lufimtse: no, it's on hold as there are more pressing M5 things
+T 1516382396 18<akurtakov18>	http://download.eclipse.org/eclipse/downloads/drops4/I20180119-0110/
+T 1516382401 18<akurtakov18>	not best state of affairs 
+T 1516382595 20<lufimtse>30	ok, I'll followup on make_linux afterwar M5
+T 1516382610 20<lufimtse>30	I'll verify launcher on RHEL7 today then
+T 1516382724 19<akurtakov>	lufimtse: so what about OpenURL and segfault ?
+T 1516382767 20<lufimtse>30	Ok plan: 1) OpenUrl (30 mins?)   2) Verify launcher on RHEL        3) Segfault
+T 1516382769 20<lufimtse>30	thoughts?
+T 1516382784 20<lufimtse>30	the segfault thing is a bit of nieche case I think btw,,
+T 1516382801 20<lufimtse>30	because it only happens when you use the '--...' param, 
+T 1516382811 20<lufimtse>30	which seems like most people would not use
+T 1516382832 20<lufimtse>30	like it's important to fix, but if there is something more pressing, maybe work on that
+T 1516382839 20<lufimtse>30	wdyt?
+T 1516382840 20<lufimtse>30	idk
+T 1516382861 20<lufimtse>30	like 'eclipse /file' works in all situations
+T 1516382863 20<lufimtse>30	relative or abs
+T 1516383526 18<akurtakov18>	crash is crash :)
+T 1516383541 20<lufimtse>30	ah, so crashes always take priority?
+T 1516383548 18<akurtakov18>	IMHO yes
+T 1516383551 18<akurtakov18>	 :)
+T 1516383561 20<lufimtse>30	even if like 0.01% of users experience it?
+T 1516383574 20<lufimtse>30	0.0001%
+T 1516383577 20<lufimtse>30	^ Guess
+T 1516383688 18<akurtakov18>	IMHO yes
+T 1516383703 18<akurtakov18>	we should never crash
+T 1516383718 20<lufimtse>30	ok
+T 1516383750 20<lufimtse>30	Well, done with the OpenUrl thing (needs user feedback), so I guess off to verify launcher on RHEL. (20 mins probably).
+T 1516383753 20<lufimtse>30	then segfault fixing.
+T 1516384188 20<lufimtse>30	Btw, 
+T 1516384211 20<lufimtse>30	Is it still worth adding the swt.dbus.init jvm flag to *.product?
+T 1516384231 20<lufimtse>30	from what I gather, the OpenDocument is intended for use with launcher
+T 1516384237 20<lufimtse>30	and the flag is hard-coded into launcher
+T 1516384274 20<lufimtse>30	Like, in which other use case would people use OpenDocument other than with launcher?
+T 1516385347 18<ericwill18>	https://twitter.com/vogella/status/954240560424013824
+T 1516385352 18<ericwill18>	this is a pretty nice looking SWT app
+T 1516385690 20<lufimtse>30	nice
+T 1516385714 20<lufimtse>30	akurtakov, btw, launcher verified on RHEL7.4, Fedora27/wayland, Gtk2/3. All good.
+T 1516385722 18<akurtakov18>	perfect
+T 1516390140 20<lufimtse>30	akurtakov, hey.
+T 1516390146 20<lufimtse>30	SegFault fix is pretty trivial: https://git.eclipse.org/r/#/c/115725/
+T 1516390254 19<akurtakov>	lufimtse: have you tried whether the crash happens on mac/win too?
+T 1516390264 20<lufimtse>30	akurtakov, hey
+T 1516390270 20<lufimtse>30	akurtakov, just had network issues
+T 1516390289 20<lufimtse>30	akurtakov, good point, let me test on win/mac. Give me 5 mins.
+T 1516390792 18<ericwill18>	akurtakov you around? I have a procedure question for milestone week
+T 1516390804 18<akurtakov18>	ericwill: ask
+T 1516390894 18<ericwill18>	akurtakov so a bunch of fixes I did for M5 got backported, so now they have the "target milestone" set to 4.7.3 in BZ
+T 1516390906 18<ericwill18>	should I verify these fixes next week? or during the 4.7.3 RC1?
+T 1516390912 18<ericwill18>	or both?
+T 1516390991 18<akurtakov18>	ericwill: I don't care about the verifications
+T 1516391004 18<akurtakov18>	other than keeping the process happy
+T 1516391014 18<akurtakov18>	aka buy some good will from IBM
+T 1516391032 18<akurtakov18>	we still need it
+T 1516391033 20<lufimtse>30	akurtakov, segFaults on Mac's, 
+T 1516391041 18<ericwill18>	akurtakov okay
+T 1516391046 18<akurtakov18>	so answer it - unless ask ignore it
+T 1516391052 18<akurtakov18>	unless asked :)
+T 1516391065 20<lufimtse>30	akurtakov, I'll post comment in patch
+T 1516391124 19<akurtakov>	lufimtse: do you have win to try ?
+T 1516391407 20<lufimtse>30	akurtakov, yes, crashes on win with relative path also
+T 1516391428 18<akurtakov18>	ok, that should give us good reason to request full rebuild
+T 1516391475 20<lufimtse>30	I see
+T 1516391488 20<lufimtse>30	I thoughts builds were starting next week or something
+T 1516391568 20<lufimtse>30	akurtakov, hmm. Looking for work to do. You remember the 'add swt.dbus.init jvm dbus flag to *.product' files. Is that something we should still pursue given that we've hard-coded into the launcher?
+T 1516391584 20<lufimtse>30	afak the launcher is the only use case for OpenDocument?
+T 1516391594 19<akurtakov>	lufimtse: we shoudl still do it
+T 1516391609 18<akurtakov18>	for people launching with java -jar launcher.jar
+T 1516391677 20<lufimtse>30	What's the use case of 'java -jar launcher.jar'
+T 1516391694 20<lufimtse>30	like people who use 'java -jar launcher.jar', would they still use the launcher?
+T 1516391743 20<lufimtse>30	like people doing 'java -jar launcher' would then only be able to open files through a launcher or via gdbus
+T 1516391757 20<lufimtse>30	it's kinda a strange use case?
+T 1516391786 20<lufimtse>30	Or are you thinking of launching a child eclipse and use the launcher to open files in child eclipse?
+T 1516391814 20<lufimtse>30	not sure how useful that would be?
+T 1516391818 20<lufimtse>30	wdyt?
+T 1516391898 19<akurtakov>	lufimtse: it's a mixed issue
+T 1516391927 18<akurtakov18>	people launching with java -jar can not use openFile command AFAIK
+T 1516391951 18<akurtakov18>	but at the same time I want people launching that way to have the dbus end point inited
+T 1516391985 18<akurtakov18>	for future usage when this dbus point will be used for other purposes too
+T 1516392002 18*	akurtakov things of e.g. firefox extension, nautilus  and etc.
+T 1516392305 20<lufimtse>30	akurtakov, hmmmm. I would think that such extensions would just run the launcher, but idk. Well, any ideas on how to find the relevant *.product files that I should add the linux arg to? (Should I check revision history of who added the XStartOnFirst thread and look for other *.product files?)
+T 1516392325 19<akurtakov>	lufimtse: such extension will not use the launcher
+T 1516392331 18<akurtakov18>	it will call via dbus
+T 1516392357 18<akurtakov18>	checking the XStartOnFirst is one way
+T 1516392382 18<akurtakov18>	the way I would have started is via http://download.eclipse.org/eclipse/downloads/drops4/I20180119-0110/ 
+T 1516392402 18<akurtakov18>	looking at deliverables and locating their products
+T 1516392414 20<lufimtse>30	what is deliverables?
+T 1516392431 18<akurtakov18>	tarballs with launcher in it
+T 1516392446 19<akurtakov>	lufimtse: btw, can you deliver any swt bugfix by monday?
+T 1516392462 20<lufimtse>30	akurtakov, depends on the bug to fix
+T 1516392466 18<akurtakov18>	that would have higher value
+T 1516392471 19<akurtakov>	lufimtse: ANY :)
+T 1516392484 20<lufimtse>30	hmmm
+T 1516392489 20<lufimtse>30	*maybe*
+T 1516392502 20<lufimtse>30	I haven't fixed an SWT bug in like over a year.
+T 1516392506 20<lufimtse>30	ha ha
+T 1516392516 20<lufimtse>30	just been webkit and launcher stuff.
+T 1516392529 19<akurtakov>	lufimtse: https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&classification=Eclipse&component=SWT&known_name=swt%2Fgtk&list_id=17157968&op_sys=Linux&op_sys=Linux-GTK&product=Platform&query_based_on=swt%2Fgtk&query_format=advanced
+T 1516392531 18<akurtakov18>	:)
+T 1516392566 18<akurtakov18>	monday EOD is end of development for M5
+T 1516392582 18<akurtakov18>	so the more we can get in the better
+T 1516392590 20<lufimtse>30	Maybe, depending on which bug I'd work on.
+T 1516392606 19<akurtakov>	lufimtse: pick the easiest you think of 
+T 1516392626 20<lufimtse>30	what's the importance of having some bugfix added?
+T 1516392627 18<akurtakov18>	I really speak on quantity here 
+T 1516392645 20<lufimtse>30	I'm kinda thinking work on most pressing issue
+T 1516392650 18<akurtakov18>	we don't have time for anything big
+T 1516392665 18<akurtakov18>	so I look for biggest amount of small things 
+T 1516392688 20<lufimtse>30	Do you want to reduce the overall bugcount?
+T 1516392698 18<akurtakov18>	no
+T 1516392718 18<akurtakov18>	I want some of the real bugs to be fixed
+T 1516392733 18*	akurtakov wouldn't mind reducing the bugcount but was speaking for smth else
+T 1516392750 18<akurtakov18>	preferably gtk3 specific bugs
+T 1516392789 18<ericwill18>	akurtakov many of the bugs open aren't easy fixes anymore :)
+T 1516392821 20<lufimtse>30	Hmmm.
+T 1516392824 18<akurtakov18>	ericwill: on every triage couple of hours I spend I find at least one such :)
+T 1516392824 20<lufimtse>30	I'm thinking...
+T 1516392842 20<lufimtse>30	I'm thinking I'm kinda hungry, haven't had lunch yet and it's 3pm. I should go get food :-)
+T 1516392864 20<lufimtse>30	if you find something, feel free to send it my way. Otherwise I'll hunt around for something.
+T 1516392866 19<ericwill>	lufimtse maybe this one? https://bugs.eclipse.org/bugs/show_bug.cgi?id=529126
+T 1516392877 20<lufimtse>30	Trees, brrr
+T 1516392909 20<lufimtse>30	maybe investigate show stopper for gtk3
+T 1516392910 20<lufimtse>30	489640 – (gtk3SlowCombobox) [GTK3] setting a lot of items to combobox is extremely slow
+T 1516392910 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=489640
+T 1516392977 19<akurtakov>	lufimtse: you think you can figure it by monday ?
+T 1516395064 20<lufimtse>30	akurtakov, no but I can try :-)
+T 1516397786 19*	Now talking on 22#SWT
+T 1516643258 19*	Now talking on 22#SWT
+T 1516726042 19<akurtakov>	lufimtse: hey
+T 1516726053 18<akurtakov18>	merged your launcher patch 
+T 1516726069 18<akurtakov18>	should be in the build going as we speak
+T 1516726086 18<akurtakov18>	please verify the crash is fixed on all OSs with it
+T 1516726791 20<lufimtse>30	akurtakov, ok
+T 1516726870 20<lufimtse>30	I suppose I should take tomorrow's build and tomorrow test on things. (Or earlier?)
+T 1516727578 18<akurtakov18>	you should see build finishing in less than2h
+T 1516727583 18<akurtakov18>	download that build and test
+T 1516727607 18<akurtakov18>	actually  it should be any time now https://hudson.eclipse.org/releng/job/I-build-Photon/339/
+T 1516727901 19<akurtakov>	lufimtse: ok, you can download now
+T 1516727910 20<lufimtse>30	akurtakov, ah, thanks!
+T 1516727912 20<lufimtse>30	I'll verify.
+T 1516730779 Python interface unloaded
+T 1516737542 19*	Now talking on 22#SWT
+T 1516812211 18<ericwill18>	akurtakov what do you think of the new meeting structure?
+T 1516812821 18<akurtakov18>	ericwill: it matches your request for dedicated meetings
+T 1516812841 18<akurtakov18>	and there is no size fits them all solution
+T 1516812850 18<akurtakov18>	it doesn't make a lot of sense for releng guys
+T 1516812862 18<akurtakov18>	but it totally makes for LSP and SWT stuff
+T 1516812877 18<akurtakov18>	as everything - it's worth trying
+T 1516812887 18<akurtakov18>	if it's not best solution we can always change 
+T 1516812904 18<ericwill18>	akurtakov agreed on all counts :)
+T 1516981723 18<akurtakov18>	guys do you have pending patches for review?
+T 1516982050 18<ericwill18>	not today
+T 1516982102 18<akurtakov18>	ericwill: tough bugs, right?
+T 1516982118 18<ericwill18>	akurtakov yes
+T 1516982122 18<ericwill18>	menu is a weird widget
+T 1516982248 18<akurtakov18>	ericwill: weird how ?
+T 1516982288 18<ericwill18>	akurtakov there are multiple ways to attach a menu to a widget
+T 1516982300 18<ericwill18>	but in the end none of them matter because we pop-up menus where the mouse pointer is
+T 1516982313 18<ericwill18>	so setLocation/showMenu etc. don't really do anything
+T 1516982337 18<akurtakov18>	are they specified in Menu or in parent(s)
+T 1516982365 18<ericwill18>	both, setLocation is in Menu but showMenu/setMenu is in Control
+T 1516982396 18<ericwill18>	akurtakov I'm testing a fix for the show in/open with bug you found on Wayland: https://git.eclipse.org/r/#/c/116068/
+T 1516982493 18<akurtakov18>	I see
+T 1516982503 18<akurtakov18>	in this case setLocation implementation is wrong
+T 1516982517 18<akurtakov18>	does it behave in the same way under Mac/Win?
+T 1516982525 18<akurtakov18>	aka location is not used at all?
+T 1516982551 18<ericwill18>	I have to look into it more
+T 1516982567 18<ericwill18>	right now I am working on the X11 bug with the right click menus being popped up in the wrong place
+T 1516982575 18<ericwill18>	the one we have a Red Hat BZ ticket for
+T 1516982602 18<akurtakov18>	I see
+T 1516982615 18<akurtakov18>	so what is going on in this case?
+T 1516982626 19<akurtakov>	lufimtse: btw, wha do you work on ?
+T 1516982749 18<ericwill18>	akurtakov it's a bit of a mystery. all the button click coordinates are correct, and the correct coordinates are fed to GTK, but then GTK pops the menu up in the wrong spot
+T 1516982768 18<ericwill18>	I even connected to the "popped-up" signal and GTK prints that the menu was popped up in the wrong place
+T 1516982780 18<ericwill18>	I have a few options I am going to explore though
+T 1516982786 18<akurtakov18>	ericwill: like?
+T 1516982807 18<ericwill18>	using gtk_menu_popup_at_widget()
+T 1516982948 18<akurtakov18>	ericwill: you have read https://blog.gtk.org/2016/07/15/future-of-relative-window-positioning/ right?
+T 1516983040 18<ericwill18>	akurtakov yes
+T 1516983046 18<ericwill18>	akurtakov I also commented on this bug: https://bugzilla.gnome.org/show_bug.cgi?id=791845
+T 1516983056 18<ericwill18>	hopefully they will make that function API
+T 1516983060 18<ericwill18>	so we can make use of it
+T 1516983102 18<akurtakov18>	ok
+T 1516984667 20<lufimtse>30	akurtakov, I was closing off my open gerrit stuff, verified all my patches etc.    Next: 1) Gdbus init via listeners (2 hours).   2) Update GLib.java (4 hours).  3) <not too sure>. Maybe finish off what's assigned to me or start on bugfixes. Either pick on the 'gtk3 show stoppers' or other gtk3 bugs. (Do you have anyhting in mind?).  <<< wdyt
+T 1516984704 19<akurtakov>	lufimtse: finished assigned stuff
+T 1516984725 18<akurtakov18>	what happened with your tree performance work you did this wek?
+T 1516984743 20<lufimtse>30	akurtakov, by 'finished', you mean 'finish*' <<<
+T 1516984750 20<lufimtse>30	akurtakov, what tree performance? You mean combobox?
+T 1516984754 18<akurtakov18>	ah yes
+T 1516984828 20<lufimtse>30	akurtakov, I started on it. Next step was to profile gtk function (gtkcomboboxtext.c). Jeff gave me some advise on how I can do that, this would be my next step. 
+T 1516984859 20<lufimtse>30	akurtakov, I need to see if it triggers any strange signals, or figure out what's causing the slowdown at the deeper level.
+T 1516993989 18<ericwill18>	akurtakov you check your mail quickly :) yeah I found a fix using the new GtkMenu API
+T 1516993992 18<ericwill18>	current in testing
+T 1516993995 18<ericwill18>	*currently
+T 1516998315 19<akurtakov>	lufimtse: for the dynamic dbus init
+T 1516998320 18<akurtakov18>	if you are confident push :)
+T 1516998328 20<lufimtse>30	akurtakov, ok.
+T 1516998331 20<lufimtse>30	akurtakov, yea, works well.
+T 1516998333 20<lufimtse>30	dn
+T 1516998339 20<lufimtse>30	akurtakov, I don't have equinox push rights
+T 1516998342 20<lufimtse>30	thou.
+T 1516998350 18<akurtakov18>	well, push the swt part
+T 1516998359 18<akurtakov18>	I'll take care of the equionx part next week
+T 1516998366 18<akurtakov18>	with included rebuild of nateives
+T 1516998389 20<lufimtse>30	ok
+T 1516998394 18<akurtakov18>	there is no issue if launcher sitll pushes the vmarg :)
+T 1516998399 20<lufimtse>30	yea
+T 1516998414 20<lufimtse>30	they're just not read by swt anymore.
+T 1517237262 19*	Now talking on 22#SWT
+T 1517240355 19<akurtakov_>	lufimtse: hey
+T 1517240362 20<lufimtse>30	akurtakov_, morning
+T 1517240376 18<akurtakov_18>	can you check whether webkit1 still works ?
+T 1517240386 18<akurtakov_18>	on a system without webkit2 installed
+T 1517240411 18<akurtakov_18>	I ask because of https://hudson.eclipse.org/linuxtools/job/linuxtools-gerrit/11907/testReport/junit/org.eclipse.linuxtools.docker.integration.tests.container/ExposePortTest/testExposePort_no_configuration/
+T 1517240427 18<akurtakov_18>	looks suspicious
+T 1517240439 20<lufimtse>30	ok
+T 1517240441 20<lufimtse>30	I'll check
+T 1517244327 20<lufimtse>30	akurtakov_, https://bugs.eclipse.org/bugs/show_bug.cgi?id=528844#c9 <<
+T 1517249753 18<ericwill18>	akurtakov_ xdg-shell thread is here: https://bugzilla.gnome.org/show_bug.cgi?id=770745#c6
+T 1517416094 20*	You are now known as 18lufimtse_afk
+T 1517418624 20*	You are now known as 18lufimtse
+T 1517584600 19*	Now talking on 22#SWT
+T 1517587945 18<akurtakov18>	ericwill: ping
+T 1517588307 18<ericwill18>	https://bugzilla.gnome.org/show_bug.cgi?id=793124
+T 1517588312 18<ericwill18>	for reference
+T 1517594123 18<ericwill18>	akurtakov how do you feel about disabling the setBounds() JUnit test on Wayland, as it fails automatically every time (no global coords)

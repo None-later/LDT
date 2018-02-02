@@ -1,0 +1,98 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2017-12-21T12:00:11-05:00
+
+====== RHEL server setup ======
+Created Thursday 21 December 2017
+
+==== # Setup network ====
+On first boot, you only get command line and network is turned off.
+
+nmcli con show      #list interfaces
+nmcli con up <CON>  # activate
+
+# sometimes need to add new host-only network connection.
+nmcli dev
+nmcli con add con-name hostadapter type ethernet ifname enp0s8
+
+ip addr #show ip's
+
+systemctl start sshd  # now can connect to vm from host.
+
+==== # Turn off beta and Enable proper repos.  *3, *4 ====
+yum repolist | grep enabled  #(or grep 'optional' or 'supplementary')
+subscription-manager repos --disable rhel-7-server-rt-beta-rpms       # beta screws with subscription manager.
+subscription-manager repos --enable rhel-7-server-optional-rpms
+subscription-manager repos --enable rhel-7-server-supplementary-rpms
+
+==== # Register system *1 ====
+subscription-manager register
+username: lufimtse1@redhat.com
+password: !1...
+or use 1 liner.
+
+==== # Attach subscription: *2 ====
+subscription-manager attach --auto
+
+==== # Update system. ====
+yum update
+
+==== # Install GUI  *5 ====
+yum group list
+yum groupinstall 'Server with GUI' -y
+
+==== # Configure to use GUI ====
+systemctl set-default graphical.target
+systemctl start graphical.target
+
+==== # Update man page database ====
+su -
+mandb
+
+==== # Set network to auto enable on system start ====
+nmcli con mod enp0s3 connection.autoconnect yes
+
+
+==== # Enable auto-login: *6 ====
+[[/etc/gdm/custom.conf]]
+[daemon]
+AutomaticLoginEnable=True
+AutomaticLogin=john
+
+==== # Enable terminal to launch on startup: *7 ====
+gnome-session-properties   
+/usr/bin/gnome-terminal --window --maximize
+
+==== # Set sudo to run without password ====
+sudo visudo
+... comment out '%wheel ...'
+... uncomment   '%wheel ... NOPASS'
+
+
+==== # Misc: ====
+[[apps (gui):VirtualBox:Tools]]
+[[apps (gui):VirtualBox:host network]]
+
+Setup guide:
+https://developers.redhat.com/products/rhel/hello-world/#fndtn-virtualbox
+
+[1] Chapter 25. Register Your System and Apply Subscriptions - Red Hat Customer Portal
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/5/html/installation_guide/s1-steps-rhnreg-x86
+
+[2] How to register and subscribe a system to the Red Hat Customer Portal using Red Hat Subscription-Manager - Red Hat Customer Portal
+https://access.redhat.com/solutions/253273
+
+[3] Enabling or disabling a repository using Red Hat Subscription Management - Red Hat Customer Portal
+https://access.redhat.com/solutions/265523
+
+[4] 6.2. Enabling Supplementary and Optional Repositories - Red Hat Customer Portal
+https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/supplementary-repos
+
+[5] Install GNOME GUI on RHEL 7 Linux Server - LinuxConfig.org
+https://linuxconfig.org/install-gnome-gui-on-rhel-7-linux-server
+
+[6] How to enable user Auto Login and Logout in GUI mode on RHEL7 ? - Red Hat Customer Portal
+https://access.redhat.com/solutions/1756193
+
+[7] upstart - How to start application after login on CentOS? - Unix & Linux Stack Exchange
+https://unix.stackexchange.com/questions/148754/how-to-start-application-after-login-on-centos

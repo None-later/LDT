@@ -1,27 +1,64 @@
 #!/bin/bash
 
-HOST=$(hostname)
+#*********************************************************************
+# Copyright (c) Sept 2017 Leo Ufimtsev, lufimtse@redhat.com
+#
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#**********************************************************************/
 
-# Example: 507072 – (LinuxIDEColorTracker) Implement fitting Linux colors for various IDE components
+# Version: 4
+# 1 - Inititial implementaiton
+# 2 - some bug fixes, recognize numbers in aliases.
+# 3 - added chrome support.
+# 4 - added license + upstream dependency info.
 
-# Default: Strip alias and dash out of title.
-# Eg: Bug 507072 Implement fitting Linux colors for various IDE components
-TITLE=$(wmctrl -xl | grep -i firefox | grep -o "${HOST}.*" | sed "s/$HOST //" | sed 's/ - Mozilla Firefox//' | sed 's/ – ([a-z]\+)//gI')
+# Puts something like this into clipboard:
+#    Bug 123 My Bug Summary:
+#    Bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=123
 
-# Keep only _alias. Useful if you submit multiple patches for a single bug.
-# Eg: 507072 (LinuxIDEColorTracker)
-if [ "$1" == 'a' ]; then
-   shift
-   TITLE=$(wmctrl -xl | grep -i firefox | grep -o "${HOST}.*" | sed "s/${HOST} //" | sed 's/ - Mozilla Firefox//' | grep -E -i -o '[0-9]+ – \([a-z]+)' | sed 's/ – / /')
+# Paramaters:
+# a - keep only alias like  'Bug 1234 (myBugAlias)', useful if you submit multiple patches to one bug and want to have a custom line.
+# nl - do _not append the _link (url) of bug.
+
+# CONFIG START:
+# Select the Browser that you use.
+BROWSER_TITLE="Mozilla Firefox"
+#BROWSER_TITLE="Google Chrome"
+
+# CONFIG END.
+
+# Upstream dependencies: 
+# wmctrl    (I think it came in with autokey)
+# xsel
+
+if [ "$1" == "-h" ]; then
+	echo "Help: 
+a - keep only bug/alias
+nl - do not append link
+"
+	exit
 fi
 
+HOST=$(hostname)
+# Notes:
+# egrep " [0-9] .." If multiple firefoxes are present, this tries to find the one with a bug in the title.
+# prioritize first browser instance.
+TITLE=$(wmctrl -xl | grep -i "${BROWSER_TITLE}" | egrep " [0-9][0-9][0-9][0-9]" | head -n 1 | grep -o "${HOST}.*" | sed "s/$HOST //" | sed "s/ - ${BROWSER_TITLE}//" | sed 's/ – ([a-z0-9]\+)//gI')
+if [ "$1" == 'a' ]; then
+   shift
+   TITLE=$(wmctrl -xl | grep -i "${BROWSER_TITLE}" | egrep " [0-9][0-9][0-9][0-9]" | head -n 1| grep -o "${HOST}.*" | sed "s/$HOST //" | sed "s/ - ${BROWSER_TITLE}//" | grep -E -i -o '[0-9]+ – \([a-z0-9]+)' | sed 's/ – / /')
+fi
 
 BUGID=$(echo $TITLE | tr -dc '0-9')
 if [ "$1" != 'nl' ]; then
-   # Default, append bug link. (as requried by: https://wiki.eclipse.org/Development_Resources/Contributing_via_Git )
-   printf "Bug ${TITLE}\nBug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=${BUGID}" | xsel -b
+	OUTPUT="Bug ${TITLE}\n\nBug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=${BUGID}"
+   	printf "${OUTPUT}" | xsel -b
+	printf "${OUTPUT}\n"
 else
-   # If 'nl' (no link) is specified, only put title into clipboard
    printf "Bug ${TITLE}" | xsel -b
 fi	
 	

@@ -15678,3 +15678,871 @@ Dec 14 16:01:14 <rgrunber>	and yeah seems we're using tycho-pomgenerator-plugin
 Dec 14 16:02:03 <nboldt>	mbooth: https://www.youtube.com/watch?v=gXN1yxax448 :)
 Dec 15 05:38:17 <mbooth>	vkadlcik: Hey, I plan to add builds to and switch erratum to QE at some point today
 Dec 15 05:38:42 <vkadlcik>	mbooth: thanks, that would be great!
+**** BEGIN LOGGING AT Fri Dec 15 15:43:45 2017
+
+Dec 15 15:43:45 *	Now talking on #eclipse
+Dec 15 15:43:45 *	Topic for #eclipse is: Eclipse discussions
+Dec 15 15:43:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Mon Dec 18 10:46:19 2017
+
+Dec 18 10:46:19 *	Now talking on #eclipse
+Dec 18 10:46:19 *	Topic for #eclipse is: Eclipse discussions
+Dec 18 10:46:19 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Dec 19 10:16:21 <rgrunber>	i'm getting all these weird UnknownHostExceptions from download.eclipse.org at varying parts...
+Dec 19 10:16:55 <rgrunber>	nvm.. could be me..
+Dec 19 10:21:04 <ericwill>	rgrunber I can't pull from gerrit either, same issue for git.eclipse.org
+Dec 19 10:22:07 <rgrunber>	great 2 in one.. i also confirmed it's my isp..
+Dec 19 10:27:16 <ericwill>	git.eclipse.org seems to be back up
+**** ENDING LOGGING AT Tue Dec 19 12:05:31 2017
+
+**** BEGIN LOGGING AT Tue Dec 19 13:50:08 2017
+
+Dec 19 13:50:08 *	Now talking on #eclipse
+Dec 19 13:50:08 *	Topic for #eclipse is: Eclipse discussions
+Dec 19 13:50:08 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Tue Dec 19 13:51:44 2017
+
+Dec 19 13:51:44 *	Now talking on #eclipse
+Dec 19 13:51:44 *	Topic for #eclipse is: Eclipse discussions
+Dec 19 13:51:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Dec 19 14:07:13 <nboldt2>	rgrunber: hey, I notice that the latest Photon.M4 Orbit repo has jackson databing 2.9.2, but the last R build (for Oxygen.1a) has 2.6.2
+Dec 19 14:07:43 <nboldt2>	http://download.eclipse.org/tools/orbit/downloads/drops/R20170919201930/ vs. http://download.eclipse.org/tools/orbit/downloads/drops/S20171130170529/
+Dec 19 14:08:14 <nboldt2>	rgrunber: wondering if this is an update that you think merits being in Oxygen.2 too
+Dec 19 14:08:49 <nboldt2>	or just for Photon?
+Dec 19 14:11:31 <rgrunber>	nboldt2: 2.9.2 was just for photon. might have been too tight to have gotten it into oxygen.2.
+Dec 19 14:13:05 <rgrunber>	it gets rid of 2.6.2 while i don't think i could have done the same for .2.. i'd have to keep it around for a service release.
+Dec 19 14:51:31 <nboldt2>	rgrunber: so 2.9.2 won't appear in Oxygen.3?
+Dec 19 14:57:25 <rgrunber>	nboldt2: we could push it in.. would just have to announce it ahead of time and make sure there's no issues with that.
+Dec 19 15:01:52 <rgrunber>	doesn't rely on any other changes that were for photon afaict so should be fine to just cherry-pick for .3
+Dec 19 15:19:13 <nboldt2>	ok, just curious. not required (unless it's in Fedora and RHSCL / devtools already, in which case we should sync up)
+Dec 19 15:19:22 <nboldt2>	rgrunber: ^
+Dec 19 15:21:06 <rgrunber>	not in fedora, though they did got with jackson 2.7.6 (which has the fix).. we decided to go with 2.9.x since that's what upstream docker-client is using so may as well..
+Dec 19 15:22:35 <rgrunber>	and seems we did the same in rh-eclipse47 https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=63022
+Dec 19 16:18:39 <lufimtse_>	has anyone been able to get screen recording to work on Wayland?
+Dec 19 16:20:29 <ericwill>	lufimtse_ it
+Dec 19 16:20:33 <ericwill>	is still broken IIRC
+Dec 19 16:20:36 <ericwill>	they are working on it.
+Dec 20 09:30:49 <scela>	lufimtse_: ericwill hey guys, please take a look at the email from Mickael
+Dec 20 09:30:57 <ericwill>	scela yeah I just saw
+Dec 20 09:32:01 <scela>	do we have any idea what's causing it?
+Dec 20 09:33:36 <ericwill>	scela there was a patch from Alex a few days that had to do with scrollbars
+Dec 20 09:33:49 <ericwill>	from what I can tell these test failures relate to scrolling composites
+Dec 20 09:33:53 <ericwill>	might be related
+Dec 20 09:34:03 <scela>	ericwill: ok
+Dec 20 09:34:22 <scela>	please investigate and see what we can do about it as it wouldn't be nice to go on vacation with a broken build
+Dec 20 09:34:29 <ericwill>	will do
+Dec 20 09:45:40 <ericwill>	okay it's not Alex's patch
+Dec 20 10:00:43 <scela>	ericwill: can you reproduce the failure locally?
+Dec 20 10:01:52 <ericwill>	scela yes, and it goes back several months. But the tests only started failing on the build machines between the 17th and now
+Dec 20 10:02:15 <ericwill>	did something change on the build machines? maybe it's a case of this bug existing for awhile but the build environment changed and only now are we seeing the failure
+Dec 20 10:05:07 <scela>	ericwill: not that I know of
+Dec 20 10:07:45 <ericwill>	scela the tests fail locally even with SWT from the 4.7 release in June
+**** BEGIN LOGGING AT Thu Dec 21 08:41:45 2017
+
+Dec 21 08:41:45 *	Now talking on #eclipse
+Dec 21 08:41:45 *	Topic for #eclipse is: Eclipse discussions
+Dec 21 08:41:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Dec 21 09:24:14 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Dec 21 09:24:14 2017
+
+**** BEGIN LOGGING AT Thu Dec 21 09:43:34 2017
+
+Dec 21 09:43:34 *	Now talking on #eclipse
+Dec 21 09:43:34 *	Topic for #eclipse is: Eclipse discussions
+Dec 21 09:43:34 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Fri Dec 22 11:24:19 2017
+
+Dec 22 11:24:19 *	Now talking on #eclipse
+Dec 22 11:24:19 *	Topic for #eclipse is: Eclipse discussions
+Dec 22 11:24:19 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Dec 22 11:24:30 2017
+
+**** ENDING LOGGING AT Sat Dec 23 00:34:45 2017
+
+**** BEGIN LOGGING AT Tue Jan  2 09:25:38 2018
+
+Jan 02 09:25:38 *	Now talking on #eclipse
+Jan 02 09:25:39 *	Topic for #eclipse is: Eclipse discussions
+Jan 02 09:25:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 03 11:07:38 <rgrunber>	so jnr-unixsocket now exports packages under the jnr.enxio.channels namspace which should belong to jnr.enxio... awesome, just awesome.
+Jan 03 12:00:38 <mbenitez>	akurtakov, ericwill, jjohnstn, lbullen, lufimtse, mbooth, rgrunber welcome back, happy 2018
+Jan 03 12:00:48 <akurtakov>	thanks
+Jan 03 12:00:48 <mbenitez>	mbooth, hi, did your talk for FOSDEM get accepted?
+Jan 03 12:00:55 <akurtakov>	and happy new year to everyone 
+Jan 03 12:00:56 <ericwill>	mbenitez happy new year!
+Jan 03 12:01:04 <mbenitez>	thanks :)
+Jan 03 12:01:15 <jjohnstn>	mbenitez happy new year too
+Jan 03 12:05:19 <rgrunber>	\o/
+Jan 03 12:05:31 <rgrunber>	happy new year
+Jan 03 12:06:38 <lufimtse>	\O\ 
+Jan 03 13:41:03 <ericwill>	this screenshot is shown in an SWT article on custom table drawing: http://www.eclipse.org/articles/Article-CustomDrawingTableAndTreeItems/images/figure6.png
+Jan 03 14:09:33 <rgrunber>	ericwill: is -15 with the windchill or without it..
+Jan 03 14:09:57 <ericwill>	rgrunber not sure
+Jan 03 14:10:09 <ericwill>	I was not expecting to see the parliament building in an SWT article though
+Jan 03 14:10:20 <rgrunber>	ericwill: me neither.. the CN Tower should be there..
+Jan 03 14:10:24 <rgrunber>	get to it
+Jan 03 14:10:34 <rgrunber>	centre of the universe!!
+Jan 03 14:15:48 <akurtakov>	ericwill: you know that Silenio, Bogdan, McQ ... - the original SWT team were all in Ottawa
+Jan 03 14:16:27 <ericwill>	this...makes sense :)
+**** ENDING LOGGING AT Wed Jan  3 18:23:16 2018
+
+**** BEGIN LOGGING AT Thu Jan  4 10:03:32 2018
+
+Jan 04 10:03:32 *	Now talking on #eclipse
+Jan 04 10:03:32 *	Topic for #eclipse is: Eclipse discussions
+Jan 04 10:03:32 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 04 10:34:32 <mbenitez>	mbooth, what happened with your Fosdem talk? please reply ASAP
+Jan 04 10:59:31 <mbooth>	mbenitez: Hi, unfortunately I won't be speaking at Fosdem
+Jan 04 11:02:29 <mbenitez>	mbooth, that's too bad :(
+Jan 04 11:02:37 <mbenitez>	flatpak sounded promising for this
+**** BEGIN LOGGING AT Thu Jan  4 14:25:42 2018
+
+Jan 04 14:25:42 *	Now talking on #eclipse
+Jan 04 14:25:42 *	Topic for #eclipse is: Eclipse discussions
+Jan 04 14:25:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 04 16:13:42 <mbenitez>	rgrunber, hi, Re: BZ1121766 if you tested with the SCL and issue is gone, yes, feel free to close it
+Jan 04 16:14:06 <rgrunber>	mbenitez: that was quick :P.. k sounds good.
+Jan 04 16:14:30 <mbenitez>	:D
+**** ENDING LOGGING AT Thu Jan  4 17:56:50 2018
+
+**** BEGIN LOGGING AT Fri Jan  5 11:12:15 2018
+
+Jan 05 11:12:15 *	Now talking on #eclipse
+Jan 05 11:12:15 *	Topic for #eclipse is: Eclipse discussions
+Jan 05 11:12:15 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 05 11:12:43 <lufimtse>	rgrunber, morning. Forgot to turn on irc.
+Jan 05 11:12:46 <lufimtse>	rgrunber, reviewing
+Jan 05 11:41:23 <rgrunber>	lufimtse: that's fine.. good thing your condition made it easy to catch.
+Jan 05 12:48:41 <jjohnstn>	for those who know Dominique Toupin, he has announced he is leaving Ericsson today...I tried contacting him, but I just get an auto-reply..not sure what happens to the CDT rewrite project at Ericsson
+Jan 05 12:56:41 <mbenitez>	jjohnstn, that's big news
+Jan 05 12:56:58 <mbenitez>	let me see if anybody else knows about the future of Theia
+Jan 05 13:28:40 <akurtakov>	jjohnstn: where was it announced ?
+Jan 05 13:49:20 <jjohnstn>	akurtakov: I got an e-mail sent to me
+Jan 05 13:54:01 <jjohnstn>	same auto-reply message when I tried to reply
+Jan 05 14:01:10 <akurtakov>	ok, thanks
+Jan 05 14:09:50 <jjohnstn>	akurtakov: just forwarded the message to the eclipse-team list
+**** ENDING LOGGING AT Fri Jan  5 18:31:57 2018
+
+**** BEGIN LOGGING AT Mon Jan  8 13:21:15 2018
+
+Jan 08 13:21:15 *	Now talking on #eclipse
+Jan 08 13:21:16 *	Topic for #eclipse is: Eclipse discussions
+Jan 08 13:21:16 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Mon Jan  8 16:55:34 2018
+
+Jan 08 16:55:34 *	Now talking on #eclipse
+Jan 08 16:55:34 *	Topic for #eclipse is: Eclipse discussions
+Jan 08 16:55:34 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Mon Jan  8 16:55:57 2018
+
+**** ENDING LOGGING AT Mon Jan  8 18:13:08 2018
+
+**** BEGIN LOGGING AT Tue Jan  9 12:59:27 2018
+
+Jan 09 12:59:27 *	Now talking on #eclipse
+Jan 09 12:59:27 *	Topic for #eclipse is: Eclipse discussions
+Jan 09 12:59:27 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 10 09:17:59 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Jan 10 09:17:59 2018
+
+**** BEGIN LOGGING AT Thu Jan 11 09:59:39 2018
+
+Jan 11 09:59:39 *	Now talking on #eclipse
+Jan 11 09:59:39 *	Topic for #eclipse is: Eclipse discussions
+Jan 11 09:59:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 12 05:39:19 <scela>	vkadlcik: hello
+Jan 12 05:39:33 <vkadlcik>	scela: hi
+Jan 12 05:39:42 <scela>	vkadlcik: had a chance to look at the bouncy castle issue yet?
+Jan 12 05:40:56 <vkadlcik>	scela: https://bugzilla.redhat.com/show_bug.cgi?id=1528562#c3
+Jan 12 05:41:03 <vkadlcik>	scela: this? ^
+Jan 12 05:41:15 <scela>	vkadlcik: yes, thanks
+Jan 12 05:41:36 <scela>	vkadlcik: so how are we looking with regard to criticals?
+Jan 12 05:42:32 <vkadlcik>	scela: unresolved bundles (bz1527797) still open
+Jan 12 05:43:10 <vkadlcik>	scela: CVE-2017-17485 supposedly fixed but I think it's incomplete:
+Jan 12 05:43:49 <vkadlcik>	scela: https://bugzilla.redhat.com/show_bug.cgi?id=1530471#c2
+Jan 12 05:45:10 <scela>	vkadlcik: ok
+Jan 12 05:45:28 <mbooth>	Hmm, I thought I compared the blacklist to what's in upstream jackson-databind master :-/
+Jan 12 05:45:39 <mbooth>	I'll check again
+Jan 12 05:49:14 <vkadlcik>	mbooth: I read it as they moved blocking into SubTypeValidator and it has two parts now, the good old static list and as a new thing, programatic checking of org.springframework.*
+Jan 12 05:51:01 <mbooth>	Aha, I didn't notice that. Probably need a more extensive patch then
+Jan 12 05:51:25 <vkadlcik>	mbooth: yes, unfortunately...
+Jan 12 05:52:01 <mbooth>	Okay I'll circle back round to it later today
+Jan 12 05:52:13 <vkadlcik>	mbooth: no problem
+Jan 12 09:48:26 <vkadlcik_gone>	mbooth: i'm leaving for today but i'll check in the morning - in case i find new builds i'll definitely have a look
+Jan 12 10:33:13 <nboldt1>	mbooth: fyi, new version of eclipse-m2e-apt rpm coming down the pipe... will prolly need that in fedora 27 and devtools channel
+Jan 12 10:33:49 <mbooth>	nboldt1: Cool, will you update the Fedora RPM?
+Jan 12 10:34:45 <nboldt1>	mbooth: I can try, yeah
+Jan 12 10:35:04 <nboldt1>	been a while since I touched an rpm / spec file and still kinda on vacation brain :)
+Jan 12 10:35:57 <mbooth>	nboldt1: Should be a easy one: http://pkgs.fedoraproject.org/cgit/rpms/eclipse-m2e-apt.git/tree/eclipse-m2e-apt.spec
+Jan 12 10:36:41 <mbooth>	nboldt1: Where easiness-to-update is usually inversely proportional to spec file length :-)
+Jan 12 10:40:10 <nboldt1>	mbooth: yeah, I've fetched sources and will make sure Fred's tagged a release in github so we can get the source tarball
+Jan 12 12:13:08 <nboldt1>	mbooth: building m2e-apt for f27 and f28: https://koji.fedoraproject.org/koji/taskinfo?taskID=24158019 https://koji.fedoraproject.org/koji/taskinfo?taskID=24158021
+Jan 12 12:13:55 <mbooth>	nboldt1: Nice, can you merge to f26 too?
+Jan 12 12:17:06 <nboldt1>	https://koji.fedoraproject.org/koji/taskinfo?taskID=24158068 < f26
+Jan 12 12:17:30 <mbooth>	Thanks
+Jan 12 12:17:38 <nboldt1>	no probs
+Jan 12 12:17:46 <nboldt1>	I love easy updates :D
+Jan 12 12:21:09 <mbooth>	nboldt1: Seems to have imported cleanly, the SCL build: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=14935730
+Jan 12 12:24:56 <nboldt1>	mbooth: yep, 2 of 3 builds are done and green
+Jan 12 12:25:10 <nboldt1>	(in fedora). glad import to SCL worked too 
+Jan 12 12:25:35 <nboldt1>	f26 build just finished green too
+Jan 12 13:26:37 <mbenitez>	if anybody is looking for Jeff he's having some vpn issues, he'll be online as soon as he solves them
+Jan 12 15:43:38 <nboldt1>	mbenitez: if we got everyone on the team to use mattermost... no vpn required :)
+Jan 12 15:47:48 <mbenitez>	haha :)
+Jan 12 15:48:20 <mbenitez>	nboldt1, you know I have no issue with mm, like you I'm there
+Jan 12 15:48:56 <mbenitez>	there's people beyond our team that are not / will not move so a few of us are destined to be in both places :(
+Jan 12 15:53:22 <nboldt1>	hmm. pity that we can't First convince our all our Friends & colleagues to enjoy the Features of MM, and the Freedom of having only a single chat engine within the company. #FFFF
+Jan 12 16:01:40 <mbenitez>	in theory there's a plan for such thing... in reality I doubt it'll happen
+Jan 12 16:11:45 <nboldt1>	with great Freedom comes great ... tendency to use too many tools :) 
+Jan 12 16:13:23 <mbenitez>	LOL so true :)
+Jan 12 16:58:52 <akurtakov>	no flatpak nor rpm for the client as the last time I checked - at that page I stop :)
+Jan 15 08:16:27 <scela>	akurtakov: https://bugzilla.redhat.com/show_bug.cgi?id=1533913
+Jan 15 08:16:56 <scela>	ever seen this?
+Jan 15 08:18:23 <mbooth>	I was going to assign to Eric if it's a SWT problem
+Jan 15 09:15:11 <akurtakov>	scela: yeah, I've seen it
+Jan 15 09:15:13 <akurtakov>	it's SWT bug
+Jan 15 09:16:22 <akurtakov>	scela: https://bugs.eclipse.org/bugs/show_bug.cgi?id=500703
+Jan 15 09:23:00 <scela>	mbooth: ^
+Jan 15 09:23:10 <mbooth>	Thanks
+Jan 15 09:23:22 <mbooth>	Sounds like Eric is already working on it then :-)
+Jan 15 09:23:37 <scela>	mbooth: yep
+Jan 15 09:28:39 <akurtakov>	one of the many queue waiting for him
+Jan 15 09:47:42 <scela>	eclipse-team: weekly due in a little bit more than 1h
+Jan 15 10:47:24 <dneary>	Hi all
+Jan 15 10:47:33 <dneary>	Do the Eclipse Che team hang out on IRC?
+Jan 15 10:49:07 <scela>	dneary: I think they're mostly on mattermost
+Jan 15 10:49:08 <mbenitez>	not really, you may find somebody in #devtools but you're better off trying https://chat.openshift.io/developers/channels/openshiftio-che
+Jan 15 10:49:38 <dneary>	scela, Another communication platform? :-(
+Jan 15 10:49:43 <dneary>	Thanks mbenitez 
+Jan 15 10:50:09 <mbenitez>	yes, all of the devtools org is in mattermost...
+Jan 15 11:00:51 <scela>	akurtakov: mbooth joining?
+Jan 15 11:00:57 <mbooth>	Oops
+Jan 15 11:22:14 <nboldt>	akurtakov: current blocked status of wtp.javaee: https://wiki.eclipse.org/WTP_2017-12-21#jeetools
+Jan 15 11:22:32 <akurtakov>	nboldt: thanks
+Jan 15 11:23:33 <nboldt>	np. we could move forward with scripting the webservices merge while we're blocked in javaee; the sourceTemplate stuff is just cleanup, doesn't affect quality. afaik no one will complain if some wtp features are missing sources :)
+Jan 16 05:09:27 <scela>	lvalach: we're looking at https://bugzilla.redhat.com/show_bug.cgi?id=1531570 now
+Jan 16 05:09:35 <scela>	lvalach: more specifically mbooth is :)
+Jan 16 05:24:15 <lvalach>	scela, Great, thanks you both. That problem can be reproduced also without use of RH Central, I got the same error when I installed JRebel from Eclipse Market but DevStudio must be installed. Clean Eclipse works fine.
+Jan 16 10:31:45 <mbooth>	akurtakov: Just got this in my rhel 7.4 vm: http://pastebin.test.redhat.com/547236
+Jan 16 10:33:03 <mbooth>	But I've got no idea how to reproduce it... Second try works fine.
+Jan 16 10:50:55 <akurtakov>	mbooth: no idea
+Jan 16 10:52:13 <akurtakov>	mbooth: I would say it's launcher as IIRC we trap errors in swt so they don't pop like that
+Jan 16 10:52:36 <mbooth>	Hmm
+Jan 16 10:52:36 <akurtakov>	but I haven't seen this error
+Jan 16 11:11:09 <jjohnstn>	ericwill: remember long ago when I was having problems with a tree on a sashform having proper scrollbar  to show a large column?  You mentioned at the time that the SWT code was a bt dicey...has this been improved?  My fix for trying to make the scrollbars appear is causing performance issues and I would be happy for your take on how best to solve it on the CDT side (even if it won't work until future changes are made) 
+Jan 16 11:12:24 <ericwill>	jjohnstn nothing has changed on that front, I would file a bug in SWT and we can take a look
+Jan 16 11:20:23 <jjohnstn>	ericwill: ok, I had tried resetting the width in a paintControl method of a TreeListener...should I be resetting the width manually or should SWT handle it on a tree expansion?
+Jan 16 11:21:24 <ericwill>	jjohnstn SWT should be handling size changes automatically
+Jan 16 11:22:04 <jjohnstn>	ok, thx
+Jan 16 11:53:51 <akurtakov>	rgrunber: what is the status of batik?
+Jan 16 11:54:15 <akurtakov>	seems it will miss M5 
+Jan 16 11:54:28 <akurtakov>	unless there is a build like tomorrow 
+Jan 16 11:59:18 <rgrunber>	akurtakov: yes i mentioned as much on the list. there's a lot of bundles needing to be pushed in. there's no risk of missing cq deadline as i think most (except maybe 1) are approved for parallel ip process.
+Jan 16 12:00:10 <rgrunber>	Pierre is actively working on it though https://bugs.eclipse.org/bugs/show_bug.cgi?id=522740#c33
+Jan 16 13:45:16 <akurtakov>	rgrunber: can you give me an orbit build with xz-java 1.8 ?
+Jan 16 13:45:38 <akurtakov>	your download place is fine
+Jan 16 13:48:05 <rgrunber>	ah perfect!.. nearly forgot about that.. let me look back on how far down the line xz-java 1.8 is..
+Jan 16 13:52:38 <rgrunber>	akurtakov: what link did i send you to download it ?.. or when was the email sent ?
+Jan 16 13:52:58 <akurtakov>	rgrunber: you sent me list for lucene 7.1
+Jan 16 13:53:04 <rgrunber>	yup
+Jan 16 13:53:05 <akurtakov>	and I already used and updated it
+Jan 16 13:53:10 <akurtakov>	this is new request 
+Jan 16 13:53:23 <rgrunber>	ah....
+Jan 16 13:53:51 <rgrunber>	ok sorry.. i thought for some reason you were confirming xz-java 1.8 worked and to push it in.. but i couldn't find any mention of it in the past while..
+Jan 16 13:53:52 <akurtakov>	rgrunber: http://s01.yyz.redhat.com/~rgrunber/orbit-nightly
+Jan 16 13:54:02 <akurtakov>	is the link
+Jan 16 13:54:34 <rgrunber>	yeah np.. i'll have something there.. just pushing some changes through now including asm6
+Jan 16 13:55:07 <akurtakov>	rgrunber: ok, not urgent
+Jan 16 13:55:11 <akurtakov>	it will be after M5 
+Jan 16 13:59:35 <rgrunber>	k good to know.. any idea if tukaani 1.6 can be removed when 1.8 gets in ? is this needed for equinox as previous request was ?
+Jan 16 14:10:35 <akurtakov>	yeah equinox 
+Jan 16 14:23:03 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=529908
+Jan 16 14:49:47 <rgrunber>	:)
+Jan 17 06:51:48 <scela>	vkadlcik: hello
+Jan 17 06:52:01 <scela>	vkadlcik: how are things looking with the SCL overall?
+Jan 17 06:52:03 <vkadlcik>	scela: hi
+Jan 17 06:54:28 <vkadlcik>	scela: good (with finger crossed), we have fresh builds for the last two open issues
+Jan 17 06:55:09 <vkadlcik>	scela: i believe i will have the erratum ready for final testing later today, as i wished
+Jan 17 06:56:11 <vkadlcik>	scela: i'll send more detailed email later today
+Jan 17 06:57:54 <scela>	vkadlcik: I see, thanks.
+Jan 17 06:58:07 <mbooth>	Thanks to Jeff for providing last minute CDT patch :-)
+Jan 17 06:58:52 <scela>	mbooth: :)
+Jan 17 08:39:38 <nboldt>	mbooth: I hear you have a fix for me for jbdevstudio-product ?
+Jan 17 08:40:56 <scela>	nboldt: https://bugzilla.redhat.com/show_bug.cgi?id=1531570 probably
+Jan 17 08:41:10 <scela>	lvalach: cc ^
+Jan 17 08:41:17 <mbooth>	nboldt: I sent a PR for you to review: https://github.com/jbdevstudio/jbdevstudio-product/pull/483
+Jan 17 08:42:02 <mbooth>	nboldt: Due to changes in the other collections, the spec file was able to be shortened :-)
+Jan 17 08:42:28 <nboldt>	mbooth: we no longer depend on eclipse-pde? 
+Jan 17 08:42:30 <nboldt>	+BuildRequires: %{?scl_prefix}base >= 4.7.2-13
+Jan 17 08:42:52 <mbooth>	nboldt: base includes pde
+Jan 17 08:43:16 <nboldt>	wow, that's a lot of stuff removed. I'm ... impressed :)
+Jan 17 08:43:24 <nboldt>	and happy for a simpler specfile
+Jan 17 08:44:13 <mbooth>	nboldt: I think the resulting RPM is slightly smaller too 
+Jan 17 08:44:35 <mbooth>	(Few more bundles removed that were now duplicated)
+Jan 17 08:44:44 <nboldt>	yeah, cool
+Jan 17 08:47:35 <nboldt>	mbooth: PR merged. thanks for the fix! commented in the BZ too 
+Jan 17 08:48:03 <mbooth>	nboldt: Thanks
+Jan 17 08:48:50 <scela>	nboldt: thanks Nick
+Jan 17 08:52:07 <nboldt>	scela: hey, lvalach and mbooth did all the hard work... I just pushed some green buttons :)
+Jan 17 08:52:19 <nboldt>	#itTakesAVillage
+Jan 17 08:53:32 <mbooth>	"My button is greener. I have the greenest... I know all the greenest buttons, just great buttons, you know? Believe me." -- Trump, probably.
+Jan 17 08:57:36 <scela>	mbooth: nboldt to each their buttons ;)
+Jan 17 09:17:19 <nboldt>	mbooth: rpm build failed in jenkins
+Jan 17 09:17:26 <nboldt>	09:13:57 Getting requirements for rh-eclipse47-devstudio-11.2-0.20180117.1411.el7.src 
+Jan 17 09:17:31 <nboldt>	09:13:57  --> Already installed : scl-utils-build-20130529-17.el7_1.x86_64 
+Jan 17 09:17:34 <nboldt>	09:13:57 Error: No Package found for rh-eclipse47-base >= 4.7.2-13
+Jan 17 09:17:50 <nboldt>	is rh-eclipse47-base >= 4.7.2-13 not published yet?
+Jan 17 09:18:02 <mbooth>	nboldt: This is in mock, right?
+Jan 17 09:18:08 <nboldt>	no, this is live
+Jan 17 09:18:20 <nboldt>	https://dev-platform-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/Devstudio/view/devstudio_master/job/devstudio.rpm_master/2272/console
+Jan 17 09:19:04 <nboldt>	using baseurl=http://brewweb.engineering.redhat.com/brewroot/repos/devtools-2.1-rh-eclipse47-rhel-7-build/latest/x86_64/
+Jan 17 09:19:04 <nboldt>	to resolve deps
+Jan 17 09:19:17 <nboldt>	is there a newer URL? (please say no.)
+Jan 17 09:19:22 <nboldt>	mbooth: ^
+Jan 17 09:19:35 <mbooth>	Ahh
+Jan 17 09:19:41 <mbooth>	devtools-2018.1
+Jan 17 09:19:56 <mbooth>	Is what it should say, not devtools-2.1
+Jan 17 09:20:08 <nboldt>	crap. this should have been changed MONTHS ago :(
+Jan 17 09:20:54 <nboldt>	#PANICAtTheRepo
+Jan 17 09:23:35 <scela>	nboldt: https://www.reactiongifs.us/wp-content/uploads/2015/04/nothing_to_see_here_naked_gun.gif
+Jan 17 09:27:21 <mbooth>	nboldt: FWIW, you avoided having to change it twice because of creative version numbering ;-)
+Jan 17 11:46:52 <nboldt>	mbooth: scela: rpm build is back to green https://dev-platform-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/Devstudio/view/devstudio_master/job/devstudio.rpm_master/2273/console
+Jan 17 11:47:59 <nboldt>	turns out lvalach had already submitted the fix to the Jenkins slave configs (to  add the new yum .repo file config) but QE didn't rebuild the slaves ... so that's been done now, old slaves murdered bloodily, new slaves torn from families and forced to work for The Man... and we have a green build
+Jan 17 11:48:17 <nboldt>	... that got a bit dark. :|
+Jan 17 11:58:00 <scela>	nboldt: :) thanks for the update
+Jan 17 12:04:23 <nboldt>	scela: no prob. Apparently listening to Rage Against The Machine makes me a bit... ragey
+**** ENDING LOGGING AT Wed Jan 17 20:20:44 2018
+
+**** BEGIN LOGGING AT Thu Jan 18 10:03:26 2018
+
+Jan 18 10:03:26 *	Now talking on #eclipse
+Jan 18 10:03:26 *	Topic for #eclipse is: Eclipse discussions
+Jan 18 10:03:26 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 18 11:00:20 <nboldt>	mbooth: "it's not urgent" is code for "ignore this indefinitely" ... when do you actually need the package review done? does tomorrow work?
+Jan 18 11:01:53 <mbooth>	nboldt: Heh, tomorrow or next week would be fine -- My aim would be to have same Photon deps in Fedora before Photon is released :-)
+Jan 18 11:14:15 <nboldt>	mbooth: and what's the timeline for using those same bits in devtools channel?
+Jan 18 11:14:48 <nboldt>	mbooth: targeting late June / mid July train (Iris) ? or the April train (Heather) ?
+Jan 18 11:15:17 <scela>	nboldt: starting to sound like hurricanes
+Jan 18 11:15:51 <nboldt>	flowers that happen to be female names too
+Jan 18 11:16:05 <nboldt>	Ginger, Heather, Iris, ...
+Jan 18 11:16:31 <nboldt>	kinda wish we'd follow Ginger with Maryanne or The Professor
+Jan 18 11:16:32 <mbenitez>	engineers ;)
+Jan 18 11:16:52 *	akurtakov likes plain dates :)
+Jan 18 11:17:06 <nboldt>	mbenitez: blame Todd, they're his flower names
+Jan 18 11:17:29 <mbenitez>	nboldt, oh right! wrong complaint, PMs :P
+Jan 18 11:17:41 <nboldt>	mbenitez: in this channel we blame PM. :) 
+Jan 18 11:17:56 <nboldt>	on the 5x5 they blame dev 
+Jan 18 11:18:03 <nboldt>	#circleOfLife
+Jan 18 11:18:10 <mbenitez>	let's stick to this channel :D
+Jan 18 11:18:14 <mbenitez>	haha so true
+Jan 18 11:19:25 <mbooth>	nboldt: It will appear in the devtools channel the release after it appears in Fedora
+Jan 18 11:21:22 <scela>	akurtakov: I'm sure mbooth likes the date versioning too, especially with latest SCL
+Jan 18 11:22:18 <nboldt>	mbooth: so... we need to have Photon.M6 in Fedora in order to get Photon bits into the 2018.07 devtools channel?
+Jan 18 11:24:21 <mbooth>	nboldt: Yeah, Fedora is the upstream for the SCL.
+Jan 18 11:25:19 <nboldt>	ok but ... the 2018.07 release will be based on Photon.0.GA, not the milestone from 12 weeks earlier
+Jan 18 11:25:57 <mbooth>	When is the 2018.7 release?
+Jan 18 11:26:10 <mbooth>	(I mean to higher precision than 2018.7)
+Jan 18 11:26:41 <nboldt>	it'll be in July 2018 :)
+Jan 18 11:26:57 <nboldt>	http://bitly.com/rhdtrain --> scroll to July to see the dates
+Jan 18 11:27:23 <nboldt>	then click the {+} add to google calendar to have them dates in your calendar :)
+Jan 18 11:27:24 <mbooth>	I have no future releases in https://pp.engineering.redhat.com/pp/product/devtools/overview
+Jan 18 11:27:44 <nboldt>	yeah, because PgM only plans 12 weeks ahead. I plan 12 months ahead :)
+Jan 18 11:29:35 <mbooth>	nboldt: Okay, so the devtools code freeze is at more than a fortnight after the upstream Photon.0 GA
+Jan 18 11:31:44 <nboldt>	yes, devstudio 12 / devtools 2018.07 CF is July 2, and Photon.0 is theoretically all done by June 15 (official GA June 27)
+Jan 18 11:32:25 <nboldt>	so unless crap happens during the Photon quiet week, we can have the bits in the TP by Jun 19
+Jan 18 11:32:45 <mbooth>	This calendar you linked has CF at 17th July 
+Jan 18 11:32:59 <mbooth>	Am I reading wrong?
+Jan 18 11:33:19 <mbooth>	Oh wait, yes I am
+Jan 18 11:33:31 <mbooth>	That is devstudio CF, not devtools
+Jan 18 11:33:55 <nboldt>	yeah, and I see nothing on the rhdtrain calendar for July 17
+Jan 18 11:34:05 <nboldt>	since the GA announcement is the week before
+Jan 18 11:34:37 <nboldt>	BIG CAVEAT this assumes that we actually convince PgM to do the GA release on the last day of the sprint instead of 1 week later
+Jan 18 11:35:00 <nboldt>	if that plan fails again then the dates slip and the GA will be Jul 17, not Jul 10
+Jan 18 11:35:14 <nboldt>	and code freeze will move from Jul 2 to Jul 4
+Jan 18 11:35:34 <nboldt>	ugh. that's a holiday week. that's going to be a fun time
+Jan 18 11:35:46 <mbooth>	Wut‽ I see: devstudio 11.2 GA available public WhenMonday, 29 Jan 2018
+Jan 18 11:36:58 <mbooth>	D'oh
+Jan 18 11:37:04 <nboldt>	scroll to july
+Jan 18 11:37:05 <mbooth>	I'm looking at wrong month
+Jan 18 11:37:08 <nboldt>	:)
+Jan 18 11:37:22 <nboldt>	you want 12.0.0.GA, not 11.2
+Jan 18 11:38:02 <mbooth>	I dunno what the numbers mean, they're pretty arbitrary :-)
+Jan 18 11:39:36 <mbooth>	So... What was the question again?
+Jan 18 11:40:29 <scela>	mbooth: https://media.tenor.com/images/3e582987b055e77dea505b05a93fa559/tenor.gif
+Jan 18 11:41:43 <mbooth>	All I wanted was to update the jackson stack before now and June :-p
+Jan 18 11:45:36 <nboldt>	mbooth: 11.2 = Oxygen.2 based devstudio; 11.3 = Oxygen.3 based; 12.0 = Photon.0 based
+Jan 18 11:45:43 <nboldt>	it's not THAT arbitrary. :)
+Jan 18 11:46:30 <nboldt>	anyway I was wondering if it'll be possible to have Fedora & devtools 2018.7 updated to Photon.0.RC4 so it aligns with devstudio 12
+Jan 18 11:47:08 <mbooth>	If the code freeze is after RC4 is declared, almost certainly
+Jan 18 11:50:30 <nboldt>	mbooth OK cool. NEXT question is... will 2018.04 include Photon bits or Oxygen.3?
+Jan 18 11:51:06 <mbooth>	Is it not planned to be Oxygen.3?
+Jan 18 11:52:58 <mbooth>	Fedora-wise Eclipse-next is usually in pre-release Fedora branches only until GA -- SCL is usually taken from latest Fedora stable release
+Jan 18 11:53:34 <nboldt>	mbooth: at this point yes, devtools 2018.04 is Oxygen.3 => devstudio 11.3 => devsuite 2.3
+Jan 18 11:54:11 <nboldt>	but maybe we want to release on Photon.0.M5 instead? I don't know ... asked Jeff M but so far no erply
+Jan 18 11:54:12 <nboldt>	reply*
+Jan 18 11:54:25 <akurtakov>	please stick to Oxygen.3
+Jan 18 11:54:28 <nboldt>	ok
+Jan 18 11:54:28 <mbooth>	Okay, well I assume Oxygen unless told otherwise
+Jan 18 11:54:35 <nboldt>	akurtakov: why?
+Jan 18 11:55:00 <akurtakov>	nboldt: Platform will be stable
+Jan 18 11:55:21 <akurtakov>	but this is usually around the time when rest - egit, cdt, mylyn ....
+Jan 18 11:55:36 <akurtakov>	start to work against new releast train
+Jan 18 11:55:51 <akurtakov>	so it is kind of fragile time on higher layers
+Jan 18 11:56:11 <akurtakov>	and esp considering the possibility of CDT 10, linuxtools 7 and etc.
+Jan 18 11:56:16 <akurtakov>	it can be quite fun :)
+Jan 18 11:56:47 <akurtakov>	so 2018.04 would better be oxygen.3 :)
+Jan 18 11:57:05 <akurtakov>	nboldt: ^^ makes sense ?
+Jan 18 11:57:10 <mbooth>	nboldt: Next question, I have SCL branches for 2018.2, I guess that's wrong because you just called next release as 2018.4? http://pkgs.devel.redhat.com/cgit/rpms/eclipse/log/?h=devtools-2018.2-rh-eclipse47-rhel-7
+Jan 18 11:57:51 <nboldt>	akurtakov: yep, I was just hoping to avoid having to build parallel branches of jbosstools ... 4.5.x branch for oxygen and master for photon.0.Mx
+Jan 18 11:58:15 <nboldt>	mbooth: well, are we naming them as YYYY.x or YYYY.MM ?
+Jan 18 11:58:33 <mbooth>	nboldt: I've no idea, I didn't request the branches, they just appeared
+Jan 18 11:58:36 <nboldt>	there's no february release of devstudio 11.x 
+Jan 18 11:58:43 <nboldt>	but there will be an april one
+Jan 18 11:59:10 <mbooth>	Maybe some automation just increments the minor part of the version
+Jan 18 11:59:17 <nboldt>	so... imho 2017.1, 2017.4, 2017.7, 2017.10 ...
+Jan 18 11:59:34 <mbooth>	Okay, so I'll file a RCM ticket to find out what the craic is there
+Jan 18 11:59:43 <nboldt>	I'd actually prefer 2017.01, 2017.04, 2017.07, 2017.10 because I'm pedantic like that
+Jan 18 12:02:15 <nboldt>	mbooth: doesn't craic translate as "fun" ?
+Jan 18 12:02:24 <mbooth>	Something like that
+Jan 18 12:02:45 <nboldt>	I learn my irish slang from Dara o'briain so it's a bit limited :)
+Jan 18 12:03:06 <nboldt>	(Craic Dealer was a good standup show)
+Jan 18 12:22:32 <mbooth>	nboldt: Looks like the other devtools channel participants are calling their next release 2018.2: https://projects.engineering.redhat.com/browse/RCM-25420
+Jan 18 12:23:06 <mbooth>	It's probably pretty irrelevant what the branches are called -- I don't think anyone other than me or Vaclav see it
+Jan 18 12:23:40 <mbooth>	But it is annoying to have yet another diverging versioning scheme :-/
+Jan 18 12:26:59 <rgrunber>	i would really prefer MMXVIII.||
+Jan 18 12:33:13 <nboldt>	mbooth: yeah, totally annoying and also somewhat nonsensical. Afterall, where was 2018.0?
+Jan 18 12:33:29 <nboldt>	if it's YYYY.sequencenumber, we should have had a .0
+Jan 18 12:33:41 <mbooth>	nboldt: It went 1.0 -> 2.1 -> 2018.1
+Jan 18 12:34:43 <mbooth>	And you wondered why I stopped parsing version numbers :-p
+Jan 18 12:34:52 <nboldt>	right... so anyone who understands sequences knows the next one is 2018.04
+Jan 18 12:35:31 <nboldt>	well, *in my world* the numbering schemes make sense. 4.5.2 / 11.2.0 / oxygen.2 / eclipse 4.7.2 
+Jan 18 12:39:34 <mbooth>	Okay, one more question, for mbenitez maybe this time. I notice rust, llvm etc are building for RHEL8 already, should Eclipse be joining that bandwagon too? (Maybe for Photon, I suppose)
+Jan 18 12:41:02 <mbenitez>	mbooth, good question, I *think* they are starting earlier due to dependencies from other pkgs in RHEL8, for us we need to decide what to do for photon: should we go with flatpak only?
+Jan 18 12:41:58 <mbooth>	I don't know yet -- also I guess depends on RHSCL's plans, since we depend on them
+Jan 18 12:45:01 <mbenitez>	AFAIK nothing else is considering flatpak around us, would that be an impediment? e.g. we can't depend on RPMs in scls
+Jan 18 12:46:00 <mbenitez>	this would be something for scela to bring up at the RHSCL and devtools calls so we make a plan... although usually we're the ones choosing our fate so it's best to propose what we want
+Jan 18 14:42:49 <scela>	mbenitez: yeah
+Jan 18 14:43:07 <scela>	I think we'd have to look at the technical limitations first before bringing it up
+Jan 18 14:43:27 <scela>	making a note to discuss with akurtakov mbooth nboldt 
+Jan 19 11:44:12 <scela>	jjohnstn: hey
+Jan 19 11:44:22 <scela>	did you have a chance to look at the issue reported by vaclav?
+Jan 19 11:53:31 <akurtakov>	mbooth: ^^ if Jeff can fix it today, let's ship the fix unless vkadlcik objects
+Jan 19 11:54:02 <mbooth>	Ok
+Jan 19 11:59:59 <vkadlcik>	i was ready to close the testing, all good except *two* new issues, not one
+Jan 19 12:00:33 <vkadlcik>	but if you prepare a new build, i'll retest over the weekend+Mon
+Jan 19 12:01:12 <vkadlcik>	akurtakov: scela: mbooth: ^^^
+Jan 19 12:01:53 <akurtakov>	vkadlcik: so is it fine for you to have a rebuild on monday ?
+Jan 19 12:02:15 <akurtakov>	even if Jeff finds a fix today it will be too late for RPM stuff
+Jan 19 12:02:34 <mbenitez>	you guys might want to discuss how critical the issues are vs the risks for side effects AND the price of re-testing
+Jan 19 12:02:43 <vkadlcik>	akurtakov: no, monday is too late
+Jan 19 12:03:01 <akurtakov>	jjohnstn: here?
+Jan 19 12:03:33 <akurtakov>	the risk for side effects is close to zero IMHO
+Jan 19 12:03:40 <mbenitez>	also, staging is scheduled for Tue but actual GA is a week later
+Jan 19 12:04:04 <mbenitez>	ok, let's just not abuse vkadlcik's time if it's not really necessary
+Jan 19 12:04:07 <akurtakov>	anyway, I doubt we can do the RPMs today so probably documenting the issues is the way to go
+Jan 19 12:04:17 <akurtakov>	mbenitez: that's why I asked for monday :)
+Jan 19 12:04:29 <akurtakov>	I don't want anyone to work over the weekeng
+Jan 19 12:04:52 <mbooth>	Can always do async erratum
+Jan 19 12:05:22 <mbenitez>	akurtakov, I know you wouldn't ask for that :)
+Jan 19 12:05:38 <akurtakov>	mbooth: have we ever done it for eclipse scl ?
+Jan 19 12:05:44 <mbooth>	Yes
+Jan 19 12:06:27 <akurtakov>	mbooth: ok, could be done
+Jan 19 12:06:46 <akurtakov>	I would like us to clean up the amount of open issues for scl
+Jan 19 12:07:48 <mbooth>	Here's one we did for rh-eclipse46 not long ago: https://errata.devel.redhat.com/advisory/31299
+Jan 19 12:08:41 <jjohnstn>	akurtakov, scela: what's up
+Jan 19 12:09:06 <akurtakov>	jjohnstn: have you seen the two scl bugs ?
+Jan 19 12:09:15 <akurtakov>	I would like to hear your estimates 
+Jan 19 12:10:48 <jjohnstn>	akurtakov: I am testing a fix for one of them as we speak...using a Container config to run locally
+Jan 19 12:11:07 <akurtakov>	mbooth: how long would you be around more today?
+Jan 19 12:11:19 <akurtakov>	note, I'm not asking you to stay so saying I'm leaving is fine
+Jan 19 12:12:49 <mbooth>	I will be leaving for dinner soonish, but can come back to check on things later
+Jan 19 12:14:04 <akurtakov>	ok so jjohnstn if you have a fix please notify mbooth and if he is still here he will do a build 
+Jan 19 12:14:10 <akurtakov>	otherwise it stays for later
+Jan 19 12:17:46 <jjohnstn>	mbooth: I have a fix...how do you want me to proceed?  I can post to gerrit for CDT master and point you to the patch or I can do a scratch build for RHEL...your choice
+Jan 19 12:18:49 <mbooth>	jjohnstn: Either is good, post it to gerrit
+Jan 19 12:19:21 <jjohnstn>	mbooth: ok, will reply shortly as I am opening the bug now
+Jan 19 12:25:34 <jjohnstn>	mbooth: ok, it is posted to https://git.eclipse.org/r/115716
+Jan 19 12:25:42 <mbooth>	jjohnstn: Thanks
+Jan 19 12:25:49 <jjohnstn>	np
+Jan 19 12:28:51 <vkadlcik>	jjohnstn: mbooth: if you guys build new cdt, please put it in the erratum and switch the erratum back to QE, i'll look in the morning a retest over the weekend
+Jan 19 12:29:01 <vkadlcik>	i need to leave for today
+Jan 19 12:42:45 <jjohnstn>	akurtakov: I posted to the other bug...the untarring of the header files failed...it works fine on my local Oxygen Eclipse..it could have been an intermittent failure or we might have a scaling issue or the docker daemon might have a bug
+Jan 19 12:43:25 <akurtakov>	jjohnstn: ok, this means this one stays for later, right?
+Jan 19 12:43:42 <jjohnstn>	yes
+Jan 19 12:45:32 <jjohnstn>	akurtakov: I asked vkadlcik to try forcing the copy headers to start again and see if it fails consistently...he could also try another hello world project
+Jan 19 12:45:56 <akurtakov>	ok, I just want to be sure we ship every fix we can
+Jan 19 12:46:11 <akurtakov>	if we haven't identified the issue yet  - it's obvious
+Jan 19 12:47:27 <jjohnstn>	akurtakov: ok, I am going to go to the bank and have lunch...is there anything else before I leave?  mbooth?
+Jan 19 12:47:36 <akurtakov>	not from me
+Jan 19 12:47:50 <mbooth>	No, build is in progress
+Jan 19 12:47:59 <mbooth>	Will add it to erratum before I leave
+Jan 19 12:48:40 <jjohnstn>	ok, great..if there are any issues, let me know
+Jan 19 13:11:08 <mbooth>	akurtakov, scela, vkadlcik_gone: Switched back to QE
+Jan 19 13:11:43 <akurtakov>	jjohnstn|lunch, mbooth: thanks for the fast reaction
+Jan 19 14:48:03 <scela>	jjohnstn: thanks jeff
+Jan 19 14:49:20 <scela>	akurtakov: mbooth so we fixed the first one and pushed the second one to next release?
+Jan 19 14:49:47 <scela>	akurtakov: <scela> akurtakov: mbooth so we fixed the first one and pushed the second one to next release?
+Jan 19 14:49:56 <scela>	akurtakov: (you dropped off just before I pressed enter)
+Jan 19 14:50:09 <akurtakov>	scela: yes
+Jan 19 14:55:50 <scela>	vkadlcik_gone: thanks for offering to test on the weekend, appreciated.
+**** BEGIN LOGGING AT Fri Jan 19 16:36:26 2018
+
+Jan 19 16:36:26 *	Now talking on #eclipse
+Jan 19 16:36:26 *	Topic for #eclipse is: Eclipse discussions
+Jan 19 16:36:26 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 20 03:29:52 <vkadlcik>	hmm, errata tool down, beaker down...
+Jan 20 03:30:24 <vkadlcik>	probably http://post-office.corp.redhat.com/archives/outage-list/2018-January/msg00375.html
+Jan 20 03:30:39 <vkadlcik>	i'll check again later
+Jan 20 04:50:19 <scela>	vkadlcik_afk: hi
+Jan 20 07:17:16 <vkadlcik>	scela: hi
+Jan 20 08:48:57 <scela>	vkadlcik: so we have two bugs now to put in 'known issues': yesterday's second one and the one you uncovered today as part of yesterday's first bug's fix
+Jan 20 08:52:36 <vkadlcik>	yesterday's second = bz1536577 = probably needs to be documented (if Jeff confirms it as a bug and not some stupid mistake on my side)
+Jan 20 08:54:12 <scela>	vkadlcik: right ok
+Jan 20 08:55:35 <vkadlcik>	as for bz1536444 = "Run As"; it's partly fixed but there are still some issues, i wouldn't call them a new bug; yes, this definitely needs to be documented
+Jan 20 09:10:02 <scela>	vkadlcik: ok
+Jan 20 09:10:43 <vkadlcik>	scela: https://bugzilla.redhat.com/show_bug.cgi?id=1536444#c5
+Jan 20 09:41:21 <scela>	vkadlcik: thanks
+Jan 20 09:41:33 <vkadlcik>	scela: yw
+Jan 20 10:13:27 <vkadlcik>	back in ~90min
+**** BEGIN LOGGING AT Mon Jan 22 12:47:38 2018
+
+Jan 22 12:47:38 *	Now talking on #eclipse
+Jan 22 12:47:38 *	Topic for #eclipse is: Eclipse discussions
+Jan 22 12:47:38 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 22 14:03:15 <vslavik>	scela, rgrunber, thanks, it's ... complete I guess, but also rather non-enlightening - I mean, yes, saying it's the user who must install gdbserver is a valid route...
+Jan 22 15:41:54 <rgrunber>	lufimtse: just fyi.. https://webkitgtk.org/reference/webkit2gtk/unstable/WebKitCookieManager.html .. seems they're under unstable though.
+Jan 22 15:42:12 <lufimtse>	hey
+Jan 22 15:42:38 <lufimtse>	rgrunber, you mean add/remove cookie?
+Jan 22 15:42:50 <rgrunber>	yeah.. introduced in 2.19.2 or something.. posted on the bug.
+Jan 22 15:42:59 <lufimtse>	Since 2.20 < interesting.
+Jan 22 15:43:07 <rgrunber>	so they'll be stable in 2.20 basically..
+Jan 22 15:43:25 <lufimtse>	nice
+Jan 23 09:23:37 <mbenitez>	nboldt, hello Nick, thanks for filing the rel-eng requests for the releases
+Jan 23 09:24:23 <mbenitez>	going fwd, when you file something like RCM-27213 could you also file the request for errata [if it's ready] ?
+Jan 23 09:24:43 <mbenitez>	before Kerri would do that for rhscl but now we're on our own
+Jan 23 09:24:56 <mbenitez>	and make sure to CC scela too please :)
+Jan 23 09:49:48 <nboldt>	mbenitez: isn't the errata already filed by mbooth ?
+Jan 23 09:50:04 <nboldt>	also should I replace you with scela in the scripts that cc: people on these tickets?
+Jan 23 09:50:14 <nboldt>	or just ADD him?
+Jan 23 09:53:39 <mbenitez>	nboldt, errata is already filed, but rcm usually still expects a ticket for the staging / release
+Jan 23 09:53:59 <mbenitez>	just add Sopot for now so I can still keep an eye on the process
+Jan 23 11:30:12 <scela>	lbullen: https://twitter.com/EclipseJavaIDE/status/955782034076655617
+Jan 23 11:30:22 <scela>	2080 impressions as of now
+Jan 23 11:34:10 <scela>	lbullen: I also asked the eclipse foundation people to retweet it to their 20K+ followers which should give it a boost
+Jan 23 11:34:17 <scela>	let's see what they say
+Jan 23 11:34:29 <lbullen>	scela++
+Jan 23 11:36:42 <scela>	mbenitez: thanks for the retweet :)
+Jan 23 11:37:13 <mbenitez>	any time!
+Jan 23 11:59:45 <nboldt1>	mbenitez: ok, I've added scela to the cc: on the ticket generation scripts; spoke with siege and he said they don't need another ticket just for the errata, so instead we agreed to link to the errata in the rpm staging ticket
+Jan 23 12:00:27 <nboldt1>	therefore still have 3 RCM tickets (signing the rpm, staging+publishing the rpm, staging+publishing the devstudio installer) but one will reference the errata
+Jan 23 12:00:44 <nboldt1>	jobs and release guide updated accordingly
+Jan 23 12:01:03 <mbenitez>	nboldt1, this is great! thanks a lot
+Jan 23 12:22:00 <scela>	nboldt1: thanks nick
+Jan 23 12:24:16 <nboldt1>	scela: prepare for a lot more spam in 12 weeks (actually just 2 emails) :)
+Jan 23 12:25:39 <mbenitez>	:)
+**** ENDING LOGGING AT Tue Jan 23 13:06:19 2018
+
+**** BEGIN LOGGING AT Tue Jan 23 14:59:02 2018
+
+Jan 23 14:59:02 *	Now talking on #eclipse
+Jan 23 14:59:02 *	Topic for #eclipse is: Eclipse discussions
+Jan 23 14:59:02 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 24 07:49:28 <akurtakov>	Ed Merks really pisses me off
+Jan 24 11:12:13 <lufimtse>	akurtakov, sup?
+Jan 24 11:12:23 <akurtakov>	?
+Jan 24 11:12:31 <akurtakov>	what does sup means?
+Jan 24 11:12:34 <lufimtse>	akurtakov, about the HTML printer?
+Jan 24 11:12:40 <lufimtse>	akurtakov, sorry, sup = whats up.
+Jan 24 11:13:06 <akurtakov>	yeah
+Jan 24 11:13:09 <akurtakov>	last instance :)
+Jan 24 11:14:12 <lufimtse>	akurtakov, I see what you mean about Ed.
+Jan 24 11:19:55 <rgrunber>	i have yet to read that.. 
+Jan 24 11:19:59 <rgrunber>	:P
+Jan 24 12:26:25 <lufimtse>	akurtakov, Yea, Ed is slowing down platform development. I replied to his email.
+Jan 24 12:27:17 <lufimtse>	akurtakov, I understand why he pisses you off ha ha.
+Jan 24 12:28:49 <akurtakov>	lufimtse: speaking of your previous work, what is the status of your gerrits?
+Jan 24 12:29:48 <lufimtse>	akurtakov, you mean the color stuff in platform?
+Jan 24 12:30:05 <akurtakov>	lufimtse: and GDK/GTK.java
+Jan 24 12:30:11 <akurtakov>	and others you may have opened
+Jan 24 12:30:24 <akurtakov>	let's aim for merging as much as possible once M6 opens
+Jan 24 12:30:40 *	akurtakov doesn't like long standing things
+Jan 24 12:31:00 <lufimtse>	akurtakov, I see. Those sort of slipped below my radar a bit, was too focused fixing new things. I should revise my outstanding patches. 
+Jan 24 12:31:01 <akurtakov>	https://git.eclipse.org/r/#/q/owner:lufimtse%2540redhat.com+status:open
+Jan 24 12:31:18 <lufimtse>	akurtakov, so the platform stuff like colors, should I hand them off?
+Jan 24 12:31:40 <akurtakov>	lufimtse: I see JDT stuff? do you have Platform patches for that ?
+Jan 24 12:31:55 <lufimtse>	E.g:   Debug value hover black/white color issue  https://bugs.eclipse.org/bugs/show_bug.cgi?id=508793
+Jan 24 12:32:07 <lufimtse>	E.g screen shot of issue: https://bugs.eclipse.org/bugs/attachment.cgi?id=268092
+Jan 24 12:32:32 <lufimtse>	akurtakov, I could also spend a week packaging and finishing the patches
+Jan 24 12:32:43 <lufimtse>	akurtakov, wdyt?
+Jan 24 12:32:54 <akurtakov>	lufimtse: no, don't speak in weeks
+Jan 24 12:33:01 <lufimtse>	week*
+Jan 24 12:33:08 <akurtakov>	finish GDK/GTK.java
+Jan 24 12:33:24 <akurtakov>	once we are done with it we pick one another and etc.
+Jan 24 12:33:27 <akurtakov>	to clean things
+Jan 24 12:33:27 <lufimtse>	ah
+Jan 24 12:33:29 <lufimtse>	ok.
+Jan 24 14:09:02 <rgrunber>	not sure how recent this is.. but on f27 child eclipse doesn't seem to be grouped under parent eclipse in the context of the window switcher.
+Jan 24 14:09:19 <rgrunber>	shows up with some 'SWT' icon as a separate app
+Jan 24 14:10:22 <rgrunber>	so good ol' alt+backtick doesn't work anymore to switch between parent/child.. 
+Jan 24 14:11:38 <mbooth>	rgrunber: Upstream Eclipse or RPMs?
+Jan 24 14:11:51 <rgrunber>	rpms.. i could try upstream too.. sec
+Jan 24 14:11:59 <rgrunber>	though i do suspect gnome-shell
+Jan 24 14:13:43 <rgrunber>	mbooth: hmm good call.. it works on upstream eclipse.
+Jan 24 14:13:58 <mbooth>	Dang, was hoping it was gnome-smell
+Jan 24 14:14:19 <rgrunber>	grouped under eclipse icon (for a 4.7.2 RC4 SDK version i had)
+Jan 24 14:14:20 <mbooth>	I wonder what the difference it...
+Jan 24 14:18:30 <rgrunber>	hmm i take it back.. could be PEBKAC error
+Jan 24 14:18:41 <rgrunber>	it works fine in rpms if i use a fresh workspace..
+Jan 24 14:18:47 <rgrunber>	*fresh workspace for the child
+Jan 24 17:12:45 <scela>	lbullen: hey
+Jan 24 17:12:48 <scela>	lbullen: there?
+Jan 24 18:02:27 <lufimtse>	hey, I can't find repo "/eclipse.platform.releng.tychoeclipsebuilder" listed in "./eclipse.platform.releng.aggregator/".  Is tychoeclipsebuilder folder part of the aggregator?
+Jan 24 18:17:19 <lufimtse>	 -> sent email to eclipse team.
+Jan 25 09:15:13 <scela>	lbullen: how are the redox marketplace numbers looking?
+Jan 25 09:18:56 <lbullen>	scela, 37 downloads but what I like more is the 9 repo stars. On our way to rls-vscode's 300
+Jan 25 09:22:07 <scela>	lbullen: https://media.giphy.com/media/2dJ5Iait4QrW8/giphy.gif
+Jan 25 10:03:31 <rgrunber>	lufimtse: http://git.eclipse.org/c/gerrit/platform/eclipse.platform.releng.aggregator.git/tree/ would have been the view to see what is part of the aggregator and what is simply referenced.
+Jan 25 10:55:46 <jjohnstn>	rgrunber: I think we have an issue with photon...Eclipse TM is being removed from aggregation on monday and we are using tm terminal in Docker
+Jan 25 10:56:45 <rgrunber>	any reason TM isn't participating ?
+Jan 25 11:01:42 <jjohnstn>	rgrunber: they didn't opt-in...I'm not sure it is being maintained any more...CDT offered a while back to move TM terminal to CDT, but AFAIK, it hasn't been done yet and won't be for a while
+Jan 25 11:02:44 <jjohnstn>	can we cheat and put the current version of TM terminal in our repo??  it has been CQ'd
+Jan 25 11:05:20 <rgrunber>	that would work.. i wonder if we could also just refer to it in our repositories..like a repository reference or whatnot..
+Jan 25 11:09:46 <mbooth>	Hmm, I thought RSE was maintained but the TM components were still active
+Jan 25 11:10:46 <mbooth>	Ugh, english fail: I thought just the RSE components were unmaintained
+Jan 25 11:14:23 <jjohnstn>	according to the mail...Eclipse Target Management was being disabled in the aggregation build
+Jan 25 11:14:52 <rgrunber>	about 28 commits for all of 2017.. mostly Martin Oberhuber..
+Jan 25 11:20:20 <jjohnstn>	akurtakov: thoughts on above?
+Jan 25 11:20:55 <akurtakov>	jjohnstn: I don't think we can put it in our repo
+Jan 25 11:21:17 <akurtakov>	jjohnstn: please bring it to CDT list and ask what can we do to speed up moving terminal to CDT
+Jan 25 11:21:25 <jjohnstn>	ok
+Jan 25 11:21:31 <akurtakov>	IMHO that's what we should do
+Jan 25 11:21:49 <akurtakov>	TM contains too many other things which we have zero interest in
+Jan 25 11:29:38 <jjohnstn>	mbooth: I finally have a patch for 1536444 (Run as does not work as desired)...can I check in a patch for 2018.2 or do you want to do it?
+Jan 25 11:31:22 <mbooth>	jjohnstn: Feel to check in, but make sure to ff-merge everything from the 2018.1 branch first -- the new 2018.2 branches were created before we were done making changes for 2018.1 :-/
+Jan 25 11:31:28 <mbooth>	Feel free, even
+Jan 25 11:31:33 <mbooth>	Stupid fingers
+Jan 25 11:31:52 <jjohnstn>	:)
+Jan 25 11:34:51 <rgrunber>	nice, Doug to the rescue
+Jan 25 13:53:01 <jjohnstn>	rgrunber: could you verify if the Docker command-line copy works every time for your 5000 file test-case?  If it works, could you check your docker daemon output to see if there any additional REST calls or extra parameters.  It is definitely working far better upstream and before latest SCL. 
+Jan 25 14:17:34 <rgrunber>	jjohnstn: it doesn't work everytime.. it fails on occasion.. 
+Jan 25 14:18:01 <rgrunber>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=530264
+Jan 25 14:18:16 <rgrunber>	ahh.. commandline
+Jan 25 14:18:38 <rgrunber>	i'm pretty sure it'll work.. but worth a shot..
+Jan 25 14:43:48 <rgrunber>	yeah so afaict docker cp works every time and the ui i can make fail everytime when using a large enough number of files.
+Jan 25 14:48:29 <jjohnstn>	rgrunber: is it possible that a timing limit is being exceeded so it breaks the connection?
+Jan 25 14:49:13 <rgrunber>	the copy is pretty fast i mean it doesn't take more than a second whether it's 1 few mb or about 100mb.
+Jan 26 03:42:55 <akurtakov>	mbooth: hey
+Jan 26 03:43:55 <akurtakov>	this jackson stuff misses licenses badly
+Jan 26 04:55:47 <mbooth>	In the past they have been resistant to including more license literature in their repos: https://github.com/FasterXML/jackson-parent/issues/1
+**** BEGIN LOGGING AT Mon Jan 29 09:47:42 2018
+
+Jan 29 09:47:42 *	Now talking on #eclipse
+Jan 29 09:47:42 *	Topic for #eclipse is: Eclipse discussions
+Jan 29 09:47:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Jan 29 10:02:59 <scela>	eclipse-team: weekly due in 1 hr 
+Jan 29 10:32:45 <nboldt>	rgrunber: vrubezhny is having issues with the latest Photon M5 + Orbit M5 sites
+Jan 29 10:32:54 <nboldt>	rgrunber: told him not to install everything from the Orbit site 
+Jan 29 10:33:25 <nboldt>	he's getting use-constraint violations... probably installed too many singletones
+Jan 29 10:33:30 <nboldt>	singletons*
+Jan 29 10:34:11 <akurtakov_>	nboldt: details ?
+Jan 29 10:34:31 <akurtakov_>	it could be the p2/tycho now verifying BREE against products
+Jan 29 10:34:35 <rgrunber>	nboldt: have a look at the changes in Orbit M5.. http://dev.eclipse.org/mhonarc/lists/orbit-dev/msg04917.html .. anything intersect with what he's seeing ?
+Jan 29 10:34:49 <nboldt>	well, if you guys were in MM I'd paste the link he sent me to the log :)
+Jan 29 10:35:08 <rgrunber>	:|
+Jan 29 10:35:16 <akurtakov_>	nboldt: I'm supposed to be there
+Jan 29 10:35:19 <akurtakov_>	I registered
+Jan 29 10:35:22 <akurtakov_>	can you message me
+Jan 29 10:37:34 <akurtakov_>	nboldt: ok, so I don't hang in mattermost but my account is active if anyone writes to me
+Jan 29 10:37:56 <nboldt>	akurtakov_: yeah, this way you get emails if you're offline
+Jan 29 10:38:01 <rgrunber>	lbullen: do you need camera or does your laptop have a webcam for meeting..
+Jan 29 10:38:16 <rgrunber>	(actually given that meeting has probably started.. nvm?)
+Jan 29 10:38:21 <nboldt>	rgrunber: sent you an invite to MM. Meanwhile asked Victor to get on VPN and join here
+Jan 29 10:38:35 <rgrunber>	kk
+Jan 29 10:39:42 <nboldt>	rgrunber: here's the console log @vrubezhny sent me: https://paste.fedoraproject.org/paste/8TaYyIPaN-dtnj5SIL10jw
+Jan 29 10:42:18 <lbullen>	rgrunber: meeting hasn't started yet and yes, have a webcam
+Jan 29 10:43:12 <rgrunber>	whoah.. org.apache.batik.css 1.9.0 ?! where's taht coming from..
+Jan 29 10:43:41 <rgrunber>	hmm Orbit.. ok :P.. could have sworn that never made it in
+Jan 29 10:43:59 <rgrunber>	still it isn't new in M5
+Jan 29 10:46:09 <scela>	eclipse-team: double-check your calendars to see the times of the different groups. They're all in the team calendar.
+Jan 29 10:46:38 <scela>	eclipse-team: we start in 15 mins with platform/ls group.
+Jan 29 10:48:15 <nboldt>	rgrunber: no idea. I've told victor to Not Install From Orbit Directly but :shrugemoji: 
+Jan 29 10:49:43 <rgrunber>	nboldt: so batik has optional requires to org.w3c.dom.events from Orbit itself.. that old 3.0.0 one, and there's also the one from the jre itself.
+Jan 29 10:50:02 <rgrunber>	that seems to be causing it..
+Jan 29 11:54:06 <mbooth>	vkadlcik: https://bugzilla.redhat.com/show_bug.cgi?id=1538332
+Jan 29 11:54:16 <mbooth>	vkadlcik: Fixed in Fedora, no SCL bugs yet
+Jan 29 11:54:19 <vkadlcik>	mbooth: thanks
+Jan 29 12:01:08 <nboldt>	vkadlcik: one person who might know about flatpak testing on the devstudio QE team is lvalach, since he does a lot of the devstudio rpm testing for me
+Jan 29 12:02:02 <vkadlcik>	nboldt: thanks, by accident, we'll meet tomorrow, i'll ask him!
+Jan 29 12:02:47 <nboldt>	mbooth: I haven't looked at flatpak since you intro'd it back in October... I assume it's evolved since then. If you have something you'd like me to look at / test / break... throw me an email w/ links or whatever
+Jan 29 12:03:23 <mbooth>	nboldt: Sure, thanks
+Jan 29 12:03:52 <nboldt>	I assume many of the known limitations and "waiting for a new version of Flatpak" constraints should be solved by now?
+Jan 29 12:04:10 <nboldt>	(also helps that I'm on F27 now, whereas I was still on F24 back in October.)
+Jan 29 12:13:08 <mbooth>	nboldt: If you're on F27, yeah :-)
+Jan 29 13:15:27 <rgrunber>	so sad to hear about Shawn.. saw his name come up many times in egit/jgit
+Jan 29 13:20:20 <scela>	rgrunber: yeah and gerrit which we use everyday by now
+Jan 29 14:16:03 <nboldt>	rgrunber: what happened? re: Shawn who?
+Jan 29 14:20:35 <rgrunber>	nboldt: Shawn Pearce passed away. https://twitter.com/cdibona/status/957822400518696960
+Jan 29 14:23:44 <nboldt>	rgrunber: oh... that's stage-3 crappy news for his family :(
+Jan 30 10:47:17 <rgrunber>	akurtakov_: thanks for handling the +1s for batik
+Jan 30 10:47:30 <akurtakov_>	rgrunber: sure, np :)
+Jan 30 10:48:01 <rgrunber>	strangely, ipzilla hasn't sent me the actual +1 email so from the messages they look as awaiting_pmc
+Jan 30 11:56:07 <rgrunber>	jjohnstn: give me one sec.. might need to rebuild it once again.
+Jan 30 12:44:24 <jjohnstn>	rgrunber: is the 1517 timestamp the good build?
+Jan 30 12:45:32 <rgrunber>	i have to generate another one
+Jan 30 12:47:39 <rgrunber>	jjohnstn: k try building now.. new version is 6.1.1.v20180130-1657
+Jan 30 12:50:59 <jjohnstn>	rgrunber: ok, thx
+Jan 31 09:05:22 <akurtakov_>	mbooth: hey
+Jan 31 09:05:37 <akurtakov_>	do you see the mails about linuxtools rpm not finding perf on i386 
+Jan 31 09:06:16 <mbooth>	akurtakov_: Yeah, I think the rawhide buildroot was screwed up temporarily
+Jan 31 09:06:32 <mbooth>	Nothing we can fix, I don't think
+Jan 31 09:06:46 <akurtakov_>	mbooth: ok, I thought that kernel stopped building perf for x86
+Jan 31 09:07:13 <akurtakov_>	it's weird that it's only for i386
+Jan 31 09:07:22 <mbooth>	akurtakov_: Oh, maybe that's a different problem then
+Jan 31 09:08:36 <akurtakov_>	https://koji.fedoraproject.org/koji/buildinfo?buildID=1021748
+Jan 31 09:08:38 <akurtakov_>	no perf 
+Jan 31 09:09:14 <mbooth>	akurtakov_: You're not wrong
+Jan 31 09:09:28 <mbooth>	Is it deprecated?
+Jan 31 09:09:29 <akurtakov_>	?
+Jan 31 09:10:01 <akurtakov_>	mbooth: no idea
+Jan 31 09:10:09 <akurtakov_>	there in no perf pakcage on any arch
+Jan 31 09:10:27 <akurtakov_>	so no idea what is going on
+Jan 31 09:10:31 <mbooth>	I guess we'll have to drop the hard requirement for now :-/
+Jan 31 09:11:11 <akurtakov_>	mbooth: http://pkgs.fedoraproject.org/cgit/rpms/kernel.git/commit/?id=32813e5abf211a0420e5486553f0e9a159ce123a
+Jan 31 09:11:48 <mbooth>	Hmm, does that mean some third-party yum repo?
+Jan 31 09:11:57 <akurtakov_>	mbooth: no
+Jan 31 09:11:58 <akurtakov_>	https://koji.fedoraproject.org/koji/buildinfo?buildID=1020031
+Jan 31 09:12:11 <akurtakov_>	but there is no i386 for this one
+Jan 31 09:12:29 <mbooth>	Aha
+Jan 31 09:12:36 <akurtakov_>	would you please open a bug and clarify with them
+Jan 31 09:12:54 <akurtakov_>	it might be time for linuxtools perf to excludearch too
+Jan 31 09:13:19 <akurtakov_>	http://pkgs.fedoraproject.org/cgit/rpms/kernel-tools.git/log/
+Jan 31 09:13:22 <mbooth>	Can linuxtools use perf remotely?
+Jan 31 09:13:38 <akurtakov_>	ah, it should be fixed with next rebuild I guess
+Jan 31 09:13:41 <akurtakov_>	mbooth: no idea
+Jan 31 09:14:18 <akurtakov_>	but the last build failed https://koji.fedoraproject.org/koji/packageinfo?packageID=26062
+Jan 31 09:14:44 <mbooth>	akurtakov_: Looks like it should come back at some point though: http://pkgs.fedoraproject.org/cgit/rpms/kernel-tools.git/commit/?id=249b8cbb6403c9a810c70c358ecd4fdff25b1ee4
+Jan 31 09:14:51 <akurtakov_>	yeah
+Jan 31 09:15:01 <akurtakov_>	so we should live with the warning for some time
+Jan 31 09:15:06 <akurtakov_>	it was suspicious though
+Jan 31 09:15:38 <mbooth>	akurtakov_: This was the buildroot problem I was thinking of: https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/5YHSMJ7IAUFP2BQDLDRF6NQMCDAZOTXT/
+Jan 31 09:15:55 <mbooth>	It was causing failures in koschie
+Jan 31 09:16:20 <akurtakov_>	yeah, I noticed that one
+Jan 31 09:16:29 <akurtakov_>	but the perf one just didn't fit in
+Jan 31 09:45:19 <akurtakov_>	lbullen: here?
+Jan 31 09:45:30 <lbullen>	akurtakov_, yes
+Jan 31 09:45:51 <akurtakov_>	lbullen: did you remove Eclipse-BundleShape: dir from the manifest before running the tests?
+Jan 31 09:48:06 <lbullen>	I did not
+Jan 31 09:48:16 <akurtakov_>	lbullen: plese do
+Jan 31 09:48:40 <akurtakov_>	also why do I have to specify the classname manually?
+Jan 31 09:51:13 <akurtakov_>	lbullen: removing the bundleshape: dir is critical
+Jan 31 09:51:24 <akurtakov_>	as without it the install will unpack 
+Jan 31 09:53:56 <lbullen>	akurtakov_, because that is the way the project was already set up. Do you mean it should instead find it through the test.xml file?
+Jan 31 09:54:37 <akurtakov_>	lbullen: I think so :)
+Jan 31 09:55:43 <akurtakov_>	I also commented on the bug on some API things
+Jan 31 10:00:00 <akurtakov_>	lbullen: btw, am I missing smth in the instructions ? I fail to launch it by only adding these params
+Jan 31 10:00:58 <lbullen>	launching it as a child eclipse?
+Jan 31 10:04:39 <akurtakov_>	lbullen: ok, I had to change the application too
+Jan 31 10:04:54 <lbullen>	oh yes sorry, forgot that part
+Jan 31 10:10:31 <akurtakov_>	lufimtse: ericwill: http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/tests/org.eclipse.swt.tests/BugSnippets
+Jan 31 10:10:37 <akurtakov_>	what's with these?
+Jan 31 10:11:00 <akurtakov_>	they end up in the tests jar
+Jan 31 10:11:07 <akurtakov_>	and they are totally useless in it
+Jan 31 10:11:24 <ericwill>	akurtakov_ bug reproducer snippets for cross-platform bugs
+Jan 31 10:11:48 <lufimtse>	akurtakov_, quite useful for cross-platform bug testing.
+Jan 31 10:12:14 <akurtakov_>	just look at org.eclipse.swt.tests jar and where these things are put
+Jan 31 10:12:28 <akurtakov_>	and you'll understand why they should not be there
+Jan 31 10:12:44 <akurtakov_>	please put them in proper package at least
+Jan 31 10:12:46 <lufimtse>	akurtakov_, why do we care about org.eclipse.swt.tests?
+Jan 31 10:12:54 <lufimtse>	jar?
+Jan 31 10:13:21 <akurtakov_>	lufimtse: because these tests are extracted and run on 5 different combos every day
+Jan 31 10:13:37 <akurtakov_>	and trying to find an issue with test infra is a nightmare if everyone throws stuff around
+Jan 31 10:13:52 <akurtakov_>	and because we care for everything we build :)
+Jan 31 10:14:09 <akurtakov_>	the things platform builds should serve as an example
+Jan 31 10:14:31 <akurtakov_>	if it was only the later it was more than good reason
+Jan 31 10:14:38 <lufimtse>	akurtakov_, the bug snippets are never ran via automation tools afaik
+Jan 31 10:14:52 <lufimtse>	would putting them into a package improve the situation?
+Jan 31 10:15:08 <lufimtse>	They're in a separate folder altogether btw,
+Jan 31 10:15:22 <akurtakov_>	lufimtse: yet they end up in the jar http://download.eclipse.org/eclipse/downloads/drops4/I20180129-2000/download.php?dropFile=eclipse-Automated-Tests-I20180129-2000.zip
+Jan 31 10:15:29 <akurtakov_>	not only that but in the root of the jar
+Jan 31 10:16:20 <lufimtse>	akurtakov_, let me check out the jar. One sec
+Jan 31 10:16:20 <akurtakov_>	so there are 3 options I see :
+Jan 31 10:16:29 <akurtakov_>	1. exclude them from the binary jar
+Jan 31 10:16:40 <akurtakov_>	2. remove them altogether
+Jan 31 10:17:19 <akurtakov_>	3. move them to a package to at least not have them in the root
+Jan 31 10:17:43 <akurtakov_>	having class files withotu package is not good practice at all btw
+Jan 31 10:18:17 <scela>	akurtakov_: mbooth : https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED&bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&classification=Red%20Hat&f1=flagtypes.name&list_id=8361509&o1=substring&product=DevTools&query_format=advanced&v1=2018.1
+Jan 31 10:18:20 <lufimtse>	akurtakov_, the snippets have proven themselves to be very useful during bug hunting and verification. I can move them to a separate package?
+Jan 31 10:18:42 <scela>	akurtakov_: mbooth are these still assigned to 2018.1?
+Jan 31 10:19:13 <scela>	they seem to have the 2018.1 flag on
+Jan 31 10:19:32 <akurtakov_>	lufimtse: why are they not proper tests btw ?
+Jan 31 10:19:51 <akurtakov_>	if they are cross platform that should be a possiblity for at least some of them, right?
+Jan 31 10:20:12 <lufimtse>	akurtakov_, some things are hard to junit. Drag and drop, or visual glitches et.c.
+Jan 31 10:20:37 <lufimtse>	akurtakov_, or can't be done via jUnit in a stable manner.
+Jan 31 10:20:50 <lufimtse>	akurtakov_, especially considering there are no abs coords on wayland etc..
+Jan 31 10:20:53 <mbooth>	scela: Most should be 2018.2, I'll go through -- 
+Jan 31 10:21:11 <lufimtse>	akurtakov_, ex; 	Bug528415_CTabFolder_tabs_are_painted_wrong.java
+Jan 31 10:21:24 <lufimtse>	akurtakov_, any suggestions on how to write junits for wrong painting :-)?
+Jan 31 10:21:32 <lufimtse>	akurtakov_, should I move them to separate package?
+Jan 31 10:21:58 <akurtakov_>	lufimtse: please do, bonus for excluding the package form the binary
+Jan 31 10:22:12 <akurtakov_>	lufimtse: cairo has unit tests for painting
+Jan 31 10:22:14 <akurtakov_>	:)
+Jan 31 10:22:38 <akurtakov_>	a hard ones I agree
+Jan 31 10:23:28 <akurtakov_>	lbullen: ok, swt tests run
+Jan 31 10:23:59 <scela>	akurtakov_: do you mind if we move those bugs en masse to 2018.2? cc mbooth 
+Jan 31 10:24:04 <lufimtse>	akurtakov_, ok, I'll move. Btw, how do you exclude stuff from binary?
+Jan 31 10:24:21 <akurtakov_>	scela: fine with me
+Jan 31 10:24:36 <scela>	akurtakov_: mbooth was wondering whether we need a z-stream
+Jan 31 10:24:39 <scela>	for any of those
+Jan 31 10:25:40 <mbooth>	lufimtse: You can use bin.excludes in build.properties if building with tycho: https://www.eclipse.org/tycho/sitedocs/BuildProperties.html
+Jan 31 10:25:43 <akurtakov_>	scela: other than the docker plugins I don't believe we can
+Jan 31 10:26:15 <akurtakov_>	issue with bin.excludes is that I'm not sure you can exclude only single package in the tree
+Jan 31 10:26:26 <akurtakov_>	mbooth: https://bugzilla.redhat.com/show_bug.cgi?id=1440671
+Jan 31 10:26:41 <lbullen>	akurtakov_, confirmed my hunch, the program takes the classname because if you run the test.xml file as an ant build then it calls the TestRunner with the classname argument
+Jan 31 10:27:04 <lbullen>	Also +1 to akurtakov_ for keeping up 3 conversations at once in one chat
+Jan 31 10:27:55 <akurtakov_>	lbullen: so will running with jars work if run as ant build ?
+Jan 31 10:28:27 <lbullen>	akurtakov_, that I am looking into now
+Jan 31 10:28:27 <akurtakov_>	rgrunber: https://bugzilla.redhat.com/show_bug.cgi?id=1465527
+Jan 31 10:29:55 <scela>	akurtakov_: so do you think any of them deserve the z-stream or is 2018.2 good enough?
+Jan 31 10:30:42 <rgrunber>	akurtakov_: will do
+Jan 31 10:33:13 <akurtakov_>	scela: 1536444 and 1536577 if we consider docker really important 
+Jan 31 10:33:24 <akurtakov_>	have to run now :)
+Jan 31 11:03:48 <lufimtse>	mbooth, thanks for bin.excludes tip.
+Jan 31 11:18:50 <scela>	"<lufimtse> akurtakov_, why do we care about org.eclipse.swt.tests?" broke SWT's heart there.
+Jan 31 11:21:01 <rgrunber>	swt has no heart, just a bunch of native bindings for things like pump_blood(), beat(), etc.
+Jan 31 11:24:57 <lufimtse>	scela, why do we care about swt.tests's *jar* file. We care about the tests but the jar file is not that flashy.
+Jan 31 11:28:14 *	You are now known as lufimtse_afk
+Jan 31 11:34:53 <ericwill>	rgrunber it's true SWT has no heart, that's why we don't use internal API
+Jan 31 12:10:24 *	You are now known as lufimtse
+Feb 01 05:07:01 <vkadlcik>	mbooth: hi Mat, aroud?
+Feb 01 05:07:18 <vkadlcik>	mbooth: had a chance to read my email on flatpak?
+Feb 01 05:12:27 <mbooth>	vkadlcik: Hey, yes. I will send you a reply today
+Feb 01 05:13:00 <mbooth>	vkadlcik: BTW, you are doing it right -- just the flatpak you used is old and from a time when I wasn't doing it right :-)
+Feb 01 05:17:23 <vkadlcik>	mbooth: ok, thanks!
+Feb 01 05:37:12 <akurtakov_>	mbooth: do you want me to transfer eclipse package to you ?
+Feb 01 05:37:38 <mbooth>	akurtakov_: If you like -- save time re-assigning bugs
+Feb 01 05:37:51 <akurtakov_>	mbooth: just remind me how I should do it :)
+Feb 01 05:37:59 <akurtakov_>	and feel free to request such things
+Feb 01 05:38:15 <mbooth>	akurtakov_: Oh, good question, we changed to pagure since I last did this
+Feb 01 05:38:23 <akurtakov_>	we should not lose time for nothing
+Feb 01 05:40:37 <akurtakov_>	mbooth: should be yours now :)
+Feb 01 05:40:54 <akurtakov_>	pagure was good enough pointer :)
+Feb 01 05:41:16 <mbooth>	Cool
+Feb 01 10:16:08 <akurtakov_>	lbullen: https://hudson.eclipse.org/platform/job/eclipse.platform.ui-Gerrit/14302/testReport/org.eclipse.jface.tests.viewers/ListViewerRefreshTest/testSelectionRefresh/
+Feb 01 10:16:21 <akurtakov_>	test started to fail in gerrit
+Feb 01 10:16:45 <akurtakov_>	weird
+Feb 01 10:21:00 <lbullen>	akurtakov_, it still ran the old code.
+Feb 01 10:21:14 <akurtakov_>	lbullen: ah ok
+Feb 01 10:21:25 <akurtakov_>	sorry for hte noise
+Feb 01 10:22:27 <lbullen>	failed on line 109, which is where the old assertTrue was. Don't know why it did though. This patch is a child of my fix
+Feb 01 11:13:38 <rgrunber>	akurtakov_: just fyi, Dawid Pakula (DLTK) would like lucene 7.1 queryparser+misc in addition to the 3 (core, smartcn, analyzers-common) platform requires.
+Feb 01 11:13:54 <rgrunber>	i'll basically tell him to open cqs..
+Feb 01 11:14:04 <akurtakov_>	rgrunber: yup, that's the right thing to do
+Feb 01 11:19:12 <rgrunber>	ahh.. dltk and pdt
+Feb 01 15:08:18 Python interface unloaded
+**** ENDING LOGGING AT Thu Feb  1 15:08:18 2018
+
+**** BEGIN LOGGING AT Fri Feb  2 10:16:40 2018
+
+Feb 02 10:16:40 *	Now talking on #eclipse
+Feb 02 10:16:40 *	Topic for #eclipse is: Eclipse discussions
+Feb 02 10:16:40 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)

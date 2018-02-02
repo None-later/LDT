@@ -5141,3 +5141,1809 @@ Dec 15 09:48:03 <lufimtse>	ok
 Dec 15 12:00:11 <lufimtse>	SWT work plan is ready. I've sent it to Eric for review, once he had a look at it I'll send it to you and Sopot for sign off. (Today/Monday).
 [akurtakov has address ~akurtakov@ovpn-200-20.brq.redhat.com]
 Dec 15 12:02:00 <akurtakov>	I'll look into it next year :)
+**** BEGIN LOGGING AT Wed Jan  3 10:07:59 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-31.brq.redhat.com]
+Jan 03 10:08:01 <lufimtse>	good morning
+Jan 03 10:08:26 <akurtakov>	morning :)
+Jan 03 10:08:39 <akurtakov>	https://git.eclipse.org/r/#/c/114899/2 :)
+Jan 03 10:10:05 <lufimtse>	I read your email. Ok, makes sense.
+Jan 03 10:10:17 <lufimtse>	1) I'll move GDBus into OS.java for now
+Jan 03 10:10:26 <lufimtse>	2) fix up launcher,
+Jan 03 10:10:29 <akurtakov>	I hope you get me right
+Jan 03 10:10:29 <lufimtse>	go from there
+Jan 03 10:10:43 <akurtakov>	I'm all for these changes 
+Jan 03 10:11:01 <lufimtse>	making functions static might take me a few hours. I would suggest I make it later, but I can do it while I do the migration also?
+Jan 03 10:11:05 <akurtakov>	just they need to be properly implemented and could be driven together
+Jan 03 10:11:31 <akurtakov>	just not make them depend on each other
+Jan 03 10:12:15 <lufimtse>	In the sense that you'd like both to progress concurrently?
+Jan 03 10:12:24 <akurtakov>	yes
+Jan 03 10:12:27 <lufimtse>	ah
+Jan 03 10:12:33 <akurtakov>	you have an idea about GTK/GDK improvement
+Jan 03 10:12:39 <akurtakov>	we do iterations on it
+Jan 03 10:12:53 <akurtakov>	it doesn't take much time 
+Jan 03 10:13:16 <lufimtse>	yah, the gtk/gdk thing is a quick thing I wipped together in 30 minutes that makes life much easier. Not that critical thou.
+Jan 03 10:13:20 <akurtakov>	and it doesn't interfere with webkitgtk
+Jan 03 10:13:28 <akurtakov>	err with launcher stuff
+Jan 03 10:13:35 <akurtakov>	there we speak about glib functions
+Jan 03 10:13:43 <akurtakov>	we are not using any dynamic glib 
+Jan 03 10:13:45 <akurtakov>	IIRC
+Jan 03 10:14:07 <lufimtse>	hmm, native glib calls do go through our gtk lib thou
+Jan 03 10:14:17 <akurtakov>	no
+Jan 03 10:14:20 <akurtakov>	it's the other way around
+Jan 03 10:14:29 <akurtakov>	gtk lib calls go through glib
+Jan 03 10:14:42 <akurtakov>	all glib calls are static
+Jan 03 10:15:32 <akurtakov>	and the reason why this worked is because gtk* is linked against glib
+Jan 03 10:16:29 <lufimtse>	#define LIB_GTK "libgtk-3.so.0"
+Jan 03 10:17:07 <lufimtse>	libgtk-3.so.0 == glib?
+Jan 03 10:17:09 <akurtakov>	ok now check the symbols of libgtk and find a single g_* function :)
+Jan 03 10:17:15 <akurtakov>	it is not the same
+Jan 03 10:17:40 <akurtakov>	glib is /usr/lib64/libglib-2.0.so.0
+Jan 03 10:17:43 <akurtakov>	on my machine
+Jan 03 10:18:00 <akurtakov>	and gio part is in libgio
+Jan 03 10:18:45 <akurtakov>	and it is quite likely to have glib version based version checks when we introduce gtk4
+Jan 03 10:19:05 <akurtakov>	and really having dynamic symbosl there too
+Jan 03 10:19:22 <akurtakov>	so relying on libgtk is plain wrong
+Jan 03 10:19:30 <lufimtse>	how to read function list from .so?
+Jan 03 10:19:32 <akurtakov>	the stack is glib with gdk on top of it
+Jan 03 10:19:32 <lufimtse>	forgot
+Jan 03 10:19:39 <akurtakov>	and with gtk on top of gdk
+Jan 03 10:20:14 <lufimtse>	nm -D libgtk-3... shows lots of gtk and glib funcs btw?
+Jan 03 10:20:21 <akurtakov>	readelf -s 
+Jan 03 10:20:59 <akurtakov>	nm -D shows you all the symbols of the library and libraries it's linked against
+Jan 03 10:21:09 <akurtakov>	that's why it will show you even X* 
+Jan 03 10:21:23 <akurtakov>	which you don't believe are part of gtk I hope :P
+Jan 03 10:22:00 <lufimtse>	 readelf -s /usr/lib64/libgtk-3.so.0 | grep bus
+Jan 03 10:22:04 <akurtakov>	and even with nm -D you can see that some functions have address (aka they are part of the lib)
+Jan 03 10:22:06 <lufimtse>	  2153: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND g_dbus_proxy_call
+Jan 03 10:22:10 <lufimtse>	?
+Jan 03 10:22:12 <lufimtse>	meh
+Jan 03 10:22:20 <lufimtse>	with readelf it still shows glib funcs
+Jan 03 10:22:21 <lufimtse>	btw
+Jan 03 10:22:35 <akurtakov>	and others don't  aka belong to libs it's linked
+Jan 03 10:23:07 <lufimtse>	from what I gather, we link against gtk lib, which contains glib
+Jan 03 10:23:13 <lufimtse>	I don't see how it's the other way around?
+Jan 03 10:23:31 <lufimtse>	I don't understand how it's problem to link glib against gtk?
+Jan 03 10:23:31 <akurtakov>	it desn't contain glib 
+Jan 03 10:23:36 <lufimtse>	no?
+Jan 03 10:23:42 <akurtakov>	it link against it
+Jan 03 10:24:05 <lufimtse>	I see
+Jan 03 10:24:09 <akurtakov>	and it is heavily guarded code
+Jan 03 10:24:23 <akurtakov>	in order to not use newer glib functions than what gtk3
+Jan 03 10:24:35 <akurtakov>	err gtk2 has as a min requirement
+Jan 03 10:24:41 <akurtakov>	but in the case for a gtk3 fix
+Jan 03 10:24:55 <akurtakov>	we need newer glib function we will have to make this call dynamic
+Jan 03 10:25:33 <akurtakov>	and have GLIB_VERSION check in the code together with the GTK_VERSION check
+Jan 03 10:25:48 <akurtakov>	which would not work if the glib function is in GTK.java
+Jan 03 10:26:10 <akurtakov>	and if we go that route why split gdk from gtk
+Jan 03 10:26:22 <akurtakov>	as gdk is truly part of the gtk
+Jan 03 10:26:35 <lufimtse>	ok, so this seems like there's much more involved here than I anticipated.
+Jan 03 10:26:36 <akurtakov>	in the sense they are released and evolving together and at the same pace 
+Jan 03 10:26:53 <lufimtse>	I thought of it as a quick fix
+Jan 03 10:26:57 <akurtakov>	not to speak about no longer having libgdk.so in gtk4 anymore
+Jan 03 10:27:30 <akurtakov>	well, the idea is good and I like it
+Jan 03 10:27:55 <lufimtse>	I see
+Jan 03 10:27:59 <akurtakov>	have GTK and GDK (aka majority) in separate files
+Jan 03 10:28:11 <lufimtse>	ok, I suppose I can work on it if the wayland launcher is waiting on something
+Jan 03 10:28:19 <akurtakov>	while leaving glib/X/pango.... and the rest of the underlying libs 
+Jan 03 10:28:30 <akurtakov>	in OS.java
+Jan 03 10:28:37 <lufimtse>	btw, https://git.eclipse.org/r/#/c/114899/2  << is there a way for me to check if a file is pure ascii?
+Jan 03 10:28:41 <lufimtse>	that you know of?
+Jan 03 10:30:22 <akurtakov>	well, there is nothing wrong to use UTF IMHO as it's available everywhere java is but build systems use the system encoding
+Jan 03 10:30:41 <akurtakov>	and our build systems are obviously not enforcing utf everywhere
+Jan 03 10:30:48 <akurtakov>	but this is a fight that I'm tired of 
+Jan 03 10:30:52 <lufimtse>	I see
+Jan 03 10:31:22 <akurtakov>	so it's simpler to just stick to lowest common denominator than trying to fix it everywhere
+Jan 03 10:31:29 <akurtakov>	how to check whether it's ascii
+Jan 03 10:31:34 <akurtakov>	tbh I have no idea :)
+Jan 03 10:31:49 *	akurtakov hadn't had an ascii default ever IIRC :)
+Jan 03 10:32:02 <lufimtse>	I see
+Jan 03 10:32:11 <lufimtse>	basically be mindful of using non-ascii characters
+Jan 03 10:32:14 <lufimtse>	ok,
+Jan 03 10:32:22 <lufimtse>	thank you for clarifications.
+Jan 03 10:32:34 <akurtakov>	or be ready to fix the build systems as they are
+Jan 03 10:32:55 <akurtakov>	tbh, I didn't care to check where in maven or ant the property has to be set
+Jan 03 10:35:06 <akurtakov>	I hope you don't see me too rough 
+Jan 03 10:35:49 <akurtakov>	what I demand more from you is not codework but organizing the workflow better
+Jan 03 10:35:52 <lufimtse>	ha ha. I appreciate straightforward logic.
+Jan 03 10:35:59 <lufimtse>	the more feedback the better.
+Jan 03 10:36:06 <lufimtse>	as things get more efficient,
+Jan 03 10:36:14 <lufimtse>	otherwise stuff comes back to haunt us later X-D
+Jan 03 10:36:33 <akurtakov>	yeah, I'm really sorry I didn't catch the glib bindings in webkitgtk
+Jan 03 10:36:45 <akurtakov>	they should have never been there to start with
+Jan 03 10:37:05 <lufimtse>	btw, the no linking of gdbus against gtk. Is the proposal to load glib separatley?
+Jan 03 10:37:15 <lufimtse>	 ..s/gdbus/glib
+Jan 03 10:37:30 <lufimtse>	because currently the glib funcs are linked against gtk.so lib
+Jan 03 10:37:46 <lufimtse>	like the GTK.java doesn't change current underlying functionality
+Jan 03 10:38:42 <akurtakov>	well, the whole libswt-gtk
+Jan 03 10:39:04 <akurtakov>	is linked agaisnt gtk and all it's deps as described pkg-config
+Jan 03 10:40:10 <akurtakov>	thanks to that there is nothing more you have to do for the glib funcs
+Jan 03 10:40:32 <lufimtse>	In the sense I'm trying to understand. Is the plan to make all glib functions static and have no dynamic glib functions inside OS.java, or is the plan to introduce some sort of GLIB.java which would load glib in a different way of sorts?
+Jan 03 10:41:09 <akurtakov>	all glib functions except for these in WebKitGTK are static already
+Jan 03 10:41:35 <akurtakov>	and by not having it in GTK java
+Jan 03 10:41:57 <akurtakov>	we keep the door open for having GLIB.java with same dynamic macro in case we need it
+Jan 03 10:42:09 <akurtakov>	better ?
+Jan 03 10:43:39 <lufimtse>	Ah, so make most glib functions static, and migrate things to GLIB.java with it's own macro?
+Jan 03 10:43:57 <akurtakov>	when needed
+Jan 03 10:44:40 <akurtakov>	do we have a glib function that is coming from newer than the min version of glib ?
+Jan 03 10:45:25 <akurtakov>	aka I keep the door open for this possibility(dynamic macro loading) but will not do it until needed
+Jan 03 10:45:45 <akurtakov>	and of course until we finish GTK and GDK migration to the new way
+Jan 03 10:47:28 <lufimtse>	our current min glib is 2.28?
+Jan 03 10:48:42 <akurtakov>	yes https://git.gnome.org/browse/gtk+/tree/configure.ac?h=gtk-2-24#n35
+Jan 03 10:50:19 <akurtakov>	https://git.eclipse.org/r/#/c/114896/ 
+Jan 03 10:50:31 <akurtakov>	just catched similar issue in Eric's ATK stuff
+Jan 03 10:50:31 <lufimtse>	I gather gObject is part of glib?
+Jan 03 10:50:49 <akurtakov>	gobject is part of glib (the project)
+Jan 03 10:50:59 <akurtakov>	but it's its own so file
+Jan 03 10:51:22 <akurtakov>	rpm -ql glib2|grep so
+Jan 03 10:51:56 <lufimtse>	g_bytes_new () since 2.32
+Jan 03 10:52:07 <lufimtse>	so we have at least one glib func that needs to be dynamic.
+Jan 03 10:52:25 <lufimtse>	it's used by the setUrl() business for webkit.
+Jan 03 10:52:44 <akurtakov>	phew
+Jan 03 10:52:55 <lufimtse>	so, to clarify, once I've made progress/finished the wayland launcher stuff, introduce a GLIB.java of sorts?
+Jan 03 10:52:55 <akurtakov>	setUrl I can live with it
+Jan 03 10:53:17 <lufimtse>	(Just want to make a note of it in the task)
+Jan 03 10:53:41 <akurtakov>	well, finish GTK/GDK move first
+Jan 03 10:53:59 <akurtakov>	once we have finished that part we can create GLIB.java 
+Jan 03 10:54:22 <lufimtse>	ah
+Jan 03 10:54:24 <lufimtse>	ok.
+Jan 03 10:54:41 <akurtakov>	this means that setURL will crash most probably on gtk 2.24 with glib older than 2.32
+Jan 03 10:55:33 <akurtakov>	I'm torn between declaring min glib version or making dynamic glib calls
+Jan 03 10:55:55 <lufimtse>	ah God,
+Jan 03 10:55:59 <lufimtse>	oh God*
+Jan 03 10:56:03 <lufimtse>	I didn't think of that.
+Jan 03 10:56:05 <lufimtse>	We need to guard.
+Jan 03 10:56:16 <lufimtse>	well
+Jan 03 10:56:22 <lufimtse>	then again it's only used by webkit2
+Jan 03 10:56:28 <lufimtse>	on gtk3
+Jan 03 10:56:45 <lufimtse>	let me check min version of glib of gtk3
+Jan 03 10:57:21 <lufimtse>	gtk3.0 = glib 2.28
+Jan 03 10:57:56 <lufimtse>	gtk3.0 == glib 2.32
+Jan 03 10:58:26 <lufimtse>	solution: set min required version to be gtk-3.4 :-D
+Jan 03 10:58:59 <akurtakov>	let's leave setURL aside from now
+Jan 03 10:59:43 <lufimtse>	ok,
+Jan 03 10:59:56 <lufimtse>	Ok, moving forward.  1) Move gdbus stuff into OS.java. So that gdbus doesn't initialize webkit.   2) Implement wayland launcher.      3) if time permits, gtk/gdk move.   4) If time permits, glib move.
+Jan 03 11:00:03 <lufimtse>	correct?
+Jan 03 11:00:12 <akurtakov>	yes
+Jan 03 11:00:15 <lufimtse>	kewl.
+Jan 03 11:00:26 <akurtakov>	and 3 can be driven in paralel
+Jan 03 11:00:37 <lufimtse>	ok, thank you for clarification. Much apprechiated. 
+Jan 03 11:04:24 <akurtakov>	you're welcome :)
+Jan 03 11:06:25 <akurtakov>	some other feedback - don't try to always start with grand plans
+Jan 03 11:06:35 <akurtakov>	come up with work done
+Jan 03 11:07:11 <akurtakov>	over the course you get some better knowledge of the underlying stuff and you realize faults in the initial ideas you had
+Jan 03 11:07:42 <akurtakov>	the more things you finish the better understanding of how things interconnect
+Jan 03 11:20:03 <akurtakov>	so in the setURL thing
+Jan 03 11:20:13 <akurtakov>	gtk3.0 == glib 2.32
+Jan 03 11:20:26 <akurtakov>	and it's only in webkitgtk2 code
+Jan 03 11:20:39 <akurtakov>	webkit2 code aka it mandates gtk3
+Jan 03 11:20:54 <akurtakov>	thus glib 2.32 or newer is always available
+Jan 03 11:20:57 <akurtakov>	right?
+Jan 03 11:37:26 <lufimtse>	Thanks for feedback
+Jan 03 11:37:36 <lufimtse>	keep it comming
+Jan 03 11:37:55 <lufimtse>	when I checkout gtk3.0, the configure.ac says glib 2.28
+Jan 03 11:38:03 <lufimtse>	gtk3.4 uses 2.32
+Jan 03 11:38:23 <lufimtse>	gtk3.2 uses 2.2* ish
+Jan 03 11:38:30 <lufimtse>	so, idk.
+Jan 03 11:38:44 <lufimtse>	setUrl() only uses the glib function for postdata
+Jan 03 11:38:50 <lufimtse>	so kinda a bit of a nieche case.
+Jan 03 11:39:02 <lufimtse>	but wouldn't hurt to guard off.
+Jan 03 11:43:55 <akurtakov>	I see so it has to be guarded
+Jan 03 11:44:09 <akurtakov>	btw, webkit2 should mandate some gtk3 version
+Jan 03 11:44:13 <akurtakov>	I wonder which one that is
+Jan 03 11:44:17 <lufimtse>	hmm
+Jan 03 11:44:28 <lufimtse>	gtk3.4 :-)
+Jan 03 11:44:46 <akurtakov>	is this a wish or a fact :P
+Jan 03 11:44:57 <lufimtse>	ha ha
+Jan 03 11:45:19 <lufimtse>	let me migrate glib functions. I should be able to give you more precise answer by tomorrow ish.
+Jan 03 11:45:26 <akurtakov>	ok
+Jan 03 11:45:39 <akurtakov>	this is crucial question for the switch to webkit2 by default
+Jan 03 11:45:51 <akurtakov>	whether we can just make it for every gtk3 
+Jan 03 11:46:49 <lufimtse>	I see
+Jan 03 11:47:01 <lufimtse>	I've made a task for it. Will follow through with it.
+Jan 03 12:07:23 <lufimtse>	https://git.eclipse.org/r/#/c/114905/  << u like?
+Jan 03 12:07:50 <akurtakov>	on the phone now
+Jan 03 12:07:54 <lufimtse>	kk
+Jan 03 12:48:32 <akurtakov>	looks good to me
+Jan 03 12:48:54 <lufimtse>	kk.
+Jan 03 12:50:55 <akurtakov>	oops
+Jan 03 12:50:58 <akurtakov>	actually WebkitGDBus 
+Jan 03 12:51:05 <akurtakov>	has to be moved to internal package
+Jan 03 12:51:31 <lufimtse>	lemme investigate
+Jan 03 12:51:42 <akurtakov>	it's not cross platform - thus not API
+Jan 03 12:51:55 <lufimtse>	well, webkit is not cross-platform either
+Jan 03 12:52:01 <lufimtse>	it's not on win32/cocoa path
+Jan 03 12:52:03 <akurtakov>	thus has to be in o.e.swt.internal.webkit
+Jan 03 12:52:06 <akurtakov>	false
+Jan 03 12:52:22 <akurtakov>	there are webkit implementations for win32/cocoa
+Jan 03 12:52:32 <akurtakov>	based on the native webkit ports for these platforms
+Jan 03 12:53:02 <lufimtse>	hmm. But I guess people don't refer to webkit.java directly?
+Jan 03 12:53:09 <lufimtse>	only to webbrowser.java at most.
+Jan 03 12:53:09 <akurtakov>	http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/bundles/org.eclipse.swt/Eclipse%20SWT%20WebKit
+Jan 03 12:53:19 <lufimtse>	hmmm
+Jan 03 12:53:30 <akurtakov>	but they can
+Jan 03 12:53:47 <akurtakov>	and as long as we put code in non internal package it's API
+Jan 03 12:54:06 <akurtakov>	so any change in it has 2 years of deprecation policy before we can remove smth :)
+Jan 03 12:54:11 <akurtakov>	if it's in internal package
+Jan 03 12:54:28 <akurtakov>	we can just adjust as it pleases us :)
+Jan 03 12:54:30 <lufimtse>	ok, what about WebkitGDBus not providing any public functions? 
+Jan 03 12:54:42 <lufimtse>	then public can't touch.
+Jan 03 12:54:44 <akurtakov>	still it's a public class
+Jan 03 12:54:55 <akurtakov>	just move it to the internnal package
+Jan 03 12:54:58 <lufimtse>	ok.
+Jan 03 12:55:17 <akurtakov>	and it misses license header
+Jan 03 12:55:22 <lufimtse>	ah yea.
+Jan 03 12:55:23 <lufimtse>	ok.
+Jan 03 12:56:01 <akurtakov>	these are the kind of things one has to be extremely careful with when living lower in the stack
+Jan 03 12:56:33 <akurtakov>	if you haven't made smth clear shouldn't be referenced/used it's your fault if someone found a way to use it
+Jan 03 12:57:15 <akurtakov>	btw, what's the story with these @category in javadoc ?
+Jan 03 12:57:23 <akurtakov>	is this some new javadoc feature ?
+Jan 03 12:57:49 <lufimtse>	ah, 
+Jan 03 12:57:58 <lufimtse>	category shows up in outline.
+Jan 03 12:58:05 <lufimtse>	makes it easy to identify group of functions
+Jan 03 12:58:08 <lufimtse>	or constants
+Jan 03 12:58:12 <lufimtse>	not related to swt tooling.
+Jan 03 12:58:19 <lufimtse>	eclipse feature
+Jan 03 12:58:30 <akurtakov>	nice
+Jan 03 12:58:36 <akurtakov>	didn't knew about it :)
+Jan 03 12:58:44 <akurtakov>	quite handy
+Jan 03 12:58:55 <lufimtse>	indeed
+Jan 03 12:59:16 <akurtakov>	ah, there is even visible categories in outline view
+Jan 03 13:00:52 <lufimtse>	yes
+Jan 03 13:01:11 <lufimtse>	can also be used in filtering, to show only methods/values of a certain category
+Jan 03 13:01:38 <lufimtse>	There's a perculiar bug if you switch back and fourth between editors and filter with categories thou.
+Jan 03 13:01:43 <lufimtse>	I reported it somewhere.
+Jan 03 13:01:55 <lufimtse>	basically, if you filter by category, unfilter before leaving editor :-)
+Jan 03 13:03:24 <akurtakov>	feel free to add me on cc for this bug
+Jan 03 13:03:32 <akurtakov>	sounds perfect for the next intern start :)
+Jan 03 13:03:51 <akurtakov>	reviewing finds so many things to change/improve
+Jan 03 13:51:58 <lufimtse>	might be gtk specific: https://bugs.eclipse.org/bugs/show_bug.cgi?id=527578
+Jan 03 15:00:05 <lufimtse>	hullo
+Jan 03 15:00:13 <lufimtse>	asserts are for annotation. 
+Jan 03 15:00:32 <lufimtse>	for the case when we want to know when the function was introduced when going through a list of functions
+Jan 03 15:00:43 <lufimtse>	instead of comment.
+Jan 03 15:01:18 <lufimtse>	The purpose is also when people copy & paste functions, they correctly update the assert, so we know when which function was introduced.
+Jan 03 15:01:37 <akurtakov>	do you believe in that ?
+Jan 03 15:01:53 <akurtakov>	it's just clutter which will be blindly copy pasted
+Jan 03 15:01:53 <lufimtse>	works really well for webkit1/2 gtk2/3
+Jan 03 15:01:58 <lufimtse>	nah
+Jan 03 15:02:15 <akurtakov>	I get that for dynamic and questionable cases
+Jan 03 15:02:24 <akurtakov>	but for the case when we are sure it's there there is no point
+Jan 03 15:03:04 <lufimtse>	that may be the case if you look at a function in isolation. But when you look at the case where we scan through OS.java to see when functions were introduced, then these asserts come in very useful.
+Jan 03 15:03:11 <akurtakov>	actually this kind of comment make sense only for dynamic functions
+Jan 03 15:03:32 <akurtakov>	for non-dynamic functions compiler already ensures that
+Jan 03 15:03:45 <akurtakov>	so just clutter in the codebase
+Jan 03 15:04:06 <lufimtse>	hmmm
+Jan 03 15:04:32 <akurtakov>	if it's not dynamic and the function misses in the headers the compile will fail
+Jan 03 15:04:55 <akurtakov>	for dynamic functions everything is accepted as it's dlsym at runtime
+Jan 03 15:06:34 <akurtakov>	tbh, I don't understand your will to have all these specifics
+Jan 03 15:06:49 <akurtakov>	when there is smth that already does the job :)
+Jan 03 15:07:49 <lufimtse>	You speak as someone with a lot of experience. I speak as someone who has taught 2 interns and 1 Roland.
+Jan 03 15:08:02 <lufimtse>	And I see the patterns where they screw up.
+Jan 03 15:08:21 <lufimtse>	meh
+Jan 03 15:08:22 <akurtakov>	and I can see the pattern too
+Jan 03 15:08:33 <akurtakov>	IMHO it's too narrow view
+Jan 03 15:08:51 <akurtakov>	next time gtk is updated
+Jan 03 15:08:56 <akurtakov>	we will have this dance 
+Jan 03 15:09:10 <akurtakov>	and people will rely on some magic to happen based on asserts and etc.
+Jan 03 15:09:28 <akurtakov>	when at the end it will need someone to know what belongs to glib/gtk...
+Jan 03 15:09:32 <akurtakov>	how they interact 
+Jan 03 15:09:41 <akurtakov>	where to check versions and etc.
+Jan 03 15:10:15 <akurtakov>	and all this info just can't all live in swt as it logically belongs in gtk + friends
+Jan 03 15:11:17 <akurtakov>	smth similar to https://en.wikipedia.org/wiki/Convention_over_configuration is what I preach
+Jan 03 15:11:52 <akurtakov>	one should know the limitations clearly and not see them enforced all through the codebase needlessly as the more people see things the more they stop thinking about them
+Jan 03 15:11:57 <akurtakov>	and take them for granted
+Jan 03 15:12:48 <akurtakov>	much like with the maven vs sh scripts introduced in the codeabse
+Jan 03 15:13:01 <akurtakov>	all the sh scripts can be handy during pure swt development
+Jan 03 15:13:25 <akurtakov>	but they have the nasty sideeffect of people not learning what/how happens on the builders 
+Jan 03 15:13:39 <akurtakov>	and resulting in not being able to help much with these kind of issues
+Jan 03 15:13:48 <lufimtse>	I see the following: We would benefit of having a clear view of when any given function was introduced. For example, you asked me what is the minimum version of gtk for Webkit2, with the relevant annotation I can tell you that gtk3.0 is min version, since all the gdbus functions are pre gtk3.0.
+Jan 03 15:14:04 <lufimtse>	without that, we have to manually check against each one.
+Jan 03 15:14:17 <lufimtse>	Same thing goes for when you asked me what is minimum version of webkitgtk we can use
+Jan 03 15:14:19 <lufimtse>	etc..
+Jan 03 15:14:23 <akurtakov>	as they not even use the build system in the way the user deliverable is produced
+Jan 03 15:14:39 <akurtakov>	note that with webkitgtk everything is dynamic
+Jan 03 15:14:53 <akurtakov>	so we can not trust the compiler to enforce anything for us
+Jan 03 15:15:35 <akurtakov>	and even with all the annotations for functions you can't tell me which is hte min gtk3 version for webkit2
+Jan 03 15:16:35 <akurtakov>	as you have noticed - I didn't object about the annotations in webkit at all, as they have value
+Jan 03 15:17:09 <akurtakov>	but code for the sake of having more code without any value 
+Jan 03 15:18:09 <lufimtse>	Every intern does the same mistake of introducing a dynamic function without considering the minimum version it can be used on. How do you propose to take this re-occuring issue?
+Jan 03 15:18:33 <akurtakov>	just the same as we do now
+Jan 03 15:18:49 <akurtakov>	explain thorougly why where etc.
+Jan 03 15:19:07 <akurtakov>	and first of all why it should be static if possible
+Jan 03 15:20:23 <lufimtse>	meh. well ok.
+Jan 03 15:20:27 <lufimtse>	ill fix up.
+Jan 03 15:35:52 <lufimtse>	uploaded patcheset 3
+Jan 03 15:35:57 <lufimtse>	https://git.eclipse.org/r/#/c/114909/
+Jan 03 15:36:04 <lufimtse>	If you're still at work :-)
+Jan 03 15:36:24 <lufimtse>	not too time sensitive thou.
+Jan 03 15:37:39 <akurtakov>	small commetn 
+Jan 03 15:37:48 <akurtakov>		assert GTK3; is not needed in glib functions
+Jan 03 15:38:02 <lufimtse>	true
+Jan 03 15:38:03 <lufimtse>	sec
+Jan 03 15:38:15 <akurtakov>	as one can have glib 2.32 with gtk2.24
+Jan 03 15:38:22 <lufimtse>	I see
+Jan 03 15:38:25 <lufimtse>	good point.
+Jan 03 15:38:26 <akurtakov>	aka Note Gtk3.4 == glib 2.32 is not true
+Jan 03 15:38:43 <akurtakov>	on can have gtk 3.4 with any glib newer than 2.32
+Jan 03 15:38:45 <lufimtse>	fixed.
+Jan 03 15:39:01 <akurtakov>	in general glib is lower level than gtk so don't bind them together in comments
+Jan 03 15:39:12 <lufimtse>	I see
+Jan 03 15:39:17 <lufimtse>	didn't consider 
+Jan 03 15:39:19 <lufimtse>	let me fix.
+Jan 03 15:40:39 <akurtakov>	there is one such https://git.eclipse.org/r/#/c/114909/4/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/browser/WebKit.java
+Jan 03 15:40:51 <akurtakov>	I mean glib to gtk binding
+Jan 03 15:41:13 <akurtakov>	it's probably implicit too
+Jan 03 15:41:29 <akurtakov>	as I don't believe webkit2gtk works with so old gtk versions
+Jan 03 15:41:45 <akurtakov>	so the check would probably have to be generalized in setting webkit2 even
+Jan 03 15:41:54 <akurtakov>	but this is FYI for the next iteration
+Jan 03 15:42:34 <lufimtse>	ok, 
+Jan 03 15:45:54 <lufimtse>	ok, patchset 5 has relevant fixes.
+Jan 03 15:46:01 <lufimtse>	good afaik
+Jan 03 15:46:40 <lufimtse>	In my mind glib was always part of gtk. Today I've discovered that it seems to have quite a life of it's own.
+Jan 03 15:47:09 <akurtakov>	yup
+Jan 03 15:47:24 <akurtakov>	this is the kind of knowledge we have to spread
+Jan 03 15:48:42 <akurtakov>	ok, should be fine now
+Jan 03 15:48:49 <lufimtse>	kk
+Jan 03 15:48:58 <lufimtse>	thanks for review.
+Jan 03 15:49:03 <akurtakov>	with some adjustements on the next round for things we missed now :)
+Jan 03 15:49:10 <lufimtse>	which things?
+Jan 03 15:49:19 <akurtakov>	I haven't found them yet :)
+Jan 03 15:49:22 <lufimtse>	ah
+Jan 03 15:49:43 <akurtakov>	things like the missing license header and not in internal class and etc. for the webkit stuff
+Jan 03 15:49:53 <akurtakov>	every app has at least few more bugs :P
+Jan 03 15:50:01 <lufimtse>	ah yea.
+Jan 03 15:50:19 <lufimtse>	I'll move the WebkitGDBUS in separate bugz.
+**** ENDING LOGGING AT Wed Jan  3 18:23:16 2018
+
+**** BEGIN LOGGING AT Thu Jan  4 10:04:48 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-38.brq.redhat.com]
+Jan 04 10:04:49 <lufimtse>	hey
+Jan 04 10:04:54 <akurtakov>	хеъ
+Jan 04 10:04:57 <akurtakov>	hey :)
+Jan 04 10:05:03 <lufimtse>	hev to u too :-)
+Jan 04 10:05:11 <lufimtse>	so
+Jan 04 10:05:16 <lufimtse>	min gtk3 version is 3.6
+Jan 04 10:05:25 <lufimtse>	https://trac.webkit.org/browser/webkit/trunk/Source/cmake/OptionsGTK.cmake#L26\
+Jan 04 10:05:25 <akurtakov>	I thought about it more
+Jan 04 10:05:29 <lufimtse>		find_package(GTK3 3.6.0 REQUIRED)
+Jan 04 10:05:52 <akurtakov>	and if there is webkit2gtk there is new enough gtk 3 version so no need to check
+Jan 04 10:05:59 <akurtakov>	that's why I went straight
+Jan 04 10:06:56 <akurtakov>	I have made some changes to the dbus code
+Jan 04 10:07:05 <akurtakov>	to add header and to init it in the proper place
+Jan 04 10:08:00 <lufimtse>	I saw. Looking good.
+Jan 04 10:08:07 <lufimtse>	the code is very proof of concept at this stage
+Jan 04 10:08:14 <akurtakov>	so what's next?
+Jan 04 10:08:37 <akurtakov>	I have seen the method in d-feet and called it 
+Jan 04 10:08:41 <akurtakov>	but nothign happened
+Jan 04 10:09:07 <lufimtse>	yah, I haven't added the code to open an editor. But I have a snippet somewhere where I could open a file in Eclipse from GDBus
+Jan 04 10:09:18 <akurtakov>	?
+Jan 04 10:09:25 <lufimtse>	not in gerrit yet.
+Jan 04 10:09:27 <akurtakov>	why open an editor ?
+Jan 04 10:09:40 <lufimtse>	technically send the relevant signal
+Jan 04 10:09:46 <akurtakov>	ah ok
+Jan 04 10:09:58 <lufimtse>	just need a bit more time to glue things together :-)
+Jan 04 10:10:07 <lufimtse>	Gonna see how wayland launcher deals with file(s)
+Jan 04 10:10:15 <lufimtse>	then based on that implement relevant interface
+Jan 04 10:10:22 <lufimtse>	(gdbus interface)
+Jan 04 10:10:27 <lufimtse>	and then will update launcher.
+Jan 04 10:10:29 <akurtakov>	I'm not sure I follow ?
+Jan 04 10:10:44 <akurtakov>	what do you mean by wayland launchers ?
+Jan 04 10:10:55 <lufimtse>	equinox launcher
+Jan 04 10:11:03 <lufimtse>	will be next basically
+Jan 04 10:11:09 <lufimtse>	once I've finished the gdbus polish in swt
+Jan 04 10:11:14 <akurtakov>	I see
+Jan 04 10:11:27 <akurtakov>	it should be pretty straight forward job in the launcher
+Jan 04 10:11:34 <lufimtse>	yea, a few lines.
+Jan 04 10:11:36 <lufimtse>	in the right spot.
+Jan 04 10:11:52 <akurtakov>	once you do that I'll nuke all the X deps from it :)
+Jan 04 10:11:56 <lufimtse>	ha ha
+Jan 04 10:12:12 <lufimtse>	afaik the glib funcs can be static since they're all pre 2.28
+Jan 04 10:12:15 <lufimtse>	although I'll check.
+Jan 04 10:12:25 <akurtakov>	yeah, I think we are safe there
+Jan 04 10:12:55 <lufimtse>	Ok. I'll get to it. I'm focused (so long as I have the right music playing :-P)
+Jan 04 10:17:16 <lufimtse>	gtk 3.6 is from 5 years ago.
+Jan 04 10:17:55 <lufimtse>	webkitgtk 2 is from 2014-09
+Jan 04 10:17:59 <lufimtse>	seems like we're good.
+Jan 04 10:19:01 <akurtakov>	the fact that we dlopen webkit2 and fallback to old version is good enough 
+Jan 04 10:22:28 <lufimtse>	agree
+Jan 04 10:24:35 <akurtakov>	so any eta for the dbus work?
+Jan 04 10:24:43 <akurtakov>	do you need anything from me ?
+Jan 04 10:24:50 <akurtakov>	it's top priority thing for me now
+Jan 04 10:27:42 <lufimtse>	I'm expecting sometime next week.
+Jan 04 10:27:47 <lufimtse>	not much work left there
+Jan 04 10:27:59 <lufimtse>	all my focus is on that.
+Jan 04 10:28:01 <lufimtse>	:-)
+Jan 04 10:28:12 <akurtakov>	ok, I'll bug Eric a bit in this case :)
+Jan 04 10:28:19 <lufimtse>	ha ha
+Jan 04 10:28:33 <lufimtse>	thanks for looking into patches, much apprechite the attention. 
+**** BEGIN LOGGING AT Mon Jan  8 13:21:21 2018
+
+**** ENDING LOGGING AT Mon Jan  8 18:13:08 2018
+
+**** BEGIN LOGGING AT Tue Jan  9 15:16:09 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-39.brq.redhat.com]
+Jan 09 15:16:10 <lufimtse>	hai
+Jan 09 15:21:53 <lufimtse>	mailed u.
+Jan 10 09:17:59 *	Disconnected (Connection timed out)
+Jan 10 12:14:19 Python interface unloaded
+**** ENDING LOGGING AT Wed Jan 10 12:14:19 2018
+
+**** BEGIN LOGGING AT Thu Jan 11 10:01:41 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-30.brq.redhat.com]
+Jan 11 10:02:27 <lufimtse>	Hi. I didn't realise the gdbus patch would fail. I should have verified build succeeded before sending it for review.
+Jan 11 10:02:48 <lufimtse>	I mean like on gerrit
+Jan 11 10:02:53 <akurtakov>	it was webkit1 crash IIRC
+Jan 11 10:02:55 <lufimtse>	but it seems it failed due to other stuff
+Jan 11 10:02:58 <lufimtse>	ok
+Jan 11 10:03:14 <akurtakov>	but other things took me after that
+Jan 11 10:03:18 <lufimtse>	ah
+Jan 11 10:03:21 <akurtakov>	so I didn't manage to get back to it :)
+Jan 11 10:03:31 <lufimtse>	Any ideas when they'll upgrade build server to have webkit2?
+Jan 11 10:03:46 <akurtakov>	one of the servers has webkit2 :)
+Jan 11 10:04:06 <lufimtse>	interesting. So sometimes it runs on webkit2, sometimes on webkit1?
+Jan 11 10:04:54 <akurtakov>	yeah
+Jan 11 10:04:56 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=522270
+Jan 11 10:07:09 <akurtakov>	I've reopened it
+Jan 11 10:07:14 <akurtakov>	these things are such a time killer
+Jan 11 10:07:51 <lufimtse>	I added my vote to it.
+Jan 11 10:08:04 <akurtakov>	I don't think that webmaster cares about votes :)
+Jan 11 10:08:22 <lufimtse>	who knows :-)
+Jan 11 10:08:32 <akurtakov>	2 people taking care of git/bz/hudson/jenkins/web....
+Jan 11 10:09:57 <akurtakov>	please gain a habbit of updating copyright year when editing a file
+Jan 11 10:10:21 <akurtakov>	I'll review it this time without it but give -1 from the next patch :)
+Jan 11 10:10:32 <lufimtse>	ah
+Jan 11 10:10:35 <lufimtse>	thanks for pointing out
+Jan 11 10:10:53 <akurtakov>	yeah, it's usually yearly in the year when this stuff is most work
+Jan 11 10:11:16 <lufimtse>	Let me know if you find any other quircks in my patches, I'm always eager to learn.
+Jan 11 10:11:19 <lufimtse>	and improve.
+Jan 11 10:11:37 <akurtakov>	well, there is smth general that bothers me
+Jan 11 10:11:49 <akurtakov>	how much will dbus init slowdown startup
+Jan 11 10:11:59 <lufimtse>	good question
+Jan 11 10:12:22 <akurtakov>	would you mind measuring on your machine
+Jan 11 10:12:27 <lufimtse>	I could spend sometime trying to benchmark?
+Jan 11 10:12:32 <akurtakov>	fast systemtime check is fine
+Jan 11 10:12:37 <lufimtse>	ok,
+Jan 11 10:14:40 <akurtakov>	hmm
+Jan 11 10:14:44 <akurtakov>	this is gpl code
+Jan 11 10:14:50 <akurtakov>	we can't add it reop
+Jan 11 10:14:53 <akurtakov>	repo
+Jan 11 10:16:23 <lufimtse>	what is?
+Jan 11 10:16:33 <akurtakov>	http://www.cs.grinnell.edu/~rebelsky/Courses/CSC195/2013S/Examples/DBus/Client/client-v2.c
+Jan 11 10:16:46 <akurtakov>	you wrote in all snippets that you based on it
+Jan 11 10:16:52 <akurtakov>	and it's gpl 3
+Jan 11 10:16:59 <akurtakov>	as you based on it it's derivative work
+Jan 11 10:17:04 <akurtakov>	thus it's gpl3 too
+Jan 11 10:17:14 <akurtakov>	which is not approved for eclipse.org
+Jan 11 10:17:24 <akurtakov>	please remove all the snippets
+Jan 11 10:17:25 <lufimtse>	hai
+Jan 11 10:17:49 <lufimtse>	I see, I should have been more mindfull of licenses. Well, it's just a tutorial on how to use gdbus,
+Jan 11 10:17:51 <lufimtse>	pretty generic
+Jan 11 10:17:58 <lufimtse>	I can remove snippets?
+Jan 11 10:18:15 <lufimtse>	the gdbus stuff is pretty simple stuff, just create proxy and pass along args,
+Jan 11 10:18:23 <lufimtse>	nothing too fancy.
+Jan 11 10:18:31 <akurtakov>	this doesn't matter
+Jan 11 10:18:46 <akurtakov>	it's derivative work and it's traceable via gerrit
+Jan 11 10:18:50 <akurtakov>	so just drop them
+Jan 11 10:18:59 <lufimtse>	Snippets?
+Jan 11 10:19:24 <akurtakov>	yes
+Jan 11 10:19:27 <lufimtse>	ok, I can take out snippets and any references to them.
+Jan 11 10:19:30 <akurtakov>	leave o.e.swt content only
+Jan 11 10:19:41 <lufimtse>	Good catch!
+Jan 11 10:19:46 <akurtakov>	:)
+Jan 11 10:20:01 <akurtakov>	my first read of a patch is "legal" one
+Jan 11 10:20:10 <lufimtse>	Ah
+Jan 11 10:20:15 <akurtakov>	it tells me whether I can/should read more :)
+Jan 11 10:20:24 <lufimtse>	Interesting
+Jan 11 10:20:40 <lufimtse>	I'll try to be more mindful of that.
+Jan 11 10:20:52 <akurtakov>	in the good old days when there was no openjdk
+Jan 11 10:21:13 <akurtakov>	it was quite tricky to not read e.g. HashMap or String source 
+Jan 11 10:21:22 <akurtakov>	even if your ide opens it for you
+Jan 11 10:21:42 <akurtakov>	as this was banning you from contributing to gcj and other foss jvm implementations :)
+Jan 11 10:21:49 <lufimtse>	I see
+Jan 11 10:21:53 <lufimtse>	politics >_>
+Jan 11 10:22:03 <akurtakov>	always 
+Jan 11 10:22:15 <lufimtse>	they don't teach you that in university lol.
+Jan 11 10:22:54 <akurtakov>	that's because it's too dirty game :)
+Jan 11 10:23:10 <akurtakov>	so everything is allowed to f*ck up the other :)
+Jan 11 10:30:57 <lufimtse>	ha ha
+Jan 11 10:31:43 <akurtakov>	that's my opinion of politics :)
+Jan 11 10:32:30 <akurtakov>	let me know when there is new patch for review
+Jan 11 10:33:11 <lufimtse>	kk
+Jan 11 10:33:13 <lufimtse>	give me 2 mins.
+Jan 11 10:35:06 <akurtakov>	one more thing
+Jan 11 10:35:12 <akurtakov>	GDBus class
+Jan 11 10:35:27 <akurtakov>	fits better in o.e.swt.internal.gtk package
+Jan 11 10:35:38 <akurtakov>	in Eclipse SWT PI folder
+Jan 11 10:36:29 <akurtakov>	for the sake of being explicit
+Jan 11 10:36:49 <akurtakov>	but if you feel strong about it current place I can live with it
+Jan 11 10:42:44 <akurtakov>	still here?
+Jan 11 10:58:19 <lufimtse>	hai
+Jan 11 10:58:23 <lufimtse>	went for coffee
+Jan 11 10:58:39 <lufimtse>	lemme check
+Jan 11 10:59:04 <lufimtse>	ah
+Jan 11 10:59:16 <lufimtse>	I do not have strong feelings about where GDBus resides
+Jan 11 10:59:27 <lufimtse>	I just kinda put it for lack of better placement
+Jan 11 11:00:09 <lufimtse>	you mean like put it next to OS.java?
+Jan 11 11:00:28 <akurtakov>	yeah
+Jan 11 11:00:43 <akurtakov>	AC call
+Jan 11 11:00:43 <lufimtse>	This time around I kept any business logic out of GDBus, there shouldn't be any problems moving it. I'll move.
+Jan 11 11:00:46 <lufimtse>	ok.
+Jan 11 11:02:13 <akurtakov>	thanks
+Jan 11 11:02:37 <akurtakov>	btw, I dis quick test and it shows smth like 5 miliseconds delay
+Jan 11 11:03:02 <lufimtse>	hmm. Looking into it. Stuff next to OS.java is ready by SWT tools, but GDBus.java has nothing that should be native. Thoughts?
+Jan 11 11:03:10 <lufimtse>	I haven't benchmarked yet
+Jan 11 11:03:15 <akurtakov>	ok, leave it where it is
+Jan 11 11:04:31 <akurtakov>	call still pending for people to join 
+Jan 11 11:04:40 <lufimtse>	AC call?
+Jan 11 11:04:50 <akurtakov>	https://wiki.eclipse.org/Architecture_Council/Meetings
+Jan 11 11:05:45 <lufimtse>	interesting
+Jan 11 11:08:42 <lufimtse>	Ok. GDBus good to go afaik. Let me know if you find anything else.: https://git.eclipse.org/r/#/c/114524/
+Jan 11 11:17:05 <akurtakov>	have you run all swt tests with that patch in?
+Jan 11 11:17:15 <lufimtse>	good point. I have not. Sec.
+Jan 11 11:17:19 <akurtakov>	I'm afraid we can break dbus session
+Jan 11 11:17:33 <akurtakov>	with so many acquire/release 
+Jan 11 11:17:35 <lufimtse>	Been doing webkit stuff for so long that I've kinda forgotten about tests
+Jan 11 11:17:39 <lufimtse>	will verify.
+Jan 11 11:18:52 <akurtakov>	so in the current implementation
+Jan 11 11:19:11 <akurtakov>	there is no way for pure swt app to fire OpenDocument event
+Jan 11 11:19:35 <akurtakov>	as the gdk window property + atop churn is done in launcher
+Jan 11 11:20:54 <akurtakov>	I mean prior ot your patch
+Jan 11 11:21:04 <lufimtse>	tests are good.
+Jan 11 11:21:10 <lufimtse>	let me check.
+Jan 11 11:21:52 <lufimtse>	yea, afaik only changin window property "org.eclipse.swt.filePath.message" to semi-colon separated list fires OpenDocument
+Jan 11 11:22:10 <lufimtse>	Clients shouldn't rely on such technical detail, as it's gtk specific
+Jan 11 11:22:18 <lufimtse>	so we wouldn't be breaking swt client code.
+Jan 11 11:22:58 <akurtakov>	what I think is should we put a condition for gdbus.init on system property 
+Jan 11 11:23:08 <akurtakov>	and make the launcher initiate the jvm with that property
+Jan 11 11:23:23 <akurtakov>	so pure swt apps don't register on the dbus
+Jan 11 11:23:31 <lufimtse>	Ah
+Jan 11 11:23:38 <lufimtse>	that is a good observation. 
+Jan 11 11:23:45 <lufimtse>	I see what u mean.
+Jan 11 11:23:50 <akurtakov>	that would fix the issue of e.g.running snippet and it steals open document from eclipse
+Jan 11 11:23:51 <lufimtse>	gdbus is not needed w/o launcher.
+Jan 11 11:24:11 <akurtakov>	I'll probably merge the patch as it is now
+Jan 11 11:24:22 <akurtakov>	and we can handle such change as step 2
+Jan 11 11:24:30 <lufimtse>	ok, I've added it to my todo list.
+Jan 11 11:24:37 <lufimtse>	I'll implement once wayland support is done.
+Jan 11 11:24:38 <akurtakov>	makes sense to you?
+Jan 11 11:24:40 <lufimtse>	yea,
+Jan 11 11:24:50 <akurtakov>	ok
+Jan 11 11:24:53 <lufimtse>	I didn't think of it, but now that you mention, very good performance optimization
+Jan 11 11:30:56 <akurtakov>	so it does work with absolute paths only 
+Jan 11 11:32:01 <akurtakov>	if now what does it use as pwd?
+Jan 11 11:38:39 <akurtakov>	I read the launcher stuff
+Jan 11 11:38:53 <akurtakov>	does it support relative paths?
+Jan 11 11:39:06 <akurtakov>	I think not with dbus calls
+Jan 11 11:39:12 <akurtakov>	although haven't tested it
+Jan 11 11:39:19 <akurtakov>	but smth for you to try
+Jan 11 11:44:16 <akurtakov>	the common usage for launcher is when in some dir
+Jan 11 11:44:38 <akurtakov>	to do `eclipse file_in_dir.java`
+Jan 11 11:45:08 <lufimtse>	hai
+Jan 11 11:45:29 <lufimtse>	good point.
+Jan 11 11:45:55 <lufimtse>	it doesn't change behaviour, in the sense that it does the same as before
+Jan 11 11:46:09 <lufimtse>	it just takes the filelist as before and transmitts it in a different way
+Jan 11 11:46:22 <lufimtse>	I'll test/investigate.
+Jan 11 11:46:35 <akurtakov>	so 'eclipse fin_in_dir.java' works ?
+Jan 11 11:46:55 <lufimtse>	eclipse fin_in_dir.java?
+Jan 11 11:47:06 <lufimtse>	I've only tested with absolute paths atm
+Jan 11 11:47:13 <lufimtse>	will test how it behaves with relative
+Jan 11 11:47:34 <akurtakov>	IIRC it worked with relative with the x11 atom 
+Jan 11 11:47:44 <lufimtse>	ok
+Jan 11 11:48:35 <akurtakov>	btw, I wonder whether we need to fix the handler for OpenDocument in platform.ui
+Jan 11 11:48:46 <akurtakov>	as passing ~/test.txt didn't work
+Jan 11 11:49:01 <akurtakov>	but this seems like totally different problem
+Jan 11 11:51:09 <lufimtse>	I tested:   ./eclipse --launcher.openFile eclipse.ini 
+Jan 11 11:51:13 <lufimtse>	crashes on both
+Jan 11 11:51:15 <lufimtse>	old and new
+Jan 11 11:51:19 <lufimtse>	segfaults
+Jan 11 11:51:28 <akurtakov>	under wayland ?
+Jan 11 11:51:42 <akurtakov>	what about running it with GDK_BACKEND=x11
+Jan 11 11:51:48 <lufimtse>	yes, but with export GDK_BACKEND=x11
+Jan 11 11:51:53 <lufimtse>	it works with abs
+Jan 11 11:51:56 <lufimtse>	absolute path
+Jan 11 11:52:02 <lufimtse>	crashes for both with relative
+Jan 11 11:52:02 <akurtakov>	we should fix that 
+Jan 11 11:52:05 <lufimtse>	indeed
+Jan 11 11:52:19 <lufimtse>	as far as I can tell, it doesn't even reach SWT land.
+Jan 11 11:52:24 <lufimtse>	just crashes in launcher
+Jan 11 11:52:29 <akurtakov>	that's weird
+Jan 11 11:52:35 <akurtakov>	as it should be just passing the string
+Jan 11 11:52:45 <lufimtse>	no
+Jan 11 11:52:50 <lufimtse>	it tries to find delimiters
+Jan 11 11:52:56 <lufimtse>	might be reason why.
+Jan 11 11:53:03 <akurtakov>	why?
+Jan 11 11:53:20 <lufimtse>	it supports multiple paths via semi-colon I think
+Jan 11 11:53:23 <lufimtse>	but have to check.
+Jan 11 11:55:52 <akurtakov>	where is the code looking for delimiters
+Jan 11 11:55:55 <akurtakov>	https://git.eclipse.org/r/#/c/115203/2/features/org.eclipse.equinox.executable.feature/library/gtk/eclipseGtk.c
+Jan 11 11:56:04 <lufimtse>	#0  0x00007ffff7750f71 in __strlen_avx2 () from /lib64/libc.so.6
+Jan 11 11:56:04 <lufimtse>	#1  0x00007ffff0903c4b in checkPath (path=0x7fffffffdd58 "./eclipse.ini", programDir=0x0, 
+Jan 11 11:56:04 <lufimtse>	    reverseOrder=0) at ../eclipseCommon.c:532
+Jan 11 11:56:04 <lufimtse>	#2  0x00007ffff08fc611 in parseArgs (pArgc=0x7fffffffd74c, argv=0x609140) at ../eclipse.c:897
+Jan 11 11:56:04 <lufimtse>	#3  0x00007ffff08fb3d7 in run (argc=3, argv=0x609140, vmArgs=0x0) at ../eclipse.c:421
+Jan 11 11:56:04 <lufimtse>	#4  0x000000000040163e in main (argc=17, argv=0x609140) at ../eclipseMain.c:217
+Jan 11 11:56:08 <lufimtse>	investigating.
+Jan 11 11:56:10 <akurtakov>	are you saying it doesn't work with only one file passed ?
+Jan 11 11:56:10 <lufimtse>	crash ^
+Jan 11 11:56:35 <lufimtse>	it works with one or multiple files with absolute paths
+Jan 11 11:56:54 <akurtakov>	and crashes with one or multiple file with relative ?
+Jan 11 11:59:59 <lufimtse>	as far as I can tell, any number of relative files causes segfault
+Jan 11 12:00:06 <lufimtse>	in checkPatch()
+Jan 11 12:00:13 <lufimtse>	I think it's bug in laucher
+Jan 11 12:00:19 <lufimtse>	not related to gdbus or x11
+Jan 11 12:00:29 <lufimtse>	happens before any of that logic
+Jan 11 12:00:31 <akurtakov>	what is checkPatch ?
+Jan 11 12:00:42 <lufimtse>	eclipseCommon.c:532
+Jan 11 12:00:53 <lufimtse>	the malloc(..) has a strlen(..)
+Jan 11 12:01:01 <lufimtse>	the strlen segFaults
+Jan 11 12:01:34 <lufimtse>	basically I'll have to dig into it.
+Jan 11 12:01:40 <lufimtse>	but it's a separate issue in the sense.
+Jan 11 12:01:43 <akurtakov>	try running outside of eclipse dir
+Jan 11 12:01:47 <lufimtse>	ah
+Jan 11 12:01:49 <lufimtse>	let me try.
+Jan 11 12:02:10 <akurtakov>	it's still a bug which has to be fixed but if that's the case it can be postponed
+Jan 11 12:02:34 <lufimtse>	~/apps/eclipse/eclipse --launcher.openFile /tmp/hi   << works.
+Jan 11 12:02:39 <lufimtse>	~/apps/eclipse/eclipse --launcher.openFile hi   << crashes
+Jan 11 12:02:45 <lufimtse>	from /tmp/
+Jan 11 12:02:49 <lufimtse>	as word dir
+Jan 11 12:02:51 <akurtakov>	sigh
+Jan 11 12:02:51 <lufimtse>	work*
+Jan 11 12:02:59 <lufimtse>	Looks like bug in launcher.
+Jan 11 12:03:05 <lufimtse>	:-/
+Jan 11 12:03:08 <lufimtse>	I can fix.
+Jan 11 12:03:25 <lufimtse>	Basically I can investigate and implement relative path support.
+Jan 11 12:03:46 <lufimtse>	hai
+Jan 11 12:03:49 <lufimtse>	NOTE
+Jan 11 12:03:57 <lufimtse>	~/apps/eclipse/eclipse hi   << works.
+Jan 11 12:03:57 *	akurtakov :No such nick/channel
+Jan 11 12:06:55 <akurtakov>	please do
+Jan 11 12:07:05 <akurtakov>	it can go even as a separate bug prior to the dbus one
+Jan 11 12:07:16 <lufimtse>	btw
+Jan 11 12:07:22 <lufimtse>	~/apps/eclipse/eclipse hi   << works
+Jan 11 12:07:28 <lufimtse>	~/apps/eclipse/eclipse --launcher.openFile hi   << crashe
+Jan 11 12:07:36 <lufimtse>	I.e, --launcher.openFile   with relative file crashes
+Jan 11 12:07:38 <akurtakov>	what ?
+Jan 11 12:07:45 <lufimtse>	the paramater/flag it self is a problem
+Jan 11 12:07:47 <akurtakov>	but with hi just opens the file ?
+Jan 11 12:07:51 <lufimtse>	ya
+Jan 11 12:08:02 <akurtakov>	so the default command works
+Jan 11 12:08:07 <lufimtse>	yep
+Jan 11 12:08:11 <lufimtse>	confirmed with gdbus also
+Jan 11 12:08:25 <lufimtse>	I can still fix. Fix is probably trivial. 
+Jan 11 12:08:34 <akurtakov>	please do 
+Jan 11 12:08:36 <lufimtse>	ok.
+Jan 11 12:08:58 *	akurtakov really hates crashes
+Jan 11 12:10:12 <lufimtse>	ha ha. 
+Jan 11 12:10:14 <lufimtse>	I can imagine
+Jan 11 12:10:17 <lufimtse>	such strange bug
+Jan 11 12:10:49 <lufimtse>	I can imagine not many people ever run into this as I imagine not many people use the proper flag. (They just add files after eclipse like "eclipse /myFile" probably).
+Jan 11 12:10:55 <lufimtse>	but good to fix never the less.
+Jan 11 12:16:49 <akurtakov>	btw does it crash on win/mac too?
+Jan 11 12:16:56 <akurtakov>	it's in the common code right ?
+Jan 11 12:17:20 <lufimtse>	good question
+Jan 11 12:17:57 <lufimtse>	added sub-task to investigate.
+Jan 11 12:23:50 <akurtakov>	so does 'eclipse relative_path' works with dbus too ?
+Jan 11 12:52:22 <lufimtse>	yes
+Jan 11 12:54:45 <akurtakov>	nice so it's entirely different issue
+Jan 11 12:54:50 <akurtakov>	please open a bug for it
+Jan 11 12:54:50 <lufimtse>	yea
+Jan 11 12:54:59 <lufimtse>	not gdbus/x11 related at all
+Jan 11 12:56:40 <lufimtse>	kay
+Jan 11 12:58:41 <akurtakov>	just merged the swt dbus patch
+Jan 11 13:01:01 <lufimtse>	I have done the sign of the cross.   *joke.
+Jan 11 13:01:05 <lufimtse>	let's see what happens.
+Jan 11 13:01:13 <lufimtse>	ha ha, just kidding. Shouldn't cause any issues.
+Jan 11 13:01:24 <lufimtse>	kk.
+Jan 11 13:08:31 <lufimtse>	so gdk_atom and gdk_property are deprecated in gtk4. Can I use the other functions? https://git.eclipse.org/r/#/c/113159/
+Jan 11 13:08:40 <lufimtse>	to weed out x11 use.
+Jan 11 13:08:58 <lufimtse>	btw, where do you check for what is deprecated in gtk4.
+Jan 11 13:09:03 <lufimtse>	I need to get into the habit of doing that as well.
+Jan 11 13:12:18 <akurtakov>	well, you can remove all that code 
+Jan 11 13:13:09 <akurtakov>	it should not be needed at all AFAICT
+Jan 11 13:14:38 <lufimtse>	Hmm. Ok, let me investigate.
+Jan 11 13:14:53 <lufimtse>	but, I am curious for future use, how do I check what's deprecated in gtk4, do you know?
+Jan 11 13:16:07 <lufimtse>	e.g there is no deprecation note here about gdk_atom:   https://developer.gnome.org/gdk3/unstable/gdk3-Properties-and-Atoms.html#gdk-atom-name
+Jan 11 13:16:25 <lufimtse>	is there a dev-documentation somewhere or do you just follow bugreports?
+Jan 11 13:18:01 <lufimtse>	even gdk4 docu doesn't list it as deprecated:  https://developer.gnome.org/gdk4/3.90/gdk4-Properties-and-Atoms.html#gdk-atom-intern
+Jan 11 13:18:21 <lufimtse>	so like if I'm about to add a new function, I'd like to check that it's not deprecated in gtk4
+Jan 11 13:29:13 <akurtakov>	I check the local docs
+Jan 11 13:29:20 <akurtakov>	I have gtk4 installed
+Jan 11 13:29:27 <akurtakov>	as it's shipped in f27
+Jan 11 13:29:56 <akurtakov>	and even if gdk_atom is not deprecated its useless on wayland
+Jan 11 13:31:31 <akurtakov>	I think you can safely remove all code dealing with atoms :)
+Jan 11 13:34:54 <lufimtse>	interesting.
+Jan 11 13:35:04 <lufimtse>	I installed gtk4, but it still doesn't show gdk_atom as deprecated
+Jan 11 13:35:06 <lufimtse>	huh
+Jan 11 13:35:11 <lufimtse>	in dev help.
+Jan 11 13:35:32 <lufimtse>	gtk4-devel-docs-3.92.1-1.fc27.x86_64 
+Jan 11 13:36:19 <akurtakov>	https://git.gnome.org/browse/gtk+/commit/gdk/x11?id=4c083c1ed42a3ebae97a96fc11ef1113ad769f15
+Jan 11 13:38:11 <akurtakov>	anyway
+Jan 11 13:38:26 <akurtakov>	checking against latest in f27 is fine for now
+Jan 11 13:38:44 <akurtakov>	what I ment is that there should be no need for any atom code in launcher with the dbus move
+Jan 11 13:54:19 <lufimtse>	I understand. I was just wondering about the mechanism on how to check what get's deprecated on gtk4. Oh, wells.
+Jan 11 13:56:19 <akurtakov>	there is no standard way as it's in development now
+Jan 11 13:56:31 <lufimtse>	I see
+Jan 11 13:56:40 <akurtakov>	I found that gdk_atom is soon to be gone while I investigated any changes they may have done in gtk4
+Jan 11 13:56:47 <akurtakov>	to see it was actually removed :)
+Jan 11 13:56:50 <lufimtse>	ah
+Jan 11 13:56:57 <akurtakov>	call it gut feeling or pure luck :)
+Jan 11 13:57:04 <lufimtse>	I see
+Jan 11 13:57:05 <lufimtse>	ok
+Jan 11 13:57:18 <akurtakov>	I tried rewriting x11 atom to gdk atom
+Jan 11 13:57:23 <akurtakov>	which didn't work at all :)
+Jan 11 13:57:33 <akurtakov>	and I came up with the dbus idea :)
+Jan 11 13:57:40 <lufimtse>	makes sense
+Jan 11 13:57:48 <akurtakov>	so I spend my share of research on atom stuff :)
+Jan 11 13:59:17 <akurtakov>	would it be too much of an effort to convert everything in launcher to dynamic function
+Jan 11 14:00:33 <lufimtse>	no
+Jan 11 14:00:41 <lufimtse>	I can make things dynamic quite easily.
+Jan 11 14:00:55 <lufimtse>	I was thinking of making things non-dynamic lol.
+Jan 11 14:01:07 <lufimtse>	I wonder, is there a benifit to having things dynamic?
+Jan 11 14:01:36 <lufimtse>	I found that having calls dynamic is a pain of sorts, slows down development.
+Jan 11 14:02:04 <lufimtse>	I've only added calls that were added before glib 2.28
+Jan 11 14:02:14 <lufimtse>	so if all build machines have at least 2.26, we're good.
+Jan 11 14:03:25 <akurtakov>	well, the benefit I can think of 
+Jan 11 14:03:40 <akurtakov>	is better error message when running on machine without glib2
+Jan 11 14:03:56 <akurtakov>	although it's a bit theoretical 
+Jan 11 14:04:01 <akurtakov>	to get such a machine
+Jan 11 14:04:22 <akurtakov>	but in case it's dynamic the launcher will execute and produce the message for missing gtk
+Jan 11 14:04:28 <akurtakov>	in linked against glib 
+Jan 11 14:04:47 <akurtakov>	it will crash as glib symbols will not be found
+Jan 11 14:04:58 <lufimtse>	I see.
+Jan 11 14:05:04 <lufimtse>	that's a fair point I guess.
+Jan 11 14:05:07 <akurtakov>	I haven't made my mind how big of an issue it is actually
+Jan 11 14:05:20 <lufimtse>	I wonder who dares not to have glib on their system.
+Jan 11 14:05:24 <lufimtse>	ha ha
+Jan 11 14:05:42 <akurtakov>	yup same thought here 
+Jan 11 14:12:38 <akurtakov>	hmm
+Jan 11 14:12:59 <akurtakov>	do you happen do know whether aix/solaris have dbus running :)
+Jan 11 14:13:31 <akurtakov>	ok, looks like I'm up for big discussion with sravan
+Jan 11 14:14:31 <akurtakov>	let's stay with linkage against glib
+Jan 11 14:15:06 <akurtakov>	what made me think about being dynamic is the fact that even X11 functions have been dynamic since original
+Jan 11 14:15:35 <akurtakov>	and this was time when people havent even considered to run anything but X11
+Jan 11 14:15:43 <akurtakov>	but there was the chance to not have X11
+Jan 11 14:15:46 <akurtakov>	:)
+Jan 11 14:16:12 <akurtakov>	but not having glib2 on your machine ?!? is it even possible now :)
+Jan 11 14:17:26 <akurtakov>	would you please pastebin the output of ldd eclipse_XXX.so
+Jan 11 14:20:58 <akurtakov>	https://pastebin.com/yawrj7R8
+Jan 11 14:21:01 <akurtakov>	quite a change hu
+Jan 11 14:22:43 <akurtakov>	if this was performance sensible I would have known the answer
+Jan 11 14:23:11 <akurtakov>	any way go dynamic for now
+Jan 11 14:23:26 <akurtakov>	for the sake of fewer changes
+Jan 11 14:23:35 <akurtakov>	that's my last opinion on the topic convert ot dynamic
+Jan 11 14:23:43 <akurtakov>	I'll review the patch more tomorrow
+Jan 11 14:41:04 <lufimtse>	reading
+Jan 11 14:41:38 <lufimtse>	aix/solaris -> no idea. If they have glib, they have dbus. Dbus is just a higher level port communication tool.
+Jan 11 14:42:29 <lufimtse>	fewer changes -> ok.
+Jan 11 14:42:49 <lufimtse>	I gather it might not be worth spending the time figuring out if we can go static, which is a fair point.
+Jan 11 14:43:01 <lufimtse>	have to fix more pressing bugs/issues.
+Jan 11 14:43:05 <lufimtse>	Ok.
+Jan 11 14:46:14 <akurtakov>	well, what I'm afraid is some overlinking
+Jan 11 14:47:00 <akurtakov>	e.g. our build machine linking against e.g. libpcre1 and this goes to the binary somehow (R flags?)
+Jan 11 14:47:07 <akurtakov>	and it not being available on other machines
+Jan 11 14:47:39 <akurtakov>	theoretical issue again
+Jan 11 14:47:56 <akurtakov>	but if we have too many theoretical one will become real :)
+Jan 11 14:56:45 <lufimtse>	ok
+Jan 11 15:12:33 <lufimtse>	hai
+Jan 11 15:12:35 <lufimtse>	stil there?
+Jan 11 15:13:05 <lufimtse>	I guess you zzz
+Jan 12 10:27:30 <lufimtse>	hai
+[akurtakov has address ~akurtakov@ovpn-200-42.brq.redhat.com]
+Jan 12 10:49:47 <akurtakov>	what's up
+Jan 12 10:50:13 <lufimtse>	checking in about equinox patch
+Jan 12 10:50:19 <lufimtse>	what about solaris/aix/hpux makefile?
+Jan 12 10:50:29 <akurtakov>	ignore
+Jan 12 10:50:39 <akurtakov>	eclipse.org builds dont' produce them
+Jan 12 10:50:48 <lufimtse>	who does?
+Jan 12 10:50:56 <akurtakov>	no one does now
+Jan 12 10:51:10 <akurtakov>	but we keep the door open if one is ready to do it
+Jan 12 10:51:20 <akurtakov>	but this someone will have to do this porting too :)
+Jan 12 10:51:32 <lufimtse>	So Eclipse on solaris/aix/hpux is basically not really maintained?
+Jan 12 10:51:43 <akurtakov>	yes and there are no 4.8 builds
+Jan 12 10:51:55 <lufimtse>	When did we stop with those builds btw? 
+Jan 12 10:51:57 <lufimtse>	like last year?
+Jan 12 10:52:14 <akurtakov>	yeah
+Jan 12 10:52:19 <lufimtse>	ah
+Jan 12 10:52:23 <lufimtse>	well, that makes life a lot easier.
+Jan 12 10:52:30 <akurtakov>	probably around June
+Jan 12 10:52:47 <akurtakov>	if smth has a chance of revival it's AIX
+Jan 12 10:52:55 <lufimtse>	this patch will break aix/solaris/hpux, but I guess meh.
+Jan 12 10:53:08 <akurtakov>	exactly :)
+Jan 12 10:53:13 <lufimtse>	most folks switched to Linux from what I gather anyway.
+Jan 12 10:53:23 <lufimtse>	easier to maintain a single linux platform than 4 of them.
+Jan 12 10:53:24 <lufimtse>	ok
+Jan 12 10:53:35 <lufimtse>	I'll test your patchset and provide feedback.
+Jan 12 10:53:38 <akurtakov>	back to the patch
+Jan 12 10:53:44 <akurtakov>	there is smth that troubles me
+Jan 12 10:53:49 <lufimtse>	sup?
+Jan 12 10:54:32 <akurtakov>	so whether to reuse workbench is done based on atom
+Jan 12 10:54:44 <lufimtse>	hmmm
+Jan 12 10:54:49 <lufimtse>	There is an alternative
+Jan 12 10:55:10 <lufimtse>	run g_main_loop() and do an async_gdbus call with timeout. 
+Jan 12 10:55:11 <akurtakov>	and this alternative should be whether the dbus end point is found
+Jan 12 10:55:24 <akurtakov>	no
+Jan 12 10:55:33 <lufimtse>	I don't know what the workbench does, 
+Jan 12 10:55:37 <lufimtse>	or what it is,
+Jan 12 10:55:38 <akurtakov>	see reuseWorkbench
+Jan 12 10:55:43 <lufimtse>	lemme read.
+Jan 12 10:56:01 <akurtakov>	what it does is basically check whether there is window with the given atom set
+Jan 12 10:56:26 <akurtakov>	and if there isn't it starts the whole eclipse
+Jan 12 10:56:51 <lufimtse>	I see
+Jan 12 10:56:54 <akurtakov>	if there is it just sets the window property and exits
+Jan 12 10:57:13 <lufimtse>	I could add some gdbus stuff to deal with that. 
+Jan 12 10:57:18 <lufimtse>	like if gdbus interface exists or not.
+Jan 12 10:57:23 <akurtakov>	exactly
+Jan 12 10:57:25 <lufimtse>	I see
+Jan 12 10:57:26 <lufimtse>	ah
+Jan 12 10:57:38 <lufimtse>	hmm. createLauncherWindow() << u know what that does?
+Jan 12 10:57:38 <akurtakov>	one issue with that though
+Jan 12 10:58:06 <lufimtse>	is that the workspace selection screen?
+Jan 12 10:58:13 <lufimtse>	or the splash screen thing?
+Jan 12 10:58:19 <lufimtse>	I haven't studied the code in enough detail yet.
+Jan 12 10:58:24 <akurtakov>	the splash screen
+Jan 12 10:58:26 <lufimtse>	I see
+Jan 12 10:58:34 <akurtakov>	workspace selection is fully on java side
+Jan 12 10:58:40 <lufimtse>	Ah
+Jan 12 10:59:02 <akurtakov>	but in order to rely on dbus method existance
+Jan 12 10:59:25 <akurtakov>	we will need the property guard in swt
+Jan 12 10:59:46 <akurtakov>	as otherwise any other running swt app will prevent eclipse from starting :)
+Jan 12 10:59:57 <lufimtse>	I see
+Jan 12 10:59:58 <lufimtse>	hmmm
+Jan 12 11:00:41 <akurtakov>	launcher is not a lot of code but quite sensitive :)
+Jan 12 11:01:00 <lufimtse>	so. 1) Fireup SWT GDBus only if SWT launcher via launcher.    2) Instead of checking window property, check Gdbus existance?
+Jan 12 11:01:15 <lufimtse>	only if SWT launched**
+Jan 12 11:01:47 <akurtakov>	yes
+Jan 12 11:01:53 <lufimtse>	That can be done.
+Jan 12 11:02:20 <akurtakov>	about 1) make it in a way that will allow to change Java launcher to set the property also
+Jan 12 11:02:56 <akurtakov>	so we can have eclipse started with java -jar launcher.jar to handle OpenDocument events via dbus
+Jan 12 11:02:58 <lufimtse>	like environmental variable?
+Jan 12 11:03:09 <akurtakov>	system property IMHO
+Jan 12 11:03:16 <lufimtse>	like SWT_GDBUS=1 ?
+Jan 12 11:03:21 <akurtakov>	asn env variable can be changed at runtime
+Jan 12 11:03:34 <lufimtse>	system property?
+Jan 12 11:03:56 <akurtakov>	https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+Jan 12 11:04:40 <lufimtse>	Do you know, in the launcher, do we set any properties already?
+Jan 12 11:06:50 <lufimtse>	I'm not quite aquainted with how to set system properties from C such that java would read it, but I could research.
+Jan 12 11:07:24 <akurtakov>	you have to append -DpropertyName=propValue to the java command
+Jan 12 11:07:51 <akurtakov>	you see the issue with env variable is if one has to set it everytime
+Jan 12 11:08:00 <akurtakov>	someone will stuck it in bashrc 
+Jan 12 11:08:12 <akurtakov>	and remove any logic we may have
+Jan 12 11:08:29 <akurtakov>	with system properties there si no such chance as they have to be explicitly passed to the launcher
+Jan 12 11:08:37 <lufimtse>	ah
+Jan 12 11:08:47 <lufimtse>	so we can set the property manually in VM arguments also?
+Jan 12 11:08:52 <akurtakov>	yes
+Jan 12 11:08:55 <lufimtse>	I see.
+Jan 12 11:09:21 <akurtakov>	if you look at arguments tab in configuration
+Jan 12 11:09:27 <lufimtse>	so basically develop SWT patch such that it only activates gdbus if system property is set, and once done configure the launcher to launch eclipse with gdbus system property.
+Jan 12 11:09:40 <akurtakov>	there are two things Program args and VM args
+Jan 12 11:09:44 <lufimtse>	yes
+Jan 12 11:09:47 <akurtakov>	system properties go in VM args
+Jan 12 11:09:53 <lufimtse>	I see
+Jan 12 11:10:03 <akurtakov>	oops sorry
+Jan 12 11:10:13 <akurtakov>	system properties go in Program args
+Jan 12 11:11:11 <lufimtse>	ok.,
+Jan 12 11:11:14 <lufimtse>	I can experiment.
+Jan 12 11:11:23 <lufimtse>	but, yes that sounds good to me.
+Jan 12 11:11:33 <akurtakov>	good
+Jan 12 11:12:09 <lufimtse>	I guess the last step will replacing splash screen x11 logic with regular gtk calls.
+Jan 12 11:13:46 <lufimtse>	I can get the SWT patch done probably by today, and will start on adding the relevant system-property logic to the wayland launcher patch. Just to avoid mixup, I suggest delaying the launcher patch by a few days until I've updated it for system-property support.
+Jan 12 11:14:06 <akurtakov>	sure
+Jan 12 11:14:11 <lufimtse>	kk
+Jan 12 11:14:20 <akurtakov>	I don't think it's ready to go in that way
+Jan 12 11:14:53 <akurtakov>	as current logic is broken
+Jan 12 11:15:10 <lufimtse>	yes
+Jan 12 11:15:40 <akurtakov>	it will decide to not launch the workench (aka full eclipse) as it will find the atom but nothing will provide the dbus method
+Jan 12 11:16:04 <akurtakov>	one more thing
+Jan 12 11:16:10 <akurtakov>	when running eclipse 
+Jan 12 11:16:22 <akurtakov>	I see a lot of noise on the console about dbus name being stolen
+Jan 12 11:16:27 <akurtakov>	would you please either remove it
+Jan 12 11:16:43 <akurtakov>	or hide under the debug or whatever else flag we have
+Jan 12 11:17:34 <akurtakov>	users can't do anything about it so no point printing to every user with multiple eclipses running
+Jan 12 11:18:00 <lufimtse>	ok,
+Jan 12 11:18:02 <lufimtse>	makes senese
+Jan 12 12:09:07 <lufimtse>	btw
+Jan 12 12:09:21 <lufimtse>	u still around?
+Jan 12 12:10:25 <lufimtse>	ok, never mind
+Jan 12 15:15:56 <lufimtse>	hai
+Jan 12 15:16:13 <akurtakov>	you have 5 mins before it's too late for me :)
+Jan 12 15:16:16 <lufimtse>	ha ha
+Jan 12 15:16:17 <lufimtse>	ok
+Jan 12 15:16:32 <lufimtse>	in eclipse.ini, can we hard-code:   -DSWT.GDBus
+Jan 12 15:16:38 <lufimtse>	or do I need to put it into code somewhere.
+Jan 12 15:16:48 <akurtakov>	in the code somewhere
+Jan 12 15:16:50 <lufimtse>	ok
+Jan 12 15:17:09 <akurtakov>	as it is smth that is irrelevant for other OS
+Jan 12 15:17:14 <lufimtse>	ture
+Jan 12 15:17:16 <lufimtse>	true
+Jan 12 15:17:16 <akurtakov>	so shouldn't be done forthem
+Jan 12 15:19:59 <lufimtse>	makes sense. I wasn't sure if eclipse.ini was same for all os, or generated on a per-os basis.
+Jan 12 15:20:10 <akurtakov>	same for all
+Jan 12 15:20:16 <lufimtse>	but I guess the flag is not relevant for users anyway.
+[akurtakov has address ~akurtakov@ovpn-200-31.brq.redhat.com]
+Jan 16 15:17:05 <akurtakov>	so what's in the queue for you
+Jan 16 15:17:18 <akurtakov>	anything else left to do for the launcher ?
+Jan 16 15:17:22 <akurtakov>	what after it ?
+Jan 16 15:17:28 <lufimtse>	hai
+Jan 16 15:17:34 <lufimtse>	akurtakov I'm fiddling with something
+Jan 16 15:17:37 <lufimtse>	akurtakov about launcher
+Jan 16 15:17:41 <lufimtse>	akurtakov should be done today
+Jan 16 15:19:49 <akurtakov>	what's it?
+Jan 16 15:21:24 <lufimtse>	akurtakov the patch uses proxy_init to test for gdbus session, which is technically not proper. A proxy can inititialize without org.eclipse.swt bus session being available. I'm adding a 'ping' gdbus method to swt, to check availability.  It's just a quick thing.
+Jan 16 15:21:43 <akurtakov>	well
+Jan 16 15:21:47 <lufimtse>	akurtakov also fixing a minor bug I found.
+Jan 16 15:21:49 <akurtakov>	that's what's intented
+Jan 16 15:22:18 <lufimtse>	akurtakov no. 
+Jan 16 15:22:27 <akurtakov>	we want to test for the org.eclipse.swt in reuseWorkbench
+Jan 16 15:22:33 <lufimtse>	akurtakov  when you run:  ./eclipse /tmp/hi
+Jan 16 15:22:37 <lufimtse>	akurtakov nothing happens
+Jan 16 15:22:56 <lufimtse>	akurtakov in the case where there is no running eclipse.
+Jan 16 15:23:05 <akurtakov>	hmm it worked for me
+Jan 16 15:23:52 <lufimtse>	it shouldn't have
+Jan 16 15:23:55 <lufimtse>	maybe some quirk
+Jan 16 15:24:00 <lufimtse>	or left over eclipse instance
+Jan 16 15:24:09 <lufimtse>	I'll fix it up.
+Jan 16 15:24:16 <akurtakov>	care to explain why it shouldn't ?
+Jan 16 15:25:00 <lufimtse>	akurtakov well, to avoid ambiguity. proxy_init() just configures the variable 'proxy'. It doesn't test gdbus connection.
+Jan 16 15:25:28 <lufimtse>	I can't speak for if it should or should not. I can just say that currently it doesn't test connection.
+Jan 16 15:25:53 <lufimtse>	But comming to think of it, it probably should only return true if the connection can be established.
+Jan 16 15:26:10 <lufimtse>	Anyhow, kinda hard to explain all that. Easier to submit fix i think.
+Jan 16 15:26:11 <akurtakov>	so you say that gdbus_proxy doesn't mean that there is anything providing org.eclipse.swt ?
+Jan 16 15:26:16 <lufimtse>	yea
+Jan 16 15:26:41 <akurtakov>	ok in this case a check whether smth provides it is due
+Jan 16 15:26:54 <lufimtse>	for what it's worth, I initially thought that gdbus_proxy() init means that org.eclips.swt is provided. But I then found out otherwise by trail and error.
+Jan 16 15:27:05 <lufimtse>	yea, I'm working on "smth provides it" part.
+Jan 16 15:29:47 <akurtakov>	check line 241 in eclipseGtk.c too
+Jan 16 15:30:01 <akurtakov>	I'm not sure whether it should be == or !=
+Jan 16 15:30:49 <lufimtse>	lemme check
+Jan 16 15:31:16 <akurtakov>	actually we might need a separate checkProxyExists
+Jan 16 15:31:21 <akurtakov>	to be used there
+Jan 16 15:31:25 <akurtakov>	and if it works
+Jan 16 15:31:30 <akurtakov>	call init
+Jan 16 15:32:20 <lufimtse>	== is ok. But the current method does initGDBusProxy() twice basically. Yes, I was thinking of checkProxyExists() as well. Currently working on implementing this.
+Jan 16 15:32:38 <akurtakov>	well I don't think == is ok
+Jan 16 15:32:57 <akurtakov>	as if smth else provides it
+Jan 16 15:33:12 <akurtakov>	init will still return true
+Jan 16 15:33:31 <akurtakov>	and create will return 0
+Jan 16 15:33:40 <akurtakov>	which means create launcher window
+Jan 16 15:34:01 <lufimtse>	I mean I will update line 241 with relevant checkProxyExists() etc.. and ensure proxy is initialized etc... I'll make it all work.
+Jan 16 15:36:19 <akurtakov>	actually it might not be needed there at all
+Jan 16 15:36:31 <akurtakov>	as line 264
+Jan 16 15:36:44 <akurtakov>	is execed before createLauncher
+Jan 16 15:36:45 <lufimtse>	lemme read
+Jan 16 15:37:11 <akurtakov>	and returns
+Jan 16 15:37:17 <lufimtse>	ok
+Jan 16 15:37:25 <akurtakov>	so it never goes to the stuff in createLauncher
+Jan 16 15:38:35 <akurtakov>	and the while cycle after that will succeed either on the first on second call no matter what createLauncherWindow returns
+Jan 16 15:39:43 <akurtakov>	hmm no
+Jan 16 15:39:50 <akurtakov>	this needs clear head to read it proper
+Jan 16 15:39:53 <akurtakov>	too late for me
+Jan 16 15:39:59 <akurtakov>	please send me email with detail
+Jan 16 15:41:35 <akurtakov>	ok so if it returns 1
+Jan 16 15:41:40 <akurtakov>	the while cycle catches it
+Jan 16 15:41:53 <akurtakov>	if it returns 0 setGDBusFileOpenTimerProc catches it
+Jan 16 15:42:20 <akurtakov>	so we truly need checkExists there
+Jan 16 15:43:36 <akurtakov>	and the whole if (result == 1) { block shouldn't be needed IMHO
+Jan 16 15:45:33 <akurtakov>	man, I thought I deleted enough code
+Jan 16 15:45:40 <akurtakov>	but there is even more to be bin
+Jan 16 15:46:47 <akurtakov>	ok, please improve and send me email
+Jan 16 15:46:50 <akurtakov>	ttyt
+Jan 16 15:56:32 <lufimtse>	ok
+Jan 17 10:21:00 <lufimtse>	hai
+Jan 17 10:29:24 <akurtakov>	hey
+Jan 17 10:29:58 <lufimtse>	reading mail
+Jan 17 10:30:26 <lufimtse>	I found that there is a method "org.freedesktop.DBus.Peer.Ping" that exists for every DBus interface
+Jan 17 10:30:29 <lufimtse>	could use that
+Jan 17 10:31:25 <akurtakov>	sounds better
+Jan 17 10:31:34 <akurtakov>	and should be more straight
+Jan 17 10:31:56 <akurtakov>	as it should exist on every proxy and return false if unbound ?
+Jan 17 10:32:00 <lufimtse>	yes
+Jan 17 10:32:10 <lufimtse>	on every *live* proxy.
+Jan 17 10:32:20 <lufimtse>	that's what the method was designed for
+Jan 17 10:32:20 <akurtakov>	define live proxy
+Jan 17 10:32:34 <lufimtse>	i.e, test if it's available to receive gdbus calls
+Jan 17 10:33:18 <lufimtse>	ok, with org.freedesktop.DBus.Peer.Ping use, I have a clear picture of what to do next.
+Jan 17 10:33:29 <lufimtse>	I'll update swt patch and launcher accordingly
+Jan 17 10:33:42 <lufimtse>	Sravan posted in the vmarg patch, will investigate also.
+Jan 17 10:33:44 <akurtakov>	please take care of the arguments patch first
+Jan 17 10:33:48 <lufimtse>	ok
+Jan 17 10:33:55 <akurtakov>	as I would like to not be blocked on it
+Jan 17 10:34:08 <akurtakov>	and merge only it if rest is not ready
+Jan 17 10:34:09 <lufimtse>	Btw, you suggested to leave state in such a way that it could be continued by you.
+Jan 17 10:34:18 <akurtakov>	yeah
+Jan 17 10:34:25 <akurtakov>	you know that this is last week for M5
+Jan 17 10:34:29 <lufimtse>	I see
+Jan 17 10:34:30 <lufimtse>	Ok,
+Jan 17 10:34:32 <akurtakov>	aka we need this by friday
+Jan 17 10:34:34 <lufimtse>	ah
+Jan 17 10:34:35 <lufimtse>	I see
+Jan 17 10:34:49 <lufimtse>	I'll put 110% effort into it.
+Jan 17 10:34:50 <akurtakov>	and see my patch
+Jan 17 10:34:54 <akurtakov>	from yesterday
+Jan 17 10:35:06 <akurtakov>	it was smth ready for testing with all the work I spent
+Jan 17 10:35:29 <akurtakov>	so if we pass things like that to each other we will be able to deliver things faster
+Jan 17 10:36:09 <lufimtse>	ah
+Jan 17 10:36:35 <lufimtse>	I'll be mindful of that
+Jan 17 10:36:41 <lufimtse>	interesting concept
+Jan 17 10:36:50 <akurtakov>	nothing new
+Jan 17 10:37:12 <akurtakov>	https://en.wikipedia.org/wiki/Follow-the-sun
+Jan 17 10:37:15 <akurtakov>	:)
+Jan 17 10:37:43 <lufimtse>	reading
+Jan 17 10:38:48 <akurtakov>	that's why I stopped looking into it once you appeared yesterday
+Jan 17 10:43:32 <lufimtse>	ah
+Jan 17 10:43:36 <lufimtse>	Read the article
+Jan 17 10:43:37 <lufimtse>	interesting
+Jan 17 10:44:09 <lufimtse>	ok, I can email you status update at the end of my shift and point out what can be done next.
+Jan 17 10:44:15 <lufimtse>	So plan for today is as following:
+Jan 17 10:44:19 <lufimtse>	1) Sort out vmargs patch
+Jan 17 10:44:23 <akurtakov>	this is a true test for team work :)
+Jan 17 10:44:45 <lufimtse>	2) Research and implement "DBus.peer.Ping" business
+Jan 17 10:45:02 <lufimtse>	that good?
+Jan 17 10:45:06 <akurtakov>	sounds good
+Jan 17 10:45:08 <lufimtse>	ok.
+Jan 17 10:45:23 <lufimtse>	3) Provide hand-off if I don't get something done in time.
+Jan 17 10:45:26 <lufimtse>	ok.
+Jan 17 10:45:36 <akurtakov>	perfect
+Jan 17 10:47:27 <akurtakov>	I really want us to try this approach
+Jan 17 10:47:41 <akurtakov>	even if I'm not able to work on same thing as you everyday
+Jan 17 10:48:00 <akurtakov>	we should be able to do in these hand off times
+Jan 17 10:48:00 <lufimtse>	Sounds interesting to me. I think it works well as it provides early feedback
+Jan 17 10:48:20 <lufimtse>	we kinda pick up on quircks that the other may not have noticed
+Jan 17 10:48:36 <akurtakov>	yeah
+Jan 17 10:48:41 <akurtakov>	that's side benefit
+Jan 17 10:48:50 <akurtakov>	what i look for is faster time to market
+Jan 17 10:48:55 <lufimtse>	ah
+Jan 17 10:48:57 <lufimtse>	makes sense
+Jan 17 11:21:52 <lufimtse>	btw, just to confirm:. I have the choice of using 1) "#ifdef LINUX" (which works on Linux but not SOLARIS etc..), or  2) "#ifndef _WIN32 \n#ifndef MACOSX" which works on all Unix systems but is kinda ugly as it's two lines. Should I just use 1 as we don't care about Solaris/hpux etc...?
+Jan 17 11:33:11 <akurtakov>	hmm
+Jan 17 11:33:26 <akurtakov>	what about eclipse.ini business
+Jan 17 11:33:45 <akurtakov>	can you come up with single reason why macos will put it in eclipse.ini
+Jan 17 11:34:09 <akurtakov>	I can think of one
+Jan 17 11:34:13 <akurtakov>	if it's in eclipse.int
+Jan 17 11:34:26 <akurtakov>	it will be loaded if one starts with java -jar launcher.jar
+Jan 17 11:34:35 <akurtakov>	or it wouldn't ?
+Jan 17 11:35:01 <akurtakov>	if that's the case it might make sense for us to put it in eclipse.ini too
+Jan 17 11:35:26 <akurtakov>	so people launching with java -jar will get the dbus inited 
+Jan 17 11:35:28 <akurtakov>	wdyt?
+Jan 17 11:43:49 <lufimtse>	hmm
+Jan 17 11:46:43 <lufimtse>	macosx code is a mess
+Jan 17 11:47:04 <lufimtse>	they define it in eclipseCocoa.c but don't use it and define it again in eclise.ini twice.
+Jan 17 11:47:50 <lufimtse>	My plan was to hard-code arg into eclipsGtk.c and add ifdef macros to force-load it on gtk.
+Jan 17 11:48:06 <akurtakov>	ok, I don't mind it
+Jan 17 11:48:08 <lufimtse>	ok
+Jan 17 11:48:26 <akurtakov>	BUT we should think about adding it in eclipse.ini for java -jar usage
+Jan 17 11:48:37 <lufimtse>	what's the use case for "java -jar launcher.jar" btw <<
+Jan 17 11:48:50 <akurtakov>	well, it
+Jan 17 11:48:55 <lufimtse>	you mean child eclipse?
+Jan 17 11:49:03 <akurtakov>	not only
+Jan 17 11:49:54 <lufimtse>	hmm, I think I didn't consider "java -jar" in my line of thought
+Jan 17 11:50:20 <akurtakov>	https://wiki.eclipse.org/Equinox_Launcher
+Jan 17 11:50:31 <lufimtse>	reading
+Jan 17 11:51:55 <akurtakov>	there were some JVM cases which were supported only through the java -jar
+Jan 17 11:52:02 <akurtakov>	but I can't remember/find it now
+Jan 17 11:52:21 <akurtakov>	it might be irrelevant and just my historical knowledge bringing it in 
+Jan 17 11:52:41 <lufimtse>	hmm
+Jan 17 11:52:47 <lufimtse>	Well, I see your point
+Jan 17 11:53:02 <lufimtse>	if we want gdbus in child eclipse, we have to consider the 'java -jar' business.
+Jan 17 11:53:10 <akurtakov>	yup
+Jan 17 11:53:19 <akurtakov>	that's the simplest way to present it
+Jan 17 11:54:04 <akurtakov>	too many options is too big of burden to maintain
+Jan 17 11:54:09 <lufimtse>	hmm,I guess one option is to put -Dswt.dbus.init into eclipse.ini   
+Jan 17 11:54:14 <akurtakov>	that's why software shouldn't have too many
+Jan 17 11:54:21 <lufimtse>	maybe put it into the java part of the launcher somewhere?
+Jan 17 11:54:40 <akurtakov>	eclipse.ini for linux sounds best to me
+Jan 17 11:55:00 <akurtakov>	I think that's part of the reason why Mac port did it too
+Jan 17 11:55:11 <lufimtse>	makes sense.
+Jan 17 11:55:18 <lufimtse>	Any ideas where the default eclipse.ini is kept these days?
+Jan 17 11:55:31 <akurtakov>	near the products probably
+Jan 17 11:55:45 <akurtakov>	which I have to find
+Jan 17 11:56:03 <lufimtse>	ok, I'll hunt around.
+Jan 17 11:57:05 <lufimtse>	btw, what u mean by "near the products"
+Jan 17 11:57:18 <akurtakov>	*.product files
+Jan 17 11:58:07 <akurtakov>	e.g. http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.tychoeclipsebuilder/sdk/sdk.product
+Jan 17 11:58:42 <lufimtse>	ah
+Jan 17 11:58:45 <lufimtse>	thnaks,
+Jan 17 11:58:52 <akurtakov>	see launcherArgs tag
+Jan 17 11:59:10 <akurtakov>	there is vmargsmac one
+Jan 17 11:59:21 <akurtakov>	not sure what else is supported though
+Jan 17 11:59:56 <lufimtse>	I see
+Jan 17 12:00:06 <lufimtse>	I gotta find a sort of "vmArgsLinux" of sorts
+Jan 17 12:00:24 <akurtakov>	http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.pde.doc.user%2Fguide%2Ftools%2Ffile_wizards%2Fnew_product_config.htm
+Jan 17 12:00:28 <akurtakov>	there are tabs for linux 
+Jan 17 12:00:43 <akurtakov>	so should work
+Jan 17 12:03:04 <lufimtse>	About the specific ".product" to edit. Would it be the one above or should I try to seek out the "org.eclipse.platform.ide" one?
+Jan 17 12:03:18 <akurtakov>	I think all
+Jan 17 12:03:24 <akurtakov>	sdk and product
+Jan 17 12:03:28 <akurtakov>	and probably smth else
+Jan 17 12:03:43 <akurtakov>	as they build different tarballs
+Jan 17 12:04:01 <akurtakov>	and eclipse.ini in these tarballs is generated from conten in the product file for it
+Jan 17 12:09:28 <lufimtse>	Well, the line to add is "<vmArgsLin>-Dswt.dbus.init</vmArgsLin>"   
+Jan 17 12:09:45 <lufimtse>	Kinda odd for it to be "Lin" as oppose to Linux,
+Jan 17 12:09:47 <lufimtse>	but meh
+Jan 17 12:09:54 <lufimtse>	that's what the product wizard came up with.
+Jan 17 12:10:03 <lufimtse>	when selecting "linux" vmargs
+Jan 17 12:10:13 <lufimtse>	It's generated next to the mac args
+Jan 17 12:10:27 <lufimtse>	I guess next task is to figure out which .products to update and all
+Jan 17 12:10:48 <akurtakov>	yeah
+Jan 17 12:11:02 <akurtakov>	will that remove the need for your first launcher part ?
+Jan 17 12:11:11 <lufimtse>	Suggestion: 1) For now hard-code -Dswt.dbus.init  into eclipseGtk.c    2) after add <vmArgsLin>-Dswt.dbus.init</vmArgsLin>  to relevant "*.product" files.
+Jan 17 12:11:20 <akurtakov>	+1
+Jan 17 12:11:22 <lufimtse>	2 will make 1 redundant yes.
+Jan 17 12:11:34 <akurtakov>	what about the segfault 
+Jan 17 12:11:34 <lufimtse>	I just don't know how long 2 will take
+Jan 17 12:11:43 <lufimtse>	what segfault?
+Jan 17 12:12:03 <akurtakov>	with relative path and passing --launcher.openFile
+Jan 17 12:12:09 <lufimtse>	ah
+Jan 17 12:12:21 <lufimtse>	I haven't investiated, but it's on my list.
+Jan 17 12:12:32 <lufimtse>	I don't expect it to be too much of a problem thou
+Jan 17 12:12:44 <lufimtse>	people can still use it via "eclipse MyRelativePath
+Jan 17 12:12:54 <lufimtse>	but I can investigate next
+Jan 17 12:12:55 <akurtakov>	ok
+Jan 17 12:13:04 <lufimtse>	the segfault is independent 
+Jan 17 12:13:11 <akurtakov>	I somehow thought that your patch1 fixed it :)
+Jan 17 12:13:14 <lufimtse>	nah
+Jan 17 12:13:20 <lufimtse>	it happens in another place
+Jan 17 12:13:28 <lufimtse>	kinda odd that I bumped into it to begin with
+Jan 17 12:13:53 <lufimtse>	I'm pretty sure it's not gtk specific.
+Jan 17 12:14:00 <lufimtse>	probably crashes on win/cocoa
+Jan 17 12:14:12 <lufimtse>	but that aside
+Jan 17 12:14:22 <lufimtse>	Having 1 and 2 makes it a bit more consitent
+Jan 17 12:14:36 <lufimtse>	in case you're missing '-Dswt.dbus.init' in eclipse.ini, 
+Jan 17 12:14:39 <lufimtse>	with 1 it still works
+Jan 17 12:14:58 <lufimtse>	so 1 + 2 would make it work in more cases probably
+Jan 17 12:15:16 <lufimtse>	I see your point, that's probably why the cocoa people done it that way.
+Jan 17 12:15:22 <lufimtse>	with XstartOnFirstThread
+Jan 17 12:16:25 <lufimtse>	ok. Moving forward:  1) hard code -Dswt.dbus.init   2) Update SWT to not use the 'pingResponse 3) update launcher to use gdbus.peer.ping
+Jan 17 12:16:41 <lufimtse>	after: 4) Add <vmArgsLin>-Dswt.dbus.init</vmArgsLin> to *.produt(s)
+Jan 17 12:16:49 <lufimtse>	wdyt?
+Jan 17 12:17:04 <akurtakov>	0) fix the prereq patch so we can get it in asap
+Jan 17 12:17:36 <akurtakov>	2) IMHO is a noop  as your patch is not applied anyway - you just have to abandon the patch
+Jan 17 12:17:42 <akurtakov>	other than that it's good
+Jan 17 12:18:00 <lufimtse>	I think I we can probably abandon pre-req patch I can make the fix a "#ifdef Linux, add -Dswt.dbus.init" to Launcher patch?
+Jan 17 12:18:18 <akurtakov>	works for me
+Jan 17 12:18:46 <akurtakov>	if that's the case, please abandon the prereq patch and close the bug
+Jan 17 12:19:01 <lufimtse>	2) has other fixes besides pingResponse. But they're not pre-req, I can add them later.      >> Abandon: ok
+Jan 17 12:19:13 <lufimtse>	ok, I'll ditch 2) for now, 
+Jan 17 12:19:19 <lufimtse>	will wok on later.
+Jan 17 12:19:56 <lufimtse>	ok,
+Jan 17 12:20:02 <lufimtse>	game plan established once again ha ha
+Jan 17 12:20:14 <lufimtse>	launcher is much more sensitive than I had anticipated.
+Jan 17 12:20:35 <akurtakov>	:)
+Jan 17 15:23:31 <lufimtse>	btw
+Jan 17 15:23:38 <lufimtse>	any ideas why they use a mutex?
+Jan 17 15:23:40 <lufimtse>	with execute etc..
+Jan 17 15:23:54 <akurtakov>	no
+Jan 17 20:20:44 Python interface unloaded
+**** ENDING LOGGING AT Wed Jan 17 20:20:44 2018
+
+**** BEGIN LOGGING AT Thu Jan 18 10:03:36 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-25.brq.redhat.com]
+Jan 18 10:03:39 <lufimtse>	good morning
+Jan 18 10:03:48 <lufimtse>	well, good Canadian morning.
+Jan 18 10:04:57 <akurtakov>	haha good morning
+Jan 18 10:05:53 <lufimtse>	Actually, weather sucks, ha ha.  So ~average Canadian morning.
+Jan 18 10:05:57 <lufimtse>	Ok, read your email
+Jan 18 10:06:04 <lufimtse>	will verify on my RHEL 7.4 vm
+Jan 18 10:06:12 <lufimtse>	and pimp up the makefile
+Jan 18 10:06:21 <akurtakov>	it's committed
+Jan 18 10:06:27 <akurtakov>	and natives rebuilt
+Jan 18 10:06:43 <lufimtse>	Still test on RHEL7?
+Jan 18 10:07:44 <lufimtse>	I mean should I still test it on RHEL 7?
+Jan 18 10:08:08 <lufimtse>	I could verify the next integration build with the patch(es) 
+Jan 18 10:08:16 <lufimtse>	on RHEL/F27
+Jan 18 10:08:24 <akurtakov>	yes please do
+Jan 18 10:08:25 <lufimtse>	ok
+Jan 18 10:09:19 <lufimtse>	point 2:. Yea, I probably should have kept makefile separate. Although in my experience it's one of those things that I tend to put off and never return to later.
+Jan 18 10:09:29 <lufimtse>	Will try to keep in separate patches
+Jan 18 10:09:36 <lufimtse>	must discipline myself :-|
+Jan 18 10:09:39 <lufimtse>	ha ha
+Jan 18 10:10:29 <lufimtse>	Point 3: I'm not a fan of 3 levels of redirection either (make -> build.sh -> make_linux), but on the on the other hand a simple 'makefile' makes a very good entry point because it is very simple and has tab-completion from command line 
+Jan 18 10:10:50 <lufimtse>	It's like an "interface" for the user.
+Jan 18 10:10:58 <lufimtse>	Works well for swt builds
+Jan 18 10:11:02 <lufimtse>	I kinda like it.
+Jan 18 10:11:23 <akurtakov>	well, still you can put it in the main manifest
+Jan 18 10:11:28 <lufimtse>	Or at least I haven't thought of a more convienient method.
+Jan 18 10:11:30 <akurtakov>	I see no reason why not
+Jan 18 10:11:35 <lufimtse>	main manifest?
+Jan 18 10:11:36 <lufimtse>	what is taht
+Jan 18 10:11:51 <akurtakov>	err
+Jan 18 10:11:53 <akurtakov>	main makefile
+Jan 18 10:11:55 <akurtakov>	sorry
+Jan 18 10:12:04 <lufimtse>	what you mean? There is no main makefile
+Jan 18 10:12:07 <lufimtse>	in equinox
+Jan 18 10:12:14 <lufimtse>	afaik
+Jan 18 10:12:15 <lufimtse>	let me check.
+Jan 18 10:12:18 <akurtakov>	the one doing the actual compilation
+Jan 18 10:12:22 <akurtakov>	make_linux.mak
+Jan 18 10:12:39 <lufimtse>	make_linux is not a standalone makefile, it depends on build.sh being ran first.
+Jan 18 10:12:49 <lufimtse>	:-/?
+Jan 18 10:12:57 <lufimtse>	thoughts?
+Jan 18 10:13:16 <akurtakov>	yes it does
+Jan 18 10:13:23 <akurtakov>	and we have one 
+Jan 18 10:13:32 <akurtakov>	so how doone knows which one to use
+Jan 18 10:13:43 <lufimtse>	you mean for equinox right?
+Jan 18 10:13:46 <akurtakov>	yes
+Jan 18 10:14:18 <lufimtse>	no, hold on.
+Jan 18 10:14:20 <lufimtse>	makefile="make_linux.mak"
+Jan 18 10:14:23 <lufimtse>	in build.sh
+Jan 18 10:14:32 <lufimtse>	like you first need to run build.sh, which runs make_linux
+Jan 18 10:14:34 <lufimtse>	afafik?
+Jan 18 10:14:39 <akurtakov>	yes
+Jan 18 10:14:44 <lufimtse>	so what u mean?
+Jan 18 10:14:48 <akurtakov>	and there is build.sh install 
+Jan 18 10:14:56 <akurtakov>	which calls install in make_linux.mak
+Jan 18 10:15:03 <akurtakov>	and you add another makefile
+Jan 18 10:15:10 <akurtakov>	which adds devinstall
+Jan 18 10:15:19 <akurtakov>	and it's not usable when calling build.sh
+Jan 18 10:15:19 <lufimtse>	let me check
+Jan 18 10:15:45 <akurtakov>	you can trust me on this one
+Jan 18 10:15:47 <akurtakov>	just fix it
+Jan 18 10:16:23 <akurtakov>	you can even change install in make_linux to do different thing if DEV_ECLIPSE is speced
+Jan 18 10:17:12 <lufimtse>	I see
+Jan 18 10:17:16 <lufimtse>	lemmme investigate
+Jan 18 10:17:39 <lufimtse>	I'm basically duplicating some effort
+Jan 18 10:17:59 <akurtakov>	and in your effort to simplify development
+Jan 18 10:18:03 <akurtakov>	you're complicating releng
+Jan 18 10:18:21 <akurtakov>	as when one looks at the repo it's a mess of things calling each other
+Jan 18 10:18:39 <lufimtse>	I see
+Jan 18 10:18:41 <lufimtse>	makes sense
+Jan 18 10:18:59 <akurtakov>	coming with a workforme solution is not enough :)
+Jan 18 10:19:18 <lufimtse>	one thing: the single 'makefile' has nice tab-completion, the build.sh is kinda messy and it's not clear to read. Any thoughts?
+Jan 18 10:19:39 <akurtakov>	we stick to build.sh
+Jan 18 10:20:06 <akurtakov>	do you want to rewrite as part of the makefile?
+Jan 18 10:20:13 <akurtakov>	and have single makefile 
+Jan 18 10:21:42 <lufimtse>	Do we have any plans on removing aix/hpux/solaris stuff?
+Jan 18 10:21:56 <akurtakov>	not removing still
+Jan 18 10:22:05 <akurtakov>	but pretending they don't exist :)
+Jan 18 10:22:10 <lufimtse>	ha ha
+Jan 18 10:22:18 <akurtakov>	if I try to remove people will start complaining :)
+Jan 18 10:22:46 <akurtakov>	I leave them stay for ~2years
+Jan 18 10:22:52 <akurtakov>	until they are unrecoverable
+Jan 18 10:23:06 <akurtakov>	and delete with - this shit is totally out of space comment :)
+Jan 18 10:25:53 <lufimtse>	ha ha. I see
+Jan 18 10:26:16 <akurtakov>	not ideal but least resistance path :)
+Jan 18 10:26:38 <lufimtse>	ok, so basically you want 'makefile' removed and instead have some sort of 'devinstall' in the make_linux, is that correct?
+Jan 18 10:27:18 <akurtakov>	yes
+Jan 18 10:27:35 <lufimtse>	ok
+Jan 18 10:28:18 <lufimtse>	following that I should work on fixing the relative path segfault with '--launcher.openFile' flag.
+Jan 18 10:29:24 <akurtakov>	yes
+Jan 18 10:29:32 <lufimtse>	ok :-D
+Jan 18 10:35:05 <lufimtse>	btw, build.sh doesn't have nice tab-completion. I guess there's no way around that :-/
+Jan 18 10:35:29 <lufimtse>	that's kinda why I like those makefiles, the tab-completion
+Jan 18 10:35:43 <akurtakov>	again
+Jan 18 10:36:03 <akurtakov>	I don't mind if you put stuff from build.sh into make_linux.mak to make it self sufficient
+Jan 18 10:36:08 <akurtakov>	:)
+Jan 18 10:38:22 <lufimtse>	I see
+Jan 18 10:38:41 <akurtakov>	there is a way but I don't want you to create even bigger shell script so I'm not going to tell you :)
+Jan 18 10:41:21 <lufimtse>	ha ha. I see.
+Jan 18 10:41:36 <akurtakov>	the reason is that we should aim for simpler world 
+Jan 18 10:41:43 <lufimtse>	You have a point.
+Jan 18 10:41:44 <akurtakov>	with fixes done in the proper plac
+Jan 18 10:42:04 <akurtakov>	not by adding more and more layers to make it unpredictable and uncontrollable
+Jan 18 10:52:58 <akurtakov>	look at it that way
+Jan 18 10:53:06 <akurtakov>	you come up with one thing in swt
+Jan 18 10:53:15 <akurtakov>	another in launcher
+Jan 18 10:53:22 <akurtakov>	resources come up with third thing
+Jan 18 10:53:28 <akurtakov>	jdt comes up with another
+Jan 18 10:53:32 <akurtakov>	pde, team .....
+Jan 18 10:53:38 <akurtakov>	each to their own oddity
+Jan 18 10:53:48 <akurtakov>	and someone has to aggregate it at the end
+Jan 18 10:54:02 <akurtakov>	it's not enough to be easy for the developer touching it now
+Jan 18 10:54:16 <akurtakov>	it must be easy and predictable and standardized
+Jan 18 10:54:33 <lufimtse>	I see
+Jan 18 10:55:09 <lufimtse>	is a single 'build.sh' as entry point standard?
+Jan 18 10:55:21 <akurtakov>	at least this is what we have now 
+Jan 18 10:57:46 <akurtakov>	IIRC keystore stuff is now just one makefile
+Jan 18 10:57:55 <akurtakov>	and probably resources
+Jan 18 10:58:19 <lufimtse>	keystore?
+Jan 18 10:58:34 <akurtakov>	http://git.eclipse.org/c/equinox/rt.equinox.bundles.git/tree/bundles/org.eclipse.equinox.security.linux.x86_64
+Jan 18 10:59:43 <lufimtse>	interesting
+Jan 18 10:59:44 <akurtakov>	yes and resources is converted http://git.eclipse.org/c/platform/eclipse.platform.resources.git/tree/bundles/org.eclipse.core.filesystem/natives/unix/linux/Makefile
+Jan 18 11:00:13 <akurtakov>	in anyway make -sh -make is a nogo :)
+Jan 18 11:00:23 <lufimtse>	I see
+Jan 18 11:00:45 <akurtakov>	and so is ant - sh -ant or whatever such crazy stuff
+Jan 18 11:01:00 <lufimtse>	hmm, the build.sh is kinda redundant if we just build on linux in a way.
+Jan 18 11:01:14 <lufimtse>	the build.sh only deals with os specific logic.
+Jan 18 11:01:17 <lufimtse>	I see.
+Jan 18 11:01:38 <akurtakov>	so have everything we need in make_linux.mak :)
+Jan 18 11:02:57 <lufimtse>	ha ha, if we drop 32bit and drop soloaris/aix/hupx, makefile would be very small.
+Jan 18 11:03:47 <akurtakov>	https://ci.eclipse.org/releng/view/Launcher/job/gtk-launcher-linux-ppc64/9/console
+Jan 18 11:03:58 <akurtakov>	looks like it's used for releng
+Jan 18 11:04:25 <akurtakov>	think of crosscompiling too
+Jan 18 11:04:34 <akurtakov>	e.g. being able to pass arch
+Jan 18 11:04:54 <akurtakov>	you got my point, right?
+Jan 18 11:05:01 <akurtakov>	whatever we use at devel time
+Jan 18 11:05:11 <akurtakov>	should be as close as possible to releng stuff
+Jan 18 11:05:21 <akurtakov>	so if  there is releng issue we know how to fix it
+Jan 18 11:05:34 <akurtakov>	that's why I don't tweak my machine at all
+Jan 18 11:05:43 <akurtakov>	so I can see what users get out of the box
+Jan 18 11:05:45 <lufimtse>	"looks like it's used for releng" <<< what you mean by "it's"
+Jan 18 11:06:00 <lufimtse>	build.sh ?
+Jan 18 11:06:06 <akurtakov>	it's == build.s
+Jan 18 11:06:10 <akurtakov>	h
+Jan 18 11:06:41 <lufimtse>	I see
+Jan 18 11:12:13 <akurtakov>	note that this is special treatment
+Jan 18 11:12:18 <akurtakov>	for you I mean
+Jan 18 11:12:34 <lufimtse>	I see
+Jan 18 11:12:36 <akurtakov>	for interns - I have one level of expectations
+Jan 18 11:12:44 <akurtakov>	for assosiate another
+Jan 18 11:12:47 <lufimtse>	Ah
+Jan 18 11:12:52 <akurtakov>	for regular devs another
+Jan 18 11:12:57 <akurtakov>	and so on :)
+Jan 18 11:12:59 <lufimtse>	:-D
+Jan 18 11:13:12 <lufimtse>	I apprechiate 
+Jan 18 11:13:16 <akurtakov>	so with jump in hierarchy expectations rise :)
+Jan 18 11:13:31 <lufimtse>	Interesting
+Jan 18 11:13:42 <lufimtse>	I definetley apprechiate any help to get to Seniour level
+Jan 18 11:13:55 <akurtakov>	if you read kernel dev
+Jan 18 11:14:25 <akurtakov>	higest expectations from Linus and most "cursed" people are submodule maintainers
+Jan 18 11:14:30 <akurtakov>	aka his liutenants :)
+Jan 18 11:15:34 <lufimtse>	:-D
+Jan 18 11:15:36 <lufimtse>	ha ha
+Jan 18 11:16:04 <akurtakov>	and I mean not by contributors but by him :)
+Jan 18 11:37:59 <lufimtse>	btw
+Jan 18 11:38:35 <lufimtse>	I wipped together a proof-of-concept make_linux that's independent of the build.sh. It basically sets a few default values, ~6 lines of code ish.
+Jan 18 11:38:47 <lufimtse>	pretty simple.
+Jan 18 11:38:58 <lufimtse>	it sets defaults if they're not defined.
+Jan 18 11:39:29 <lufimtse>	the compiled launcher works well.
+Jan 18 11:39:54 <lufimtse>	and from the output, the 'cc' compile commands are identical.
+Jan 18 11:40:16 <lufimtse>	Should I submit a patch as part of the makefile removal?
+Jan 18 11:40:47 <lufimtse>	like  a) remove makefile, b) add few lines to set defaults into make_linux
+Jan 18 11:41:04 <lufimtse>	thoughts?
+Jan 18 11:51:38 <akurtakov>	and do you add devinstall target too ?
+Jan 18 11:51:42 <akurtakov>	sounds ok to me
+Jan 18 11:51:58 <akurtakov>	build.sh will still work, right?
+Jan 18 12:51:23 <lufimtse>	akurtakov yes, build.sh not affected.
+Jan 18 12:51:31 <lufimtse>	yes, I can add devinstall to it.
+Jan 18 12:51:33 <lufimtse>	ok.
+Jan 18 14:27:05 <akurtakov>	how are things progressing leo?
+Jan 18 14:27:24 <lufimtse>	hai
+Jan 18 14:29:00 <lufimtse>	Kinda tired from yesterday ha ha. Probably should have gone home sooner. I'm wrapping things up with make_linux and investigating the crash business.
+Jan 18 14:29:48 <lufimtse>	You?
+Jan 18 14:30:18 <akurtakov>	just wondering whether there is anything for review before I finish for today
+Jan 18 14:30:30 <lufimtse>	No, not just yet :-).
+Jan 18 14:30:37 <akurtakov>	ok
+Jan 18 14:30:37 <lufimtse>	there was a small office party today
+Jan 18 14:30:43 <lufimtse>	things kinda got delayed ab it.
+Jan 18 14:30:45 <lufimtse>	a bit*
+Jan 18 14:30:47 <akurtakov>	aha :)
+Jan 18 14:30:51 <lufimtse>	cake was nice.
+Jan 18 14:30:56 <akurtakov>	eat one for me too :)
+Jan 18 14:30:59 <lufimtse>	ha ha
+Jan 19 10:30:55 <lufimtse>	morning.
+Jan 19 10:30:55 *	akurtakov :No such nick/channel
+**** BEGIN LOGGING AT Mon Jan 22 12:47:43 2018
+
+Jan 22 12:47:44 <lufimtse>	hey
+Jan 22 12:47:49 <lufimtse>	sorry, I forgot to open my hexChat
+[akurtakov has address ~akurtakov@ovpn-200-43.brq.redhat.com]
+Jan 22 13:01:45 <akurtakov>	np
+Jan 22 13:02:00 <akurtakov>	I replied to your mail
+**** ENDING LOGGING AT Tue Jan 23 13:06:19 2018
+
+**** BEGIN LOGGING AT Wed Jan 24 12:43:39 2018
+
+[akurtakov has address ~akurtakov@ovpn-200-28.brq.redhat.com]
+Jan 24 12:44:02 <lufimtse>	akurtakov btw, I have still the "adding jvm flag *.product". Should I still pursue that?
+Jan 24 12:44:15 <lufimtse>	 ^ on my list for launcher.
+Jan 24 12:44:17 <akurtakov>	yes
+Jan 24 12:44:19 <lufimtse>	ok.
+Jan 24 12:44:46 <akurtakov>	one of things you need to learn is faster context switching :)
+Jan 24 12:45:05 <akurtakov>	nowadays it's fine to be working on multiple things in parallel :)
+Jan 24 12:45:15 <akurtakov>	that's expected from us not a nice to have 
+Jan 24 12:46:18 <lufimtse>	context switching is so hard X-D
+Jan 24 12:46:22 <lufimtse>	I see your point.
+Jan 24 12:46:34 <lufimtse>	yea, I suck at context switching, gotta learn that.
+Jan 24 12:47:08 <akurtakov>	if you aim for tech lead or similar position
+Jan 24 12:47:26 <lufimtse>	Do you have any tips on efficent context switching?
+Jan 24 12:47:28 <akurtakov>	you should be able to work on pde and swt and equinox in the same day 
+Jan 24 12:47:37 <akurtakov>	set small goals
+Jan 24 12:48:02 <lufimtse>	I see
+Jan 24 12:48:07 <akurtakov>	don't aim at total/huge fix
+Jan 24 12:48:23 <akurtakov>	set the goal of e.g. fix tycho building against photon m5
+Jan 24 12:48:34 <akurtakov>	come up with that
+Jan 24 12:48:36 <akurtakov>	https://git.eclipse.org/r/#/c/115912/7
+Jan 24 12:48:45 <akurtakov>	and move to e.g. launcher stuff
+Jan 24 12:48:58 <akurtakov>	not waiting whether it will build, tests fail and etc.
+Jan 24 12:49:07 <akurtakov>	do the work on the other project
+Jan 24 12:49:23 <akurtakov>	and check when mail comes
+Jan 24 12:49:31 <lufimtse>	ah, I seee.
+Jan 24 12:49:35 <lufimtse>	Lots of small tasks
+Jan 24 12:49:52 <lufimtse>	ok
+Jan 24 12:49:54 <akurtakov>	https://en.wikipedia.org/wiki/Getting_Things_Done#/media/File:GTDcanonical.png
+Jan 24 12:50:03 <akurtakov>	it also helps
+Jan 24 12:50:23 <akurtakov>	in my case I use 15 mins as a check point
+Jan 24 12:50:42 <akurtakov>	aka if it will take me 15 mins or less do it now
+Jan 24 12:50:50 <lufimtse>	Interesting
+Jan 24 12:50:52 <akurtakov>	as I already did the context switch 
+Jan 24 12:51:01 <akurtakov>	by reading the mail/bz/etc.
+Jan 24 12:51:19 <akurtakov>	and just replying that I'll get to it oneday helps no one
+Jan 24 12:51:35 <akurtakov>	but to put me in bad situation that I promised smth that may not happen
+Jan 24 12:51:41 <akurtakov>	and my todo list keeps growing
+Jan 24 12:52:01 <lufimtse>	hmm, I see. My todo list has been growing over the years as well.
+Jan 24 12:52:13 <akurtakov>	mine is huge :)
+Jan 24 12:52:19 <akurtakov>	but I do my best to minimize it
+Jan 24 12:52:20 <lufimtse>	And new more important stuff comeps up all the time anyway
+Jan 24 12:52:26 <akurtakov>	regular cleanup
+Jan 24 12:52:45 <akurtakov>	and finishing things is important for me to feel good
+Jan 24 12:52:56 <akurtakov>	where my definition of done is a bit relaxed
+Jan 24 12:53:26 <lufimtse>	do you have a schedule when you clean up? (weekly, monthly etc..?)
+Jan 24 12:53:35 <lufimtse>	or just whenever relevant.
+Jan 24 12:53:43 <akurtakov>	if the user will not face the same issue again and I would not pay high price next time I have to work on it - it's done
+Jan 24 12:53:51 <akurtakov>	well, more regularly
+Jan 24 12:54:02 <akurtakov>	pretty much everytime my mind blocks on some task
+Jan 24 12:54:18 <akurtakov>	or there is some build ongoing and I can't make myself start another task
+Jan 24 12:54:37 <akurtakov>	TBH it probably happens at least twice per week
+Jan 24 12:54:41 <lufimtse>	I see
+Jan 24 12:54:54 <akurtakov>	usually a dedicated cleanup per project
+Jan 24 12:55:01 <akurtakov>	aka reduce my queue in swt today
+Jan 24 12:55:04 <lufimtse>	So you basically re-prioritize clean up quite frequently compared to me.
+Jan 24 12:55:18 <lufimtse>	I do it like once every other month ha ha.
+Jan 24 12:55:21 <lufimtse>	not often enough 
+Jan 24 12:55:30 <lufimtse>	Usually after finishing some project
+Jan 24 12:55:36 <akurtakov>	and on friday(if it happens so) do the same for p2 or for tycho or whatever I touched last
+Jan 24 12:57:10 <lufimtse>	ok
+Jan 24 12:57:27 <akurtakov>	but these are my habbits you would have to find yours
+Jan 24 12:57:39 <akurtakov>	there is nothing that works for everyone
+Jan 24 12:57:42 <lufimtse>	I see
+Jan 24 12:58:08 <akurtakov>	one important thing is that it's constant refinement and not trying to stick to smth 
+Jan 24 12:58:23 <akurtakov>	as soon as you find some part not working fine - readjust it
+Jan 24 12:58:42 <akurtakov>	until you find some ok-ish state
+Jan 24 12:58:56 <akurtakov>	until next project jumps in and you have to start again :)
+Jan 24 12:59:10 <lufimtse>	ah
+Jan 24 12:59:24 <lufimtse>	I need to have an agile to-do list :-)
+Jan 24 13:01:29 <akurtakov>	well, whenever someone speaks about agile they try to formalize the process
+Jan 24 13:01:42 <akurtakov>	when it can't be if you want to be truly flexible
+Jan 24 15:29:13 <lufimtse>	Hmmm. You were right about Jira. It's a pain in the ass.
+Jan 24 15:29:18 <lufimtse>	:-\
+Jan 24 15:29:24 <lufimtse>	I should have listened. 
+Jan 24 15:29:32 <lufimtse>	ha ha
+Jan 24 15:29:37 <lufimtse>	you live and you learn.
+Jan 25 14:48:55 <lufimtse>	akurtakov is Gtk on win still a thing?
+Jan 26 01:07:52 <akurtakov>	we keep it as a fallback if swt on win32 fails badly :)
+Jan 26 01:07:59 <akurtakov>	but no direct investment now
+[akurtakov has address ~akurtakov@ovpn-200-21.brq.redhat.com]
+Jan 26 09:24:17 <akurtakov>	hey Leo
+Jan 26 09:24:20 <akurtakov>	regarding Jira
+Jan 26 09:24:34 <akurtakov>	I'm not going to tell you " I told you so"
+Jan 26 09:24:47 <akurtakov>	I'm going to give you a deep explanation that works almost in every case
+Jan 26 09:24:55 <akurtakov>	every drastic change
+Jan 26 09:25:16 <akurtakov>	is caused by a series of major disruptions
+Jan 26 09:25:30 <akurtakov>	so the change must be small and often
+Jan 26 09:25:36 <akurtakov>	it helps people adjust 
+Jan 26 09:25:43 <akurtakov>	and also helps finding the proper path
+Jan 26 09:25:57 <akurtakov>	as what one thinks he knows is notthe truth
+Jan 26 09:26:13 <akurtakov>	as there is always smth substantial missing
+Jan 26 09:26:34 <akurtakov>	by doing smaller changes it helps readjusting without causing too much damage
+Jan 26 09:27:01 <akurtakov>	it also helps everyone learn on the go and thus come up with better end solution
+Jan 26 09:28:05 <akurtakov>	why do you think the whole "agile" thing is going so slow for the team
+Jan 26 09:28:20 <akurtakov>	everyone needs to adjust without disrupting our deliverables
+Jan 26 09:28:24 <akurtakov>	same thing upstream
+Jan 26 09:29:16 <akurtakov>	one can't just "fix the world"
+Jan 26 09:30:06 <akurtakov>	sadly both extremist groups are huge
+Jan 26 09:30:13 <akurtakov>	either - we should fix everything now
+Jan 26 09:30:33 <akurtakov>	or - change should be minimal if possible not existing at all
+Jan 26 09:48:29 <lufimtse>	hai
+Jan 26 09:50:31 <lufimtse>	Oh, I see
+Jan 26 09:50:42 <lufimtse>	That's in interesting observation. 
+Jan 26 10:21:00 <akurtakov>	https://en.wikipedia.org/wiki/Boiling_frog :)
+Jan 26 10:21:03 <akurtakov>	nothing new 
+Jan 26 10:21:20 <lufimtse>	ah
+Jan 26 11:41:24 <akurtakov>	btw, your estimates are a bit weird 
+Jan 26 11:41:32 <akurtakov>	update GLib patch - 4h ?
+Jan 26 11:41:34 <akurtakov>	seriously?
+Jan 26 11:41:50 <akurtakov>	I would expect this change to happen in not more than an hour
+Jan 26 11:41:55 <akurtakov>	:)
+Jan 26 11:42:12 <akurtakov>	it's pure move work
+Jan 26 11:42:53 <lufimtse>	ha ha, I knew you'd pick up on that. The GLib thing took me 40 minutes. The 4 hours was added as part of the original GTK/GDK.java and figuring out the os.c macro.
+Jan 26 11:43:01 <lufimtse>	But thanks for pointing out. 
+Jan 26 11:43:36 <akurtakov>	so in 4h you'll get Gtk and Gdk.java patch ?
+Jan 26 11:43:36 <lufimtse>	I'm trying to get a better understanding of how much time I invest into bugs. Set estimates and then see if I can meet them.
+Jan 26 11:43:43 <lufimtse>	hmm, sec
+Jan 26 11:44:39 <lufimtse>	No, I think total time on that is 17 hours (I just updated it). Currently spent around 4 hours on it
+Jan 26 11:45:03 <lufimtse>	So about just over a day's worth of work.
+Jan 26 11:45:04 <lufimtse>	left.
+Jan 26 11:45:15 <akurtakov>	17h ?
+Jan 26 11:46:56 <lufimtse>	hmm, might be done faster. ~Conservative estimate. It's a bit more work than just moving functions. Some functions are GIO,GObject etc..
+Jan 26 11:47:14 <akurtakov>	well here is the key
+Jan 26 11:47:27 <akurtakov>	don't need to do all
+Jan 26 11:47:37 <akurtakov>	biggest win will be Gtk/Gdk
+Jan 26 11:47:40 <akurtakov>	move them
+Jan 26 11:47:43 <akurtakov>	leave the rest
+Jan 26 11:47:47 <lufimtse>	Ah,
+Jan 26 11:47:56 <akurtakov>	there is no point in going in these details
+Jan 26 11:48:02 <akurtakov>	when we have bigger fish to catch
+Jan 26 11:48:03 <lufimtse>	So I guess we'd have GLib, Gtk, Gdk
+Jan 26 11:48:15 <lufimtse>	rest in OS.java
+Jan 26 11:48:17 <akurtakov>	yes
+Jan 26 11:48:19 <lufimtse>	ok
+Jan 26 11:48:32 <akurtakov>	it's a matter of thinking in chunks
+Jan 26 11:48:47 <lufimtse>	Ok, that can be done faster.
+Jan 26 11:48:48 <akurtakov>	do the beneficial work now
+Jan 26 11:49:46 <akurtakov>	if you say - I'll need 2h for smth beneficial you'll get approval
+Jan 26 11:50:01 <akurtakov>	if you say I need 17h (aka 2+ days) for this
+Jan 26 11:50:07 <akurtakov>	you'll get rejection
+Jan 26 11:52:25 <lufimtse>	that's fair.
+Jan 26 11:52:44 <lufimtse>	Initially I expected 5 hours.
+Jan 26 11:52:49 <lufimtse>	ha ha
+Jan 26 11:52:56 <lufimtse>	and then when you get into the details...
+Jan 26 11:53:32 <lufimtse>	Ok, I'll avoid spending any significant amount of time on beneficial stuff.
+Jan 26 11:53:45 <lufimtse>	It seems that setting estimates is useful, I'll keep doing.
+Jan 26 11:54:14 <akurtakov>	what is most beneficial
+Jan 26 11:54:26 <akurtakov>	is being able to show what you have done last week
+Jan 26 11:54:44 <akurtakov>	e.g. you work on long standing and tough issue
+Jan 26 11:54:52 <akurtakov>	like webkit 
+Jan 26 11:55:09 <akurtakov>	it's not acceptable for nothing to show up for week(s)
+Jan 26 11:55:24 <lufimtse>	Are there any other major projects that you have in mind?
+Jan 26 11:55:26 <lufimtse>	:-)?
+Jan 26 11:55:44 <akurtakov>	step back and do smth easy for an hour
+Jan 26 11:55:52 <akurtakov>	so your done list is not empty
+Jan 26 11:56:10 <lufimtse>	So focus most time on bigger stuff, and do bunch of small time in between?
+Jan 26 11:56:16 <akurtakov>	yes
+Jan 26 11:56:18 <lufimtse>	I see
+Jan 26 11:57:41 <akurtakov>	regarding projects - I would like to see the GL stuff revamped on top of GLCanvas
+Jan 26 11:58:06 <lufimtse>	If I recall correctly, that project was on bottom of priority list?
+Jan 26 11:58:13 <akurtakov>	I wold also like to see color button
+Jan 26 11:58:34 <akurtakov>	https://developer.gnome.org/gtk3/stable/GtkColorButton.html
+Jan 26 11:58:56 <akurtakov>	https://developer.apple.com/documentation/appkit/nscolorwell
+Jan 26 11:59:14 <akurtakov>	notifications and etc.
+Jan 26 11:59:34 <akurtakov>	but these are a no-go until we have cases where gtk2 is better than gtk3
+Jan 26 11:59:44 <akurtakov>	s/until/while/
+Jan 26 12:00:16 <akurtakov>	where the GL stuff would be first to do as it is potential Wayland crasher
+Jan 26 12:01:12 <akurtakov>	so prios are fix GTK3 bugs so we can remove Gtk2 support 
+Jan 26 12:03:05 <akurtakov>	when I say do small things https://git.eclipse.org/r/#/c/116101/
+Jan 26 12:03:16 <akurtakov>	this I've seen while reviewing another patch
+Jan 26 12:03:19 <akurtakov>	and just pushed the fix
+Jan 26 12:03:26 <akurtakov>	overall effort 1/2h 
+Jan 26 12:04:07 <akurtakov>	but it means next time I open this workspace there will be 2 warnings left thus less things to look at when reviewing
+Jan 26 12:05:18 <lufimtse>	ok
+Jan 26 12:05:26 <lufimtse>	Let's kill those gtk3 bugs :-D
+Jan 26 12:17:01 <lufimtse>	Thanks for looking into these, including the estimates stuff. Helps me prioritize a lot.
+Jan 26 12:17:25 <akurtakov>	you're good at technicalstuff
+Jan 26 12:17:44 <akurtakov>	but there is a lot you have to learn for the other part of thework
+Jan 26 12:17:51 <lufimtse>	ah
+Jan 26 12:17:59 <lufimtse>	I see
+Jan 26 12:18:12 <lufimtse>	Interesting
+Jan 26 12:19:31 <akurtakov>	cadence is ever increasing
+Jan 26 12:19:49 <akurtakov>	due to that we speak in 3 week sprints
+Jan 26 12:19:58 <akurtakov>	that's from start to finish of smth
+Jan 26 12:20:15 <akurtakov>	not much time for anything tbh
+Jan 26 12:20:28 <akurtakov>	thus we need a series of small and predictable deliverables
+Jan 26 12:20:35 <akurtakov>	which we ship for sure
+Jan 26 12:20:55 <akurtakov>	meanwhile doing the prep work for what we would like to deliver in the next
+Jan 26 12:21:25 <akurtakov>	and that means simultaneously working on totally diffrent things 
+Jan 26 12:21:32 <lufimtse>	I see
+Jan 26 12:21:32 <akurtakov>	even if inside the project
+Jan 26 12:21:52 <akurtakov>	e.g. you fix gtk3 bugs
+Jan 26 12:21:53 <lufimtse>	Focus on stuff that can be done within 3 weeks. If it's bigger, break it up into smaller 3 week chuks?
+Jan 26 12:21:56 <lufimtse>	chunks*
+Jan 26 12:22:16 <akurtakov>	but meanwhile do the os_custom.h removal work
+Jan 26 12:22:24 <akurtakov>	so next time you change smth
+Jan 26 12:22:29 <lufimtse>	ah
+Jan 26 12:22:46 <akurtakov>	you spend 5 mins less on things
+Jan 26 12:22:56 <lufimtse>	I see your rhythm
+Jan 26 12:23:53 <akurtakov>	we will be crossified if we don't show smth done by the team every 3 weeks :)
+Jan 26 12:23:58 <akurtakov>	dinner time
+Jan 26 12:24:02 <akurtakov>	enjoy your weekeng
+Jan 26 12:24:05 <akurtakov>	weekend
+Jan 26 12:27:58 <lufimtse>	I see
+Jan 26 12:28:00 <lufimtse>	You too
+Jan 26 12:28:01 <lufimtse>	thanks
+Jan 26 12:28:27 <lufimtse>	that's a good point, thanks for bringing this up.
+Jan 26 16:54:38 <lufimtse>	hey
+Jan 26 16:54:49 <lufimtse>	you there?
+Jan 26 16:54:53 <akurtakov>	yes
+Jan 26 16:55:13 <akurtakov>	I recommend moving to GTK/GDK
+Jan 26 16:55:15 <lufimtse>	Option 1) GLIB.java and GLIB_NATIVE...    Option 2) GLib.java and GLib_NATIVE...
+Jan 26 16:55:23 <lufimtse>	can't be mixed.
+Jan 26 16:55:28 <akurtakov>	why ?
+Jan 26 16:55:39 <lufimtse>	SWT tools generates the macro as per class name.
+Jan 26 16:55:43 <akurtakov>	ah
+Jan 26 16:55:46 <akurtakov>	damn it
+Jan 26 16:55:53 <akurtakov>	GLIB let it be in this case
+Jan 26 16:56:05 <lufimtse>	Capitalize it all?
+Jan 26 16:56:10 <akurtakov>	yeah sorry
+Jan 26 16:56:13 <lufimtse>	ok, no worries. 
+Jan 26 16:56:17 <lufimtse>	give me 50 seconds.
+Jan 26 16:56:18 <akurtakov>	I wasn't aware of the limitation 
+Jan 26 16:56:33 <akurtakov>	btw the functions you moved
+Jan 26 16:56:50 <akurtakov>	some of them come from gmodule.so not from glib.so
+Jan 26 16:56:56 <akurtakov>	the more I think about it
+Jan 26 16:56:59 <akurtakov>	the more I believe
+Jan 26 16:57:04 <lufimtse>	gmodule?
+Jan 26 16:57:09 <lufimtse>	like?
+Jan 26 16:57:14 <akurtakov>	rpm -ql glib2|grep so
+Jan 26 16:57:29 <akurtakov>	there are multiple so files
+Jan 26 16:57:32 <lufimtse>	I think I checked all functions, they're all from GLib I think?
+Jan 26 16:57:43 <akurtakov>	from glib project yes
+Jan 26 16:58:00 <akurtakov>	from libglib.so for which your macro will generate dynamic if used
+Jan 26 16:58:02 <akurtakov>	no
+Jan 26 16:58:04 <akurtakov>	anyway
+Jan 26 16:58:12 <akurtakov>	I would say do GTK and GDK
+Jan 26 16:58:16 <akurtakov>	they should be easier
+Jan 26 16:58:46 <akurtakov>	just these two *.so files with clear naming which is where
+Jan 26 16:58:54 <akurtakov>	and leave glib in OS.java
+Jan 26 16:59:14 <akurtakov>	it's just not worth the effort and we lose too much time on explaining these diffs
+Jan 26 17:00:51 <lufimtse>	hmm
+Jan 26 17:00:59 <lufimtse>	https://git.eclipse.org/r/#/c/116065/ << GLIB
+Jan 26 17:01:02 <lufimtse>	capitalized.
+Jan 26 17:01:12 <lufimtse>	ok, I can do GTK and GDK
+Jan 26 17:01:23 <lufimtse>	so GLIB/GTK/GDK would not add additional *.so files.
+Jan 26 17:01:28 <akurtakov>	no
+Jan 26 17:01:40 <akurtakov>	rpm -ql gtk3|grep so 
+Jan 26 17:02:12 <akurtakov>	and we don't have many dynamic functions for glib so no real benefit from this split
+Jan 26 17:03:22 <lufimtse>	It helps with NativeStats tool for profiling. Easier to tell where calls go. (Gtk vs Glib).
+Jan 26 17:03:42 <lufimtse>	I'd say go ahead with GLib as it's done and is only cosmetical for the most part and helps with profiling.
+Jan 26 17:03:49 <lufimtse>	and GTK/GDK
+Jan 26 17:03:54 <lufimtse>	leave GIO and GOBject
+Jan 26 17:04:58 <lufimtse>	And while we dont have that many dynamic functions, it's usually easier to use dynamic functions during development phase.
+Jan 26 17:05:01 <akurtakov>	it's cosmetical now
+Jan 26 17:05:16 <lufimtse>	for the most part, except we get different output in Native Stats
+Jan 26 17:05:18 <akurtakov>	but with the mixture of gmodule
+Jan 26 17:05:26 <lufimtse>	which functions are gmodule?
+Jan 26 17:06:25 <akurtakov>	I would first look at gmodule.h for content
+Jan 26 17:06:48 <akurtakov>	and someone adding dynamic glib function to glib
+Jan 26 17:06:56 <akurtakov>	can lead to dlopen of the wrong so file
+Jan 26 17:07:06 <akurtakov>	that's why I think it's not safe to do it 
+Jan 26 17:08:36 <lufimtse>	well, they can equally link it to wrong lib with OS.java :-/
+Jan 26 17:08:39 <lufimtse>	but 
+Jan 26 17:08:50 <lufimtse>	hmm
+Jan 26 17:09:01 <akurtakov>	but it requires people to add the line manually 
+Jan 26 17:09:06 <akurtakov>	aka at least read a bit
+Jan 26 17:09:20 <akurtakov>	while with automatic it will go entierly unnoticed
+Jan 26 17:10:02 <lufimtse>	hmm, technically everything is linked to glib anyway?
+Jan 26 17:10:25 <akurtakov>	let's not go that path again
+Jan 26 17:10:37 <akurtakov>	it is linked in most of the cases yes
+Jan 26 17:10:44 <akurtakov>	but it's MANDATORY
+Jan 26 17:11:09 <akurtakov>	and there could be systems not overlinking and exporting symbols form other so files
+Jan 26 17:12:39 <akurtakov>	btw, do you know that libgdk.so is gone in GTK 4 ?
+Jan 26 17:13:00 <akurtakov>	I understand your willingness to improve things
+Jan 26 17:13:08 <akurtakov>	but it has to be well informed
+Jan 26 17:13:32 <akurtakov>	luckily for us we can easily change the GDK_LIB define to port to libgtk-4.so
+Jan 26 17:15:16 <lufimtse>	Well, I think there's a possibility that you're overthinking it. If someone adds a non-glib function to GLIB.java then it would take ~2 minutes to move it if there is some linking issue. But if you're confident that GLIB.java could be a problem then I can abandon that patch.
+Jan 26 17:15:21 <lufimtse>	Btw, 
+Jan 26 17:15:43 <akurtakov>	well, you will not find this issue on your system
+Jan 26 17:15:57 <akurtakov>	it can happen on system weirdly linked
+Jan 26 17:16:15 <akurtakov>	and the function will dlopen on your/my machine but not on this obscure user one
+Jan 26 17:16:45 <akurtakov>	I don't speak of adding non glib function
+Jan 26 17:17:01 <akurtakov>	I speak of glib function dlsym from wrong so file
+Jan 26 17:18:05 <lufimtse>	well, if that would be an issue then it would have already been raised some where since it's been linked to libglib*.so for many years. But I'm not insisting on GLIB.java, it's not that important.
+Jan 26 17:18:10 <lufimtse>	just thinking
+Jan 26 17:18:11 <lufimtse>	meh
+Jan 26 17:18:33 <lufimtse>	btw, how come you're not sleeping :-)
+Jan 26 17:18:52 <lufimtse>	Anyhow, so abandon GLIB.java patch?
+Jan 26 17:24:37 <lufimtse>	I'm off. I'll send you email.
+Jan 26 17:29:24 <akurtakov>	so
+Jan 26 17:29:32 <lufimtse>	hey
+Jan 26 17:29:33 <lufimtse>	update
+Jan 26 17:29:36 <lufimtse>	see email
+Jan 26 17:29:38 <akurtakov>	what you end up doing here
+Jan 26 17:29:47 <lufimtse>	->> see email
+Jan 26 17:29:53 <akurtakov>	is more or less in eclipse getting o.e.ui.ide classloader
+Jan 26 17:30:06 <akurtakov>	and trying to get swt classes from it
+Jan 26 17:30:15 <akurtakov>	as you know it's implemented on top of it
+Jan 26 17:31:04 <lufimtse>	o.e.ui.ide?
+Jan 26 17:31:10 <akurtakov>	when in reality o.e.swt bundle classloader (dlopen) should be fetched and swt classes should be laoded through it (dlsym)
+Jan 26 17:31:20 <akurtakov>	org.eclipse.ui.ide osgi bundle
+Jan 26 17:32:06 <lufimtse>	Meh?
+Jan 26 17:32:33 <lufimtse>	I haven't worked with *.ui.ide before
+Jan 26 17:32:44 <akurtakov>	or any other ui bundle
+Jan 26 17:33:08 <akurtakov>	they all have Require-Bundle org.eclipse.swt
+Jan 26 17:33:21 <akurtakov>	which ensures swt is on it's classpath
+Jan 26 17:33:29 <lufimtse>	ok ?
+Jan 26 17:33:50 <akurtakov>	but this is implementation detail of this bundle 
+Jan 26 17:34:00 <akurtakov>	next version might be on top of javafx
+Jan 26 17:34:06 <lufimtse>	ok
+Jan 26 17:34:31 <akurtakov>	and your code will fail as it will not be able to load swt via this classloader
+Jan 26 17:35:57 <lufimtse>	hmmm
+Jan 26 17:36:06 <lufimtse>	not really sure what you mean but ok?
+Jan 26 17:37:15 <akurtakov>	ok, let's put it that way
+Jan 26 17:37:34 <akurtakov>	the change that way gives 2-3% risk for things going wrong
+Jan 26 17:37:45 <akurtakov>	as we have too many variations already - it's not fine :)
+Jan 26 17:39:25 <akurtakov>	you should learn a bit about osgi btw
+Jan 26 17:41:18 <lufimtse>	ok
+Jan 26 17:41:26 <lufimtse>	so basically GLIB.java is risk prone
+Jan 26 17:41:33 <akurtakov>	yes
+Jan 26 17:41:35 <lufimtse>	ok, 
+Jan 26 17:41:45 <lufimtse>	should we go ahead with GTK/GDK still?
+Jan 26 17:41:49 <akurtakov>	yes
+Jan 26 17:41:54 <akurtakov>	I think they are pretty clear 
+Jan 26 17:42:02 <lufimtse>	ok, fair point.
+Jan 26 17:42:03 <akurtakov>	they have clear naming convention
+Jan 26 17:42:17 <lufimtse>	so abandon GLIB and go ahead with GTK/GTK. I'll do next week.
+Jan 26 17:42:20 <akurtakov>	and less *.so fiels
+Jan 26 17:42:35 <lufimtse>	GTK/GDK *
+Jan 26 17:42:39 <lufimtse>	ok, I'm off for today :-)
+Jan 26 17:42:54 <lufimtse>	You work too much :-D
+Jan 26 17:42:56 <lufimtse>	ha ha
+Jan 26 17:42:58 <akurtakov>	:)
+Jan 26 17:43:03 <akurtakov>	enjoy your weekend
+Jan 26 17:52:52 <lufimtse>	you too
+**** BEGIN LOGGING AT Fri Feb  2 10:16:45 2018
+
+Feb 02 10:16:47 <lufimtse>	hai
+[akurtakov has address ~akurtakov@ovpn-200-41.brq.redhat.com]
+Feb 02 10:17:40 <akurtakov>	hey
+Feb 02 10:18:05 <lufimtse>	https://git.eclipse.org/r/#/c/116611 << u like?   s/Bug Snippets/ManualTests    in swt.tests and swt.tests.gtk
+Feb 02 10:18:18 <lufimtse>	I was not fan of spaces either
+Feb 02 10:18:22 <lufimtse>	was bugging me for a while.
+Feb 02 10:18:30 <akurtakov>	would you please resist recommending wrong things to do, see my commend in Gtk.java bug
+Feb 02 10:19:27 <akurtakov>	well, to be honest these things don't belong in git
+Feb 02 10:19:33 <akurtakov>	as they are useless once a bug is fixed
+Feb 02 10:19:43 <akurtakov>	aka short term thing
+Feb 02 10:19:48 <akurtakov>	but meh
+Feb 02 10:19:51 <lufimtse>	no, we use them a lot after 
+Feb 02 10:20:04 <akurtakov>	ManualTests is better
+Feb 02 10:20:09 <akurtakov>	while fixing a bug
+Feb 02 10:20:10 <lufimtse>	when re-visiting certain codes etc..
+Feb 02 10:20:31 <lufimtse>	or we re-use them for other things, e.g the fixedContainer native snippet
+Feb 02 10:20:42 <lufimtse>	it's a huge time saver
+Feb 02 10:20:57 <lufimtse>	or the Browser javascript console, I use that snippet a lot
+Feb 02 10:21:47 <lufimtse>	-- > ah ok, I won't reccomend behaviour that could lead to bad patches.
+Feb 02 10:21:54 <lufimtse>	thanks for tip.
+Feb 02 10:23:34 <lufimtse>	btw
+Feb 02 10:23:45 <lufimtse>	I gather we are waiting for this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=522270 << to upgrade test servers to webkit2?
+Feb 02 10:23:57 <lufimtse>	the webkit1 crashes are very annoying :-|
+Feb 02 10:24:01 <lufimtse>	and time consuming
+Feb 02 10:24:07 <akurtakov>	well, ping on the bug
+Feb 02 10:24:15 <akurtakov>	regarding the snippets
+Feb 02 10:24:25 <akurtakov>	I still don't believe that they are all useful
+Feb 02 10:24:53 <akurtakov>	nor that anyone that haven't pushed the snippet into git will look for it to repro/test the issue
+Feb 02 10:25:04 <akurtakov>	anyway, it's easier for you - so be it
+Feb 02 10:25:22 <akurtakov>	just they have to adhere to the same standards like everything else
+Feb 02 10:25:56 <lufimtse>	ok
+Feb 02 10:32:55 <akurtakov>	btw, another request can you minimize the spam from bz :)
+Feb 02 10:33:17 <akurtakov>	settinga aliases, deadlines, removing them, etc.
+Feb 02 10:33:29 <lufimtse>	I'll try. 
+Feb 02 10:33:32 *	akurtakov is thankful you're the only one doing it
+Feb 02 10:33:49 <akurtakov>	if everyone was doing it I would have had 1000+ bz mails per day :)
+Feb 02 10:34:13 <lufimtse>	I'll tryna bundle them. You can remove yourself from time tracking group to not receive those emails btw.
+Feb 02 10:34:35 <akurtakov>	I'm not in timetracking group afaik 
+Feb 02 10:34:52 <akurtakov>	but when on cc one receives mails for everychange
+Feb 02 10:35:08 <lufimtse>	Do you see "orgiginal estimate, Hours worked, "deadline" box?
+Feb 02 10:35:29 <lufimtse>	above "attachements"
+Feb 02 10:35:51 <lufimtse>	https://i.imgur.com/Ya7jrmC.png
+Feb 02 10:35:58 <akurtakov>	no
+Feb 02 10:36:17 <akurtakov>	but I get emails fro deadlines added/removed
+Feb 02 10:36:25 <lufimtse>	Is this as of Bugzilla 5?
+Feb 02 10:36:35 <akurtakov>	no idea
+Feb 02 10:36:37 <lufimtse>	I've been doing the deadline thing for over a year,
+Feb 02 10:36:44 <lufimtse>	did you notice before?
+Feb 02 10:36:51 <akurtakov>	few months I see them
+Feb 02 10:36:59 <akurtakov>	so proabbly bz 5
+Feb 02 10:37:00 <lufimtse>	Ah, it's since bugzilla 5. 
+Feb 02 10:37:01 <lufimtse>	meh
+Feb 02 10:37:05 <lufimtse>	I didn't know.
+Feb 02 10:37:18 <lufimtse>	I thought only I get those mails.
+Feb 02 10:37:24 <lufimtse>	or, actually I don't get those mails.
+Feb 02 10:37:28 <lufimtse>	hmmm
+Feb 02 10:37:40 <akurtakov>	the one who does a change doesn't get an email 
+Feb 02 10:37:56 <akurtakov>	this used to be the case when commenting on a bug
+Feb 02 10:38:10 <akurtakov>	but I'm not sure this is the case anymore
+Feb 02 10:38:11 <lufimtse>	yea, I mean I thought that when I change deadline field, no one sees it.
+Feb 02 10:38:28 <lufimtse>	but looks like it does now with bugzilla 5.
+Feb 02 10:38:36 <lufimtse>	maybe I should use personal tags or something.
+Feb 02 10:38:44 <lufimtse>	I'll investigate.
+Feb 02 10:38:52 <akurtakov>	as long as no mails are sent received :)
+Feb 02 10:39:11 <akurtakov>	well, less mails :)
+Feb 02 10:40:17 <lufimtse>	Aliases are quite useful when dealing with sub-tasks, depends on or 'see also'.
+Feb 02 10:40:17 <lufimtse>	https://i.imgur.com/Fx7bZv9.png
+Feb 02 10:40:24 <lufimtse>	much faster to navigate
+Feb 02 10:40:27 <lufimtse>	and easier to find bugs
+Feb 02 10:40:36 <lufimtse>	with quick search in bugzilla
+Feb 02 10:40:46 <lufimtse>	but I'll try to bundle actions to reduce emails from aliases
+Feb 02 10:40:55 <akurtakov>	yup, that's what I ask for :)
+Feb 02 10:41:02 <lufimtse>	ok
+Feb 02 10:41:18 <lufimtse>	Your happiness is important to me. :-D.
+Feb 02 10:41:28 <lufimtse>	ha ha, I worked in customer support for 2 years.
+Feb 02 10:41:31 <lufimtse>	./habit.
+Feb 02 10:41:38 <akurtakov>	haha or else I'll subscribe you to all the things I get :)
+Feb 02 10:41:45 <lufimtse>	X-D
+Feb 02 10:42:01 <lufimtse>	Do you get emails about when I add hours worked also?
+Feb 02 10:42:06 <akurtakov>	no
+Feb 02 10:42:49 <lufimtse>	ok. I started using those to keep taps on how much time I spend on bugs. Bugzilla has a useful reporting function that shows me how much time I've spent on stuff in a given interval. (week/month/year).
+Feb 02 10:43:51 <lufimtse>	I use that wor my weekly report stuff.

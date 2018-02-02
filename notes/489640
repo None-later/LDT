@@ -1,0 +1,167 @@
+[] dynamic printf lines.
+	[] test dynamic printf
+	[] Figure out how get/print time.
+	[] step through function.
+
+[] See if something get's called back like a signal during the gtk call.
+	[] Set breakpoints in sigProc() commands.
+	[] Set breakpoint in callback.c
+
+proc record << ?
+
+Info:
+C profiling:
+https://stackoverflow.com/questions/1794816/recommendations-for-c-profilers
+
+gtkcomboboxtext.c:gtk_combo_box_text_insert()
+
+
+Lukas reply:
+Hi Leo,
+
+Leo Ufimtsev <Leonidas@redhat.com> writes:
+> I'm executing ~20 lines of code, one of them is being very slow. (like
+> 10ms instead of ~0.1ms). I'm trying to figure out which line this is.
+
+*nods* Are these multiple functions? files? Threads(?)
+
+> ~This is a common scenario I deal with. I was hoping to find a
+> something better than inserting benchmark code and re-compiling.
+
+Yep, stap and/or perf should be able to help with that, I'm not sure if
+ltrace has the fidelity you're looking for?  I'd have to know more
+specifics.
+
+[...]
+> Or is there away to see how long a 'step' takes in gdb?
+
+You'd have to ask Sergio about that one, I'm not sure.  Regardless
+using gdb like this might alter the timing, depending on how this is all
+triggered and the specifics of the situation.
+
+> U know? Any way to do that in perf tool or gdb? Any ideas?
+
+So, you might want to take a look at some of the systemtap profiling
+examples (/usr/share/systemtap/examples/profiling)
+
+Depending on your situation, it'll probably change which example you
+want to make use of (and/or possibly change).
+
+I'm not very well versed with perf, but I think perf-top(1) would be
+where to start reading about it if you're interested in that route.
+
+Cheers,
+Lukas
+
+
+
+Gtk3;
+SWT_LIB_Gtk:3.22.26 (DBus dissabled)
+Setting combo with 171 items
+OS=518
+	_1g_1free=171
+	_1g_1utf16_1to_1utf8=171
+	_1gtk_1combo_1box_1text_1insert=171
+	_1g_1signal_1handlers_1block_1matched=1
+	_1g_1signal_1handlers_1unblock_1matched=1
+	_1gtk_1combo_1box_1get_1active=1
+	_1gtk_1combo_1box_1set_1active=1
+	_1gtk_1combo_1box_1text_1remove_1all=1
+Cairo=0
+took 806 ms.
+
+Gtk2:
+SWT_LIB_Gtk:2.24.31 (DBus dissabled)
+Setting combo with 171 items
+OS=517
+	_1g_1free=171
+	_1g_1utf16_1to_1utf8=171
+	_1gtk_1combo_1box_1text_1insert_1text=171
+	_1g_1signal_1handlers_1block_1matched=1
+	_1g_1signal_1handlers_1unblock_1matched=1
+	_1gtk_1combo_1box_1get_1active=1
+	_1gtk_1combo_1box_1set_1active=1
+took 76 ms.
+
+
+
+Eric brief investigation:
+        -the issue lies in Combo.setItems(), with
+         gtk_combo_box_text_insert() taking multiple seconds to complete
+         each call
+        -this can be found on line 2119
+        -there is a Java snippet in the bug snippets project which
+         reproduces the issue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# C Snippet using a combo box.
+
+#include <gtk/gtk.h>
+
+int main(int argc, char **argv)
+{
+    GtkWidget *window;
+    GtkListStore *liststore;
+    GtkWidget *combo;
+    GtkCellRenderer *column;
+
+    gtk_init(&argc, &argv);
+
+    liststore = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+    gtk_list_store_insert_with_values(liststore, NULL, -1,
+                                      0, "red",
+                                      1, "Don't install.",
+                                      -1);
+    gtk_list_store_insert_with_values(liststore, NULL, -1,
+                                      0, "green",
+                                      1, "This user only.",
+                                      -1);
+    gtk_list_store_insert_with_values(liststore, NULL, -1,
+                                      0, "yellow",
+                                      1, "C 12345678901234567890123456789012345678901234567890",-1);
+
+    combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(liststore));
+
+    /* liststore is now owned by combo, so the initial reference can
+ *      * be dropped */
+    g_object_unref(liststore);
+
+    column = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), column, TRUE);
+
+    /* column does not need to be g_object_unref()ed because it
+ *      * is GInitiallyUnowned and the floating reference has been
+ *           * passed to combo by the gtk_cell_layout_pack_start() call. */
+
+    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combo), column,
+                                   "cell-background", 0,
+                                   "text", 1,
+                                   NULL);
+
+    gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1);
+
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_container_add(GTK_CONTAINER(window), combo);
+
+    /* Also combo is GInitiallyUnowned and it is now owned
+ *        by window after the gtk_container_add() call. */
+
+    gtk_widget_show_all(window);
+    gtk_main();
+
+    return 0;
+}
