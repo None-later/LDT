@@ -88,7 +88,9 @@ alias rbrc="source ~/.bashrc"
 # a
 alias a="alias"
 alias ag="alias | g"
+
 # b
+alias l.bzfollwoup='VAR=`for i in $(seq 2 $(date +%W)); do printf ",W%02d" $i; done; echo ""`; firefox "https://bugs.eclipse.org/bugs/buglist.cgi?quicksearch=%40luf tag:W01$VAR"'
 
 #alias backup_workspace="rsync -azh --info=progress2 ~/workspace_neon ~/workspace_neon_backup"
 # c 

@@ -1,92 +1,3 @@
-T 1512636076 18<convert18>	I have a question. how do extensions react to whateverer messages they may get from the webprocess they communicate with?
-T 1512636131 18<convert18>	the NetworkProcess runs its mainloop, i dont see any hooks into that where i can register a handler for an IPC  mechanism saying run this when you get input
-T 1512636159 18<annulen18>	AFAIK you cannot hook into NetworkProcess from web extension
-T 1512636163 18<convert18>	does it use the same machinery as glib mainloop?
-T 1512636179 18<convert18>	so you have to spawn a thread on connection?
-T 1512636189 18<annulen18>	?
-T 1512636213 18<convert18>	i mean spawn another thread for communication independent of the mainloop
-T 1512636226 18<convert18>	i dont think i was able to spot this in any of the two sources i checked
-T 1512636237 18<convert18>	i checked epiphany and one more browser wyeb i think
-T 1512636247 18<annulen18>	each process or thread which does some sort of communication has its own RunLoop
-T 1512636297 18<convert18>	hmm, the whole stack is replicated again with full complexity at every level heh
-T 1512636308 18<annulen18>	processes interact via IPC, which is based on unix sockets and relies on run loop
-T 1512636331 18<convert18>	i cant see how they hook into it
-T 1512636353 18<convert18>	or where they are creating it. i may be missing it but i only looked for some 20 minutes
-T 1512636390 18<annulen18>	implementation of IPC is in WebKit/Platform/IPC
-T 1512636472 18<convert18>	ah but that is not used between the webextension and the webprocess
-T 1512636491 18<convert18>	oops i said networkprocess instead of webextension when i first came in
-T 1512636506 18<convert18>	i meant webextension there
-T 1512636513 18<annulen18>	webextension runs in WebProcess
-T 1512636520 18<annulen18>	not NetworkProcess
-T 1512636525 18<convert18>	right
-T 1512636546 18<convert18>	that runs wtf's main loop too doesnt it
-T 1512636555 18<convert18>	so you cant hook into it the same way
-T 1512636604 18<annulen18>	I don't understand what are you doing
-T 1512636628 18<convert18>	let me try again
-T 1512636655 18<convert18>	annulen, i'm not doing anything yet, i'm still trying to understan how the architecture is expected to work..
-T 1512636808 18<convert18>	the webprocess communicates with the uiprocess, right?
-T 1512636812 18<annulen18>	yes
-T 1512636828 18<convert18>	now the uiprocess sends a message to the webprocess through some channel, say
-T 1512636839 18<convert18>	how does the webprocess react to that?
-T 1512636864 18<annulen18>	webprocess has class that inherits IPC::MessageReceiver
-T 1512636895 18<annulen18>	let's looks at class "WebProcess"
-T 1512636910 18<annulen18>	it has WebProcess.messages.in
-T 1512636921 18<annulen18>	which declares its methods exposed to IPC
-T 1512636945 18<convert18>	but the communication happens through some external ipc mechanism which is not shared with webkit
-T 1512636950 18<convert18>	one sec
-T 1512636951 18<annulen18>	ah
-T 1512636958 18<annulen18>	you about other ipc
-T 1512636975 18<convert18>	right, for now..
-T 1512637001 18<annulen18>	fwiw in QtWebKit we use internal IPC to send messages to WebProcess
-T 1512637010 18<convert18>	ideally i would try to reuse the mechanism already here
-T 1512637041 18<annulen18>	WebProcess has handleInjectedBundleMessage() API
-T 1512637048 18<annulen18>	no idea if gtk port allows to use it
-T 1512637059 18<annulen18>	I heard folks advicing to use separate dbus channel
-T 1512637068 18<annulen18>	that's all I know about that
-T 1512637082 18<convert18>	i tried reading the code in epiphany which uses gdbus from gio, and wyeb which uses a unix pipe (again through gio). wyeb registers a handler which would work through the glib mainloop but i dont see where or how that can be started
-T 1512637116 18<annulen18>	there must be example somewhere
-T 1512637141 18<convert18>	even if you use dbus, it has to hook into the webprocess mainloop, or start a new thread to handle the messages and run a new loop there
-T 1512637164 18<convert18>	these 2 examples have not been helpful so far..
-T 1512637196 18<convert18>	i dont believe qt5 ditched webkit for chrome
-T 1512637216 18<convert18>	they lose even the little control that i imagine webkit still gives over the network,
-T 1512637225 18<annulen18>	https://github.com/annulen/webkit
-T 1512637226 18<convert18>	unless google has its way and takes that out of webkit too
-T 1512637404 18<convert18>	thats good to see, but i meant the html widget for qt 5.9.x (i installed the base system here recently) - the html widget was a 1.3G or 2G source tree
-T 1512638385 18<convert18>	so the otter-browser (i havent seen it, only heard the name) uses qtwebkit and not the qtwebengine?
-T 1512638549 18<annulen18>	convert: it can choose backend
-T 1512638767 18<convert18>	ah ok
-T 1512753873 18<jjongsma18>	FYI: in b316aabf, I think I would move the "ring_remove(...)" from video_stream_unref() to video_stream_free().
-T 1512753896 18<jjongsma18>	(i.e. remove it from the "used" ring and add it to the "free" ring in the same operation)
-T 1512768501 18<koalu18>	hi
-T 1512768784 18<koalu18>	I have an issue compiling webkitgtk for ARM -> http://termbin.com/duxu
-T 1512768827 18<koalu18>	it seems an issue with libatomic do you know how can I fix this ?
-T 1513002606 19*	Now talking on 22#webkitgtk+
-T 1513002606 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.3, unstable: 2.19.2 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513002606 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Tue Nov 21 03:10:43 2017)
-T 1513009028 20*	Disconnected (20Connection timed out)
-T 1513009052 19*	Now talking on 22#webkitgtk+
-T 1513009052 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.3, unstable: 2.19.2 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513009052 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Tue Nov 21 03:10:43 2017)
-T 1513012796 20*	Disconnected (20Connection timed out)
-T 1513012823 19*	Now talking on 22#webkitgtk+
-T 1513012823 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.3, unstable: 2.19.2 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513012823 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Tue Nov 21 03:10:44 2017)
-T 1513167629 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.18.3, unstable: 2.19.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513169714 18<convert18>	Received an invalid message "WebPageProxy.DecidePolicyForNavigationAction" from the web process.
-T 1513170893 18<convert18>	what do i have to do to be able to access file:///etc/passwd from an about:history  page that I populate from within the browser?
-T 1513170950 18<convert18>	another exercise in managing complexity by illusion
-T 1513171034 18<KaL18>	convert: https://webkitgtk.org/reference/webkit2gtk/stable/WebKitSettings.html#webkit-settings-set-allow-universal-access-from-file-urls I guess
-T 1513171109 18<convert18>	I have enabled that, but my origin url is an about:history not a file:///.  Setting meta base href doesnt change the origin
-T 1513171161 18<KaL18>	register your about scheme as local
-T 1513171171 18<convert18>	thats when i got that error message
-T 1513171179 18<convert18>	after i tried that..
-T 1513171205 18<convert18>	--> Received an unexpected URL from the web process: 'file:///etc/passed'
-T 1513171221 18<KaL18>	convert: webkit_security_manager_register_uri_scheme_as_local
-T 1513171248 18<convert18>	yes, I did that KaL
-T 1513171252 18<KaL18>	ah, sorry
-T 1513171273 18<KaL18>	have you tried with the other setting? allow file access from file urls?
-T 1513171278 18<convert18>	before that I got a consolemessage saying not allowed to load local..
-T 1513171302 18<convert18>	i set both the allow-* settings
 T 1513171353 18<convert18>	i checked decide-policy and navigation-policy but i dont see anything to hook into this error message
 T 1513171396 18<convert18>	i'm just trying to port my personal mozilla extensions to webkit, i cant use mozilla after ff57
 T 1513171427 18<KaL18>	hmm, it's weird, the ephy overview uses full paths for the thumbnails, so it should work
@@ -500,3 +411,100 @@ T 1517418865 18<keis18>	any idea why that might be?
 T 1517584616 19*	Now talking on 22#webkitgtk+
 T 1517584616 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.6 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
 T 1517584616 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.17.181 (24Wed Jan 24 06:11:05 2018)
+T 1517840036 19*	Now talking on 22#webkitgtk+
+T 1517840036 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1517840036 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1517846896 18<koalu18>	hi
+T 1517847148 18<koalu18>	I tried to build webkitgtk-2.4.11 from ARM but at some point I got the following error -> http://termbin.com/8xa0
+T 1517847203 18<koalu18>	it's like its not compatible with ARMv7l cortex-a9 Soft-Float
+T 1517847502 18<annulen18>	koalu: 2.4.11 is ancient version which is long EOL
+T 1517847534 18<koalu18>	annulen: ok let's go with 2.18.4
+T 1517847537 18<koalu18>	annulen: thxz
+T 1517847577 18<annulen18>	I guess you are building in traditional mode while LLInt is configured for thumb
+T 1517847596 18<annulen18>	new build system should get this right
+T 1517847614 18<koalu18>	annulen: ok I'm building it right now (it will take some time)
+T 1517851604 18<MonkeyofDoom18>	hi, is anyone here knowledgeable about font handling in webkit? I have a few related questions
+T 1517851639 18<MonkeyofDoom18>	ultimately I'm trying to get colored emoji to work "properly" in web pages
+T 1517851683 18<MonkeyofDoom18>	I have fonts and fontconfig settings that get them to display in other GTK3 programs, and *do* see them in webkit, but for some reason emoji appear to be scaled down ~10x compared to other characters
+T 1517851703 18<MonkeyofDoom18>	(they appear one or two pixels wide at default zoom)
+T 1517851827 18<annulen18>	MonkeyofDoom: you can try asking fredw in #webkit when he appears
+T 1517851932 18<MonkeyofDoom18>	sure
+T 1517877927 18<blop18>	'make install' starts the build from the beginning?
+T 1517878018 18<blop18>	i'm not very familiar with cmake, but that's what happened here
+T 1517904673 18<aidanh18>	hi all, quick question: is there a more reliable way of synthesizing key events than manually emitting key-press-event on a webview widget?
+T 1517904707 18<aidanh18>	this works most of the time, but seems to have issues with key release events
+T 1517951684 18<razvan_18>	Hey does anyone know how I could find the previously focused element in the window? I have a button that when I click to do some operation changes focus to it and the previously focused widget is lost (the one i need to do some computations on)
+T 1518111445 18<razvan_18>	Hey, does anyone know how I could set the background color of a specific Gtk::Entry?
+T 1518111461 18<razvan_18>	I am using the CssProvider approach
+T 1518135103 20*	Disconnected (20Connection reset by peer)
+T 1518135187 19*	Now talking on 22#webkitgtk+
+T 1518135187 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1518135187 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1518190320 18<ManDay18>	Will there be a day when Webkit-Gtk finally stops depending on ruby? I'm sick and tired of this bullshit
+T 1518190354 18<annulen18>	no
+T 1518190370 18<ManDay18>	Straight answer. Thanks ;-/
+T 1518190432 18<annulen18>	btw, I'm sick and tired of people complaining about ruby in webkit build process, as it wasn't a thing having least impact of all
+T 1518190474 18<annulen18>	if you don't want to have ruby in your system, you can build it on the fly and remove after build finishes, without any significant influence on build time
+T 1518190514 18<annulen18>	in linux dstro you install it from repo package once and forget
+T 1518190517 18<ManDay18>	frankly, this rat-tail of a rat-ass of a package is the thing having the *most* impact for me who just wants to compile. "unfortunally" I'm on gentoo and this load of ruby packages keeps bugging me whereever it possibly can and I have to compile it
+T 1518190536 18<annulen18>	on gentoo you can make portage clean up build dependency after installation
+T 1518190554 18<ManDay18>	but ok, if there is no intend on your side to get rid of it, it's not my place to complain. i was just hoping for a different answer.
+T 1518190557 18<annulen18>	iirc you need only core ruby, no modules
+T 1518190581 18<ManDay18>	i wish. sadly, dev-lang/ruby pulls in virtually everything from ruby. might be a mess-up on gentoo, though
+T 1518190604 18<annulen18>	this may be a packaging bug
+T 1518190656 18<ManDay18>	I'll file it on gentoo then, maybe this can be stripped down just a little in which I indeed wouldn't care
+T 1518190660 18<ManDay18>	thanks for pointing it out!
+T 1518191002 18<ManDay18>	annulen: 2.19.90 fails to configure with "Release" Type and complains about GPERF missing
+T 1518191055 18<ManDay18>	i assume this is a bug? Or does the release build really depend on Gperf?
+T 1518191096 18<annulen18>	webkit always depended on gperf
+T 1518191106 18<annulen18>	no matter release or not
+T 1518191142 18<ManDay18>	this can't be right?? I never had gperf installed. why would you depend on gperf anyway? It's a profiler, isn't it?!
+T 1518191148 18<annulen18>	no
+T 1518191160 18<annulen18>	it's a generator of perfect hash functions
+T 1518191175 18<annulen18>	profiler is gprof
+T 1518191185 18<ManDay18>	oh
+T 1518191220 18<ManDay18>	Yeah right sorry, it's been a build-dependency of other packages so I did have it installed. thanks
+T 1518191279 18<annulen18>	it is dependency of net-libs/webkit-gtk as well
+T 1518191336 18<ManDay18>	right, just i have a custom ebuild because the one in portage still depends on X
+T 1518191407 18<annulen18>	it has use flag for X
+T 1518191426 18<ManDay18>	yeah but that one is forced by use.force or what it's called.
+T 1518191433 18<ManDay18>	it will be fixed soon
+T 1518191439 18<ManDay18>	just a relict
+T 1518191461 18<ManDay18>	i guess i could also force it off (the use flag)... never tried
+T 1518191474 18<ManDay18>	just got so used to fixing the ebuilds into a local overlay
+T 1518196119 18<brrian18>	KaL<tab>
+T 1518196122 18<brrian18>	clopez_: hi
+T 1518196129 18<brrian18>	let's try to land https://bugs.webkit.org/show_bug.cgi?id=182427
+T 1518196138 18<brrian18>	I'll watch the apple mess
+T 1518197915 18<ManDay18>	Just to mention it again, still on 2.19.90 scrolling is broken in that randomly there occur huge jumps in scrolling up/down.
+T 1518208300 18<dyskette18>	Hi, I'm getting this error of 'PCDATA invalid Char value 1' when displaying a xhtml file through the WebKit2.WebView.load_bytes() function
+T 1518208313 18<dyskette18>	This is roughly what I'm trying to do: https://gist.github.com/dyskette/0e500db6fb3918da03d3399bba3e4f37
+T 1518208454 18<dyskette18>	I even put a "fix" in there, but I don't understand why it's happening exactly
+T 1518281907 18<dyskette__18>	Hey... is there anyone here?
+T 1518281932 18<dyskette__18>	I'm getting this error of 'PCDATA invalid Char value 1' when displaying a xhtml file through the WebKit2.WebView.load_bytes() function
+T 1518281939 18<dyskette__18>	This is roughly what I'm trying to do: https://gist.github.com/dyskette/0e500db6fb3918da03d3399bba3e4f37
+T 1518281995 18<dyskette__18>	The thing is, I don't understand what is actually the issue there
+T 1518282048 18<dyskette__18>	So, my 2 workarounds (that I put there too) get into other issues when the user throws other files to my application
+T 1518299019 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1518468577 -18tomaw-	[Global Notice] There'll be a brief NickServ and ChanServ downtime in around 20 minutes while we move them back to their native location.
+T 1518469887 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1518470133 -18tomaw-	[Global Notice] All's back up and running now! Thanks for flying freenode :)
+T 1518570171 18<youenn18>	hi folks!
+T 1518570179 18<youenn18>	I got this build error in GTK https://webkit-queues.webkit.org/results/6491284.
+T 1518570198 18<youenn18>	Apparently, there is a need to export WebCore headers that are used for compiling WebKit2 source code.
+T 1518570214 18<youenn18>	Does anybody know how this is done in GTK/WPE?
+T 1518627350 18<brrian18>	KaL<tab>
+T 1518707617 19*	Now talking on 22#webkitgtk+
+T 1518707617 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1518707617 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1518794323 19*	Now talking on 22#webkitgtk+
+T 1518794323 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1518794323 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1518801630 20*	Disconnected (20Connection timed out)
+T 1518801652 19*	Now talking on 22#webkitgtk+
+T 1518801652 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1518801652 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1518805047 20*	Disconnected (20Remote host closed socket)
+T 1518805070 19*	Now talking on 22#webkitgtk+
+T 1518805070 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1518805070 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)

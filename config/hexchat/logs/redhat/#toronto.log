@@ -6015,3 +6015,148 @@ Feb 02 13:48:25 <lberk>	sergiodj: https://www.amazon.ca/dp/B005GBEL4O
 Feb 02 13:48:55 <sergiodj>	meanwhile I can see all those DHCPREQUEST's being broadcast without an answer
 Feb 02 13:48:57 <sergiodj>	ugh
 Feb 02 13:49:05 <sergiodj>	lberk: hahaha
+**** BEGIN LOGGING AT Mon Feb  5 09:13:39 2018
+
+Feb 05 09:13:39 *	Now talking on #toronto
+Feb 05 10:59:25 <fnasser>	Anyone know what is the irc channel for the AMQ folks?  It is not #amq
+Feb 05 11:00:00 <fnasser>	nor #messaging 
+Feb 05 11:02:32 <rgrunber>	fnasser: internally right ?.. i do see #fusemq, and #jbossmessaging.. from back when i last did a full channel listing
+Feb 05 11:02:56 <fnasser>	yes
+Feb 05 11:03:16 <fnasser>	ty, will try those
+Feb 05 11:03:44 <dcheung>	https://mojo.redhat.com/docs/DOC-1032043
+Feb 05 11:03:48 <dcheung>	yeah what rgrunber said
+Feb 05 11:04:54 <fnasser>	ty you too
+Feb 05 11:49:56 <rgrunber>	wow, toronto-list is so hot right now.
+Feb 05 11:50:32 <rgrunber>	feels like a community.. all with the common goal of .. taxes..
+Feb 05 11:50:57 <alanm>	non-charitable donations to the Govt. of Canada 
+Feb 05 11:51:15 <dcheung>	nothing like taxes, tfsa, and rrsp to unite people together
+Feb 05 11:54:55 <rgrunber>	stop.. in the name of toronto-list.. before you break my heart.. and filtering rules.
+Feb 05 11:55:00 <ericwill>	in most cases it's a non-charitable donation of your own money from the government back to you :)
+Feb 05 11:55:26 <sergiodj>	hey, godspeed to everybody who's posting on toronto-list
+Feb 05 11:55:52 <omajid_wfh>	ericwill: i like to think of it as the government taking an interest-free loan from my paychecks :/
+Feb 05 11:56:21 <dcheung>	sergiodj: congrats!
+Feb 05 11:56:31 <rgrunber>	sergiodj: well deserved!
+Feb 05 11:56:52 <ericwill>	sergiodj +1 (top-posted, of course)
+Feb 05 11:57:16 <sergiodj>	isn't there a law that says that, given time, every discussion on a mailing list will boil down to a "stop hitting reply-to-all" message?
+Feb 05 11:57:18 <ericwill>	omajid_wfh even better
+Feb 05 11:57:29 <artom>	sergiodj, only if you also mention Hitler
+Feb 05 11:57:44 <sergiodj>	artom: ah, there you go!
+Feb 05 11:58:44 <steveg>	i dont think we've reached peak toronto-list yet
+Feb 05 11:58:53 <steveg>	altho isnt this one on canada-list
+Feb 05 11:59:08 <rgrunber>	ah.. i send them to the same folder.. meh
+Feb 05 15:36:04 <patrickm>	lisac: i won't be in tomorrow, getting over a cold [hopefully] and don't want to spread anything to the office 
+Feb 05 15:36:28 <lisac>	patrickm, take care
+Feb 06 15:09:48 <sergiodj>	dcheung: lberk: mwringe: can you guys verify something on your journalctl?
+Feb 06 15:10:00 <sergiodj>	journalctl -t dhclient -t NetworkManager -f
+Feb 06 15:10:06 <sergiodj>	and look for something like this:
+Feb 06 15:10:19 <sergiodj>	Feb 06 15:06:22 psique dhclient[20975]: DHCPREQUEST on enp0s31f6 to 255.255.255.255 port 67 (xid=0x20166444)                                                                                   
+Feb 06 15:10:21 <sergiodj>	Feb 06 15:06:26 psique dhclient[20975]: DHCPACK from 10.15.17.254 (xid=0x20166444)             
+Feb 06 15:10:29 <sergiodj>	i.e., a DHCPACK *after* a DHCPREQUEST
+Feb 06 15:11:28 <rgrunber>	i see that.. but i'm not those ppl.. *hmmmft*
+Feb 06 15:11:32 <sergiodj>	and *without* a DHCPDISCOVER right before
+Feb 06 15:11:38 <sergiodj>	rgrunber: ah, great!
+Feb 06 15:11:56 <lberk>	sergiodj: forwarded you the relevant bits
+Feb 06 15:15:00 <sergiodj>	OK, it seems the issue has been found and addressed.  it was in one of our switches
+Feb 06 15:15:34 <sergiodj>	from now on, your machines should be able to successfully renew their IPs by issuing a single DHCPREQUEST
+Feb 06 15:15:50 <sergiodj>	which means that you shouldn't experience the 2-minute dropout anymore
+Feb 06 15:16:39 <lberk>	sergiodj++
+Feb 06 15:16:40 <sergiodj>	dcheung: lberk: you guys should see an update on your tickets soon, according to italo
+Feb 06 15:16:44 <dcheung>	sergiodj: when was it fixed? I got mine at 14:20
+Feb 06 15:16:54 <dcheung>	sergiodj++
+Feb 06 15:16:56 <sergiodj>	dcheung: it just got fixed
+Feb 06 15:17:09 <dcheung>	sergiodj: you're the best!!!
+Feb 06 15:17:24 <sergiodj>	I've been in touch with italo (via IRC) for 40 minutes or something
+Feb 06 15:20:15 <ltulloch>	sergiodj++
+Feb 06 15:20:22 <sergiodj>	but let's keep an eye on our logs.  if you still see the wave of DHCPREQUEST's, please let me know
+Feb 06 15:21:13 <lberk>	sergiodj: so what I'm hearing is, forward you all my IT issues?
+Feb 06 15:21:52 <sergiodj>	lberk: I can even create ticket numbers out of nowhere, like INC12304234
+Feb 06 15:22:06 <dcheung>	the gnu god
+Feb 07 13:32:06 <sergiodj>	hey, just as a follow up, has anyone noticed any connection lost today?
+Feb 07 13:33:59 <dcheung>	sergiodj: my drop happens at around 14:20, will let you know at 14:30 if anything happened
+Feb 07 13:34:19 <sergiodj>	dcheung: cool :)
+Feb 07 13:42:54 <ericwill>	sergiodj I usually get one around 10:50AM, I did not get one this morning
+Feb 07 13:48:32 <sergiodj>	ericwill: awesome.  I'm still seeing an issue with unicast DHCP requests not being answered, but that shouldn't cause a connection drop.  I'll talk to italo about this issue later
+Feb 07 13:49:25 <ericwill>	sergiodj sounds good. godspeed!
+Feb 07 13:50:06 <sergiodj>	ericwill: +1!
+Feb 07 13:50:23 <rgrunber>	well deserved
+Feb 07 13:50:36 <sergiodj>	rgrunber: congrats!
+Feb 07 16:31:22 <patrickm>	lisac: are you making pancakes for the office again next tuesday?  
+Feb 07 16:32:01 <lisac>	patrickm, hahahah
+Feb 07 16:32:31 <lisac>	patrickm, that was Jim Lemke about 15 years ago
+Feb 07 16:32:32 *	patrickm is not a religious person but will partake in any celebration that includes pancakes 
+Feb 07 16:32:48 <lisac>	patrickm, but we could go for pancakes for lunch that day:-)
+Feb 07 16:33:09 <lisac>	patrickm, mind you are there any places around here that sell pancakes anymore?
+Feb 07 16:33:18 <patrickm>	lisac: sunset grill!
+Feb 07 16:33:27 <patrickm>	but i'll be in boston 
+Feb 07 16:33:28 <lisac>	patrickm, I thought it closed....
+Feb 07 16:34:07 <patrickm>	maybe... there is also the golden griddle on laird
+Feb 07 16:34:37 <lisac>	patrickm, too bad you are in boston...sure you can find a pancake house there mind you
+Feb 07 16:38:16 <patrickm>	i guess it did close :\
+Feb 07 16:41:10 <alanm|gone>	Lemke  ? He made waffles didn't he ?
+Feb 07 16:41:30 <lisac>	alanm|gone, he did
+Feb 07 16:42:12 <lisac>	alanm|gone, no actually I think they were pancakes in the electric frying pan he brought in
+Feb 07 16:43:14 <lisac>	actually waffles would be easy if we had enough machines
+Feb 07 16:46:37 <rgrunber>	https://www.bestbuy.ca/en-CA/Search/SearchResults.aspx?query=griddle
+Feb 07 16:47:10 <dcheung>	that would go well with our icecream machine
+Feb 08 13:35:58 <rgrunber>	i'm assuming many ppl got the 'stay the course' sunlife email :P
+Feb 08 16:47:36 <sergiodj>	FYI, not that it matters much now that the main issue has been fixed, but IT told me they aren't going to fix the unicast DHCPREQUEST issue; IOW, this is "expected/desired behaviour" according to them.
+Feb 08 16:52:47 <dcheung>	:((
+Feb 08 19:14:03 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Thu Feb  8 19:14:03 2018
+
+**** BEGIN LOGGING AT Thu Feb  8 19:14:13 2018
+
+Feb 08 19:14:13 *	Now talking on #toronto
+Feb 08 20:15:44 <rgb>	sergiodj: IT?  or the ISP?
+Feb 08 21:45:45 <sergiodj>	rgb: IT.  the whole problem was on our side, nothing wrong with the ISP
+Feb 08 22:19:12 <fche>	sergiodj, what was the problem?
+Feb 09 13:15:02 <patrickm>	lisac: just as an fyi... the women's Red Hat Container tshirt arrived today [the reprints]
+Feb 09 13:17:59 <lisac>	patrickm, yes, i got mine earlier this week....looks like they are sending them out individually this time
+Feb 12 11:15:05 <jooho>	lisac,  Halo~ I sent email in the morning.. please take a look at it ~ 
+Feb 12 11:15:17 <lisac>	jooho
+Feb 12 11:15:24 <lisac>	jooho, will do
+Feb 12 11:15:32 <jooho>	lisac, thansk
+Feb 12 11:15:35 <jooho>	thanks
+**** ENDING LOGGING AT Wed Feb 14 16:38:33 2018
+
+**** BEGIN LOGGING AT Thu Feb 15 10:13:23 2018
+
+Feb 15 10:13:23 *	Now talking on #toronto
+**** BEGIN LOGGING AT Fri Feb 16 10:18:31 2018
+
+Feb 16 10:18:31 *	Now talking on #toronto
+Feb 16 11:11:34 <serhei>	Hello all -- I'm (re-)starting work at the Toronto office, just getting setup
+Feb 16 11:12:05 <serhei>	For those who don't already know me, I'm Serhei Makarov, I interned on the perf-tools team (working on systemtap) in 2012-2013
+Feb 16 11:12:54 <dcheung>	serhei: welcome back!!! :)
+Feb 16 11:13:03 <omajid_wfh>	serhei: hey! welcome back!
+Feb 16 11:13:25 <rgrunber>	serhei: godspeed
+Feb 16 11:13:29 <serhei>	Familiar faces / nicks :)
+Feb 16 11:13:56 <serhei>	Office is so un-crowded now...
+Feb 16 11:13:59 <yobshans>	serhei: welcome and good luck
+Feb 16 11:14:19 <serhei>	Yonge Eglinton is sheer chaos though
+Feb 16 11:14:21 <dcheung>	serhei: wait till newtern season!
+Feb 16 11:14:33 <serhei>	Definitely
+Feb 16 11:14:50 <rgrunber>	serhei: is stap available on windows yet ?
+Feb 16 11:15:16 <rgrunber>	frank promised many aprils ago.. still waiting :P
+Feb 16 11:15:16 <dcheung>	rgrunber--
+Feb 16 11:16:31 <serhei>	Anyways, my desk is in the same row as lberk
+Feb 16 11:16:52 <rgrunber>	serhei: that area is quiet.. for now
+Feb 16 11:17:22 <lberk>	rgrunber: it will always be quiet, lest you risk mwringe's wrath
+Feb 16 11:19:40 <sergiodj>	serhei: hey, welcome back :)
+Feb 16 11:20:30 <serhei>	Thanks :)
+Feb 16 11:22:18 <mbenitez>	great to have you back serhei welcome!
+Feb 16 11:24:02 <serhei>	mbenitez, thanks
+Feb 16 11:31:13 <mjw>	serhei, We were just happily gossiping about you on #tools :)
+Feb 16 11:40:26 <serhei>	ahh, one sec, let me join
+Feb 16 11:45:24 <serhei>	Apparently there is now an IRC tribe and a Slack tribe
+Feb 16 11:53:10 <serhei>	set autolog on
+Feb 16 11:53:15 <serhei>	Egads
+Feb 16 11:53:22 <serhei>	My muscle memory for irssi is stale
+Feb 16 12:00:20 <mjw>	Does slack still exist? I thought it was some proprietary thing that ran out of the last bubble funding model when free alternatives like rocket chat and mattermost provided the same with free software and self-hosting privacy.
+Feb 16 12:01:00 <mjw>	Not that I use either of those fancy-pancy thingies while we have good old irc around :)
+Feb 16 12:19:57 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Feb 16 12:19:57 2018
+
+**** BEGIN LOGGING AT Fri Feb 16 13:13:13 2018
+
+Feb 16 13:13:13 *	Now talking on #toronto

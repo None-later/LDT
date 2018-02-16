@@ -123,3 +123,211 @@ T 1516822598 18<ericwill>	+1 from me
 T 1516824167 20<lufimtse>30	You should go on a walk with John sometime
 T 1516824196 18<ericwill>	indeed
 T 1517255475 20<lufimtse>30	I've sent Sopot heads up about potential S.A position in March. We'll discuss with him in more detail on Wednesday. 
+T 1517844538 20<lufimtse>30	http://eclipse.etherpad.corp.redhat.com/30
+T 1517932394 20<lufimtse>30	what was the patch that fixed Snippet 025
+T 1517932397 20<lufimtse>30	?
+T 1517932405 18<ericwill>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=438505
+T 1517932446 20<lufimtse>30	danke
+T 1517932478 18<ericwill>	:)
+T 1517932921 18<ericwill>	Snippet88 is a pure SWT snippet with Table editing too, btw
+T 1517932925 18<ericwill>	might be interesting for you
+T 1517933094 20<lufimtse>30	Interesting. Thanks for pointing out.
+T 1517933104 20<lufimtse>30	I'm firing up yed. This shit's getting serious.
+T 1517933138 18<ericwill>	https://i.imgur.com/6NfmQ.jpg
+T 1517933145 20<lufimtse>30	he he
+T 1517937179 20<lufimtse>30	Snippet 88 works well, even inside Tabfolder. I observed that they create a new 'Text' for editing on every new selection, so there isn't any re-parenting, so that's probably why it works. 
+T 1517937202 20<lufimtse>30	Will continue to investigate
+T 1518016436 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=319612
+T 1518016439 20<lufimtse>30	reproducible on gtk3?
+T 1518016449 20<lufimtse>30	I usually post gtk* version I test on.
+T 1518115969 18<ericwill>	https://git.eclipse.org/r/#/c/116980/
+T 1518135243 20*	Disconnected (20Connection reset by peer)
+T 1518188068 18<ericwill>	hey, you around?
+T 1518188377 20<lufimtse>30	Ja komondant.
+T 1518188387 20<lufimtse>30	^ spelling is probably bad.
+T 1518188393 20<lufimtse>30	reviwing patches
+T 1518188400 18<ericwill>	lol, guten Morgen
+T 1518188410 18<ericwill>	okay, I take it we are taking a break from the table business today?
+T 1518188469 20<lufimtse>30	I wouldn't say taking a break. I think the patches have priority. But technically yes, I'm postponing work on tables till patches are reviewed.
+T 1518188486 20<lufimtse>30	I think patch reviewes* have priority*
+T 1518188495 18<ericwill>	sounds good
+T 1518188501 20<lufimtse>30	Or so I was told by ober Kommondant Alex,
+T 1518188552 18<ericwill>	lol, the ober Kommandant has the final say
+T 1518188563 20<lufimtse>30	*most of the time.
+T 1518188580 20<lufimtse>30	he he  he.
+T 1518188608 18<ericwill>	* some terms and conditions apply :)
+T 1518204867 20<lufimtse>30	hey
+T 1518204869 20<lufimtse>30	you still around?
+T 1518204875 18<ericwill>	yo
+T 1518204876 18<ericwill>	sup
+T 1518204886 20<lufimtse>30	can you give me access to your JFace-snippets repo?
+T 1518204891 20<lufimtse>30	I wanna dump some stuff in htere
+T 1518204900 18<ericwill>	sure one sec
+T 1518204906 20<lufimtse>30	maybe create a folder with "stuff that doesn't work" of sort.
+T 1518204914 20<lufimtse>30	And we work on those.
+T 1518204928 20<lufimtse>30	LeoUfimtsev
+T 1518204931 20<lufimtse>30	^ User
+T 1518204957 18<ericwill>	sent
+T 1518204958 18<ericwill>	btw
+T 1518204965 18<ericwill>	I made a new discovery this morning re: table issues
+T 1518205017 20<lufimtse>30	hmmm
+T 1518205035 20<lufimtse>30	I reviewed the DateTime, seems fine. I'm back onto the table stuff
+T 1518205065 18<ericwill>	so in Table.java, there is a method setParentWindow()
+T 1518205083 20<lufimtse>30	:-O
+T 1518205087 18<ericwill>	any widget added as a child of Table/Tree has its z-order mucked with
+T 1518205097 20<lufimtse>30	:-O!!!
+T 1518205102 20<lufimtse>30	interesting
+T 1518205105 20<lufimtse>30	I should investigate
+T 1518205120 18<ericwill>	I would say it's definitely something that affects your tabfolder issue
+T 1518205426 20<lufimtse>30	ericwill sir, I bow to you. Commenting out that call fixes the tabfolder regression.
+T 1518205435 20<lufimtse>30	:-D
+T 1518205437 20<lufimtse>30	life is better.
+T 1518205451 18<ericwill>	:)
+T 1518205468 18<ericwill>	it affects my table issue as well
+T 1518205468 20<lufimtse>30	Now why the hell is is there to begin with ha ha. 
+T 1518205487 18<ericwill>	no bloody clue haha
+T 1518205527 20<lufimtse>30	with the table editing fix, the 0x0 regression comes to light thou. A control is not seen on gtk2, but seen on gtk3.
+T 1518205551 18<ericwill>	yeah we're going to have to deal with that somehow
+T 1518205562 20<lufimtse>30	https://i.imgur.com/DwQG3RX.png  <<< see yellow thing 
+T 1518205566 20<lufimtse>30	doesn't show on gtk2
+T 1518205572 20<lufimtse>30	will investigate
+T 1518205580 20<lufimtse>30	gerrit down, can't rebase on your patch
+T 1518205580 20<lufimtse>30	meh
+T 1518205586 20<lufimtse>30	oh well
+T 1518205597 18<ericwill>	ah that sucks, forgot that gerrit was down today
+T 1518205611 20*	lufimtse 30didn't even know it was suppose to be down.
+T 1518205626 18<ericwill>	also does the visible 0x0 text box show up just with tabfolder or does it happen with a plain shell too?
+T 1518205645 20<lufimtse>30	let me ttest
+T 1518205770 20<lufimtse>30	Without tabfolder, the editing thing is in effect as soon as you start the widget. (I.e, as if you clicked on the first row). But with tabfolder it's a bit off.
+T 1518205775 20<lufimtse>30	so still some gimmick going on
+T 1518205791 20<lufimtse>30	i.e, without tabfolder it's sort of ok
+T 1518205810 20<lufimtse>30	I'll add a few snippets to the JFace repo
+T 1518205819 20<lufimtse>30	then we can experiment with various breakagaes
+T 1518205828 18<ericwill>	sounds good, there is clearly more than one issue here
+T 1518207166 20<lufimtse>30	I added a few snippets to jFace-Snippets
+T 1518207175 20<lufimtse>30	under 'current.broken' package.
+T 1518207187 20<lufimtse>30	feel free to add yours also, so I can be mindful of your bugs.
+T 1518207193 18<ericwill>	will do
+T 1518207207 20<lufimtse>30	The interesting one is "TabFolder_table_Editing_regression_SWT"
+T 1518207506 20*	lufimtse 30now using quicksearch for things like 'parent = ' instead of selecting 'write references', as it's faster.
+T 1518207534 18<ericwill>	lol, that quick search plugin is great. so useful
+T 1518207616 18<ericwill>	for this 0x0 issue where the widget is visible, we might want to write some logic to lower those widget's GdkWindows
+T 1518207620 18<ericwill>	food for thought
+T 1518207661 20<lufimtse>30	hmm
+T 1518207690 20<lufimtse>30	there's a corner case where that wouldn't work, e.g if there are no overlapping widgets
+T 1518207714 20<lufimtse>30	0x0 shouldn't be seen, but if it's lowered it's still seen.
+T 1518207867 18<ericwill>	bah
+T 1518207875 18<ericwill>	you are right
+T 1518210352 18<ericwill>	added some snippets to the repo
+T 1518538456 18<ericwill>	https://git.eclipse.org/r/#/c/117284/
+T 1518551108 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=465280 
+T 1518551433 18<ericwill>	https://git.eclipse.org/r/#/c/117300/
+T 1518551896 20<lufimtse>30	531120 – [GTK3] setvisible changes 0x0 widget sizes.
+T 1518551896 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=531120
+T 1518633629 20<lufimtse>30	https://git.eclipse.org/r/#/c/117385/  << for review
+T 1518633634 20<lufimtse>30	if you like -> send to alex.
+T 1518633832 18<ericwill>	okay, I'll take a look this afternoon
+T 1518634177 18<ericwill>	hey, what's the address of that mac/windows test machine
+T 1518634184 20<lufimtse>30	hmm
+T 1518634185 20<lufimtse>30	sec
+T 1518634226 20<lufimtse>30	ping eclipseMacBook.local 
+T 1518634227 20<lufimtse>30	try
+T 1518634235 20<lufimtse>30	10.15.17.51
+T 1518634245 20<lufimtse>30	unused-10-15-17-51.yyz.redhat.com
+T 1518634265 18<ericwill>	okay thanks, is the mac instance running vnc?
+T 1518635133 20<lufimtse>30	probably
+T 1518635134 20<lufimtse>30	sec
+T 1518635163 20<lufimtse>30	yea,
+T 1518635165 20<lufimtse>30	I can connect
+T 1518635173 20<lufimtse>30	mac have vnc built in
+T 1518635327 18<ericwill>	danke
+T 1518644313 Python interface unloaded
+T 1518710805 20<lufimtse>30	513761 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK3] Tree with columns and with CHECK and VIRTUAL styles renders checkboxes in 2 columns 	4.7.3
+T 1518710805 20<lufimtse>30	519295 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK3] Invisible settings button in validation preferences 	4.7.3
+T 1518710805 20<lufimtse>30	528155 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK] Table/Tree forgets to set SWT.SELECTED bit on PaintItem 	4.7.3 
+T 1518710845 20<lufimtse>30	https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&chfield=resolution&chfieldto=Now&classification=Eclipse&columnlist=bug_severity%2Cpriority%2Cop_sys%2Cassigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Ctarget_milestone&component=SWT&known_name=4.8M5_4.7.3&list_id=17254524&product=Platform&query_based_on=4.8M5_4.7.3&query_format=advanced&target_milest
+T 1518710845 20<lufimtse>30	one=4.7.3
+T 1518710861 20<lufimtse>30	"https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&chfield=resolution&chfieldto=Now&classification=Eclipse&columnlist=bug_severity%2Cpriority%2Cop_sys%2Cassigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Ctarget_milestone&component=SWT&known_name=4.8M5_4.7.3&list_id=17254524&product=Platform&query_based_on=4.8M5_4.7.3&query_format=advanced&target_miles
+T 1518710861 20<lufimtse>30	tone=4.7.3"
+T 1518795136 20<lufimtse>30	I have a feeling it might be a case where we missunderstood a situation and then became conditioned to think in a certain way.
+T 1518795141 20<lufimtse>30	just my thought...
+T 1518795155 20<lufimtse>30	like "stuck in a thought box"
+T 1518795162 20<lufimtse>30	just mho
+T 1518795187 20<lufimtse>30	I might be wrong thou
+T 1518795196 20<lufimtse>30	I haven't had my morning coffee yet
+T 1518795197 20<lufimtse>30	:-/
+T 1518795210 20<lufimtse>30	talking of which ..... 
+T 1518795214 20*	lufimtse 30goes to get coffee
+T 1518795278 18<ericwill>	it could be, but don't forget
+T 1518795294 18<ericwill>	GTK calls like gtk_widget_get_preferred_size() use CSS theme sizing to take into account stuff
+T 1518795323 18<ericwill>	I am just against putting us in a situation where we get bug reports and end up having to support every person's theme in some way
+T 1518795327 18<ericwill>	this is really unsustainable
+T 1518795367 18<ericwill>	I already went through that song and dance with Andrey for system colors and now the system color parsing code is quite complicated
+T 1518795394 18<ericwill>	all I am saying is that these changes become exponentially difficult to maintain as time goes on
+T 1518795429 20<lufimtse>30	we're talking about 7 css properties here :-/ 
+T 1518795444 20<lufimtse>30	but good point
+T 1518795447 20<lufimtse>30	about warnings
+T 1518795453 20<lufimtse>30	do they popup without those properties?
+T 1518795490 18<ericwill>	it's more the number themes, not the properties
+T 1518795494 18<ericwill>	right now we have 2
+T 1518795508 18<ericwill>	as soon as someone comes with a third one then it becomes trickier
+T 1518795515 18<ericwill>	also the warnings are unrelated IIRC
+T 1518795534 20<lufimtse>30	I think you might still be in the box. It's not about supporting all other themes, it's about not breaking all other themes.
+T 1518795537 20<lufimtse>30	mho
+T 1518795548 20<lufimtse>30	thhhhiiinnnkkk about it.
+T 1518795559 20<lufimtse>30	ok, we can agree to dissagree, let's talk on tuesday
+T 1518795564 18<ericwill>	I know, but it introduces stuff like "if this theme, do x"
+T 1518795574 18<ericwill>	what will stop someone from saying "can you do the same thing for my theme"
+T 1518795580 20<lufimtse>30	well, that's what we're already doing
+T 1518795583 20<lufimtse>30	with 7 properties
+T 1518795594 20<lufimtse>30	meh
+T 1518795596 20<lufimtse>30	ok, 
+T 1518795597 20<lufimtse>30	idk
+T 1518795602 20<lufimtse>30	tuesday
+T 1518795609 18<ericwill>	yeah, I want to hear what Alex has to say too
+T 1518795618 18<ericwill>	he was more against it than me IIRC
+T 1518795626 20<lufimtse>30	I think he's also in a box.
+T 1518796747 20<lufimtse>30	hey
+T 1518796768 18<ericwill>	yo
+T 1518796791 20<lufimtse>30	is there emotional interest in the css business for you?
+T 1518796799 20<lufimtse>30	I kinda have a feeling you're taking it a bit personal :-/
+T 1518796802 20<lufimtse>30	wdyt?
+T 1518796848 18<ericwill>	not really personally just I take issue with the way this is all being raised
+T 1518796858 18<ericwill>	I worked closely with Andrey to fix the system colors parsing
+T 1518796875 18<ericwill>	and even that was pushing it as his theme had all sorts of non-standard stuff in it
+T 1518796901 18<ericwill>	I just fear that letting people's custom themes dictate stuff is going to end with unmaintainable code
+T 1518796931 20<lufimtse>30	again, I don't think the problem is maintaing other people's themes. That's not the point. They can maintain it themselfes
+T 1518796932 18<ericwill>	especially with sizing
+T 1518796960 20<lufimtse>30	The point is not to hard-code to our theme.
+T 1518796971 20<lufimtse>30	alex pointed out the 23 thing
+T 1518796976 20<lufimtse>30	etc...
+T 1518797157 18<ericwill>	idk we'll see, let's discuss at the next meeting
+T 1518797389 20<lufimtse>30	On the side: https://bugs.eclipse.org/bugs/show_activity.cgi?id=531222  
+T 1518797394 20<lufimtse>30	rgrunber@redhat.com 	2018-02-16 10:54:55 EST 	Alias 		RefactorStatusDialog 
+T 1518797399 20<lufimtse>30	Roland is starting to use Alises
+T 1518797401 20<lufimtse>30	:-D
+T 1518797419 18<ericwill>	bah...now there are two of you! -.-
+T 1518797431 20<lufimtse>30	:-D  :-D  :-D
+T 1518801597 20*	Disconnected (20Connection timed out)
+T 1518805136 18<ericwill>	so after thinking about it some more I'm okay with doing something like "if adwaita do x" provided it's very clear that we only do that for adwaita
+T 1518805150 18<ericwill>	i.e. we won't do "if <my special theme> do x"
+T 1518805152 20<lufimtse>30	hmm
+T 1518805169 20<lufimtse>30	interesting
+T 1518805180 18<ericwill>	that way we won't break other people's themes but we also send the message that if someone is using a custom theme, they are responsible for it
+T 1518805196 20<lufimtse>30	that's sounds like a good solution
+T 1518805221 20<lufimtse>30	maybe add a adwaita.css theme of sorts.
+T 1518805228 18<ericwill>	but as Alex said let's wait for more info from simeon first
+T 1518805230 20<lufimtse>30	and support only on gtk3.20 and above.
+T 1518805232 18<ericwill>	yeah something like that
+T 1518805238 20<lufimtse>30	ok
+T 1518805256 20<lufimtse>30	yea, I agree. Pending till Simon's shows sign of life.
+T 1518805325 18<ericwill>	:)
+T 1518805356 18<ericwill>	with that, time for lunch
+T 1518806776 20<lufimtse>30	java mission control uses swt + javafx
+T 1518806777 20<lufimtse>30	https://www.google.ca/search?q=Java+Mission+Control&dcr=0&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjQiq2CjKvZAhVNc98KHY5AA5wQ_AUICigB&biw=1920&bih=916#imgrc=VrBuQOX6vXlhcM:
+T 1518806779 20<lufimtse>30	interesting
+T 1518806785 20<lufimtse>30	been reading this guy:
+T 1518806786 20<lufimtse>30	http://openjdk.java.net/jeps/283
+T 1518806875 18<ericwill>	yeah I saw that
+T 1518806878 18<ericwill>	it's part of java9
+T 1518806895 18<ericwill>	interesting indeed

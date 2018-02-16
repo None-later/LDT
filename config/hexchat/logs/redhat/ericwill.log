@@ -290,3 +290,225 @@ Jan 24 15:03:16 <ericwill>	indeed
 Jan 29 14:51:15 <lufimtse>	I've sent Sopot heads up about potential S.A position in March. We'll discuss with him in more detail on Wednesday. 
 **** ENDING LOGGING AT Thu Feb  1 15:08:18 2018
 
+**** BEGIN LOGGING AT Mon Feb  5 10:28:57 2018
+
+[ericwill has address ~ericwill@unused-10-15-17-223.yyz.redhat.com]
+Feb 05 10:28:58 <lufimtse>	http://eclipse.etherpad.corp.redhat.com/30
+Feb 06 10:53:14 <lufimtse>	what was the patch that fixed Snippet 025
+Feb 06 10:53:17 <lufimtse>	?
+Feb 06 10:53:25 <ericwill>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=438505
+Feb 06 10:54:06 <lufimtse>	danke
+Feb 06 10:54:38 <ericwill>	:)
+Feb 06 11:02:01 <ericwill>	Snippet88 is a pure SWT snippet with Table editing too, btw
+Feb 06 11:02:05 <ericwill>	might be interesting for you
+Feb 06 11:04:54 <lufimtse>	Interesting. Thanks for pointing out.
+Feb 06 11:05:04 <lufimtse>	I'm firing up yed. This shit's getting serious.
+Feb 06 11:05:38 <ericwill>	https://i.imgur.com/6NfmQ.jpg
+Feb 06 11:05:45 <lufimtse>	he he
+Feb 06 12:12:59 <lufimtse>	Snippet 88 works well, even inside Tabfolder. I observed that they create a new 'Text' for editing on every new selection, so there isn't any re-parenting, so that's probably why it works. 
+Feb 06 12:13:22 <lufimtse>	Will continue to investigate
+Feb 07 10:13:56 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=319612
+Feb 07 10:13:59 <lufimtse>	reproducible on gtk3?
+Feb 07 10:14:09 <lufimtse>	I usually post gtk* version I test on.
+Feb 08 13:52:49 <ericwill>	https://git.eclipse.org/r/#/c/116980/
+Feb 08 19:14:03 *	Disconnected (Connection reset by peer)
+[ericwill has address ~ericwill@ovpn-123-170.rdu2.redhat.com]
+Feb 09 09:54:28 <ericwill>	hey, you around?
+Feb 09 09:59:37 <lufimtse>	Ja komondant.
+Feb 09 09:59:47 <lufimtse>	^ spelling is probably bad.
+Feb 09 09:59:53 <lufimtse>	reviwing patches
+Feb 09 10:00:00 <ericwill>	lol, guten Morgen
+Feb 09 10:00:10 <ericwill>	okay, I take it we are taking a break from the table business today?
+Feb 09 10:01:09 <lufimtse>	I wouldn't say taking a break. I think the patches have priority. But technically yes, I'm postponing work on tables till patches are reviewed.
+Feb 09 10:01:26 <lufimtse>	I think patch reviewes* have priority*
+Feb 09 10:01:35 <ericwill>	sounds good
+Feb 09 10:01:41 <lufimtse>	Or so I was told by ober Kommondant Alex,
+Feb 09 10:02:32 <ericwill>	lol, the ober Kommandant has the final say
+Feb 09 10:02:43 <lufimtse>	*most of the time.
+Feb 09 10:03:00 <lufimtse>	he he  he.
+Feb 09 10:03:28 <ericwill>	* some terms and conditions apply :)
+Feb 09 14:34:27 <lufimtse>	hey
+Feb 09 14:34:29 <lufimtse>	you still around?
+Feb 09 14:34:35 <ericwill>	yo
+Feb 09 14:34:36 <ericwill>	sup
+Feb 09 14:34:46 <lufimtse>	can you give me access to your JFace-snippets repo?
+Feb 09 14:34:51 <lufimtse>	I wanna dump some stuff in htere
+Feb 09 14:35:00 <ericwill>	sure one sec
+Feb 09 14:35:06 <lufimtse>	maybe create a folder with "stuff that doesn't work" of sort.
+Feb 09 14:35:14 <lufimtse>	And we work on those.
+Feb 09 14:35:28 <lufimtse>	LeoUfimtsev
+Feb 09 14:35:31 <lufimtse>	^ User
+Feb 09 14:35:57 <ericwill>	sent
+Feb 09 14:35:58 <ericwill>	btw
+Feb 09 14:36:05 <ericwill>	I made a new discovery this morning re: table issues
+Feb 09 14:36:57 <lufimtse>	hmmm
+Feb 09 14:37:15 <lufimtse>	I reviewed the DateTime, seems fine. I'm back onto the table stuff
+Feb 09 14:37:45 <ericwill>	so in Table.java, there is a method setParentWindow()
+Feb 09 14:38:03 <lufimtse>	:-O
+Feb 09 14:38:07 <ericwill>	any widget added as a child of Table/Tree has its z-order mucked with
+Feb 09 14:38:17 <lufimtse>	:-O!!!
+Feb 09 14:38:22 <lufimtse>	interesting
+Feb 09 14:38:25 <lufimtse>	I should investigate
+Feb 09 14:38:40 <ericwill>	I would say it's definitely something that affects your tabfolder issue
+Feb 09 14:43:46 <lufimtse>	ericwill sir, I bow to you. Commenting out that call fixes the tabfolder regression.
+Feb 09 14:43:55 <lufimtse>	:-D
+Feb 09 14:43:57 <lufimtse>	life is better.
+Feb 09 14:44:11 <ericwill>	:)
+Feb 09 14:44:28 <ericwill>	it affects my table issue as well
+Feb 09 14:44:28 <lufimtse>	Now why the hell is is there to begin with ha ha. 
+Feb 09 14:44:47 <ericwill>	no bloody clue haha
+Feb 09 14:45:27 <lufimtse>	with the table editing fix, the 0x0 regression comes to light thou. A control is not seen on gtk2, but seen on gtk3.
+Feb 09 14:45:51 <ericwill>	yeah we're going to have to deal with that somehow
+Feb 09 14:46:02 <lufimtse>	https://i.imgur.com/DwQG3RX.png  <<< see yellow thing 
+Feb 09 14:46:06 <lufimtse>	doesn't show on gtk2
+Feb 09 14:46:12 <lufimtse>	will investigate
+Feb 09 14:46:20 <lufimtse>	gerrit down, can't rebase on your patch
+Feb 09 14:46:20 <lufimtse>	meh
+Feb 09 14:46:26 <lufimtse>	oh well
+Feb 09 14:46:37 <ericwill>	ah that sucks, forgot that gerrit was down today
+Feb 09 14:46:51 *	lufimtse didn't even know it was suppose to be down.
+Feb 09 14:47:06 <ericwill>	also does the visible 0x0 text box show up just with tabfolder or does it happen with a plain shell too?
+Feb 09 14:47:25 <lufimtse>	let me ttest
+Feb 09 14:49:30 <lufimtse>	Without tabfolder, the editing thing is in effect as soon as you start the widget. (I.e, as if you clicked on the first row). But with tabfolder it's a bit off.
+Feb 09 14:49:35 <lufimtse>	so still some gimmick going on
+Feb 09 14:49:51 <lufimtse>	i.e, without tabfolder it's sort of ok
+Feb 09 14:50:10 <lufimtse>	I'll add a few snippets to the JFace repo
+Feb 09 14:50:19 <lufimtse>	then we can experiment with various breakagaes
+Feb 09 14:50:28 <ericwill>	sounds good, there is clearly more than one issue here
+Feb 09 15:12:46 <lufimtse>	I added a few snippets to jFace-Snippets
+Feb 09 15:12:55 <lufimtse>	under 'current.broken' package.
+Feb 09 15:13:07 <lufimtse>	feel free to add yours also, so I can be mindful of your bugs.
+Feb 09 15:13:13 <ericwill>	will do
+Feb 09 15:13:27 <lufimtse>	The interesting one is "TabFolder_table_Editing_regression_SWT"
+Feb 09 15:18:26 *	lufimtse now using quicksearch for things like 'parent = ' instead of selecting 'write references', as it's faster.
+Feb 09 15:18:54 <ericwill>	lol, that quick search plugin is great. so useful
+Feb 09 15:20:16 <ericwill>	for this 0x0 issue where the widget is visible, we might want to write some logic to lower those widget's GdkWindows
+Feb 09 15:20:20 <ericwill>	food for thought
+Feb 09 15:21:01 <lufimtse>	hmm
+Feb 09 15:21:30 <lufimtse>	there's a corner case where that wouldn't work, e.g if there are no overlapping widgets
+Feb 09 15:21:54 <lufimtse>	0x0 shouldn't be seen, but if it's lowered it's still seen.
+Feb 09 15:24:27 <ericwill>	bah
+Feb 09 15:24:35 <ericwill>	you are right
+Feb 09 16:05:52 <ericwill>	added some snippets to the repo
+[ericwill has address ~ericwill@unused-10-15-17-103.yyz.redhat.com]
+Feb 13 11:14:16 <ericwill>	https://git.eclipse.org/r/#/c/117284/
+Feb 13 14:45:08 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=465280 
+Feb 13 14:50:33 <ericwill>	https://git.eclipse.org/r/#/c/117300/
+Feb 13 14:58:16 <lufimtse>	531120 – [GTK3] setvisible changes 0x0 widget sizes.
+Feb 13 14:58:16 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=531120
+Feb 14 13:40:29 <lufimtse>	https://git.eclipse.org/r/#/c/117385/  << for review
+Feb 14 13:40:34 <lufimtse>	if you like -> send to alex.
+[ericwill has address ~ericwill@ovpn-121-13.rdu2.redhat.com]
+Feb 14 13:43:52 <ericwill>	okay, I'll take a look this afternoon
+Feb 14 13:49:37 <ericwill>	hey, what's the address of that mac/windows test machine
+Feb 14 13:49:44 <lufimtse>	hmm
+Feb 14 13:49:45 <lufimtse>	sec
+Feb 14 13:50:26 <lufimtse>	ping eclipseMacBook.local 
+Feb 14 13:50:27 <lufimtse>	try
+Feb 14 13:50:35 <lufimtse>	10.15.17.51
+Feb 14 13:50:45 <lufimtse>	unused-10-15-17-51.yyz.redhat.com
+Feb 14 13:51:05 <ericwill>	okay thanks, is the mac instance running vnc?
+Feb 14 14:05:33 <lufimtse>	probably
+Feb 14 14:05:34 <lufimtse>	sec
+Feb 14 14:06:03 <lufimtse>	yea,
+Feb 14 14:06:05 <lufimtse>	I can connect
+Feb 14 14:06:13 <lufimtse>	mac have vnc built in
+Feb 14 14:08:47 <ericwill>	danke
+Feb 14 16:38:33 Python interface unloaded
+**** ENDING LOGGING AT Wed Feb 14 16:38:33 2018
+
+**** BEGIN LOGGING AT Thu Feb 15 11:06:44 2018
+
+[ericwill has address ~ericwill@unused-10-15-17-72.yyz.redhat.com]
+Feb 15 11:06:45 <lufimtse>	513761 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK3] Tree with columns and with CHECK and VIRTUAL styles renders checkboxes in 2 columns 	4.7.3
+Feb 15 11:06:45 <lufimtse>	519295 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK3] Invisible settings button in validation preferences 	4.7.3
+Feb 15 11:06:45 <lufimtse>	528155 	nor 	P3 	Linux 	ericwill@redhat.com 	RESO 	FIXE 	[GTK] Table/Tree forgets to set SWT.SELECTED bit on PaintItem 	4.7.3 
+Feb 15 11:07:25 <lufimtse>	https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&chfield=resolution&chfieldto=Now&classification=Eclipse&columnlist=bug_severity%2Cpriority%2Cop_sys%2Cassigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Ctarget_milestone&component=SWT&known_name=4.8M5_4.7.3&list_id=17254524&product=Platform&query_based_on=4.8M5_4.7.3&query_format=advanced&target_milest
+Feb 15 11:07:25 <lufimtse>	one=4.7.3
+Feb 15 11:07:41 <lufimtse>	"https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&chfield=resolution&chfieldto=Now&classification=Eclipse&columnlist=bug_severity%2Cpriority%2Cop_sys%2Cassigned_to%2Cbug_status%2Cresolution%2Cshort_desc%2Ctarget_milestone&component=SWT&known_name=4.8M5_4.7.3&list_id=17254524&product=Platform&query_based_on=4.8M5_4.7.3&query_format=advanced&target_miles
+Feb 15 11:07:41 <lufimtse>	tone=4.7.3"
+**** BEGIN LOGGING AT Fri Feb 16 10:31:59 2018
+
+[ericwill has address ~ericwill@ovpn-123-219.rdu2.redhat.com]
+Feb 16 10:32:16 <lufimtse>	I have a feeling it might be a case where we missunderstood a situation and then became conditioned to think in a certain way.
+Feb 16 10:32:21 <lufimtse>	just my thought...
+Feb 16 10:32:35 <lufimtse>	like "stuck in a thought box"
+Feb 16 10:32:42 <lufimtse>	just mho
+Feb 16 10:33:07 <lufimtse>	I might be wrong thou
+Feb 16 10:33:16 <lufimtse>	I haven't had my morning coffee yet
+Feb 16 10:33:17 <lufimtse>	:-/
+Feb 16 10:33:30 <lufimtse>	talking of which ..... 
+Feb 16 10:33:34 *	lufimtse goes to get coffee
+Feb 16 10:34:38 <ericwill>	it could be, but don't forget
+Feb 16 10:34:54 <ericwill>	GTK calls like gtk_widget_get_preferred_size() use CSS theme sizing to take into account stuff
+Feb 16 10:35:23 <ericwill>	I am just against putting us in a situation where we get bug reports and end up having to support every person's theme in some way
+Feb 16 10:35:27 <ericwill>	this is really unsustainable
+Feb 16 10:36:07 <ericwill>	I already went through that song and dance with Andrey for system colors and now the system color parsing code is quite complicated
+Feb 16 10:36:34 <ericwill>	all I am saying is that these changes become exponentially difficult to maintain as time goes on
+Feb 16 10:37:09 <lufimtse>	we're talking about 7 css properties here :-/ 
+Feb 16 10:37:24 <lufimtse>	but good point
+Feb 16 10:37:27 <lufimtse>	about warnings
+Feb 16 10:37:33 <lufimtse>	do they popup without those properties?
+Feb 16 10:38:10 <ericwill>	it's more the number themes, not the properties
+Feb 16 10:38:14 <ericwill>	right now we have 2
+Feb 16 10:38:28 <ericwill>	as soon as someone comes with a third one then it becomes trickier
+Feb 16 10:38:35 <ericwill>	also the warnings are unrelated IIRC
+Feb 16 10:38:54 <lufimtse>	I think you might still be in the box. It's not about supporting all other themes, it's about not breaking all other themes.
+Feb 16 10:38:57 <lufimtse>	mho
+Feb 16 10:39:08 <lufimtse>	thhhhiiinnnkkk about it.
+Feb 16 10:39:19 <lufimtse>	ok, we can agree to dissagree, let's talk on tuesday
+Feb 16 10:39:24 <ericwill>	I know, but it introduces stuff like "if this theme, do x"
+Feb 16 10:39:34 <ericwill>	what will stop someone from saying "can you do the same thing for my theme"
+Feb 16 10:39:40 <lufimtse>	well, that's what we're already doing
+Feb 16 10:39:43 <lufimtse>	with 7 properties
+Feb 16 10:39:54 <lufimtse>	meh
+Feb 16 10:39:56 <lufimtse>	ok, 
+Feb 16 10:39:57 <lufimtse>	idk
+Feb 16 10:40:02 <lufimtse>	tuesday
+Feb 16 10:40:09 <ericwill>	yeah, I want to hear what Alex has to say too
+Feb 16 10:40:18 <ericwill>	he was more against it than me IIRC
+Feb 16 10:40:26 <lufimtse>	I think he's also in a box.
+Feb 16 10:59:07 <lufimtse>	hey
+Feb 16 10:59:28 <ericwill>	yo
+Feb 16 10:59:51 <lufimtse>	is there emotional interest in the css business for you?
+Feb 16 10:59:59 <lufimtse>	I kinda have a feeling you're taking it a bit personal :-/
+Feb 16 11:00:02 <lufimtse>	wdyt?
+Feb 16 11:00:48 <ericwill>	not really personally just I take issue with the way this is all being raised
+Feb 16 11:00:58 <ericwill>	I worked closely with Andrey to fix the system colors parsing
+Feb 16 11:01:15 <ericwill>	and even that was pushing it as his theme had all sorts of non-standard stuff in it
+Feb 16 11:01:41 <ericwill>	I just fear that letting people's custom themes dictate stuff is going to end with unmaintainable code
+Feb 16 11:02:11 <lufimtse>	again, I don't think the problem is maintaing other people's themes. That's not the point. They can maintain it themselfes
+Feb 16 11:02:12 <ericwill>	especially with sizing
+Feb 16 11:02:40 <lufimtse>	The point is not to hard-code to our theme.
+Feb 16 11:02:51 <lufimtse>	alex pointed out the 23 thing
+Feb 16 11:02:56 <lufimtse>	etc...
+Feb 16 11:05:57 <ericwill>	idk we'll see, let's discuss at the next meeting
+Feb 16 11:09:49 <lufimtse>	On the side: https://bugs.eclipse.org/bugs/show_activity.cgi?id=531222  
+Feb 16 11:09:54 <lufimtse>	rgrunber@redhat.com 	2018-02-16 10:54:55 EST 	Alias 		RefactorStatusDialog 
+Feb 16 11:09:59 <lufimtse>	Roland is starting to use Alises
+Feb 16 11:10:01 <lufimtse>	:-D
+Feb 16 11:10:19 <ericwill>	bah...now there are two of you! -.-
+Feb 16 11:10:31 <lufimtse>	:-D  :-D  :-D
+Feb 16 12:19:57 *	Disconnected (Connection timed out)
+Feb 16 13:18:56 <ericwill>	so after thinking about it some more I'm okay with doing something like "if adwaita do x" provided it's very clear that we only do that for adwaita
+Feb 16 13:19:10 <ericwill>	i.e. we won't do "if <my special theme> do x"
+Feb 16 13:19:12 <lufimtse>	hmm
+Feb 16 13:19:29 <lufimtse>	interesting
+Feb 16 13:19:40 <ericwill>	that way we won't break other people's themes but we also send the message that if someone is using a custom theme, they are responsible for it
+Feb 16 13:19:56 <lufimtse>	that's sounds like a good solution
+Feb 16 13:20:21 <lufimtse>	maybe add a adwaita.css theme of sorts.
+Feb 16 13:20:28 <ericwill>	but as Alex said let's wait for more info from simeon first
+Feb 16 13:20:30 <lufimtse>	and support only on gtk3.20 and above.
+Feb 16 13:20:32 <ericwill>	yeah something like that
+Feb 16 13:20:38 <lufimtse>	ok
+Feb 16 13:20:56 <lufimtse>	yea, I agree. Pending till Simon's shows sign of life.
+Feb 16 13:22:05 <ericwill>	:)
+Feb 16 13:22:36 <ericwill>	with that, time for lunch
+Feb 16 13:46:16 <lufimtse>	java mission control uses swt + javafx
+Feb 16 13:46:17 <lufimtse>	https://www.google.ca/search?q=Java+Mission+Control&dcr=0&source=lnms&tbm=isch&sa=X&ved=0ahUKEwjQiq2CjKvZAhVNc98KHY5AA5wQ_AUICigB&biw=1920&bih=916#imgrc=VrBuQOX6vXlhcM:
+Feb 16 13:46:19 <lufimtse>	interesting
+Feb 16 13:46:25 <lufimtse>	been reading this guy:
+Feb 16 13:46:26 <lufimtse>	http://openjdk.java.net/jeps/283
+Feb 16 13:47:55 <ericwill>	yeah I saw that
+Feb 16 13:47:58 <ericwill>	it's part of java9
+Feb 16 13:48:15 <ericwill>	interesting indeed

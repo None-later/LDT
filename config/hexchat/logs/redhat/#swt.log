@@ -6547,3 +6547,346 @@ Feb 02 11:12:25 <akurtakov>	ericwill: ping
 Feb 02 11:18:27 <ericwill>	https://bugzilla.gnome.org/show_bug.cgi?id=793124
 Feb 02 11:18:32 <ericwill>	for reference
 Feb 02 12:55:23 <ericwill>	akurtakov how do you feel about disabling the setBounds() JUnit test on Wayland, as it fails automatically every time (no global coords)
+**** BEGIN LOGGING AT Mon Feb  5 09:13:39 2018
+
+Feb 05 09:13:39 *	Now talking on #SWT
+Feb 08 19:14:03 *	Disconnected (Connection reset by peer)
+**** ENDING LOGGING AT Thu Feb  8 19:14:03 2018
+
+**** BEGIN LOGGING AT Thu Feb  8 19:14:13 2018
+
+Feb 08 19:14:13 *	Now talking on #SWT
+Feb 12 10:05:28 <ericwill>	lufimtse https://bugs.eclipse.org/bugs/show_bug.cgi?id=511133
+Feb 12 14:53:57 <ericwill>	akurtakov_ so good news and bad news
+Feb 12 14:54:05 <ericwill>	good news: I fixed the Control.print() bug
+Feb 12 14:54:15 <akurtakov_>	ericwill: nice :)
+Feb 12 14:54:18 <ericwill>	bad news: I spoke with the GTK guys about the setRegion() business and they said it's WONTFIX
+Feb 12 14:55:05 <ericwill>	I have some ideas for workarounds, but nothing super promising
+Feb 12 14:55:32 <akurtakov_>	huh
+Feb 12 14:55:42 <akurtakov_>	have they offered workaround ?
+Feb 12 14:55:58 <akurtakov_>	why is it wontfix
+Feb 12 14:56:04 <akurtakov_>	is it explained somewhere
+Feb 12 14:57:23 <akurtakov_>	ericwill: ^
+Feb 12 14:57:36 <ericwill>	akurtakov_ I spoke with Benjamin on IRC about it
+Feb 12 14:57:48 <ericwill>	he said the bug stems from the changes to the drawing model in GTK3.10 and they will not be changing it
+Feb 12 14:58:11 <ericwill>	he said the closest workaround he could think of is to clip the cairo region in gtk_draw()
+Feb 12 14:58:20 <akurtakov_>	will that work ?
+Feb 12 14:58:32 <ericwill>	probably, I haven't tried it yet
+Feb 12 14:58:39 <ericwill>	it doesn't block the input though
+Feb 12 14:58:51 <ericwill>	i.e. for a button
+Feb 12 14:59:09 <akurtakov_>	so this is that every widget receives just its own cairo to draw on ?
+Feb 12 14:59:48 <ericwill>	what do you mean?
+Feb 12 15:00:47 <akurtakov_>	ericwill: " the changes to the drawing model in GTK3.10" and I am looking for clarification what these are 
+Feb 12 15:01:29 <ericwill>	ah
+Feb 12 15:01:31 <ericwill>	akurtakov_ https://github.com/GNOME/gtk/commit/d22fd7223c75f4720ddb982c659efb0d8d7543c4
+Feb 12 15:02:58 <akurtakov_>	ericwill: I am not sure I understood it from this explanation :)
+Feb 12 15:03:08 <akurtakov_>	so you're going to look into clipping ?
+Feb 12 15:03:13 <ericwill>	<Company> ericwill: because shaping is only supported on toplevels (read: native) windows these days
+Feb 12 15:03:13 <ericwill>	<Company> ericwill: everything else should be done manually
+Feb 12 15:03:13 <ericwill>	<ericwill> Company can you expand on the "done manually" part
+Feb 12 15:03:13 <ericwill>	<Company> ericwill: using a parent widget that cairo_clip()s
+Feb 12 15:03:26 <ericwill>	<Company> ericwill: if it's about drawing, I'd suggest making the container's draw function cairo_clip() the region before drawing the children
+Feb 12 15:03:39 <ericwill>	akurtakov_ yes, not sure if I'll do it now or later
+Feb 12 15:03:45 <ericwill>	depends on how the table stuff goes
+Feb 12 15:04:25 <akurtakov_>	ericwill: ok
+Feb 12 15:04:49 <akurtakov_>	at least this should be step ahead for egit bug, righ?
+Feb 12 15:05:10 <ericwill>	yes, I merged the fix for Control.print()
+Feb 12 15:05:30 <ericwill>	the second part of the fix is harder as we have all these cases to deal with, but once that's in it's fixed
+Feb 12 15:06:07 <akurtakov_>	good
+Feb 13 16:29:17 <ericwill>	akurtakov_ I added you as a reviewer for the EGit patch
+Feb 13 16:29:34 <ericwill>	and Leo has a fix for the method refactor/TabFolder bug
+Feb 14 11:38:03 <akurtakov_>	hey guys
+Feb 14 12:07:36 <akurtakov_>	ericwill: hey good work on the tree bug
+Feb 14 12:07:58 <akurtakov_>	ericwill: do you expect other tree/table bugs to be fixed by this work?
+Feb 14 12:17:23 <ericwill>	akurtakov_ 
+Feb 14 12:17:25 <ericwill>	thanks
+Feb 14 12:17:31 <ericwill>	so far this one: https://bugs.eclipse.org/bugs/show_bug.cgi?id=529563#c5
+Feb 14 12:17:36 <ericwill>	waiting to hear back from Thomas
+Feb 14 12:18:15 <akurtakov_>	good
+Feb 14 12:22:53 <akurtakov_>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=493513 same issue ?
+Feb 14 12:23:29 <ericwill>	akurtakov_ looks like it
+Feb 14 12:23:50 <ericwill>	I'll close as dupo
+Feb 14 12:23:51 <ericwill>	*dup
+Feb 14 12:23:55 <akurtakov_>	cool
+Feb 14 12:28:12 <akurtakov_>	ericwill|lunch: btw bug 476441 
+Feb 14 12:28:18 <akurtakov_>	it's some misplacement again
+Feb 14 12:44:02 <ericwill>	akurtakov_ yes, added it to the tree tracking bug
+Feb 14 12:44:17 <akurtakov_>	ericwill: so what's next in your basket ?
+Feb 14 12:44:18 <akurtakov_>	:)
+Feb 14 12:45:12 <ericwill>	akurtakov_ review Leo's tabfolder patch, try out some workarounds for the setRegion bug, and then probably work through some of those tree bugs that Thomas filed
+Feb 14 12:45:42 <ericwill>	I see this one in the IDE a lot: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531048
+Feb 14 12:45:48 <akurtakov_>	ericwill: nice, the setRegion would be nice
+Feb 14 12:46:59 <ericwill>	akurtakov_ okay sounds good
+**** ENDING LOGGING AT Wed Feb 14 16:38:33 2018
+
+**** BEGIN LOGGING AT Thu Feb 15 10:13:23 2018
+
+Feb 15 10:13:23 *	Now talking on #SWT
+Feb 15 10:15:31 <akurtakov_>	ericwill: that's unfortunate
+Feb 15 10:15:44 <akurtakov_>	it's always tough to debug until finding a simpler repro
+Feb 15 10:16:24 <ericwill>	akurtakov_ I've tried :)
+Feb 15 10:44:28 <ericwill>	akurtakov_ you want me to comment in the RH BZ ticket about the photon release right?
+Feb 15 10:44:32 <ericwill>	or upstream
+Feb 15 10:45:08 <akurtakov_>	ericwill: RHBZ
+Feb 15 10:45:16 <ericwill>	kk
+Feb 15 10:45:18 <akurtakov_>	and I know we speak of many things
+Feb 15 10:45:28 <akurtakov_>	do you have a snippet to test this one ?6
+Feb 15 10:45:33 <akurtakov_>	M6
+Feb 15 10:45:38 <akurtakov_>	as it's in our internal Bz
+Feb 15 10:46:19 <ericwill>	akurtakov_ no I don't have a snippet
+Feb 15 10:48:57 <akurtakov_>	sorry for the snippet it was paste by mistake
+Feb 15 10:50:54 <ericwill>	:)
+Feb 15 11:19:40 <akurtakov_>	https://git.eclipse.org/r/#/c/117385/
+Feb 15 11:19:47 <akurtakov_>	is it ready ?
+Feb 15 11:36:55 <akurtakov_>	lufimtse: so what's next in your queue
+Feb 15 11:37:09 <lufimtse>	akurtakov_, it's pretty low on bugs ha ha
+Feb 15 11:37:45 <lufimtse>	akurtakov_, https://bugs.eclipse.org/bugs/buglist.cgi?quicksearch=%3Aswt%20%40luf%20-whiteboard%3Apending&list_id=17254708
+Feb 15 11:38:12 <lufimtse>	akurtakov_,  https://bugs.eclipse.org/bugs/buglist.cgi?quicksearch=%3Aswt%20%40luf%20-whiteboard%3Apending%20-tag%3Aneedinfo&list_id=17254711 << my todo list
+Feb 15 11:38:26 <lufimtse>	was gonna look into this guy: [GTK] Add Callback constructor for custom method signatures 
+Feb 15 11:38:32 <lufimtse>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=510538
+Feb 15 11:38:36 <lufimtse>	related to Ian
+Feb 15 11:38:39 <lufimtse>	Ian's guesture patch
+Feb 15 11:39:07 <akurtakov_>	lufimtse: what about the gtk3 bugs ?
+Feb 15 11:39:30 <akurtakov_>	I can see how some of these could be few hours break though :)
+Feb 15 11:39:49 <akurtakov_>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=516839
+Feb 15 11:40:20 <akurtakov_>	ericwill: another duplicate https://bugs.eclipse.org/bugs/show_bug.cgi?id=493213 ?
+Feb 15 11:40:50 <lufimtse>	akurtakov_, Was thinking of finishing off the callback thing and then fix some tree bugs 
+Feb 15 11:40:54 <lufimtse>	wdyt?
+Feb 15 11:41:13 <ericwill>	akurtakov_ yes, I'll close it as dup
+Feb 15 11:41:15 <akurtakov_>	lufimtse: ok, if you have clear use case/test case for the callback
+Feb 15 11:41:31 <akurtakov_>	and assuming it's not gonna be more than a few days
+Feb 15 11:41:53 <lufimtse>	akurtakov_, yea, I hope to clear it out quickly
+Feb 15 11:42:30 <lufimtse>	akurtakov_, is there any particular gtk3 bug that bugs you, or should I shop around?
+Feb 15 11:42:42 <lufimtse>	I was thinking either Tree bugs, or work on the tracker ha ha.
+Feb 15 11:43:20 <akurtakov_>	lufimtse: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531048 
+Feb 15 11:43:28 <akurtakov_>	as I think it has multiple duplicates
+Feb 15 11:43:40 <akurtakov_>	and is probably the reason for blurry text from time to time in eclipse
+Feb 15 11:44:29 <lufimtse>	akurtakov_, ok
+Feb 15 11:45:04 <akurtakov_>	lufimtse: the gdk/gtk warnings on the console are worth fixing as they manifest in other bugs at some point for sure
+Feb 15 11:46:05 <lufimtse>	akurtakov_, ok, that's also a good thing to work on. 
+Feb 15 11:56:10 <akurtakov_>	ericwill: lufimtse: please talk and one of you should pick the context menu misplacement with highest prio
+Feb 15 11:56:19 <ericwill>	akurtakov_ I'm on it
+Feb 15 11:56:31 <akurtakov_>	ericwill: ok, please keep me in the loop
+Feb 15 11:56:39 <ericwill>	akurtakov_ Andrey has annoyed me sufficiently that I am going to fix it to spite him :)
+Feb 15 11:56:56 <akurtakov_>	ericwill: well, note that is on my request
+Feb 15 11:57:06 <akurtakov_>	the rhbz /customer case
+Feb 15 11:57:27 <akurtakov_>	we need these to prove the importance of SWT work
+Feb 15 11:57:34 <akurtakov_>	but we have to be faster with delivery too
+Feb 15 11:58:17 <ericwill>	akurtakov_ I know
+Feb 15 11:58:57 <lufimtse>	akurtakov_, I'm starting work on this guy: Bug 531048 (TreeItemCheese) - [GTK3] Large problems drawing ownerdraw tables 
+Feb 15 11:59:00 <ericwill>	akurtakov_ I'll keep you in the loop
+Feb 15 11:59:14 <akurtakov_>	ok
+Feb 15 13:13:33 <akurtakov_>	lufimtse: please open Bug510803_TabFolder_Table_inPlaceEditing
+Feb 15 13:13:43 <lufimtse>	hey
+Feb 15 13:14:10 <akurtakov_>	lufimtse: see the warnings there :)
+Feb 15 13:14:29 <lufimtse>	no warnings shown for me ?
+Feb 15 13:15:34 <akurtakov_>	lufimtse: did you override the settings
+Feb 15 13:15:45 <lufimtse>	I think the project is set to override them
+Feb 15 13:15:49 <lufimtse>	not sure why
+Feb 15 13:15:50 <lufimtse>	akurtakov_, 
+Feb 15 13:16:17 <akurtakov_>	lufimtse: the project is supposed to ship its warnings so we all see same warnings
+Feb 15 13:17:02 <lufimtse>	akurtakov_, so I don't see warnings, i'm not sure how to procceed
+Feb 15 13:17:04 <lufimtse>	wdyt?
+Feb 15 13:17:36 <lufimtse>	you mean warnings when running or warnings at static analysis?
+Feb 15 13:20:01 <akurtakov_>	lufimtse: doh, gone after pull
+Feb 15 13:20:11 <lufimtse>	yay
+Feb 15 13:20:15 <akurtakov_>	I was at gerrit review 
+Feb 15 13:20:36 <akurtakov_>	sorry
+Feb 15 13:21:00 <lufimtse>	akurtakov_, https://www.youtube.com/watch?v=CW5oGRx9CLM
+Feb 15 13:21:16 <lufimtse>	X-D
+Feb 15 14:03:28 <akurtakov_>	lufimtse: so is https://bugs.eclipse.org/bugs/show_bug.cgi?id=287580 fixed now too
+Feb 15 14:03:39 <lufimtse>	akurtakov_, checking..
+Feb 15 14:05:17 <lufimtse>	akurtakov_, ah, I should have investigated "blocks 287580", I missed that. Made a note to check in on dependants when I fix bugs. Investigating...
+Feb 15 14:12:59 <lufimtse>	akurtakov, well, idk what Markus meant with "'Ctrl' to toggle overwrite mode" but the shift+enter / alt+enter issues have been fixed in the mean time.
+Feb 15 14:13:18 <akurtakov>	lufimtse: when you complete
+Feb 15 14:13:44 <akurtakov>	if you have ctrl pressed it overwrites instead of appends
+Feb 15 14:14:17 <akurtakov>	ask on the bug if unclear
+Feb 15 14:14:26 <lufimtse>	I see
+Feb 15 14:16:52 <lufimtse>	I gather the feature isn't implemented yet.
+Feb 15 14:16:58 <lufimtse>	doens't work on mac
+Feb 15 14:17:02 <lufimtse>	or linux.
+Feb 15 14:17:14 <lufimtse>	I wonder what's the use case for the overwrite business
+Feb 15 14:17:22 <akurtakov>	but works on Win ?
+Feb 15 14:18:08 <akurtakov>	IMHO override should be default always :)
+Feb 15 14:19:10 <lufimtse>	haven't tested on win
+Feb 15 14:36:31 <rgrunber>	lufimtse: some questions on one of the black background bugs if you have a bit of time..
+Feb 15 14:36:51 <lufimtse>	rgrunber, sup
+Feb 15 14:38:04 <rgrunber>	so Noopur responded about the refactor 'tooltip'. On Windows it looks like this.. https://bugs.eclipse.org/bugs/attachment.cgi?id=272642 . In fact it's pretty much the same situation on Linux as well. The 'tooltip' background is a lighter gray and looks weird with the style text having a darker background.
+Feb 15 14:39:05 <rgrunber>	to me this seems more like a theming issue than something to fix specifically for the dialog.. i did try setting the bg for the 'tooltip' itself to match but it always stays that same shade of grey.
+Feb 15 14:39:46 <rgrunber>	* this is with the patch to use INFORMATION applied.
+Feb 15 14:42:02 <lufimtse>	rgrunber, can the TEXT "Press Enter to refactor" be configured not to have it's own background?
+Feb 15 14:42:34 <lufimtse>	to make it have a uniform background
+Feb 15 14:43:00 <lufimtse>	Or adjust the rest of the dialogue to have same background as the "Press enter to repactor" control.
+Feb 15 14:43:37 <lufimtse>	Ideally, the popup should be fully colored as per color assigned to "INFORMATION_BACKGROUND" by user.
+Feb 15 14:44:18 <lufimtse>	It's possible that there's a control that doesn't have it's color set, which you might have to add.
+Feb 15 14:44:21 <lufimtse>	wdyt?
+Feb 15 14:48:18 <rgrunber>	i've tried setting the bg to make it the same but didn't seem to change. might need to fiddle with it some more. if i don't set a background on the actual style text it just becomes white.
+Feb 15 14:48:50 <lufimtse>	you might have to style the whole sheell
+Feb 15 14:48:51 <lufimtse>	shell
+Feb 15 14:49:04 <lufimtse>	white like the Text widget becomes white background in dark theme?
+Feb 15 14:52:01 <rgrunber>	lufimtse: yeah, if i remove the call to set its background.
+Feb 15 14:52:20 <lufimtse>	rgrunber, then you porbably need to style the whole dialogue 
+Feb 15 14:52:27 <rgrunber>	basically the widget recursively sets the background for the shell, style text, link, and toolbar item.
+Feb 15 14:52:30 <lufimtse>	rgrunber, try styling the shell that the dialogue appears in.
+Feb 15 14:52:48 <lufimtse>	rgrunber, or why is the background colors different
+Feb 15 14:52:51 <lufimtse>	one light one dark
+Feb 15 14:52:56 <lufimtse>	why aren't they the same I wonder
+Feb 15 14:52:59 <lufimtse>	maybe something mixes them
+Feb 15 14:53:03 <lufimtse>	blends colors
+Feb 15 14:53:23 <lufimtse>	or the selected dark theme color of INFORMATION is too dark?
+Feb 15 14:53:59 <rgrunber>	well yeah, it looks that way. fwiw i see the colour of the actual shell in many other areas on the dark theme
+Feb 15 14:55:00 <rgrunber>	toolbar items for example are a light gray.. like the text background in that tooltip popup.. and when you hover over them they become a darker colour.. more like the background of the styled text.
+Feb 15 15:06:54 <lufimtse>	rgrunber, hmmm. I wonder if it makes sense to make INFORMATION color lighter by default. Would that break anything?
+Feb 15 15:07:09 <lufimtse>	like make it light black
+Feb 15 15:07:34 <lufimtse>	I recall having issues with the light/dark black in the past as well
+Feb 15 15:08:27 <rgrunber>	the other thing is afaict the shell, styled text, link, and toolbar item are all getting set to the same background, but something might override it ?
+Feb 15 15:09:12 <rgrunber>	seems like for a shell the setbackground is more of a hint..
+Feb 15 16:19:14 <rgrunber>	lufimtse: is it possible to change a widget foreground/background if it has already been defined in a theme .css ?.. or will that always override it..
+Feb 15 16:20:34 <lufimtse>	hmm
+Feb 15 16:21:04 <lufimtse>	I think it's possible. E.g a user color can override a system/theme color. E.g try setting javadoc color in dark theme.
+Feb 15 16:25:01 <rgrunber>	ah, good point, but then why do some colours say something like 'styled in css cannot be overriden'
+Feb 15 16:25:04 <rgrunber>	special property ?
+Feb 15 16:25:17 <lufimtse>	hmmm
+Feb 15 16:25:18 <lufimtse>	idk
+Feb 15 16:25:38 <lufimtse>	I know that I once fixed the css to style the heap status bar
+Feb 15 16:25:45 <lufimtse>	colors
+Feb 15 16:25:49 <lufimtse>	in dark theme
+Feb 15 16:26:01 <lufimtse>	in the css you kinda specify a widget type 
+Feb 15 16:26:12 <lufimtse>	like java class of sort
+Feb 15 16:26:40 <rgrunber>	basically i found a giant block that styles most (if not all) Shells as the light grey seen on the dark theme.
+Feb 15 16:26:52 <rgrunber>	81,86,88 (#515658)
+Feb 15 16:27:04 <lufimtse>	option 1: set INFORMATION to be like light
+Feb 15 16:27:22 <lufimtse>	option 2: set the block that styled shells to be like INFORMATION
+Feb 15 16:27:26 <rgrunber>	well if we change INFORMATION we'd have to go back and see if it breaks something..
+Feb 15 16:27:33 <lufimtse>	uh ha
+Feb 15 16:27:44 <rgrunber>	 /pain
+Feb 15 16:27:53 <lufimtse>	 /welcome to swt
+Feb 15 16:28:55 <rgrunber>	easiest solution would be to just make the styledtext the same colour as the shell (81,86,88) but i don't think the colour is referenced as a constant anywhere in java code..
+Feb 15 16:29:37 <lufimtse>	hmmm
+Feb 15 16:29:47 <lufimtse>	I think INFORMATION is based on a system color
+Feb 15 16:30:09 <lufimtse>	COLOR_LIST_BACKGROUND
+Feb 15 16:30:20 <lufimtse>	on gtk
+Feb 15 16:30:30 <lufimtse>	and COLOR_TOOLTIP_INFO on cocoa/win
+Feb 15 16:30:37 <lufimtse>	so we can't really change that.
+Feb 15 16:30:49 <lufimtse>	option 2: can we change the light color to be a bit darker?
+Feb 15 16:30:55 <lufimtse>	how would the dark eclipse look like?
+Feb 15 16:31:01 <rgrunber>	org.eclipse.ui.workbench.INFORMATION_BACKGROUND=52,57,61' (for dark theme ss)
+Feb 15 16:31:04 <rgrunber>	*css
+Feb 15 16:31:19 <lufimtse>	ah
+Feb 15 16:31:28 <lufimtse>	INFORMATION_ is set on dark theme
+Feb 15 16:31:34 <lufimtse>	but is system color on classic theme
+Feb 15 16:31:36 <lufimtse>	forgot
+Feb 15 16:31:47 <lufimtse>	try to set it to 81,... 
+Feb 15 16:31:49 <lufimtse>	see what happens
+Feb 15 16:31:59 <lufimtse>	check javadoc and places that use it like the debug expression viewer etc..
+Feb 15 16:32:05 <lufimtse>	probably easiest solution
+Feb 15 16:32:19 <lufimtse>	and will probably fix other such strange dark/light black issues.
+Feb 15 16:33:10 <rgrunber>	i could check that.. looks like information is based off of CONTENT_ASSIST_BACKGROUND/FOREGROUND_COLOR
+**** BEGIN LOGGING AT Fri Feb 16 10:18:31 2018
+
+Feb 16 10:18:31 *	Now talking on #SWT
+Feb 16 10:19:11 <lufimtse>	ericwill, I tinkered around with min-height business. Maybe in his theme the min-height is set to something like 50px
+Feb 16 10:19:57 <ericwill>	lufimtse min-height does not enforce a maximum, if we wants to have 50px entries he can have them
+Feb 16 10:20:20 <lufimtse>	Kinda it does enforce a minimum thou
+Feb 16 10:20:28 <lufimtse>	I think his point is that we screw with the toolbar and entries
+Feb 16 10:20:37 <lufimtse>	breaking other themes
+Feb 16 10:20:50 <lufimtse>	which is kinda valid if you think about it
+Feb 16 10:21:26 <lufimtse>	we could add some "if adwaita" then screw with toolbars/buttons
+Feb 16 10:21:30 <lufimtse>	then other themes wouldn't break.
+Feb 16 10:21:36 <lufimtse>	I.e, his point is the inverse
+Feb 16 10:21:46 <lufimtse>	not add support for other themes, but don't screw with other themes
+Feb 16 10:22:05 <lufimtse>	which is fair imho?
+Feb 16 10:22:14 <lufimtse>	*assuming our css breaks his theme.
+Feb 16 10:22:29 <ericwill>	lufimtse it's easy now when it's a binary: adwaita vs. Andrey's theme
+Feb 16 10:22:48 <ericwill>	it will become impossible to maintain when every person wants their theme to have checks like "if adwaita"
+Feb 16 10:22:54 <lufimtse>	thinkkkk about...
+Feb 16 10:22:59 <lufimtse>	I was thinking the same
+Feb 16 10:23:05 <lufimtse>	let's talk about it on monday
+Feb 16 10:23:14 <ericwill>	lufimtse *Tuesday :P
+Feb 16 10:23:19 <lufimtse>	Tuesday :P
+Feb 16 10:23:43 <lufimtse>	point being we're actually doing a 'if adwaitda', make toolbars smaller and entires bigger
+Feb 16 10:23:55 <lufimtse>	we just don't label it as 'adwaita'
+Feb 16 10:24:00 <lufimtse>	but do so anyway
+Feb 16 10:24:20 <lufimtse>	looking at his screenshot, he complains toolbars being too small and entries too big.
+Feb 16 10:24:32 <lufimtse>	I think we missunderstood him all along there
+Feb 16 10:24:52 <lufimtse>	let's think about it on tuesday
+Feb 16 10:24:59 <lufimtse>	can't think of a good solution right now 
+Feb 16 10:25:22 <ericwill>	lufimtse his screenshot is because his theme is broken
+Feb 16 10:25:25 <ericwill>	look at the entries
+Feb 16 10:25:30 <ericwill>	they are way larger than 26px
+Feb 16 10:25:51 <lufimtse>	I have a theory that our min-entries-size:26px might be the offender
+Feb 16 10:26:07 <lufimtse>	we'll have to test with him.
+Feb 16 10:26:16 <ericwill>	akurtakov thoughts
+Feb 16 10:26:43 <lufimtse>	I think it pretty easy to proov if we make a version of swt without the css changes
+Feb 16 10:26:47 <lufimtse>	prove*
+Feb 16 10:27:06 <lufimtse>	if that doesn't change anything for him, then his theme is broken.
+Feb 16 10:28:12 <ericwill>	lufimtse even if our stuff breaks his thing I'm not so sure we should remove it
+Feb 16 10:28:19 <lufimtse>	not remove it
+Feb 16 10:28:33 <lufimtse>	but think about how to solve ti.
+Feb 16 10:28:43 <ericwill>	kk
+Feb 16 10:28:50 <lufimtse>	we shouldn't break other people's themes, or at least allow other themes to override our hard-coded stuff.
+Feb 16 10:47:05 <akurtakov>	ericwill: lufimtse: without a proof the css breaks anything I would say don't touch it now
+Feb 16 10:48:40 <akurtakov>	fwiw, many apps use such app specific css to override defaults
+Feb 16 10:49:47 <akurtakov>	e.g. https://gitlab.gnome.org/GNOME/polari/blob/master/data/resources/application.css
+Feb 16 10:50:17 <akurtakov>	I admit they assign their own classes to widgets but the end effect is the same
+Feb 16 10:50:36 <akurtakov>	it's not different than gtk2 where some sizes are hardcoded in the java code
+Feb 16 10:51:02 <akurtakov>	if there is a problem let's speak for concrete problem
+Feb 16 10:52:43 <akurtakov>	e.g. http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/bundles/org.eclipse.swt/Eclipse%20SWT/gtk/org/eclipse/swt/widgets/ToolItem.java#n317
+Feb 16 10:52:52 <akurtakov>	seriously where is this 23 coming from
+Feb 16 10:53:08 <akurtakov>	and many such issues
+Feb 16 10:53:20 <akurtakov>	yes, they can break with some theme
+Feb 16 10:53:25 <akurtakov>	but we need proofs
+Feb 16 10:54:15 <akurtakov>	hmm, are you around guys ?
+Feb 16 10:55:23 <ericwill>	akurtakov yes I agree
+Feb 16 10:55:56 <ericwill>	I am open to bug reports like https://bugs.eclipse.org/bugs/show_bug.cgi?id=487522
+Feb 16 10:57:01 <ericwill>	where the specific issue is found and I can fix it with easy testing
+Feb 16 10:57:21 <akurtakov>	yup
+Feb 16 10:57:33 <akurtakov>	imho the bug report in question is just vague 
+Feb 16 10:57:58 <akurtakov>	thus unactionable
+Feb 16 10:58:07 <ericwill>	another thing is CSS based sizing is a really tricky issue, as platform UI sets the size for widgets in the IDE
+Feb 16 10:58:39 <ericwill>	if we allow for any theme to set their own min-size it will open up all sorts of corner case bug reports that will be tough to debug
+Feb 16 10:59:08 <akurtakov>	well people can still deploy their own css if they want as system property
+Feb 16 10:59:23 <akurtakov>	aka everyone can shoot himself wherever he wants :)
+Feb 16 11:00:22 <lufimtse>	I think it's fairly easy to check
+Feb 16 11:00:49 <lufimtse>	if Simon is interesting to test, I can submit something to check. ~10 minutes work.
+Feb 16 11:00:58 <lufimtse>	that would answer lots of unknowns
+Feb 16 11:01:22 <akurtakov>	you mean for the min-entry-size?
+Feb 16 11:03:44 <lufimtse>	both toolbar and entry size.
+Feb 16 11:03:59 <lufimtse>	I think the easiest thing is to simply test and gathre facts
+Feb 16 11:04:04 <lufimtse>	atm we're in opinion land
+Feb 16 11:04:34 <lufimtse>	Let's wait for Simon's reply and go from there.
+Feb 16 11:04:50 <lufimtse>	or discuss on next meeting
+Feb 16 11:08:31 <akurtakov>	in case there is no info from Simeon there is nothing to discuss :)
+Feb 16 11:15:26 <ericwill>	I think their entry issue is the same as: https://bugs.eclipse.org/bugs/show_bug.cgi?id=487522#c10
+Feb 16 11:15:30 <ericwill>	but we will have to wait and see
+Feb 16 11:21:49 *	akurtakov have fixed yet another padding issue http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=158c894de7520ed72b3f64017da7ce0ea24ead54
+Feb 16 11:22:02 <akurtakov>	found by lufimtse :)
+Feb 16 11:22:41 <lufimtse>	akurtakov++
+Feb 16 11:23:06 <akurtakov>	I am pretty sure that paddings are not calculated proper in many places
+Feb 16 11:23:25 <akurtakov>	as they started to appear after the move to css
+Feb 16 11:24:22 <lufimtse>	akurtakov, how did you find the bug you mentioned here: https://bugs.eclipse.org/bugs/show_bug.cgi?id=248075  <<
+Feb 16 11:24:27 <lufimtse>	did you use a datetime control somewhere?
+Feb 16 11:24:53 <akurtakov>	lufimtse: noticed it while testing the other bug I just mentioned
+Feb 16 11:25:02 <lufimtse>	ah
+Feb 16 11:38:06 <akurtakov>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=526083
+Feb 16 11:38:10 <akurtakov>	btw, this is sound
+Feb 16 11:39:05 <ericwill>	akurtakov what do you mean?
+Feb 16 11:41:06 <akurtakov>	ericwill: I mean the findings fro the bounds differences
+Feb 16 11:42:13 <ericwill>	akurtakov they aren't related to the menu bug from Andrey, unfortunately
+Feb 16 11:42:32 <ericwill>	I am just asking the reporter of that bug why he says the allocation.x/y should be removed
+Feb 16 11:48:19 <akurtakov>	ericwill: I mean on gtk2 and gtk3 we really get a diffrenece
+Feb 16 11:49:02 <akurtakov>	could it be that Andrey's bug is actually multiple bugs
+Feb 16 11:50:17 <ericwill>	akurtakov could be
+Feb 16 11:50:36 <ericwill>	akurtakov one thing I noticed (with help from Leo) is that the menu being popped up isn't the right one
+Feb 16 11:50:55 <akurtakov>	ericwill: ?
+Feb 16 11:50:59 <ericwill>	i.e. if you right click only in the problems view, going from parent treeitem to the child, the menu on the first right click on the child is actually the one for the parent
+Feb 16 11:52:34 <akurtakov>	hmm, mouse move not registered when click happens?
+Feb 16 11:53:04 <ericwill>	maybe, this tree uses a JFace MenuManager
+Feb 16 11:53:14 <ericwill>	I am still trying to figure out how it knows which menu to popup
+Feb 16 11:53:33 <ericwill>	i.e. what are the steps from click -> menu popup
+Feb 16 12:19:57 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Feb 16 12:19:57 2018
+
+**** BEGIN LOGGING AT Fri Feb 16 13:13:13 2018
+
+Feb 16 13:13:13 *	Now talking on #SWT
