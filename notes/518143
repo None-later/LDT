@@ -1,0 +1,33 @@
+Hightlights:
+- N/A -> (WIP)
+
+Last 7 days:
+- (WIP) Gtk3 TreeCheese with custom drawn trees #531048
+    * Quickfix to not hide columns had the issue that it changed api (making inconsistent with Win32/Cocoa),
+      so I've been researching root cause.
+    * So far determined that event order is out of place:
+       On gtk3, packing is reached before sizes are determined by MeasureItem,
+       as a result TableColumns are packed to 0x0.
+       Changing event order seems to improve the situation.
+    * Table/Tree have a waterbed effect, change in one place breaks something
+      else in another place.
+      To ensure I don't break eclipse, I made a mini manual-jUnit test suite & gather all Table snippets into one
+      place to quickly verify Table functionality upon changes.
+      In the process, found a number of new Tree/Table related bugs (including more custom drawings bugs).
+    * Spent some time learnings about SWT Custom Drawn Trees & Gtk Trees.
+    * I don't have ETA for fix yet, as it's more complex than I anticipated and
+      Tree/Table bugs require more testing than regular bugs.
+
+Misc:
+531593 – [Webkit2] Crash in webkit on hover
+
+Found new Tree/Table bugs during snippet testing:
+  531882 – (Snippet230_tableCol_icon_packing) [Gtk3] Snippet230, tablecolumn icons on right size get cut off
+  531885 – (Snippet149_ProgressBarInTable) [Gtk3] Snippet149 ProgressBar in table broken
+  531561: [Gtk3] Snippet231 packing makes shell have too short window height.
+  531875: [Gtk] Snippet38 Table column.pack trims text. Padding probably not considered
+  531885: [Gtk3] More than 1 control as TableEditor in table is broken. Snippet149
+
+Next 7 days:
+- Gtk3 TreeCheese fix.
+- (next in line) Webkit2 hang if clicking javadoc icon.

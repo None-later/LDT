@@ -6890,3 +6890,387 @@ Feb 16 12:19:57 *	Disconnected (Connection timed out)
 **** BEGIN LOGGING AT Fri Feb 16 13:13:13 2018
 
 Feb 16 13:13:13 *	Now talking on #SWT
+**** BEGIN LOGGING AT Fri Feb 16 15:09:21 2018
+
+Feb 16 15:09:21 *	Now talking on #SWT
+**** ENDING LOGGING AT Fri Feb 16 15:09:27 2018
+
+**** ENDING LOGGING AT Fri Feb 16 16:08:46 2018
+
+**** BEGIN LOGGING AT Wed Feb 21 08:29:41 2018
+
+Feb 21 08:29:41 *	Now talking on #SWT
+**** BEGIN LOGGING AT Wed Feb 21 10:33:27 2018
+
+Feb 21 10:33:27 *	Now talking on #SWT
+Feb 21 15:25:23 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Feb 21 15:25:23 2018
+
+**** BEGIN LOGGING AT Wed Feb 21 15:34:18 2018
+
+Feb 21 15:34:18 *	Now talking on #SWT
+**** BEGIN LOGGING AT Thu Feb 22 11:13:16 2018
+
+Feb 22 11:13:16 *	Now talking on #SWT
+**** BEGIN LOGGING AT Thu Feb 22 14:18:58 2018
+
+Feb 22 14:18:58 *	Now talking on #SWT
+Feb 23 10:10:06 <lufimtse>	akurtakov, if you don't object, I'll pause treeCheese and work on this one first: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531593
+Feb 23 10:10:37 <akurtakov>	lufimtse: sure, crashes with prio
+Feb 23 10:12:32 <lufimtse>	kk
+Feb 23 10:14:21 <akurtakov>	lufimtse: any guesses what's going on?
+Feb 23 10:16:08 <lufimtse>	hmm
+Feb 23 10:40:31 <akurtakov>	ericwill: ok, I'm here
+Feb 23 10:40:40 <ericwill>	akurtakov okay so Button.computeSize() is messing up?
+Feb 23 10:40:46 <akurtakov>	ericwill: I think so
+Feb 23 10:41:14 <akurtakov>	the issue seems to be in method that contains:
+Feb 23 10:41:16 <akurtakov>	button.setFont(JFaceResources.getDialogFont());
+Feb 23 10:41:18 <akurtakov>			PixelConverter converter = new PixelConverter(button);
+Feb 23 10:41:19 <akurtakov>			int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
+Feb 23 10:41:21 <akurtakov>			return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+Feb 23 10:41:57 <ericwill>	akurtakov where is that method
+Feb 23 10:42:25 <akurtakov>	ericwill: org.eclipse.pde.internal.ui.SWTFactory
+Feb 23 10:43:15 <ericwill>	akurtakov okay give me a sec to pull and check it out
+Feb 23 10:49:37 <akurtakov>	I have to run now
+Feb 23 10:49:42 <akurtakov>	will be back in ~3 h
+Feb 23 10:56:00 <ericwill>	akurtakov confirmed, it's a 3.20+ button.computeSize() issue
+**** ENDING LOGGING AT Fri Feb 23 17:16:08 2018
+
+**** BEGIN LOGGING AT Tue Feb 27 09:10:10 2018
+
+Feb 27 09:10:10 *	Now talking on #SWT
+Feb 27 13:32:53 <akurtakov>	lufimtse: https://wiki.eclipse.org/Eclipse/PMC 
+Feb 27 13:33:00 <akurtakov>	see the last topic
+Feb 27 13:33:08 <akurtakov>	the burden is on you guys :)
+Feb 27 13:44:23 <lufimtse>	let's see
+Feb 27 13:46:18 <lufimtse>	interesting
+Feb 28 09:28:55 <lufimtse>	akurtakov, morning.
+Feb 28 09:29:02 <akurtakov>	lufimtse: hey
+Feb 28 09:29:34 <lufimtse>	akurtakov, Let me pull of an akurtakov. Hey Alex, what are you working on today :-)? 
+Feb 28 09:29:43 <lufimtse>	ha ha
+Feb 28 09:30:00 <lufimtse>	just kidding
+Feb 28 09:30:01 <akurtakov>	lufimtse: just nominated Lucas for platform committer :)
+Feb 28 09:30:08 <lufimtse>	:-O
+Feb 28 09:30:09 <lufimtse>	nice
+Feb 28 09:30:19 <lufimtse>	lemme check mail
+Feb 28 09:30:23 <akurtakov>	you're elligible to vote :)
+Feb 28 09:31:13 <lufimtse>	I don't see an email about it
+Feb 28 09:31:17 <lufimtse>	is it yet to come?
+Feb 28 09:31:33 <akurtakov>	https://dev.eclipse.org/mhonarc/lists/platform-dev/msg01199.html
+Feb 28 09:31:36 <akurtakov>	it's out there 
+Feb 28 09:32:39 <lufimtse>	ah, never mind, it's there
+Feb 28 09:32:48 <lufimtse>	will vote
+Feb 28 09:33:12 <lufimtse>	I can't legally vote for a Canadian president yet (Don't have citizenship yet), but I can vote for Lucas.
+Feb 28 09:33:52 <lufimtse>	I'm working on the Tree Cheese stuff. From what I gather it's caused by a workaround for another problem in 2005
+Feb 28 09:34:03 <lufimtse>	so gotta fix a broken workaround
+Feb 28 09:34:05 <akurtakov>	in 2005 ?
+Feb 28 09:34:06 <akurtakov>	:)
+Feb 28 09:34:11 <akurtakov>	is it for gtk2 only ?
+Feb 28 09:34:24 <lufimtse>	I'm investigating
+Feb 28 09:34:32 <lufimtse>	It might be more to be consistent with win/cocoa
+Feb 28 09:34:34 <akurtakov>	if it's for gtk2 only this workaround :)
+Feb 28 09:34:42 <lufimtse>	ha ha
+Feb 28 09:34:46 <lufimtse>	I know what u'll say
+Feb 28 09:34:49 <lufimtse>	nuke it ha ha
+Feb 28 09:35:07 <akurtakov>	I'm not saying it - it comes naturally to your mind :)
+Feb 28 09:35:27 <akurtakov>	one can not and should not fight nature :)
+Feb 28 09:39:04 <lufimtse>	voted
+Feb 28 09:39:54 <akurtakov>	perfect
+Feb 28 15:05:35 <akurtakov>	lufimtse: so what's going on with the tree drawing issue ?
+Feb 28 15:33:54 <lufimtse>	akurtakov, let's disscuss:
+Feb 28 15:34:04 <lufimtse>	akurtakov, I can fix the issue by commenting out line line of code
+Feb 28 15:34:12 <lufimtse>	which is actually a workaround to a previous issue
+Feb 28 15:34:19 <lufimtse>	but I don't know if it breaks stuff
+Feb 28 15:34:24 <lufimtse>	basically, 
+Feb 28 15:34:38 <lufimtse>	if you would insert a column with no items, it used to cause problems
+Feb 28 15:34:45 <lufimtse>	so they inserted it hidden (visible=false)
+Feb 28 15:34:51 <lufimtse>	and then made it visible when the first item was shown
+Feb 28 15:35:00 <lufimtse>	in the past it seemed to cause ATK to crash
+Feb 28 15:35:13 <lufimtse>	but now I've tested inserting visible columns, it doesn't crash atk anymore
+Feb 28 15:38:21 <akurtakov>	lufimtse: even with gtk2 ?
+Feb 28 15:38:38 <akurtakov>	can you think of other reason to insert column invisible 
+Feb 28 15:38:53 <lufimtse>	so the trouble is I'm not very aqainted with Tables/Trees
+Feb 28 15:38:56 <lufimtse>	so I'm now reading up on them
+Feb 28 15:39:09 <lufimtse>	I.e aquiring Table-foo
+Feb 28 15:39:27 <lufimtse>	Option 1) Fix it proper. Which might take a while.
+Feb 28 15:39:36 <lufimtse>	Option 2) Fix quicker, and hope for the best.
+Feb 28 15:39:49 <lufimtse>	with option 2, just test all snippets 
+Feb 28 15:39:52 <lufimtse>	and IDE
+Feb 28 15:39:58 <lufimtse>	if all looks well, go for it.
+Feb 28 15:40:08 <lufimtse>	with option 1, really understand why we're hiding stuff
+Feb 28 15:40:18 <lufimtse>	and see if we can get rid of the hiding mechanism altogether
+Feb 28 15:40:25 <lufimtse>	as it seems to cause bunch of drawing issues
+Feb 28 15:40:33 <lufimtse>	also the invisibility of columns is generating some warnings for atk
+Feb 28 15:40:41 <lufimtse>	e.g: https://bugs.eclipse.org/bugs/show_bug.cgi?id=399522
+Feb 28 15:41:15 <lufimtse>	Suggestion: 
+Feb 28 15:41:47 <lufimtse>	I'll spent some time to figure out the visibility, a few days. If I make good propress go the long route. If I don't make a quicker fix and hope for the best.
+Feb 28 15:41:50 <lufimtse>	wdyt?
+Feb 28 15:45:59 <akurtakov>	sounds god
+Feb 28 15:46:00 <akurtakov>	good
+Feb 28 15:46:41 <lufimtse>	ok
+Feb 28 15:46:41 <akurtakov>	if snippets and IDE are fine and issue is found we have to enhance snippets/tests to catch the new issue
+Feb 28 15:47:45 <akurtakov>	lufimtse: I'm seriously troubled that comments like the latest from Andrey are seriously hurting us
+Feb 28 15:48:04 <akurtakov>	IMHO, things are not that bad as he presents it but meh
+Feb 28 15:48:16 <ericwill>	akurtakov I was about to mention that
+Feb 28 15:48:33 <ericwill>	akurtakov why is he being like this, especially since we have been putting efforts into fixing his stuff
+Feb 28 15:49:04 <akurtakov>	well, negative people cause damage to everything they get close to 
+Feb 28 15:49:07 <akurtakov>	that's it
+Feb 28 15:49:08 <akurtakov>	:)
+Feb 28 15:50:00 <ericwill>	akurtakov is it worth responding to him or no
+Feb 28 15:50:10 <ericwill>	re: his latest email on platform-swt-dev
+Feb 28 15:50:16 <akurtakov>	ericwill: if you have what to say :)
+Feb 28 15:50:31 <akurtakov>	mine would not be polite so I would better stay silent :)
+Feb 28 15:51:13 <ericwill>	haha okay
+Feb 28 15:51:50 <akurtakov>	and Bulgarian is way more "colorful" than English
+Feb 28 15:52:02 <akurtakov>	so luckily I can't even translate what I have to say fully :)
+Feb 28 15:52:18 <ericwill>	it's better this way :)
+Feb 28 15:53:05 <akurtakov>	yeah, I started writing a reply and deleted it after the second sentence
+Feb 28 15:57:52 <ericwill>	akurtakov I have reached the same conclusion :) not worth the time to respond to him
+Feb 28 15:59:28 <akurtakov>	ericwill: the only effect such comments have on me is becoming more stubborn and selfish
+Feb 28 16:00:00 <akurtakov>	and be even more sure in my agenda even if others might not like it
+Feb 28 16:00:17 <akurtakov>	it's not like anyone tries to be nice with me so why should I be :0
+Feb 28 16:04:00 <ericwill>	it makes me less motivated to work on his bugs :)
+Feb 28 16:04:23 <ericwill>	though Simeon seems reasonable (and quite helpful)
+Feb 28 16:04:45 <lufimtse>	well
+Feb 28 16:04:55 <lufimtse>	Having background in customer support
+Feb 28 16:05:27 <lufimtse>	maybe say that we've put a fair bit of work into reducing warnings (links to warnings fixes), and that we're putting in effort to remove more of such.
+Feb 28 16:05:40 <lufimtse>	Telling people their problem is not important usually doesn's slide well
+Feb 28 16:06:03 <lufimtse>	and thank them for bringing up the warning issue
+Feb 28 16:06:47 <lufimtse>	and encourage bug submissions for warnings for which we don't yet have snippets to reproduce
+Feb 28 16:06:52 <lufimtse>	and maybe vote.
+Feb 28 16:07:08 <lufimtse>	then fix warnings they mentioned, and tell them we fixed it.
+Feb 28 16:07:11 <lufimtse>	Then they will be happy.
+Feb 28 16:07:32 <lufimtse>	And tell others about their happy eclipse experience
+Feb 28 16:08:06 <lufimtse>	thoughts?
+Feb 28 16:08:18 <akurtakov>	lufimtse: I would do that for newcomers
+Feb 28 16:08:30 <akurtakov>	but for seasoned committers - HELL NO
+Feb 28 16:08:40 <akurtakov>	I expect way more from them in terms of behavious
+Feb 28 16:08:44 <akurtakov>	behavior
+Feb 28 16:09:30 <lufimtse>	What did andrey say that is bad anyway?
+Feb 28 16:09:44 <lufimtse>	that they hide the warnings from their customers?
+Feb 28 16:10:10 <lufimtse>	meh
+Feb 28 16:10:57 <akurtakov>	that the only way is removing Gtk3
+Feb 28 16:11:15 <akurtakov>	without any proposal backed with resources to act 
+Feb 28 16:11:24 <akurtakov>	that's unacceptable behavior from committer
+Feb 28 16:12:06 <lufimtse>	that's fair.
+Feb 28 16:12:25 <lufimtse>	It may be worth pointing out that gtk2 doesn't work proper as there is no webkit1 on newer linux systems
+Feb 28 16:13:04 <lufimtse>	so javadoc doesn't even work proper on fedora27 with eclipse on gtk2 (I think)
+Feb 28 16:13:15 <lufimtse>	*best effort :-)
+Feb 28 16:13:25 <lufimtse>	usually explaining things works well.
+Feb 28 16:13:47 <lufimtse>	I could respond to him.
+Feb 28 16:13:49 *	akurtakov is beyond that point with Andrey for swt stuff :)
+Feb 28 16:14:03 <akurtakov>	his SWT mails simply be ignored
+Feb 28 16:14:18 <lufimtse>	I lived in Germany for 6 years and spoke with German clients for 2 years. Germans have a certain way of thinking/behaving :-)
+Feb 28 16:14:38 <lufimtse>	Which might seem strange to non-german people
+Feb 28 16:14:57 <lufimtse>	X-D
+Feb 28 16:15:05 *	lufimtse goes back to study tables.
+Feb 28 16:15:25 <akurtakov>	so I am free to act with my Balkan habbits ? :P
+Feb 28 16:16:52 <lufimtse>	I think with people from Germany, they generally focus on the problem, which comes across as being rude
+Feb 28 16:17:09 <lufimtse>	the key is not to take it personal :-)
+Feb 28 16:17:22 <akurtakov>	and here we just say it directly in the eyes when one acts as asshole :)
+Feb 28 16:17:43 <akurtakov>	and we don't take it personally :)
+Feb 28 16:17:47 <lufimtse>	ha ha
+Feb 28 16:18:17 <ericwill>	Thomas Singer focuses on the problem, Andrey goes beyond that: https://bugs.eclipse.org/bugs/show_bug.cgi?id=527729#c2
+Feb 28 16:18:57 <lufimtse>	X-D. omg,
+Feb 28 16:19:00 <lufimtse>	that's intense
+Feb 28 16:23:45 <akurtakov>	yeah, Thomas Singer is good guy - quite demanding but always sticks to the technical part
+Feb 28 16:36:46 <lufimtse>	akurtakov, after reading the comment about the North Korean children, I see what you mean about Andrey
+Feb 28 16:38:19 <ericwill>	akurtakov for the context menu bug: how concerned are you for a fix on GTK3 versions less than 3.22
+Feb 28 16:38:37 <akurtakov>	ericwill: not much
+Feb 28 16:38:51 <akurtakov>	if you can fix it for 3.22 - that's fine
+Feb 28 16:39:03 <ericwill>	kk
+Feb 28 16:40:57 <akurtakov>	ericwill: technically, I'm fine with closing bugs with statements like "fixed with Gtk 3.22, fixing for older versions will be significant effort which would better be spent elsewhere"
+Feb 28 16:41:07 <akurtakov>	"please update your GTK version"
+Feb 28 16:41:26 <akurtakov>	ericwill: btw, why? do you have a breakthrough requiring gtk 3.22 added api ?
+Feb 28 16:41:54 <ericwill>	okay, sounds good
+Feb 28 16:41:55 <ericwill>	akurtakov yes
+Feb 28 16:42:05 <akurtakov>	ericwill: that's interesting
+Feb 28 16:42:23 <akurtakov>	ericwill: in general the oldest version we care about is the latest RHEL 7 
+Feb 28 16:42:32 <akurtakov>	which in this case is 3.22 :)
+Feb 28 16:42:42 <ericwill>	akurtakov I didn't use new API but the fix works with the newest API, 3.20- menu popup API is really ancient
+Feb 28 16:43:48 <ericwill>	as you have to provide a menu positioning callback function and that sort of thing -- effort not worth it IMO
+Feb 28 16:44:16 <akurtakov>	ericwill: fine with me
+Feb 28 16:44:31 <akurtakov>	IMHO we have been playing too nice with old versions
+Feb 28 16:45:42 <akurtakov>	ericwill: https://git.eclipse.org/r/#/c/118383/ ?
+Feb 28 16:45:53 <ericwill>	akurtakov that's the fix yes
+Feb 28 16:45:58 <ericwill>	in the process of testing it now
+Feb 28 16:46:11 <akurtakov>	ericwill: it's x11 only
+Feb 28 16:46:14 <akurtakov>	what about wayland ?
+Feb 28 16:46:21 <ericwill>	akurtakov wayland doesn't have the bug
+Feb 28 16:48:01 <akurtakov>	ericwill: ah ok
+Feb 28 16:48:19 <akurtakov>	so the positioning issues on wayland are handled in other bugs ?
+Feb 28 16:49:04 <ericwill>	akurtakov are they any other menu positioning issues on Wayland? I thought the last was the show-in business
+Feb 28 16:49:09 <ericwill>	*are there
+Feb 28 16:49:23 <akurtakov>	ericwill: ah you fixed it
+Feb 28 16:50:18 <akurtakov>	ericwill: btw, I really hate that with the show-in clicking outside the popup doesn't close it :)
+Feb 28 16:50:23 <akurtakov>	but it's anothe bug
+Feb 28 16:50:40 <ericwill>	akurtakov yeah that's a focus issue, not just for menus IIRC
+Feb 28 16:51:03 <akurtakov>	ericwill: good to see progress on the positioning
+Feb 28 16:51:12 <akurtakov>	esp as we will be able to close the RHEL issue
+Feb 28 16:52:17 <ericwill>	akurtakov yes I hope I can get this fix in for M6
+Feb 28 16:52:20 *	ericwill is tired of menus
+Feb 28 16:52:55 <akurtakov>	ericwill: I have to update Jetty and finally merge sha-256 checksup support in p2 tomorrow :)
+Feb 28 16:53:18 <akurtakov>	no time to even get tired
+Feb 28 16:54:35 <ericwill>	akurtakov :(
+Feb 28 16:54:50 <akurtakov>	and security is the area I hate most
+Feb 28 17:06:32 <rgrunber>	lufimtse: do you remember what you meant by "I need to address Debug expression viewer on dark theme also." The expression view seems fine on linux and win32.
+Feb 28 17:09:03 <lufimtse>	rgrunber, thinking
+Feb 28 17:09:10 <lufimtse>	rgrunber, retrieving memory from tape backup
+Feb 28 17:09:35 <lufimtse>	rgrunber, what bug?
+Feb 28 17:10:03 <rgrunber>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=508793#c7
+Feb 28 17:10:22 <rgrunber>	Sarika made a bug from that note when she closed it https://bugs.eclipse.org/bugs/show_bug.cgi?id=531795
+Feb 28 17:10:45 <rgrunber>	however was your comment simply meant to say.. the debug hover should be addressed on dark theme.. which you did address later on..
+Feb 28 17:11:08 <rgrunber>	ie you were addressing the debug hover on light theme first.. then probably came up with INFORMATION api to adress on dark also.
+Feb 28 17:11:38 <rgrunber>	bcause the Expression View itself looks fine to me on dark theme
+Feb 28 17:12:07 <lufimtse>	I recall there was something that it wasn't working when you debug stuff
+Feb 28 17:12:20 <lufimtse>	lemme check
+Feb 28 17:12:21 <lufimtse>	sec
+Feb 28 17:14:45 <lufimtse>	rgrunber, now it looks better. It's black as oppose to being white (on dark theme), but it's a bit too black. It should have that gentle dray instead of dark black black
+Feb 28 17:15:54 <rgrunber>	yeah i saw that too
+Feb 28 17:16:15 <lufimtse>	s/dray/gray
+Feb 28 17:16:36 <rgrunber>	but Sarika is basically saying something like the expression viewer is light on a dark theme..
+Feb 28 17:16:56 <rgrunber>	read her comment on it
+Feb 28 17:17:12 <lufimtse>	could be she's not using Adwaita
+Feb 28 17:17:15 <lufimtse>	maybe
+Feb 28 17:17:29 <lufimtse>	I haven't tested with non-adwaita
+Feb 28 17:17:52 <lufimtse>	or she has old gtk..
+Feb 28 17:18:00 <lufimtse>	works well on my dark eclipse
+Feb 28 17:18:13 <rgrunber>	iirc she runs Macos right ?
+Feb 28 17:18:35 <rgrunber>	but yeah no idea.. guess i'll ask for clarification
+Feb 28 17:20:35 <akurtakov>	rgrunber: probably the Expression view gets fixed on Fedora by our hack to switch to Adwaita:dark
+Feb 28 17:20:48 <akurtakov>	please try with another theme and you'll probably see the issue
+Feb 28 17:22:06 <akurtakov>	rgrunber: alternatively you can try running as child eclipse without org.eclipse.e4.ui.swt.gtk
+Feb 28 17:25:34 <akurtakov>	rgrunber: org.eclipse.e4.ui.swt.gtk really fixes many dark theme issues on proper GTK :)
+Feb 28 17:26:04 <akurtakov>	or to be exact hides improper theming :)
+Feb 28 17:28:28 <rgrunber>	expression view still shows up .. dark.
+Feb 28 17:28:50 <rgrunber>	in fact it was the same on windows so i kinda wondered if it could be linux related at all..
+Feb 28 17:29:04 <rgrunber>	though yeah.. that little fragment actually makes dark theme look better
+Feb 28 17:30:34 <akurtakov>	rgrunber: than post screenshot and say you don't see what's to be fixed there :)
+Feb 28 17:30:53 <rgrunber>	yeh.. basically.. we shall see
+Feb 28 17:31:05 <rgrunber>	*almost said we shell see
+Mar 01 10:24:47 <akurtakov>	ericwill: 
+Mar 01 10:25:08 <akurtakov>	ericwill: under wayland
+Mar 01 10:25:11 <akurtakov>	open Problems view
+Mar 01 10:25:23 <akurtakov>	click on the down arrow button to see menu
+Mar 01 10:25:35 <akurtakov>	it opens in totally werid place
+Mar 01 10:25:57 <ericwill>	akurtakov hmm I can't reproduce that
+Mar 01 10:26:34 <ericwill>	akurtakov send screenshot?
+Mar 01 10:26:51 <akurtakov>	ericwill: https://imagebin.ca/v/3tOA5HrJ8hJM
+Mar 01 10:27:02 <akurtakov>	I was preparing when you asked for it
+Mar 01 10:27:37 <ericwill>	akurtakov and by the arrow button you mean the one next to the maximize/minimize, right?
+Mar 01 10:28:00 <akurtakov>	ericwill: yes, the "View menu"
+Mar 01 10:28:49 <ericwill>	akurtakov can't reproduce it
+Mar 01 10:28:54 <ericwill>	akurtakov try a clean workspace?
+Mar 01 10:28:57 <akurtakov>	ericwill: wayland ?
+Mar 01 10:29:14 <ericwill>	akurtakov yeah I use wayland full time, can't reproduce it on my M5 build or a child eclipse with master
+Mar 01 10:30:05 <akurtakov>	ericwill: ok, make it fast view
+Mar 01 10:30:13 <akurtakov>	ericwill: and restart eclipse
+Mar 01 10:30:29 <akurtakov>	ericwill: it worked with clean workspace initially
+Mar 01 10:30:40 <akurtakov>	but as I always have it as fast view I tried
+Mar 01 10:30:58 <ericwill>	akurtakov what is a fast view
+Mar 01 10:31:06 <akurtakov>	even making it back not fast view the menu keeps appearing wrong
+Mar 01 10:31:20 <akurtakov>	ericwill: click the minimize button  :)
+Mar 01 10:31:44 <akurtakov>	fast view - a view that hides when another one becomes actie :)
+Mar 01 10:32:30 <ericwill>	akurtakov okay now I can reproduce it
+Mar 01 10:32:43 <akurtakov>	ericwill: I'm not sure whether to say good :0
+Mar 01 10:33:15 <ericwill>	akurtakov probably a symptom of: https://bugs.eclipse.org/bugs/show_bug.cgi?id=530204
+Mar 01 10:33:26 <ericwill>	most of the menus attached to buttons use Menu.setLocation()
+Mar 01 10:33:38 <ericwill>	and on Wayland with no global coords this is broken :)
+Mar 01 10:33:58 <akurtakov>	well mouse is at the button :)
+Mar 01 10:37:02 <ericwill>	akurtakov I thought so too but a lot of these menus are called like this: https://github.com/eclipse/eclipse.platform.ui/blob/9eb944951a256f97fbbc78ad4749d1cbd04925d3/bundles/org.eclipse.ui.ide/src/org/eclipse/ui/internal/ide/dialogs/OpenResourceDialog.java#L336
+Mar 01 10:38:26 <ericwill>	akurtakov either way I'll look into it
+Mar 01 10:40:38 <akurtakov>	ericwill: I see 
+Mar 01 10:40:54 <akurtakov>	so we need to fix the callers ?
+Mar 01 10:41:10 <akurtakov>	have you documented that this is not working on wayland in the javadoc
+Mar 01 10:41:21 <akurtakov>	it would be needed when we go fixing callers
+Mar 01 10:41:33 <akurtakov>	at least I don't see other option - do you ?
+Mar 01 10:41:49 <ericwill>	akurtakov well currently Menu.setLocation() is completely ignored
+Mar 01 10:42:08 <ericwill>	we should fix that first, then try to fix the callers
+Mar 01 10:42:14 <akurtakov>	ericwill: fix how ?
+Mar 01 10:42:45 <ericwill>	akurtakov with GTK3.22 we have: https://developer.gnome.org/gtk3/stable/GtkMenu.html#gtk-menu-popup-at-rect
+Mar 01 10:42:54 <ericwill>	we should check in menu._setVisible
+Mar 01 10:43:09 <ericwill>	"if (hasLocation), do x"
+Mar 01 10:45:34 <ericwill>	if you look in Menu.java, the x and y variables are never used when popping up the menu
+Mar 01 10:46:16 <ericwill>	that said, we should probably fix the javadocs as well because Menu.setLocation() is global coords, not parent-relative
+Mar 01 10:46:27 <akurtakov>	ericwill: so how does it open correctly now ?
+Mar 01 10:46:32 <akurtakov>	if x and y are not used ?
+Mar 01 10:46:43 <akurtakov>	s/now/on x11/
+Mar 01 10:47:06 <ericwill>	it grabs the mouse button event and pops up there, the fact that it works on X11 is a coincidence :)
+Mar 01 10:47:22 <akurtakov>	ericwill: wow :)
+Mar 01 10:47:31 <akurtakov>	ericwill: btw, ask Andrey to verify the bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=431423
+Mar 01 10:47:41 <akurtakov>	we should throw work at him :)
+Mar 01 10:48:11 <lufimtse>	rgrunber, Expression viewer looks nice on Dark theme now. Thanks. https://bugs.eclipse.org/bugs/attachment.cgi?id=272961
+Mar 01 10:48:38 <ericwill>	akurtakov will do :)
+Mar 01 11:09:14 <rgrunber>	lufimtse: but i'm pretty sure it's uglier somewhere.. either windows
+Mar 01 14:37:05 <lufimtse>	rgrunber, nie
+Mar 01 14:37:10 <lufimtse>	rgrunber, nice
+**** BEGIN LOGGING AT Mon Mar  5 12:57:46 2018
+
+Mar 05 12:57:46 *	Now talking on #SWT
+Mar 05 12:57:52 <ericwill>	lufimtse https://github.com/mbooth101/flatpak-dev-shim/blob/master/jni/FlatpakDevelopmentShim.c
+Mar 05 12:58:19 <lufimtse>	ericwill, akurtakov I'll take a look. I keep forgetting to turn on my irc after reboot.
+Mar 05 13:07:36 <ericwill>	akurtakov after setRegion, what kind of major bugs would you like me to look into
+Mar 05 13:09:12 <ericwill>	maybe some of the tree drawing issues that Leo reported?
+Mar 05 13:10:40 <akurtakov>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=530317
+Mar 05 13:11:08 <akurtakov>	it's terrible and will look broken if one tries the advertised Photon content
+Mar 05 13:11:18 <ericwill>	akurtakov okay, added to my list
+Mar 05 13:11:40 <akurtakov>	ericwill: cool, are you out of tasks :)
+Mar 05 13:12:09 <akurtakov>	ericwill: btw, the menu thing on wayland is smth I see daily :)
+Mar 05 13:12:14 <akurtakov>	with problems view :)
+Mar 05 13:15:55 <ericwill>	akurtakov my tasks list was running low :P and alright I'll look into the wayland thing as well
+Mar 05 13:26:11 <akurtakov>	ericwill: well, I don't mind taking a day per week for low hanging fruit se we can see more things fixed :)
+Mar 05 13:27:27 <ericwill>	akurtakov I'll keep it in mind
+Mar 05 14:33:07 <ericwill>	akurtakov formatter button bug is a regression from my fix for GTK allocation warnings :)
+Mar 05 14:33:45 <akurtakov>	ericwill: which one ?
+Mar 05 14:34:40 <ericwill>	akurtakov http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=02caa3d3e3329b6e6fb4a2bd1918747a3ca3ba20
+Mar 05 14:34:47 <ericwill>	I'll continue to investigate what is going on
+Mar 05 14:34:51 <ericwill>	that is what I have found so far
+Mar 05 16:30:28 Python interface unloaded
+**** ENDING LOGGING AT Mon Mar  5 16:30:28 2018
+
+**** BEGIN LOGGING AT Mon Mar  5 23:03:49 2018
+
+Mar 05 23:03:49 *	Now talking on #SWT
+Mar 06 04:56:51 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Tue Mar  6 04:56:51 2018
+
+**** BEGIN LOGGING AT Wed Mar  7 15:38:18 2018
+
+Mar 07 15:38:18 *	Now talking on #SWT
+Mar 07 16:05:35 <lufimtse>	ericwill, you might find my last comment mildly entertaining: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531785#c5
+Mar 07 16:17:12 <rgrunber>	lufimtse: well he did say his memory might be wrong :P
+Mar 07 16:21:00 <lufimtse>	rgrunber, true. I was just making fun.
+Mar 07 16:21:19 <rgrunber>	joke obliterated.. you're welcome
+Mar 09 13:15:54 <lufimtse>	ericwill, remember our little code coverage hack where we export to html, into a git repo and use git diff to find differences between sessions?
+Mar 09 13:16:05 <ericwill>	lufimtse yes
+Mar 09 13:17:37 <lufimtse>	ericwill, I wrote script hack things further.  I delete non-java files and remove pesky "timespamp" header/footer of files. The result is that you get a list of only files with actual diffs.
+Mar 09 13:17:40 <lufimtse>	https://pastebin.com/354GHvkC
+Mar 09 13:17:59 <lufimtse>	we get: https://i.imgur.com/GY4JP33.png
+Mar 09 13:18:16 <ericwill>	lufimtse beautiful :)
+Mar 09 13:18:51 <lufimtse>	I'll show you when you get in. 
+Mar 09 13:19:19 <lufimtse>	The nice thing (at least for me) , it shows the changes in the ruler: https://i.imgur.com/kHIzhKB.png
+Mar 09 13:19:32 <lufimtse>	so I can open a file and quickly see which bits differeed between runs
+Mar 09 13:20:20 <ericwill>	lufimtse ah yeah I never thought of it that way. A lot better than using meld
+Mar 09 13:45:39 <ericwill>	lufimtse now I am running into table.pack() problems
+Mar 09 13:45:59 <lufimtse>	ericwill, oh dear :-/
+Mar 09 13:46:30 <ericwill>	lufimtse I'll show you in the office on Monday
+Mar 09 13:47:59 <lufimtse>	ericwill, ok
+Mar 09 15:57:35 <lufimtse>	ericwill, the TableDrawing seems to be cache related. If tableColumns are visible between the (+-1) 5th and (+-1) 10th g_main_context_iteration(..), the drawing issue doesn't occur on 4/5 runs. But sporadically without code change it does occur.
+Mar 09 15:57:49 <lufimtse>	To figure out: https://i.imgur.com/nlLpR3b.png
+Mar 09 15:57:53 <lufimtse>	hacks ^
+Mar 09 15:58:01 <ericwill>	lufimtse really...interesting
+Mar 09 15:58:15 <lufimtse>	sfc = show first column
+Mar 09 15:58:24 <lufimtse>	like it shows first column, for 5 iterations
+Mar 09 15:58:28 <lufimtse>	then hides
+Mar 09 15:58:30 <lufimtse>	and all is well
+Mar 09 15:58:31 <lufimtse>	hmm
+Mar 09 15:58:37 <ericwill>	I wonder what triggers the cache reset
+Mar 09 15:59:05 <lufimtse>	hmm
+Mar 09 16:04:15 <ericwill>	lufimtse I have bug where moving the pack() calls around in the snippet changes the behaviour, I can show you on Monday
+Mar 09 16:42:47 <lufimtse>	ok
+Mar 09 16:43:06 <lufimtse>	I guess we have no "cache-finished" signal of sorts..
+**** ENDING LOGGING AT Fri Mar  9 17:44:28 2018
+
+**** BEGIN LOGGING AT Mon Mar 12 09:13:46 2018
+
+Mar 12 09:13:46 *	Now talking on #SWT

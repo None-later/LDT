@@ -1,106 +1,3 @@
-T 1513171353 18<convert18>	i checked decide-policy and navigation-policy but i dont see anything to hook into this error message
-T 1513171396 18<convert18>	i'm just trying to port my personal mozilla extensions to webkit, i cant use mozilla after ff57
-T 1513171427 18<KaL18>	hmm, it's weird, the ephy overview uses full paths for the thumbnails, so it should work
-T 1513171442 18<convert18>	hmm i'll check
-T 1513171504 18<convert18>	hmm consolemessage: Failed to load resource: The URL cant be show on ephy:overview ..
-T 1513171553 18<convert18>	oh wait i get it on startup..
-T 1513171621 18<convert18>	about:overview ...
-T 1513171640 18<convert18>	but thumbnails are a different matter..
-T 1513172108 18<convert18>	hmm all it seems to be doing is the same webkit_security_manager_register_uri_scheme_as_local and the comment says that'd do it
-T 1513172179 18<convert18>	i'll have to check the decide-policy code again
-T 1513173664 18<convert18>	hmm i can load resources with an <img src="file:///"> but i cant navigate to a link.  i  made sure decide-policy was allowing it
-T 1513173756 18<convert18>	heh "remove from overview" in epiphany goes to link and then adds it right back
-T 1513174041 18<convert18>	and i dont think file:/// locations go into the most visited page
-T 1513174055 18<convert18>	so there is no testing it that way
-T 1513218939 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
-T 1513235100 18<cynede18>	hi, may someone help me webkit-gtk, on 2.19.2 I'm getting Please install the PEP module File::Copy::Recursive
-T 1513235107 18<cynede18>	2.19.1 were building fine
-T 1513235180 18<tpopela18>	cynede, use 2.19.3 - that one doesn't need it..
-T 1513235261 18<KaL18>	tpopela: have you enabled bmalloc again in fedora?
-T 1513237134 18<tpopela18>	KaL, yes I did
-T 1513237141 18<KaL18>	cool
-T 1513237174 18<tpopela18>	KaL, but based on what you said - "it should be fixed" :D
-T 1513237208 18<KaL18>	tpopela: I guess it's working for you too
-T 1513237212 18<tpopela18>	KaL, reading that bug is like reading a detective story :)
-T 1513237229 18<tpopela18>	KaL, yes, because I use WK that I build myself from trunk..
-T 1513237248 18<KaL18>	ah, you haven't tried a production build
-T 1513237275 18<tpopela18>	KaL, I didn't, but I'm going to try it now..
-T 1513238479 18<cynede18>	oh :( 2.19.3 is not released
-T 1513238522 18<cynede18>	oh it is...
-T 1513238550 18<cynede18>	please put it on the website
-T 1513238664 18<tpopela18>	cynede, https://www.webkitgtk.org/
-T 1513238666 18<tpopela18>	it's there
-T 1513238755 18<cynede18>	oh I've missed it
-T 1513239081 18<tpopela18>	KaL, do you know if there is a way to turn off the unified build? It slows the build for me a lot (when using icecc.. even the local one :/)..
-T 1513239102 18<KaL18>	no idea
-T 1513239104 18<tpopela18>	KaL, I looked into cmake sources, but didn't found anything..
-T 1513239114 18<KaL18>	it works great here
-T 1513239123 18<KaL18>	with icecc
-T 1513239158 18<tpopela18>	KaL, really? before the change I was able to do a clean build in under 20 minutes.. now it's usually 30+..
-T 1513239177 18<KaL18>	it's the opposite here
-T 1513239656 18<tpopela18>	KaL, I don't know whether it's given by something here in RH office, but when I get to the phase where the unified sources are compiled, then all of them are compiled locally and they are not being sent to the builders..
-T 1513239684 18<tpopela18>	clopez, Hi Carlos, do you have an idea what could be wrong? ^
-T 1513240152 18<cynede18>	Source/WebCore/html/canvas/CanvasRenderingContext2DBase.cpp:2007:32: error: ‘canvas’ was not declared in this scope
-T 1513240152 18<cynede18>	         RenderBox* renderBox = canvas().renderBox();
-T 1513240533 18<cynede18>	canvas support broken?
-T 1513241639 18<tpopela18>	cynede, you probably use some configuration that is not tested by default.. what do you use?
-T 1513241734 18<tpopela18>	I that you use the ACCELERATED_2D_CANVAS.. create a bug for it..
-T 1513241767 18<cynede18>	tpopela yes, ACCELERATED_2D_CANVAS support is broken, builds fine without it
-T 1513241817 18<tpopela18>	cynede, yeah, the thing is that it is turned off by default.. so there is nearly no chance that we will trigger the errors during development..
-T 1513241965 18<cynede18>	done https://bugs.webkit.org/show_bug.cgi?id=180799
-T 1513242358 18<tpopela18>	KaL, WebKit is now built (40m:36s).
-T 1513242375 18<KaL18>	:-(
-T 1513242381 18<KaL18>	weird
-T 1513242930 18<tpopela18>	cynede, can you try https://paste.fedoraproject.org/paste/DwCJJw62Qj-oXsDehe0a-A ?
-T 1513242938 18<tpopela18>	KaL, it is..
-T 1513244113 18<foser18>	I can't build 2.19.3 with error: use of undeclared identifier 'canvas' RenderBox* renderBox = canvas().renderBox(); in CanvasRenderingContext2DBase.cpp .. known issue?
-T 1513244338 18<foser18>	i see there's a bug for it https://bugs.webkit.org/show_bug.cgi?id=180799
-T 1513245048 18<tpopela18>	foser, can you try https://paste.fedoraproject.org/paste/DwCJJw62Qj-oXsDehe0a-A ?
-T 1513245065 18<tpopela18>	foser, it was reported by cynede hour ago..
-T 1513245317 18<foser18>	tpopela: sure, ill build it with the patch.. report back later
-T 1513246374 18<cynede18>	tpopela I afraid I'm out of time for that currently, I should add some kind of reminder to test it later
-T 1513260823 18<tpopela18>	KaL, starting 2.19.3 locally :/
-T 1513260824 18<tpopela18>	https://paste.fedoraproject.org/paste/TelUWTmx5EnJ4D5sfvoszg
-T 1513260926 18<KaL18>	tpopela: that sounds like different versions of ui and web process
-T 1513260936 18<tpopela18>	KaL, aaaaa
-T 1513260941 18<tpopela18>	yeah that should be..
-T 1513261245 18<tpopela18>	KaL, it works ;)
-T 1513261463 18<foser18>	tpopela: patch worked for me
-T 1513261645 18<foser18>	thanks :)
-T 1513261672 18<tpopela18>	foser, ok, can you please write it to the bug?
-T 1513261966 18<foser18>	done
-T 1513262095 18<tpopela18>	foser, thanks!
-T 1513290290 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
-T 1513290731 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
-T 1513299758 18<convert18>	how do i turn on the log statements
-T 1513300368 18<convert18>	I have to edit Source/WTF/wtf/Assertions.h
-T 1513314955 18<convert18>	I wanted to turn on asserts backtrace logs etc. for a Release build, i.e. with -DDEBUG but with ASSERT_DISABLED=0 etc.
-T 1513314971 18<convert18>	But a lot of the code isnt adjusted for this scenario
-T 1513315071 18<convert18>	typically extra debugging variables are introduced thorough #ifndef NDEBUG ... #endif
-T 1513315085 18<convert18>	but the asserts are not within conditionals
-T 1513315178 18<convert18>	which use these variables...
-T 1513315812 18<convert18>	i'm fixing them as it compiles... if i cross 10...
-T 1513337669 18<ybandou18>	slomo, Hi, what do you think about my last patch in bug 765275 ? I don't think WebM responds to my request about the missing of systemID in the their spec.
-T 1513370641 19*	Now talking on 22#webkitgtk+
-T 1513370641 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.3, unstable: 2.19.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513370641 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Wed Dec 13 07:20:29 2017)
-T 1513611996 19*	Now talking on 22#webkitgtk+
-T 1513611996 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.3, unstable: 2.19.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513611996 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Wed Dec 13 07:20:29 2017)
-T 1513676235 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.18.4, unstable: 2.19.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513677561 20*	Disconnected (20Remote host closed socket)
-T 1513677587 19*	Now talking on 22#webkitgtk+
-T 1513677587 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.4, unstable: 2.19.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.18.x | "HTML is useful for a web content rendering engine."
-T 1513677587 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.197.20.0.81.ibercom.com (24Tue Dec 19 04:37:15 2017)
-T 1513683228 18<tpopela18>	KaL, Hi Carlos - you know the WebDriver and cmake much better than me - it looks like there is a dependency missing in cmake - https://paste.fedoraproject.org/paste/oNA8jRrShpngUzRbFY~0xA
-T 1513683293 18<KaL18>	tpopela: hmm, it's weird, because distcheck passed
-T 1513683327 18<KaL18>	but yes, it seems to be a problem of rules dependency
-T 1513683360 18<tpopela18>	KaL, yeah, this is was triggered on ppc64 machine (while running like -j64 - I think that it's not possible to hit it on normal machine)
-T 1513683381 18<KaL18>	file a bug report, please
-T 1513683395 18<tpopela18>	KaL, i resubmitted the job and now it succeeded.. ok I will..
-T 1513683569 18<tpopela18>	KaL, https://bugs.webkit.org/show_bug.cgi?id=180972
-T 1513683578 18<KaL18>	thanks
-T 1513683677 18<tpopela18>	KaL, np :)
 T 1513683827 18<annulen18>	isn't it weird that make-js-file-arrays.py is copied into ForwardingHeaders?
 T 1513683854 18<KaL18>	yes
 T 1513683976 18<tpopela18>	annulen, yeah I was surprised as well that there is a whole directory of various scripts..
@@ -508,3 +405,98 @@ T 1518805047 20*	Disconnected (20Remote host closed socket)
 T 1518805070 19*	Now talking on 22#webkitgtk+
 T 1518805070 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.90 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
 T 1518805070 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Mon Feb  5 06:58:47 2018)
+T 1519219797 19*	Now talking on 22#webkitgtk+
+T 1519219797 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519219797 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519227225 19*	Now talking on 22#webkitgtk+
+T 1519227225 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519227225 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519244772 20*	Disconnected (20Connection timed out)
+T 1519244798 19*	Now talking on 22#webkitgtk+
+T 1519244798 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519244798 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519246267 20*	Disconnected (20Connection timed out)
+T 1519246294 19*	Now talking on 22#webkitgtk+
+T 1519246294 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519246294 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519316012 19*	Now talking on 22#webkitgtk+
+T 1519316012 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519316012 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519327153 19*	Now talking on 22#webkitgtk+
+T 1519327153 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519327153 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519740625 19*	Now talking on 22#webkitgtk+
+T 1519740625 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1519740625 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1519828431 18<lantw4418>	Hello, is there any changes made to cookie policy in WebKitGTK+ 2.19/2.20 cycle?
+T 1519828498 18<lantw4418>	I am unable to login to Phabricator and FreeBSD bugzilla keeps asking me to type password because cookies are rejected.
+T 1519828626 18<Ms2ger18>	lantw44, yes, I think something about cookies changed recently, let me check if I can find a bug
+T 1519828667 18<lantw4418>	It is possible to resolve the problem by setting the cookie policy to 'always accept' in Epiphany, but this looks like a workaround,
+T 1519837782 18<Ms2ger18>	lantw44, could you please file a bug report?
+T 1519916023 18<lantw4418>	Ms2ger: https://bugs.webkit.org/show_bug.cgi?id=183245
+T 1519916041 18<Ms2ger18>	Thanks!
+T 1520272681 19*	Now talking on 22#webkitgtk+
+T 1520272681 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520272681 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1520309042 19*	Now talking on 22#webkitgtk+
+T 1520309042 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.91 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520309042 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.182.18.0.81.ibercom.com (24Wed Feb 21 03:45:51 2018)
+T 1520328818 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.18.6, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520330252 20*	Disconnected (20Invalid argument)
+T 1520330280 19*	Now talking on 22#webkitgtk+
+T 1520330280 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520330280 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Tue Mar  6 04:33:38 2018)
+T 1520380620 20*	Disconnected (20Connection timed out)
+T 1520380652 19*	Now talking on 22#webkitgtk+
+T 1520380652 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520380652 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Tue Mar  6 04:33:38 2018)
+T 1520455113 19*	Now talking on 22#webkitgtk+
+T 1520455113 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.18.6, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520455113 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Tue Mar  6 04:33:38 2018)
+T 1520455525 18<xjuan18>	ohh weird if I register a scheme with a uppercase letter it crashes!
+T 1520467724 18<bfulgham18>	annulen: I missed your response earlier.
+T 1520467731 18<bfulgham18>	annulen: Here's the patch: https://bugs.webkit.org/attachment.cgi?id=335196&action=review
+T 1520467755 18<bfulgham18>	annulen: It's just moving some files around, and no longer using them in WebContent process.
+T 1520585745 18<converts18>	why does `<p class="sw-source"><a href="example.com">foo</a></p>' launch a network connection???
+T 1520586089 18<converts18>	wait let me get an example which works
+T 1520586661 18<converts18>	aha
+T 1520586662 18<converts18>	 <meta http-equiv="x-dns-prefetch-control" content="on">
+T 1520586676 18<converts18>	this isnt controlled by  enable-dns-prefetching=false
+T 1520586678 18<converts18>	very clever
+T 1520586750 18<converts18>	the whole meta processing in webkit is a bunch of backdoors!
+T 1520586811 18<converts18>	http-equiv
+T 1520588464 18<converts18>	WebCore/dom/Document.cpp Document::initDNSPrefetch() - bypassed for https
+T 1520590468 18<converts18>	trying the new prerelease..
+T 1520596311 18<oo_miguel18>	I am new to webkitgtk+. Can I get, change and set the DOM/Content given a WebKitWebView ?
+T 1520596325 18<oo_miguel18>	I do not see how to retrieve the WebKitDom from a WebKitWebView.
+T 1520596593 18<KaL18>	oo_miguel: you can't do that directly from a WebKitWebView, because of the multi-process arch
+T 1520596612 18<KaL18>	oo_miguel: the DOM in in the web process, so we have a web process api for that
+T 1520596733 18<KaL18>	oo_miguel: https://blogs.igalia.com/carlosgc/2013/09/10/webkit2gtk-web-process-extensions/
+T 1520596973 18<oo_miguel18>	KaL: thank you very much
+T 1520597733 18<oo_miguel18>	aehm,,... I can not use wbekit2.h and webkit-web-extension.h togehter?
+T 1520597898 18<oo_miguel18>	KaL: ok.. guess I should read the link you gave me completly
+T 1520606127 18<oo_miguel18>	nice,.. so extracting the WebKitDOMMDocument from the webview (after "document-loaded") works perfectly fine.
+T 1520606153 18<oo_miguel18>	Is it possible to manipulate it and set the webview to the updated version?
+T 1520606396 18<antoyo18>	oo_miguel: You can manipulate it via the API of DOMDocument. No need to set the updated version.
+T 1520606413 18<oo_miguel18>	aah so manipulating will update the visibel version on the fly
+T 1520606414 18<oo_miguel18>	thanks
+T 1520607080 18<oo_miguel18>	wow, works like a dream, thank you
+T 1520607102 18<antoyo18>	You're welcome.
+T 1520611647 18<ManDay18>	MiniBrowser ends up downloading a "buglist.cgi" file on Bugzilla search (any bugzilla). Is that a bugzilla-bug or in MiniBrowser?
+T 1520614202 18<oo_miguel18>	hmm, how do I add something at the end of the body? I get the body with: webkit_dom_document_get_body
+T 1520614255 18<oo_miguel18>	I do not see any insert or add functions
+T 1520614590 18<oo_miguel18>	aaah thre are insert_adjacent_*  functions
+T 1520614634 18<oo_miguel18>	sry
+T 1520619689 18<oo_miguel18>	my extension is succesfully loaded and can adjust the DOM accordingly. However I would now like to access some of the information gathered from the DOM (by the web-extension) from the browsers code. How can I share a pointer between the browser and the web-extension itself?
+T 1520619756 18<oo_miguel18>	a pointer to a structure in memory that both can access
+T 1520619849 18<oo_miguel18>	aaaaah, again I should read before wrting...
+T 1520619880 18<oo_miguel18>	probably this will do what I need webkit_web_context_set_web_extensions_initialization_user_data ()
+T 1520619900 18<oo_miguel18>	sorry for spamming, but this is due to my excitement about webkit :P
+T 1520624113 18<oo_miguel18>	Hmmm, I read about the GVariant, which can be supplied to WebExtensions with the function I found (See above), but it seems once set, they can never be changed. So I have to use something else to communicate with the extension.
+T 1520624117 18<oo_miguel18>	How is this done usually?
+T 1520625762 18<antoyo118>	oo_miguel: I use a unix domain socket to communicate between the web extension and the UI. I send the name with the user_data parameter of the function you mentioned.
+T 1520625984 18<oo_miguel18>	antoyo1: ok thank you, I could do something like that. Thought there was some portable convention how it is done.
+T 1520627408 18<antoyo118>	I wished there is.
+T 1520860439 19*	Now talking on 22#webkitgtk+
+T 1520860439 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1520860439 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)

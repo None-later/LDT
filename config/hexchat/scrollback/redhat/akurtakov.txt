@@ -1,192 +1,3 @@
-T 1516288334 20<lufimtse>30	afaik
-T 1516288335 20<lufimtse>30	let me check.
-T 1516288338 18<akurtakov>	the one doing the actual compilation
-T 1516288342 18<akurtakov>	make_linux.mak
-T 1516288359 20<lufimtse>30	make_linux is not a standalone makefile, it depends on build.sh being ran first.
-T 1516288369 20<lufimtse>30	:-/?
-T 1516288377 20<lufimtse>30	thoughts?
-T 1516288396 18<akurtakov>	yes it does
-T 1516288403 18<akurtakov>	and we have one 
-T 1516288412 18<akurtakov>	so how doone knows which one to use
-T 1516288423 20<lufimtse>30	you mean for equinox right?
-T 1516288426 18<akurtakov>	yes
-T 1516288458 20<lufimtse>30	no, hold on.
-T 1516288460 20<lufimtse>30	makefile="make_linux.mak"
-T 1516288463 20<lufimtse>30	in build.sh
-T 1516288472 20<lufimtse>30	like you first need to run build.sh, which runs make_linux
-T 1516288474 20<lufimtse>30	afafik?
-T 1516288479 18<akurtakov>	yes
-T 1516288484 20<lufimtse>30	so what u mean?
-T 1516288488 18<akurtakov>	and there is build.sh install 
-T 1516288496 18<akurtakov>	which calls install in make_linux.mak
-T 1516288503 18<akurtakov>	and you add another makefile
-T 1516288510 18<akurtakov>	which adds devinstall
-T 1516288519 18<akurtakov>	and it's not usable when calling build.sh
-T 1516288519 20<lufimtse>30	let me check
-T 1516288545 18<akurtakov>	you can trust me on this one
-T 1516288547 18<akurtakov>	just fix it
-T 1516288583 18<akurtakov>	you can even change install in make_linux to do different thing if DEV_ECLIPSE is speced
-T 1516288632 20<lufimtse>30	I see
-T 1516288636 20<lufimtse>30	lemmme investigate
-T 1516288659 20<lufimtse>30	I'm basically duplicating some effort
-T 1516288679 18<akurtakov>	and in your effort to simplify development
-T 1516288683 18<akurtakov>	you're complicating releng
-T 1516288701 18<akurtakov>	as when one looks at the repo it's a mess of things calling each other
-T 1516288719 20<lufimtse>30	I see
-T 1516288721 20<lufimtse>30	makes sense
-T 1516288739 18<akurtakov>	coming with a workforme solution is not enough :)
-T 1516288758 20<lufimtse>30	one thing: the single 'makefile' has nice tab-completion, the build.sh is kinda messy and it's not clear to read. Any thoughts?
-T 1516288779 18<akurtakov>	we stick to build.sh
-T 1516288806 18<akurtakov>	do you want to rewrite as part of the makefile?
-T 1516288813 18<akurtakov>	and have single makefile 
-T 1516288902 20<lufimtse>30	Do we have any plans on removing aix/hpux/solaris stuff?
-T 1516288916 18<akurtakov>	not removing still
-T 1516288925 18<akurtakov>	but pretending they don't exist :)
-T 1516288930 20<lufimtse>30	ha ha
-T 1516288938 18<akurtakov>	if I try to remove people will start complaining :)
-T 1516288966 18<akurtakov>	I leave them stay for ~2years
-T 1516288972 18<akurtakov>	until they are unrecoverable
-T 1516288986 18<akurtakov>	and delete with - this shit is totally out of space comment :)
-T 1516289153 20<lufimtse>30	ha ha. I see
-T 1516289176 18<akurtakov>	not ideal but least resistance path :)
-T 1516289198 20<lufimtse>30	ok, so basically you want 'makefile' removed and instead have some sort of 'devinstall' in the make_linux, is that correct?
-T 1516289238 18<akurtakov>	yes
-T 1516289255 20<lufimtse>30	ok
-T 1516289298 20<lufimtse>30	following that I should work on fixing the relative path segfault with '--launcher.openFile' flag.
-T 1516289364 18<akurtakov>	yes
-T 1516289372 20<lufimtse>30	ok :-D
-T 1516289705 20<lufimtse>30	btw, build.sh doesn't have nice tab-completion. I guess there's no way around that :-/
-T 1516289729 20<lufimtse>30	that's kinda why I like those makefiles, the tab-completion
-T 1516289743 18<akurtakov>	again
-T 1516289763 18<akurtakov>	I don't mind if you put stuff from build.sh into make_linux.mak to make it self sufficient
-T 1516289768 18<akurtakov>	:)
-T 1516289902 20<lufimtse>30	I see
-T 1516289921 18<akurtakov>	there is a way but I don't want you to create even bigger shell script so I'm not going to tell you :)
-T 1516290081 20<lufimtse>30	ha ha. I see.
-T 1516290096 18<akurtakov>	the reason is that we should aim for simpler world 
-T 1516290103 20<lufimtse>30	You have a point.
-T 1516290104 18<akurtakov>	with fixes done in the proper plac
-T 1516290124 18<akurtakov>	not by adding more and more layers to make it unpredictable and uncontrollable
-T 1516290778 18<akurtakov>	look at it that way
-T 1516290786 18<akurtakov>	you come up with one thing in swt
-T 1516290795 18<akurtakov>	another in launcher
-T 1516290802 18<akurtakov>	resources come up with third thing
-T 1516290808 18<akurtakov>	jdt comes up with another
-T 1516290812 18<akurtakov>	pde, team .....
-T 1516290818 18<akurtakov>	each to their own oddity
-T 1516290828 18<akurtakov>	and someone has to aggregate it at the end
-T 1516290842 18<akurtakov>	it's not enough to be easy for the developer touching it now
-T 1516290856 18<akurtakov>	it must be easy and predictable and standardized
-T 1516290873 20<lufimtse>30	I see
-T 1516290909 20<lufimtse>30	is a single 'build.sh' as entry point standard?
-T 1516290921 18<akurtakov>	at least this is what we have now 
-T 1516291066 18<akurtakov>	IIRC keystore stuff is now just one makefile
-T 1516291075 18<akurtakov>	and probably resources
-T 1516291099 20<lufimtse>30	keystore?
-T 1516291114 18<akurtakov>	http://git.eclipse.org/c/equinox/rt.equinox.bundles.git/tree/bundles/org.eclipse.equinox.security.linux.x86_64
-T 1516291183 20<lufimtse>30	interesting
-T 1516291184 18<akurtakov>	yes and resources is converted http://git.eclipse.org/c/platform/eclipse.platform.resources.git/tree/bundles/org.eclipse.core.filesystem/natives/unix/linux/Makefile
-T 1516291213 18<akurtakov>	in anyway make -sh -make is a nogo :)
-T 1516291223 20<lufimtse>30	I see
-T 1516291245 18<akurtakov>	and so is ant - sh -ant or whatever such crazy stuff
-T 1516291260 20<lufimtse>30	hmm, the build.sh is kinda redundant if we just build on linux in a way.
-T 1516291274 20<lufimtse>30	the build.sh only deals with os specific logic.
-T 1516291277 20<lufimtse>30	I see.
-T 1516291298 18<akurtakov>	so have everything we need in make_linux.mak :)
-T 1516291377 20<lufimtse>30	ha ha, if we drop 32bit and drop soloaris/aix/hupx, makefile would be very small.
-T 1516291427 18<akurtakov>	https://ci.eclipse.org/releng/view/Launcher/job/gtk-launcher-linux-ppc64/9/console
-T 1516291438 18<akurtakov>	looks like it's used for releng
-T 1516291465 18<akurtakov>	think of crosscompiling too
-T 1516291474 18<akurtakov>	e.g. being able to pass arch
-T 1516291494 18<akurtakov>	you got my point, right?
-T 1516291501 18<akurtakov>	whatever we use at devel time
-T 1516291511 18<akurtakov>	should be as close as possible to releng stuff
-T 1516291521 18<akurtakov>	so if  there is releng issue we know how to fix it
-T 1516291534 18<akurtakov>	that's why I don't tweak my machine at all
-T 1516291543 18<akurtakov>	so I can see what users get out of the box
-T 1516291545 20<lufimtse>30	"looks like it's used for releng" <<< what you mean by "it's"
-T 1516291560 20<lufimtse>30	build.sh ?
-T 1516291566 18<akurtakov>	it's == build.s
-T 1516291570 18<akurtakov>	h
-T 1516291601 20<lufimtse>30	I see
-T 1516291933 18<akurtakov>	note that this is special treatment
-T 1516291938 18<akurtakov>	for you I mean
-T 1516291954 20<lufimtse>30	I see
-T 1516291956 18<akurtakov>	for interns - I have one level of expectations
-T 1516291964 18<akurtakov>	for assosiate another
-T 1516291967 20<lufimtse>30	Ah
-T 1516291972 18<akurtakov>	for regular devs another
-T 1516291977 18<akurtakov>	and so on :)
-T 1516291979 20<lufimtse>30	:-D
-T 1516291992 20<lufimtse>30	I apprechiate 
-T 1516291996 18<akurtakov>	so with jump in hierarchy expectations rise :)
-T 1516292011 20<lufimtse>30	Interesting
-T 1516292022 20<lufimtse>30	I definetley apprechiate any help to get to Seniour level
-T 1516292035 18<akurtakov>	if you read kernel dev
-T 1516292065 18<akurtakov>	higest expectations from Linus and most "cursed" people are submodule maintainers
-T 1516292070 18<akurtakov>	aka his liutenants :)
-T 1516292134 20<lufimtse>30	:-D
-T 1516292136 20<lufimtse>30	ha ha
-T 1516292164 18<akurtakov>	and I mean not by contributors but by him :)
-T 1516293479 20<lufimtse>30	btw
-T 1516293515 20<lufimtse>30	I wipped together a proof-of-concept make_linux that's independent of the build.sh. It basically sets a few default values, ~6 lines of code ish.
-T 1516293527 20<lufimtse>30	pretty simple.
-T 1516293538 20<lufimtse>30	it sets defaults if they're not defined.
-T 1516293569 20<lufimtse>30	the compiled launcher works well.
-T 1516293594 20<lufimtse>30	and from the output, the 'cc' compile commands are identical.
-T 1516293616 20<lufimtse>30	Should I submit a patch as part of the makefile removal?
-T 1516293647 20<lufimtse>30	like  a) remove makefile, b) add few lines to set defaults into make_linux
-T 1516293664 20<lufimtse>30	thoughts?
-T 1516294298 18<akurtakov>	and do you add devinstall target too ?
-T 1516294302 18<akurtakov>	sounds ok to me
-T 1516294318 18<akurtakov>	build.sh will still work, right?
-T 1516297883 20<lufimtse>30	akurtakov yes, build.sh not affected.
-T 1516297891 20<lufimtse>30	yes, I can add devinstall to it.
-T 1516297893 20<lufimtse>30	ok.
-T 1516303625 18<akurtakov>	how are things progressing leo?
-T 1516303644 20<lufimtse>30	hai
-T 1516303740 20<lufimtse>30	Kinda tired from yesterday ha ha. Probably should have gone home sooner. I'm wrapping things up with make_linux and investigating the crash business.
-T 1516303788 20<lufimtse>30	You?
-T 1516303818 18<akurtakov>	just wondering whether there is anything for review before I finish for today
-T 1516303830 20<lufimtse>30	No, not just yet :-).
-T 1516303837 18<akurtakov>	ok
-T 1516303837 20<lufimtse>30	there was a small office party today
-T 1516303843 20<lufimtse>30	things kinda got delayed ab it.
-T 1516303845 20<lufimtse>30	a bit*
-T 1516303847 18<akurtakov>	aha :)
-T 1516303851 20<lufimtse>30	cake was nice.
-T 1516303856 18<akurtakov>	eat one for me too :)
-T 1516303859 20<lufimtse>30	ha ha
-T 1516375855 20<lufimtse>30	morning.
-T 1516375855 29*	akurtakov :No such nick/channel
-T 1516643264 20<lufimtse>30	hey
-T 1516643269 20<lufimtse>30	sorry, I forgot to open my hexChat
-T 1516644105 18<akurtakov>	np
-T 1516644120 18<akurtakov>	I replied to your mail
-T 1516815842 20<lufimtse>30	akurtakov btw, I have still the "adding jvm flag *.product". Should I still pursue that?
-T 1516815855 20<lufimtse>30	 ^ on my list for launcher.
-T 1516815857 18<akurtakov>	yes
-T 1516815859 20<lufimtse>30	ok.
-T 1516815886 18<akurtakov>	one of things you need to learn is faster context switching :)
-T 1516815905 18<akurtakov>	nowadays it's fine to be working on multiple things in parallel :)
-T 1516815915 18<akurtakov>	that's expected from us not a nice to have 
-T 1516815978 20<lufimtse>30	context switching is so hard X-D
-T 1516815982 20<lufimtse>30	I see your point.
-T 1516815994 20<lufimtse>30	yea, I suck at context switching, gotta learn that.
-T 1516816028 18<akurtakov>	if you aim for tech lead or similar position
-T 1516816046 20<lufimtse>30	Do you have any tips on efficent context switching?
-T 1516816048 18<akurtakov>	you should be able to work on pde and swt and equinox in the same day 
-T 1516816057 18<akurtakov>	set small goals
-T 1516816082 20<lufimtse>30	I see
-T 1516816087 18<akurtakov>	don't aim at total/huge fix
-T 1516816103 18<akurtakov>	set the goal of e.g. fix tycho building against photon m5
-T 1516816114 18<akurtakov>	come up with that
-T 1516816116 18<akurtakov>	https://git.eclipse.org/r/#/c/115912/7
-T 1516816125 18<akurtakov>	and move to e.g. launcher stuff
-T 1516816138 18<akurtakov>	not waiting whether it will build, tests fail and etc.
-T 1516816147 18<akurtakov>	do the work on the other project
-T 1516816163 18<akurtakov>	and check when mail comes
-T 1516816171 20<lufimtse>30	ah, I seee.
 T 1516816175 20<lufimtse>30	Lots of small tasks
 T 1516816192 20<lufimtse>30	ok
 T 1516816194 18<akurtakov>	https://en.wikipedia.org/wiki/Getting_Things_Done#/media/File:GTDcanonical.png
@@ -578,3 +389,122 @@ T 1517586121 20<lufimtse>30	Do you get emails about when I add hours work
 T 1517586126 18<akurtakov>	no
 T 1517586169 20<lufimtse>30	ok. I started using those to keep taps on how much time I spend on bugs. Bugzilla has a useful reporting function that shows me how much time I've spent on stuff in a given interval. (week/month/year).
 T 1517586231 20<lufimtse>30	I use that wor my weekly report stuff.
+T 1519230037 20<lufimtse>30	hai
+T 1519230100 18<akurtakov>	hey
+T 1519230102 18<akurtakov>	what's up
+T 1519230126 20<lufimtse>30	I hacked together something to get around tls: https://i.imgur.com/j9AxZ8j.png  . It would take me a couple of days to implement something proper. Wdyt?
+T 1519230405 20<lufimtse>30	On OSX it shows a dialogue requesting permission to load.
+T 1519230409 20<lufimtse>30	I could implement something simmilar.
+T 1519230517 18<akurtakov>	can you show me osx screenshot
+T 1519230538 20<lufimtse>30	it's basically a little drop-down dialogue, showing 'show certificate', allow, deny
+T 1519230540 20<lufimtse>30	typa thing.
+T 1519230716 18<akurtakov>	can I see it :)
+T 1519230722 20<lufimtse>30	email en route
+T 1519230724 18<akurtakov>	btw, what was the code needed for this 
+T 1519230735 18<akurtakov>	for the screenshot you already shown me
+T 1519230915 20<lufimtse>30	I emailed you photo.  Proof of concept is here: https://git.eclipse.org/r/#/c/117884/
+T 1519230924 20<lufimtse>30	left a comment at the interesting bit.
+T 1519231082 20<lufimtse>30	To implement this I basically have to find a mechanism to figure out when a TLS issue occurs, implement popup dialogue and download/apply SSL certificate mechanism. But I can probably get it done within a week-ish.
+T 1519231098 20<lufimtse>30	assuming no roadblockers encountered
+T 1519231112 18<akurtakov>	how is your current task progressing ?
+T 1519231174 20<lufimtse>30	I fixed the table-editing regression. I barley started on the table cheese issue, but I've only explored snippets & read code. Haven't really worked on it much.
+T 1519231182 20<lufimtse>30	I could work on this webkit thing
+T 1519231185 18<akurtakov>	no
+T 1519231201 18<akurtakov>	webkit thing once you fixed your current thing
+T 1519231236 18<akurtakov>	in your weekly plan there is 531048 [GTK3] Large problems drawing ownerdraw tables
+T 1519231273 18<akurtakov>	the thing is we should be more accountable
+T 1519231291 18<akurtakov>	this is smth that is announced we are working on in SoS call
+T 1519231294 18<akurtakov>	and etc.
+T 1519231314 20<lufimtse>30	SoS call?
+T 1519231321 18<akurtakov>	Scrums of scrums
+T 1519231341 18<akurtakov>	all teams in devtools
+T 1519231426 20<lufimtse>30	ever read agile manifesto?
+T 1519231429 20<lufimtse>30	http://agilemanifesto.org/principles.html
+T 1519231449 18<akurtakov>	yes
+T 1519231452 18<akurtakov>	at the same time
+T 1519231531 20<lufimtse>30	1) Priority is customer.  2) Welcome changing requirements.          imho the certificate has more impact than Tree Cheese.
+T 1519231540 20<lufimtse>30	but I don't mind finishing tree cheese first
+T 1519231544 20<lufimtse>30	just sayin..
+T 1519231735 18<akurtakov>	we are not agile
+T 1519231745 18<akurtakov>	I can argue with anyone about that
+T 1519231772 20<lufimtse>30	SoS is agile.
+T 1519231779 20<lufimtse>30	well
+T 1519231786 20<lufimtse>30	can't argue with that logic
+T 1519231792 20<lufimtse>30	Ok, will work on Cheese.
+T 1519231842 20<lufimtse>30	although imho we should work on what has biggest impact and not what we're planning on working on.
+T 1519231854 20<lufimtse>30	my humble opinion*
+T 1519231905 18<akurtakov>	SoS as it is implemented is not agile
+T 1519231924 18<akurtakov>	it's a plain sum of teams working unrelated on unrelated and different things
+T 1519231927 18<akurtakov>	this is not agile
+T 1519231935 18<akurtakov>	whatever one would call it IMHO
+T 1519231972 18<akurtakov>	also we have to have weekly, sprints (3 weeks) and release 3 months planning
+T 1519231976 18<akurtakov>	this is not a wish
+T 1519231986 18<akurtakov>	it's a requriment that the team has to provide
+T 1519231989 18<akurtakov>	this is waterfall
+T 1519232043 18<akurtakov>	and who is our customer ?
+T 1519232054 18<akurtakov>	strictly speaking it should be PMs
+T 1519232083 18<akurtakov>	have you heard any direction/request/etc. in Stuttgart?
+T 1519232095 18<akurtakov>	it was - you're doing great job - keep doing the same
+T 1519232250 18<akurtakov>	another thing about agile - being agile assumes one has to power to change things - which we don't have as we are merely doing small percentage of the whole Eclipse TLP work
+T 1519232266 18<akurtakov>	thus everything has to be coordinated at multiple levels wiht multiple entities
+T 1519232270 18<akurtakov>	which is so slow process
+T 1519232279 18<akurtakov>	that it can not be agile
+T 1519232304 18<akurtakov>	please speak to Roland about OrganizeImports patch
+T 1519232319 18<akurtakov>	or to Mickael about java codemining
+T 1519232363 18<akurtakov>	so assuming that you have 1) Inactive 
+T 1519232378 18<akurtakov>	what do you propose
+T 1519232397 18<akurtakov>	and tree cheese is smth that every eclipse user sees
+T 1519232408 18<akurtakov>	self signed certificate - I doubt it
+T 1519232427 18<akurtakov>	I at least spend my day in Eclipse and never faced it
+T 1519232433 18<akurtakov>	nor I heard it from anyone else
+T 1519232452 20<lufimtse>30	That is a fair point.
+T 1519232473 20<lufimtse>30	If you're suggesting Tree cheese is more important than TLS, then I'll be happy to work on that.
+T 1519232475 18<akurtakov>	and the whole stuff about agile - forget about it :)
+T 1519232482 18<akurtakov>	we are not agile
+T 1519232500 18<akurtakov>	because we are missing the prereqs to be agile
+T 1519232509 18<akurtakov>	1. Clear and active customer
+T 1519232521 18<akurtakov>	^^ Everyone will say his bug is most active
+T 1519232530 18<akurtakov>	2. Control over the project 
+T 1519232552 18<akurtakov>	^^ Good luck changing priorities and etc. fast if you do just small part of the work
+T 1519232568 18<akurtakov>	and this is what happens in our case 
+T 1519232581 18<akurtakov>	the top priority for us is Eclipse as Java IDE
+T 1519232606 18<akurtakov>	and we have zero/none control over JDT
+T 1519232615 18<akurtakov>	have to beg for months for patch to be accepted
+T 1519232666 20<lufimtse>30	So basically we're developing with a Waterfall model and we should focus on things we start working on?
+T 1519232831 20<lufimtse>30	Well, ok. I'll post steps to implement feature into bug and continue on Tree stuff as Tree has more impact by the sound of things.
+T 1519233050 18<akurtakov>	well, we have a weird model
+T 1519233068 18<akurtakov>	semi waterfall semi agile :)
+T 1519233074 18<akurtakov>	that's my opinion
+T 1519233079 20<lufimtse>30	meh
+T 1519233081 20<lufimtse>30	confusing
+T 1519233097 18<akurtakov>	welcome to my world :)
+T 1519233151 20<lufimtse>30	anyhow. This is my todo list. (Sorty by 'priority') : @luf -whiteboard:pending -tag:needInfo
+T 1519233171 20<lufimtse>30	feel free to keep taps on it and add things or change priority 
+T 1519233206 20<lufimtse>30	with the agile/waterfall hybrid model it's sometimes kinda hard to figure out what one should work on.
+T 1519234249 18<akurtakov>	so the screenshot is from swt browser
+T 1519234251 18<akurtakov>	interesting
+T 1519234343 20<lufimtse>30	back after lunch
+T 1519234344 20<lufimtse>30	afk
+T 1519234345 20<lufimtse>30	yes
+T 1519234365 18<akurtakov>	and there is no code for that in SWT
+T 1519240503 20<lufimtse>30	what you mean code in swt?
+T 1519240519 20<lufimtse>30	already existing code you mean?
+T 1519240557 20<lufimtse>30	the cocoa webkit deals with it.
+T 1519240559 20<lufimtse>30	gtk doesn't
+T 1519240572 20<lufimtse>30	e.x cocoa:webkit.java: OS.objc_msgSend(OS.class_NSURLRequest, OS.sel_setAllowsAnyHTTPSCertificate, 1, failingURL.host().id);
+T 1519240590 20<lufimtse>30	no idea how I.E is implemented.
+T 1519240598 20<lufimtse>30	it's a black box I never dare venture into ha ha
+T 1519240603 20<lufimtse>30	but can investigate.
+T 1519240793 20<lufimtse>30	At a glance, I.E seems to deal with certificate also. (not tested thou). It appears gtk is odd one out.
+T 1519244723 20*	Disconnected (20Connection timed out)
+T 1520529995 20<lufimtse>30	hai
+T 1520530023 20<lufimtse>30	https://bugs.eclipse.org/bugs/show_bug.cgi?id=248075  << I'll merge the fix after master is unfrozen. Do I keep Target Milestone at M6 or change it to M7?
+T 1520531145 18<akurtakov>	hey
+T 1520531153 18<akurtakov>	M7
+T 1520531921 20<lufimtse>30	thanks
+T 1520540705 20<lufimtse>30	u still around?
+T 1520540823 18<akurtakov>	yes
+T 1520540871 20<lufimtse>30	quick question. Do you know of any way to see where JVM comes back to Java? (Like there are 20 different *proc callbacks). (Besides setting breakpoints in 30 places)?
+T 1520540895 18<akurtakov>	sorry no easier way AFAIK
+T 1520540912 20<lufimtse>30	ok, just checking.
+T 1520540940 20<lufimtse>30	I encounter this scenario _a lot_ during debugging. Been thinking about how to best find a solution.
