@@ -7274,3 +7274,239 @@ Mar 09 16:43:06 <lufimtse>	I guess we have no "cache-finished" signal of sorts..
 **** BEGIN LOGGING AT Mon Mar 12 09:13:46 2018
 
 Mar 12 09:13:46 *	Now talking on #SWT
+**** BEGIN LOGGING AT Mon Mar 12 14:09:45 2018
+
+Mar 12 14:09:45 *	Now talking on #SWT
+**** BEGIN LOGGING AT Tue Mar 13 10:30:05 2018
+
+Mar 13 10:30:05 *	Now talking on #SWT
+Mar 13 14:50:09 <akurtakov>	lufimtse: ericwill: hey guys
+Mar 13 14:50:13 <akurtakov>	how are things?
+Mar 13 14:50:18 <akurtakov>	anything I missed yesterdya
+Mar 13 14:50:22 <lufimtse>	hey
+Mar 13 14:50:48 <lufimtse>	I'd say cloudy, bit of snow with -1c
+Mar 13 14:51:08 <lufimtse>	^yesterday.
+Mar 13 14:51:37 <rgrunber>	:|
+Mar 13 14:55:09 <lufimtse>	I think my brain mixed it up. In German, if you say "Wie war es Gestern" meaning "How was it yesterday", it commonly refers to weather.
+Mar 13 14:55:29 <lufimtse>	ha ha
+Mar 13 14:55:51 <lufimtse>	I'm working on the column visibility/tree cheese business. Bisecting gtk to find offending commit.
+Mar 13 15:20:25 <ericwill>	akurtakov hey, you didn't miss anything too exciting
+Mar 13 15:20:32 <ericwill>	I'm working on some Table editing issues
+Mar 15 09:42:00 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Thu Mar 15 09:42:00 2018
+
+**** BEGIN LOGGING AT Thu Mar 15 10:14:36 2018
+
+Mar 15 10:14:36 *	Now talking on #SWT
+**** BEGIN LOGGING AT Fri Mar 16 09:19:22 2018
+
+Mar 16 09:19:22 *	Now talking on #SWT
+Mar 16 10:54:34 <ericwill>	akurtakov for that right click menu context bug, anything I have to do in the RH BZ? or will Mat take care of it once he backports
+Mar 16 10:55:01 <akurtakov>	ericwill: plese comment in the bug pointing to the bug 
+Mar 16 10:55:06 <akurtakov>	assuming it's not in 4.7.3
+Mar 16 10:55:17 <akurtakov>	and ask for it tobe backported for 2018.2
+Mar 16 10:55:25 <ericwill>	akurtakov kk will do
+Mar 16 13:17:01 <akurtakov>	lufimtse: just saw your latest commit
+Mar 16 13:17:09 <akurtakov>	are you aware of SnippetLauncher ?
+Mar 16 13:17:45 <lufimtse>	akurtakov, the requirement was to launch maybe 3-10 selected junits 
+Mar 16 13:17:57 <lufimtse>	I haven't used SnippetLauncher, but I gather they usually launch individual snippets
+Mar 16 13:18:11 <lufimtse>	or the grouping launches 5 junits as individual jUnits
+Mar 16 13:19:35 <akurtakov>	lufimtse: I get it's not exactly the same
+Mar 16 13:19:50 <akurtakov>	at the same time JUnits are not good for visual inspection
+Mar 16 13:20:18 <lufimtse>	what's a better option?
+Mar 16 13:20:30 <lufimtse>	to quickly run through 20+ snippets?
+Mar 16 13:20:31 <akurtakov>	thus I wonder whether some grouping of snippets and etc. enhancing snippetlauncher wouldn't be more fruitful long term 
+Mar 16 13:21:07 <lufimtse>	akurtakov, what is snippet launcher?
+Mar 16 13:21:10 <lufimtse>	you mean the grouping?
+Mar 16 13:21:26 <akurtakov>	lufimtse: there is SnippetLauncher.java
+Mar 16 13:21:33 <akurtakov>	in snippets folder
+Mar 16 13:23:43 <lufimtse>	interesting
+Mar 16 13:24:59 <akurtakov>	lufimtse: yeah, I try to have one way to do thing in project that everyone is aware of instead of having dozen of quite similar things and no one knowing all of them
+Mar 16 13:26:50 <lufimtse>	akurtakov, yea, thanks for pointing out SnippetLauncher. That kinda seems like something that could be adapted into something simmilar.
+Mar 16 13:27:05 <akurtakov>	yup, that's what I thought too 
+Mar 16 13:27:19 <lufimtse>	I'll mention to Eric also
+Mar 16 13:27:25 <lufimtse>	Ok, so for fix
+Mar 16 13:27:29 <lufimtse>	https://git.eclipse.org/r/#/c/119588/
+Mar 16 13:27:34 <lufimtse>	kinda hacky, 
+Mar 16 13:28:06 <lufimtse>	but gtk3's delayed initialization makes the only viable option I could think of
+Mar 16 13:29:24 <lufimtse>	Basically Gtk3 delays initialization of some structures till the 5th - 10th time g_main_context_loop() thing is ran
+Mar 16 13:29:56 <lufimtse>	if during this time a tree/table column is invisible, SWT custom drawn tree/tables produce cheese/garbage
+Mar 16 13:30:16 <lufimtse>	I gather this is because gtk3 skips a bunch of code if column is invisible
+Mar 16 13:31:08 <lufimtse>	I put bits of the fix  into Control.java as it's used for both Tree and Table, and I might have to use it for a visibility issue I observed with RowLayout
+Mar 16 13:33:25 <lufimtse>	ericwill, btw, you around?
+Mar 16 13:33:30 <ericwill>	lufimtse yo
+Mar 16 13:34:10 <lufimtse>	Hacky, but wdyt? https://git.eclipse.org/r/#/c/119588/
+Mar 16 13:34:41 <lufimtse>	I had to go down the HashTable route as not all columns have a TableColumn object. E.g first column when Table is created.
+Mar 16 13:35:10 <lufimtse>	ericwill, it also fixes the acessibility warning: https://bugs.eclipse.org/bugs/show_bug.cgi?id=399522
+Mar 16 13:36:22 <ericwill>	lufimtse okay, let me take a look
+Mar 16 13:38:42 <lufimtse>	akurtakov, could you also review and let me know if you see any red flags: https://git.eclipse.org/r/#/c/119588/
+Mar 16 13:38:51 <lufimtse>	in case I missed something.
+Mar 16 13:38:58 <akurtakov>	I'll try to do it later today
+Mar 16 13:39:09 <lufimtse>	ok
+Mar 16 13:39:14 <akurtakov>	it's friday evening 
+Mar 16 13:39:26 <akurtakov>	with 1/4 final in the national volley championship :)
+Mar 16 13:40:03 <ericwill>	akurtakov volleyball?
+Mar 16 13:40:48 <akurtakov>	ericwill: yeah, my town team made it to it first time in 15+ years :)
+Mar 16 13:41:00 *	akurtakov was in highschool last time this happened
+Mar 16 13:41:03 <rgrunber>	ooo
+Mar 16 13:41:12 <ericwill>	ncie :)
+Mar 16 13:41:15 <ericwill>	*nice
+Mar 16 13:41:24 <rgrunber>	akurtakov: i guess you were on that team :P that's why
+Mar 16 13:41:43 <akurtakov>	rgrunber: I can assure you my sport skills can destroy any team :)
+Mar 16 13:41:48 <rgrunber>	must have a high vertical jump
+Mar 16 13:42:43 <akurtakov>	rgrunber: I mean any team I'm part of :)
+Mar 16 13:43:04 <akurtakov>	ttyl guys
+Mar 16 13:43:47 <rgrunber>	cya!
+Mar 16 13:46:18 <lufimtse>	akurtakov, have a nice weekend.
+Mar 16 13:46:27 <ericwill>	ttyl
+**** ENDING LOGGING AT Fri Mar 16 14:28:56 2018
+
+**** BEGIN LOGGING AT Mon Mar 19 10:01:37 2018
+
+Mar 19 10:01:37 *	Now talking on #SWT
+Mar 19 13:39:34 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=490188
+Mar 19 13:40:06 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=476441
+Mar 19 13:41:11 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=480926
+Mar 19 13:41:53 <akurtakov>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=424878
+Mar 19 13:46:51 <scela>	https://gph.is/2fHQvBN
+Mar 19 13:49:54 <rgrunber>	oh to be a fly on the wall of this call..
+Mar 19 14:04:04 <scela>	rgrunber: I don't like secret channels in IRC ;)
+Mar 19 18:25:27 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 19 18:25:27 2018
+
+**** BEGIN LOGGING AT Tue Mar 20 09:04:14 2018
+
+Mar 20 09:04:14 *	Now talking on #SWT
+Mar 20 10:17:19 <ericwill>	akurtakov what version of eclipse do we have in RHEL? 2018.1 is Oxygen.2 right?
+Mar 20 10:18:04 <scela>	ericwill: yes
+Mar 20 10:18:15 <akurtakov>	ericwill: whic RHEL
+Mar 20 10:18:24 <ericwill>	akurtakov 7.4
+Mar 20 10:18:26 <akurtakov>	7.4 has 3.22
+Mar 20 10:18:45 <ericwill>	akurtakov the Eclipse version :)
+Mar 20 10:19:04 <akurtakov>	ericwill: oops :)
+Mar 20 10:19:17 <akurtakov>	4.7.2
+Mar 20 10:19:35 <akurtakov>	2018.2 should be 4.7.3
+Mar 20 10:19:42 <akurtakov>	2018.3 should be 4.8.0
+Mar 20 10:23:16 <ericwill>	okay
+Mar 20 10:23:47 <ericwill>	I see we have a customer case from Andrey about the table editing...
+Mar 20 10:25:52 <akurtakov>	ericwill: yeah
+Mar 20 10:26:00 <akurtakov>	it's beneficial for us :)
+Mar 20 10:29:19 <scela>	akurtakov: 2018.2 is 4.7.3a right?
+Mar 20 10:29:59 <akurtakov>	scela: yes, but SWT can not contribute to 4.7.3a only jdt so for the sake of discussion with eric it's the same :)
+Mar 20 10:30:23 <scela>	akurtakov: sure, just double-checking my mental notes :)
+Mar 20 10:30:24 <ericwill>	akurtakov I am pretty sure this bug is fixed in 4.8 already but I need to check to be 100% sure
+Mar 20 10:30:44 <akurtakov>	ericwill: if fixed - same procedure as the previous one
+Mar 20 10:30:50 <akurtakov>	point Mat to the commit for backport
+Mar 20 10:31:15 <ericwill>	okay
+Mar 20 10:31:25 <akurtakov>	in the bug
+Mar 20 11:26:59 <ericwill>	akurtakov done
+Mar 20 11:27:07 <akurtakov>	ericwill: thanks
+Mar 20 11:55:16 <akurtakov>	lufimtse: here ?
+Mar 20 11:55:38 <akurtakov>	have you ever compiled swt on windows?
+Mar 20 11:57:21 <ericwill>	akurtakov he's AFK
+Mar 20 12:00:14 <akurtakov>	ericwill: do you know anything about it ?
+Mar 20 12:00:32 <akurtakov>	ericwill: it all comes from https://bugs.eclipse.org/bugs/show_bug.cgi?id=531097
+Mar 20 12:00:45 <akurtakov>	and IBM guys are "busy" again
+Mar 20 12:01:03 <akurtakov>	risking to lose another prominent swt win32 contributor
+Mar 20 12:01:11 <akurtakov>	so I wondered what can we do
+Mar 20 12:01:29 <ericwill>	akurtakov I have no clue about the windows stuff
+Mar 20 12:01:38 <ericwill>	maybe Lakshmi knows something?
+Mar 20 12:01:52 <akurtakov>	ericwill: well, they want to delay for the future
+Mar 20 12:02:15 <akurtakov>	and guess what will happen when you tell someone wait 4 months and we may look into your contributions
+Mar 20 12:02:25 <akurtakov>	I have seen this movie often enough
+Mar 20 12:02:47 <ericwill>	akurtakov pretty sad IMO
+Mar 20 12:02:55 <akurtakov>	ericwill: https://git.eclipse.org/r/#/c/117609/3
+Mar 20 12:03:06 <akurtakov>	it looks pretty safe to me with my gtk knowledge
+Mar 20 12:03:17 <akurtakov>	scela: can we get access to windows machine ?
+Mar 20 12:04:02 <ericwill>	akurtakov we have a windows VM running on a mac, here in the office. but it's pretty slow
+Mar 20 12:04:14 <ericwill>	Leo and I are thinking of putting a windows partition on that laptop that Ian had
+Mar 20 12:04:22 <akurtakov>	ericwill: what is the window version ?
+Mar 20 12:04:42 <ericwill>	Windows 10
+Mar 20 12:05:00 <akurtakov>	perfect
+Mar 20 12:05:17 <akurtakov>	ericwill: so please ask Leo whether he compiled swt at all on window
+Mar 20 12:05:37 <ericwill>	akurtakov will do
+Mar 20 12:05:52 <akurtakov>	and ask him to do a quick try  if he succeeds to try with the patch and whether the ide is useful with the new one
+Mar 20 12:06:04 <akurtakov>	not more than 1-2h :)
+Mar 20 12:06:15 <akurtakov>	as I expect issues
+Mar 20 12:06:51 <akurtakov>	ericwill: thanks
+Mar 20 12:07:18 <scela>	akurtakov: still need it?
+Mar 20 12:07:27 <scela>	was in a call
+Mar 20 12:07:49 <akurtakov>	scela: looks like there is one in toronto office
+Mar 20 12:07:53 <akurtakov>	so should be fine
+Mar 20 12:07:56 <scela>	cool
+Mar 20 12:10:08 <lufimtse>	akurtakov, hello
+Mar 20 12:11:42 <lufimtse>	akurtakov, I haven't compiled anything ever on Windows
+Mar 20 12:11:47 <lufimtse>	:-/
+Mar 20 12:12:00 <lufimtse>	akurtakov, last time I investigated, there wasn't much documentation, 
+Mar 20 12:12:12 <lufimtse>	akurtakov, I could look into it, but it would take me a while.
+Mar 20 12:12:19 <akurtakov>	lufimtse: just try it
+Mar 20 12:12:33 <akurtakov>	if it doesn't work so be it, we shold know what's blocking u
+Mar 20 12:12:47 <lufimtse>	akurtakov, how much time to commit if it takes longer?
+Mar 20 12:12:51 <lufimtse>	you said 1-2 hours?
+Mar 20 12:12:54 <akurtakov>	not more
+Mar 20 12:13:02 <akurtakov>	if it doesn't work in that time
+Mar 20 12:13:12 <lufimtse>	ok, I'll give it a brief shot.
+Mar 20 12:13:16 <akurtakov>	let's open a bug for documentation,tooling whatever
+Mar 20 12:13:25 <akurtakov>	and see where we canmove
+Mar 20 12:16:42 <lufimtse>	 ok
+Mar 20 16:40:28 <lufimtse>	akurtakov, hey
+Mar 20 16:40:35 <lufimtse>	akurtakov, u still around?
+Mar 20 16:41:01 <akurtakov>	lufimtse: what's up?
+Mar 20 16:41:59 <lufimtse>	akurtakov, so with a fair bit of hackery, I got SWT compiled on Win32 and I ran snippets with the newly compiled binary files.
+Mar 20 16:42:32 <lufimtse>	akurtakov, to review the patches, I guess I would have to ensure things compile and tests pass with the new patches?
+Mar 20 16:42:35 <lufimtse>	(I'm on Win10)
+Mar 20 16:42:46 <akurtakov>	sounds good
+Mar 20 16:42:47 <lufimtse>	and test with a child eclipse?
+Mar 20 16:43:25 <lufimtse>	I take it I won't be tesitng with Windows 7 & vista?
+Mar 20 16:43:52 <lufimtse>	Should I announce things on mailing list about me testing the patches and if I find no faults merge them?
+Mar 20 16:44:00 <lufimtse>	(swt mail list) akurtakov 
+Mar 20 16:44:19 <akurtakov>	lufimtse: just test the first patch in the series
+Mar 20 16:44:23 <akurtakov>	and give comment on it
+Mar 20 16:44:26 <akurtakov>	in gerrit
+Mar 20 16:44:47 <akurtakov>	what I look for is not losing the contributor e.g. merging a commit or two
+Mar 20 16:44:56 <akurtakov>	and leaving the rest for IBMers
+Mar 20 16:45:05 <akurtakov>	for after Photon
+Mar 20 16:45:17 <akurtakov>	just to show some good will towards contributor
+Mar 20 16:45:28 <lufimtse>	ok
+Mar 20 16:46:31 <akurtakov>	first and second patch look quite safe to me
+Mar 20 16:46:51 <akurtakov>	the others that change types unicode and etc. need better win32 knowledhe imho
+Mar 20 16:47:55 <lufimtse>	ok
+Mar 20 19:05:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Mar 20 19:05:58 2018
+
+**** BEGIN LOGGING AT Wed Mar 21 08:39:11 2018
+
+Mar 21 08:39:11 *	Now talking on #SWT
+Mar 21 14:58:57 <ericwill>	is there no longer an EclipseCon North America? I have a someone on twitter asking me about it
+Mar 21 15:34:01 <lufimtse>	ericwill, not sure. I heared something about it not being ran anymore, but idk.
+Mar 21 18:07:21 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Mar 21 18:07:21 2018
+
+**** BEGIN LOGGING AT Thu Mar 22 09:26:13 2018
+
+Mar 22 09:26:13 *	Now talking on #SWT
+Mar 22 19:48:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Mar 22 19:48:43 2018
+
+**** BEGIN LOGGING AT Fri Mar 23 11:03:41 2018
+
+Mar 23 11:03:41 *	Now talking on #SWT
+Mar 23 11:03:53 <lufimtse>	akurtakov, windows patches look good to me.
+Mar 23 11:04:01 <lufimtse>	akurtakov, I left my feedback
+Mar 23 12:50:20 <akurtakov>	lufimtse: can I get remote access to the machine ?
+Mar 23 12:50:30 <akurtakov>	the windows one
+Mar 23 12:50:35 <lufimtse>	akurtakov, probably
+Mar 23 12:50:42 <lufimtse>	akurtakov, u need now?
+Mar 23 12:50:53 <lufimtse>	akurtakov, I got things to work before with rdp
+Mar 23 12:51:00 <akurtakov>	lufimtse: well, just mail me credentials
+Mar 23 12:51:00 <lufimtse>	akurtakov, I could hook it up to our internal network
+Mar 23 12:51:05 <akurtakov>	I'll do on monday
+Mar 23 12:51:22 *	akurtakov is the babysitter tonight :)
+Mar 23 12:51:33 <lufimtse>	akurtakov, ok. I'll send you some info. There are a few quicks with the machine that I'll mention in the mail.
+Mar 23 12:51:41 <akurtakov>	so dinner and some cartoons ahead :)
+Mar 23 12:51:46 <lufimtse>	:-D
+Mar 23 12:51:47 <lufimtse>	nice
+Mar 23 12:51:47 <akurtakov>	lufimtse: thanks
+Mar 24 14:07:50 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Mar 24 14:07:50 2018
+

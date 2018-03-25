@@ -1,0 +1,34 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-21T22:50:07-04:00
+
+====== Link Aggregation ======
+Created Wednesday 21 March 2018
+
+To calculate netmask length, convert (ex /255.255.248) to binary and count the 1's.
+  Ex. 255.255.248.0 ->  1x8 + 1x8 = 16.   echo "obase=2;248" | bc = 11111000 -> 1x5    == 8+8+5 = 21. 
+  In case of above it's 8*3 = 24
+
+**Server:**
+nmcli dev  # make note of available interfaces.
+nmcli con add type team con-name team0 ifname team0 config '{"runner": {"name": "activebackup"}}'
+nmcli dev
+nmcli con modify team0 ipv4.addresses 172.24.10.20/24
+nmcli con modify team0 ipv4.method manual
+nmcli con add type team-slave con-name team0-port1 ifname enp0s10 master team0
+nmcli con add type team-slave con-name team0-port1 ifname enp0s9 master team0
+nmcli con down team0
+nmcli con up team0 
+nmcli con up team0-port1
+nmcli con up team0-port2
+
+**Client:**
+<same except different ip>
+
+**To test:**
+teamdctl team0 state
+nmcli dev
+nmcli con show
+Server: ping6 -I team0  172.24.10.10
+Client: <reboot> & observe Server's ping ending & starting up when client boots up.
+

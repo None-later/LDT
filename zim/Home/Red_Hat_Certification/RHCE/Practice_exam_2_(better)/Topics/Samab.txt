@@ -1,0 +1,44 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-24T22:42:55-04:00
+
+====== Samab ======
+Created Saturday 24 March 2018
+
+(Answers are a bit muddled up). Summary:
+
+@ yum - samba samba-client cifs-utils
+@ services - smb nmb
+@ firewall - samba
+@ config - /etc/samba/smb.conf 
+	workgoup = ...
+	
+	[share]
+	path = ..
+	valid users = ... # who can read.
+	write list = ... #who can write   @group
+	allow hosts = 172.25.1.    # who can connect, can be bits of an ip.
+
+@ selinux: folder should have samba_share_t context type.  (see smb.conf)
+
+useradd -s /sbin/<tab>nologin  USER  
+smbpassword -a USER  # a
+
+Useful:
+	smbclient -L SERVER -U USER    #list shares on servers.
+	testparm  - test if your config is valid.
+	df -h  #see what's mounted.
+
+
+**fstab:**
+//server1/share /mnt/smbshare cifs OPTIONS 0 0
+
+OPTIONS:
+a) username=USR,password=PWD,sec=ntlmssp    #man mount.cifs
+b)  multiuser,credentials=/root/cred.txt,
+	cred.txt
+		username=USR
+		password=PWD
+
+
+

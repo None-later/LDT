@@ -1,0 +1,69 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-17T17:53:34-04:00
+
+====== RAW Q & A ======
+Created Saturday 17 March 2018
+
+**Qsn5. ISCSI**
+configure system1 to provide an iscsi disk device name iqn.2016-
+08.com.example.groupx:system1
+the iscsi service uses port 3260
+this target usasge 3G backing logical volume name iscsi_store
+the target is only available to system2.groupx.example.com only
+
+Ans:- ISCSI Server (On system1)otected   /secure/protected nfs
+# yum -y install targetcli*
+#systectl restart target
+#systemctl enable target
+#firewall-cmd --permanent --add-port=3260/tcp
+#firewall-cmd -reload
+#fdisk /dev/vda
+	n-new
+	0 0p-primary
+	+4G-size
+	t-type
+	8e-lvm hex code
+	w-write or save
+#partprobe /dev/vda
+#pvcreate /dev/vda1
+#vgcreate myvol /dev/vda1
+#lvcreate -n mylv -L 3G myvol
+#lvdisplay
+#targetcli
+/>backstore/block create iscsi_store /dev/myvol/mylv
+/>/iscsi create iqn.2016-08.com.example.groupX:system1
+/>/iscsi create iqn.2016-08.com.example.groupX:system1/tpg1/acls create iqn.2016-08.com.example.groupX:system2
+/>/iscsi create iqn.2016-08.com.example.groupX:system1/tpg1/portals create 172.24.X.30
+/>/iscsi create iqn.2016-08.com.example.groupX:system1/tpg1/luns create
+/backstores/block iscsi_store
+/>ls
+/>saveconfig
+/>exit
+#systemctl restart target
+
+
+
+**Qsn6. ISCSI INITIATOR**
+Configure system2 so that it connects to the iqn.2016-08.com.example.groupx:system1 as follows
+- the iscsi device should automaticaly be available on system boot
+- the iscsi block device contains a 2100MB partition that is formated as ext4
+- the partition is mounted to /mnt/data and is automatically mounted to this directory
+
+**Ans:-** 
+#yum -y install iscsi-initiators-utils
+#vim /etc/iscsi/initiator.iscsi
+	InitiatorName=iqn.2016-08.com.example.groupX:system2
+#systemctl restart iscsi
+#systemctl enable iscsi
+#iscsiadm -m discovery -t st -p 172.24.X.30:3260 -l 
+#lsblkl
+#fdsik /dev/sda  n  p   +2100M  w
+#partprobe /dev/sda
+#mkfs.ext4 /dev/sda1
+#blkid
+#mkdir /mnt/data
+#vim /etc/fstab
+	/dev/sda1 /mnt/data ext4 _netdev 0 0
+#mount -a
+#df-

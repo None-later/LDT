@@ -1,3 +1,81 @@
+gtk good: 6717c5ba00bce38aa5608a0663f01cd49e715a91
+gtk bad: 13357c013337187f288097e921cf82705bc6dc28
+
+Breaker: f32cd8137ec62943e08edc588c2fc6045141a9f3   (some skipped?)
+
+3.4.2 bad
+gtk_widget_queue_draw
+gtk_widget_queue_resize
+gtk_style_context_invalidate ()
+
+
+drawState:
+SWT.FOREGROUND = 1 << 4;
+SWT.BACKGROUND = 1 << 3;
+SWT.SELECTED = 1 << 1;
+SWT.FOCUSED = 1 << 2;
+later...
+0 or random event.detail.
+
+
+if (GTK.GTK2) {
+  GTK.gtk_tree_view_column_set_visible (this.handle, visible);
+}
+if (GTK.GTK3) {
+  if (parent.lazyInitializationOccured) {
+    GTK.gtk_tree_view_column_set_visible (this.handle, visible);
+  } else {
+    delayedColumnVisibilityState = Boolean.valueOf(visible);
+  }
+}
+
+if (!GTK.GTK3 || (GTK.GTK3 && parent.lazyInitializationOccured)) {
+	GTK.gtk_tree_view_column_set_visible (this.handle, visible);
+} else {
+	delayedColumnVisibilityState = Boolean.valueOf(visible);
+}
+
+
+if (GTK.GTK3) {
+  if (parent.lazyInitializationOccured) {
+    GTK.gtk_tree_view_column_set_visible (this.handle, visible);
+  } else {
+    delayedColumnVisibilityState = Boolean.valueOf(visible);
+  }
+} else {
+  GTK.gtk_tree_view_column_set_visible (this.handle, visible);
+}
+
+
+
+OBJECTIVE: SCORE
+       (section)  X out of Y
+       (section)  X out of Y
+       ...
+
+       System configuration and management: X of X items
+       Network services: X of X items
+       HTTP/HTTPS: X of 7 items
+       NFS: 1 of 2 items
+       SMB: 4 of 4 items
+       SMTP: 0 of 2 items
+       SSH: 4 of 4 items
+       Database services: 0 of 4 items
+
+
+stylecontext: Add a flag to force style_updated() emission
+
+   This is used in gtk_widget_reset_style() (via GTK_CSS_CHANGE_ANY) now,
+   and that makes GtkSettings font related changes work again.''
+
+   Edit
+532458 – [UI change request] Optimize git staging area view. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532458
+532457 – [UI change request] Change 'Field Accesses' from menu into an icon. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532457
+
+Build command:
+rm -rf ~/gtkcurrso/* && git clean -xdf && git reset --hard && ./autogen.sh --disable-cups && echo -e 'all:\n\techo meh' > demos/Makefile && make -j 10 && echo "All is the moist" && for f in $(find . -name "*.so*"); do cp "$f" ~/gtkcurrso/; done && echo copied;
+
+
 GTK.gtk_tree_view_column_set_fixed_width(column.handle, 100);
 GTK.gtk_tree_view_column_set_fixed_width(column.handle, 100);
 

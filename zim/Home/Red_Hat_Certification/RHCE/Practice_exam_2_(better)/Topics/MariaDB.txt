@@ -1,0 +1,44 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-18T17:52:35-04:00
+
+====== MariaDB ======
+Created Sunday 18 March 2018
+
+wget  http://classroom.example.com/materials/mariadb/mariadb.dump
+
+yum -y groupinstall mariadb*
+vim /etc/my.conf
+| 	skip-networking=1
+
+systemctl restart mariadb
+systemctl enable mariadb
+firewall-cmd --permanent --add-service=mysql
+firewall-cmd --reload
+
+/> create database legacy ;
+/> exit
+
+mysql legacy < mariadb.dump
+
+mysql_secure_installation
+	set password - y
+	zaldebro
+mysql -u root -p
+	>use legacy;
+	>show tables;
+	>select * from TABLE;
+	>create user 'raikon'@'localhost' identified by 'zaldebro' ;
+	>grant all on legacy.* to raikon@'localhost';
+
+(If time permits, verify from client:)
+yum groupinstall mariadb-client* -y
+mysql -u root -p -h 172.25.1.11
+
+
+**Qsn8. Query database**
+mysql -u root -p legacy
+/> show tables;
+/> describe tablename ;
+then something like:
+/> select * from tablename where field_name='field_value' ;

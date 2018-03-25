@@ -1,465 +1,3 @@
-T 1517407642 18<mbooth18>	akurtakov_: Oh, maybe that's a different problem then
-T 1517407716 18<akurtakov_18>	https://koji.fedoraproject.org/koji/buildinfo?buildID=1021748
-T 1517407718 18<akurtakov_18>	no perf 
-T 1517407754 18<mbooth18>	akurtakov_: You're not wrong
-T 1517407768 18<mbooth18>	Is it deprecated?
-T 1517407769 18<akurtakov_18>	?
-T 1517407801 18<akurtakov_18>	mbooth: no idea
-T 1517407809 18<akurtakov_18>	there in no perf pakcage on any arch
-T 1517407827 18<akurtakov_18>	so no idea what is going on
-T 1517407831 18<mbooth18>	I guess we'll have to drop the hard requirement for now :-/
-T 1517407871 18<akurtakov_18>	mbooth: http://pkgs.fedoraproject.org/cgit/rpms/kernel.git/commit/?id=32813e5abf211a0420e5486553f0e9a159ce123a
-T 1517407908 18<mbooth18>	Hmm, does that mean some third-party yum repo?
-T 1517407917 18<akurtakov_18>	mbooth: no
-T 1517407918 18<akurtakov_18>	https://koji.fedoraproject.org/koji/buildinfo?buildID=1020031
-T 1517407931 18<akurtakov_18>	but there is no i386 for this one
-T 1517407949 18<mbooth18>	Aha
-T 1517407956 18<akurtakov_18>	would you please open a bug and clarify with them
-T 1517407974 18<akurtakov_18>	it might be time for linuxtools perf to excludearch too
-T 1517407999 18<akurtakov_18>	http://pkgs.fedoraproject.org/cgit/rpms/kernel-tools.git/log/
-T 1517408002 18<mbooth18>	Can linuxtools use perf remotely?
-T 1517408018 18<akurtakov_18>	ah, it should be fixed with next rebuild I guess
-T 1517408021 18<akurtakov_18>	mbooth: no idea
-T 1517408058 18<akurtakov_18>	but the last build failed https://koji.fedoraproject.org/koji/packageinfo?packageID=26062
-T 1517408084 18<mbooth18>	akurtakov_: Looks like it should come back at some point though: http://pkgs.fedoraproject.org/cgit/rpms/kernel-tools.git/commit/?id=249b8cbb6403c9a810c70c358ecd4fdff25b1ee4
-T 1517408091 18<akurtakov_18>	yeah
-T 1517408101 18<akurtakov_18>	so we should live with the warning for some time
-T 1517408106 18<akurtakov_18>	it was suspicious though
-T 1517408138 18<mbooth18>	akurtakov_: This was the buildroot problem I was thinking of: https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/5YHSMJ7IAUFP2BQDLDRF6NQMCDAZOTXT/
-T 1517408155 18<mbooth18>	It was causing failures in koschie
-T 1517408180 18<akurtakov_18>	yeah, I noticed that one
-T 1517408189 18<akurtakov_18>	but the perf one just didn't fit in
-T 1517409919 18<akurtakov_18>	lbullen: here?
-T 1517409930 18<lbullen18>	akurtakov_, yes
-T 1517409951 18<akurtakov_18>	lbullen: did you remove Eclipse-BundleShape: dir from the manifest before running the tests?
-T 1517410086 18<lbullen18>	I did not
-T 1517410096 18<akurtakov_18>	lbullen: plese do
-T 1517410120 18<akurtakov_18>	also why do I have to specify the classname manually?
-T 1517410273 18<akurtakov_18>	lbullen: removing the bundleshape: dir is critical
-T 1517410284 18<akurtakov_18>	as without it the install will unpack 
-T 1517410436 18<lbullen18>	akurtakov_, because that is the way the project was already set up. Do you mean it should instead find it through the test.xml file?
-T 1517410477 18<akurtakov_18>	lbullen: I think so :)
-T 1517410543 18<akurtakov_18>	I also commented on the bug on some API things
-T 1517410800 18<akurtakov_18>	lbullen: btw, am I missing smth in the instructions ? I fail to launch it by only adding these params
-T 1517410858 18<lbullen18>	launching it as a child eclipse?
-T 1517411079 18<akurtakov_18>	lbullen: ok, I had to change the application too
-T 1517411094 18<lbullen18>	oh yes sorry, forgot that part
-T 1517411431 19<akurtakov_>	lufimtse: ericwill: http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/tests/org.eclipse.swt.tests/BugSnippets
-T 1517411437 18<akurtakov_18>	what's with these?
-T 1517411460 18<akurtakov_18>	they end up in the tests jar
-T 1517411467 18<akurtakov_18>	and they are totally useless in it
-T 1517411484 18<ericwill18>	akurtakov_ bug reproducer snippets for cross-platform bugs
-T 1517411508 20<lufimtse>30	akurtakov_, quite useful for cross-platform bug testing.
-T 1517411534 18<akurtakov_18>	just look at org.eclipse.swt.tests jar and where these things are put
-T 1517411548 18<akurtakov_18>	and you'll understand why they should not be there
-T 1517411564 18<akurtakov_18>	please put them in proper package at least
-T 1517411566 20<lufimtse>30	akurtakov_, why do we care about org.eclipse.swt.tests?
-T 1517411574 20<lufimtse>30	jar?
-T 1517411601 19<akurtakov_>	lufimtse: because these tests are extracted and run on 5 different combos every day
-T 1517411617 18<akurtakov_18>	and trying to find an issue with test infra is a nightmare if everyone throws stuff around
-T 1517411632 18<akurtakov_18>	and because we care for everything we build :)
-T 1517411649 18<akurtakov_18>	the things platform builds should serve as an example
-T 1517411671 18<akurtakov_18>	if it was only the later it was more than good reason
-T 1517411678 20<lufimtse>30	akurtakov_, the bug snippets are never ran via automation tools afaik
-T 1517411692 20<lufimtse>30	would putting them into a package improve the situation?
-T 1517411708 20<lufimtse>30	They're in a separate folder altogether btw,
-T 1517411722 19<akurtakov_>	lufimtse: yet they end up in the jar http://download.eclipse.org/eclipse/downloads/drops4/I20180129-2000/download.php?dropFile=eclipse-Automated-Tests-I20180129-2000.zip
-T 1517411729 18<akurtakov_18>	not only that but in the root of the jar
-T 1517411780 20<lufimtse>30	akurtakov_, let me check out the jar. One sec
-T 1517411780 18<akurtakov_18>	so there are 3 options I see :
-T 1517411789 18<akurtakov_18>	1. exclude them from the binary jar
-T 1517411800 18<akurtakov_18>	2. remove them altogether
-T 1517411839 18<akurtakov_18>	3. move them to a package to at least not have them in the root
-T 1517411863 18<akurtakov_18>	having class files withotu package is not good practice at all btw
-T 1517411897 18<scela18>	akurtakov_: mbooth : https://bugzilla.redhat.com/buglist.cgi?bug_status=NEW&bug_status=ASSIGNED&bug_status=POST&bug_status=MODIFIED&bug_status=ON_DEV&classification=Red%20Hat&f1=flagtypes.name&list_id=8361509&o1=substring&product=DevTools&query_format=advanced&v1=2018.1
-T 1517411900 20<lufimtse>30	akurtakov_, the snippets have proven themselves to be very useful during bug hunting and verification. I can move them to a separate package?
-T 1517411922 18<scela18>	akurtakov_: mbooth are these still assigned to 2018.1?
-T 1517411953 18<scela18>	they seem to have the 2018.1 flag on
-T 1517411972 19<akurtakov_>	lufimtse: why are they not proper tests btw ?
-T 1517411991 18<akurtakov_18>	if they are cross platform that should be a possiblity for at least some of them, right?
-T 1517412012 20<lufimtse>30	akurtakov_, some things are hard to junit. Drag and drop, or visual glitches et.c.
-T 1517412037 20<lufimtse>30	akurtakov_, or can't be done via jUnit in a stable manner.
-T 1517412050 20<lufimtse>30	akurtakov_, especially considering there are no abs coords on wayland etc..
-T 1517412053 18<mbooth18>	scela: Most should be 2018.2, I'll go through -- 
-T 1517412071 20<lufimtse>30	akurtakov_, ex; 	Bug528415_CTabFolder_tabs_are_painted_wrong.java
-T 1517412084 20<lufimtse>30	akurtakov_, any suggestions on how to write junits for wrong painting :-)?
-T 1517412092 20<lufimtse>30	akurtakov_, should I move them to separate package?
-T 1517412118 19<akurtakov_>	lufimtse: please do, bonus for excluding the package form the binary
-T 1517412132 19<akurtakov_>	lufimtse: cairo has unit tests for painting
-T 1517412134 18<akurtakov_18>	:)
-T 1517412158 18<akurtakov_18>	a hard ones I agree
-T 1517412208 18<akurtakov_18>	lbullen: ok, swt tests run
-T 1517412239 18<scela18>	akurtakov_: do you mind if we move those bugs en masse to 2018.2? cc mbooth 
-T 1517412244 20<lufimtse>30	akurtakov_, ok, I'll move. Btw, how do you exclude stuff from binary?
-T 1517412261 18<akurtakov_18>	scela: fine with me
-T 1517412276 18<scela18>	akurtakov_: mbooth was wondering whether we need a z-stream
-T 1517412279 18<scela18>	for any of those
-T 1517412340 19<mbooth>	lufimtse: You can use bin.excludes in build.properties if building with tycho: https://www.eclipse.org/tycho/sitedocs/BuildProperties.html
-T 1517412343 18<akurtakov_18>	scela: other than the docker plugins I don't believe we can
-T 1517412375 18<akurtakov_18>	issue with bin.excludes is that I'm not sure you can exclude only single package in the tree
-T 1517412386 18<akurtakov_18>	mbooth: https://bugzilla.redhat.com/show_bug.cgi?id=1440671
-T 1517412401 18<lbullen18>	akurtakov_, confirmed my hunch, the program takes the classname because if you run the test.xml file as an ant build then it calls the TestRunner with the classname argument
-T 1517412424 18<lbullen18>	Also +1 to akurtakov_ for keeping up 3 conversations at once in one chat
-T 1517412475 18<akurtakov_18>	lbullen: so will running with jars work if run as ant build ?
-T 1517412507 18<lbullen18>	akurtakov_, that I am looking into now
-T 1517412507 18<akurtakov_18>	rgrunber: https://bugzilla.redhat.com/show_bug.cgi?id=1465527
-T 1517412595 18<scela18>	akurtakov_: so do you think any of them deserve the z-stream or is 2018.2 good enough?
-T 1517412642 18<rgrunber18>	akurtakov_: will do
-T 1517412793 18<akurtakov_18>	scela: 1536444 and 1536577 if we consider docker really important 
-T 1517412804 18<akurtakov_18>	have to run now :)
-T 1517414628 20<lufimtse>30	mbooth, thanks for bin.excludes tip.
-T 1517415530 19<scela>	"<lufimtse> akurtakov_, why do we care about org.eclipse.swt.tests?" broke SWT's heart there.
-T 1517415661 18<rgrunber18>	swt has no heart, just a bunch of native bindings for things like pump_blood(), beat(), etc.
-T 1517415897 20<lufimtse>30	scela, why do we care about swt.tests's *jar* file. We care about the tests but the jar file is not that flashy.
-T 1517416094 20*	You are now known as 18lufimtse_afk
-T 1517416493 18<ericwill18>	rgrunber it's true SWT has no heart, that's why we don't use internal API
-T 1517418624 20*	You are now known as 18lufimtse
-T 1517479621 18<vkadlcik18>	mbooth: hi Mat, aroud?
-T 1517479638 18<vkadlcik18>	mbooth: had a chance to read my email on flatpak?
-T 1517479947 18<mbooth18>	vkadlcik: Hey, yes. I will send you a reply today
-T 1517479980 18<mbooth18>	vkadlcik: BTW, you are doing it right -- just the flatpak you used is old and from a time when I wasn't doing it right :-)
-T 1517480243 18<vkadlcik18>	mbooth: ok, thanks!
-T 1517481432 18<akurtakov_18>	mbooth: do you want me to transfer eclipse package to you ?
-T 1517481458 18<mbooth18>	akurtakov_: If you like -- save time re-assigning bugs
-T 1517481471 18<akurtakov_18>	mbooth: just remind me how I should do it :)
-T 1517481479 18<akurtakov_18>	and feel free to request such things
-T 1517481495 18<mbooth18>	akurtakov_: Oh, good question, we changed to pagure since I last did this
-T 1517481503 18<akurtakov_18>	we should not lose time for nothing
-T 1517481637 18<akurtakov_18>	mbooth: should be yours now :)
-T 1517481654 18<akurtakov_18>	pagure was good enough pointer :)
-T 1517481676 18<mbooth18>	Cool
-T 1517498168 18<akurtakov_18>	lbullen: https://hudson.eclipse.org/platform/job/eclipse.platform.ui-Gerrit/14302/testReport/org.eclipse.jface.tests.viewers/ListViewerRefreshTest/testSelectionRefresh/
-T 1517498181 18<akurtakov_18>	test started to fail in gerrit
-T 1517498205 18<akurtakov_18>	weird
-T 1517498460 18<lbullen18>	akurtakov_, it still ran the old code.
-T 1517498474 18<akurtakov_18>	lbullen: ah ok
-T 1517498485 18<akurtakov_18>	sorry for hte noise
-T 1517498547 18<lbullen18>	failed on line 109, which is where the old assertTrue was. Don't know why it did though. This patch is a child of my fix
-T 1517501618 18<rgrunber18>	akurtakov_: just fyi, Dawid Pakula (DLTK) would like lucene 7.1 queryparser+misc in addition to the 3 (core, smartcn, analyzers-common) platform requires.
-T 1517501634 18<rgrunber18>	i'll basically tell him to open cqs..
-T 1517501644 18<akurtakov_18>	rgrunber: yup, that's the right thing to do
-T 1517501952 18<rgrunber18>	ahh.. dltk and pdt
-T 1517515698 Python interface unloaded
-T 1517584600 19*	Now talking on 22#eclipse
-T 1517584600 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1517584600 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1517840019 19*	Now talking on 22#eclipse
-T 1517840019 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1517840019 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1517843048 18<scela18>	 eclipse-team: weekly report due in ~1hr
-T 1517847537 18<nboldt18>	scela: having some network throughput issues today... hopefully will be able to get on the call in 12 mins
-T 1517854260 18<rgrunber18>	scela: https://dev.eclipse.org/mhonarc/lists/tools-pmc/msg04325.html .
-T 1517854799 18<scela18>	right, thanks
-T 1517856130 18<rgrunber18>	scela: oh, and https://bugs.eclipse.org/bugs/show_bug.cgi?id=479232 (java cup) it's http://www2.cs.tum.edu/projects/cup/
-T 1517856139 18<rgrunber18>	used by pdt
-T 1517856514 18<scela18>	rgrunber: I see, makes sense
-T 1517922345 18<dbocharo18>	hi, guys! Could, please, somebody help me with running jboss tools with Java 9. For example i'm working on https://issues.jboss.org/browse/JBIDE-25553 at the moment. And could easily fix it by adding "--add-opens java.base/jdk.internal.loader=ALL-UNNAMED" to the Run Configuration as a VM option. But how to add the same thing for a plugin? Is it possible to add it to the MANIFEST.mf? 
-T 1517922816 18<scela18>	nboldt: ^
-T 1517923403 18<nboldt18>	scela: just use the -Pjdk9 profile (it's in the jbosstools parent pom)
-T 1517923407 18<nboldt18>	dbocharo: ^
-T 1517923428 18<dbocharo18>	nboldt: thank you!
-T 1517923585 18<nboldt18>	dbocharo: also commented in https://issues.jboss.org/browse/JBIDE-25553
-T 1517923702 18<dbocharo18>	nboldt: thank you
-T 1517924602 18<scela18>	nboldt1: thanks
-T 1517925079 18<nboldt118>	scela: dbocharo: no problem
-T 1517933292 18<jjohnstn18>	scela: there is a CDT monthly call tomorrow at 11 am...any chance we could move our 1 to 1 either earlier or later?
-T 1517933967 18<scela18>	jjohnstn: sure, I'll find another spot
-T 1517933975 18<jjohnstn18>	thx
-T 1518019767 18<scela18>	rgrunber: so it seems noopur will take a look at your jdt patch at some point
-T 1518019796 18<rgrunber18>	scela: sounds good.
-T 1518021280 18<jjohnstn18>	scela: CDT meeting is over if you want to do 1 to 1 and keep your schedule intact
-T 1518025091 18<nboldt18>	akurtakov: as long as we hit end june, late sept/early oct, early jan, early april, 12 or 13 week cycles are fine
-T 1518025122 18<nboldt18>	but I'd still prefer 13-week cycles for consistency, rather than some with 12, some 13, some 14... 
-T 1518025278 18<akurtakov18>	nboldt: I admit I haven't thought enough of 12 vs 13
-T 1518025307 18<nboldt18>	I like the idea of 4 x 3 week sprints + 1 quiet period / GA release week
-T 1518025320 18<nboldt18>	it's more consistent year over year, quarter over quarter
-T 1518025346 18<nboldt18>	though having sprint 4 be 2 or 3 RCs is I guess reasonable
-T 1518025390 18<nboldt18>	I'm worried that having checkpoints and milestones on 2-3 week cycles... people will forget/miss deadlines
-T 1518025454 18<akurtakov18>	nboldt: yeah, speak loudly about it
-T 1518025462 18<akurtakov18>	I shot one CP 
-T 1518025470 18<akurtakov18>	and they added it after the milestone :)
-T 1518025479 18<nboldt18>	yeah. :(
-T 1518025490 18<akurtakov18>	and I'm pretty sure it will be redone few more times 
-T 1518025522 18<nboldt18>	yeah, I'll bring it up on the list when I flesh out the dates and how we can optimize dates around dec/jan and july/aug
-T 1518025613 18<akurtakov18>	nboldt: ideally, from Platform side we are looking fro 6 weeks releases
-T 1518025631 18<akurtakov18>	but we aren't sure in our automation to go that fast 
-T 1518025633 18<akurtakov18>	yet :)
-T 1518025643 18<nboldt18>	yeah ... so do a "checkpoint" at 3 weeks, then a milestone at 6 weeks. then a checkpoint at 9weeks, and GA at 12
-T 1518025670 18<akurtakov18>	well, I mean full releases every 6 weeks
-T 1518025674 18<nboldt18>	except maybe we need to keep going with the RCs for a while
-T 1518025677 18<nboldt18>	ah, ok
-T 1518025680 18<nboldt18>	that's even better :)
-T 1518025691 18<akurtakov18>	much like others release every month
-T 1518025710 18<akurtakov18>	but we need some period to see the things going
-T 1518025921 18<akurtakov18>	nboldt: I really like https://wiki.mozilla.org/RapidRelease/Calendar
-T 1518025941 18<rgrunber18>	hey, anyone else having issues with maven builds ?..
-T 1518025945 18<rgrunber18>	https://ci.eclipse.org/orbit/job/orbit-recipes/284/console ..
-T 1518025961 18<rgrunber18>	Connection resets from maven central
-T 1518026250 18<akurtakov18>	nboldt: wow, stability
-T 1518026314 18<nboldt18>	stability != CI
-T 1518026332 18<nboldt18>	(I kid.)
-T 1518026488 18<nboldt18>	wow, I have to say being able to share a screen and see who's talking is amazing for an eclipse foundation call. wish we had that for the wtp calls... they're still Very Old School
-T 1518026636 18<rgrunber18>	zoom zoom
-T 1518033234 18<scela18>	jjohnstn: I'll send you an invite for the replacement
-T 1518084476 18<scela18>	mbooth: hi
-T 1518084537 18<mbooth18>	scela: Hi
-T 1518086124 18<scela18>	mbooth: any progress with the flatpak native call issue?
-T 1518088205 18<mbooth18>	scela: Some -- it's what I'm working on this week
-T 1518090478 18<scela18>	mbooth: ok
-T 1518090493 18<scela18>	mbooth: in the meeting vkadlcik_afk mentioned he was expecting something from you
-T 1518090510 18<scela18>	not sure what it was exactly but he can clear this up I guess when he's back from afk
-T 1518092347 18<vkadlcik18>	mbooth: ah, yes, CLI arguments for flatpak-ed eclipse - to be able to install tests and run them
-T 1518092373 18<vkadlcik18>	mbooth: my understaning is that flatpak support that, i hope there's no pricipal limitation on eclipse's side
-T 1518092390 18<vkadlcik18>	mbooth: otherwise i wouldn't know how to do automated testing...
-T 1518101625 18<scela18>	mbooth: ^
-T 1518135243 20*	Disconnected (20Connection reset by peer)
-T 1518135253 19*	Now talking on 22#eclipse
-T 1518135253 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1518135253 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1518449270 18<scela18>	eclipse-team: weekly report in ~30 mins
-T 1518449303 18<scela18>	eclipse-team: also today it's "all-hands" in ~30 mins
-T 1518451317 18<scela18>	mbooth: are you joining the meeting?
-T 1518451323 18<scela18>	mbooth_: ^
-T 1518454115 18<mbooth18>	ericwill: http://catb.org/jargon/html/Y/yak-shaving.html :-p
-T 1518454140 18<rgrunber18>	Alex first introduced me to that term
-T 1518454843 18<rgrunber18>	mbooth: just fyi, cq deadline in eclipse land for photon is by friday in case anyone need to submit them for ecf.. still should be possible to get them marked as for photon after the fact.
-T 1518457036 18<ericwill18>	mbooth :)
-T 1518459560 18<scela18>	ericwill|lunch: mbooth https://cdn-images-1.medium.com/max/1600/1*nR8Gow0ukWXWZdkofgkT8A.png
-T 1518459630 18<scela18>	an overly literal explanation
-T 1518459936 18<ericwill18>	scela that almost looks like the emacs logo :)
-T 1518461202 18<scela18>	ericwill: :)
-T 1518623689 18<rgrunber18>	months ago i was asking people about disabling uses constraints outright.. now here i am warning someone about doing the same.
-T 1518707603 19*	Now talking on 22#eclipse
-T 1518707603 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1518707603 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1518709179 18<akurtakov_18>	lbullen: do you know how to deal with dark theme editors?
-T 1518709569 18<lbullen18>	akurtakov_, no, any pointers?
-T 1518709661 18<akurtakov_18>	lbullen: all colors should be defined in plugin.xml like here http://git.eclipse.org/c/cdt/org.eclipse.cdt.git/tree/core/org.eclipse.cdt.ui/plugin.xml#n563
-T 1518709689 18<akurtakov_18>	lbullen: then you can use http://git.eclipse.org/c/cdt/org.eclipse.cdt.git/tree/core/org.eclipse.cdt.ui/plugin.xml#n4984
-T 1518709697 18<akurtakov_18>	to redirect to the dark one
-T 1518709708 18<akurtakov_18>	probably there is saner way but you can get the idea from that one
-T 1518709821 18<lbullen18>	akurtakov_, Ok thanks.
-T 1518710037 18<akurtakov_18>	lbullen: php does similar in case you need smth to compare with https://git.eclipse.org/c/pdt/org.eclipse.pdt.git/tree/plugins/org.eclipse.php.ui/plugin.xml
-T 1518710554 18<akurtakov_18>	lbullen: let me  know if smth is unclear, btw, I really like your new bugs 
-T 1518717532 18<akurtakov_18>	lbullen: http://mail-archives.apache.org/mod_mbox/ant-dev/201802.mbox/%3c55dd7f00-bf82-6478-8b51-8a55ebf5802e@apache.org%3e
-T 1518717539 18<akurtakov_18>	this might be of interest for you
-T 1518717963 18<lbullen18>	akurtakov_, thanks
-T 1518794311 19*	Now talking on 22#eclipse
-T 1518794311 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1518794311 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1518801597 20*	Disconnected (20Connection timed out)
-T 1518804793 19*	Now talking on 22#eclipse
-T 1518804793 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1518804793 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1518811761 19*	Now talking on 22#eclipse
-T 1518811761 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1518811761 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519219781 19*	Now talking on 22#eclipse
-T 1519219781 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519219781 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519227207 19*	Now talking on 22#eclipse
-T 1519227207 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519227207 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519227317 18<akurtakov18>	mbooth: link ?
-T 1519227545 18<mbooth18>	akurtakov: You mean for CQ? https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15642
-T 1519230096 18<akurtakov18>	mbooth: thanks
-T 1519244723 20*	Disconnected (20Connection timed out)
-T 1519245258 19*	Now talking on 22#eclipse
-T 1519245258 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519245258 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519315996 19*	Now talking on 22#eclipse
-T 1519315996 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519315996 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519319741 18<akurtakov18>	lbullen: what about adding the popup menu with the comand ?
-T 1519321402 18<lbullen18>	akurtakov, can you rephrase that?
-T 1519321447 18<akurtakov18>	lbullen: Dani suggested to have the popup with the menu in hte screenshot
-T 1519321505 18<lbullen18>	it is, but I can see how it is hard to interpret. I will remake it.
-T 1519321739 18<akurtakov18>	lbullen: Dani is master of unclear requests :)
-T 1519327138 19*	Now talking on 22#eclipse
-T 1519327138 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519327138 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519393453 18<akurtakov18>	lbullen: looks like target editor will keep you busy for some time :)
-T 1519396910 18<lbullen18>	akurtakov, yes. May have my next week set out for me
-T 1519396925 18<akurtakov18>	lbullen: yeah, we must finish things 
-T 1519396948 18<akurtakov18>	lbullen: you're next in line after p2 reviews :)
-T 1519396982 18<akurtakov18>	lbullen: btw, what nboldt1 found looks like they have been around for looong time
-T 1519398745 18<akurtakov18>	lbullen: https://git.eclipse.org/r/#/c/118052/ that's an old one for sure
-T 1519398796 18<lbullen18>	akurtakov, oh ya. There will probably be some old stones turned over once I start addressing the new bugs
-T 1519398819 18<akurtakov18>	lbullen: it's actually more people starting to use the editor also
-T 1519398849 18<akurtakov18>	e..g nboldt1 was using another editor and updating IUs via maven IIRC
-T 1519399376 18<rgrunber18>	jjohnstn: glad to see it was just a regression
-T 1519399400 18<rgrunber18>	noblockingstream probably does something and we've just forgotten what.
-T 1519399650 18<akurtakov18>	ericwill: here?
-T 1519399678 18<akurtakov18>	ericwill: https://git.eclipse.org/r/#/c/118052/ IMHO it's button.computeSize misbehaving
-T 1519399687 18<akurtakov18>	would you please take a look
-T 1519399706 18<akurtakov18>	just briefly toconfirm
-T 1519399777 18<akurtakov18>	lbullen: http://git.eclipse.org/c/pde/eclipse.pde.ui.git/commit/?id=55ba55fc60780f7bf26e9caa2a930311ce582459
-T 1519399802 18<akurtakov18>	is there a warning that can be enabled if command is missing category ?
-T 1519399922 18<lbullen18>	akurtakov, like add a warning to eclipse.ui.command to warn users that a category is required? 
-T 1519399934 18<akurtakov18>	lbullen: yeah
-T 1519399951 18<akurtakov18>	lbullen: I know it comes from schema
-T 1519400196 18<jjohnstn18>	rgrunber: yes, it's good that it was a simple issue...I think the noblocking stream passes back a null record when it hasn't fetched all the data yet
-T 1519400234 19<rgrunber>	lufimtse: when you find the offending commit open resource commit, please markus keller it.
-T 1519400251 20<lufimtse>30	rgrunber, what you mean?
-T 1519400283 18<rgrunber18>	your open resource cross-project issue
-T 1519400296 20<lufimtse>30	rgrunber, did my email come across mean?
-T 1519400326 18<ericwill18>	ericwill hey
-T 1519400327 18<rgrunber18>	nah, but it should be a candidate for reverting :P .. or fixing asap
-T 1519400335 18<ericwill18>	derp
-T 1519400339 18<ericwill18>	akurtakov hey, let's talk in #SWT
-T 1519400505 18<lbullen18>	akurtakov, you can make values optional, required, or set a default. We could have the default set to un-categorized to make setting it more visible or I can look into adding a warning.
-T 1519400573 20<lufimtse>30	ericwill, rgrunber, feel free to reply to mail and mention you liked it also. More people interested may motivate people more to revert.
-T 1519400588 19<ericwill>	lufimtse will do
-T 1519400618 18<akurtakov18>	lbullen: hmm, what is the diff between setting default and not setting at all
-T 1519400624 18<akurtakov18>	it will show up in the same category
-T 1519400637 18<akurtakov18>	and we don't have "uncategorized" category AFAIK
-T 1519400642 19<rgrunber>	lufimtse: can you try ctrl + shift + t.. does it regress the type view ?
-T 1519400663 18<lbullen18>	akurtakov, it will, but it will be visible to the user who doesn't read the docs that a value is being auto set, drawing their attention to it
-T 1519400691 18<akurtakov18>	lbullen: but what would we set it to ?
-T 1519400737 18<lbullen18>	akurtakov, we could make a category that represents the unassigned category  
-T 1519400751 18<akurtakov18>	lbullen: nah, I don't like the idea
-T 1519400763 18<akurtakov18>	let's aim for enhancing the docs first as dani suggests
-T 1519400780 18<akurtakov18>	please open a bug report and provide a patch for this too :)
-T 1519400982 20<lufimtse>30	rgrunber, na, open type still has the functionality https://i.imgur.com/96273FZ.png
-T 1519403553 20<lufimtse>30	rgrunber, do we have a gerrit issue? https://ci.eclipse.org/platform/job/eclipse.platform.swt-Gerrit/6221/console
-T 1519403557 20<lufimtse>30	gerrit fails instantly
-T 1519403560 20<lufimtse>30	derp
-T 1519403567 20<lufimtse>30	anyone know?
-T 1519403627 18<rgrunber18>	definitely looks like it
-T 1519404254 20<lufimtse>30	I am sad.
-T 1519740610 19*	Now talking on 22#eclipse
-T 1519740610 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1519740610 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1519835081 18<nboldt18>	akurtakov: hey, I think we might have to pull Jetty 9.4.8 into Oxygen.3
-T 1519835135 18<nboldt18>	seeing a build failure in livereload when I use Oxygen.3.RC2 to build it, because of constraint violations around org.objectweb.asm
-T 1519835164 18<nboldt18>	rgrunber: ^ fyi
-T 1519835172 18<nboldt18>	https://dev-platform-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/jbosstools-livereload_master/ws/sources/tests/org.jboss.tools.livereload.test/target/work/configuration/1519830374455.log
-T 1519835368 18<rgrunber18>	is asm 6 needed ? it was added to Orbit for Oxygen.3 but afaict for jacoco.
-T 1519835807 18<nboldt18>	rgrunber: no idea. Just know that when I build against Oxygen.3.RC2, tests break
-T 1519835979 18<nboldt18>	rgrunber: akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531803
-T 1519835995 18<nboldt18>	(grumble, no channel bot to resolve that into a useful description)
-T 1519836005 18<nboldt18>	>> Bug 531803 - Update Jetty to 9.4.8
-T 1519836635 18<rgrunber18>	nboldt: do you control the tp used for those builds ?
-T 1519836740 18<nboldt18>	rgrunber: yes, I'm manually adding jetty 9.4.8 to the jbosstools/devstudio tp now
-T 1519836745 18<rgrunber18>	i may have a solution on orbit side to avoid updating jetty, and could probably spin a maintenance build you could use based off of our Oxygen.3 release.
-T 1519836749 18<nboldt18>	er, replacing actually
-T 1519836766 18<nboldt18>	rgrunber: what's your solution?
-T 1519836781 18<nboldt18>	and yeah, a new Orbit would certainly be adoptable by JBT
-T 1519836797 18<rgrunber18>	the bug is really that asm 5.2 end up depending on 6 do to no upper limit.
-T 1519836801 18<nboldt18>	only problem is it's code freeze day today so the ramp to make these TP changes is closing ... at EOD today :(
-T 1519836826 18<nboldt18>	asm 5.2 depends on asm 6? 
-T 1519836830 18<rgrunber18>	and it's only an issue in oxygen.3 since asm 5 is gone in photon.
-T 1519836832 18<nboldt18>	that seems ... very wrong
-T 1519836859 18<nboldt18>	well, trashing old stuff in photon is good :) 
-T 1519836870 18<nboldt18>	as is being finally done with oxygen in a month or so 
-T 1519836920 18<rgrunber18>	if updating jetty is easier, go with that but i think i'll be fixing this issue regardless
-T 1519836961 18<nboldt18>	well, your fix + platform moving to 9.4.8 + me updating TP for JBT/devstudio ... suspect we should do all 3
-T 1519837461 18<akurtakov18>	nboldt: when was jetty 9.4.8 released
-T 1519837521 18<akurtakov18>	nboldt: I'll move Photon ASAP 
-T 1519837529 18<akurtakov18>	but for Oxygen.3 it's too late
-T 1519837535 18<akurtakov18>	I may try to sneak it in 3a 
-T 1519837558 18<akurtakov18>	nboldt: wdyt?
-T 1519837628 18<akurtakov18>	ah, it's already in Photon
-T 1519837634 18*	akurtakov can't wait for single stream :)
-T 1519837741 18<akurtakov18>	nboldt: I'll try to urge a respin
-T 1519837752 18<akurtakov18>	let me have dinner and will start nagging
-T 1519839906 18<nboldt18>	akurtakov: 9.4.8 came out 20171121
-T 1519840002 18<nboldt18>	why too late for Oxygen.3? RC4 +0 is in two days. LOADS of time to adapt to an update from November 21 :)
-T 1519840948 18<akurtakov18>	nboldt: well, I need pmc vote 
-T 1519840951 18<akurtakov18>	let's see :)
-T 1519849280 18<rgrunber18>	nboldt1: if you're still around, you could try out http://download.eclipse.org/tools/orbit/downloads/drops/M20180228194429/repository in place of the orbit Oxygen.3 one.
-T 1519849289 18<rgrunber18>	it should contain the fix.
-T 1519849671 18<nboldt118>	rgrunber: ok thanks -- will do
-T 1519909910 18<akurtakov18>	mbooth: hey, around ?
-T 1519910219 18<mbooth18>	akurtakov: Hi
-T 1519910249 18<akurtakov18>	mbooth: hey, have you seen my request for gogo.runtime update
-T 1519910278 18<akurtakov18>	if/when you need me to file cq 
-T 1519910284 18<akurtakov18>	just say so on the bug
-T 1519910342 18<mbooth18>	Hmm, I see it now
-T 1519910345 18<mbooth18>	Ok
-T 1519910899 18<akurtakov18>	mbooth: should be a no brainer thus good for improving record :)
-T 1519912682 18<nboldt18>	rgrunber fyi your fix for Orbit + updating to Jetty 9.4.8 has fixed the three failures in JBT for livereload, aerogear, and browsersim
-T 1519912687 18<nboldt18>	\o/
-T 1519916823 18<akurtakov18>	nboldt: would you please mark the update to 9.4.8 bug to verified in this case ?
-T 1519917069 18<akurtakov18>	lbullen: hey
-T 1519917098 18<akurtakov18>	we can not fork code under different license without agreement from original author to relicense
-T 1519917106 18<akurtakov18>	thus it is third-party
-T 1519917132 18<akurtakov18>	we should do our best to submit any changes to the project where the grammar comes from
-T 1519917142 18<akurtakov18>	if not possible and we are under pressure
-T 1519917171 18<akurtakov18>	you can fork under github **keeping the same license** as it used to be, commit your change and request CQ
-T 1519917182 18<akurtakov18>	but this should be last hope action
-T 1519917187 18<akurtakov18>	lbullen: any questiosn?
-T 1519917247 18<lbullen18>	akurtakov, just sent you an email about the three files but think this answers most of it, I'll make a PR for the required change and then relabel the requests as third party.
-T 1519917304 18<akurtakov18>	lbullen: hmm, Rust in 2004 ???
-T 1519917305 18<lbullen18>	Also, for rustup which installs rustc, cargo, rustup, do I do third party requests for each installed part or just rustup?
-T 1519917320 18<nboldt18>	akurtakov: will do when I see Dali is green
-T 1519917327 18<akurtakov18>	nboldt: ok
-T 1519917334 18<lbullen18>	whoops 2012, don't know how 2004 got in my head
-T 1519917350 18<akurtakov18>	lbullen: for these we need a workswith IMHO
-T 1519917394 18<akurtakov18>	not sure how this works with the new CQ submission interface
-T 1519917408 18<akurtakov18>	previously there was a PMC approval only for workswith IIRC
-T 1519917430 18<akurtakov18>	for rustup you will need third party request
-T 1519917457 18<akurtakov18>	don't you download rustup itself ?
-T 1519917478 18<akurtakov18>	nboldt: btw is Dali part of WTP ?
-T 1519917779 18<nboldt18>	yes, it's the persistence tools that depend on DTP
-T 1519917782 18<nboldt18>	akurtakov: ^
-T 1519917795 18<akurtakov18>	nboldt: cool, thanks
-T 1519917805 18<akurtakov18>	and what does it need jetty for ?
-T 1519917823 18<nboldt18>	it's not the jetty issue, it's the asm issue
-T 1519917835 18<nboldt18>	https://bugs.eclipse.org/bugs/attachment.cgi?id=272954
-T 1519917843 18<nboldt18>	sorry, the lucene issue
-T 1519917855 18<nboldt18>	which I think was fixed as part of rgrunber's rebuild
-T 1519917881 18<akurtakov18>	nboldt: ok, smth fixed it ;) 
-T 1519917887 18<rgrunber18>	nboldt: yes should be fixed in that M-build i sent you.. destined for Oxygen.3a, but you could definitely use that until then.
-T 1519917899 18<rgrunber18>	or update to jetty 9.4.8.. or both :P
-T 1519917901 18<nboldt18>	lucene 6.1.0.v20180206-1518 vs. 6.1.0.v20161115-1612 (in older orbit)
-T 1519917961 18<nboldt18>	rgrunber: I'm trying it for Dali build. I enabled an old test plugin last night (because WTP seems to think that "clean project management" means "have tons of plugins scattered about which aren't in the mvn reactor or the update site" 
-T 1519917999 18<nboldt18>	... so I reenabled the test and it builds fine on my machine (because my ~/.m2/repo contains the new orbit stuff) but failed in WTP JIPP (because no new orbit, or that's my guess)
-T 1519918019 18<nboldt18>	when it broke in JIPP I figured I'd add the failure to the jetty 9.4.8 BZ
-T 1519918805 18<nboldt18>	rgrunber: just realized the failure I saw for Dali was building against Photon, not Oxygen.3
-T 1519918817 18<nboldt18>	is there a new Orbit site for Photon.M6?
-T 1519918979 18<nboldt18>	rgrunber: will the fix you did for M20180228194429 be applied in an I build for Photon too?
-T 1519919088 18<rgrunber18>	nboldt: not yet..  will release m6 end of this week
-T 1519919111 18<nboldt18>	ok, cool. need that fix for lucene (probably)
-T 1519919120 18<rgrunber18>	in photon there would be no need for fix because there's no asm 5.2
-T 1519919128 18<nboldt18>	meanwhile still running the dali build ... worst case I can just re-remove the unit test
-T 1519919138 18<rgrunber18>	brb
-T 1519919153 18<nboldt18>	rgrunber: it's not the asm problem - it's the lucene 6/7 thing
-T 1519920143 18<rgrunber18>	nboldt: ah
-T 1519920352 18<rgrunber18>	nboldt: there is a fix for lucene-misc 6.1.0 that will be new in M6.. http://git.eclipse.org/c/gerrit/orbit/orbit-recipes.git/commit/?id=a64d95f886ef2b37721ec79b522540c643b05efb
-T 1519920359 18<rgrunber18>	ah and for lucene 7
-T 1519920368 18<rgrunber18>	kk yeah that should resolve it
-T 1519920442 18<rgrunber18>	nboldt: you could even try out http://download.eclipse.org/tools/orbit/downloads/drops/I20180207184401/repository to confirm.. should be in there.
-T 1519923116 18<nboldt18>	akurtakov: rgrunber: results inconclusive. https://ci.eclipse.org/webtools/job/webtools-dali_R3_10/77/console test crapped out. Will just disable it and try again. 
-T 1519933018 19<rgrunber>	lufimtse: refactor popup has been merged \o/
-T 1519933024 18*	rgrunber prays for no reverts
-T 1519933095 20<lufimtse>30	rgrunber, nice
-T 1520006263 18<rgrunber18>	bah
-T 1520006287 18<rgrunber18>	orbit-recipes sure gets quite a few connection resets from maven central
-T 1520006330 18<rgrunber18>	raises my blood pressure seeing a failed build.. then relief to see its the internet's fault
-T 1520272666 19*	Now talking on 22#eclipse
-T 1520272666 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1520272666 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1520309029 19*	Now talking on 22#eclipse
-T 1520309029 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1520309029 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1520330211 20*	Disconnected (20Invalid argument)
-T 1520455098 19*	Now talking on 22#eclipse
-T 1520455098 22*	Topic for 22#eclipse is: Eclipse discussions
-T 1520455098 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
-T 1520533224 18<scela18>	vkadlcik_gone: can you check again the ability to limit visibility on the RHECLIPSE Jira? Should be fixed, probably.
-T 1520545499 19<rgrunber>	lufimtse: just fyi https://bugs.eclipse.org/bugs/show_bug.cgi?id=531761 actually even improves things on the dark theme.
-T 1520545553 18<rgrunber18>	who says linux bugs don't benefit other OSs :P
-T 1520545581 18<rgrunber18>	* improves things on the dark theme of other OSs
-T 1520545611 20<lufimtse>30	nice :-)
-T 1520545637 20<lufimtse>30	anyone know of a way to find unused methods in eclipse?
-T 1520545720 18<mbooth18>	Comment out and see if anything breaks? ;-) I don't think you can though, because of reflection.
-T 1520545753 20*	lufimtse 30assumes there is no reflection.
-T 1520545758 18<akurtakov18>	mbooth: reflection should have been forbidden :)
-T 1520545771 20<lufimtse>30	in swt we don't use reflection
-T 1520545776 20<lufimtse>30	so that's ok.
-T 1520545806 20<lufimtse>30	I mean I can do a call-hierarchy and if nothing calls it, then it's an unused method.
-T 1520545813 20<lufimtse>30	but I'd like to have that done to every method.
 T 1520545826 20<lufimtse>30	the reason is that some methods are only called by JNI
 T 1520545840 20*	lufimtse 30wants find those.
 T 1520545853 18<rgrunber18>	findbugs ought to have such an option for catching these..
@@ -545,3 +83,428 @@ T 1520862967 18<ericwill18>	akurtakov np :)
 T 1520863294 18<akurtakov18>	rgrunber: hey, please read my mail about batik
 T 1520863319 18<rgrunber18>	akurtakov: k
 T 1520863648 18<rgrunber18>	akurtakov: one sec.. machine behaving sluggish.. needs a reboot.
+T 1520865272 18<rgrunber18>	akurtakov: i'll look into it but i'm not convinced this is a resolution issue.. it seems more like it can't find that bundle batik.css, batik.util.. not that it couldn't satisfy some dependency of it.
+T 1520865331 18<akurtakov18>	rgrunber: were they optional in previous version?
+T 1520865342 18<akurtakov18>	or is it upstream shipping osgi ?
+T 1520865351 18<rgrunber18>	akurtakov: in previous version they just weren't there.. those optional deps come from the bundle itself.
+T 1520865380 18<akurtakov18>	rgrunber: care to try it yourself?
+T 1520865383 18<rgrunber18>	weird way of stating them but ebr seems to do it by default. i guess to be really explicit.
+T 1520865387 18<rgrunber18>	sure.. against p2 master ?
+T 1520865396 18<akurtakov18>	rgrunber: http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+T 1520865401 18<akurtakov18>	I've edited http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+T 1520865414 18<akurtakov18>	to point to latest orbit/batik
+T 1520865421 18<akurtakov18>	if you install it locally
+T 1520865432 18<akurtakov18>	you can try against p2 master after that
+T 1520865436 18<akurtakov18>	I'll be gone now ttyl
+T 1520865492 18<rgrunber18>	akurtakov: ah i might know why.. if it's I20180207184401, doesn't contain batik 1.9.1 can you try against S20180302171354
+T 1520865560 18<rgrunber18>	oh wait.. that should work.. it's 1.9.0
+T 1520866382 18<scela18>	eclipse-team: hello guys, meetings will start roughly in 1 hr (weekly due then also). Double check your calendar to account for daylight savings time change.
+T 1520866441 18<akurtakov18>	rgrunber: no
+T 1520866460 18<akurtakov18>	I've edited it to S20180302171354
+T 1520866481 18<akurtakov18>	rgrunber: if it was this issue tycho fails with resolving target platform way earlier
+T 1520866487 18<rgrunber18>	ah.. yeahi realized you probably did. where did you run the build.. directly in the releng aggregator.. in the p2 folder ?
+T 1520866491 18<rgrunber18>	or you ran it in the root
+T 1520866741 18*	rgrunber does the whole submodule update thing
+T 1520868823 18<akurtakov18>	rgrunber: in the releng.aggregator
+T 1520868827 18<akurtakov18>	so I can get full build
+T 1520868840 18<akurtakov18>	and I touched the product 
+T 1520868846 18<akurtakov18>	just in case
+T 1520868851 18<akurtakov18>	but no help
+T 1520878185 19*	Now talking on 22#eclipse
+T 1520878185 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1520878185 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1520880587 18<akurtakov18>	rgrunber: so any idea ?
+T 1520880683 18<rgrunber18>	possibly..
+T 1520880732 18<rgrunber18>	it looks like batii.util and batik.css are never included in the reconciler.product in org.eclipse.equinox.p2.tests.reconciler.product
+T 1520880756 18<rgrunber18>	i mean they're listed in the product file but i don't see them in the actual generated product zip
+T 1520881084 18<rgrunber18>	i'll have to look at how the product gets installed. i am seeing some places where batik 1.9.0 still getting dragged in
+T 1520881156 18<akurtakov18>	rgrunber: would you please share the log ?
+T 1520881180 18<akurtakov18>	could it be that as the product file doesn't set version
+T 1520881190 18<akurtakov18>	smth else drags older util
+T 1520881202 18<akurtakov18>	it might be the need to touch some other bundle
+T 1520881339 18<rgrunber18>	akurtakov: i mean i don't think the lack of versioning is the issue because when i look in the generated product metadata, it states hard requirement on 1.9.1 under the metadata for org.eclipse.equinox.p2.reconciler
+T 1520881391 18<rgrunber18>	however...
+T 1520881443 18<rgrunber18>	when i look in the targetPlatfromRepository/content.xml.. i see org.apache.batik.util 1.9.0, org.apache.batik.css 1.9.0, org.apache.batik.il8n 1.9.1.
+T 1520881470 18<rgrunber18>	so to me it looks like the target platform is not being calculated correctly.. so it never finds 1.9.1 for util and css
+T 1520881495 18<akurtakov18>	thats weird
+T 1520881536 18<akurtakov18>	it clearly downloads 1.9.1 in the beginning when target is downloaded
+T 1520881664 18<rgrunber18>	https://paste.fedoraproject.org/paste/UVAzvC2Ahq844B4TJPNg7Q/raw .. it's big
+T 1520881691 18<rgrunber18>	i do see 1.9.0 being dragged in for me at the beginning
+T 1520881698 18<rgrunber18>	among others
+T 1520881847 18<rgrunber18>	i mean the target platform is still defined by org.eclipse:eclipse-parent or whatnot.
+T 1520881856 18<rgrunber18>	hence where 4.8-I-builds is coming from
+T 1520882034 18<akurtakov18>	rgrunber: yeah
+T 1520882063 18<akurtakov18>	did you install parent and target platfomr after your change locally
+T 1520882080 18<akurtakov18>	btw, do you do full aggregator build or p2 repo ?
+T 1520882106 18<rgrunber18>	i did mvn clean verify from root of the aggregator
+T 1520882137 18<rgrunber18>	i did have a org.eclipse platform parent installed locally from before eclipse-platform-parent-4.8.0-20180226.015234-526.pom
+T 1520882287 18<rgrunber18>	i'm willing to bet if batik 1.9.1 got into 4.8-I-builds, it'd work..
+T 1520882299 18<rgrunber18>	kinda seems like a bug in how target platform is used afaict.
+T 1520882352 18<akurtakov18>	rgrunber: but how would it get if the build fails ?
+T 1520882404 18<akurtakov18>	or you think that it will build proper ?
+T 1520882509 18<rgrunber18>	i mean the real question is.. how does one add a bundle to the target platfrom of the aggregation build. currently the target platform is basically.. <eclipse-p2-repo.url>http://download.eclipse.org/eclipse/updates/4.8-I-builds</eclipse-p2-repo.url>
+T 1520882597 18<rgrunber18>	i mean i still can't explain how batik 1l8n 1.9.1 is found without issue.. there's still something strange happening.
+T 1520882799 18<akurtakov18>	the target platform is  http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+T 1520882913 18<rgrunber18>	akurtakov: does any place in a pom actually override the target platform defined in org.eclipse:eclipse-platform-parent ?
+T 1520882924 18<akurtakov18>	rgrunber: I dont' think so
+T 1520882987 18<rgrunber18>	i mean it is a target.. but if it's not used anywhere i'm not sure what effect is has.
+T 1520883040 18<rgrunber18>	hmmm
+T 1520883045 18<rgrunber18>	i see it used actually.. one sec
+T 1520883386 18<rgrunber18>	i'm gonna try running with -X for more info.. unfortunately i can't save it all.
+T 1520883776 18<akurtakov18>	rgrunber: I more and more think that smth else brings 1.9.0 versions in the product
+T 1520883797 18<akurtakov18>	and thus the 1.9.1 is not considered as 1.9.0 satisfy the deps
+T 1520883810 18<rgrunber18>	oh.. yeah i can point to things that do..i just don't understand how it can ignore taking the latest.
+T 1520883849 18<akurtakov18>	which are these ?
+T 1520883988 18<rgrunber18>	hmm well not specifically 1.9.0 but org.eclipse.e4.rcp doesn't specify a range in the feature..
+T 1520883997 18<rgrunber18>	still trying to figure out which target platform is being used.
+T 1520884195 18<akurtakov18>	rgrunber: I've touched e4.rcp and run full build to see
+T 1520884312 18<rgrunber18>	akurtakov: did you try cleaning org/eclipse/eclipse-sdk-prereqs/4.8.0-SNAPSHOT ?
+T 1520884325 18<rgrunber18>	^ from your M2 local folder
+T 1520884340 18<rgrunber18>	if you go inside there, what version of batik do you see ?
+T 1520884473 18<akurtakov18>	no
+T 1520884478 18<akurtakov18>	but I have a build ongoing
+T 1520884482 18<akurtakov18>	so I'll wait for it
+T 1520884489 18<akurtakov18>	does it fix the issue for you ?
+T 1520884544 18<rgrunber18>	building now.. i had an eclipse-sdk-prereqs installed referencing 1.9.0 batik.. so i really hope that was it
+T 1520884570 18<akurtakov18>	that would be a bug as it's supposed to use the one in the patch
+T 1520884576 18<akurtakov18>	err in the build
+T 1520884790 18<akurtakov18>	rgrunber: even if what you point to was the issue how did we get a mix ?
+T 1520884968 18<rgrunber18>	a mix of 1.9.0 and 1.9.1 ?.. no idea.. easiest thing to blame is p2 somehow deciding to choose the version that's easiest to satisfy..
+T 1520885045 18<rgrunber18>	ugh failed the same way.. hmm
+T 1520885711 18<rgrunber18>	akurtakov: so i added -DaggregatorBuild .. that should disable the 4.8-I-builds.
+T 1520885730 18<rgrunber18>	but then you fail with org.apache.batik.constants.. which.. isn't in eclipse-sdk-prereqs.. so maybe a step in the right direction?
+T 1520885773 18<akurtakov18>	rgrunber: wait a bit , are you saying that some of the batik bundles gained new dep?
+T 1520885847 18<rgrunber18>	hmm looks like it.. unless it's a bug.. would have to take a look.
+T 1520885979 18<rgrunber18>	looks like a typo as i don't see batik.css require anything from there..
+T 1520885991 18<rgrunber18>	but apparently was placed in the osgi.bnd for some reason as a requirement
+T 1520886828 18<rgrunber18>	akurtakov: well the good new is when i supply those bundles it fails further down
+T 1520886840 18<rgrunber18>	(with -DaggregatorBuild)
+T 1520886935 18<akurtakov18>	what does further down means ?
+T 1520886957 18<rgrunber18>	org.eclipse.rcp.id fails
+T 1520886965 18<akurtakov18>	rgrunber: are you going to provide new build without this dep ?
+T 1520886990 18<akurtakov18>	rgrunber: what's the error ?
+T 1520886992 18<rgrunber18>	i'll file a bug and see if the 2 new deps can be removed.. or 1 removed and 1 made optional at least.
+T 1520887003 18<rgrunber18>	Missing requirement: org.eclipse.e4.rcp.feature.group 1.6.100.v20180310-1522 requires 'org.apache.batik.css [1.9.0.v20170908-1305]' but it could not be found
+T 1520887056 18<rgrunber18>	org.eclipse.e4.rcp just requires batik at 0.0.0
+T 1520887116 18<akurtakov18>	rgrunber: you need to touch e4.rcp.feature
+T 1520887126 18<akurtakov18>	there is forceQualifierUpdate.txt file in it
+T 1520887132 18<akurtakov18>	just add a new line with some content
+T 1520887152 18<rgrunber18>	kk.. i see
+T 1520887253 18<rgrunber18>	and here goes another build..
+T 1520888052 18<akurtakov18>	rgrunber: success ?
+T 1520951405 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1520951405 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1520951964 18<akurtakov_18>	mistria: does it owrk proper ?
+T 1520951977 18<akurtakov_18>	I mean your tests are now executed correctly ?
+T 1520952095 18<mistria18>	yes
+T 1520952158 18<akurtakov_18>	mistria: cool
+T 1520952169 18<akurtakov_18>	mistria: would you please announce the test on swt-dev 
+T 1520952177 18<akurtakov_18>	mistria: you're my releng hero :)
+T 1520952203 18<mistria18>	I'm not on swt-dev IIRC, I already announced it to platform-ui-dev and platform-releng-dev
+T 1520952215 18<mistria18>	I'll join swt-dev and forward that
+T 1520952261 18<akurtakov_18>	mistria: no need in this case
+T 1520952265 18<akurtakov_18>	thanks a lot
+T 1520952988 18<mistria18>	akurtakov_: you're welcome, but to be honest, I did it selfishly ;)
+T 1520953011 18<akurtakov_18>	mistria: I wish more people act so selfishly :)
+T 1520953071 18<mistria18>	akurtakov_: so you wish more people wouldn't run tests locally and would prefer sending them directly to Gerrit :D Because it's really why I take care of Gerrit: to not waste time watching tests locally
+T 1520953096 18<mistria18>	akuratov_: It's my MavenAndJunit-as-a-service
+T 1520953105 18<akurtakov_18>	I have seen other projects *cough* p2 *cough* where selfish actions led to impossibility to contribute and almost manually objuscated codebase 
+T 1520953108 18<mistria18>	don't tell that to foundation people, they hate that ;)
+T 1520953139 18<akurtakov_18>	so you have the 'right' selfish way IMHO :)
+T 1520953483 18<rgrunber18>	akurtakov_: Failed to execute goal org.apache.maven.plugins:maven-assembly-plugin:3.1.0:single (make-assembly) on project eclipse-junit-tests: Failed to create assembly: Error adding file to archive: /notnfs/git/eclipse.platform.releng.aggregator/eclipse.platform.releng.tychoeclipsebuilder/eclipse-junit-tests/../../eclipse.platform.common/bundles/org.eclipse.platform.doc.isv/target/doc.bin.log ?
+T 1520953501 18<akurtakov_18>	rgrunber: good enough
+T 1520953510 18<akurtakov_18>	that's one of the last entries :)
+T 1520953513 18<akurtakov_18>	it fails forme too
+T 1520953517 18<akurtakov_18>	but haven't found the time to fix it
+T 1520953521 18<rgrunber18>	lol, generated javadoc should produce doc.bin.og
+T 1520953758 18<rgrunber18>	k, so it'll work. just not sure what goes wrong without -DaggregatorBuild. I can tell you that when that's disabled the 4.8-I builds become part of the TP and my best guess is 1.9.0 gets preferred over 1.9.1 in any place where version is not explicit.
+T 1520953787 18<rgrunber18>	oh and i'll go file those bugs on the Orbit side. I'll double check as I wouldn't be surprised if there's more places where additional deps crept in.
+T 1520954740 18<akurtakov18>	so today zoom failed on me too
+T 1520954760 18<akurtakov18>	so every videon conferencing is good for no more than 3 months :(
+T 1520955085 18<rgrunber18>	akurtakov: all we need is a company that pumps out new video conf. solution every few months ?
+T 1520955112 18<akurtakov18>	rgrunber: I think that as soon as number of participants grow their infra can't handle it
+T 1520955291 18<rgrunber18>	do they stream everyone's video ?
+T 1520955326 18<akurtakov18>	rgrunber: no idea 
+T 1520955357 18<akurtakov18>	it's just a fact that after few months of usage quality downgrades significantly
+T 1520955372 18<rgrunber18>	i mean if you have 10+ people, i would assume you probably only want to see the face of the person talking.. so you don't need to be streaming like 9 other people who are just neutral/listening.
+T 1520955396 18<akurtakov18>	rgrunber: there are just 5 at the PMC call 
+T 1520955401 18<rgrunber18>	:\
+T 1520955407 18<akurtakov18>	and I was thrown out after 5 secs
+T 1520955417 18<akurtakov18>	not able to reconnect until the meeting finished
+T 1520955427 18<akurtakov18>	rgrunber: so how do we go with batik ?
+T 1520955525 18<rgrunber18>	i'll file the bugs and investigate what needs to be fixed. I haven't heard much from Pierre-Charles so i assume he may be busy with other things. i'll shoot him an email and see.
+T 1520955540 18<rgrunber18>	im fine with making the changes as they're pretty reasonable.
+T 1520962378 18<rgrunber18>	akurtakov: i've looked at the extra deps and they do seem correct. basically 1.9.0 probably had some deps left out but it didn't affect the runtime. is it a no-go for platform to adopt the new deps now ? batik-constants is basically has a single class and xmlgraphics is only used in one abstract class in batik.css
+T 1520962413 18<akurtakov18>	well, we will adapt
+T 1520962426 18<akurtakov18>	if these are real deps we don't have choice
+T 1520962488 18<rgrunber18>	they're real deps, just probably not on the code path used by platform. however if we eliminate batik 1.6/1.7 and force everyone on 1.9.1 there's a higher chance they may need all those other deps.
+T 1520962582 18<akurtakov18>	yeah, we should do the "right" thing in this case
+T 1520962600 18<akurtakov18>	please send me list of the bundles Ineed to file PB CQs for 
+T 1520962606 18<rgrunber18>	sure.
+T 1520962920 18<rgrunber18>	should be just https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15507 and https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15510 that you need. which are the only 2 ones that i needed to add to the aggregation target file.
+T 1520966131 18<akurtakov18>	nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531603
+T 1520974571 18<nboldt18>	akurtakov: rgrunber: anyone have push rights on EPP? https://git.eclipse.org/r/#/c/119365/
+T 1520974595 18<akurtakov18>	nboldt: jjohnstn and mistria IIRC
+T 1520974615 18<akurtakov18>	[20:35] <akurtakov> nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531603 :)
+T 1520974620 18<nboldt18>	jjohnstn: ^ can you push a fix for EPP reporting/javaee for me? I broke shit in Dali and had to remove a couple features :)
+T 1520974648 18<akurtakov18>	it's unclear to me is there a bug or not :)
+T 1520974701 18<nboldt18>	akurtakov: I almost closed the issue worksforme/cantreproduce twice but thought I'd submit the .log file just in case there's something Lucas can fix (eg., a better null check?) 
+T 1520974717 18<nboldt18>	or rather a better array out of bounds check
+T 1520974721 18<akurtakov18>	lbullen: ^
+T 1520974751 18<jjohnstn18>	I can push a fix for you...we are talking master branch right?...looking at bug now
+T 1520974760 18<nboldt18>	yes, master only
+T 1520974775 18<nboldt18>	jjohnstn: bug is unrelated, that's crap in the target platform editory
+T 1520974779 18<nboldt18>	editor*
+T 1520974799 18<jjohnstn18>	ah, what fix do you want to push?
+T 1520974849 18<nboldt18>	jjohnstn: here's the failure: https://ci.eclipse.org/packaging/job/photon.epp-tycho-build/149/console
+T 1520974856 18<nboldt18>	and here's the fix: https://git.eclipse.org/r/#/c/119365/
+T 1520974880 18<nboldt18>	jjohnstn: ^ also sent a note to cross-projects list cuz I broke epp :)
+T 1520974925 18<nboldt18>	jjohnstn: if you approve of the fix, can you reply to the thread saying it's merged? https://dev.eclipse.org/mhonarc/lists/cross-project-issues-dev/msg15405.html
+T 1520974935 18<nboldt18>	(once it's merged that is.) :)
+T 1520975056 18<jjohnstn18>	nboldt: just +2'd it and merged it
+T 1520975067 18<nboldt18>	jjohnstn: great, thanks
+T 1520975149 18<akurtakov18>	jjohnstn: I also pinged yesterday on some Oxygen M5 gerrits :)
+T 1520975164 18<akurtakov18>	it helps me seeing crap gone from your queues guys :)
+T 1520975211 18<jjohnstn18>	akurtakov: I'm still thinking about one of those gerrits...I believe there was a Windows change that caused that proposed patch, but it doesn't seem to be needed
+T 1520975298 18<nboldt18>	jjohnstn: can you also trigger a build in https://ci.eclipse.org/packaging/job/photon.epp-tycho-build/ ?
+T 1520975318 18<nboldt18>	or do I just have to wait for it to find the commit on its own? #impatientAndCurious
+T 1520975366 18<jjohnstn18>	nboldt: it should find it...all packages need to be rebuilt for thursday...is tonight too late?
+T 1520975643 18<nboldt18>	jjohnstn: nah, should be fine. I expect there'll be more respins tomorrow for the +3 projects anyway. 
+T 1521040861 18<akurtakov18>	rgrunber: did you send me list of th ebugndls ?
+T 1521040914 18<rgrunber18>	i sent you a list of the cqs mentioning the bundles on irc.
+T 1521040942 18<rgrunber18>	one sec..
+T 1521041059 18<rgrunber18>	https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15507 (org.apache.batik.constants) and https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15510 (org.apache.xmlgraphics)
+T 1521041079 18<scela18>	rgrunber: did the pierre charles guy show up yet?
+T 1521041115 18<rgrunber18>	scela: he pushed some fixes to the stack yesterday actually, but i've already sent the remaining CQ back to IPteam
+T 1521041248 18<akurtakov18>	rgrunber: thanks, I missed the irc 
+T 1521041455 18<scela18>	rgrunber: ok
+T 1521043935 20<lufimtse>30	lbullen, some UI change requests :-)  :
+T 1521043936 20<lufimtse>30	532458 – [UI change request] Optimize git staging area view. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532458
+T 1521043936 20<lufimtse>30	532457 – [UI change request] Change 'Field Accesses' from menu into an icon. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532457
+T 1521043936 20<lufimtse>30	   
+T 1521043959 20<lufimtse>30	in exchange, I would fix any 2 SWT bugs of your choice :-D. 
+T 1521043987 20<lufimtse>30	*if they reproduce on gtk3.22 & above.
+T 1521045021 19<lbullen>	lufimtse, sounds like a deal, but watch out I might ask for vertical and multi-row tabs as my two bugs :-P
+T 1521045032 20<lufimtse>30	oh dear :-P
+T 1521053623 18<rgrunber18>	does anyone have any idea if "something happened" recently with respect to compare-version-with-baselines ?
+T 1521054222 18<rgrunber18>	nvm.. not related
+T 1521119253 18<nboldt118>	vkadlcik: I've opened https://bugzilla.redhat.com/show_bug.cgi?id=1556889 to track updating Devtools 2018.2 to Oxygen.3a -- couldn't find another existing one
+T 1521119284 18<vkadlcik18>	nboldt1: yeah, right, thanks
+T 1521121320 20*	Disconnected (20Invalid argument)
+T 1521123276 19*	Now talking on 22#eclipse
+T 1521123276 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521123276 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521125505 18<nboldt118>	rgrunber_bbiab: I think that's true in WTP and JBoss Tools... I've had to bump lots of stuff lately
+T 1521125742 18<akurtakov18>	rgrunber_bbiab: not in this case
+T 1521125764 18<akurtakov18>	we usually have to force qualifier bump for picking dependencies
+T 1521125949 18<akurtakov18>	rgrunber_bbiab: mistria is your best source of information on the topic IMHO
+T 1521127737 18<akurtakov18>	lbullen: so call is in 4:30 h from now ?
+T 1521127833 18<akurtakov18>	scela: forwarded you a call about corrosion if you're interested
+T 1521129140 18<scela18>	akurtakov: ok
+T 1521129142 18<scela18>	akurtakov: thanks
+T 1521206362 19*	Now talking on 22#eclipse
+T 1521206362 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521206362 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521206872 18<mbenitez18>	scela, hi Sopot, Monday we're having a presentation of the PnT strategy in the TO office that conflicts with the first to sessions of your weekly, could you please reschedule?
+T 1521207089 18<scela18>	mbenitez: yep, sure
+T 1521207117 18<mbenitez18>	thanks :)
+T 1521207174 18<scela18>	mbenitez: can I get a bjn link for that?
+T 1521207221 18<mbenitez18>	I think so, let me confirm with Patrick
+T 1521209076 18<scela18>	eclipse-team: for next week the first two group-calls (Platform/LS and Releng) will be done two hours after the usual time
+T 1521209113 18<scela18>	this should impact mbooth nboldt vkadlcik xlbullen and mickael
+T 1521209116 18<scela18>	please check your calendars
+T 1521209151 18<scela18>	cc akurtakov ^
+T 1521209166 18<lbullen18>	change successful on my calendar
+T 1521209181 18<akurtakov18>	scela: ok :)
+T 1521211262 18<nboldt18>	scela: ack, my calendar shows the releng call's at 2:30pm EST now
+T 1521468097 19*	Now talking on 22#eclipse
+T 1521468097 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521468097 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521468544 18<nboldt18>	akurtakov: have you seen mbooth online today? 
+T 1521468550 18<akurtakov18>	nboldt: no
+T 1521468558 18<akurtakov18>	I'm still waiting for his reply too
+T 1521468608 18<mbenitez18>	he seems to be off the VPN but is on freenode
+T 1521468653 18<scela18>	akurtakov: mbenitez nboldt mat's on pto today
+T 1521468663 18<scela18>	it seems he forgot to update calendar
+T 1521468671 18*	scela updates
+T 1521468794 18<nboldt18>	scela: ah, that explains his AFKness. I guess that means I'm doing Fedora/SCL Oxygen.3 updates today? 
+T 1521468836 18<nboldt18>	vkadlcik: is there an existing errata for 2018.2 to update to Oxygen.3(a) ?
+T 1521468872 18<vkadlcik18>	nboldt: not yet i think
+T 1521468905 18<nboldt18>	seems suspicious... we're 5 weeks into a 12 week release cycle w/ no Errata? 
+T 1521468914 18<mbenitez18>	nboldt, FYI in errata you can look for rh-eclipse47 to see any available errata
+T 1521468927 18<mbenitez18>	and it doesn't look like there's one
+T 1521468940 18<scela18>	nboldt: I think I asked him to make one in our last group call last week
+T 1521469042 18<scela18>	nboldt: but in case there isn't one let's do what we can today and tomorrow we let him know
+T 1521469145 18<nboldt18>	scela: sure, if I can remember how to create one I will today. when's he back from PTO? 
+T 1521469159 18<scela18>	nboldt: tomorrow
+T 1521469163 18<nboldt18>	scela: ok cool
+T 1521469173 18<scela18>	nboldt: he got some last-year leftovers to take
+T 1521469185 18<mbenitez18>	scela, errata is only crucial for an official hand off to QE, so probably not needed today
+T 1521469186 18<nboldt18>	scela: ah, one of those "use it or lose it" PTOs :)
+T 1521469663 18<nboldt18>	does 2018.2 release includes updates to go and llvm? 
+T 1521469690 18<nboldt18>	akurtakov: mbenitez scela: ^ wondering because the errata Y-stream advisory create page is asking me 
+T 1521469704 18<mbenitez18>	yes, although those may ship in a slightly different date
+T 1521469750 18<nboldt18>	ok. so I want a New Y-Stream Assisted Create --> Red Hat Enhancement Advisory -> select all eligible packages ?
+T 1521469974 18<mbenitez18>	eclipse should show up but only IF there's a bug with all the ack's
+T 1521470044 18<nboldt18>	mbenitez: no, it didn't appear. https://errata.devel.redhat.com/errata/details/33102 was created assuming it was just llvm and go, but then I edited it to clarify. Not sure if there's something missing in that there's no connection to a RH BZ with ACKs
+T 1521470084 18<nboldt18>	crap.... I guess it should have been a RHBA not RHEA errata :(
+T 1521470090 18<mbenitez18>	nboldt, this is the BZ, could you please ask Bob or Kerri to set pm_ack
+T 1521470104 18<mbenitez18>	either works, no huge difference
+T 1521470125 18<nboldt18>	is syeghiay@redhat.com the correct manager contact? or should it be mbenitez ?
+T 1521470138 18<mbenitez18>	you could blame scela ;)
+T 1521470147 18<mbenitez18>	that way he gets the spam
+T 1521470161 18<mbenitez18>	I mean updates :D
+T 1521470170 18<scela18>	nboldt: right you could put me there, I am prepared (yay filters)
+T 1521470181 18<nboldt18>	ok, cool. any RHBZ I should link in there ?
+T 1521470192 18<mbenitez18>	1556889
+T 1521470200 18<mbenitez18>	that's the one that needs pm_ack
+T 1521470214 18<scela18>	mbenitez: nboldt I'll get the pm_ack for it
+T 1521470224 18<nboldt18>	yeah, I can't add it until it's been acked
+T 1521470230 18<nboldt18>	Bug #1556889 The bug must have the following acked flags: devtools-2018.2, devel_ack, qa_ack, pm_ack.Bug #1556889 Requires status MODIFIED, VERIFIED. The bug is currently NEW.Bug #1556889 rh-eclipse47 is NOT on the approved component list for DevTools-2018.2. Please contact Program Management and have the component added to the ACL. Contact information for the individual products and their releases is available on the Product Pages (htt
+T 1521470230 18<nboldt18>	ps://engineering.redhat.com/pp/).
+T 1521470282 18<nboldt18>	ok, https://errata.devel.redhat.com/errata/details/33102 updated to spam scela and vkadlcik :)
+T 1521470837 18<vkadlcik18>	nboldt: are you sure those two bugs you included (go and llvm) should be there? seems very odd...
+T 1521470850 18<mbenitez18>	that must  be an error
+T 1521471002 18<nboldt18>	mbenitez: vkadlcik: not sure... they were autoadded, but i can remove them
+T 1521471024 18<mbenitez18>	nboldt, please do, we should only have eclipse bugs there
+T 1521471065 18<nboldt18>	done
+T 1521471125 18<mbenitez18>	thanks Nick
+T 1521471160 18<nboldt18>	mbenitez: https://memegenerator.net/instance/80162497/ralph-wiggum-im-helping :)
+T 1521471200 18<mbenitez18>	:)
+T 1521472173 18<scela18>	nboldt: pm_ack flag in
+T 1521472574 18<scela18>	anyone having any issue with RH google services ? email and calendar are down for me
+T 1521472579 18<scela18>	it says G suite error
+T 1521472587 18<scela18>	*server error
+T 1521472612 18<rgrunber18>	scela: seems to be working for me
+T 1521472853 18<scela_18>	rgrunber: it seems to be an acs issue for me
+T 1521476782 18<rgrunber18>	scela just a heads up, we're having this leadership lunch/learn at the toronto office.. not sure how long it will go.. i can let people know to leave at 1 if you wanna start our all-hands on time.
+T 1521476801 18<rgrunber18>	ideally ends before 1 and questions after but we'll see.
+T 1521476828 18<rgrunber18>	^ based off the leadership exchange meeting
+T 1521478651 18<rgrunber18>	nvm.. on time
+T 1521484392 18<nboldt18>	akurtakov: scela: just ping me when you want me to join :)
+T 1521484425 18<akurtakov18>	nboldt: will do
+T 1521484959 18<akurtakov18>	nboldt: we are ready for you
+T 1521484994 18<scela18>	nboldt: https://giphy.com/gifs/snl-saturday-night-live-1980s-d3pWRIVRiBjLOOkw
+T 1521498327 20*	Disconnected (20Connection timed out)
+T 1521551054 19*	Now talking on 22#eclipse
+T 1521551054 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521551054 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521552357 18<akurtakov18>	nboldt: hey , good morning
+T 1521552408 18<akurtakov18>	woudl you please take jgit, egit, and egit-github updates to 4.11 in rawhide and f28 (update needed via bodhi)
+T 1521552478 18<akurtakov18>	nboldt: also I don't see 3.9.3 tag for webtools
+T 1521552484 18<akurtakov18>	only 3.9.3RC4
+T 1521552488 18<akurtakov18>	is it final now ?
+T 1521552492 18<akurtakov18>	if yes please tag
+T 1521552512 18<akurtakov18>	and if time permits update wtp rpm in rawhide/f28 too
+T 1521552722 18<mbooth18>	akurtakov: I have not been filing bugs for missing tags -- it seems like extra busy work because by the time the tag arrives, I've already worked out which commit corresponds to the version and used that
+T 1521553151 18<nboldt18>	akurtakov: will do -- need to figure out why JBT is broken in jenkins first
+T 1521553158 18<akurtakov18>	nboldt: ok
+T 1521553160 18<akurtakov18>	thanks
+T 1521553628 18<nboldt18>	akurtakov: 3.9.3RC4 isn't final yet. we're still in quiet period
+T 1521553636 18<akurtakov18>	nboldt: ah ok
+T 1521555444 18<nboldt18>	akurtakov: did https://bugs.eclipse.org/bugs/show_bug.cgi?id=531844 get backported to Fedora/SCL?
+T 1521555459 18<nboldt18>	I never saw a reply from mbooth on that email thread from March 1
+T 1521555461 18<mbooth18>	nboldt: Yes
+T 1521555467 18<nboldt18>	sweetsauce :)
+T 1521555483 18*	nboldt deletes another "waiting for clarification" email from my todo list
+T 1521555506 18<nboldt18>	speaking of... no news from wtp people re: axis 1 deprecation yet :(
+T 1521555511 18<nboldt18>	mbooth: ^ 
+T 1521555528 18<nboldt18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=531352 seems kchong has better things to do atm
+T 1521555671 18<mbooth18>	nboldt: Happy to carry your patch until upstream merges
+T 1521555874 18<nboldt18>	mbooth: cool. that works
+T 1521555894 18<nboldt18>	... or until they elect me a committer and I start Breaking Bad (code and fixing it).
+T 1521555919 18<nboldt18>	anyone in here with push rights to epp? if so, merge please: https://git.eclipse.org/r/#/c/119788/ 
+T 1521555939 18<nboldt18>	rgrunber: ^ akurtakov: ^ jeff-not-on-IRC-today: ^
+T 1521556000 18<rgrunber18>	i haven't got those perms sadly.. if i see jeff (assuming alex can't, i'll let him know)
+T 1521556003 18<akurtakov18>	nboldt: Jeff and Mickael 
+T 1521556007 18<akurtakov18>	I can't 
+T 1521556068 18<nboldt18>	OK, I guess I have to fire up the email-o-matic and go back into the past. :(
+T 1521556094 18<akurtakov18>	btw, isn't it hte quiet week for M6 now ?
+T 1521556105 18<nboldt18>	no, M6 is released
+T 1521556117 18<nboldt18>	it's quiet week for Oxygen.3
+T 1521556131 18<akurtakov18>	nboldt: ah, yes
+T 1521556139 18<nboldt18>	which ends tomorrow as Oxygen.3 GA is tomorrow 10am EST
+T 1521556143 18*	akurtakov is so happy we are going single release
+T 1521556154 18<akurtakov18>	development, maintenance, scl, fedora .... 
+T 1521556158 18<akurtakov18>	I lose track :)
+T 1521556235 18<nboldt18>	akurtakov: well, we'll still have dev, fedora, and scl... but 3 places to patch is better than 4
+T 1521556270 18<nboldt18>	only way I survive is to have the planning council calendar in my RH calendar so I see the dates all the time
+T 1521556274 18<akurtakov18>	nboldt: yeah, that's 25% better :)
+T 1521556312 18<nboldt18>	akurtakov: https://calendar.google.com/calendar/b/1?cid=Z2NoczdubTRudnBtODM3NDY5ZGRqOXRqbGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ or https://calendar.google.com/calendar/b/0?cid=Z2NoczdubTRudnBtODM3NDY5ZGRqOXRqbGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ
+T 1521556335 18<nboldt18>	/b/1 if your second gmail login is for RH mail, /b/0 if your first one is for RH mail)
+T 1521556505 18<akurtakov18>	nboldt: lately I more often remove things from calendar so I can see what is really going on :)
+T 1521556520 18<akurtakov18>	and I hae the planning council mixed with all the rest
+T 1521556710 18<akurtakov18>	mbooth:  what do the scratched lines mean?
+T 1521556734 18<mbooth18>	Done/don't need
+T 1521556802 18<akurtakov18>	mbooth: o
+T 1521556803 18<akurtakov18>	ok
+T 1521557616 18<akurtakov18>	mbooth: m2e-mavendev is not marked as not needing updates
+T 1521557641 18<akurtakov18>	btu looking at https://github.com/ifedorenko/com.ifedorenko.m2e.mavendev
+T 1521557649 18<akurtakov18>	there are no updates
+T 1521557663 18<akurtakov18>	as you seem to left it on purpose is there smth I'm missing
+T 1521557970 18<mbooth18>	akurtakov: You are right, I didn't check the commit log closely enough
+T 1521558046 18<mbooth18>	akurtakov: Did you need to update testng-remote when you updated testng?
+T 1521558132 18<akurtakov18>	mbooth: no just testng
+T 1521587158 20*	Disconnected (20Connection timed out)
+T 1521635951 19*	Now talking on 22#eclipse
+T 1521635951 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521635951 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521636628 18<akurtakov18>	mbooth: I'm open for bright ideas https://paste.fedoraproject.org/paste/4tBZgjPq4h9lEatwoPQVwA
+T 1521636821 18<mbooth18>	akurtakov: No bright ideas :-(
+T 1521636873 18<akurtakov18>	sigh, nothing should happen easy :)
+T 1521636897 18<akurtakov18>	mbooth: please proceed with scl build if you are up to it
+T 1521636917 18<akurtakov18>	if I manage to get this one easily we will respin, ok?
+T 1521636994 18<mbooth18>	ok
+T 1521637776 18*	akurtakov has a bad feeling about this one
+T 1521641494 18<akurtakov18>	mbooth: jetty build is ongoing
+T 1521641515 18<mbooth18>	akurtakov: What was the cause of the error?
+T 1521641535 18<akurtakov18>	mbooth: upstream they added source classifier build for this module 
+T 1521641538 18<akurtakov18>	I've removed it
+T 1521641550 18<akurtakov18>	https://github.com/eclipse/jetty.project/issues/2152
+T 1521641580 18<akurtakov18>	I don't have an idea how is this useful :)
+T 1521641718 18<akurtakov18>	mbooth: I'm building for f28
+T 1521641723 18<akurtakov18>	but won't push update
+T 1521641732 18<akurtakov18>	it should go with platform rebuild, right?
+T 1521641785 18<mbooth18>	Yeah, I'll add it to the bodhi update
+T 1521641801 18<mbooth18>	When platform is rebuilt
+T 1521641837 18<akurtakov18>	ok
+T 1521641850 18<akurtakov18>	buildroot override is yours too :)
+T 1521645074 18<mbooth18>	rgrunber: Is there tutorial or ducmentation for creating droplets?
+T 1521645294 18<rgrunber18>	mbooth: i'm actually not sure.. howver fedoraproject-p2 has the source code that does it.
+T 1521645325 18<rgrunber18>	only different step is when creating the p2 repo, you add -markAsRunnable and -createFragments iirc, then you delete the generaed artifacts.xml/content.xml
+T 1521645473 18<mbooth18>	rgrunber: Someone in #eclipse-dev is trying to package Eclipse for Solus, which AIUI has it's own packaging system and non of our xmvn goodness
+T 1521645520 18<rgrunber18>	https://github.com/rgrunber/fedoraproject-p2/blob/master/org.fedoraproject.p2/src/org/fedoraproject/p2/installer/impl/Director.java#L105 .
+T 1521645561 18<rgrunber18>	mbooth: ^ those are basically p2 apis .. even repo2runnable is accessible as a headless app.
+T 1521645630 18<rgrunber18>	one sec may have found something
+T 1521645779 18<rgrunber18>	there's also this : https://wiki.eclipse.org/Equinox/p2/P2_Fragments
+T 1521646033 18<mbooth18>	rgrunber: Ah, thanks
+T 1521647541 18<akurtakov18>	lbullen: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531602
+T 1521647554 18<akurtakov18>	sorry to interrupt you again
+T 1521647572 18<lbullen18>	just about to ask you, can you revert or do I need to make a revert patch?
+T 1521647594 18<lbullen18>	revert and then I'll make a better fix
+T 1521647733 18<akurtakov18>	lbullen: revert which patch ?
+T 1521647805 18<lbullen18>	https://git.eclipse.org/r/#/c/118722/, https://git.eclipse.org/r/#/c/119167/, https://git.eclipse.org/r/#/c/119359/
+T 1521648370 18<akurtakov18>	lbullen: can you come with single revert ?
+T 1521670041 20*	Disconnected (20Connection timed out)
+T 1521725173 19*	Now talking on 22#eclipse
+T 1521725173 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521725173 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521732582 18<scela18>	mbooth: radek is regenerating buildroot
+T 1521732629 18<scela18>	ICYMI https://projects.engineering.redhat.com/browse/RCM-30599?focusedCommentId=782851&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-782851
+T 1521732683 18<mbooth18>	scela: Cool, ta
+T 1521733936 18<akurtakov18>	mbooth: https://bugs.eclipse.org/bugs/show_bug.cgi?id=532294
+T 1521733954 18<akurtakov18>	would you please make jetty-util servicloader requriemnt optional
+T 1521733957 18<akurtakov18>	it's same old game
+T 1521734258 18<mbooth18>	akurtakov: I'll take a look a bit later
+T 1521762523 20*	Disconnected (20Connection timed out)
+T 1521817421 19*	Now talking on 22#eclipse
+T 1521817421 22*	Topic for 22#eclipse is: Eclipse discussions
+T 1521817421 22*	Topic for 22#eclipse set by 26akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (24Tue May 17 08:53:56 2016)
+T 1521819929 18<nboldt18>	mbooth: no idea, haven't tried it
+T 1521820378 18<nboldt18>	mbooth: it's completely broken
+T 1521820391 18<nboldt18>	html is totally different so nothing is parsed
+T 1521820412 18<mbooth18>	Figures
+T 1521820491 18<nboldt18>	and now it's spread across different domains (so multiple kerberos logins needed)
+T 1521820523 18<nboldt18>	maybe I can just parse https://rpmdiff.engineering.redhat.com/waivers/manage/33102/ 
+T 1521820531 18<nboldt18>	instead of https://errata.devel.redhat.com/advisory/33102/rpmdiff_runs
+T 1521914870 20*	Disconnected (20Connection timed out)

@@ -10155,3 +10155,266 @@ Mar 09 15:30:08 <antoyo1>	I wished there is.
 Mar 12 09:13:59 *	Now talking on #webkitgtk+
 Mar 12 09:13:59 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
 Mar 12 09:13:59 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 12 11:38:58 <oo_miguel>	I have a simple extenstion with a document_loaded_callback where I can access the DOM right after the WebKitWebPage has loaded and issued the "documet-loaded" signal. Is there any way to access the DOM after that? (maybe by issuing some other signal from my main process?). Or do I have to reload the WebPage every time?
+Mar 12 11:42:25 <antoyo>	oo_miguel: You can clone the WebPage (with *_ref) and use it afterwards (maybe in reaction to some JS event or when you receive a message from your UI process).
+**** BEGIN LOGGING AT Mon Mar 12 14:10:02 2018
+
+Mar 12 14:10:02 *	Now talking on #webkitgtk+
+Mar 12 14:10:02 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 12 14:10:02 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 12 14:58:01 <oo_miguel>	ok nice! it seems to work. I started an extra thread from my document-loaded callback. and listen to some "messages" and modify the DOM on the fly. Will I need to do some kind of locking? or are this DOM maninpulating functions thread safe?
+Mar 12 14:59:52 <antoyo>	Hum, good question… which I do not know the answer…
+Mar 12 15:00:19 <antoyo>	(I preferred to use the glib event loop to avoid such issues.)
+**** BEGIN LOGGING AT Tue Mar 13 10:30:19 2018
+
+Mar 13 10:30:19 *	Now talking on #webkitgtk+
+Mar 13 10:30:19 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 13 10:30:19 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 13 10:46:29 <oo_miguel>	when I manipulate the DOM directly in the document-loaded callback in my webextension everything works fine. however If i spawn a separate trade it "misbehaves". The view is not updated (fully) and some data seems to be missing: webkit_dom_element_get_attribute (node,"href"); returns null (instead of the actual link). Is this expected? It is likely I still have a misconception about how it should work.
+Mar 13 10:46:46 <oo_miguel>	I spawn a seperate thread!
+Mar 13 10:53:51 <annulen>	DOM is not thread-safe
+Mar 13 23:54:54 <convert>	webkit seems to compute a cache size of 36 Mb and enforces it, but that is inadequate, i cant see any option to override it
+Mar 13 23:55:30 <convert>	also webkits  speculative revalidation goes crazy with at least one  iis server
+Mar 14 18:36:46 <oo_miguel>	I assume that every ui process spawns ONE process for teh webkit extension. Can I somehow get the pid of the ui process from the extension OR the other way round?
+Mar 14 18:37:00 <oo_miguel>	(without passing it via user_data)
+Mar 14 19:01:48 <antoyo>	oo_miguel: He he. I guess you'll have a lot of fun to develop a web browser :) . I did one and had the exact same questions that you have.
+Mar 14 19:02:07 <antoyo>	oo_miguel: Which language do you use for your web browser?
+Mar 14 19:04:08 <oo_miguel>	antoyo: yeah, its more fun than I expected (actually I am only adding some functionality to the minimalistic surf browser).  learned about some ipc techniques and some gnome stuff.
+Mar 14 19:04:15 <oo_miguel>	I use c
+Mar 14 19:05:09 <oo_miguel>	I could easily pass the pid over to my extension with the user_data. But I would prefer some other way, that will not require changing the way the extensions are loaded now
+Mar 14 19:05:11 <antoyo>	Ok, I was asking because I developped a whole framework to ease the develop of my web browser, but it's in Rust, so it's of no use to you.
+Mar 14 19:06:04 <oo_miguel>	antoyo: ok, never touched Rust so far. but you use the same api right?
+Mar 14 19:06:09 <antoyo>	Yes.
+Mar 14 19:06:22 <antoyo>	You might be able to do something with https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebPage.html#webkit-web-page-get-id but I'm not sure.
+Mar 14 19:06:38 <antoyo>	You have this from the UI process: https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebView.html#webkit-web-view-get-page-id
+Mar 14 19:06:47 <oo_miguel>	I use a simple fifo pipe to communicate between the ui process and the extension
+Mar 14 19:07:16 <antoyo>	You can explore the page ID, but I'm not sure if it will work for you. And I don't know of any other way to get PID or such.
+Mar 14 19:07:24 <oo_miguel>	yeah, page id is great as long there is not more then one ui and one extension process
+Mar 14 19:07:37 <oo_miguel>	the page id starts counting from 0
+Mar 14 19:07:40 <oo_miguel>	for a new process
+Mar 14 19:07:56 <oo_miguel>	so it is not unique across all processes, just within one instance
+Mar 14 19:07:58 <antoyo>	If you have one process per UI, it might be good. I don't know how the process model is setup in surf.
+Mar 14 19:08:20 <oo_miguel>	if I launch surf twice I get multiple processes
+Mar 14 19:08:48 <antoyo>	You mean multiple UI processes?
+Mar 14 19:08:51 <oo_miguel>	yes
+Mar 14 19:09:21 <oo_miguel>	opening a new window from surf does not spawn a new processes
+Mar 14 19:09:22 <antoyo>	Hum, I started with this for my web browser but that way of doing things has a big flaw: cookies are not shared correctly between the different processes.
+Mar 14 19:09:33 <oo_miguel>	but I can run surf from teh command line for example
+Mar 14 19:09:48 <oo_miguel>	which creates a brand new ui process, as well es a process for the extnesion
+Mar 14 19:10:29 <oo_miguel>	antoyo: oh ok
+Mar 14 19:11:18 <oo_miguel>	so maybe I should "fix" surf and check if a ui porcess is running already and instruct it to open a new window...
+Mar 14 19:11:47 <antoyo>	That's what I do (with abstract unix domain socket, but that only works on Linux).
+Mar 14 19:12:17 <oo_miguel>	I guess I already invented some linux dependencies
+Mar 14 19:12:51 <oo_miguel>	so it would not hurt using sockets (however I am happy with the fifo pipe)
+Mar 14 19:13:55 <oo_miguel>	I can use it for the same purpose as well. My idea was to have seperate pipes for all ui processes
+Mar 14 19:14:19 <oo_miguel>	but probably sticking to one singe ui process will be better, as you pointed out
+Mar 14 19:14:44 <antoyo>	That brings other issues though, specially if your process model is M-N like in my case.
+Mar 14 19:15:24 <oo_miguel>	I have to admit I do not know what the process model is by now :P
+Mar 14 19:15:31 <oo_miguel>	I thought its simply 1:1
+Mar 14 19:15:55 <antoyo>	Check if there's a call to webkit_web_context_set_process_model
+Mar 14 19:15:56 <oo_miguel>	one process for the ui and one process for the extension
+Mar 14 19:16:12 <oo_miguel>	WEBKIT_PROCESS_MODEL_MULTIPLE_SECONDARY_PROCESSES
+Mar 14 19:17:13 <antoyo>	And is there a call to webkit_web_context_set_web_process_count_limit?
+Mar 14 19:17:39 <oo_miguel>	nope
+Mar 14 19:17:53 <antoyo>	Ok, so it looks 1:1. This is simpler than M:N.
+Mar 14 19:18:14 <oo_miguel>	why do you use M:N ?
+Mar 14 19:18:26 <antoyo>	To avoid having 100 processes if I have 100 windows/tabs.
+Mar 14 19:18:33 <antoyo>	(so to save memory)
+Mar 14 19:18:33 <oo_miguel>	allright
+Mar 14 19:18:48 <antoyo>	Like the new Firefox is doing.
+Mar 14 19:19:50 <oo_miguel>	I will stick to 1:1 and switch to M:N (including extra headaches) when I run into troubles
+Mar 14 19:20:06 <antoyo>	Good idea.
+Mar 14 19:22:10 <oo_miguel>	so in your "main" you first check if your browser is already running , in wich case you send it a "message" (through the socket) to spawn a new window?
+Mar 14 19:27:49 <antoyo>	Yes and I can do it easily since I use abstract (named) UDS, because I cannot listen twice on the same name.
+Mar 14 19:28:22 <oo_miguel>	ah good idea
+Mar 14 23:25:19 <j_v>	I've run into a issue building the 2.20.0 release that only seems to be triggered when using '-j 1'
+Mar 14 23:28:51 <j_v>	I was thinking of doing a git bisect, so I cloned the webkit repo. I was hoping someone could point me to the git commits or svn revisions for the last too stable releases, so I could have some kind of starting points.
+Mar 15 01:43:30 <j_v>	I've come up with the following simple patch that fixes building with '-j 1' for 2.20.0 release, based on upstream r229282 (add_dependencies portion): http://ix.io/Xj1
+Mar 15 04:03:41 <tpopela>	j_v: please open a bug in bugzilla with the error you are getting and attach the patch there (please follow https://webkit.org/contributing-code/ )
+Mar 15 04:08:43 <j_v>	tpopela: it's already fixed in scm at revision 229282. my point is that single threaded builds on the 2.20.0 release are broken without the change
+Mar 15 04:11:00 <j_v>	not a big deal, I'm sure there's not too many people like me who build single threaded by default
+Mar 15 04:56:27 <convert>	is it just my libsoup, or is it a general error of all libsoups when connecting to https://lists.nongnu.org/
+Mar 15 04:56:40 <convert>	I'm on 2.60 btw
+Mar 15 04:57:30 <convert>	I get a Error performing TLS handshake: error:00000001:lib(0):func(0):reason(1)
+Mar 15 05:09:26 <convert>	oh I forgot, i want to make the WebKitCache size configurable - user specified Mb, there seems to be a way to do this already: In NetworkProcess.cpp you have m_diskCacheSizeOverride = parameters.diskCacheSizeOverride;
+Mar 15 05:10:08 <convert>	but where would I be initializing parameters passed to the NetworkProcess?
+Mar 15 05:17:53 <convert>	so i should follow how mimic how webkit_web_context_set_cache_model() works to add a new option to WebKitWebContext  for this?
+Mar 15 09:42:24 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Thu Mar 15 09:42:24 2018
+
+**** BEGIN LOGGING AT Thu Mar 15 09:42:47 2018
+
+Mar 15 09:42:47 *	Now talking on #webkitgtk+
+Mar 15 09:42:47 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 15 09:42:47 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 15 10:18:27 *	Disconnected (Remote host closed socket)
+**** ENDING LOGGING AT Thu Mar 15 10:18:27 2018
+
+**** BEGIN LOGGING AT Thu Mar 15 10:18:52 2018
+
+Mar 15 10:18:52 *	Now talking on #webkitgtk+
+Mar 15 10:18:52 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 15 10:18:52 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 15 11:10:21 <convert>	the save to file in the inspector is a dud isnt it
+Mar 15 11:10:43 <convert>	resources -> rightclick -> savefile
+Mar 15 11:11:02 <MonkeyofDoom>	I think I've seen a number of actions in the inspector that do nothing
+Mar 15 15:30:51 <oo_miguel>	Is the WebKitDOMHTMLCOllection returned by webkit_dom_document_get_links on a WebKitDomHTMLDocument not supposed to contain WebKitDOMHTMLLinkElements?
+Mar 15 15:33:06 <oo_miguel>	It seems to contain WebKitDOMHTMLElements in my case that indeed contain <a href=..../>
+Mar 15 15:33:22 <oo_miguel>	but they are not exposed as ..LinkElements for some reason
+Mar 15 15:33:34 <antoyo>	oo_miguel: You might need to downcast them.
+Mar 15 15:34:40 <oo_miguel>	I upcast them from NodeElements
+Mar 15 15:36:38 <antoyo>	I'm not sure but it's possible that webkit_dom_document_get_links() returns actually the <link/> elements of thep age.
+Mar 15 15:37:27 <antoyo>	Ah no, it's the <area> and <a> with href elements.
+Mar 15 15:37:38 <oo_miguel>	I get the <a> elements
+Mar 15 15:37:40 <oo_miguel>	but
+Mar 15 15:38:00 <oo_miguel>	 WebKitDOMHTMLLinkElement * node = webkit_dom_html_collection_item (links,i);
+Mar 15 15:38:02 <oo_miguel>	 char *link = webkit_dom_html_link_element_get_href (node);
+Mar 15 15:38:16 <oo_miguel>	results in a runtime error
+Mar 15 15:38:23 <oo_miguel>	assertion 'WEBKIT_DOM_IS_HTML_LINK_ELEMENT(self)' failed
+Mar 15 15:40:26 <antoyo>	Ah, I think I know why.
+Mar 15 15:41:09 <antoyo>	You want to use this function instead: https://webkitgtk.org/reference/webkitdomgtk/stable/WebKitDOMHTMLAnchorElement.html#webkit-dom-html-anchor-element-get-href
+Mar 15 15:41:25 <antoyo>	LinkElement is <link/> and AnchorElement is <a/>.
+Mar 15 15:41:40 <oo_miguel>	ouch
+Mar 15 15:41:48 <oo_miguel>	makes perfectly sense. thank you !
+Mar 15 15:41:55 <antoyo>	You're welcome.
+Mar 15 15:42:39 <antoyo>	Also, since the doc of webkit2gtk is not detailed, I suggest you use MDN (it's a JavaScript doc, but the names are very simalar).
+Mar 15 15:43:12 <oo_miguel>	ok, I will have a look at this one
+Mar 15 15:44:19 <antoyo>	For instance, you have https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement and https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
+Mar 15 15:50:03 <oo_miguel>	it works perfectly with the Anchor element :)
+**** BEGIN LOGGING AT Fri Mar 16 09:19:38 2018
+
+Mar 16 09:19:38 *	Now talking on #webkitgtk+
+Mar 16 09:19:38 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 16 09:19:38 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+**** ENDING LOGGING AT Fri Mar 16 14:28:56 2018
+
+**** BEGIN LOGGING AT Mon Mar 19 10:21:39 2018
+
+Mar 19 10:21:39 *	Now talking on #webkitgtk+
+Mar 19 10:21:39 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 19 10:21:39 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 19 18:25:31 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 19 18:25:31 2018
+
+**** BEGIN LOGGING AT Tue Mar 20 09:04:26 2018
+
+Mar 20 09:04:26 *	Now talking on #webkitgtk+
+Mar 20 09:04:26 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 20 09:04:26 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 20 19:06:27 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Mar 20 19:06:27 2018
+
+**** BEGIN LOGGING AT Tue Mar 20 19:34:13 2018
+
+Mar 20 19:34:13 *	Now talking on #webkitgtk+
+Mar 20 19:34:13 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 20 19:34:13 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 20 21:50:24 <convert>	did something change about reload without bypass? the request is always passing in a WebCore::ReloadIgnoringCacheData
+Mar 20 22:04:17 <convert>	indeed. 4833ac59d
+Mar 20 22:05:15 <convert>	nevermind its just wrong behaviour
+Mar 20 22:06:03 <convert>	the webkit commits have too much noise
+Mar 20 22:06:06 <convert>	to be useful
+Mar 20 22:06:11 <convert>	all those uuids
+Mar 20 22:07:21 <convert>	"See rdar://problem/37778785 for website being broken"
+Mar 20 22:07:24 <convert>	how to see rdar??
+Mar 20 22:09:55 <convert>	and creating additional bug reports "RESOLVED FIXED" when the original report is also "RESOLVED FIXED" except it wasnt resolved or fixed at all!
+Mar 20 22:10:03 <convert>	nonsense!
+Mar 20 22:10:38 <convert>	service workers nonsense!
+Mar 20 22:15:50 <convert>	actually i dont understand
+Mar 20 22:16:02 <convert>	it shouldn't be setting reloadignorecache at all
+Mar 20 22:16:12 <convert>	because you are NOT bypassing cache
+Mar 20 22:24:41 <convert>	but it looks like it was always this way from day 1
+Mar 20 22:25:04 <convert>	Source/WebCore/loader/FrameLoader.cpp: reload
+Mar 20 22:34:22 <convert>	so i guess i caught the off-behaviour when the release had RefreshAnyCacheData
+Mar 20 22:34:30 <convert>	which was then reverted
+Mar 20 22:35:26 <convert>	but when you have a webkit_web_view_reload_bypass_cache, i don't see why webkit_web_view_reload should just not use the cache
+Mar 20 22:41:07 <convert>	and the scrollbar behaviour is really screwed up, there is no way to get non-proportional scaling is there? so a click in the scrollbar area only scrolls by one page?
+Mar 20 22:41:19 <convert>	this really screws up devhelp and makes it unusable
+Mar 20 22:42:35 <convert>	by "non-proportional scaling" i meant  gtk-primary-button-warps-slider = FALSE
+Mar 20 23:14:18 <convert>	its not getting set at Frameloader.cpp reload  anyway
+Mar 20 23:19:41 <convert>	well it is, but it it gets overridden later
+Mar 20 23:29:02 <convert>	in  addExtraFieldsToMainResourceRequest
+Mar 21 04:15:10 <converts>	i think webkit_web_view_reload_bypass_cache is a crock, it only worked because Frameloader::reload was unconditionally bypassing cache
+Mar 21 04:15:52 <converts>	Now if Frameloader::reload did check for FromOrigin, and *then* ignored cache, that would make sense
+Mar 21 04:18:37 <converts>	I'm having another problem, which I havent noticed before 2.19.92 - rendering google's <div style="blocked"> works on and off
+Mar 21 04:18:50 <converts>	usually a reload would show it but that meant an extra network fetch
+Mar 21 04:18:58 <converts>	it should show it without any network fetch
+Mar 21 08:57:45 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Mar 21 08:57:45 2018
+
+**** BEGIN LOGGING AT Wed Mar 21 08:58:08 2018
+
+Mar 21 08:58:08 *	Now talking on #webkitgtk+
+Mar 21 08:58:08 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 21 08:58:08 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 21 09:45:57 <TmRocha>	How can i know which version of webkitgtk match with webkit?
+Mar 21 09:46:25 <TmRocha>	i mean, how do i know that 2.12 (gtk+) match 601 (webkit)?
+Mar 21 09:46:32 <annulen>	number like 601 makes sense only in apple branches
+Mar 21 09:46:51 <annulen>	e.g. safari-601-branch
+Mar 21 09:47:07 <annulen>	it makes no sense outside
+Mar 21 09:48:07 <annulen>	webkit doesn't have versions independent from particular ports
+Mar 21 09:48:28 <TmRocha>	ok...but they (apple) are somewhere are using the same version of gtk+
+Mar 21 09:49:35 <annulen>	apple's branches have different starting points in trunk then gtk's
+Mar 21 09:49:52 <annulen>	and then branches diverge even more because of backporting
+Mar 21 09:52:46 <TmRocha>	Ok, I though that i could have and it will easy to match the same version that apple is using in safariN for gtk+ run in linux
+Mar 21 09:55:14 <annulen>	you can have very tentative idea by looking at user-agent string
+Mar 21 09:56:17 <annulen>	but if it has same number (e.g. 601) it doesn't mean it has the same features as Safari 9
+Mar 21 09:59:20 <TmRocha>	this is part of my browser's user agent "AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" I was reading AppleWebKit instead of Safari
+Mar 21 09:59:24 <TmRocha>	but they are the same in this case
+Mar 21 09:59:59 <TmRocha>	and how do i find a similar version of gtk+?
+Mar 21 10:02:04 <annulen>	it's somewhere around 2.2
+Mar 21 10:02:11 <annulen>	2013 year
+Mar 21 10:04:12 <TmRocha>	ok, I must try to follow the year. Thanks :)
+Mar 21 18:07:05 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Mar 21 18:07:05 2018
+
+**** BEGIN LOGGING AT Wed Mar 21 18:07:34 2018
+
+Mar 21 18:07:34 *	Now talking on #webkitgtk+
+Mar 21 18:07:34 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 21 18:07:34 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 21 21:04:05 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Mar 21 21:04:05 2018
+
+**** BEGIN LOGGING AT Wed Mar 21 21:04:31 2018
+
+Mar 21 21:04:31 *	Now talking on #webkitgtk+
+Mar 21 21:04:31 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 21 21:04:31 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 22 09:45:18 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Mar 22 09:45:18 2018
+
+**** BEGIN LOGGING AT Thu Mar 22 09:45:43 2018
+
+Mar 22 09:45:43 *	Now talking on #webkitgtk+
+Mar 22 09:45:43 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 22 09:45:43 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:27:00 2018)
+Mar 22 19:49:16 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Mar 22 19:49:16 2018
+
+**** BEGIN LOGGING AT Thu Mar 22 19:49:39 2018
+
+Mar 22 19:49:39 *	Now talking on #webkitgtk+
+Mar 22 19:49:39 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 22 19:49:39 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+**** BEGIN LOGGING AT Fri Mar 23 11:03:56 2018
+
+Mar 23 11:03:56 *	Now talking on #webkitgtk+
+Mar 23 11:03:56 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 23 11:03:56 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 24 14:08:47 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Mar 24 14:08:47 2018
+
+**** BEGIN LOGGING AT Sat Mar 24 14:09:12 2018
+
+Mar 24 14:09:12 *	Now talking on #webkitgtk+
+Mar 24 14:09:12 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 24 14:09:12 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)
+Mar 24 23:37:59 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Mar 24 23:37:59 2018
+
+**** BEGIN LOGGING AT Sun Mar 25 09:09:41 2018
+
+Mar 25 09:09:41 *	Now talking on #webkitgtk+
+Mar 25 09:09:41 *	Topic for #webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+Mar 25 09:09:41 *	Topic for #webkitgtk+ set by KaL!~cgarcia@81.0.18.182 (Mon Mar 12 06:26:56 2018)

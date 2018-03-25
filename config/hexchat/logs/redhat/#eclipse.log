@@ -17000,3 +17000,461 @@ Mar 12 09:56:07 <ericwill>	akurtakov np :)
 Mar 12 10:01:34 <akurtakov>	rgrunber: hey, please read my mail about batik
 Mar 12 10:01:59 <rgrunber>	akurtakov: k
 Mar 12 10:07:28 <rgrunber>	akurtakov: one sec.. machine behaving sluggish.. needs a reboot.
+Mar 12 10:34:32 <rgrunber>	akurtakov: i'll look into it but i'm not convinced this is a resolution issue.. it seems more like it can't find that bundle batik.css, batik.util.. not that it couldn't satisfy some dependency of it.
+Mar 12 10:35:31 <akurtakov>	rgrunber: were they optional in previous version?
+Mar 12 10:35:42 <akurtakov>	or is it upstream shipping osgi ?
+Mar 12 10:35:51 <rgrunber>	akurtakov: in previous version they just weren't there.. those optional deps come from the bundle itself.
+Mar 12 10:36:20 <akurtakov>	rgrunber: care to try it yourself?
+Mar 12 10:36:23 <rgrunber>	weird way of stating them but ebr seems to do it by default. i guess to be really explicit.
+Mar 12 10:36:27 <rgrunber>	sure.. against p2 master ?
+Mar 12 10:36:36 <akurtakov>	rgrunber: http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+Mar 12 10:36:41 <akurtakov>	I've edited http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+Mar 12 10:36:54 <akurtakov>	to point to latest orbit/batik
+Mar 12 10:37:01 <akurtakov>	if you install it locally
+Mar 12 10:37:12 <akurtakov>	you can try against p2 master after that
+Mar 12 10:37:16 <akurtakov>	I'll be gone now ttyl
+Mar 12 10:38:12 <rgrunber>	akurtakov: ah i might know why.. if it's I20180207184401, doesn't contain batik 1.9.1 can you try against S20180302171354
+Mar 12 10:39:20 <rgrunber>	oh wait.. that should work.. it's 1.9.0
+Mar 12 10:53:02 <scela>	eclipse-team: hello guys, meetings will start roughly in 1 hr (weekly due then also). Double check your calendar to account for daylight savings time change.
+Mar 12 10:54:01 <akurtakov>	rgrunber: no
+Mar 12 10:54:20 <akurtakov>	I've edited it to S20180302171354
+Mar 12 10:54:41 <akurtakov>	rgrunber: if it was this issue tycho fails with resolving target platform way earlier
+Mar 12 10:54:47 <rgrunber>	ah.. yeahi realized you probably did. where did you run the build.. directly in the releng aggregator.. in the p2 folder ?
+Mar 12 10:54:51 <rgrunber>	or you ran it in the root
+Mar 12 10:59:01 *	rgrunber does the whole submodule update thing
+Mar 12 11:33:43 <akurtakov>	rgrunber: in the releng.aggregator
+Mar 12 11:33:47 <akurtakov>	so I can get full build
+Mar 12 11:34:00 <akurtakov>	and I touched the product 
+Mar 12 11:34:06 <akurtakov>	just in case
+Mar 12 11:34:11 <akurtakov>	but no help
+**** BEGIN LOGGING AT Mon Mar 12 14:09:45 2018
+
+Mar 12 14:09:45 *	Now talking on #eclipse
+Mar 12 14:09:45 *	Topic for #eclipse is: Eclipse discussions
+Mar 12 14:09:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 12 14:49:47 <akurtakov>	rgrunber: so any idea ?
+Mar 12 14:51:23 <rgrunber>	possibly..
+Mar 12 14:52:12 <rgrunber>	it looks like batii.util and batik.css are never included in the reconciler.product in org.eclipse.equinox.p2.tests.reconciler.product
+Mar 12 14:52:36 <rgrunber>	i mean they're listed in the product file but i don't see them in the actual generated product zip
+Mar 12 14:58:04 <rgrunber>	i'll have to look at how the product gets installed. i am seeing some places where batik 1.9.0 still getting dragged in
+Mar 12 14:59:16 <akurtakov>	rgrunber: would you please share the log ?
+Mar 12 14:59:40 <akurtakov>	could it be that as the product file doesn't set version
+Mar 12 14:59:50 <akurtakov>	smth else drags older util
+Mar 12 15:00:02 <akurtakov>	it might be the need to touch some other bundle
+Mar 12 15:02:19 <rgrunber>	akurtakov: i mean i don't think the lack of versioning is the issue because when i look in the generated product metadata, it states hard requirement on 1.9.1 under the metadata for org.eclipse.equinox.p2.reconciler
+Mar 12 15:03:11 <rgrunber>	however...
+Mar 12 15:04:03 <rgrunber>	when i look in the targetPlatfromRepository/content.xml.. i see org.apache.batik.util 1.9.0, org.apache.batik.css 1.9.0, org.apache.batik.il8n 1.9.1.
+Mar 12 15:04:30 <rgrunber>	so to me it looks like the target platform is not being calculated correctly.. so it never finds 1.9.1 for util and css
+Mar 12 15:04:55 <akurtakov>	thats weird
+Mar 12 15:05:36 <akurtakov>	it clearly downloads 1.9.1 in the beginning when target is downloaded
+Mar 12 15:07:44 <rgrunber>	https://paste.fedoraproject.org/paste/UVAzvC2Ahq844B4TJPNg7Q/raw .. it's big
+Mar 12 15:08:11 <rgrunber>	i do see 1.9.0 being dragged in for me at the beginning
+Mar 12 15:08:18 <rgrunber>	among others
+Mar 12 15:10:47 <rgrunber>	i mean the target platform is still defined by org.eclipse:eclipse-parent or whatnot.
+Mar 12 15:10:56 <rgrunber>	hence where 4.8-I-builds is coming from
+Mar 12 15:13:54 <akurtakov>	rgrunber: yeah
+Mar 12 15:14:23 <akurtakov>	did you install parent and target platfomr after your change locally
+Mar 12 15:14:40 <akurtakov>	btw, do you do full aggregator build or p2 repo ?
+Mar 12 15:15:06 <rgrunber>	i did mvn clean verify from root of the aggregator
+Mar 12 15:15:37 <rgrunber>	i did have a org.eclipse platform parent installed locally from before eclipse-platform-parent-4.8.0-20180226.015234-526.pom
+Mar 12 15:18:07 <rgrunber>	i'm willing to bet if batik 1.9.1 got into 4.8-I-builds, it'd work..
+Mar 12 15:18:19 <rgrunber>	kinda seems like a bug in how target platform is used afaict.
+Mar 12 15:19:12 <akurtakov>	rgrunber: but how would it get if the build fails ?
+Mar 12 15:20:04 <akurtakov>	or you think that it will build proper ?
+Mar 12 15:21:49 <rgrunber>	i mean the real question is.. how does one add a bundle to the target platfrom of the aggregation build. currently the target platform is basically.. <eclipse-p2-repo.url>http://download.eclipse.org/eclipse/updates/4.8-I-builds</eclipse-p2-repo.url>
+Mar 12 15:23:17 <rgrunber>	i mean i still can't explain how batik 1l8n 1.9.1 is found without issue.. there's still something strange happening.
+Mar 12 15:26:39 <akurtakov>	the target platform is  http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/tree/eclipse.platform.releng.prereqs.sdk
+Mar 12 15:28:33 <rgrunber>	akurtakov: does any place in a pom actually override the target platform defined in org.eclipse:eclipse-platform-parent ?
+Mar 12 15:28:44 <akurtakov>	rgrunber: I dont' think so
+Mar 12 15:29:47 <rgrunber>	i mean it is a target.. but if it's not used anywhere i'm not sure what effect is has.
+Mar 12 15:30:40 <rgrunber>	hmmm
+Mar 12 15:30:45 <rgrunber>	i see it used actually.. one sec
+Mar 12 15:36:26 <rgrunber>	i'm gonna try running with -X for more info.. unfortunately i can't save it all.
+Mar 12 15:42:56 <akurtakov>	rgrunber: I more and more think that smth else brings 1.9.0 versions in the product
+Mar 12 15:43:17 <akurtakov>	and thus the 1.9.1 is not considered as 1.9.0 satisfy the deps
+Mar 12 15:43:30 <rgrunber>	oh.. yeah i can point to things that do..i just don't understand how it can ignore taking the latest.
+Mar 12 15:44:09 <akurtakov>	which are these ?
+Mar 12 15:46:28 <rgrunber>	hmm well not specifically 1.9.0 but org.eclipse.e4.rcp doesn't specify a range in the feature..
+Mar 12 15:46:37 <rgrunber>	still trying to figure out which target platform is being used.
+Mar 12 15:49:55 <akurtakov>	rgrunber: I've touched e4.rcp and run full build to see
+Mar 12 15:51:52 <rgrunber>	akurtakov: did you try cleaning org/eclipse/eclipse-sdk-prereqs/4.8.0-SNAPSHOT ?
+Mar 12 15:52:05 <rgrunber>	^ from your M2 local folder
+Mar 12 15:52:20 <rgrunber>	if you go inside there, what version of batik do you see ?
+Mar 12 15:54:33 <akurtakov>	no
+Mar 12 15:54:38 <akurtakov>	but I have a build ongoing
+Mar 12 15:54:42 <akurtakov>	so I'll wait for it
+Mar 12 15:54:49 <akurtakov>	does it fix the issue for you ?
+Mar 12 15:55:44 <rgrunber>	building now.. i had an eclipse-sdk-prereqs installed referencing 1.9.0 batik.. so i really hope that was it
+Mar 12 15:56:10 <akurtakov>	that would be a bug as it's supposed to use the one in the patch
+Mar 12 15:56:16 <akurtakov>	err in the build
+Mar 12 15:59:50 <akurtakov>	rgrunber: even if what you point to was the issue how did we get a mix ?
+Mar 12 16:02:48 <rgrunber>	a mix of 1.9.0 and 1.9.1 ?.. no idea.. easiest thing to blame is p2 somehow deciding to choose the version that's easiest to satisfy..
+Mar 12 16:04:05 <rgrunber>	ugh failed the same way.. hmm
+Mar 12 16:15:11 <rgrunber>	akurtakov: so i added -DaggregatorBuild .. that should disable the 4.8-I-builds.
+Mar 12 16:15:30 <rgrunber>	but then you fail with org.apache.batik.constants.. which.. isn't in eclipse-sdk-prereqs.. so maybe a step in the right direction?
+Mar 12 16:16:13 <akurtakov>	rgrunber: wait a bit , are you saying that some of the batik bundles gained new dep?
+Mar 12 16:17:27 <rgrunber>	hmm looks like it.. unless it's a bug.. would have to take a look.
+Mar 12 16:19:39 <rgrunber>	looks like a typo as i don't see batik.css require anything from there..
+Mar 12 16:19:51 <rgrunber>	but apparently was placed in the osgi.bnd for some reason as a requirement
+Mar 12 16:33:48 <rgrunber>	akurtakov: well the good new is when i supply those bundles it fails further down
+Mar 12 16:34:00 <rgrunber>	(with -DaggregatorBuild)
+Mar 12 16:35:35 <akurtakov>	what does further down means ?
+Mar 12 16:35:57 <rgrunber>	org.eclipse.rcp.id fails
+Mar 12 16:36:05 <akurtakov>	rgrunber: are you going to provide new build without this dep ?
+Mar 12 16:36:30 <akurtakov>	rgrunber: what's the error ?
+Mar 12 16:36:32 <rgrunber>	i'll file a bug and see if the 2 new deps can be removed.. or 1 removed and 1 made optional at least.
+Mar 12 16:36:43 <rgrunber>	Missing requirement: org.eclipse.e4.rcp.feature.group 1.6.100.v20180310-1522 requires 'org.apache.batik.css [1.9.0.v20170908-1305]' but it could not be found
+Mar 12 16:37:36 <rgrunber>	org.eclipse.e4.rcp just requires batik at 0.0.0
+Mar 12 16:38:36 <akurtakov>	rgrunber: you need to touch e4.rcp.feature
+Mar 12 16:38:46 <akurtakov>	there is forceQualifierUpdate.txt file in it
+Mar 12 16:38:52 <akurtakov>	just add a new line with some content
+Mar 12 16:39:12 <rgrunber>	kk.. i see
+Mar 12 16:40:53 <rgrunber>	and here goes another build..
+Mar 12 16:54:12 <akurtakov>	rgrunber: success ?
+                                                                                                                                                                **** BEGIN LOGGING AT Tue Mar 13 10:30:05 2018
+
+Mar 13 10:30:05 *	Now talking on #eclipse
+Mar 13 10:30:05 *	Topic for #eclipse is: Eclipse discussions
+Mar 13 10:30:05 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 13 10:39:24 <akurtakov_>	mistria: does it owrk proper ?
+Mar 13 10:39:37 <akurtakov_>	I mean your tests are now executed correctly ?
+Mar 13 10:41:35 <mistria>	yes
+Mar 13 10:42:38 <akurtakov_>	mistria: cool
+Mar 13 10:42:49 <akurtakov_>	mistria: would you please announce the test on swt-dev 
+Mar 13 10:42:57 <akurtakov_>	mistria: you're my releng hero :)
+Mar 13 10:43:23 <mistria>	I'm not on swt-dev IIRC, I already announced it to platform-ui-dev and platform-releng-dev
+Mar 13 10:43:35 <mistria>	I'll join swt-dev and forward that
+Mar 13 10:44:21 <akurtakov_>	mistria: no need in this case
+Mar 13 10:44:25 <akurtakov_>	thanks a lot
+Mar 13 10:56:28 <mistria>	akurtakov_: you're welcome, but to be honest, I did it selfishly ;)
+Mar 13 10:56:51 <akurtakov_>	mistria: I wish more people act so selfishly :)
+Mar 13 10:57:51 <mistria>	akurtakov_: so you wish more people wouldn't run tests locally and would prefer sending them directly to Gerrit :D Because it's really why I take care of Gerrit: to not waste time watching tests locally
+Mar 13 10:58:16 <mistria>	akuratov_: It's my MavenAndJunit-as-a-service
+Mar 13 10:58:25 <akurtakov_>	I have seen other projects *cough* p2 *cough* where selfish actions led to impossibility to contribute and almost manually objuscated codebase 
+Mar 13 10:58:28 <mistria>	don't tell that to foundation people, they hate that ;)
+Mar 13 10:58:59 <akurtakov_>	so you have the 'right' selfish way IMHO :)
+Mar 13 11:04:43 <rgrunber>	akurtakov_: Failed to execute goal org.apache.maven.plugins:maven-assembly-plugin:3.1.0:single (make-assembly) on project eclipse-junit-tests: Failed to create assembly: Error adding file to archive: /notnfs/git/eclipse.platform.releng.aggregator/eclipse.platform.releng.tychoeclipsebuilder/eclipse-junit-tests/../../eclipse.platform.common/bundles/org.eclipse.platform.doc.isv/target/doc.bin.log ?
+Mar 13 11:05:01 <akurtakov_>	rgrunber: good enough
+Mar 13 11:05:10 <akurtakov_>	that's one of the last entries :)
+Mar 13 11:05:13 <akurtakov_>	it fails forme too
+Mar 13 11:05:17 <akurtakov_>	but haven't found the time to fix it
+Mar 13 11:05:21 <rgrunber>	lol, generated javadoc should produce doc.bin.og
+Mar 13 11:09:18 <rgrunber>	k, so it'll work. just not sure what goes wrong without -DaggregatorBuild. I can tell you that when that's disabled the 4.8-I builds become part of the TP and my best guess is 1.9.0 gets preferred over 1.9.1 in any place where version is not explicit.
+Mar 13 11:09:47 <rgrunber>	oh and i'll go file those bugs on the Orbit side. I'll double check as I wouldn't be surprised if there's more places where additional deps crept in.
+Mar 13 11:25:40 <akurtakov>	so today zoom failed on me too
+Mar 13 11:26:00 <akurtakov>	so every videon conferencing is good for no more than 3 months :(
+Mar 13 11:31:25 <rgrunber>	akurtakov: all we need is a company that pumps out new video conf. solution every few months ?
+Mar 13 11:31:52 <akurtakov>	rgrunber: I think that as soon as number of participants grow their infra can't handle it
+Mar 13 11:34:51 <rgrunber>	do they stream everyone's video ?
+Mar 13 11:35:26 <akurtakov>	rgrunber: no idea 
+Mar 13 11:35:57 <akurtakov>	it's just a fact that after few months of usage quality downgrades significantly
+Mar 13 11:36:12 <rgrunber>	i mean if you have 10+ people, i would assume you probably only want to see the face of the person talking.. so you don't need to be streaming like 9 other people who are just neutral/listening.
+Mar 13 11:36:36 <akurtakov>	rgrunber: there are just 5 at the PMC call 
+Mar 13 11:36:41 <rgrunber>	:\
+Mar 13 11:36:47 <akurtakov>	and I was thrown out after 5 secs
+Mar 13 11:36:57 <akurtakov>	not able to reconnect until the meeting finished
+Mar 13 11:37:07 <akurtakov>	rgrunber: so how do we go with batik ?
+Mar 13 11:38:45 <rgrunber>	i'll file the bugs and investigate what needs to be fixed. I haven't heard much from Pierre-Charles so i assume he may be busy with other things. i'll shoot him an email and see.
+Mar 13 11:39:00 <rgrunber>	im fine with making the changes as they're pretty reasonable.
+Mar 13 13:32:58 <rgrunber>	akurtakov: i've looked at the extra deps and they do seem correct. basically 1.9.0 probably had some deps left out but it didn't affect the runtime. is it a no-go for platform to adopt the new deps now ? batik-constants is basically has a single class and xmlgraphics is only used in one abstract class in batik.css
+Mar 13 13:33:33 <akurtakov>	well, we will adapt
+Mar 13 13:33:46 <akurtakov>	if these are real deps we don't have choice
+Mar 13 13:34:48 <rgrunber>	they're real deps, just probably not on the code path used by platform. however if we eliminate batik 1.6/1.7 and force everyone on 1.9.1 there's a higher chance they may need all those other deps.
+Mar 13 13:36:22 <akurtakov>	yeah, we should do the "right" thing in this case
+Mar 13 13:36:40 <akurtakov>	please send me list of the bundles Ineed to file PB CQs for 
+Mar 13 13:36:46 <rgrunber>	sure.
+Mar 13 13:42:00 <rgrunber>	should be just https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15507 and https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15510 that you need. which are the only 2 ones that i needed to add to the aggregation target file.
+Mar 13 14:35:31 <akurtakov>	nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531603
+Mar 13 16:56:11 <nboldt>	akurtakov: rgrunber: anyone have push rights on EPP? https://git.eclipse.org/r/#/c/119365/
+Mar 13 16:56:35 <akurtakov>	nboldt: jjohnstn and mistria IIRC
+Mar 13 16:56:55 <akurtakov>	[20:35] <akurtakov> nboldt: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531603 :)
+Mar 13 16:57:00 <nboldt>	jjohnstn: ^ can you push a fix for EPP reporting/javaee for me? I broke shit in Dali and had to remove a couple features :)
+Mar 13 16:57:28 <akurtakov>	it's unclear to me is there a bug or not :)
+Mar 13 16:58:21 <nboldt>	akurtakov: I almost closed the issue worksforme/cantreproduce twice but thought I'd submit the .log file just in case there's something Lucas can fix (eg., a better null check?) 
+Mar 13 16:58:37 <nboldt>	or rather a better array out of bounds check
+Mar 13 16:58:41 <akurtakov>	lbullen: ^
+Mar 13 16:59:11 <jjohnstn>	I can push a fix for you...we are talking master branch right?...looking at bug now
+Mar 13 16:59:20 <nboldt>	yes, master only
+Mar 13 16:59:35 <nboldt>	jjohnstn: bug is unrelated, that's crap in the target platform editory
+Mar 13 16:59:39 <nboldt>	editor*
+Mar 13 16:59:59 <jjohnstn>	ah, what fix do you want to push?
+Mar 13 17:00:49 <nboldt>	jjohnstn: here's the failure: https://ci.eclipse.org/packaging/job/photon.epp-tycho-build/149/console
+Mar 13 17:00:56 <nboldt>	and here's the fix: https://git.eclipse.org/r/#/c/119365/
+Mar 13 17:01:20 <nboldt>	jjohnstn: ^ also sent a note to cross-projects list cuz I broke epp :)
+Mar 13 17:02:05 <nboldt>	jjohnstn: if you approve of the fix, can you reply to the thread saying it's merged? https://dev.eclipse.org/mhonarc/lists/cross-project-issues-dev/msg15405.html
+Mar 13 17:02:15 <nboldt>	(once it's merged that is.) :)
+Mar 13 17:04:16 <jjohnstn>	nboldt: just +2'd it and merged it
+Mar 13 17:04:27 <nboldt>	jjohnstn: great, thanks
+Mar 13 17:05:49 <akurtakov>	jjohnstn: I also pinged yesterday on some Oxygen M5 gerrits :)
+Mar 13 17:06:04 <akurtakov>	it helps me seeing crap gone from your queues guys :)
+Mar 13 17:06:51 <jjohnstn>	akurtakov: I'm still thinking about one of those gerrits...I believe there was a Windows change that caused that proposed patch, but it doesn't seem to be needed
+Mar 13 17:08:18 <nboldt>	jjohnstn: can you also trigger a build in https://ci.eclipse.org/packaging/job/photon.epp-tycho-build/ ?
+Mar 13 17:08:38 <nboldt>	or do I just have to wait for it to find the commit on its own? #impatientAndCurious
+Mar 13 17:09:26 <jjohnstn>	nboldt: it should find it...all packages need to be rebuilt for thursday...is tonight too late?
+Mar 13 17:14:03 <nboldt>	jjohnstn: nah, should be fine. I expect there'll be more respins tomorrow for the +3 projects anyway. 
+Mar 14 11:21:01 <akurtakov>	rgrunber: did you send me list of th ebugndls ?
+Mar 14 11:21:54 <rgrunber>	i sent you a list of the cqs mentioning the bundles on irc.
+Mar 14 11:22:22 <rgrunber>	one sec..
+Mar 14 11:24:19 <rgrunber>	https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15507 (org.apache.batik.constants) and https://dev.eclipse.org/ipzilla/show_bug.cgi?id=15510 (org.apache.xmlgraphics)
+Mar 14 11:24:39 <scela>	rgrunber: did the pierre charles guy show up yet?
+Mar 14 11:25:15 <rgrunber>	scela: he pushed some fixes to the stack yesterday actually, but i've already sent the remaining CQ back to IPteam
+Mar 14 11:27:28 <akurtakov>	rgrunber: thanks, I missed the irc 
+Mar 14 11:30:55 <scela>	rgrunber: ok
+Mar 14 12:12:15 <lufimtse>	lbullen, some UI change requests :-)  :
+Mar 14 12:12:16 <lufimtse>	532458 – [UI change request] Optimize git staging area view. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532458
+Mar 14 12:12:16 <lufimtse>	532457 – [UI change request] Change 'Field Accesses' from menu into an icon. https://bugs.eclipse.org/bugs/show_bug.cgi?id=532457
+Mar 14 12:12:16 <lufimtse>	   
+Mar 14 12:12:39 <lufimtse>	in exchange, I would fix any 2 SWT bugs of your choice :-D. 
+Mar 14 12:13:07 <lufimtse>	*if they reproduce on gtk3.22 & above.
+Mar 14 12:30:21 <lbullen>	lufimtse, sounds like a deal, but watch out I might ask for vertical and multi-row tabs as my two bugs :-P
+Mar 14 12:30:32 <lufimtse>	oh dear :-P
+Mar 14 14:53:43 <rgrunber>	does anyone have any idea if "something happened" recently with respect to compare-version-with-baselines ?
+Mar 14 15:03:42 <rgrunber>	nvm.. not related
+Mar 15 09:07:33 <nboldt1>	vkadlcik: I've opened https://bugzilla.redhat.com/show_bug.cgi?id=1556889 to track updating Devtools 2018.2 to Oxygen.3a -- couldn't find another existing one
+Mar 15 09:08:04 <vkadlcik>	nboldt1: yeah, right, thanks
+Mar 15 09:42:00 *	Disconnected (Invalid argument)
+**** ENDING LOGGING AT Thu Mar 15 09:42:00 2018
+
+**** BEGIN LOGGING AT Thu Mar 15 10:14:36 2018
+
+Mar 15 10:14:36 *	Now talking on #eclipse
+Mar 15 10:14:36 *	Topic for #eclipse is: Eclipse discussions
+Mar 15 10:14:36 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 15 10:51:45 <nboldt1>	rgrunber_bbiab: I think that's true in WTP and JBoss Tools... I've had to bump lots of stuff lately
+Mar 15 10:55:42 <akurtakov>	rgrunber_bbiab: not in this case
+Mar 15 10:56:04 <akurtakov>	we usually have to force qualifier bump for picking dependencies
+Mar 15 10:59:09 <akurtakov>	rgrunber_bbiab: mistria is your best source of information on the topic IMHO
+Mar 15 11:28:57 <akurtakov>	lbullen: so call is in 4:30 h from now ?
+Mar 15 11:30:33 <akurtakov>	scela: forwarded you a call about corrosion if you're interested
+Mar 15 11:52:20 <scela>	akurtakov: ok
+Mar 15 11:52:22 <scela>	akurtakov: thanks
+**** BEGIN LOGGING AT Fri Mar 16 09:19:22 2018
+
+Mar 16 09:19:22 *	Now talking on #eclipse
+Mar 16 09:19:22 *	Topic for #eclipse is: Eclipse discussions
+Mar 16 09:19:22 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 16 09:27:52 <mbenitez>	scela, hi Sopot, Monday we're having a presentation of the PnT strategy in the TO office that conflicts with the first to sessions of your weekly, could you please reschedule?
+Mar 16 09:31:29 <scela>	mbenitez: yep, sure
+Mar 16 09:31:57 <mbenitez>	thanks :)
+Mar 16 09:32:54 <scela>	mbenitez: can I get a bjn link for that?
+Mar 16 09:33:41 <mbenitez>	I think so, let me confirm with Patrick
+Mar 16 10:04:36 <scela>	eclipse-team: for next week the first two group-calls (Platform/LS and Releng) will be done two hours after the usual time
+Mar 16 10:05:13 <scela>	this should impact mbooth nboldt vkadlcik xlbullen and mickael
+Mar 16 10:05:16 <scela>	please check your calendars
+Mar 16 10:05:51 <scela>	cc akurtakov ^
+Mar 16 10:06:06 <lbullen>	change successful on my calendar
+Mar 16 10:06:21 <akurtakov>	scela: ok :)
+Mar 16 10:41:02 <nboldt>	scela: ack, my calendar shows the releng call's at 2:30pm EST now
+**** ENDING LOGGING AT Fri Mar 16 14:28:56 2018
+
+**** BEGIN LOGGING AT Mon Mar 19 10:01:37 2018
+
+Mar 19 10:01:37 *	Now talking on #eclipse
+Mar 19 10:01:37 *	Topic for #eclipse is: Eclipse discussions
+Mar 19 10:01:37 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 19 10:09:04 <nboldt>	akurtakov: have you seen mbooth online today? 
+Mar 19 10:09:10 <akurtakov>	nboldt: no
+Mar 19 10:09:18 <akurtakov>	I'm still waiting for his reply too
+Mar 19 10:10:08 <mbenitez>	he seems to be off the VPN but is on freenode
+Mar 19 10:10:53 <scela>	akurtakov: mbenitez nboldt mat's on pto today
+Mar 19 10:11:03 <scela>	it seems he forgot to update calendar
+Mar 19 10:11:11 *	scela updates
+Mar 19 10:13:14 <nboldt>	scela: ah, that explains his AFKness. I guess that means I'm doing Fedora/SCL Oxygen.3 updates today? 
+Mar 19 10:13:56 <nboldt>	vkadlcik: is there an existing errata for 2018.2 to update to Oxygen.3(a) ?
+Mar 19 10:14:32 <vkadlcik>	nboldt: not yet i think
+Mar 19 10:15:05 <nboldt>	seems suspicious... we're 5 weeks into a 12 week release cycle w/ no Errata? 
+Mar 19 10:15:14 <mbenitez>	nboldt, FYI in errata you can look for rh-eclipse47 to see any available errata
+Mar 19 10:15:27 <mbenitez>	and it doesn't look like there's one
+Mar 19 10:15:40 <scela>	nboldt: I think I asked him to make one in our last group call last week
+Mar 19 10:17:22 <scela>	nboldt: but in case there isn't one let's do what we can today and tomorrow we let him know
+Mar 19 10:19:05 <nboldt>	scela: sure, if I can remember how to create one I will today. when's he back from PTO? 
+Mar 19 10:19:19 <scela>	nboldt: tomorrow
+Mar 19 10:19:23 <nboldt>	scela: ok cool
+Mar 19 10:19:33 <scela>	nboldt: he got some last-year leftovers to take
+Mar 19 10:19:45 <mbenitez>	scela, errata is only crucial for an official hand off to QE, so probably not needed today
+Mar 19 10:19:46 <nboldt>	scela: ah, one of those "use it or lose it" PTOs :)
+Mar 19 10:27:43 <nboldt>	does 2018.2 release includes updates to go and llvm? 
+Mar 19 10:28:10 <nboldt>	akurtakov: mbenitez scela: ^ wondering because the errata Y-stream advisory create page is asking me 
+Mar 19 10:28:24 <mbenitez>	yes, although those may ship in a slightly different date
+Mar 19 10:29:10 <nboldt>	ok. so I want a New Y-Stream Assisted Create --> Red Hat Enhancement Advisory -> select all eligible packages ?
+Mar 19 10:32:54 <mbenitez>	eclipse should show up but only IF there's a bug with all the ack's
+Mar 19 10:34:04 <nboldt>	mbenitez: no, it didn't appear. https://errata.devel.redhat.com/errata/details/33102 was created assuming it was just llvm and go, but then I edited it to clarify. Not sure if there's something missing in that there's no connection to a RH BZ with ACKs
+Mar 19 10:34:44 <nboldt>	crap.... I guess it should have been a RHBA not RHEA errata :(
+Mar 19 10:34:50 <mbenitez>	nboldt, this is the BZ, could you please ask Bob or Kerri to set pm_ack
+Mar 19 10:35:04 <mbenitez>	either works, no huge difference
+Mar 19 10:35:25 <nboldt>	is syeghiay@redhat.com the correct manager contact? or should it be mbenitez ?
+Mar 19 10:35:38 <mbenitez>	you could blame scela ;)
+Mar 19 10:35:47 <mbenitez>	that way he gets the spam
+Mar 19 10:36:01 <mbenitez>	I mean updates :D
+Mar 19 10:36:10 <scela>	nboldt: right you could put me there, I am prepared (yay filters)
+Mar 19 10:36:21 <nboldt>	ok, cool. any RHBZ I should link in there ?
+Mar 19 10:36:32 <mbenitez>	1556889
+Mar 19 10:36:40 <mbenitez>	that's the one that needs pm_ack
+Mar 19 10:36:54 <scela>	mbenitez: nboldt I'll get the pm_ack for it
+Mar 19 10:37:04 <nboldt>	yeah, I can't add it until it's been acked
+Mar 19 10:37:10 <nboldt>	Bug #1556889 The bug must have the following acked flags: devtools-2018.2, devel_ack, qa_ack, pm_ack.Bug #1556889 Requires status MODIFIED, VERIFIED. The bug is currently NEW.Bug #1556889 rh-eclipse47 is NOT on the approved component list for DevTools-2018.2. Please contact Program Management and have the component added to the ACL. Contact information for the individual products and their releases is available on the Product Pages (htt
+Mar 19 10:37:10 <nboldt>	ps://engineering.redhat.com/pp/).
+Mar 19 10:38:02 <nboldt>	ok, https://errata.devel.redhat.com/errata/details/33102 updated to spam scela and vkadlcik :)
+Mar 19 10:47:17 <vkadlcik>	nboldt: are you sure those two bugs you included (go and llvm) should be there? seems very odd...
+Mar 19 10:47:30 <mbenitez>	that must  be an error
+Mar 19 10:50:02 <nboldt>	mbenitez: vkadlcik: not sure... they were autoadded, but i can remove them
+Mar 19 10:50:24 <mbenitez>	nboldt, please do, we should only have eclipse bugs there
+Mar 19 10:51:05 <nboldt>	done
+Mar 19 10:52:05 <mbenitez>	thanks Nick
+Mar 19 10:52:40 <nboldt>	mbenitez: https://memegenerator.net/instance/80162497/ralph-wiggum-im-helping :)
+Mar 19 10:53:20 <mbenitez>	:)
+Mar 19 11:09:33 <scela>	nboldt: pm_ack flag in
+Mar 19 11:16:14 <scela>	anyone having any issue with RH google services ? email and calendar are down for me
+Mar 19 11:16:19 <scela>	it says G suite error
+Mar 19 11:16:27 <scela>	*server error
+Mar 19 11:16:52 <rgrunber>	scela: seems to be working for me
+Mar 19 11:20:53 <scela_>	rgrunber: it seems to be an acs issue for me
+Mar 19 12:26:22 <rgrunber>	scela just a heads up, we're having this leadership lunch/learn at the toronto office.. not sure how long it will go.. i can let people know to leave at 1 if you wanna start our all-hands on time.
+Mar 19 12:26:41 <rgrunber>	ideally ends before 1 and questions after but we'll see.
+Mar 19 12:27:08 <rgrunber>	^ based off the leadership exchange meeting
+Mar 19 12:57:31 <rgrunber>	nvm.. on time
+Mar 19 14:33:12 <nboldt>	akurtakov: scela: just ping me when you want me to join :)
+Mar 19 14:33:45 <akurtakov>	nboldt: will do
+Mar 19 14:42:39 <akurtakov>	nboldt: we are ready for you
+Mar 19 14:43:14 <scela>	nboldt: https://giphy.com/gifs/snl-saturday-night-live-1980s-d3pWRIVRiBjLOOkw
+Mar 19 18:25:27 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 19 18:25:27 2018
+
+**** BEGIN LOGGING AT Tue Mar 20 09:04:14 2018
+
+Mar 20 09:04:14 *	Now talking on #eclipse
+Mar 20 09:04:14 *	Topic for #eclipse is: Eclipse discussions
+Mar 20 09:04:14 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 20 09:25:57 <akurtakov>	nboldt: hey , good morning
+Mar 20 09:26:48 <akurtakov>	woudl you please take jgit, egit, and egit-github updates to 4.11 in rawhide and f28 (update needed via bodhi)
+Mar 20 09:27:58 <akurtakov>	nboldt: also I don't see 3.9.3 tag for webtools
+Mar 20 09:28:04 <akurtakov>	only 3.9.3RC4
+Mar 20 09:28:08 <akurtakov>	is it final now ?
+Mar 20 09:28:12 <akurtakov>	if yes please tag
+Mar 20 09:28:32 <akurtakov>	and if time permits update wtp rpm in rawhide/f28 too
+Mar 20 09:32:02 <mbooth>	akurtakov: I have not been filing bugs for missing tags -- it seems like extra busy work because by the time the tag arrives, I've already worked out which commit corresponds to the version and used that
+Mar 20 09:39:11 <nboldt>	akurtakov: will do -- need to figure out why JBT is broken in jenkins first
+Mar 20 09:39:18 <akurtakov>	nboldt: ok
+Mar 20 09:39:20 <akurtakov>	thanks
+Mar 20 09:47:08 <nboldt>	akurtakov: 3.9.3RC4 isn't final yet. we're still in quiet period
+Mar 20 09:47:16 <akurtakov>	nboldt: ah ok
+Mar 20 10:17:24 <nboldt>	akurtakov: did https://bugs.eclipse.org/bugs/show_bug.cgi?id=531844 get backported to Fedora/SCL?
+Mar 20 10:17:39 <nboldt>	I never saw a reply from mbooth on that email thread from March 1
+Mar 20 10:17:41 <mbooth>	nboldt: Yes
+Mar 20 10:17:47 <nboldt>	sweetsauce :)
+Mar 20 10:18:03 *	nboldt deletes another "waiting for clarification" email from my todo list
+Mar 20 10:18:26 <nboldt>	speaking of... no news from wtp people re: axis 1 deprecation yet :(
+Mar 20 10:18:31 <nboldt>	mbooth: ^ 
+Mar 20 10:18:48 <nboldt>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=531352 seems kchong has better things to do atm
+Mar 20 10:21:11 <mbooth>	nboldt: Happy to carry your patch until upstream merges
+Mar 20 10:24:34 <nboldt>	mbooth: cool. that works
+Mar 20 10:24:54 <nboldt>	... or until they elect me a committer and I start Breaking Bad (code and fixing it).
+Mar 20 10:25:19 <nboldt>	anyone in here with push rights to epp? if so, merge please: https://git.eclipse.org/r/#/c/119788/ 
+Mar 20 10:25:39 <nboldt>	rgrunber: ^ akurtakov: ^ jeff-not-on-IRC-today: ^
+Mar 20 10:26:40 <rgrunber>	i haven't got those perms sadly.. if i see jeff (assuming alex can't, i'll let him know)
+Mar 20 10:26:43 <akurtakov>	nboldt: Jeff and Mickael 
+Mar 20 10:26:47 <akurtakov>	I can't 
+Mar 20 10:27:48 <nboldt>	OK, I guess I have to fire up the email-o-matic and go back into the past. :(
+Mar 20 10:28:14 <akurtakov>	btw, isn't it hte quiet week for M6 now ?
+Mar 20 10:28:25 <nboldt>	no, M6 is released
+Mar 20 10:28:37 <nboldt>	it's quiet week for Oxygen.3
+Mar 20 10:28:51 <akurtakov>	nboldt: ah, yes
+Mar 20 10:28:59 <nboldt>	which ends tomorrow as Oxygen.3 GA is tomorrow 10am EST
+Mar 20 10:29:03 *	akurtakov is so happy we are going single release
+Mar 20 10:29:14 <akurtakov>	development, maintenance, scl, fedora .... 
+Mar 20 10:29:18 <akurtakov>	I lose track :)
+Mar 20 10:30:35 <nboldt>	akurtakov: well, we'll still have dev, fedora, and scl... but 3 places to patch is better than 4
+Mar 20 10:31:10 <nboldt>	only way I survive is to have the planning council calendar in my RH calendar so I see the dates all the time
+Mar 20 10:31:14 <akurtakov>	nboldt: yeah, that's 25% better :)
+Mar 20 10:31:52 <nboldt>	akurtakov: https://calendar.google.com/calendar/b/1?cid=Z2NoczdubTRudnBtODM3NDY5ZGRqOXRqbGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ or https://calendar.google.com/calendar/b/0?cid=Z2NoczdubTRudnBtODM3NDY5ZGRqOXRqbGtAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ
+Mar 20 10:32:15 <nboldt>	/b/1 if your second gmail login is for RH mail, /b/0 if your first one is for RH mail)
+Mar 20 10:35:05 <akurtakov>	nboldt: lately I more often remove things from calendar so I can see what is really going on :)
+Mar 20 10:35:20 <akurtakov>	and I hae the planning council mixed with all the rest
+Mar 20 10:38:30 <akurtakov>	mbooth:  what do the scratched lines mean?
+Mar 20 10:38:54 <mbooth>	Done/don't need
+Mar 20 10:40:02 <akurtakov>	mbooth: o
+Mar 20 10:40:03 <akurtakov>	ok
+Mar 20 10:53:36 <akurtakov>	mbooth: m2e-mavendev is not marked as not needing updates
+Mar 20 10:54:01 <akurtakov>	btu looking at https://github.com/ifedorenko/com.ifedorenko.m2e.mavendev
+Mar 20 10:54:09 <akurtakov>	there are no updates
+Mar 20 10:54:23 <akurtakov>	as you seem to left it on purpose is there smth I'm missing
+Mar 20 10:59:30 <mbooth>	akurtakov: You are right, I didn't check the commit log closely enough
+Mar 20 11:00:46 <mbooth>	akurtakov: Did you need to update testng-remote when you updated testng?
+Mar 20 11:02:12 <akurtakov>	mbooth: no just testng
+Mar 20 19:05:58 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Mar 20 19:05:58 2018
+
+**** BEGIN LOGGING AT Wed Mar 21 08:39:11 2018
+
+Mar 21 08:39:11 *	Now talking on #eclipse
+Mar 21 08:39:11 *	Topic for #eclipse is: Eclipse discussions
+Mar 21 08:39:11 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 21 08:50:28 <akurtakov>	mbooth: I'm open for bright ideas https://paste.fedoraproject.org/paste/4tBZgjPq4h9lEatwoPQVwA
+Mar 21 08:53:41 <mbooth>	akurtakov: No bright ideas :-(
+Mar 21 08:54:33 <akurtakov>	sigh, nothing should happen easy :)
+Mar 21 08:54:57 <akurtakov>	mbooth: please proceed with scl build if you are up to it
+Mar 21 08:55:17 <akurtakov>	if I manage to get this one easily we will respin, ok?
+Mar 21 08:56:34 <mbooth>	ok
+Mar 21 09:09:36 *	akurtakov has a bad feeling about this one
+Mar 21 10:11:34 <akurtakov>	mbooth: jetty build is ongoing
+Mar 21 10:11:55 <mbooth>	akurtakov: What was the cause of the error?
+Mar 21 10:12:15 <akurtakov>	mbooth: upstream they added source classifier build for this module 
+Mar 21 10:12:18 <akurtakov>	I've removed it
+Mar 21 10:12:30 <akurtakov>	https://github.com/eclipse/jetty.project/issues/2152
+Mar 21 10:13:00 <akurtakov>	I don't have an idea how is this useful :)
+Mar 21 10:15:18 <akurtakov>	mbooth: I'm building for f28
+Mar 21 10:15:23 <akurtakov>	but won't push update
+Mar 21 10:15:32 <akurtakov>	it should go with platform rebuild, right?
+Mar 21 10:16:25 <mbooth>	Yeah, I'll add it to the bodhi update
+Mar 21 10:16:41 <mbooth>	When platform is rebuilt
+Mar 21 10:17:17 <akurtakov>	ok
+Mar 21 10:17:30 <akurtakov>	buildroot override is yours too :)
+Mar 21 11:11:14 <mbooth>	rgrunber: Is there tutorial or ducmentation for creating droplets?
+Mar 21 11:14:54 <rgrunber>	mbooth: i'm actually not sure.. howver fedoraproject-p2 has the source code that does it.
+Mar 21 11:15:25 <rgrunber>	only different step is when creating the p2 repo, you add -markAsRunnable and -createFragments iirc, then you delete the generaed artifacts.xml/content.xml
+Mar 21 11:17:53 <mbooth>	rgrunber: Someone in #eclipse-dev is trying to package Eclipse for Solus, which AIUI has it's own packaging system and non of our xmvn goodness
+Mar 21 11:18:40 <rgrunber>	https://github.com/rgrunber/fedoraproject-p2/blob/master/org.fedoraproject.p2/src/org/fedoraproject/p2/installer/impl/Director.java#L105 .
+Mar 21 11:19:21 <rgrunber>	mbooth: ^ those are basically p2 apis .. even repo2runnable is accessible as a headless app.
+Mar 21 11:20:30 <rgrunber>	one sec may have found something
+Mar 21 11:22:59 <rgrunber>	there's also this : https://wiki.eclipse.org/Equinox/p2/P2_Fragments
+Mar 21 11:27:13 <mbooth>	rgrunber: Ah, thanks
+Mar 21 11:52:21 <akurtakov>	lbullen: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531602
+Mar 21 11:52:34 <akurtakov>	sorry to interrupt you again
+Mar 21 11:52:52 <lbullen>	just about to ask you, can you revert or do I need to make a revert patch?
+Mar 21 11:53:14 <lbullen>	revert and then I'll make a better fix
+Mar 21 11:55:33 <akurtakov>	lbullen: revert which patch ?
+Mar 21 11:56:45 <lbullen>	https://git.eclipse.org/r/#/c/118722/, https://git.eclipse.org/r/#/c/119167/, https://git.eclipse.org/r/#/c/119359/
+Mar 21 12:06:10 <akurtakov>	lbullen: can you come with single revert ?
+Mar 21 18:07:21 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Mar 21 18:07:21 2018
+
+**** BEGIN LOGGING AT Thu Mar 22 09:26:13 2018
+
+Mar 22 09:26:13 *	Now talking on #eclipse
+Mar 22 09:26:13 *	Topic for #eclipse is: Eclipse discussions
+Mar 22 09:26:13 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 22 11:29:42 <scela>	mbooth: radek is regenerating buildroot
+Mar 22 11:30:29 <scela>	ICYMI https://projects.engineering.redhat.com/browse/RCM-30599?focusedCommentId=782851&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-782851
+Mar 22 11:31:23 <mbooth>	scela: Cool, ta
+Mar 22 11:52:16 <akurtakov>	mbooth: https://bugs.eclipse.org/bugs/show_bug.cgi?id=532294
+Mar 22 11:52:34 <akurtakov>	would you please make jetty-util servicloader requriemnt optional
+Mar 22 11:52:37 <akurtakov>	it's same old game
+Mar 22 11:57:38 <mbooth>	akurtakov: I'll take a look a bit later
+Mar 22 19:48:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Mar 22 19:48:43 2018
+
+**** BEGIN LOGGING AT Fri Mar 23 11:03:41 2018
+
+Mar 23 11:03:41 *	Now talking on #eclipse
+Mar 23 11:03:41 *	Topic for #eclipse is: Eclipse discussions
+Mar 23 11:03:41 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 23 11:45:29 <nboldt>	mbooth: no idea, haven't tried it
+Mar 23 11:52:58 <nboldt>	mbooth: it's completely broken
+Mar 23 11:53:11 <nboldt>	html is totally different so nothing is parsed
+Mar 23 11:53:32 <mbooth>	Figures
+Mar 23 11:54:51 <nboldt>	and now it's spread across different domains (so multiple kerberos logins needed)
+Mar 23 11:55:23 <nboldt>	maybe I can just parse https://rpmdiff.engineering.redhat.com/waivers/manage/33102/ 
+Mar 23 11:55:31 <nboldt>	instead of https://errata.devel.redhat.com/advisory/33102/rpmdiff_runs
+Mar 24 14:07:50 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Mar 24 14:07:50 2018
+

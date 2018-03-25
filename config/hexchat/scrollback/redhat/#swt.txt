@@ -1,190 +1,3 @@
-T 1518724383 20<lufimtse>30	blends colors
-T 1518724403 20<lufimtse>30	or the selected dark theme color of INFORMATION is too dark?
-T 1518724439 18<rgrunber18>	well yeah, it looks that way. fwiw i see the colour of the actual shell in many other areas on the dark theme
-T 1518724500 18<rgrunber18>	toolbar items for example are a light gray.. like the text background in that tooltip popup.. and when you hover over them they become a darker colour.. more like the background of the styled text.
-T 1518725214 20<lufimtse>30	rgrunber, hmmm. I wonder if it makes sense to make INFORMATION color lighter by default. Would that break anything?
-T 1518725229 20<lufimtse>30	like make it light black
-T 1518725254 20<lufimtse>30	I recall having issues with the light/dark black in the past as well
-T 1518725307 18<rgrunber18>	the other thing is afaict the shell, styled text, link, and toolbar item are all getting set to the same background, but something might override it ?
-T 1518725352 18<rgrunber18>	seems like for a shell the setbackground is more of a hint..
-T 1518729554 19<rgrunber>	lufimtse: is it possible to change a widget foreground/background if it has already been defined in a theme .css ?.. or will that always override it..
-T 1518729634 20<lufimtse>30	hmm
-T 1518729664 20<lufimtse>30	I think it's possible. E.g a user color can override a system/theme color. E.g try setting javadoc color in dark theme.
-T 1518729901 18<rgrunber18>	ah, good point, but then why do some colours say something like 'styled in css cannot be overriden'
-T 1518729904 18<rgrunber18>	special property ?
-T 1518729917 20<lufimtse>30	hmmm
-T 1518729918 20<lufimtse>30	idk
-T 1518729938 20<lufimtse>30	I know that I once fixed the css to style the heap status bar
-T 1518729945 20<lufimtse>30	colors
-T 1518729949 20<lufimtse>30	in dark theme
-T 1518729961 20<lufimtse>30	in the css you kinda specify a widget type 
-T 1518729972 20<lufimtse>30	like java class of sort
-T 1518730000 18<rgrunber18>	basically i found a giant block that styles most (if not all) Shells as the light grey seen on the dark theme.
-T 1518730012 18<rgrunber18>	81,86,88 (#515658)
-T 1518730024 20<lufimtse>30	option 1: set INFORMATION to be like light
-T 1518730042 20<lufimtse>30	option 2: set the block that styled shells to be like INFORMATION
-T 1518730046 18<rgrunber18>	well if we change INFORMATION we'd have to go back and see if it breaks something..
-T 1518730053 20<lufimtse>30	uh ha
-T 1518730064 18<rgrunber18>	 /pain
-T 1518730073 20<lufimtse>30	 /welcome to swt
-T 1518730135 18<rgrunber18>	easiest solution would be to just make the styledtext the same colour as the shell (81,86,88) but i don't think the colour is referenced as a constant anywhere in java code..
-T 1518730177 20<lufimtse>30	hmmm
-T 1518730187 20<lufimtse>30	I think INFORMATION is based on a system color
-T 1518730209 20<lufimtse>30	COLOR_LIST_BACKGROUND
-T 1518730220 20<lufimtse>30	on gtk
-T 1518730230 20<lufimtse>30	and COLOR_TOOLTIP_INFO on cocoa/win
-T 1518730237 20<lufimtse>30	so we can't really change that.
-T 1518730249 20<lufimtse>30	option 2: can we change the light color to be a bit darker?
-T 1518730255 20<lufimtse>30	how would the dark eclipse look like?
-T 1518730261 18<rgrunber18>	org.eclipse.ui.workbench.INFORMATION_BACKGROUND=52,57,61' (for dark theme ss)
-T 1518730264 18<rgrunber18>	*css
-T 1518730279 20<lufimtse>30	ah
-T 1518730288 20<lufimtse>30	INFORMATION_ is set on dark theme
-T 1518730294 20<lufimtse>30	but is system color on classic theme
-T 1518730296 20<lufimtse>30	forgot
-T 1518730307 20<lufimtse>30	try to set it to 81,... 
-T 1518730309 20<lufimtse>30	see what happens
-T 1518730319 20<lufimtse>30	check javadoc and places that use it like the debug expression viewer etc..
-T 1518730325 20<lufimtse>30	probably easiest solution
-T 1518730339 20<lufimtse>30	and will probably fix other such strange dark/light black issues.
-T 1518730390 18<rgrunber18>	i could check that.. looks like information is based off of CONTENT_ASSIST_BACKGROUND/FOREGROUND_COLOR
-T 1518794311 19*	Now talking on 22#SWT
-T 1518794351 20<lufimtse>30	ericwill, I tinkered around with min-height business. Maybe in his theme the min-height is set to something like 50px
-T 1518794397 19<ericwill>	lufimtse min-height does not enforce a maximum, if we wants to have 50px entries he can have them
-T 1518794420 20<lufimtse>30	Kinda it does enforce a minimum thou
-T 1518794428 20<lufimtse>30	I think his point is that we screw with the toolbar and entries
-T 1518794437 20<lufimtse>30	breaking other themes
-T 1518794450 20<lufimtse>30	which is kinda valid if you think about it
-T 1518794486 20<lufimtse>30	we could add some "if adwaita" then screw with toolbars/buttons
-T 1518794490 20<lufimtse>30	then other themes wouldn't break.
-T 1518794496 20<lufimtse>30	I.e, his point is the inverse
-T 1518794506 20<lufimtse>30	not add support for other themes, but don't screw with other themes
-T 1518794525 20<lufimtse>30	which is fair imho?
-T 1518794534 20<lufimtse>30	*assuming our css breaks his theme.
-T 1518794549 19<ericwill>	lufimtse it's easy now when it's a binary: adwaita vs. Andrey's theme
-T 1518794568 18<ericwill18>	it will become impossible to maintain when every person wants their theme to have checks like "if adwaita"
-T 1518794574 20<lufimtse>30	thinkkkk about...
-T 1518794579 20<lufimtse>30	I was thinking the same
-T 1518794585 20<lufimtse>30	let's talk about it on monday
-T 1518794594 19<ericwill>	lufimtse *Tuesday :P
-T 1518794599 20<lufimtse>30	Tuesday :P
-T 1518794623 20<lufimtse>30	point being we're actually doing a 'if adwaitda', make toolbars smaller and entires bigger
-T 1518794635 20<lufimtse>30	we just don't label it as 'adwaita'
-T 1518794640 20<lufimtse>30	but do so anyway
-T 1518794660 20<lufimtse>30	looking at his screenshot, he complains toolbars being too small and entries too big.
-T 1518794672 20<lufimtse>30	I think we missunderstood him all along there
-T 1518794692 20<lufimtse>30	let's think about it on tuesday
-T 1518794699 20<lufimtse>30	can't think of a good solution right now 
-T 1518794722 19<ericwill>	lufimtse his screenshot is because his theme is broken
-T 1518794725 18<ericwill18>	look at the entries
-T 1518794730 18<ericwill18>	they are way larger than 26px
-T 1518794751 20<lufimtse>30	I have a theory that our min-entries-size:26px might be the offender
-T 1518794767 20<lufimtse>30	we'll have to test with him.
-T 1518794776 18<ericwill18>	akurtakov thoughts
-T 1518794803 20<lufimtse>30	I think it pretty easy to proov if we make a version of swt without the css changes
-T 1518794807 20<lufimtse>30	prove*
-T 1518794826 20<lufimtse>30	if that doesn't change anything for him, then his theme is broken.
-T 1518794892 19<ericwill>	lufimtse even if our stuff breaks his thing I'm not so sure we should remove it
-T 1518794899 20<lufimtse>30	not remove it
-T 1518794913 20<lufimtse>30	but think about how to solve ti.
-T 1518794923 18<ericwill18>	kk
-T 1518794930 20<lufimtse>30	we shouldn't break other people's themes, or at least allow other themes to override our hard-coded stuff.
-T 1518796025 19<akurtakov>	ericwill: lufimtse: without a proof the css breaks anything I would say don't touch it now
-T 1518796120 18<akurtakov18>	fwiw, many apps use such app specific css to override defaults
-T 1518796187 18<akurtakov18>	e.g. https://gitlab.gnome.org/GNOME/polari/blob/master/data/resources/application.css
-T 1518796217 18<akurtakov18>	I admit they assign their own classes to widgets but the end effect is the same
-T 1518796236 18<akurtakov18>	it's not different than gtk2 where some sizes are hardcoded in the java code
-T 1518796262 18<akurtakov18>	if there is a problem let's speak for concrete problem
-T 1518796363 18<akurtakov18>	e.g. http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/bundles/org.eclipse.swt/Eclipse%20SWT/gtk/org/eclipse/swt/widgets/ToolItem.java#n317
-T 1518796372 18<akurtakov18>	seriously where is this 23 coming from
-T 1518796388 18<akurtakov18>	and many such issues
-T 1518796400 18<akurtakov18>	yes, they can break with some theme
-T 1518796405 18<akurtakov18>	but we need proofs
-T 1518796455 18<akurtakov18>	hmm, are you around guys ?
-T 1518796523 18<ericwill18>	akurtakov yes I agree
-T 1518796556 18<ericwill18>	I am open to bug reports like https://bugs.eclipse.org/bugs/show_bug.cgi?id=487522
-T 1518796621 18<ericwill18>	where the specific issue is found and I can fix it with easy testing
-T 1518796641 18<akurtakov18>	yup
-T 1518796653 18<akurtakov18>	imho the bug report in question is just vague 
-T 1518796678 18<akurtakov18>	thus unactionable
-T 1518796687 18<ericwill18>	another thing is CSS based sizing is a really tricky issue, as platform UI sets the size for widgets in the IDE
-T 1518796719 18<ericwill18>	if we allow for any theme to set their own min-size it will open up all sorts of corner case bug reports that will be tough to debug
-T 1518796748 18<akurtakov18>	well people can still deploy their own css if they want as system property
-T 1518796763 18<akurtakov18>	aka everyone can shoot himself wherever he wants :)
-T 1518796822 20<lufimtse>30	I think it's fairly easy to check
-T 1518796849 20<lufimtse>30	if Simon is interesting to test, I can submit something to check. ~10 minutes work.
-T 1518796858 20<lufimtse>30	that would answer lots of unknowns
-T 1518796882 18<akurtakov18>	you mean for the min-entry-size?
-T 1518797024 20<lufimtse>30	both toolbar and entry size.
-T 1518797039 20<lufimtse>30	I think the easiest thing is to simply test and gathre facts
-T 1518797044 20<lufimtse>30	atm we're in opinion land
-T 1518797074 20<lufimtse>30	Let's wait for Simon's reply and go from there.
-T 1518797090 20<lufimtse>30	or discuss on next meeting
-T 1518797311 18<akurtakov18>	in case there is no info from Simeon there is nothing to discuss :)
-T 1518797726 18<ericwill18>	I think their entry issue is the same as: https://bugs.eclipse.org/bugs/show_bug.cgi?id=487522#c10
-T 1518797730 18<ericwill18>	but we will have to wait and see
-T 1518798109 18*	akurtakov have fixed yet another padding issue http://git.eclipse.org/c/platform/eclipse.platform.swt.git/commit/?id=158c894de7520ed72b3f64017da7ce0ea24ead54
-T 1518798122 19<akurtakov>	found by lufimtse :)
-T 1518798161 20<lufimtse>30	akurtakov++
-T 1518798186 18<akurtakov18>	I am pretty sure that paddings are not calculated proper in many places
-T 1518798205 18<akurtakov18>	as they started to appear after the move to css
-T 1518798262 20<lufimtse>30	akurtakov, how did you find the bug you mentioned here: https://bugs.eclipse.org/bugs/show_bug.cgi?id=248075  <<
-T 1518798267 20<lufimtse>30	did you use a datetime control somewhere?
-T 1518798293 19<akurtakov>	lufimtse: noticed it while testing the other bug I just mentioned
-T 1518798302 20<lufimtse>30	ah
-T 1518799086 18<akurtakov18>	ericwill: https://bugs.eclipse.org/bugs/show_bug.cgi?id=526083
-T 1518799090 18<akurtakov18>	btw, this is sound
-T 1518799145 18<ericwill18>	akurtakov what do you mean?
-T 1518799266 18<akurtakov18>	ericwill: I mean the findings fro the bounds differences
-T 1518799333 18<ericwill18>	akurtakov they aren't related to the menu bug from Andrey, unfortunately
-T 1518799352 18<ericwill18>	I am just asking the reporter of that bug why he says the allocation.x/y should be removed
-T 1518799699 18<akurtakov18>	ericwill: I mean on gtk2 and gtk3 we really get a diffrenece
-T 1518799742 18<akurtakov18>	could it be that Andrey's bug is actually multiple bugs
-T 1518799817 18<ericwill18>	akurtakov could be
-T 1518799836 18<ericwill18>	akurtakov one thing I noticed (with help from Leo) is that the menu being popped up isn't the right one
-T 1518799855 18<akurtakov18>	ericwill: ?
-T 1518799859 18<ericwill18>	i.e. if you right click only in the problems view, going from parent treeitem to the child, the menu on the first right click on the child is actually the one for the parent
-T 1518799954 18<akurtakov18>	hmm, mouse move not registered when click happens?
-T 1518799984 18<ericwill18>	maybe, this tree uses a JFace MenuManager
-T 1518799994 18<ericwill18>	I am still trying to figure out how it knows which menu to popup
-T 1518800013 18<ericwill18>	i.e. what are the steps from click -> menu popup
-T 1518801597 20*	Disconnected (20Connection timed out)
-T 1518804793 19*	Now talking on 22#SWT
-T 1518811761 19*	Now talking on 22#SWT
-T 1519219781 19*	Now talking on 22#SWT
-T 1519227207 19*	Now talking on 22#SWT
-T 1519244723 20*	Disconnected (20Connection timed out)
-T 1519245258 19*	Now talking on 22#SWT
-T 1519315996 19*	Now talking on 22#SWT
-T 1519327138 19*	Now talking on 22#SWT
-T 1519398606 20<lufimtse>30	akurtakov, if you don't object, I'll pause treeCheese and work on this one first: https://bugs.eclipse.org/bugs/show_bug.cgi?id=531593
-T 1519398637 19<akurtakov>	lufimtse: sure, crashes with prio
-T 1519398752 20<lufimtse>30	kk
-T 1519398861 19<akurtakov>	lufimtse: any guesses what's going on?
-T 1519398968 20<lufimtse>30	hmm
-T 1519400431 18<akurtakov18>	ericwill: ok, I'm here
-T 1519400440 18<ericwill18>	akurtakov okay so Button.computeSize() is messing up?
-T 1519400446 18<akurtakov18>	ericwill: I think so
-T 1519400474 18<akurtakov18>	the issue seems to be in method that contains:
-T 1519400476 18<akurtakov18>	button.setFont(JFaceResources.getDialogFont());
-T 1519400478 18<akurtakov18>			PixelConverter converter = new PixelConverter(button);
-T 1519400479 18<akurtakov18>			int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
-T 1519400481 18<akurtakov18>			return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
-T 1519400517 18<ericwill18>	akurtakov where is that method
-T 1519400545 18<akurtakov18>	ericwill: org.eclipse.pde.internal.ui.SWTFactory
-T 1519400595 18<ericwill18>	akurtakov okay give me a sec to pull and check it out
-T 1519400977 18<akurtakov18>	I have to run now
-T 1519400982 18<akurtakov18>	will be back in ~3 h
-T 1519401360 18<ericwill18>	akurtakov confirmed, it's a 3.20+ button.computeSize() issue
-T 1519740610 19*	Now talking on 22#SWT
-T 1519756373 19<akurtakov>	lufimtse: https://wiki.eclipse.org/Eclipse/PMC 
-T 1519756380 18<akurtakov18>	see the last topic
-T 1519756388 18<akurtakov18>	the burden is on you guys :)
-T 1519757063 20<lufimtse>30	let's see
-T 1519757178 20<lufimtse>30	interesting
-T 1519828135 20<lufimtse>30	akurtakov, morning.
-T 1519828142 19<akurtakov>	lufimtse: hey
-T 1519828174 20<lufimtse>30	akurtakov, Let me pull of an akurtakov. Hey Alex, what are you working on today :-)? 
 T 1519828183 20<lufimtse>30	ha ha
 T 1519828200 20<lufimtse>30	just kidding
 T 1519828201 19<akurtakov>	lufimtse: just nominated Lucas for platform committer :)
@@ -498,3 +311,207 @@ T 1520629455 19<ericwill>	lufimtse I have bug where moving the pack() cal
 T 1520631767 20<lufimtse>30	ok
 T 1520631786 20<lufimtse>30	I guess we have no "cache-finished" signal of sorts..
 T 1520860426 19*	Now talking on 22#SWT
+T 1520878185 19*	Now talking on 22#SWT
+T 1520951405 19*	Now talking on 22#SWT
+T 1520967009 19<akurtakov>	lufimtse: ericwill: hey guys
+T 1520967013 18<akurtakov18>	how are things?
+T 1520967018 18<akurtakov18>	anything I missed yesterdya
+T 1520967022 20<lufimtse>30	hey
+T 1520967048 20<lufimtse>30	I'd say cloudy, bit of snow with -1c
+T 1520967068 20<lufimtse>30	^yesterday.
+T 1520967097 18<rgrunber18>	:|
+T 1520967309 20<lufimtse>30	I think my brain mixed it up. In German, if you say "Wie war es Gestern" meaning "How was it yesterday", it commonly refers to weather.
+T 1520967329 20<lufimtse>30	ha ha
+T 1520967351 20<lufimtse>30	I'm working on the column visibility/tree cheese business. Bisecting gtk to find offending commit.
+T 1520968825 18<ericwill18>	akurtakov hey, you didn't miss anything too exciting
+T 1520968832 18<ericwill18>	I'm working on some Table editing issues
+T 1521121320 20*	Disconnected (20Invalid argument)
+T 1521123276 19*	Now talking on 22#SWT
+T 1521206362 19*	Now talking on 22#SWT
+T 1521212074 18<ericwill18>	akurtakov for that right click menu context bug, anything I have to do in the RH BZ? or will Mat take care of it once he backports
+T 1521212101 18<akurtakov18>	ericwill: plese comment in the bug pointing to the bug 
+T 1521212106 18<akurtakov18>	assuming it's not in 4.7.3
+T 1521212117 18<akurtakov18>	and ask for it tobe backported for 2018.2
+T 1521212125 18<ericwill18>	akurtakov kk will do
+T 1521220621 19<akurtakov>	lufimtse: just saw your latest commit
+T 1521220629 18<akurtakov18>	are you aware of SnippetLauncher ?
+T 1521220665 20<lufimtse>30	akurtakov, the requirement was to launch maybe 3-10 selected junits 
+T 1521220677 20<lufimtse>30	I haven't used SnippetLauncher, but I gather they usually launch individual snippets
+T 1521220691 20<lufimtse>30	or the grouping launches 5 junits as individual jUnits
+T 1521220775 19<akurtakov>	lufimtse: I get it's not exactly the same
+T 1521220790 18<akurtakov18>	at the same time JUnits are not good for visual inspection
+T 1521220818 20<lufimtse>30	what's a better option?
+T 1521220830 20<lufimtse>30	to quickly run through 20+ snippets?
+T 1521220831 18<akurtakov18>	thus I wonder whether some grouping of snippets and etc. enhancing snippetlauncher wouldn't be more fruitful long term 
+T 1521220867 20<lufimtse>30	akurtakov, what is snippet launcher?
+T 1521220870 20<lufimtse>30	you mean the grouping?
+T 1521220886 19<akurtakov>	lufimtse: there is SnippetLauncher.java
+T 1521220893 18<akurtakov18>	in snippets folder
+T 1521221023 20<lufimtse>30	interesting
+T 1521221099 19<akurtakov>	lufimtse: yeah, I try to have one way to do thing in project that everyone is aware of instead of having dozen of quite similar things and no one knowing all of them
+T 1521221210 20<lufimtse>30	akurtakov, yea, thanks for pointing out SnippetLauncher. That kinda seems like something that could be adapted into something simmilar.
+T 1521221225 18<akurtakov18>	yup, that's what I thought too 
+T 1521221239 20<lufimtse>30	I'll mention to Eric also
+T 1521221245 20<lufimtse>30	Ok, so for fix
+T 1521221249 20<lufimtse>30	https://git.eclipse.org/r/#/c/119588/
+T 1521221254 20<lufimtse>30	kinda hacky, 
+T 1521221286 20<lufimtse>30	but gtk3's delayed initialization makes the only viable option I could think of
+T 1521221364 20<lufimtse>30	Basically Gtk3 delays initialization of some structures till the 5th - 10th time g_main_context_loop() thing is ran
+T 1521221396 20<lufimtse>30	if during this time a tree/table column is invisible, SWT custom drawn tree/tables produce cheese/garbage
+T 1521221416 20<lufimtse>30	I gather this is because gtk3 skips a bunch of code if column is invisible
+T 1521221468 20<lufimtse>30	I put bits of the fix  into Control.java as it's used for both Tree and Table, and I might have to use it for a visibility issue I observed with RowLayout
+T 1521221605 20<lufimtse>30	ericwill, btw, you around?
+T 1521221610 19<ericwill>	lufimtse yo
+T 1521221650 20<lufimtse>30	Hacky, but wdyt? https://git.eclipse.org/r/#/c/119588/
+T 1521221681 20<lufimtse>30	I had to go down the HashTable route as not all columns have a TableColumn object. E.g first column when Table is created.
+T 1521221710 20<lufimtse>30	ericwill, it also fixes the acessibility warning: https://bugs.eclipse.org/bugs/show_bug.cgi?id=399522
+T 1521221782 19<ericwill>	lufimtse okay, let me take a look
+T 1521221922 20<lufimtse>30	akurtakov, could you also review and let me know if you see any red flags: https://git.eclipse.org/r/#/c/119588/
+T 1521221931 20<lufimtse>30	in case I missed something.
+T 1521221938 18<akurtakov18>	I'll try to do it later today
+T 1521221949 20<lufimtse>30	ok
+T 1521221954 18<akurtakov18>	it's friday evening 
+T 1521221966 18<akurtakov18>	with 1/4 final in the national volley championship :)
+T 1521222003 18<ericwill18>	akurtakov volleyball?
+T 1521222048 18<akurtakov18>	ericwill: yeah, my town team made it to it first time in 15+ years :)
+T 1521222060 18*	akurtakov was in highschool last time this happened
+T 1521222063 18<rgrunber18>	ooo
+T 1521222072 18<ericwill18>	ncie :)
+T 1521222075 18<ericwill18>	*nice
+T 1521222084 18<rgrunber18>	akurtakov: i guess you were on that team :P that's why
+T 1521222103 18<akurtakov18>	rgrunber: I can assure you my sport skills can destroy any team :)
+T 1521222108 18<rgrunber18>	must have a high vertical jump
+T 1521222163 18<akurtakov18>	rgrunber: I mean any team I'm part of :)
+T 1521222184 18<akurtakov18>	ttyl guys
+T 1521222227 18<rgrunber18>	cya!
+T 1521222378 20<lufimtse>30	akurtakov, have a nice weekend.
+T 1521222387 18<ericwill18>	ttyl
+T 1521468097 19*	Now talking on 22#SWT
+T 1521481174 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=490188
+T 1521481206 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=476441
+T 1521481271 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=480926
+T 1521481313 18<akurtakov18>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=424878
+T 1521481611 18<scela18>	https://gph.is/2fHQvBN
+T 1521481794 18<rgrunber18>	oh to be a fly on the wall of this call..
+T 1521482644 18<scela18>	rgrunber: I don't like secret channels in IRC ;)
+T 1521498327 20*	Disconnected (20Connection timed out)
+T 1521551054 19*	Now talking on 22#SWT
+T 1521555439 18<ericwill18>	akurtakov what version of eclipse do we have in RHEL? 2018.1 is Oxygen.2 right?
+T 1521555484 18<scela18>	ericwill: yes
+T 1521555495 18<akurtakov18>	ericwill: whic RHEL
+T 1521555504 18<ericwill18>	akurtakov 7.4
+T 1521555506 18<akurtakov18>	7.4 has 3.22
+T 1521555525 18<ericwill18>	akurtakov the Eclipse version :)
+T 1521555544 18<akurtakov18>	ericwill: oops :)
+T 1521555557 18<akurtakov18>	4.7.2
+T 1521555575 18<akurtakov18>	2018.2 should be 4.7.3
+T 1521555582 18<akurtakov18>	2018.3 should be 4.8.0
+T 1521555796 18<ericwill18>	okay
+T 1521555827 18<ericwill18>	I see we have a customer case from Andrey about the table editing...
+T 1521555952 18<akurtakov18>	ericwill: yeah
+T 1521555960 18<akurtakov18>	it's beneficial for us :)
+T 1521556159 18<scela18>	akurtakov: 2018.2 is 4.7.3a right?
+T 1521556199 18<akurtakov18>	scela: yes, but SWT can not contribute to 4.7.3a only jdt so for the sake of discussion with eric it's the same :)
+T 1521556223 18<scela18>	akurtakov: sure, just double-checking my mental notes :)
+T 1521556224 18<ericwill18>	akurtakov I am pretty sure this bug is fixed in 4.8 already but I need to check to be 100% sure
+T 1521556244 18<akurtakov18>	ericwill: if fixed - same procedure as the previous one
+T 1521556250 18<akurtakov18>	point Mat to the commit for backport
+T 1521556275 18<ericwill18>	okay
+T 1521556285 18<akurtakov18>	in the bug
+T 1521559619 18<ericwill18>	akurtakov done
+T 1521559627 18<akurtakov18>	ericwill: thanks
+T 1521561316 19<akurtakov>	lufimtse: here ?
+T 1521561338 18<akurtakov18>	have you ever compiled swt on windows?
+T 1521561441 18<ericwill18>	akurtakov he's AFK
+T 1521561614 18<akurtakov18>	ericwill: do you know anything about it ?
+T 1521561632 18<akurtakov18>	ericwill: it all comes from https://bugs.eclipse.org/bugs/show_bug.cgi?id=531097
+T 1521561645 18<akurtakov18>	and IBM guys are "busy" again
+T 1521561663 18<akurtakov18>	risking to lose another prominent swt win32 contributor
+T 1521561671 18<akurtakov18>	so I wondered what can we do
+T 1521561689 18<ericwill18>	akurtakov I have no clue about the windows stuff
+T 1521561698 18<ericwill18>	maybe Lakshmi knows something?
+T 1521561712 18<akurtakov18>	ericwill: well, they want to delay for the future
+T 1521561735 18<akurtakov18>	and guess what will happen when you tell someone wait 4 months and we may look into your contributions
+T 1521561745 18<akurtakov18>	I have seen this movie often enough
+T 1521561767 18<ericwill18>	akurtakov pretty sad IMO
+T 1521561775 18<akurtakov18>	ericwill: https://git.eclipse.org/r/#/c/117609/3
+T 1521561786 18<akurtakov18>	it looks pretty safe to me with my gtk knowledge
+T 1521561797 18<akurtakov18>	scela: can we get access to windows machine ?
+T 1521561842 18<ericwill18>	akurtakov we have a windows VM running on a mac, here in the office. but it's pretty slow
+T 1521561854 18<ericwill18>	Leo and I are thinking of putting a windows partition on that laptop that Ian had
+T 1521561862 18<akurtakov18>	ericwill: what is the window version ?
+T 1521561882 18<ericwill18>	Windows 10
+T 1521561900 18<akurtakov18>	perfect
+T 1521561917 18<akurtakov18>	ericwill: so please ask Leo whether he compiled swt at all on window
+T 1521561937 18<ericwill18>	akurtakov will do
+T 1521561952 18<akurtakov18>	and ask him to do a quick try  if he succeeds to try with the patch and whether the ide is useful with the new one
+T 1521561964 18<akurtakov18>	not more than 1-2h :)
+T 1521561975 18<akurtakov18>	as I expect issues
+T 1521562011 18<akurtakov18>	ericwill: thanks
+T 1521562038 18<scela18>	akurtakov: still need it?
+T 1521562047 18<scela18>	was in a call
+T 1521562069 18<akurtakov18>	scela: looks like there is one in toronto office
+T 1521562073 18<akurtakov18>	so should be fine
+T 1521562076 18<scela18>	cool
+T 1521562208 20<lufimtse>30	akurtakov, hello
+T 1521562302 20<lufimtse>30	akurtakov, I haven't compiled anything ever on Windows
+T 1521562307 20<lufimtse>30	:-/
+T 1521562320 20<lufimtse>30	akurtakov, last time I investigated, there wasn't much documentation, 
+T 1521562332 20<lufimtse>30	akurtakov, I could look into it, but it would take me a while.
+T 1521562339 19<akurtakov>	lufimtse: just try it
+T 1521562353 18<akurtakov18>	if it doesn't work so be it, we shold know what's blocking u
+T 1521562367 20<lufimtse>30	akurtakov, how much time to commit if it takes longer?
+T 1521562371 20<lufimtse>30	you said 1-2 hours?
+T 1521562374 18<akurtakov18>	not more
+T 1521562382 18<akurtakov18>	if it doesn't work in that time
+T 1521562392 20<lufimtse>30	ok, I'll give it a brief shot.
+T 1521562396 18<akurtakov18>	let's open a bug for documentation,tooling whatever
+T 1521562405 18<akurtakov18>	and see where we canmove
+T 1521562602 20<lufimtse>30	 ok
+T 1521578428 20<lufimtse>30	akurtakov, hey
+T 1521578435 20<lufimtse>30	akurtakov, u still around?
+T 1521578461 19<akurtakov>	lufimtse: what's up?
+T 1521578519 20<lufimtse>30	akurtakov, so with a fair bit of hackery, I got SWT compiled on Win32 and I ran snippets with the newly compiled binary files.
+T 1521578552 20<lufimtse>30	akurtakov, to review the patches, I guess I would have to ensure things compile and tests pass with the new patches?
+T 1521578555 20<lufimtse>30	(I'm on Win10)
+T 1521578566 18<akurtakov18>	sounds good
+T 1521578567 20<lufimtse>30	and test with a child eclipse?
+T 1521578605 20<lufimtse>30	I take it I won't be tesitng with Windows 7 & vista?
+T 1521578632 20<lufimtse>30	Should I announce things on mailing list about me testing the patches and if I find no faults merge them?
+T 1521578640 20<lufimtse>30	(swt mail list) akurtakov 
+T 1521578659 19<akurtakov>	lufimtse: just test the first patch in the series
+T 1521578663 18<akurtakov18>	and give comment on it
+T 1521578666 18<akurtakov18>	in gerrit
+T 1521578687 18<akurtakov18>	what I look for is not losing the contributor e.g. merging a commit or two
+T 1521578696 18<akurtakov18>	and leaving the rest for IBMers
+T 1521578705 18<akurtakov18>	for after Photon
+T 1521578717 18<akurtakov18>	just to show some good will towards contributor
+T 1521578728 20<lufimtse>30	ok
+T 1521578791 18<akurtakov18>	first and second patch look quite safe to me
+T 1521578811 18<akurtakov18>	the others that change types unicode and etc. need better win32 knowledhe imho
+T 1521578875 20<lufimtse>30	ok
+T 1521587158 20*	Disconnected (20Connection timed out)
+T 1521635951 19*	Now talking on 22#SWT
+T 1521658737 18<ericwill18>	is there no longer an EclipseCon North America? I have a someone on twitter asking me about it
+T 1521660841 20<lufimtse>30	ericwill, not sure. I heared something about it not being ran anymore, but idk.
+T 1521670041 20*	Disconnected (20Connection timed out)
+T 1521725173 19*	Now talking on 22#SWT
+T 1521762523 20*	Disconnected (20Connection timed out)
+T 1521817421 19*	Now talking on 22#SWT
+T 1521817433 20<lufimtse>30	akurtakov, windows patches look good to me.
+T 1521817441 20<lufimtse>30	akurtakov, I left my feedback
+T 1521823820 19<akurtakov>	lufimtse: can I get remote access to the machine ?
+T 1521823830 18<akurtakov18>	the windows one
+T 1521823835 20<lufimtse>30	akurtakov, probably
+T 1521823842 20<lufimtse>30	akurtakov, u need now?
+T 1521823853 20<lufimtse>30	akurtakov, I got things to work before with rdp
+T 1521823860 19<akurtakov>	lufimtse: well, just mail me credentials
+T 1521823860 20<lufimtse>30	akurtakov, I could hook it up to our internal network
+T 1521823865 18<akurtakov18>	I'll do on monday
+T 1521823882 18*	akurtakov is the babysitter tonight :)
+T 1521823893 20<lufimtse>30	akurtakov, ok. I'll send you some info. There are a few quicks with the machine that I'll mention in the mail.
+T 1521823901 18<akurtakov18>	so dinner and some cartoons ahead :)
+T 1521823906 20<lufimtse>30	:-D
+T 1521823907 20<lufimtse>30	nice
+T 1521823907 19<akurtakov>	lufimtse: thanks
+T 1521914870 20*	Disconnected (20Connection timed out)

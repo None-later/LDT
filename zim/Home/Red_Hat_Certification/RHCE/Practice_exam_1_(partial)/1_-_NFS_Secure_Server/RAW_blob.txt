@@ -1,0 +1,76 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-17T19:06:01-04:00
+
+====== RAW blob ======
+Created Saturday 17 March 2018
+
+**Qsn 1. NFS-Server**
+Configure nfs on system1 as follows:
+- export the /public directory with read only access to the groupx.example.com domain only
+- export the /protected directory with read write access to the groupx.example.com 
+ - access to /protected should be secure by kerbros. 
+ - you can use keytab at  http://host.groupx.example.com/materials/nfs_server.keytab
+ - the /protected directory should contain a sub-directory name project that is owned by krishna
+ - krishna should have read write access to /protected/project.
+project
+ANS:- NFS (On server)smb
+#yum -y install nfs*
+#mkdir /public
+#semanage fcontext -a -t public_content_t '/public(/.*)?'
+#restorecon -vFR /public
+#ls -ldZ /public
+#vim /etc/exports
+/public 172.25.X.0/24(ro)
+#systemctl restart nfs-server
+#systemctl enable nfs-server
+#firewall-cmd --permananet --add-service=nfs
+#firewall-cmd --complete-reload
+#wget -O /etc/krb5.keytab
+http://host.groupX.example.com/materials/nfs_server.keytab
+#mkdir /protected
+#cd /protected
+#semanage fcontext -a -t public_content_rw_t '/protected(/.*)?'
+#restorecon -vFR /protected
+#vim /etc/sysconfig/nfs
+	RPCNFDRAGS= "-V 4.2"
+
+chown nfsnobody /protected
+#vim /etc/exports
+/protected 172.25.X.0/24(rw,sync,sec=krb5p)
+#mkdir /protected/project
+#useradd krishna
+#chown krishna /protected/project
+#setfacl -m u:krishna:rwx /protected/project
+#chown nfsnobody /protected
+#systemctl restart nfs-server
+#systemctl restart nfs-secure-server
+#systemctl enable nfs-secure-server
+#firewall-cmd --permanent --add-service=nfs
+#firewall-cmd --complete-reload
+#firewall-cmd --permanenet --add-service=rpc-bind
+#firewall-cmd --permanent --add-service=mountd
+
+
+**Qsn2. Mount an nfs share**
+configure system2 to mount the following nfs share from system1.groupx.example.com
+- /public should be mounted to /mnt/nfsmount
+- /protected should be mounted to /mnt/nfssecure using the keytab at http://host.groupx.example.com/materials/nfs_client.keytab
+- krishna should be able to create file in /mnt/nfssecure/project
+- the file system should automatically be mounted at boot
+
+**Ans:- Mount nfs **(Client side)
+#yum -y install nfs-utils
+#mkdir /mnt/nfsmount
+#mkdir /mnt/nfs
+#vim /etc/fstab
+		serverX:/public mnt/nfsmount nfs defaults 0 0
+#mount -a
+#df -h
+#wget -O /etc/krb5.keytab http://host.groupX.example.com/materials/nfs_client.keytab
+#mkdir /mnt/nfssecure
+#vim /etc/fstab
+system1:/protected /mnt/nfssecure nfs defaults,v4.2,sec=krb5p 0 0
+#systemctl restart nfse-secure
+#mount -a
+#df -h

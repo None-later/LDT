@@ -1,0 +1,49 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-20T16:49:06-04:00
+
+====== binaries ======
+Created Tuesday 20 March 2018
+
+==== Prereq ====
+Java _JDK_  (not jre) 1.8 ish.
+
+
+===== Getting binaries to build: (Not tested, but someone mentioned) =====
+	Conrad Groth <info@conrad-groth.de>
+
+Hi,
+I recently configured my windows 10 laptop, to rebuild the SWT binaries.
+I started with the steps from list item 6 on https://www.eclipse.org/swt/jnigen.php
+Unfortunately these steps don’t work without these additional measures:
+-  Start you eclipse with an environment variable JAVA_HOME pointing to your JDK folder. I created a cmd file with this contents:
+set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_45
+start c:\eclipse\eclipse.exe
+-  Create a folder C:\BUILD\swt-builddir (it has to be exactly named like this)
+-  Install the “Windows Server 2003 SP1 SDK” (https://www.microsoft.com/en-us/download/details.aspx?id=6510 ) to “C:\BUILD\swt-builddir\MSSDKs\Windows Server 2003 SP1 SDK”
+-  Make a symbolic link “C:\BUILD\swt-builddir\ibm-sdk50-x86_64”, that points to your JDK (alternatively install the JDK to that folder)
+Inside that folder you have the folders bin, include, jre…
+-  Copy the file jawt.lib from the lib subfolder to jre\bin
+With these steps I managed to build the SWT binaries locally, but without the XULRUNNER. That build step had an error, but as I didn’t need those artefacts, I was happy.
+Have fun,
+Conrad
+
+===== Leos notes on getting things to work: =====
+Sim link C:\BLUID\swt-bluiddir\ibmsdk50-x86_64\    to C:\Program Files\Java\jdk....
+New-Item -ItemType SymbolicLink -Name ibm-sdk50-x86_64 -Target 'C:\Program Files\Java\jdk1.8...'
+
+- Install Vistual Studio (for developer cmd prompt) # this is like 20GB btw.
+	* Check all the "C/C++/Linux" related bits and pieces
+- Start "Developer Command Prompt for VS 2017 (this adds 'cl' compiler & other build tools to path)
+- (Not 100% about these two)
+  In dev command prompt:
+	set SWT_JAVA_HOME="C:\BUILD\swt-bluiddir\ibmsdk50-x86_64"
+		# also, not sure if needed:
+	set SWT_BUILDDIR="C:\BLUID\swt-builddir\"
+
+Note:
+- build.bat in bluild.xm (in binaries x64_86 repo) is (for each compile) copied from
+  org.eclipse.swt/Eclipse SWT PI/win32/library/build.bat
+-  
+
+[ ] Should fix the lack of quotes around the bash script.
