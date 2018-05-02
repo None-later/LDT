@@ -1,0 +1,204 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-11T21:09:00-04:00
+
+====== Inbox ======
+Created Wednesday 11 April 2018
+
+===== DO 080 Containers overview =====
+Traditional deployment:
+	- Spinup vm.
+	- load vm with many applications.
+	Problems:
+	- vm is slow to spin up. Mixed applications.
+	- updating library can break other applications. (need to test all apps).
+   
+- Users need to isolate.
+- Need deployment in seconds. Not have the overhead of an entire vm.
+Unifies environment, independent of host environment.
+
+Micro services. 1 container per container. Isolate into pieces.
+
+===== Docker Architecture =====
+
+images:
+   - template for containers
+	- can version control images
+	- can add libraries, files.
+	
+images stored in registries
+ - local, public, red hat registries, docker hub.
+
+Guy using iPad pro for presentation/teaching here:
+https://www.redhat.com/rhtapps/promo-do080/?segment=2
+
+
+Picture:
+	client:
+		docker pull
+		docker run
+	
+	host:
+		docker daemon
+			 (image)
+			
+	Registry
+
+
+3 mechanism of protection.
+**Name spaces** 
+  - isolate processes
+  - 1 per container
+
+**Control group**
+	- Protect host from container.
+	- prevent container from using too many resources.
+
+**SELinux**
+	- Protect host from containers and containers from each other.
+
+**Describing Kubernetes and OpenShift Architecture**
+
+
+===== Kubernetes and OpenShift Architecture =====
+What is if a container fails?
+
+- handle fails
+- orchestrate
+	How to get containers to talk to each other. 
+- isolation
+	If running 8k containers. How to stop one container failure from affecting other containers?
+
+Node servers:
+- 1 master server.
+- Pods : 
+	contain 1 or more container 
+	share an ip address
+	share resources
+
+Persistent volumes:
+	- Maintain data.
+
+Can run on:
+	- on premise, private cloud, public cloud [e.g openshift online].
+	
+Route:
+	- expose services.
+
+
+Deployment configuration (Open shift specific)
+- Set of pods created from same image
+- Help manage rolling updates
+- Helps make changes to image.
+- Helps continious deployment.
+
+
+===== Provisioning a Database Server =====
+Dockerhub - Largest. Community driven. Search for images.
+
+Red hat Registry:
+- View catalogue.
+- See 'health' of items. (A=good)
+
+
+docker pull mysql
+docker pull [[mysql:5.5]]  #download a specific image.
+docker images
+docker run mysql		# if you don't provide a name, docker will name it.
+docker run --name  		#name your container. Good practice.
+
+# long running. Docker by default runs container and if finished exits. To make persitent (deamon)
+docker run -d
+
+docker run -it   # interactive bash shell.
+docker exec      # access container.
+
+# Images sometimes need an environment variables. (e.g usernames, passwords...)
+# See document. E.g
+  MYSQL_USER  MYSQL_PASSWORD
+
+docker run -e    # key value pair.
+
+# deamon. Auto pulls if not available locally.
+docker run --name mysql-basic -e MYSQL_USER=user1 -e MYSQL_PASSWORD=mypa55 -e MYSQL_DATABASE=items -e MYSQL_ROOT_PASSWORD=rootpa55 -d [[mysql:5.6]]
+
+docker images #show images
+
+docker ps   # show running containers.
+
+docker exec -it mysql-basic bash   # bash   interactive
+
+
+===== Create a docker file =====
+
+docker file — recepie for a dish that we're about to make.
+
+- Start with empty directory because docker will index everything in that directory.
+- Put files you'll need into the directory.
+
+instructions are completed sequentially:
+
+ex:
+# comment
+FROM rhel7.3			# parent/base image.
+LABEL description="This is a custom httpd container image"    #just some meta data.
+MAINTAINER John Doe <jdoe@xyz.com>   # who is author.
+RUN yum install -y httpd	     # make changes.
+EXPOSE 80 			     # metadata. Tell users you need port 80.
+ENV LogLevel "info"		     # creates env vars inside a container.
+ADD http://someserver.com/filename.pdf/var/www/html		# move from host or remote into container.
+COPY ./src/ /var/www/html 					# simmilar to ADD, but more limited. Being phased out.
+USER apache				# define which user will run SUBSEQUENT commands.
+ENTRYPOINT ["/usr/sbin/httpd"]
+CMD ["-d","FOREGROUND"]   # add arguments to entry point.
+
+
+---
+ENTRYPOINT["/bin/ping","localhost"]  #not so flexible.
+
+ENTRYPOINT["/bin/ping"]   #more flexible.
+CMD["localhost"]
+
+docker run -it it do180/rhel redhat.com   #redhat passed as 'command.
+
+**Rhel base image with inheritance:**
+# Good for re-use.
+rhel7.3
+	-MySQL
+		- MySQL2 (with utilities)
+		- MySQL3
+	-rh-rhel (with utilities).
+		- Apache 
+
+**Image Layering.**
+- each isntruction in a dockerfile creates a new layer.
+- too many instructions leads to many layers and large images.
+
+	ex excessive Layers:
+		RUN yum ...<enable repos>
+		RUN yum update
+		RUN yum install -y httpd
+	
+	Single layer, same outcome:
+		RUN yum --<enable repos>  && RUN yum update && RUN yum install -y httpd
+
+readability: (use line-breaks)
+CMD \
+cmd-continued  \
+cmd-continued
+
+,,, 
+
+< Brain death> @ 13 mins.
+
+<build image>
+
+docker images
+docker inspect do180/rhel 
+
+
+docker rm ...
+docker rmi ...
+
+
+

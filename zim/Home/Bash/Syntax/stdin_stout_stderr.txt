@@ -1,0 +1,40 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-03-28T10:55:05-04:00
+
+====== stdin stout stderr ======
+Created Wednesday 28 March 2018
+
+Great article:
+[1] http://wiki.bash-hackers.org/howto/redirection_tutorial
+
+FDs:
+0 - std in
+1 - std out
+2 - std error
+
+Syntax:
+> - redirect to
+&FD -  copy of a file descriptor.
+
+Fundamental knowledge:
+- File descriptors are pointers to stuff.
+  So when we copy things,
+
+Q: How to output stderr to file?
+A: echo "My error" 2> err.log
+
+Q: How to print something to stderr?
+A: We redirect stdout to copy of(&) stderr FD like:
+	echo "My error" 1>&2    
+
+Q: How to redirect both sdtout and stderr to a file?
+Aa) This is often mistakenly done as: echo 2>&1 1> file.
+	This is wrong, as stderr still points to stdout.
+A: We *first* redirect stout to a file. *Then* redirect stderr
+   to point to what stdout is pointing to (file)
+  echo 1>out.log 2>&1 
+
+Q: How do you append both stdout and std err to out.log?
+A: echo 1>>out.log  2>&1
+

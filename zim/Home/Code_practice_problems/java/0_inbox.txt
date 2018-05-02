@@ -1,0 +1,345 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-17T19:12:30-04:00
+
+====== 0 inbox ======
+Created Tuesday 17 April 2018
+
+Hacker rank.
+https://www.youtube.com/watch?v=BqyAD9yLPCk
+
+[ ] Binary Tree Search
+
+Red Hat Hacker rank test:
+	SudoRank Problem — sub-version of the HackerRank test.
+
+SudoRank:
+  ssh - how to login, etc.
+  Firewalld
+  yum 
+  install and start appache web server.
+  basic scripting.
+  lvm — create/delete/move.
+  xfs - know about and how to migrate.
+  nfs - how to mount etc.
+  network config.
+  adv networking - bridging/bonding.
+  file manipulating - how to do from command line.
+  Ruby Scripting - MEH?
+  Rest Programming - MEH?
+  git - use/build your own repo.
+
+Data structures:
+ - Trees (red black, al..?)
+ - Hash maps
+ - Algorithms. 
+
+Defeating the hackerring test:
+https://thehftguy.com/2016/07/13/cracking-the-hackerrank-test-google-to-the-rescue/
+ - Google titles.
+
+Problems to practice:
+- Integer that only occurs once.  https://www.hackerrank.com/challenges/lonely-integer/problem
+- https://www.hackerrank.com/challenges/stockmax/problem
+
+
+Reddit that talks about the assesment:
+https://www.reddit.com/r/linux/comments/6fovpk/hackerrank_aka_sudorank_linux_preinterview_test/
+
+
+---------------------------- Maybe someday:
+- Iterators:
+	Iterator<Integer> itr = mytree.iterator();
+	   while (itr.hasNext()) {
+		   Print(myit.next());
+	   }
+	   //Array lists have iterators for reverse Traversal:
+	   ListIterator<Integer> listIt = mylist.listIterator(mylist.size()); //Note, not size()-1
+	   while (listIt.hasPrevious()) {
+		 Print(listIt.previous());
+	   }
+
+- Hacks
+  - Computing 2^n  :  1 << n;
+  - Multiply by 2: 8 << 2  //=16
+  - Divide by 2:   8 >> 1  //=4
+
+- Bit operations
+  >> shift right (considers sign)    >>> unisgned shift right. (shifts zero)
+  << shift left.
+  | ^ & = or xor and
+  ~NUM  //negate (not to be confused with !)
+  check bit: check shifted anded:  (val & (1 << i) != 0)
+  setting bit: or it with '000010000'  (val | (1 <<< i))
+  clearing bit: and it with '11110111' (val & ~(1 << i))
+
+- Appendix (Code implementations)
+  //------ Algorithm implementations
+  - Binary Search:
+	static int binarySearch(int nums[], int val) {
+	  int upperi = nums.length-1;
+	  int loweri = 0;
+	  while (loweri <= upperi) {
+		int midi = (loweri+upperi)/2;
+		if (nums[midi] == val)     return midi;
+		else if (nums[midi] < val) loweri = midi+1;
+		else if (nums[midi] > val) upperi = midi-1;
+	  }
+	  return -1;
+	}
+
+  - Selection Sort:
+	  public static void main(String[] args) {
+		  int nums [] = {3,5,4,1,8,10};
+		  for (int i = 0; i < nums.length; i++) {
+			for (int j = i+1; j < nums.length; j++) {
+			  if (nums[j] < nums[i]) {
+				swap(nums, i, j);
+			  }
+			}
+		  }
+		  System.out.println(Arrays.toString(nums));
+		}
+		static void swap(int nums[], int i, int j) {
+		  int tmpi = nums[i];
+		  nums[i] = nums[j];
+		  nums[j] = tmpi;
+		}
+
+  - Quick Sort
+	  // Random generator:
+	  Random randGen = new Random();
+	  randGen.nextInt(10);  //generate int between 0-10
+
+	  static List<Integer> leosQuickSort(List<Integer> list) {
+		 //base cases
+		 if (list.size() == 0 || list.size() == 1) {
+		   return list;
+		 }
+
+		 //Split arrays, recurse.
+		 int pivotIndex = randNum(list.size() - 1);
+		 List<Integer> leftList = new ArrayList<Integer>(); //left list
+		 List<Integer> rightList = new ArrayList<Integer>(); //right list.
+		 for (int i = 0; i < list.size(); i++) {
+		   if (i == pivotIndex) {
+			 continue;
+		   }
+		   if (list.get(i) < list.get(pivotIndex)) {
+			 leftList.add(list.get(i));
+		   } else {
+			 rightList.add(list.get(i));
+		   }
+		 }
+		 List <Integer> ra = new ArrayList<Integer> ();
+		 ra.addAll(leosQuickSort(leftList));
+		 ra.add(list.get(pivotIndex));
+		 ra.addAll(leosQuickSort(rightList));
+		 return ra;
+	   }
+
+	   static int randNum(int upper) {
+		  Random rand = new Random();
+		  return rand.nextInt(upper);
+	   }
+
+  - Heap Sort
+	  https://www.youtube.com/watch?v=JhCe8nhndPA
+	  public static void main(String[] args) {
+
+		int nums [] = {3,5,8,7,1,13,11,15,6};
+		heapSort(nums);
+
+		//Test validity of sort.
+		int expectedNums [] = {1, 3, 5, 6, 7, 8, 11, 13, 15};
+		assert Arrays.equals(nums, expectedNums);
+
+		System.out.println("All is well");
+	  }
+
+	  private static void heapSort(int[] nums) {
+		heapify(nums);
+
+		//Test that heapify worked well.
+		int expectedNumsAfterHeapify [] = {15, 7, 13, 6, 1, 8, 11, 5, 3};
+		assert Arrays.equals(nums, expectedNumsAfterHeapify);
+
+		for (int last = nums.length-1; last >= 0; last--) {
+		  swap(nums, last, 0);
+		  int lastItemOfHeap = last -1;  //not corrupt end of array
+		  maxHeapify(nums, 0, lastItemOfHeap);
+		}
+		System.out.println(Arrays.toString(nums));
+	  }
+
+	  static void heapify(int nums[]) {
+
+		// For every node with children (I.e starting in the middle)
+		// in reverse order,  max-heapify things up.
+		int lastElement = nums.length - 1;
+		int middle = (lastElement-1) /2;    // Floor applied by integer devision
+		for (int i = middle; i >= 0; i--) {
+			 maxHeapify(nums, i, lastElement);
+		}
+
+	  }
+
+	  static void maxHeapify(int nums[], int parentIndex, int lastItem) {
+		//Child is at first left, but can change to right child if right is bigr
+		int childIndex = leftChildIndex(parentIndex); //left child as default.
+
+		//continue while not at the end of list without recursion:
+		while (childIndex <= lastItem) {
+
+		  //Identify biggest child. (right or left child)
+		  // (ensuring right child exists).
+		  if (rightChildIndex(parentIndex) <= lastItem &&
+			 leftChild(nums, parentIndex) < rightChild(nums, parentIndex)) {
+			childIndex = childIndex+1;
+		  }
+
+		  //See if child is bigger than parent.
+		  if (nums[childIndex] > nums[parentIndex]) {
+			//Swap parent and child.
+			swap(nums, parentIndex, childIndex);
+		  }
+
+		  //Go deeper
+		  parentIndex = childIndex;
+		  childIndex = leftChildIndex(parentIndex);
+		}
+	  }
+
+	  static int leftChild (int nums[], int parentIndex) {
+		return nums[leftChildIndex(parentIndex)];
+	  }
+
+	  static int rightChild (int nums[], int parentIndex) {
+		return nums[rightChildIndex(parentIndex)];
+	  }
+
+	  static int leftChildIndex(int parent) {
+		return parent*2 + 1;
+	  }
+
+	  static int rightChildIndex(int parent) {
+		return parent*2 + 2;
+	  }
+
+	  static void swap(int nums[], int a, int b) {
+		int tmp = nums[a];
+		nums[a] = nums[b];
+		nums[b] = tmp;
+	  }
+
+  - Merge Sort
+	  static void mergeSort(int nums []) {
+		int helper [] = new int[nums.length];
+		mergeSortHelper(nums, helper, 0, nums.length -1);
+	  }
+
+	  static void mergeSortHelper(int nums [], int helper[], int low, int high){
+		if (high == low) {
+		  return;
+		}
+		if (high - low == 1) {
+		  if (nums[low] > nums[high]) {
+			int tmplow = nums[low];
+			nums[low] = nums[high];
+			nums[high] = tmplow;
+		  }
+		  return;
+		}
+
+		int middle = (low+high) / 2;
+		int rightIndex = middle+1;
+		mergeSortHelper(nums, helper, low, middle);
+		mergeSortHelper(nums, helper, rightIndex, high);
+		merge(nums, helper, low, rightIndex, high);
+	  }
+
+	  static void merge (int nums [], int helper [], int aStart, int bStart,
+		int high) {
+		for (int i = aStart; i <= high; i++) {   // copy range into helper.
+		  helper[i] = nums[i];
+		}
+		int a = aStart;
+		int b = bStart;
+		// Iterate over left & right side, copy smallest number into original.
+		for (int i = aStart; i <= high; i++) {
+		  // b++ high+1 should be first, otherwise uncaught exception can occur.
+		  if (a < bStart && (b == high+1 || helper[a] < helper[b])) {
+			nums[i] = helper[a];
+			a++;
+		  } else {
+			nums[i] = helper[b];
+			b++;
+		  }
+		}
+	  }
+
+  - Prime number checker
+	public static boolean isPrime(int x)
+	for (int i = 2; i < x; i++)
+	  if (x % i == 0)  return false;
+	return true;
+	..
+	better method is to generate array from 1 - MAX.
+	then start at first prime number (2), remove all its multipliers (2,4,6)
+	then find next non-checked number and remove all its multipliers (3,6,9) etc
+
+		static boolean reachable(int i, int j, int n) {
+			boolean grid[][] = new boolean[n][n];
+			reachableHelper(0, 0, grid, i, j, n - 1);
+			for (int x = 0; x < n; x++) {
+			  for (int y = 0; y < n; y++) {
+				if (!grid[x][y]) {
+				  return false;
+				}
+			  }
+			}
+			return true;
+		  }
+
+		  static void reachableHelper(int x, int y, boolean[][] grid, int i, int j, int max) {
+			if (x > max || y > max || x < 0 || y < 0 || grid[x][y]) {
+			  return;
+			}
+			grid[x][y] = true;
+			int i2 = i;
+			int j2 = j;
+			for (int a = 0; a < 2; a++) {
+			  for (int b = 0; b < 2; b++) {
+				reachableHelper(x + i2, y + j2, grid, i, j, max);
+				reachableHelper(x + j2, y + i2, grid, i, j, max);
+				i2 = -i2;
+			  }
+			  j2 = -j2;
+			}
+		  }
+
+//--------- NOT FOR PRINT, BUT USEFUL
+
+// WISDOM.
+- Var Names
+  - Dont use 1,2 char var names like ll, ra, rl.
+	Its easy to mess them up, even in small functions. (e.g LeoQuickSort ra<>rl)
+
+- Methods & Method Names
+  - Careful about element & elementIndex naming(e.g leftChild vs leftChildIndex)
+
+- Be attentive to & and &&
+  & is bit operation
+  && is logical operation.
+
+- Put everything into brackets
+  (val & (1 << index ) != 0)  << this has a mistake:
+  ((val & (1 << index )) != 0), bracket everything.
+
+//Collection diagram:
+http://3.bp.blogspot.com/-LUCDWSG5qXE/Uy_ee5bIR5I/AAAAAAAAAZA/oY1hR_1fcwk/s1600/Java+collection+cheat+sheet.PNG
+
+// Assertions
+jvm arg++: -ea
+assert expr
+assert expr : error_val

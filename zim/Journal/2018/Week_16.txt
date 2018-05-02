@@ -1,0 +1,42 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-23T11:35:50-04:00
+
+====== Week 16 ======
+22 April to 28 April
+
+====== Weekly Report ======
+Highlights:
+- Fixed Webkit2 crash due to broken C-Macro. #533545
+
+Last  7 Days:
+# Deep Wekbit2 crash on RHEL 7.4 investigation:
+- Investigated/Resolved Webkit2 crash reported by  Andrey Loskutov  on RHEL 7.4      #533545
+  * Could not reproduce on my system (tired RHEL7.4,  RHEL7.4 w/ KDE etc..).
+  * Read over code to see what 'could' be causing the crash.
+  * Suspected that a type-checking C-Macro was miss-behaving when ran from Java via JNI in conjunction with dynamically loaded library.
+  * Re-wrote signal handling logic in such a way that we don't use the Macro. Instead we use custom user data.
+  * Andrey tested the patch, it fixed the crash issue for him.
+  * Alex Kurtako told me that C-Macros don't work proper with Java, further confirming suspicion.
+  * Performed root-cause analysis and found 3 more locations in Webkit where type checking C-Macros could
+	potentially cause crashes. I will need to re-write some signal logic for these control flows also:
+	Bug 533833 - [Webkit2] Should not use G_TYPE_CHECK_INSTANCE_TYPE(..)
+  * Also investigated why Andrey's Webkit keeps opening new download windows instead of rendering html file,
+	 * Wrote a patch for Andrey to test his system,
+	 * I think he may have an issue with his MIME types on his system.
+
+# Webkit Wayland crash investigation:
+- Eric reproduced a Gnome-UI crash if content assist is invoked on Wayland only.
+  Alex.K & me reproduced the issue on our Fedora systems also.
+  We suspect it could be webkit related because content-assist uses webkit.
+  But most likley bug in Gnome-UI itself.
+  * No crash reports are generated, so I will need to manually bisect code base to find the cause of the crash
+	 and/or test with various   webkitgtk/gnome versions.
+   Bug 533710 - [Wayland][Webkit?] gnome-shell crashes when selecting an item from content assist
+
+
+Next 7 Days:
+- Fix related (potential) issues found by root-cause analysis: Bug 533833 - [Webkit2] Should not use G_TYPE_CHECK_INSTANCE_TYPE(..)
+- Bug 533710 - [Wayland][Webkit?] gnome-shell crashes when selecting an item from content assist
+- (minor) De-hard coding Adwaina fixes broke Ubuntu dark theme, need to implement different mechanism.
+

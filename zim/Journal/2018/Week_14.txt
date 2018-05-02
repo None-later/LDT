@@ -1,0 +1,71 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-02T11:20:20-04:00
+
+====== Week 14 2018 ======
+01 April to 07 April
+
+====== Day Logs ======
+
+=== Monday 02 April ===
+Reverted: 
+531048 – (TreeItemCheese) [GTK3] Large problems drawing ownerdraw tables
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=531048
+
+Work:
+530678 – [webkit2] UI hangs after navigating through Javadoc hover, when clicking an icon or link to an image.
+https://bugs.eclipse.org/bugs/show_bug.cgi?id=530678
+
+Learned:
+[[Home:Redhat:download for devs (older versions)]]
+[[Home:Theory, Tech, OS:Fedora:older versons]]
+
+=== Tuesday 03 April ===
+
+Reading JNI memory leak hunting tactics:
+https://stackoverflow.com/questions/33334126/how-to-find-memory-leaks-in-java-jni-c-process
+https://gdstechnology.blog.gov.uk/2015/12/11/using-jemalloc-to-get-to-the-bottom-of-a-memory-leak/
+
+
+
+====== Weekly Report ======
+Highlights:
+- Fixed Javadoc (webkit2) issue where opening external links would cause UI hang.
+
+Last 7 Days:
+- 530678 – [webkit2] UI hangs after navigating through Javadoc hover, when clicking an icon or link to an image.
+  * Issue caused by deadlock in webkit process.
+  * This is a regression starting with Webkit2.18. In 2.18 disposal mechanism was changed.
+  * Occured if you dispose browser inside a callback from Webkit, as it caused
+	webkit to wait for completion of callback which never completed.
+  * To break the deadlock, I implemented logic to un-parent webkit and delay
+	it's disposal.
+  * Researched memory leaks in JNI. (these are separate from main heap)
+  * Wrote a jUnit to verify that there no memory leaks in Webkit2 Browser dispoal logic.
+  * This fix also fixed: 494158 – [Webkit1][Webkit2] JVM crash when javadoc hover has <embed> tags
+
+- Investigated compute Browser size issue  (232501 - Browser#computeSize(..) does not compute size)
+  * Problem is that given HTML, one can't really compute size because
+	html doesn't specify sizes. Also there is dynamic content and font
+	can be of different sizes. Images can be scaled arbitarily by css etc..
+  * I.e, Browser widget size requires a notion of 'understanding' of what
+	the user intends to present. Which can't realy be done at the widget level.
+	I.e, this might be a wont-fix unless someone has a suggestion on this?
+
+- 527729 – Dehardcode Adwaita CSS theme fixes
+  * Implemented mechanism to only fix Adwaita issues if Adwaita system theme,
+	so as to not break other themes. (review in progress)
+
+- 532946 – Fix SwtTestUtil#isRunningOnEclipseOrgHudsonGTK
+
+Patch review:
+- 533124] [CTabFolder] Multi line text for tab title
+ * Fix looks good overall.
+ * Found corner case with dropdown menu. Discussing to use single line in the menu
+   which pops up if you have more tabs than fit into the view.
+
+(Misc Triage work)
+
+Next week:
+- Bug 531652 - Crash in webkit2 browser on fedora 27 inside Virtualbox
+

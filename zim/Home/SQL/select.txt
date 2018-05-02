@@ -1,0 +1,106 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-20T21:03:21-04:00
+
+====== Select ======
+Created Friday 20 April 2018
+
+==== # Syntax ====
+SQL-DML-Statement
+FROM table_name 
+WHERE predicate
+
+==== # Print out all fields with some conditions. ====
+SELECT * FROM `myTable` t 
+WHERE t.myField1 >= 100000 		# Numeric comparison.
+	AND T.myField2 = 'SomeStr';	    # String comparison.
+
+
+==== # Print a specific field: ====
+SELECT fieldA, fieldB .... 
+
+==== # Unique results with DISTINCT keyword ====
+http://www.geeksengine.com/database/basic-select/eliminate-duplicate-rows.php
+select DISTINCT
+
+==== # Where w/ some math ====
+Src: https://stackoverflow.com/questions/8100622/finding-even-or-odd-id-values
+where ((ID % 2) = 0)   # even
+where ((ID % 2) <> 0)  # odd.
+
+==== # Count output ====
+SELECT COUNT(CITY) FROM STATION;   # 499
+SELECT COUNT(DISTINCT CITY) FROM STATION;
+SELECT COUNT(CITY) - COUNT(DISTINCT CITY) FROM STATION;
+
+SELECT expr1, expr2, COUNT(aggregate_expression),
+FROM tables
+[where CONDITIONS]
+GROUP BY expression1, expression2,
+
+==== # ORDER RESULTS. ====
+... ORDER BY birth;  https://dev.mysql.com/doc/refman/8.0/en/sorting-rows.html
+
+==== # SELECT 1 from table where field=value; ====
+Return a set of 1's:
+1
+1
+1 .. 
+for every matching row.
+E.g useful to check if you have an entry for a given key:
+  if exists(select 1 from table where some_column = 'some_value')
+
+# Find longest String.  -> order by length(CITY)
+# Only get top X results.  (mysql == limit X, other db systems have 'select TOP X).
+SELECT CITY, length(CITY) FROM STATION group by city order by (length(CITY)) limit 1;
+SELECT CITY, length(CITY) FROM STATION group by city order by (length(CITY)) DESC limit 1;
+
+==== # Strings and Regex ====
+https://www.hackerrank.com/challenges/weather-observation-station-6/problem
+
+**# Select unique cities that start with vowels (a,e,i,o,u).**
+**# Can utilize 'LIKE'. It's case sensitive, so need to use LOWER(..).**
+SELECT DISTINCT CITY FROM STATION 
+WHERE LOWER(CITY) LIKE 'a%'
+	OR LOWER(CITY) LIKE 'e%'
+	OR .....;
+
+**# Alternatively, can use REGEXP. It's case-insensitive.**
+SELECT DISTINCT CITY FROM STATION 
+WHERE CITY REGEXP '^a|^e|^i|^o|^u';
+
+**Syntax:**
+^a  - starting with. (implies a.*  , e.g matches 'Alphabet').
+a$  - ending with a. (implies .*a  , e.g matches 'Mehalina')
+.   - any character
+* - zero or more occurances. e.g   .*   matches anything for any number of characters.
++   - one or more.
+
+[abc].*[efg] - grouping, e.g matches stuff like:  aZZZZZg  or bZZZZf
+P[^a]n - [^] means negative : P[NOT a]n
+Combined: [^abc]   Not a,b,c.  e.g:  ^[^abc]  not start with a,b,c.
+
+|  - logical OR  (COND1 | COND2).  e.g  '^[^abc]|[^xyz]$' < Doesn't start with abc or end with xyz.
+
+
+[:CLASS:] Classes of characters. E.g alnum  alpha  digit lower upper  etc...
+\\ - escape.
+
+REF:
+https://www.techonthenet.com/mariadb/functions/regexp.php
+
+E.g ending with vowels:
+SELECT DISTINCT CITY FROM STATION 
+WHERE CITY REGEXP 'a$|e$|i$|o$|u$';
+
+E.g starting and ending with vowels:
+SELECT DISTINCT CITY FROM STATION
+WHERE CITY REGEXP '^[aeiou].*[aeiou]$'
+
+E.g not starting with vowel.
+SELECT DISTINCT CITY FROM STATION
+WHERE CITY REGEXP '^[^aeiou]';
+
+E.g not ending with vowel.
+SELECT DISTINCT CITY FROM STATION
+WHERE CITY REGEXP '[^aeiou]$'

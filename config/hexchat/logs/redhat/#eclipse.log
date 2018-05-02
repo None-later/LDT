@@ -17458,3 +17458,719 @@ Mar 23 11:55:31 <nboldt>	instead of https://errata.devel.redhat.com/advisory/331
 Mar 24 14:07:50 *	Disconnected (Connection timed out)
 **** ENDING LOGGING AT Sat Mar 24 14:07:50 2018
 
+**** BEGIN LOGGING AT Mon Mar 26 09:40:43 2018
+
+Mar 26 09:40:43 *	Now talking on #eclipse
+Mar 26 09:40:43 *	Topic for #eclipse is: Eclipse discussions
+Mar 26 09:40:43 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 26 09:42:15 <scela>	lbullen: why did the TP contributions get reverted?
+Mar 26 09:42:43 <lbullen>	https://bugs.eclipse.org/bugs/show_bug.cgi?id=531602
+Mar 26 09:42:54 <nboldt>	mbooth: so... is there value in me redoing the errata auto waiver script so it works with the new html template ? 
+Mar 26 09:43:51 <lbullen>	scela,  broke Oomph Targlets, quickest fix was to revert and deal with when not focusing on getting Corrosion shipped
+Mar 26 09:47:16 <mbooth>	nboldt: I'm not sure, it probably won't take more than an hour to go through them manually.
+Mar 26 09:50:22 <mbooth>	nboldt: But maybe not worth updating if it's going to need changing every few months
+Mar 26 09:50:51 <mbooth>	Probably spend more time playing catchup than actually examining the waivers...
+Mar 26 09:57:38 <scela>	eclipse-team: weeklies due in ~1 hr guys
+Mar 26 11:00:43 <mbooth>	nboldt: Just tried doing some waivers manually, the new interface is loads quicker than the old errata tool interface... So there's that at least
+Mar 26 11:01:06 <scela>	akurtakov: mbooth joining?
+Mar 26 11:02:53 <nboldt>	mbooth: that's cool
+Mar 26 11:39:56 <scela>	eclipse-team:https://issues.jboss.org/secure/RapidBoard.jspa?rapidView=4243&quickFilter=14551
+Mar 26 11:52:18 <rgrunber>	nboldt: just when you were starting to get the hang of the magic of rpmland
+Mar 26 12:08:42 <nboldt>	rgrunber: I wouldn't say I have the hang of it. More like I didn't die in year one of Defence Against The Dark Arts class, but never got to year two
+Mar 26 12:19:52 <rgrunber>	nboldt: it's only the profs that don't last in that class. students tend to be fine..
+Mar 26 12:20:02 <rgrunber>	minus that whole battle for Hogwarts thing.
+Mar 26 12:32:42 <rgrunber>	akurtakov: is there some kind of approval process to post a thread on cross-project-issues-dev ?
+Mar 26 12:34:41 <rgrunber>	ie some recent thing.
+Mar 26 12:35:11 <rgrunber>	oh whoops
+Mar 26 12:35:13 <rgrunber>	nvm.. 
+Mar 26 12:39:45 <nboldt>	rgrunber: true... I just mean I haven't graduated to knowing all the mystical lore of "strange patches in the upstream" 
+Mar 26 13:37:46 <nboldt>	wow, these flatpaks are big. Gnome: 200M. Eclipse Committers: 485M. Eclipse Java: 332M. 
+Mar 26 13:39:11 <nboldt>	compare to Eclipse tar.gzs: Committers: 300M, Java: 185M. Why so much bigger, mbooth ?
+Mar 26 13:39:45 <nboldt>	(forgive the derp questions, I'm trying to be a supernoob first time user. Wearing my derp hat.)
+Mar 26 13:57:54 <rgrunber>	nboldt: i guess it includes the jdk as well ?.. would be a bit..
+Mar 26 13:59:27 <akurtakov>	nboldt: yeah, they are whole runtimes
+Mar 26 13:59:35 <akurtakov>	it includes gtk, jvm ...
+Mar 26 14:00:03 <akurtakov>	aka a libraries at version we know will be the same on whatever linux distro you run them
+Mar 26 14:01:10 <nboldt>	hmm. tried to install latest WTP into the flatpak Java bundle... 
+Mar 26 14:01:11 <nboldt>	  Missing requirement: XSL Core 1.2.0.v201802171654 (org.eclipse.wst.xsl.core 1.2.0.v201802171654) requires 'bundle org.eclipse.core.runtime [3.14.0,4.0.0)' but it could not be found
+Mar 26 14:01:35 <nboldt>	so how can I look in the flatpak to see what's installed in there? is it 3.13? 
+Mar 26 14:03:35 <akurtakov>	nboldt: so depending on whether you installed as root or as user
+Mar 26 14:03:56 <akurtakov>	look into /var/lib/flatpak
+Mar 26 14:04:13 <akurtakov>	app/org.eclipse.Platform
+Mar 26 14:04:23 <akurtakov>	or smth similar under ~/.local
+Mar 26 14:05:03 <akurtakov>	and org.eclipse.runtime is not there
+Mar 26 14:09:25 <akurtakov>	nboldt: oops there is version 3.14 
+Mar 26 14:24:58 <nboldt>	akurtakov: I see ./app/org.eclipse.Java/x86_64/4.7/841a6e2e4a88d41f2d95e3532a0f50c2a8a1bb5e30a51178657bb1c9e4666d02/files/eclipse/plugins/org.eclipse.core.runtime_3.13.0.v20170207-1030.jar ... where did you get 3.14?
+Mar 26 14:25:28 <akurtakov>	nboldt: I install org.eclipse.Platform
+Mar 26 14:25:34 <akurtakov>	which follows photon
+Mar 26 14:26:48 <akurtakov>	nboldt: http://eclipse.matbooth.co.uk/flatpak/nightly/
+Mar 26 14:26:49 <nboldt>	akurtakov: from a flatpak? or an update site?
+Mar 26 14:26:56 <nboldt>	ah
+Mar 26 14:27:06 <nboldt>	so much process not documented :(
+Mar 26 14:27:19 <akurtakov>	nboldt: write down thigns for Mat
+Mar 26 14:28:13 <nboldt>	akurtakov: where?
+Mar 26 14:28:27 <nboldt>	wiki? etherpad? gist? sticky note on my desk?
+Mar 26 14:29:12 <nboldt>	    Required runtime for org.eclipse.Platform/x86_64/Photon (org.gnome.Platform/x86_64/3.26) is not installed, searching...
+Mar 26 14:29:13 <nboldt>	    Found in several remotes:
+Mar 26 14:29:13 <nboldt>	    1) flathub
+Mar 26 14:29:13 <nboldt>	    2) gnome 
+Mar 26 14:29:13 <nboldt>	    Which do you want to install (0 to abort)? [0-2]: 1
+Mar 26 14:29:28 <nboldt>	so ... yeah. this feels just like an rpm install :)
+Mar 26 14:29:41 <nboldt>	but less verbose and slower :(
+Mar 26 14:30:16 <akurtakov>	nboldt: mail fo rnow
+Mar 26 14:30:29 <akurtakov>	nboldt: to the team list
+Mar 26 14:31:06 <akurtakov>	nboldt: runtimes are downloaded once and used for all apps
+Mar 26 14:31:19 <akurtakov>	so it's really like installing gnome first 
+Mar 26 14:31:35 <akurtakov>	but overall the direction is for distros to have some of these runtimes
+Mar 26 14:32:15 <akurtakov>	nboldt: it's still smaller and faster than docker imho :)
+Mar 26 14:32:26 <akurtakov>	and integrates in the desktop
+Mar 26 14:32:46 <akurtakov>	not perfect but best sandboxing we can get right now
+Mar 26 14:33:08 *	nboldt is downloading another 440mb to update platform bundle...
+Mar 26 14:34:49 <akurtakov>	nboldt: there are some areas where we can minimize deps 
+Mar 26 14:34:54 <akurtakov>	but that's for later
+Mar 26 14:35:00 *	akurtakov takes notes
+Mar 26 14:45:35 <nboldt>	akurtakov: ok, wtp can be installed into o.e.Platform flatpak, but not o.e.Java 
+Mar 26 14:45:59 <nboldt>	which means o.e.Java is outdated compared to o.e.Platform
+Mar 26 14:49:37 <akurtakov>	nboldt: yes, platform is the only photon
+Mar 26 14:49:46 <akurtakov>	rest is at oxygen level
+Mar 26 14:50:13 <nboldt>	akurtakov: so, where can I report bugs? take notes? is there an existing process?
+Mar 26 14:50:21 <akurtakov>	nboldt: not yet
+Mar 26 14:50:33 <akurtakov>	please reply to the mail I just replied 10 mins ago
+Mar 26 14:50:51 <nboldt>	ok
+Mar 26 18:47:48 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Mar 26 18:47:48 2018
+
+**** BEGIN LOGGING AT Tue Mar 27 09:16:21 2018
+
+Mar 27 09:16:21 *	Now talking on #eclipse
+Mar 27 09:16:21 *	Topic for #eclipse is: Eclipse discussions
+Mar 27 09:16:21 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Mar 27 09:54:37 <scela>	akurtakov: so Ed Merks is a platform committer now :)
+Mar 27 09:54:45 <akurtakov>	scela: yes
+Mar 27 09:55:10 <akurtakov>	I was tired of him complaining that noone reviews his oomph setup patches
+Mar 27 09:55:27 <akurtakov>	so I told him that I would propose him to maintain them direclty :)
+Mar 27 09:55:48 <akurtakov>	it's better that way than giving bad naming that we don't review patches
+Mar 27 09:56:01 <scela>	akurtakov: ok
+Mar 27 09:56:05 <scela>	is he up for doing that himself?
+Mar 27 09:56:20 <akurtakov>	scela: looks like it
+Mar 27 09:56:49 <scela>	akurtakov: sounds good
+Mar 27 09:57:09 <akurtakov>	scela: where did you get the info
+Mar 27 09:58:07 <scela>	akurtakov: the Eclipse secret services :)
+Mar 27 09:58:31 <scela>	akurtakov: eclipse-dev mailing list confirmation email :)
+Mar 27 09:58:50 <akurtakov>	aha
+Mar 27 10:42:24 <scela>	akurtakov: how are we looking on the java 10 upstream?
+Mar 27 10:43:06 <akurtakov>	scela: well, today I-build was unusable due to pde issue
+Mar 27 10:43:20 <akurtakov>	but with the additonal rebuild it seems doable
+Mar 27 11:14:22 <scela>	akurtakov: ok
+Mar 27 11:55:15 <patrickm>	lbullen: nice demo recording
+Mar 27 11:57:49 <scela>	lbullen: we got some nice feedback on the demo, thanks!
+Mar 27 13:56:02 <rgrunber>	reply-all'er not adding to the entropy of mailing list threads.. nboldt's on the case.
+Mar 27 13:57:34 <rgrunber>	i do have to say the level has gone down quite a bit the past few days
+Mar 27 14:29:47 <nboldt>	rgrunber: we are legion. we will re-educate them. 
+Mar 27 18:02:52 Python interface unloaded
+**** ENDING LOGGING AT Tue Mar 27 18:02:52 2018
+
+**** BEGIN LOGGING AT Thu Mar 29 15:36:28 2018
+
+Mar 29 15:36:28 *	Now talking on #eclipse
+Mar 29 15:36:28 *	Topic for #eclipse is: Eclipse discussions
+Mar 29 15:36:28 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Mon Apr  2 09:55:12 2018
+
+Apr 02 09:55:12 *	Now talking on #eclipse
+Apr 02 09:55:12 *	Topic for #eclipse is: Eclipse discussions
+Apr 02 09:55:12 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 02 10:31:24 <lufimtse>	good day.
+Apr 02 17:07:21 Python interface unloaded
+**** ENDING LOGGING AT Mon Apr  2 17:07:21 2018
+
+**** BEGIN LOGGING AT Wed Apr  4 08:56:55 2018
+
+Apr 04 08:56:55 *	Now talking on #eclipse
+Apr 04 08:56:55 *	Topic for #eclipse is: Eclipse discussions
+Apr 04 08:56:55 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 04 10:59:14 <rgrunber>	jjohnstn: any idea why rse is back out of simrel ? .. https://ci.eclipse.org/linuxtools/job/linuxtools-gerrit/11975/console
+Apr 04 11:00:32 <jjohnstn>	rgrunber: no, it is something I need to look into...right now I'm on the cdt call
+Apr 04 11:01:09 <rgrunber>	jjohnstn: kk fwiw.. i could manually add their repo and fix our stuff.. just wanna be sure it's not something that'll be fixed in a few hours.. or a day.
+Apr 04 11:01:42 <jjohnstn>	rgrunber: ok, go ahead
+Apr 05 05:32:46 <scela>	mbooth: hey
+Apr 05 05:32:54 <mbooth>	scela: Hi
+Apr 05 05:36:40 <scela>	mbooth: is roland taking care of https://bugzilla.redhat.com/show_bug.cgi?id=1560929#c8 ?
+Apr 05 05:37:04 <scela>	vkadlcik: how are we looking in general?
+Apr 05 05:39:40 <mbooth>	scela: Looks like Roland supplied a patch, I can apply it to a real build
+Apr 05 05:39:54 <scela>	mbooth: ok thanks
+Apr 05 05:40:48 <vkadlcik>	scela: I started on the new builds on Tue, regression testing is done now, no new issues, now i'm doing some exploratory testing and covering the new fixes
+Apr 05 05:42:12 <vkadlcik>	scela: of those 4 bugs i highlighted: 2 fixed, 1 in progress (you mentioned it above), what remains is the unfortunate security blacklist
+Apr 05 06:08:25 <scela>	vkadlcik: ok, thanks
+Apr 05 06:08:52 <scela>	and yeah mbooth is working on the blacklist which is really a pain
+Apr 06 10:32:46 <scela>	mbenitez: you should be good to go, flags were acked
+Apr 06 10:32:53 <scela>	duh mbooth ^
+Apr 06 10:33:07 <mbooth>	Thanks :-)
+Apr 06 10:33:13 <scela>	mb <tab> gives mbenitez precedence over mbooth 
+Apr 06 10:33:33 <mbooth>	Damn alphabet :-)
+Apr 06 10:34:33 <scela>	:)
+Apr 06 10:35:00 <mbenitez>	scela, I was worried my building skills are not up to date :P
+Apr 06 10:38:11 <scela>	mbenitez: :)
+Apr 06 13:47:11 <jjohnstn>	rgrunber: do you have a photon eclipse readily available with Docker Tooling installed?
+Apr 06 13:59:19 <rgrunber>	jjohnstn: i can run it from a target platform
+Apr 06 14:00:58 <jjohnstn>	I found a problem yesterday on my F27 desktop updated to latest...the Docker Containers and Images views only show the last column in the table...I think there is a regression but I don't know if it is caused by Weyland since I don't have access to the machine...my laptop at 7.4 is fine but I haven't updated since I got M6
+Apr 06 14:03:28 <rgrunber>	trying on my machine..
+Apr 06 14:05:27 <rgrunber>	seems to work for me but i can try against an I build.
+Apr 06 14:06:46 <jjohnstn>	ok, thx
+Apr 06 14:06:59 <rgrunber>	actully, our target is the 4.8-I-build
+Apr 06 14:07:01 <rgrunber>	I20180405-2000
+Apr 06 14:10:49 <jjohnstn>	hmm, I'll have to look at it when I'm in on Monday
+Apr 06 14:11:14 <rgrunber>	almost sounds like json format might have changed for containers/images ?
+Apr 06 14:11:28 <rgrunber>	but i have the latest rpm for docker
+**** ENDING LOGGING AT Fri Apr  6 15:14:37 2018
+
+**** BEGIN LOGGING AT Mon Apr  9 09:41:31 2018
+
+Apr 09 09:41:31 *	Now talking on #eclipse
+Apr 09 09:41:31 *	Topic for #eclipse is: Eclipse discussions
+Apr 09 09:41:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 09 10:07:04 <scela>	nboldt: according to mbooth webtools should be good for java 10 updates
+Apr 09 10:08:02 <mbooth>	Well, I updated to the latest code in Fedora and SCL -- the changes seemed very minor
+Apr 09 10:08:31 <mbooth>	Add an extra constant here, add an item to a list there, etc
+Apr 09 10:09:44 <scela>	nboldt: mbooth is this equivalent with saying that "webtools supports java 10" ?
+Apr 09 10:10:35 <mbooth>	AFAIK, yeah. I haven't installed a java 10 JDK to try it though... :-)
+Apr 09 10:14:07 <mbooth>	scela: I mean that the changes to support Java 10 seem very minor, e.g.: http://git.eclipse.org/c/webtools-common/webtools.common.git/commit/?h=R3_9_maintenance&id=27886aea837266c3dbb6a1e2562b5627a1e01af9
+Apr 09 10:24:08 <scela>	mbooth: I see
+Apr 09 10:24:13 <scela>	nboldt: wdyt? ^
+**** ENDING LOGGING AT Mon Apr  9 10:38:35 2018
+
+**** BEGIN LOGGING AT Mon Apr  9 10:44:17 2018
+
+Apr 09 10:44:17 *	Now talking on #eclipse
+Apr 09 10:44:17 *	Topic for #eclipse is: Eclipse discussions
+Apr 09 10:44:17 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 09 10:57:30 <scela>	eclipse-team: reports due in a couple of minutes, please take the time to send them out
+Apr 09 11:18:18 <nboldt>	scela: mbooth: not sure about wtp 3.9.4 supporting java 10 in oxygen.3a
+Apr 09 11:18:57 <nboldt>	see https://bugs.eclipse.org/bugs/show_bug.cgi?id=533162
+Apr 09 11:19:49 <mbooth>	Oh I may not have all the changes in that case
+Apr 09 11:20:03 <nboldt>	while I was on PTO, no one stepped up to push that into a build though, so it might not get into Oxygen.3a
+Apr 09 11:29:16 <scela>	nboldt: I see, mbooth could probably patch it downstream
+Apr 09 11:29:22 <scela>	nboldt: let's discuss in the call now
+Apr 09 11:29:56 <nboldt>	or I can fix it in wtp and have it be avail as an update for oxygen.3(a) users
+Apr 09 12:49:13 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr  9 12:49:13 2018
+
+**** BEGIN LOGGING AT Mon Apr  9 13:01:44 2018
+
+Apr 09 13:01:44 *	Now talking on #eclipse
+Apr 09 13:01:44 *	Topic for #eclipse is: Eclipse discussions
+Apr 09 13:01:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 09 13:02:03 <scela>	rgrunber: nice, thanks
+**** BEGIN LOGGING AT Mon Apr  9 16:06:44 2018
+
+Apr 09 16:06:44 *	Now talking on #eclipse
+Apr 09 16:06:44 *	Topic for #eclipse is: Eclipse discussions
+Apr 09 16:06:44 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Mon Apr  9 17:15:53 2018
+
+**** BEGIN LOGGING AT Tue Apr 10 09:17:00 2018
+
+Apr 10 09:17:00 *	Now talking on #eclipse
+Apr 10 09:17:00 *	Topic for #eclipse is: Eclipse discussions
+Apr 10 09:17:00 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 10 10:52:56 <mbenitez>	lufimtse, ericwill I'm at the office ready to crash your calls [enclave by Lisa's office]
+Apr 10 10:53:04 <lufimtse>	mbenitez, 
+Apr 10 10:53:08 <lufimtse>	mbenitez, hey
+Apr 10 10:53:15 <lufimtse>	mbenitez, I could come by now?
+Apr 10 10:53:34 <mbenitez>	lufimtse, sure, although Sopot may need 7 more minutes :)
+Apr 10 10:54:20 <scela>	mbenitez: lufimtse I'm fine, jump in Leo
+Apr 10 10:54:40 <lufimtse>	mbenitez, scela ok
+Apr 10 10:55:18 <mbooth>	jerboaa: Yay, thanks.
+Apr 10 10:55:36 <jerboaa>	mbooth, :)
+Apr 10 10:55:58 <jerboaa>	get it while it's still fresh ;-)
+Apr 10 11:08:04 <mbooth>	nboldt: Ah, for some reason I thought you were already committer for dali
+Apr 10 11:08:28 <mbooth>	nboldt: Your name is all over it ;-)
+Apr 10 11:09:10 <nboldt>	 mbooth: Neil's asked if I want to be a committer but then hasn't submitted the nomination yet
+Apr 10 11:09:36 <nboldt>	I can only say "guys, nominate me and you won't have to rubber stamp all my releng-related changes" so many times
+Apr 10 11:09:59 <nboldt>	It's to the point where I'm 90%+ of the commits in WTP right now, but only a committer on 1/3rd of the projects
+Apr 10 11:10:42 <nboldt>	mbooth: this change for Dali... you want it in Oxygen.3a / 3.9.x branch of WTP, as well as for Photon / 3.10?
+Apr 10 11:11:34 <nboldt>	hey, everyone who likes MM... can you upvote this? https://gitlab.cee.redhat.com/dtsd/housekeeping/issues/1500
+Apr 10 11:11:39 <mbooth>	nboldt: Just Photon is fine, the patch is already applied downstream everywhere I need it
+Apr 10 11:11:59 <nboldt>	mbooth: oh, ok... so I don't need to respin wtp 3.9.x to include this. #awesome
+Apr 10 11:13:29 <rgrunber>	nboldt: btw, are you following thread on cross-project-issues about signing, or https://bugs.eclipse.org/bugs/show_bug.cgi?id=533361 ? I see WTP (wst) bundles in there.
+Apr 10 11:14:51 <mbooth>	TIL there is an internal gitlab...
+Apr 10 11:16:08 <mbooth>	"There are 6,925 public projects on this server." :-o
+Apr 10 11:17:10 <mbooth>	Surprising it isn't a pagure.io instance. I probably ignored a long memo-list thread about that. 
+Apr 10 11:18:56 <rgrunber>	mbooth: you can revive the outrage
+Apr 10 11:19:45 <mbooth>	rgrunber: Hold my beer...
+Apr 10 11:30:34 <akurtakov>	mbooth: https://bugs.eclipse.org/bugs/show_bug.cgi?id=533390
+Apr 10 11:32:19 <akurtakov>	mbooth: if you have an idea how to help the situation using modules (you did smth similar for flatpak, right?) , please comment on the bug
+**** BEGIN LOGGING AT Tue Apr 10 16:53:08 2018
+
+Apr 10 16:53:08 *	Now talking on #eclipse
+Apr 10 16:53:08 *	Topic for #eclipse is: Eclipse discussions
+Apr 10 16:53:08 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Apr 11 10:45:45 2018
+
+Apr 11 10:45:45 *	Now talking on #eclipse
+Apr 11 10:45:45 *	Topic for #eclipse is: Eclipse discussions
+Apr 11 10:45:45 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 11 12:08:41 <scela>	rgrunber: hey
+Apr 11 12:08:46 <rgrunber>	hey
+Apr 11 12:11:01 <scela>	rgrunber: any reaction on that 'SurroundWithAnalyzer' bug?
+Apr 11 12:12:59 <rgrunber>	nothing currently. I considered updating a few things (copyright headers, making the single exposed method internal so even though there's no api, at least it's not in jdt.ui and can be used..)
+Apr 11 12:19:36 <rgrunber>	scela: onece i update the patch i can address Dani's concerns. currently the patch doesn't expose any internal api
+Apr 11 12:37:53 <rgrunber>	akurtakov: lbullen , just fyi, there's http://download.eclipse.org/tools/orbit/downloads/drops/I20180411145523/repository that should contain ant 1.10.3
+Apr 11 13:03:53 <akurtakov>	rgrunber: good, let's see when will sarika put it in platform
+Apr 11 14:09:09 <akurtakov>	nboldt: trying to update today and I end up with https://paste.fedoraproject.org/paste/ODSG5Q8cGVFLi3ehbEqg6Q
+Apr 11 14:10:00 <akurtakov>	would you please check what's wrong with wtp contributions
+Apr 11 14:26:13 <nboldt>	akurtakov: looks like you're trying to update from 3.9.2 to 3.9.0
+Apr 11 14:26:16 <nboldt>	  Software being installed: Eclipse Java Web Developer Tools 3.9.0.v201803221834 (org.eclipse.jst.web_ui.feature.feature.group 3.9.0.v201803221834)
+Apr 11 14:26:16 <nboldt>	  Software currently installed: Eclipse Web Developer Tools 3.9.2.v201803282043 (org.eclipse.wst.web_ui.feature.feature.group 3.9.2.v201803282043)
+Apr 11 14:26:44 <nboldt>	akurtakov: how are you updating?
+Apr 11 14:26:48 <akurtakov>	nboldt: well, I do have staging photon and photon
+Apr 11 14:26:53 <akurtakov>	and just do check for updates
+Apr 11 14:27:13 <nboldt>	staging photon site should have wtp 3.9.4RC2
+Apr 11 14:28:20 <nboldt>	wait... that's jst.web.ui being installed, and wst.web.ui already installed. they shouldn't conflict
+Apr 11 14:35:57 <akurtakov>	nboldt: yeah, really weird
+Apr 11 15:52:30 <akurtakov>	nboldt: found it
+Apr 11 15:52:39 <akurtakov>	I had oxygen enabled also
+Apr 11 15:52:55 <akurtakov>	so the oxygen version seems to be newer than photon m6
+Apr 11 19:32:38 <nboldt>	akurtakov: that makes sense, it was built more recently
+Apr 11 19:32:57 <nboldt>	but if the x.y.z version is greater for oxygen than photon, we can has a bug
+Apr 11 19:35:38 <nboldt>	akurtakov: can you list me which IUs were conflicting ? was it just org.eclipse.wst.css.ui ?
+Apr 12 06:13:35 <scela>	mbooth: vkadlcik so are we going for the subclipse inclusion?
+Apr 12 06:14:30 <vkadlcik>	scela: i'm looking at it
+Apr 12 06:15:35 <vkadlcik>	scela: does not work for me, i'm going to file a bug
+Apr 12 06:17:15 <scela>	vkadlcik: ok, thanks
+Apr 12 06:17:21 <scela>	akurtakov: cc^
+Apr 12 06:44:04 <vkadlcik>	scela: mbooth: akurtakov: https://bugzilla.redhat.com/show_bug.cgi?id=1566445
+Apr 12 06:45:10 <mbooth>	vkadlcik: Thanks, looking now
+Apr 12 06:45:52 <vkadlcik>	mbooth: i haven seen subclipse for ages, i hope i got it right
+Apr 12 06:46:38 <mbooth>	vkadlcik: I think most sane people moved to git :-)
+Apr 12 06:46:55 <scela>	mbooth: do we have pydev 6.3.1 in 2018.2?
+Apr 12 06:47:24 <mbooth>	scela: 6.3.2
+Apr 12 06:47:40 <scela>	mbooth: ok, I'm trying to find some release notes for it
+Apr 12 06:47:43 <scela>	mbooth: have it handy?
+Apr 12 06:48:06 <vkadlcik>	scela: http://www.pydev.org/history_pydev.html
+Apr 12 06:48:26 <mbooth>	scela: usually on the front page of http://www.pydev.org/ too -- about half way down
+Apr 12 06:49:32 <scela>	vkadlcik: I was looking exactly at that page that's why I asked about 6.3.1 as it's the last entry there
+Apr 12 06:49:37 <scela>	but we seem to have 6.3.2
+Apr 12 06:50:06 <scela>	it's on the main page though ... thanks mbooth 
+Apr 12 06:54:14 <akurtakov>	wow, I barely remember what svn was :)
+Apr 12 06:54:43 <scela>	mbooth: any other release worth mentioning?
+Apr 12 06:55:04 <akurtakov>	mbooth: which backend is it using
+Apr 12 06:55:23 <mbooth>	akurtakov: svnkit
+Apr 12 06:56:01 <akurtakov>	mbooth: could it be a mismatch aka svnadmin creating smth that svnkit can't read ?
+Apr 12 06:56:38 <mbooth>	akurtakov: Reading remote repos seems to work fine, error only comes after cloning a repo
+Apr 12 06:56:45 <mbooth>	s/cloning/checkout/
+**** BEGIN LOGGING AT Thu Apr 12 09:16:07 2018
+
+Apr 12 09:16:07 *	Now talking on #eclipse
+Apr 12 09:16:07 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 09:16:07 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 12 09:31:12 <vkadlcik>	mbooth: Mat, can we sync on the status?
+Apr 12 09:31:16 <vkadlcik>	https://docs.google.com/spreadsheets/d/1lbIer5k0GCXVAm85vna_pBizS1q4CAmS9eDWM1UjR90/edit#gid=0
+Apr 12 09:32:36 <vkadlcik>	vkadlcik: i saw in brew failures on the platform, is there an issue?
+Apr 12 09:33:43 <vkadlcik>	mbooth: i saw in brew failures on the platform, is there an issue?
+Apr 12 09:35:54 <mbooth>	Hmm, there seems to be a strange problem with xmvn and zip files: https://brewweb.engineering.redhat.com/brew/getfile?taskID=15777115&volume=DEFAULT&name=build.log&offset=-4000
+Apr 12 09:36:23 <mbooth>	Not quite sure what the cause is yet
+Apr 12 09:37:49 <vkadlcik>	mbooth: ok, let's move to othes lines
+Apr 12 09:38:22 <vkadlcik>	mbooth: WDYT about the gson?
+Apr 12 09:43:38 <mbooth>	vkadlcik: I think this should be fixed in the devstudio rpm -- I just need to submit a PR for it
+Apr 12 09:46:31 <vkadlcik>	mbooth: and the subclipse problem?
+Apr 12 09:47:22 <vkadlcik>	mbooth: i don't get the comment in BZ - if I somehow install newer svn, will it work?
+Apr 12 09:48:05 <mbooth>	vkadlcik: Yes, I am testing on Fedora where I have a newer svn -- the svn in base rhel is quite old and doesn't support newer working copy format
+Apr 12 09:48:57 <vkadlcik>	mbooth: ok, thanks, i'll have a look as well
+Apr 12 09:52:06 <vkadlcik>	mbooth: the last thing is the Jeff's patch on linuxtools - i'd suggest to drop it from this release, we have enough problems at this moment
+Apr 12 09:52:17 <mbooth>	vkadlcik: Agreed :-)
+Apr 12 09:52:18 <mbooth>	vkadlcik: Subclipse seems to mangling a file in the workspace called: workspace/.metadata/.plugins/org.eclipse.core.resources/.projects/<project_name>/.syncinfo
+Apr 12 09:52:26 <mbooth>	I am trying to debug it
+Apr 12 10:31:57 <strykerawb>	Anyone here know how to close an lsp connection without incurring exceptions? 
+Apr 12 10:32:54 <scela>	lbullen: ^
+Apr 12 10:33:12 <scela>	strykerawb: any link to a specific bug/issue?
+Apr 12 10:34:24 <strykerawb>	scela,   i've been asked to make a new protocol based on some of the lsp core stuff
+Apr 12 10:34:26 <strykerawb>	https://github.com/robstryker/org.jboss.tools.ssp/blob/master/client-bindings/src/main/java/org/jboss/tools/ssp/client/bindings/ServerManagementClientLauncher.java
+Apr 12 10:34:58 <strykerawb>	if i just call closeConnection() i get stacktraces of broken connection etc.   ie, not a clean closing.  
+Apr 12 10:35:06 <rgrunber>	if i had to guess i would say you need to close through the api (ie. shutdown + exit.. or something).. and not secretly just close the socket.
+Apr 12 10:35:13 <scela>	strykerawb: lbullen should be able to provide you with an example of a clean closing
+Apr 12 10:35:17 <rgrunber>	* lsp api
+Apr 12 10:36:45 <lbullen>	strykerawb, are you using lsp4e?
+Apr 12 10:37:11 <strykerawb>	using lsp4j
+Apr 12 10:37:16 <strykerawb>	0.4.0.M6 i believe
+Apr 12 10:37:58 <strykerawb>	basically i took the typefox example of a chat app and started hacking it into something i can use 
+Apr 12 10:39:49 <lbullen>	Can you give me a link to a stack trace you're getting?
+Apr 12 10:40:14 <strykerawb>	https://paste.fedoraproject.org/paste/okqR4hnDVDdMa3bsrTUN0A
+Apr 12 10:40:21 <strykerawb>	its clearly bc im just closing the socket directly
+Apr 12 10:40:32 <strykerawb>	but i cant imagine what other way to do it. I don't see any api to clean-close the connection
+Apr 12 10:40:56 <lbullen>	what client are you using?
+Apr 12 10:41:42 <strykerawb>	.... um... one i made?
+Apr 12 10:41:50 <strykerawb>	ServerManagementClientLauncher 
+Apr 12 10:42:26 <strykerawb>	basically i have access to a Launcher ?
+Apr 12 10:42:26 <strykerawb>	import org.eclipse.lsp4j.jsonrpc.Launcher;
+Apr 12 10:42:26 <strykerawb>	import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
+Apr 12 10:42:53 <strykerawb>	these provide methods like StartListening, but i don't see any methods to close anything?
+Apr 12 10:44:27 <strykerawb>	https://github.com/robstryker/org.jboss.tools.ssp/blob/master/client-bindings/src/main/java/org/jboss/tools/ssp/client/bindings/ServerManagementClientLauncher.java#L27   
+Apr 12 10:44:53 <strykerawb>	my closeConnection() is clearly not correct... i cannot simply close the socket 
+Apr 12 10:45:08 <strykerawb>	but i dont see any other methods in Launcher to do it? 
+Apr 12 10:45:23 <lbullen>	one second, have a thought
+Apr 12 10:48:57 <lbullen>	org.eclipse.lsp4j.services.LanguageServer has shutdown()
+Apr 12 10:49:24 <lbullen>	message sent from the client to the server to say that it will no longer call it and is allowed to end the process
+Apr 12 10:51:01 <strykerawb>	k let me see if i have that visible.  thnx.  
+Apr 12 10:51:32 <strykerawb>	hrmm... not visible for me
+Apr 12 10:51:48 <strykerawb>	lbullen,  what version of lsp4j is that in? or a link to the github for it 
+Apr 12 10:52:06 <strykerawb>	i'll just google it i guess
+Apr 12 10:52:07 <strykerawb>	;)
+Apr 12 10:53:36 <strykerawb>	ah its in languageserver.  i was too quick.  hrmm. 
+Apr 12 10:57:52 <strykerawb>	i see.  the client can only ask the server to sever the connection.  The client shouldn't do it itself. now need to find the server impl for this. 
+Apr 12 11:00:45 <lbullen>	correct, I have a tutorial on building language servers with lsp4j from a few months ago that might help https://github.com/LucasBullen/LSP4J_Tutorial
+Apr 12 11:01:47 <scela>	lbullen: nice! :)
+Apr 12 11:07:18 <strykerawb>	lbullen,   your example's shutdown only returns true   :o    doesn't actually close any clients  or sockets 
+Apr 12 11:07:41 <akurtakov>	mbooth: https://www.eclipse.org/cbi/maven-plugins/documentation/1.1.5/eclipse-flatpak-packager/package-flatpak-mojo.html
+Apr 12 11:07:53 <akurtakov>	nice you did it good 
+Apr 12 11:08:19 <rgrunber>	mbooth++
+Apr 12 11:09:24 <lbullen>	strykerawb, right... it was a tutorial on making servers not clients whoops, one second will send you how lsp4e does it as the actual shutting down happens there
+Apr 12 11:09:34 <strykerawb>	thanks!  :D 
+Apr 12 11:10:22 <mbooth>	akurtakov: Cool
+Apr 12 11:11:10 <mbooth>	flatpak-packager:package-flatpak package flatpackage packagepak flappy package
+Apr 12 11:11:22 <mbooth>	Too much repetition in the docs :-)
+Apr 12 11:11:32 <scela>	mbooth: :)
+Apr 12 11:37:02 <lbullen>	strykerawb, at https://github.com/robstryker/org.jboss.tools.ssp/blob/master/client-bindings/src/main/java/org/jboss/tools/ssp/client/bindings/ServerManagementClientLauncher.java#L40
+Apr 12 11:37:08 <lbullen>	You should save the result of launcher.startListening() and call isDone() when you wish to close the server, this will fix the execption issue as it will exit the org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen()'s while(keepRunning) loop which is the cause of the exception.
+Apr 12 11:37:54 <lbullen>	It is not an issue about how to close the server you are having, it is an issue with stopping the client from calling the server after it is closed
+Apr 12 11:38:31 <lbullen>	(tell me if this ends up terribly wrong)
+Apr 12 11:40:36 <strykerawb>	i'll give it a test. :) 
+Apr 12 11:41:18 <strykerawb>	i dont even specifically want to close the server.  What i'm trying to do is allow the client to 'hang up the phone' 
+Apr 12 11:41:27 <strykerawb>	the server can take multiple clients 
+Apr 12 11:41:36 <strykerawb>	if the client just closes the socket, exceptions all over the place 
+Apr 12 11:42:01 <strykerawb>	so i can add a shutdown method to the server interface, but that just shifts the responsibility to 'hang up' to the server instead 
+Apr 12 11:47:59 <lbullen>	To have a server with multiple clients, you'll need a client manager to be sort of the middle man between multiple clients and the one server, so the client manager would start/stop the server and would make all the calls from the clients to the server. Haven't gone through your code to know if you do this or not
+Apr 12 11:51:09 <strykerawb>	lbullen,   got it :D   startListeningResult.cancel(true);   shuts down the client perfectly 
+Apr 12 11:51:38 <lbullen>	strykerawb, great to hear
+Apr 12 12:52:41 <rgrunber>	jjohnstn: lufimtse ericwill lbullen : is everyone good with Wednesday May 16th @ 14:00 - 14:45 for our Eclipse Team Talk to the new interns ?
+Apr 12 12:52:55 <rgrunber>	ie. https://mojo.redhat.com/docs/DOC-1159143
+Apr 12 12:53:10 <lbullen>	right, I will be out of country
+Apr 12 12:53:26 <ericwill>	rgrunber fine by me
+Apr 12 12:53:44 <rgrunber>	lbullen: are you in the country anytime between 14th-17th ?
+Apr 12 12:53:48 <lbullen>	No
+Apr 12 12:53:53 <rgrunber>	kk
+Apr 12 12:54:43 <lbullen>	I leave after next week, so I can prep something for you guys to show if you think that is of value
+Apr 12 12:55:18 <ericwill>	lbullen rgrunber I think the incoming intern's work assignment is TBD
+Apr 12 12:56:05 <rgrunber>	can always talk about the last 2 or 3 intern's work assignments :P
+Apr 12 12:56:14 <rgrunber>	for some hints.
+Apr 12 12:56:36 <ericwill>	rgrunber yeah I will prepare the SWT/platform UI slides
+Apr 12 12:59:27 <jjohnstn>	rgrunber: fine with me...not sure about the pillars requirement and why interns need to know this
+Apr 12 13:01:03 <rgrunber>	pillars?
+Apr 12 13:01:08 <rgrunber>	jjohnstn: ^ >
+Apr 12 13:07:32 <jjohnstn>	rgrunber: see lbullen's initial note including:  Your project's aims, goals, and how it fits into Red Hat's overall
+Apr 12 13:07:33 <jjohnstn>	  strategy. (three pillars presentation)
+Apr 12 13:08:11 <rgrunber>	ah the initial e-mail.
+Apr 12 13:12:29 <rgrunber>	jjohnstn|lunch: my guess would be in order to show how what we do ties into the container strategy, how we support openshift and osio.. etc.
+**** BEGIN LOGGING AT Thu Apr 12 14:03:41 2018
+
+Apr 12 14:03:41 *	Now talking on #eclipse
+Apr 12 14:03:42 *	Topic for #eclipse is: Eclipse discussions
+Apr 12 14:03:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 13 03:57:55 <scela>	vkadlcik: mbooth morning
+Apr 13 03:58:38 <vkadlcik>	good morning, gentlemen
+Apr 13 04:00:22 <scela>	vkadlcik: good morning vaclav. Did you already get the handout?
+Apr 13 04:01:01 <vkadlcik>	scela: not yet, i suppose mbooth is still looking at the sublipse problem
+Apr 13 04:02:35 <scela>	vkadlcik: I see, let's wait for mbooth maybe he has solved it already
+Apr 13 05:08:58 <mbooth>	scela, vkadlcik: So I made some progress, looks like the problem is in svnkit itself -- I am able to make it work using a slightly older version of the svnkit library.
+Apr 13 05:11:09 <mbooth>	Just about to try building a new RPM -- The last erratum waiver came in over night (needed a security team person to waive something) so I can switch it to QE straight away if we'd prefer not to wait
+Apr 13 05:13:23 <vkadlcik>	mbooth: only after you add the build
+Apr 13 05:13:48 <vkadlcik>	mbooth: will the rpm work? :-)
+Apr 13 05:20:28 <mbooth>	vkadlcik: If there is any justice in the universe :-)
+Apr 13 05:21:53 <vkadlcik>	mbooth: i have some doubt it was worth it in the end... i think most devs use version control both in eclipse and in cli; the customer wanted a subclipse rpm so they could avoid other install sources, now they would (probably) need to install a non-rpm subversion...
+Apr 13 05:22:34 <vkadlcik>	mbooth: robbing Peter to pay Paul?
+Apr 13 06:09:11 <mbooth>	vkadlcik, scela: Build added, erratum set to QE 
+Apr 13 06:09:30 <vkadlcik>	mbooth: thanks!
+Apr 13 06:09:30 *	mbooth goes to look at documentation now
+Apr 13 06:21:20 <scela>	mbooth: thanks Mat
+Apr 13 06:21:38 <scela>	vkadlcik: let me know if anything else is needed
+Apr 13 06:21:57 <vkadlcik>	scela: sure, thanks
+Apr 13 08:28:23 <scela>	vkadlcik: so svn bug is fixed?
+Apr 13 08:28:41 <vkadlcik>	scela: looks that way
+Apr 13 08:28:51 <scela>	cool
+Apr 13 08:28:55 <scela>	cc mbooth 
+Apr 13 08:29:07 <mbooth>	\ó/
+Apr 13 10:05:33 <ericwill>	mbooth thanks for the last minute backporting re: that context menu bug :)
+Apr 13 10:07:41 <mbooth>	ericwill: np -- glad we got everything in that was needed 
+Apr 13 12:04:30 <rgrunber>	ericwill: get in there and crush my dreams https://bugzilla.redhat.com/show_bug.cgi?id=1566922
+Apr 13 12:04:50 <rgrunber>	maybe i can find a workaround or something.. i'd have to look
+**** BEGIN LOGGING AT Mon Apr 16 10:04:37 2018
+
+Apr 16 10:04:37 *	Now talking on #eclipse
+Apr 16 10:04:37 *	Topic for #eclipse is: Eclipse discussions
+Apr 16 10:04:37 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 16 10:18:58 <scela>	eclipse-team: weekly due in ~40mins and we as a reminder we have the all-hands today also in ~40 mins
+Apr 16 11:14:38 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Mon Apr 16 11:14:38 2018
+
+**** BEGIN LOGGING AT Mon Apr 16 14:01:34 2018
+
+Apr 16 14:01:34 *	Now talking on #eclipse
+Apr 16 14:01:34 *	Topic for #eclipse is: Eclipse discussions
+Apr 16 14:01:34 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Tue Apr 17 11:48:28 2018
+
+Apr 17 11:48:28 *	Now talking on #eclipse
+Apr 17 11:48:28 *	Topic for #eclipse is: Eclipse discussions
+Apr 17 11:48:28 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 17 11:55:58 <scela>	lbullen: thanks for demos Lucas, nice work :)
+**** BEGIN LOGGING AT Tue Apr 17 16:35:50 2018
+
+Apr 17 16:35:50 *	Now talking on #eclipse
+Apr 17 16:35:50 *	Topic for #eclipse is: Eclipse discussions
+Apr 17 16:35:50 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Wed Apr 18 10:02:39 2018
+
+Apr 18 10:02:39 *	Now talking on #eclipse
+Apr 18 10:02:39 *	Topic for #eclipse is: Eclipse discussions
+Apr 18 10:02:39 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Thu Apr 19 10:01:17 2018
+
+Apr 19 10:01:17 *	Now talking on #eclipse
+Apr 19 10:01:17 *	Topic for #eclipse is: Eclipse discussions
+Apr 19 10:01:17 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 20 06:34:56 <scela>	jerboaa: thanks, I'll do that
+Apr 20 06:35:27 <jerboaa>	:)
+Apr 20 07:00:38 <scela>	akurtakov: is the list of eclipse packages in that base rhel 8 email thread exhaustive?
+Apr 20 07:06:09 <scela>	jerboaa: FYI https://bugzilla.redhat.com/show_bug.cgi?id=1569947 :)
+Apr 20 07:24:12 <akurtakov_>	scela: as long as eclipse is removed all others will not resolve so should be good :)
+Apr 20 07:24:26 <akurtakov_>	releng will catch if there is anything else
+Apr 20 07:24:39 <scela>	akurtakov_: ok
+Apr 20 09:41:56 <nboldt1>	akurtakov_: https://git.eclipse.org/r/#/c/121481/ << I think I've found the culprit for why RSE isn't in simrel
+Apr 20 09:42:07 <nboldt1>	spoiler alert: it me.
+Apr 20 09:49:34 <akurtakov_>	nboldt1: nice one :)
+Apr 20 09:50:03 <nboldt1>	akurtakov_: yea, well credit/flames where credit/flames are due
+Apr 20 09:50:43 <nboldt1>	now waiting on https://ci.eclipse.org/simrel/job/simrel.photon.runaggregator.VALIDATE/ to complete, plus the 3 jobs downstream
+Apr 20 09:51:06 <nboldt1>	when https://ci.eclipse.org/simrel/job/simrel.photon.promoteToStaging/ is done, you should see RSE in the photon staging site
+Apr 20 09:51:36 <nboldt1>	thanks for reporting this! test early, test often, complain loudly, get shit fixed. :)
+Apr 20 09:51:45 <nboldt1>	akurtakov_: ^
+Apr 20 09:53:38 <akurtakov_>	nboldt1: I tried to move dltk to photon as it uses platform internals which have changed
+Apr 20 09:53:45 <akurtakov_>	and was blocked by this one
+Apr 20 09:54:04 <akurtakov_>	although I thought simply removing the rse bits there too :)
+Apr 20 09:55:12 <nboldt1>	well, hopefully this will let you use the new RSE bits
+Apr 20 10:36:20 *	mbooth notes that DLTK should be ported to ptp.remote some day
+Apr 20 10:36:49 <mbooth>	Or something like that
+Apr 20 10:58:03 <akurtakov_>	mbooth: or the remote stuff be dropped altogether :)
+Apr 20 12:39:33 <nboldt>	jjohnstn: can I safely assume that http://download.eclipse.org/linuxtools/updates-docker-nightly/ contains the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=533846 ?
+Apr 20 12:40:02 <jjohnstn>	checking...
+Apr 20 12:40:17 <nboldt>	http://git.eclipse.org/c/linuxtools/org.eclipse.linuxtools.git/commit/?id=8667011aee6b69d9baf534907b4e527171db6be7 -> http://download.eclipse.org/linuxtools/updates-docker-nightly/plugins/
+Apr 20 12:40:34 <nboldt>	I see  org.eclipse.linuxtools.docker.integration.tests_2.1.0.201804201600.jar (not 2.0.1) so I assume this is the newer stuff
+Apr 20 12:40:42 <jjohnstn>	nboldt: no, it was just committed today so won't be available until tonight's build..I can start one now if you want
+**** BEGIN LOGGING AT Fri Apr 20 12:40:52 2018
+
+Apr 20 12:40:52 *	Now talking on #eclipse
+Apr 20 12:40:52 *	Topic for #eclipse is: Eclipse discussions
+Apr 20 12:40:52 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 20 12:40:53 Apr 20 12:40:53 <nboldt>	just not sure about the timestamp. is that UTC?
+<nboldt>	just not sure about the timestamp. is that UTC?
+Apr 20 12:41:08 Apr 20 12:41:08 <jjohnstn>	checking again
+<jjohnstn>	checking again
+Apr 20 12:41:10 <nboldt>	because it's in the future :)
+Apr 20 12:41:10 <nboldt>	because it's in the future :)
+Apr 20 12:41:17 Apr 20 12:41:17 <nboldt>	04/20 16:00 ?
+<nboldt>	04/20 16:00 ?
+Apr 20 12:41:31 Apr 20 12:41:31 <nboldt>	please do start one
+<nboldt>	please do start one
+Apr 20 12:42:21 <nboldt>	I also see reddeer 2.1 in the repo, not 2.0
+Apr 20 12:42:21 <nboldt>	I also see reddeer 2.1 in the repo, not 2.0
+Apr 20 12:42:29 Apr 20 12:42:29 <nboldt>	so... maybe it's already built?
+<nboldt>	so... maybe it's already built?
+Apr 20 12:42:37 <nboldt>	jjohnstn: ^
+Apr 20 12:42:37 <nboldt>	jjohnstn: ^
+Apr 20 12:42:43 Apr 20 12:42:43 <jjohnstn>	nboldt: actually a build was already started and completed...yes, it is UTC
+<jjohnstn>	nboldt: actually a build was already started and completed...yes, it is UTC
+Apr 20 12:43:22 <nboldt>	cool, I'll pull this build then
+Apr 20 12:43:22 <nboldt>	cool, I'll pull this build then
+**** ENDING LOGGING AT Fri Apr 20 15:23:06 2018
+
+**** BEGIN LOGGING AT Mon Apr 23 11:00:14 2018
+
+Apr 23 11:00:14 *	Now talking on #eclipse
+Apr 23 11:00:14 *	Topic for #eclipse is: Eclipse discussions
+Apr 23 11:00:14 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 23 11:46:25 <nboldt>	akurtakov: https://projects.eclipse.org/projects/webtools/elections/election-nick-boldt-committer-eclipse-web-tools-platform-project
+Apr 23 11:46:55 <rgrunber>	:(
+Apr 23 11:48:02 <akurtakov>	nboldt: hmm, so Kaloyan is a committer but the build is done yet
+Apr 23 11:48:07 <akurtakov>	err. the voting
+Apr 23 11:49:48 <nboldt>	akurtakov: it expired already? thought I had another day
+Apr 23 11:51:30 <akurtakov>	nboldt: it says it's done
+Apr 23 11:51:48 <akurtakov>	This election failed to receive the required number of votes in the alotted time.
+Apr 23 11:53:02 <akurtakov>	mbooth: http://git.eclipse.org/c/platform/eclipse.platform.releng.aggregator.git/commit/?id=b66f2552209ff6ea0e94146eefbe8cc6f90ca018
+Apr 23 11:53:27 <nboldt>	akurtakov: yeah, just saw that. wasn't sure what time today it would expire :(
+Apr 23 11:53:55 <nboldt>	oh, well, WTP process fault. I'll bug Nitin about it
+Apr 23 11:55:15 <akurtakov>	nboldt: you should ask them to merge projects :)
+Apr 23 11:55:26 <nboldt>	lo, riiiiight. that'll never happen
+Apr 23 11:55:28 <akurtakov>	this one with releng fit well together :)
+Apr 23 11:58:18 <nboldt>	vkadlcik: https://github.com/jbosstools/jiralint/blob/master/bzira.py
+Apr 23 11:58:30 <nboldt>	that's the bz -> jira scraper
+Apr 23 11:58:51 <vkadlcik>	nboldt: thanks
+Apr 23 11:58:51 <nboldt>	it's not set up for RHECLIPSE, just for RHT and EBZ projects in JBoss JIRA
+Apr 23 12:29:47 <vkadlcik>	scela: nboldt: i've just checked the devtools rpm channels, the new rh-eclipse47 release has been fully published including rh-eclipse47-devstudio-11.3-0.20180413.0814.el7.x86_64
+Apr 23 12:33:32 <scela>	vkadlcik_gone: thanks
+Apr 23 12:33:41 <scela>	mbenitez: ^
+Apr 23 12:35:24 <rgrunber>	akurtakov: https://bugs.eclipse.org/bugs/show_bug.cgi?id=510163
+Apr 23 12:36:30 <rgrunber>	pretty soon we'll be getting dirty looks from the SWT crew
+Apr 23 12:37:01 <rgrunber>	of which i'm say, 5% equity member :P
+Apr 23 12:37:58 <rgrunber>	akurtakov: i see what you mean.. https://mvnrepository.com/artifact/com.ibm.icu/icu4j .. we're a little behind..
+Apr 23 12:51:03 <mbenitez>	vkadlcik_gone, scela, thanks for the update!
+Apr 24 05:17:49 <akurtakov>	mbooth: I haven't seen any eclipse flatpak updates lately? did thebuild stop for some reason?
+Apr 24 05:18:06 <mbooth>	I'll check
+Apr 24 05:23:23 <akurtakov>	mbooth: thanks
+Apr 24 06:20:58 <akurtakov>	mbooth: is there smth we should upstream for m2e ?
+Apr 24 06:23:59 <mbooth>	akurtakov: No, the rebuilds for m2e stuff were due to a problem in https://github.com/takari/tycho-support/
+Apr 24 06:56:34 <akurtakov>	mbooth: ok, thanks
+**** ENDING LOGGING AT Tue Apr 24 10:53:27 2018
+
+**** BEGIN LOGGING AT Tue Apr 24 11:03:13 2018
+
+Apr 24 11:03:13 *	Now talking on #eclipse
+Apr 24 11:03:13 *	Topic for #eclipse is: Eclipse discussions
+Apr 24 11:03:13 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue Apr 24 12:58:45 2018
+
+**** BEGIN LOGGING AT Tue Apr 24 12:58:48 2018
+
+Apr 24 12:58:48 *	Now talking on #eclipse
+Apr 24 12:58:48 *	Topic for #eclipse is: Eclipse discussions
+Apr 24 12:58:48 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 24 13:07:33 <jjohnstn>	nboldt: linux tools master is building...will let you know when it is done
+Apr 24 13:18:57 <nboldt>	jjohnstn|lunch: thanks!
+**** ENDING LOGGING AT Tue Apr 24 13:24:27 2018
+
+**** BEGIN LOGGING AT Tue Apr 24 13:24:31 2018
+
+Apr 24 13:24:31 *	Now talking on #eclipse
+Apr 24 13:24:31 *	Topic for #eclipse is: Eclipse discussions
+Apr 24 13:24:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue Apr 24 13:32:18 2018
+
+**** BEGIN LOGGING AT Tue Apr 24 13:36:52 2018
+
+Apr 24 13:36:52 *	Now talking on #eclipse
+Apr 24 13:36:52 *	Topic for #eclipse is: Eclipse discussions
+Apr 24 13:36:52 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue Apr 24 13:41:37 2018
+
+**** BEGIN LOGGING AT Tue Apr 24 13:49:31 2018
+
+Apr 24 13:49:31 *	Now talking on #eclipse
+Apr 24 13:49:31 *	Topic for #eclipse is: Eclipse discussions
+Apr 24 13:49:31 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 24 13:52:26 <jjohnstn>	nboldt: it's done
+Apr 24 13:54:52 <patrickm>	jjohnstn: i invited you to a jamboard, in case you're wondering where that email was generated 
+Apr 24 14:04:52 <jjohnstn>	patrickm: I went to the site...it said my browser may not be adequate...saw nothing, went back to work...later looked at it and saw some frames had stuff in it but I could seem to do anything on any frame so closed it
+Apr 24 14:07:22 <rgrunber>	jjohnstn: you can't do anything from a desktop.. only a touch enabled device iirc.
+Apr 24 14:07:35 <patrickm>	yeah, we were just playing around with sharing / invites / etc
+Apr 24 14:07:43 <jjohnstn>	ok, thx
+Apr 24 14:07:50 <patrickm>	rgrunber: well... you can view
+Apr 24 15:08:11 <nboldt>	jjohnstn: great, thanks
+Apr 24 15:12:15 <jjohnstn>	np
+Apr 25 05:43:55 <akurtakov>	mbooth: so is there a problem with flatpak generation?
+Apr 25 09:03:00 <mbooth>	akurtakov: Check for a new build shortly -- I was still using 1.1.5-SNAPSHOT version of cbi plugins :-o
+Apr 25 12:21:08 <rgrunber>	lbullen: strykerawb is having some lsp issues.. i'm assuming he means lsp4j. any idea where those have a channel (irc/mattermost..) ?
+Apr 25 12:22:28 <lbullen>	rgrunber: Don't know about irc or mattermost, but the mailing list might be a good place to go: https://accounts.eclipse.org/mailing-list/lsp4j-dev
+Apr 25 12:28:30 <strykerawb>	lbullen,   im using org.eclipse.lsp4j 0.4.0.M6 to build a different protocol...  and whenever i send a Map<String, Object>  it will send my java.lang.Integer values as java.lang.Double 
+Apr 25 12:28:45 <strykerawb>	really weird 
+Apr 25 12:47:21 <lbullen>	strykerawb: that is weird, bring the issue to the email list, they will know better than me
+**** BEGIN LOGGING AT Thu Apr 26 09:23:11 2018
+
+Apr 26 09:23:11 *	Now talking on #eclipse
+Apr 26 09:23:11 *	Topic for #eclipse is: Eclipse discussions
+Apr 26 09:23:11 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 26 10:08:02 <scela>	akurtakov: hey
+Apr 26 10:08:09 <akurtakov>	scela: hey
+Apr 26 10:08:26 <scela>	akurtakov: how much do you know about RHEL 8 modules?
+Apr 26 10:08:32 <scela>	cc mbooth ^
+Apr 26 10:08:38 <akurtakov>	scela: nothing tbh
+Apr 26 10:08:46 <akurtakov>	I followed the UI part only
+Apr 26 10:09:09 <scela>	akurtakov: ok
+Apr 26 10:09:10 <akurtakov>	and there were plans to make flatpak first class citizen
+Apr 26 10:09:31 <akurtakov>	scela: what I know is that modularity is based on Fedora one
+Apr 26 10:09:49 <akurtakov>	although there are no stable modules in Fedora so 
+Apr 26 10:11:50 <mbooth>	I heard modularity went away for a re-design: https://communityblog.fedoraproject.org/modularity-dead-long-live-modularity/
+Apr 26 10:12:11 <mbooth>	TBH I haven't looked into it much since then
+Apr 26 10:12:53 <akurtakov>	scela: why? are we supposed to change from scl to some modules ?
+Apr 26 10:13:27 <scela>	akurtakov: no, we can use SCL in rhel 8 also
+Apr 26 10:17:53 <scela>	akurtakov: for now we stick to bringing flatpak up to a solid shape
+Apr 26 10:18:13 <scela>	akurtakov: there's no mandatory SCL->Module for RHEL 8
+Apr 26 10:18:14 <akurtakov>	yup, that's my idea too
+Apr 26 10:18:33 <akurtakov>	mbooth: how do we go with photon in rawhide
+Apr 26 10:18:48 <scela>	akurtakov: we could consider it only if it makes our process/life easier compared to SCL, but not because we have to
+Apr 26 10:19:25 <akurtakov>	scela: well, it can simplify only if we stop supporting rhel 7 or rhel7 gets modules backported somehow
+Apr 26 10:19:46 <akurtakov>	so far I haven't heard any of these being considered
+Apr 26 10:19:56 <mbooth>	akurtakov: Nearly there
+Apr 26 10:20:17 <akurtakov>	and the former is just not serious as rhel8 will need some time post release for customers to update
+Apr 26 10:21:20 <scela>	akurtakov: yep
+Apr 26 10:22:02 <scela>	akurtakov: SCLs will still be good in RHEL8 so nothing to worry about
+Apr 26 10:22:20 <scela>	akurtakov: wanted to know how much you know so that I learn it also without crashing in mojo
+Apr 26 10:22:38 <akurtakov>	scela: yeah, IMHO we should consider modules once we don't have to supprot RHEL 7 and if flatpak move failed
+Apr 26 10:23:35 <scela>	akurtakov: ok
+Apr 26 10:23:35 <mbooth>	akurtakov, scela: BTW next SCL release would be only for newer RHEL 7s (IIRC 7.4+ -- i.e. only places where webkit2 is available)
+Apr 26 10:23:48 <akurtakov>	mbooth: :)
+Apr 26 10:24:05 <akurtakov>	it was about time for sanity to come :)
+Apr 26 10:24:16 *	mbooth just kicked away a bunch of patches and conditional spec file
+Apr 26 10:24:58 <ericwill>	no webkit1...no GTK2 :)
+Apr 26 10:25:37 <mbooth>	ericwill: We're living in the future now :-)
+Apr 26 10:31:03 <ericwill>	mbooth now if only we can get upstream SWT to live in the same future
+Apr 26 10:47:55 <akurtakov>	ericwill: it's up to you :)
+Apr 26 10:48:20 <akurtakov>	fix the GTK3 specific bugs and I'll make sure gtk2 is removed :)
+Apr 26 10:52:13 <ericwill>	akurtakov on it :)
+**** ENDING LOGGING AT Thu Apr 26 16:13:13 2018
+
+**** BEGIN LOGGING AT Thu Apr 26 16:46:36 2018
+
+Apr 26 16:46:36 *	Now talking on #eclipse
+Apr 26 16:46:36 *	Topic for #eclipse is: Eclipse discussions
+Apr 26 16:46:36 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** BEGIN LOGGING AT Fri Apr 27 10:35:24 2018
+
+Apr 27 10:35:24 *	Now talking on #eclipse
+Apr 27 10:35:24 *	Topic for #eclipse is: Eclipse discussions
+Apr 27 10:35:24 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 27 10:47:52 <rgrunber>	akurtakov: Noopur should have access now
+Apr 27 10:49:56 <akurtakov>	rgrunber: cool
+Apr 27 10:50:00 <akurtakov>	how did you do it ?
+Apr 27 10:50:18 <akurtakov>	google apps are still non understandable for me
+Apr 27 10:50:35 <rgrunber>	it's strange. apparently there's a 'share' button to manage permissions of everyone but only the owner of the doc can do it.
+Apr 27 10:50:57 <rgrunber>	i wanted to make you owner, but then it removes my ownership.. not sure if i can have multiple people able to add others.. would have to see..
+**** BEGIN LOGGING AT Fri Apr 27 15:33:03 2018
+
+Apr 27 15:33:03 *	Now talking on #eclipse
+Apr 27 15:33:03 *	Topic for #eclipse is: Eclipse discussions
+Apr 27 15:33:03 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Fri Apr 27 16:17:04 2018
+
+**** BEGIN LOGGING AT Mon Apr 30 11:10:17 2018
+
+Apr 30 11:10:17 *	Now talking on #eclipse
+Apr 30 11:10:17 *	Topic for #eclipse is: Eclipse discussions
+Apr 30 11:10:17 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+Apr 30 12:40:40 <nboldt>	mbooth: hey, do we need an rh-eclipse48 component in RHECLIPSE tracker?
+Apr 30 12:40:56 <nboldt>	because, Photon != eclipse47
+Apr 30 12:42:28 <nboldt>	asking because I just created one, and I could batch-move all these 38 issues to that new component. https://issues.jboss.org/issues/?jql=project%20%3D%20RHECLIPSE%20AND%20component%20%3D%20rh-eclipse47
+Apr 30 12:42:50 <nboldt>	unless some of them will be fixed in z-stream releases of 4.7.x ?
+Apr 30 12:52:45 <scela>	nboldt: no we got no plans for z-stream
+Apr 30 12:53:24 <scela>	so we need rh-eclipse48 anyway 
+Apr 30 12:53:27 <scela>	akurtakov: mbooth cc
+Apr 30 12:54:56 <nboldt>	scela: should I move all the issues then?
+Apr 30 12:56:05 <nboldt>	assuming yes in 5... 
+Apr 30 12:56:07 <nboldt>	4...
+Apr 30 12:56:20 <nboldt>	3...
+Apr 30 12:56:35 <nboldt>	2...
+Apr 30 12:56:47 <nboldt>	1... scela ...
+Apr 30 12:57:22 <nboldt>	38 issues bulk moved with no email spam. https://issues.jboss.org/issues/?jql=project%20%3D%20RHECLIPSE%20AND%20component%20%3D%20rh-eclipse48
+Apr 30 12:57:34 <nboldt>	mbooth: scela: akurtakov: ^
+Apr 30 13:06:23 <scela>	nboldt: thanks
+Apr 30 13:06:32 <akurtakov>	nboldt: thanks :) no z-stream plan so far :)
+Apr 30 14:02:30 <jjohnstn|wfh>	rgrunber: ok if I open the bug for BodyDeclarationRewrite refactoring or do you want to do it?
+Apr 30 14:03:39 <rgrunber>	jjohnstn|wfh: you can go ahead. just file it under JDT UI and add me in there as CC
+Apr 30 14:05:25 <jjohnstn|wfh>	ok, thx
+Apr 30 17:23:17 Python interface unloaded
+**** ENDING LOGGING AT Mon Apr 30 17:23:17 2018
+
+**** BEGIN LOGGING AT Tue May  1 14:13:42 2018
+
+May 01 14:13:42 *	Now talking on #eclipse
+May 01 14:13:42 *	Topic for #eclipse is: Eclipse discussions
+May 01 14:13:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+**** ENDING LOGGING AT Tue May  1 17:02:39 2018
+

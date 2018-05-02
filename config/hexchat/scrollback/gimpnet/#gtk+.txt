@@ -1,829 +1,615 @@
-T 1521731939 18<Company18>	ricotz: originally it was exported for GnomeCanvas' multiline editing canvasitem and then it just kept being exported
-T 1521731971 18<ricotz18>	I see
-T 1521732032 18<ricotz18>	thanks
-T 1521732050 18<Company18>	things are so much easier to explain if you answer "why" question not with "what is the reason" but with "how did it happen"
-T 1521732102 18<ricotz18>	;)
-T 1521736986 18<kre10s18>	Where can I find a list of ThemedIcon names I can pass to Gio.ThemedIcon(name='...')? like 'document-properties' and the like?
-T 1521737013 18<baedert18>	the answer is that there is no exhaustive list and icon themes can ship or not ship whatever they want
-T 1521737026 18<baedert18>	which is why gtk3-icon-browser hardcodes its list
-T 1521737111 18<kre10s18>	so when I make an app it's a coin toss if or not they icons actually show?
-T 1521737170 18<baedert18>	that's why icon themes are crap, in a nutshell
-T 1521737184 18<kre10s18>	there is no defualt fallback of stuff guaranteed to exist?
-T 1521737215 18<kre10s18>	how about a probably maybe likeley to exist?
-T 1521737227 18<baedert18>	well the ones gtk3-icon-browser shows are pretty likely to exist
-T 1521737240 18<Company18>	baedert: gtk3-icon-browser uses the GtkIconTheme API to enumerate all icons
-T 1521737258 18<baedert18>	it had a hardcoded list of icons last time I checked
-T 1521737273 18<Company18>	maybe to categorize them?
-T 1521737274 18<Company18>	dunno
-T 1521737312 18<Company18>	there is gtk_icon_theme_list_icons() at least
-T 1521737352 18<baedert18>	demos/icon-browser/icon.list ?
-T 1521737435 18<Company18>	maybe for descriptions?
-T 1521737553 18<Company18>	baedert: hrm, seems the icon browser does indeed not use list_icons
-T 1521737557 18<Company18>	:/
-T 1521737568 18<Company18>	but fishbowl does!
-T 1521737732 18<kre10s18>	lol. and then you have something like gedit using "format-justify-fill-symbolic" as the main menu icon... what's the point of the names again?
-T 1521737820 18<borschty18>	is it a known issue that the rounded corners look a bit different in gtk4? seems to happen with both the opengl and cairo renderer (can't test vulkan)
-T 1521737852 18<Company18>	they should look the same with cairo I think
-T 1521737894 18<baedert18>	some weirdos want to theme their desktops, dunno
-T 1521737900 18<Company18>	GL uses a slightly different algorithm to do the rounding than Cairo does, so it's enough to trip off a pixel-exact comparison
-T 1521737927 18<baedert18>	border darawing is also slightly borked with the cairo renderer
-T 1521737981 18<Company18>	our whole rendering machinery is not generating very beautiful output
-T 1521738041 18<borschty18>	seems like the corner is rendered a bit too bright (or with not enough alpha)
-T 1521738059 18<baedert18>	HELP PREMULTIPLIED ALPHA
-T 1521738088 18<baedert18>	afaik the transparent overlay scrollbars are also drawn too transparent atm
-T 1521738217 18<baedert18>	Meh I guess I just have to differentiate between the bounding box size and the actual paintable size
-T 1521738287 18<Company18>	paintables have no size
-T 1521738300 18<Company18>	that's what makes them so cool!
-T 1521738342 18<Company18>	that's also why you have pass a size when you snapshot them
-T 1521738412 18<Company18>	it's also an important concept to wrap ones head around
-T 1521738439 18<kre10s18>	So I use builder.get_object("menubar") to build a menumodel. In the xml I specify accelerators. How do I hook them up to a window so they actually work?
-T 1521738477 18<kre10s18>	builds a Gio.Menu actually...
-T 1521738575 18<TingPing18>	kre10s, gtk_application_set_menubar
-T 1521738596 18<borschty18>	also interesting: the first page in widget factory uses 30% cpu here with opengl, but only 20% when using cairo
-T 1521738680 18<kre10s18>	TingPing: that sets the menubar for the entire application. I have multiple windows with their own menus.
-T 1521738696 18<baedert18>	Can you even define accelerators in GMenu?
-T 1521738705 18<TingPing18>	kre10s, then gtk_menu_bar_new_from_model()
-T 1521738714 18<TingPing18>	baedert, yes
-T 1521738719 18<Company18>	borschty: do you have some sort of crap gpu or crap drivers?
-T 1521738729 18<kre10s18>	Does it have to be a menu bar?
-T 1521738734 18<borschty18>	crap gpu
-T 1521738752 18<TingPing18>	kre10s, what else did you want? a menubutton?
-T 1521738755 18<Company18>	because on my laptop, GL is usually about 10x faster than cairo
-T 1521738780 18<Company18>	borschty: in gtk4-demo, you can run the fishbowl demo
-T 1521738781 18<baedert18>	but does it use more cpu to be faster?
-T 1521738782 18<borschty18>	Company, it is in widgetbowl/fishbowl
-T 1521738795 18<borschty18>	but in widget-factory, cairo is faster
-T 1521738805 18<borschty18>	or rather uses less cpu
-T 1521738838 18<Company18>	borschty: how many fishies do you get with maximized fishbowl?
-T 1521738840 18<mclasen18>	regarding icon themes, I still think we should consider shipping icons with the theme in gtk
-T 1521738845 18<kre10s18>	TingPing: yes a menubutton that I can shove into the header bar. I have done this but the accelerators are not respected. I create the menubutton then set the model.
-T 1521738874 18<baedert18>	borschty: are you using mesa?
-T 1521738895 18<Company18>	mclasen: I have a bunch of opinions about what to do with GTK theme / icon theme in the future, but so far was busy arguing other things so never brought it up
-T 1521738907 18<TingPing18>	kre10s, you sure you don't want the app wide menu? They can still have window actions in them?
-T 1521738911 18<borschty18>	baedert, mesa with an intel gpu on fedora 28
-T 1521738940 18<baedert18>	borschty: what does the widget-factory with  GALLIUM_HUD=fps,cpu show?
-T 1521738953 18<TingPing18>	kre10s, if not you probably have to manually add accelerators to the gtkapplication
-T 1521738967 18<kre10s18>	TingPing: the actions are so different from window to window that the app wide menu contains 50% menu items that are insensitive.
-T 1521738986 18<kre10s18>	also the app wide menu takes up additional space.
-T 1521739006 18<borschty18>	baedert, unfortunately nothing, because intel doesn't use gallium
-T 1521739006 18<Company18>	mclasen: have you seen https://people.freedesktop.org/~company/stuff/widgception.webm ?
-T 1521739026 18<mclasen18>	I have not!
-T 1521739039 18<kre10s18>	wait. Are accelerators an application wide thing? I need accelerators per window.
-T 1521739077 18<baedert18>	TIL that widget translates to Dingsbums
-T 1521739081 18<borschty18>	is there a way to speed up how fast fishbowl creates new icons?
-T 1521739118 18<Company18>	no
-T 1521739145 18<Company18>	well, hacking the code would work
-T 1521739373 18<borschty18>	1400 icons at 56 fps
-T 1521739376 18<borschty18>	in opengl
-T 1521739404 18<Company18>	that is not a bad gpu
-T 1521739500 18<baedert18>	that's less than I get
-T 1521739504 18<baedert18>	my gpu is from 2008
-T 1521739529 18<baedert18>	borschty: You might want to try updating libepoxy in jhbuild
-T 1521739536 18<baedert18>	that made a huge difference to me
-T 1521739559 18<borschty18>	rebuilt everything earlier this week
-T 1521739583 18<baedert18>	hmm there was actually a release since then
-T 1521739585 18<borschty18>	350 icons at 56 fps in cairo
-T 1521739620 18<Company18>	you always get monitor refresh rate -5-10% reported in our benchmarks
-T 1521739680 18<Company18>	which is what i recently found out when I realized that I only have a 48Hz monitor
-T 1521739707 18<Company18>	and you get that -5-10% because our reporting is borked
-T 1521739723 18<Company18>	because everybody is using the frame clock wrong (oops)
-T 1521739761 18<feaneron18>	cool. the vulkan renderer is not leaking like crazy anymore
-T 1521739779 18<Company18>	feaneron: I fixed that a few weeks ago
-T 1521739791 18<feaneron18>	what was going on?
-T 1521739798 18<TingPing18>	kre10s, there are many ways to have bindings. IMO the simple method is in your application bind it to your window actions
-T 1521739814 18<Company18>	feaneron: you need to free renderbuffers that you are going to reuse
-T 1521739823 18<borschty18>	libepoxy refuses to rebuild, so i guess i'm already at the latest version
-T 1521739846 18<Company18>	feaneron: so it was a thing i never thought i'd have to look at
-T 1521739900 18<feaneron18>	but the gl renderer is broken on master now
-T 1521739912 18<feaneron18>	happiness last short
-T 1521739921 18<Company18>	it works for me
-T 1521739954 18<kre10s18>	Is there a way to extract the acceleratores from the menu? because they are given in the xml. builder should be creating them even if they are not being added to the app.
-T 1521739960 18<feaneron18>	Company: Failed to realize renderer of type 'GskGLRenderer' for surface 'GdkWaylandSurface': Unable to create 'blend' program (from blend.vs.glsl and blend.fs.glsl):
-T 1521739963 18<feaneron18>	Compilation failure in vertex shader:
-T 1521739965 18<feaneron18>	0:13(16): error: `u_modelview' undeclared
-T 1521739966 18<feaneron18>	0:13(30): error: `u_projection' undeclared
-T 1521739986 18<Company18>	what?
-T 1521740007 18<Company18>	that's code that is identical to GTK3's GL support
-T 1521740016 18<TingPing18>	kre10s, maybe g_menu_item_get_attribute()
-T 1521740052 18<TingPing18>	kre10s, it might be easier at that point to just move it into the code..
-T 1521740078 18<baedert18>	blend program is unused anyway
-T 1521740086 18<Company18>	ah no, that's GSK
-T 1521740128 18<baedert18>	feaneron: that does any test print with GDK_DEBUG=opengl?
-T 1521740233 18<feaneron18>	baedert: this is the output → https://paste.gnome.org/plmmx3zoa
-T 1521740293 18<baedert18>	OpenGL Version 0.0
-T 1521740297 18<baedert18>	yay
-T 1521740305 18<feaneron18>	:)
-T 1521740308 18<baedert18>	GL implementation doesn't support any form of non-power-of-two textures
-T 1521740339 18<feaneron18>	i don't know if something is terribly broken with my setup
-T 1521740359 18<feaneron18>	glamor isn't working nicely too, xwayland is screwing up, etc
-T 1521740382 18<baedert18>	so if this is choosing the legacy shaders, they are definitely broken
-T 1521740394 18<feaneron18>	i tried to comment out the blend program, and the same error popped up for the blit program
-T 1521740402 18<feaneron18>	so it's definitely not GTK's fault
-T 1521740435 18<baedert18>	paste.gnome.org is so annoying, I can't double-click a word because it scrolls down
-T 1521740484 18<feaneron18>	cool, we have flatpak manifests for widget factory now
-T 1521740487 18<feaneron18>	builder likes that
-T 1521740520 18<Company18>	feaneron: we have CI building flatpaks for widget-factory for every checkin
-T 1521740578 18<baedert18>	we now need a meta test like testgtk (but less shitty) that can run all tests in tests/ and all examples from examples/
-T 1521740647 18<Company18>	one thing I really want to have is the ability to compile gtk-demo files as self-contained executables
-T 1521740680 18<Company18>	if we had that, we could port the tests to it and run the same wrapper around it
-T 1521740684 18<feaneron18>	as in, flatpak bundles?
-T 1521740698 18<baedert18>	and then what?
-T 1521740743 18<Company18>	baedert: and then you have a gtk-demo like app with all the tests
-T 1521740764 18<baedert18>	wait that's what I wanted
-T 1521740770 18<baedert18>	you said the opposite
-T 1521740783 18<Company18>	well yeah, kinda
-T 1521740789 18<Company18>	(1) make gtk-demo tests self-contained
-T 1521740800 18<Company18>	(2) make gtk-demo wrap self-contained tests
-T 1521740806 18<Company18>	(3) reuse that ability for tests/
-T 1521740831 18<baedert18>	(4) finally delete testgtk
-T 1521740848 18<Company18>	testgtk is really useful to see how well stupid ideas still work
-T 1521740863 18<Company18>	AND IT STILL SCROLLS THE BUTTONLIST EVERY TIME I CLICK A BUTTON!
-T 1521740935 18<baedert18>	NO I CHANGED THAT THE OTHER DAY
-T 1521740950 18<borschty18>	here is the sysprof output of widget-factory with different renderers: https://pastebin.com/gVkhx7xb (cairo) and https://pastebin.com/PYaPbM4F (opengl)
-T 1521740953 18<Company18>	i had it like 2 days ago
-T 1521740977 18<borschty18>	seems like most time in the opengl case is spent in the driver (and that i'm not using epoxy from jhbuild for some reason)
-T 1521741064 18<Company18>	that is not very useful sysprof data, is it?
-T 1521741143 18<borschty18>	true
-T 1521741145 18<Company18>	the first thing I notice is that you don't have debug symbols for GTK
-T 1521741167 18<borschty18>	that would be odd, because it's from jhbuild
-T 1521741171 18<Company18>	or at least not for widget-factory
-T 1521741199 18<Company18>	because the sysprof list immediately stops even though it's ordered by cumulative
-T 1521741210 18<Company18>	it should start with main() using 100% CPU
-T 1521741226 18<Company18>	and then gtk_main() or g_application_run() using 99.9%
-T 1521741245 18<borschty18>	i started sysprof with widget factory already running, maybe that's why main doesn't show up
-T 1521741264 18<feaneron18>	cool, everything is working again
-T 1521741278 18<feaneron18>	wow, the vulkan renderer is ~fast~
-T 1521741293 18<Company18>	borschty: did you stop sysprof with widget-factory still running?
-T 1521741300 18<borschty18>	yes
-T 1521741304 18<Company18>	weird
-T 1521741314 18<Company18>	no idea what's causing it to fail then
-T 1521741348 18<Company18>	oh!
-T 1521741365 18<Company18>	borschty: are you compiling with -fno-omit-frame-pointer ?
-T 1521741434 18<borschty18>	i'm not adding it manually, but maybe it is set by jhbuild or by some fedora gcc config
-T 1521741461 18<Company18>	using it unfucks sysprof
-T 1521741480 18*	borschty adds it to jhbuild
-T 1521741510 18<Company18>	you should then rebuild everything (at least glib, gtk - but pango + cairo doesn't hurt either
-T 1521741522 18<Company18>	feaneron: what makes you think the vulkan renderer is fast?
-T 1521741533 18<borschty18>	i'll also install debug symbols for the driver
-T 1521741533 18<Company18>	feaneron: benchmark numbers or sth else?
-T 1521741558 18<feaneron18>	Company: i ran widget and fish bowl and vulkan outperformed cairo and gl
-T 1521741582 18<Company18>	it does for me, too
-T 1521741584 18<feaneron18>	pretty quickly
-T 1521741614 18<Company18>	not sure why Vulkan wins fishbowl yet
-T 1521741618 18<borschty18>	is there a better way of adding this than os.environ['CFLAGS'] in jhbuildrc?
-T 1521741632 18<Company18>	ie if the GL renderer does a worse thing or if it's really Vulkan being better than GL
-T 1521741654 18<Company18>	borschty: no idea, i have it in my CFLAGS in .bashrc
-T 1521741700 18<Company18>	as in: everything I compile anywhere in the world has that set
-T 1521741832 18<AndroUser218>	About that GTask thread stuff IDETask, does that mean that I can't pass GtkWidget's to Python threads either?
-T 1521741858 18<feaneron18>	"python threads"
-T 1521741868 18<baedert18>	snakes on a thread
-T 1521741888 18<baedert18>	if those are normal threads then no
-T 1521741899 18<baedert18>	if they are some sort of user space fake thread then maybe
-T 1521741915 18<feaneron18>	first, you can't use GTask in python
-T 1521741923 18<feaneron18>	second, python has no real threads
-T 1521741941 18<feaneron18>	third, one should never ~ever~ pass widgets to threads
-T 1521741952 18<AndroUser218>	Why is that then stuff's faster with more threads?
-T 1521741990 18<feaneron18>	in python, using threads slows down your app
-T 1521742012 18<feaneron18>	python guidelines explicitly say that one should use subprocesses
-T 1521742016 18<TingPing18>	feaneron, you can use gtask in python, just not the thread api, you use python threads
-T 1521742047 18<AndroUser218>	But it doesn't, more threads = faster!
-T 1521742063 18<Company18>	that's why gpus are so fast
-T 1521742067 18<Company18>	they are multithreaded
-T 1521742068 18<feaneron18>	i only believe in benchmarks
-T 1521742082 18<Company18>	Vulkan uses more threads than GL!
-T 1521742101 18<feaneron18>	python has a global lock for threads. simple as that. there are no real threads in python
-T 1521742114 18<TingPing18>	right, threads in python are mostly for io tasks
-T 1521742118 18<baedert18>	but more locks = faster
-T 1521742128 18<AndroUser218>	Only Python code is locked AFAIK and I use threads to run GdkPixbuf stuffs and other processes.
-T 1521742131 18<Company18>	baedert is a GStreamer expert!
-T 1521742158 18<feaneron18>	right but now you're not talking about python, you're talking about c
-T 1521742170 18<feaneron18>	gdkpixbuf is written in c, and python calls into c
-T 1521742176 18<feaneron18>	c has real threads, python doesn't
-T 1521742208 18<AndroUser218>	I mean if I store widget in thread, can bad things happen like in GTask?
-T 1521742219 18<baedert18>	Yes.
-T 1521742226 18<Company18>	if you use widgets in threads, your app is gonna explode
-T 1521742240 18<Company18>	all gtk functions must be called in the same thread
-T 1521742248 18<AndroUser218>	Even if I use only GLib.idle_add to communicate?
-T 1521742263 18<Company18>	if you use GTK functions: yes
-T 1521742303 18<AndroUser218>	I wish there was a true PEOPLEONEmode to at least some scripting language...
-T 1521742319 18<baedert18>	this shit again
-T 1521742325 18<TingPing18>	lol
-T 1521742340 18<AndroUser218>	I.e. where everything unsafe is protected to max.
-T 1521742357 18<TingPing18>	AndroUser2, use javascript. no threads at all
-T 1521742368 18<Company18>	JS has worker threads
-T 1521742377 18<TingPing18>	Company, which you can't share state with
-T 1521742384 18<Company18>	of course
-T 1521742389 18<Company18>	but it has threads!
-T 1521742391 18<AndroUser218>	GJS too?
-T 1521742412 18<TingPing18>	AndroUser2, GJS has no threading beyond what the C libs do internally
-T 1521742420 18<Company18>	worker threads are an amazing invention
-T 1521742450 18<Company18>	they are real PEOPLEONE threads you could say
-T 1521742471 18<AndroUser218>	Yes I do think this way.
-T 1521742492 18<Company18>	you can't do anything in them - but not being able to do anything means you can't mess up your state either
-T 1521742513 18<AndroUser218>	Why don't widgets guard against destruction in a thread anyway?
-T 1521742513 18<baedert18>	sounds really PEOPLEONE
-T 1521742534 18<Company18>	AndroUser2: because it's faster not to do that
-T 1521742615 18<Company18>	baedert: i like worker threads because they do threading as a lightweight form of actual processes
-T 1521742646 18<Company18>	baedert: which is the sane way to do threads: Identify self-contained tasks, run those tasks in a different thread
-T 1521742685 18<AndroUser218>	Where can I get a phone number of a UFO so they can get me some cyborg implants to be able to use threads with GTK and Python?
-T 1521742689 18<Company18>	baedert: but if you have large (read-only or write-only) data you want to share with that thread, spawning a process is inefficient
-T 1521742713 18<AndroUser218>	😑
-T 1521742780 18*	baedert scratches head
-T 1521742785 18<baedert18>	why does this suddenly work
-T 1521742889 18<kre10s18>	TingPing: when manually creating accelerators and adding them to the window the accelerator text (ctrl+shift+k) is not displayed next to the menu item. interestingly the action does get bound.
-T 1521742897 18<kre10s18>	how to get both?
-T 1521742984 18<Company18>	kre10s: accelerators are only shown when using the keyboard
-T 1521743010 18<baedert18>	wat
-T 1521743034 18<kre10s18>	um... yea.
-T 1521743052 18<baedert18>	https://paste.xinu.at/TgfiR/
-T 1521743054 18<baedert18>	\o/
-T 1521743151 18<AndroUser218>	To clarify, I can't store references to widgets in threads, period?
-T 1521743170 18<baedert18>	Yes
-T 1521743182 18<kre10s18>	When I load a menu model with builder and add it as the app_menu or menubar i get accelerator texts to acompany the menu item like Ctrl+C . when I create a menu manually and set the same model I don't. 
-T 1521743359 18<dboles18>	thats probably https://bugzilla.gnome.org/show_bug.cgi?id=792312
-T 1521743375 18<dboles18>	or https://bugzilla.gnome.org/show_bug.cgi?id=787342
-T 1521743527 18<kre10s18>	I think it is just because I haven't hooked up the accelerators some how. Is there a way to get the accelerator group from a menu model?
-T 1521743621 18<dboles18>	]GIO is lower than GTK+ in the stack, so GMenuModel has no idea that GtkAccelGroup 
-T 1521743637 18<dboles18>	how exactly do you create the menu manually? put the code in a pastebin or such and link it
-T 1521743653 18<dboles18>	^ "...that GtkAccelGroup exists"
-T 1521743753 18<baedert18>	the output of the gtk/notify test is completely useless
-T 1521743965 18<AndroUser218>	Why is everything about programming so PEOPLEONEfalse :(
-T 1521743992 18<AndroUser218>	No wonder why proprietary software rules the world....
-T 1521744050 18<dboles18>	yes, so when you're having a bad time, you can reassure yourself that you have no chance of getting any improvements into it!
-T 1521744063 18<dboles18>	and just accept it. i guess that works
-T 1521744212 18<AndroUser218>	Uhm GNOME has been doing great making FS development PEOPLEONEtrue with Flatpak. I'd go as far as to say it's led free software out of dark ages.
-T 1521744247 18<AndroUser218>	This and Builder project downloading.
-T 1521744284 18<dboles18>	definitely, there have been a lot of huge improvements recently
-T 1521744527 18<AndroUser218>	This is why GNOME is worthy of worship I just wish for official acknowledgement of that knowledge is evil. So far it seems it mostly applies to UI, not the code...
-T 1521744559 18<AndroUser218>	Not just from GNOME, from the whole world.
-T 1521744586 18<dboles18>	what is evil? (also, what is "PEOPLEONEfalse"?)
-T 1521744601 18<grawity18>	this is doubleplusconfusing.
-T 1521744616 18<baedert18>	dboles: dont ask
-T 1521744629 18<AndroUser218>	Knowledge is evil, because learning sucks. This evil can be necessary or unnecessary though.
-T 1521744677 18<AndroUser218>	Sometimes you don't even know that you need to learn, like in GTask case.
-T 1521744838 18<kre10s18>	https://pastebin.com/P8KDKLVG You will notice that both the window action and app actions work correcly but neither the appmenu nore the menubutton show the accelerator combo,.
-T 1521744878 18<kre10s18>	maybe this is a feature? no idea why you would want this thought
-T 1521745009 18<dboles18>	does sound like https://bugzilla.gnome.org/show_bug.cgi?id=787342 to me. not sure if it's specifically unwanted, or just no one coded it yet
-T 1521745040 18<AndroUser218>	This is not to be taken as criticism, I just want to say thanks. With all this newest GNOME stuff, free software is ever closer to becoming itself, not just  proprietary freeware which just happens to be open-source.
-T 1521745166 18<AndroUser218>	I mean that for software to be free to a person, the person has to have time and desire to use the freedom; software is effectively proprietary if it's way way more fun to just play an addictive proprietary game than to contribute.
-T 1521745409 18<smcv18>	AndroUser2: I don't think the terms you're using generally mean what you think they mean
-T 1521745452 18<smcv18>	AndroUser2: using a term that is well-understood to have one meaning, with a different meaning, is mostly just going to confuse people
-T 1521745460 18<AndroUser218>	Yes, some metaphorical thinking is required to understanx what I say.
-T 1521745515 18<AndroUser218>	I mean it's not literally proprietary
-T 1521745519 18<smcv18>	if software is open source then by definition it isn't proprietary (with the meanings for those terms commonly used in this community) because they're opposites
-T 1521745541 18<smcv18>	it's entirely possible to say software is bad without saying it's proprietary
-T 1521745543 18<AndroUser218>	But to the user in question it makes no difference.
-T 1521745573 18<AndroUser218>	Software can be good AND still difficult to contribute to.
-T 1521745651 18<AndroUser218>	Mostly because the groundwork isn't there and would require global coordinated efforts (like Flatpak) and thus a leader like Red Hat.
-T 1521745684 18<smcv18>	oh, I think I finally see what you're getting at. the distinction between "there's no legal reason you can't contribute" and "it's actually practical for you to contribute"
-T 1521745786 18<smcv18>	that would probably be more easily understood in terms of free software where it is or isn't feasible to make use of the freedoms you've been given
-T 1521745810 18<Company18>	I would understand it in terms of Hypernormalisation
-T 1521745827 18<Company18>	(the documentary, not the term)
-T 1521745854 18<AndroUser218>	IMO free software definition is fundamentally flawed for not making this wonderful and true distinction.
-T 1521745862 18<Company18>	"i'll pretend the world is simple because i can't deal with a complex one"
-T 1521745961 18<Company18>	it usually goes in line with attributing a human(-like) agent to everything that happens
-T 1521745980 18<Company18>	so if something is complicated, that must be because somebody designed it that way
-T 1521746020 18<Company18>	and then your job is to find that guy and stop him!
-T 1521746065 18<AndroUser218>	The problem is there's no guy or company. Yes that's exactly what the problem is.
-T 1521746087 18<AndroUser218>	Or was now that Flathub is here.
-T 1521746227 18<AndroUser218>	"so if something is complicated, that must be because somebody designed it that way" - is this actually not usually true?
-T 1521746260 18<AndroUser218>	Ignoring nature, of course.
-T 1521746293 18<Company18>	how many people do you know that decided to make something more complicated than it needs to be?
-T 1521746330 18<Company18>	how many design documents have you seen where "complicated" was one of the guiding principles?
-T 1521746470 18<AndroUser218>	I see your point now.
-T 1521746651 18<Company18>	baedert: do we have any use case for widget->clip other than tracking redraws?
-T 1521746666 18<AndroUser218>	IMO reason for many complications the lack of ONEist leadership...
-T 1521746685 18<paulo18>	Guys, why wont meson build system find 'gtksourceview-3.0' on gnome-builder? I've got all the necessary packages installed and still it won't compile (neither C nor Vala).. Any clues?
-T 1521746726 18<AndroUser218>	This is why what Poettring is doing is right despite all hate.
-T 1521746739 18<baedert18>	Company: No
-T 1521746786 18<AndroUser218>	One more reason to like GNOME: perservance in approaching things from ONEist perspective despite an endless stream of hate.
-T 1521746787 18<Company18>	so i could be able to remove clips
-T 1521746793 18<kre10s18>	anyone installed pygobject on windows?
-T 1521746858 18<Company18>	but when i remove clips, window sizing will become exciting
-T 1521746876 18<Company18>	because windows need to compute their clip on their own then
-T 1521747170 18<borschty18>	Company, here is a slightly more complete sysprof log now: https://www.dropbox.com/s/usgsn1gkj9fkz3r/gtk-widget-ogl.syscap?dl=1
-T 1521747307 18<borschty18>	widget-factory was already running when i started sysprof and i did not change focus or anything that would cause larger redraws
-T 1521747355 18<Company18>	seems like my sysprof is happily inflooping \o/
-T 1521747486 18<borschty18>	and here is the same for cairo: https://www.dropbox.com/s/58ofmtugwyyzw8g/gtk-widget-cairo.syscap?dl=1
-T 1521747530 18<baedert18>	https://paste.xinu.at/R1n/
-T 1521747533 18<baedert18>	O_o
-T 1521747622 18<Company18>	my sysprof definitely doesn't open those files
-T 1521747668 18<borschty18>	does this maybe depend on the same libraries being installed in the same place as on my pc?
-T 1521747725 18<Company18>	don't think so
-T 1521747733 18<Company18>	i think it depends on sysprof version
-T 1521747756 18<Company18>	and not on files
-T 1521748094 18<borschty18>	https://pastebin.com/pf9Xp8SV opengl
-T 1521748141 18<borschty18>	https://pastebin.com/qvRJs0mL cairo
-T 1521748220 18<Company18>	borschty: so the difference between the two is essentially gsk_renderer_render()
-T 1521748227 18<borschty18>	maybe the overhead for all the snapshot generation is bigger than just rendering everything in cairo?
-T 1521748233 18<Company18>	eerything else the apps do is identical
-T 1521748265 18<Company18>	and with cairo that's 40% and with GL it's 10%
-T 1521748309 18<Company18>	though those numbers are terribly misleading, because they both have a tail of stuff that happens in the X server (cairo) or in Mesa (GL) and on the kernel/GPU (both)
-T 1521748340 18<Company18>	in any case, cairo seems to be using a LOT more CPU for you
-T 1521748402 18<borschty18>	is the cpu usage shown in top normalized to the current clock rate?
-T 1521748436 18<Company18>	i have no idea how it is computed
-T 1521748451 18*	borschty switches to the performance scheduler and looks at the usage again
-T 1521748467 18<borschty18>	s/scheduler/governor/
-T 1521748471 18<Company18>	ie if the app is waiting on the gpu - does it use CPU or not?
-T 1521748566 18<Company18>	borschty: another question is: what framerate do you get with Cairo and GL?
-T 1521748648 18<Company18>	borschty: the inspector has a (Well-hidden) framerate display
-T 1521748840 18<borschty18>	ok, on the performance governor now, so cpu frequency should be the same for both. with cairo i get 60fps and 10% cpu usage when otherwise idle
-T 1521748947 18<borschty18>	opengl: 60fps, 30% cpu usage
-T 1521749084 18<borschty18>	still 10% with GDK_RENDERING=image GSK_RENDERER=cairo
-T 1521749151 18<Company18>	so with the different rendering method it uses 3x more CPU even though it spends 1/4 of the time rendering
-T 1521749162 18<Company18>	wat?
-T 1521749395 18<borschty18>	look at the number of different snapshots used, that seems to be where opengl spends most of the time
-T 1521749435 18<borschty18>	there is no cell view snapshot in cairo for example
-T 1521749573 18<Company18>	hrm
-T 1521749590 18<Company18>	is GL redrawing the full rect?
-T 1521749617 18<borschty18>	how could i check?
-T 1521749704 18<Company18>	asking baedert!
-T 1521749810 18<Company18>	yup
-T 1521749834 18<Company18>	looks like GL renders the full rectangle that encompasses all invalid regions
-T 1521749859 18<baedert18>	the union of the two spinners and the progressbar
-T 1521749861 18<Company18>	while cairo just redraws the actual rects that did change (so the spinner and the progressbar)
-T 1521749877 18<Company18>	baedert: the rectangle around them
-T 1521749895 18<baedert18>	yes
-T 1521749898 18<Company18>	baedert: so it includes all the buttons in the row inbetween
-T 1521749906 18<baedert18>	I know
-T 1521749911 18<Company18>	which is where the cellviews come from
-T 1521749970 18<Company18>	that makes some sense
-T 1521750004 18<Company18>	it still doesn't explain why GL takes 3x as much CPU
-T 1521750016 18<Company18>	because gtk_widget_render() takes 33% on GL and 52% on Cairo
-T 1521750034 18<Company18>	which is 0.6x, not 3x
-T 1521750142 18<borschty18>	maybe that's due to not using the same clock rate? i can try again with the performance governor
-T 1521750144 18<Company18>	hrm, mesa isn't in there
-T 1521750203 18<borschty18>	the tree is also not fully expanded, i can expand a bit more
-T 1521750235 18<Company18>	main accounts for 77% of cpu in cairo and only 42% in GL
-T 1521750262 18<Company18>	so that's another 35% that could be spent inside GL
-T 1521750389 18<borschty18>	but wouldn't that be in the same process?
-T 1521750492 18<Company18>	yes
-T 1521750508 18<Company18>	it's stuff that's not properly included because of missing -fomit-frame-pointer
-T 1521750523 18<Company18>	the stuff not included in main()
-T 1521750537 18<Company18>	as you can clearly see, main() only accounts for 42% of cpu time
-T 1521750549 18<Company18>	and i can tell you that widget-factory does nothing but run main()
-T 1521750578 18<Company18>	so it cannot spend more than half its time not running main when there's nothing else it does
-T 1521750681 18<borschty18>	just ran it again, the "In file [heap]" stuff is pretty much all mesa
-T 1521751525 18<Company18>	borschty: Vulkan I think uses cairo's clip
-T 1521751682 18<Company18>	(it's doing that by brute-force rendering every rectangle of the region one after the other, but hey, it's faster!)
-T 1521751754 18<borschty18>	unfortunately my gpu is too crappy/old for vulkan
-T 1521751769 18<Company18>	:(
-T 1521751782 18<Company18>	anyway, i'm fixing snapshots as we speak
-T 1521751810 18<Company18>	s/fixing snapshot/compeltely reorganizing and rewriting the drawing layer to cache snapshots/
-T 1521752364 18<borschty18>	sounds interesting, please let me know when you have a branch that i can test
-T 1521752492 18<Company18>	if anyone needs a fun 20 minutes project:
-T 1521752503 18<Company18>	widget-factory needs GtkVideo support
-T 1521752531 18<Company18>	and I need a space to put a useful (ideally recursive) WidgetPaintable
-T 1521752628 18<mclasen18>	lapo wanted to get rid of the frame variants
-T 1521752652 18<mclasen18>	maybe ditch those and put a video there ?
-T 1521752686 18<Company18>	sounds good, in particular because the site matches with the gtk-logo.webm
-T 1521752696 18<Company18>	otoh i'm not sure if the area is big enough for the controls
-T 1521752737 18<Company18>	but we can figure that one out once we know what types of uis we want for video
-T 1521752761 18<Company18>	youtube ui? imgur ui? instagram ui?
-T 1521752782 18<Company18>	(okay, imgur is essentially equivalent to "no ui at all"
-T 1521752785 18<Company18>	)
-T 1521752943 18<Company18>	though GtkVideo does some extra things over GtkImage
-T 1521752965 18<Company18>	like pausing videos when unmapping and realize()ing the media stream
-T 1521753403 18<lazka18>	hergertme, re finalize in threads: do you think it would help if gtkwidget would warn in that case?
-T 1521753530 18<lazka18>	(I tried leaving a comment in the blog, but it doesn't like my email)
-T 1521753554 18<hergertme18>	lazka, well it'd help catch errors for sure. Mono added a "runtime profiler" for Gtk api that would error when it was used from a non main thread
-T 1521753573 18<hergertme18>	in Builder, we g_assert(IDE_IS_MAIN_THREAD()); all over the place now 
-T 1521762556 20*	Disconnected (20Connection timed out)
-T 1521762569 19*	Now talking on 22#gtk+
-T 1521762569 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1521762569 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1521767638 18<AndroUser218>	I'm cusious, to be destroyed a widget has to be detached from the actual GUI, what's there in a widget that can mess with the main thread in that case?
-T 1521767781 18<hergertme18>	all sorts of stuff can be in finalize
-T 1521767789 18<hergertme18>	css nodes, etc
-T 1521767801 18<hergertme18>	and in gtk4, we're even getting rid of destroy i think?
-T 1521767809 18<hergertme18>	so you would always put this stuff in dispose or finalize
-T 1521767827 18<hergertme18>	and dispose isn't really the right place for a lot of stuff because you need to keep the widget working (at least not warn/error) across multiple dispose calls
-T 1521767873 18<AndroUser218>	Why can't widgets simply wait for the main thread to idle and destroy themselves there?
-T 1521767960 18<hergertme18>	they can, but you have to have plumbing in place to make sure they marshal themselves back to the main thread
-T 1521767967 18<hergertme18>	and gtask does not have that (for the reasons i described above)
-T 1521767980 18<hergertme18>	in IdeTask, i designed specifically to ensure that.
-T 1521768016 18<hergertme18>	but because we don't have a way to guarantee something will "flush the queued idles" you can't really just say "oh pass this back to thread X" to finalize it
-T 1521768017 18<AndroUser218>	Does Python handle it correctly?
-T 1521768036 18<hergertme18>	i doubt it, but im not an export on those bindings
-T 1521768040 18<hergertme18>	expert rather
-T 1521768074 18<hergertme18>	im sure python will hold the GIL, but to say that the thread runner will guarantee to marshal the object back, seems unlikely unless they anticipated this exact issue (unlikely)
-T 1521768181 18<AndroUser218>	I've filed a bug and the dev said that this was unanticipated 😯
-T 1521768207 18<AndroUser218>	By plumbing you mean skmething like Qt thread affinity? http://doc.qt.io/qt-5/qobject.html#moveToThread
-T 1521768272 18<hergertme18>	dunno, depends on whether or not Qt has full control over its threads
-T 1521768293 18<hergertme18>	we have never had that requirement, which allows for great flexibility, but also severely restricts what we can do
-T 1521768314 18<hergertme18>	if we said you had to "register your thread with glib before you can use any glib API", then we'd have the ability to do neat things like that
-T 1521768323 18<hergertme18>	it'd also piss off a low of sometimes-glib-using developers
-T 1521768326 18<hergertme18>	lot of*
-T 1521768378 18<hergertme18>	the downside of us being in C, is that we get used in many places where you can't use C++ easily. like plumbing/integration code, like smart cards and bootup, crypto, etc etc
-T 1521768451 18<AndroUser218>	Why can't widgets simply send themselves in a queue for destruction when they detect they're being destroyed off-thread?
-T 1521768494 18<Company18>	because it's not the widgets' job
-T 1521768508 18<Company18>	widgets are by design all used in the same thread
-T 1521768510 18<hergertme18>	that, and you cant guarantee there is anything on that thread to send to
-T 1521768527 18<Company18>	so if you want to use them elsewhere, you take care that it works
-T 1521768542 18<Company18>	you build a system that ensures that widgets always run in the same thread
-T 1521768601 18<AndroUser218>	Why is this not widget's job?
-T 1521768613 18<hergertme18>	widgets are thread oblivious 
-T 1521768618 18<Company18>	because widgets by design run in the main thread
-T 1521768634 18<AndroUser218>	IMO the issue of PEOPLEONEtruthiness has to also be considered.
-T 1521768643 18<Company18>	yes
-T 1521768646 18<Company18>	I considered it
-T 1521768658 18<AndroUser218>	E.g. in Python it seems natural to send self._callback to thread.
-T 1521768660 18<Company18>	and decided that a PEOPLEONEtrue thread would never destroy a widget
-T 1521768691 18<Company18>	such a thread would transmit the widget back to the main thread and destroy it there
-T 1521768726 18<AndroUser218>	Widget should transmit themselves IMO.
-T 1521768752 18<hergertme18>	transmit themselves to *WHAT*
-T 1521768768 18<AndroUser218>	To the main thread of course.
-T 1521768775 18<hergertme18>	describe to me what that means
-T 1521768776 18<Company18>	widgets do not need to do that
-T 1521768786 18<Company18>	because they never tramsit themselves elsewhere
-T 1521768795 18<Company18>	if YOU move them elsewhere, YOU move them back
-T 1521768796 18<hergertme18>	something has to process that transmission
-T 1521768817 18<hergertme18>	for widgets, its simple enough to pass something, but it would require gobject changes to do that in the finalizer
-T 1521768821 18<AndroUser218>	Put themselves to some kind of queue which main threads checks periodically and destroys widgets there instead of destroying itself outright.
-T 1521768833 18<hergertme18>	<hergertme> we have never had that requirement, which allows for great flexibility, but also severely restricts what we can do
-T 1521768848 18<hergertme18>	re: we have no guarantees anything will process the transmission
-T 1521768856 18<Company18>	but widgets don't need to do that, widgets know they are in the main thread
-T 1521768873 18<hergertme18>	its clearly GTask that's broken in terms of using Gtk in this case
-T 1521768876 18<Company18>	there is absolutely no need for queues that slow down GTK for no reason at all
-T 1521768890 18<hergertme18>	(and IMO in general since there are plenty of things made with the assumption of main thread)
-T 1521768903 18<hergertme18>	gtk is, and should remain, thread oblivious
-T 1521768915 18<AndroUser218>	PEOPLEONEtruthiness is reason enough IMO.
-T 1521768917 18<hergertme18>	but the tools we make and put in glib should downright not cause this sort of issues
-T 1521768935 18<hergertme18>	and binding authors should not implement lambdas and closures unless they know how to ensures this sort of correctness
-T 1521768965 18<hergertme18>	the bindings authors have made assumptions about how their computers work that are clearly not true
-T 1521768977 18<hergertme18>	and GTask clearly was designed without thinking about the usage from Gtk
-T 1521768988 18<hergertme18>	and i clearly expected this to have been done when using it some 250x in Builder :p
-T 1521769020 18<AndroUser218>	Python has closures of its own... how can bjnding authors prevent this?
-T 1521769046 18<hergertme18>	you can't just use PyClosure and expect it to work
-T 1521769064 18<hergertme18>	so the trampoline needs to take this into account
-T 1521769069 18<Company18>	maybe they should fix Python to conform more to your idea of PEOPLEONEtruthiness
-T 1521769101 18<Company18>	i think it's pretty bad that it just takes objects and makes them do things that they're clearly not meant to do
-T 1521769128 18<Company18>	there's ONE way to use these objects and Python blatantly violates that
-T 1521769245 18<AndroUser218>	Does it have any information to work with on how to use widgets though?
-T 1521769305 18<AndroUser218>	Can it even do anything?
-T 1521769316 18<Company18>	Python?
-T 1521769318 18<Company18>	dunno
-T 1521769329 18<Company18>	I don't use Python
-T 1521769724 18<AndroUser218>	"we get used in many places where you can't use C++ easily. like plumbing/integration code, like smart cards and bootup, crypto" - even GTK itself?
-T 1521769799 18<hergertme18>	its hard to separate the two, because gtk is built on gobject
-T 1521769821 18<hergertme18>	so "fixing this for gtkwidget" isn't really tenable without going deeper and adding a GObject runtime feature 
-T 1521769829 18<hergertme18>	and that has much broader implications
-T 1521769843 18*	hergertme afk
-T 1521769934 18<Company18>	"fixing that" also requires fixing all apps
-T 1521769958 18<Company18>	so all objects that application-specific widgets create must be able to swap threads
-T 1521770022 18<AndroUser218>	Isn't GTK a lost platform though? I've been reading forums and so far almost nothing but hate (and praise for Qt). CSD, theming API break and association with GNOME Shell seem to have cost it all its reputation. I could be wrong though, is there some praise of GTK anywhre?
-T 1521770103 18<AndroUser218>	I tried to use Qt myself but I'm too dumb to use it though... 😑
-T 1521770288 18<alatiera18>	hope you got yday's bookmark handy Company 
-T 1521770333 18<Company18>	https://www.youtube.com/watch?v=1MQUleX1PeA
-T 1521770485 18<AndroUser218>	See, even music praises Qt...
-T 1521770631 18<Company18>	let's hope the real Qt is more successful than that music
-T 1521776477 18<Company18>	yay, it's bug time!
-T 1521776502 18<Company18>	scaled render nodes display the wrong glyphs
-T 1521776561 18<Company18>	if i take a 12px font and scale it up by a factor of 2, the renderer should look up the 24px glyph
-T 1521776566 18<Company18>	but it takes the 12px glyph
-T 1521778202 18<Company18>	what kind of evil shit are text handles?
-T 1521778214 18<Company18>	GtkBoxes that get used as popovers?
-T 1521778314 18<Company18>	TIL there's no emoji for smoking pot
-T 1521778323 18<Company18>	because I needed that right now
-T 1521778662 18<KombuchaKip18>	TingPing: What is the best practise? Install a .pc in /usr/lib/pkgconfig or /usr/lib/x86_64-linux-gnu/pkgconfig ? I see both directories populated on my system with .pc files
-T 1521779144 18<Company18>	KombuchaKip: $libdir/pkgconfig
-T 1521779179 18<KombuchaKip18>	Company: Ok, but why are there so many in /usr/lib/x86_64-linux-gnu/pkgconfig ?
-T 1521779193 18<KombuchaKip18>	Company: Should a library on my 64-bit system be installed in Makefile.am to /usr/lib or /usr/lib/x86_64-linux-gnu ? If the latter, I noticed $(libdir) by default points to the former, but shouldn't it point to the latter?
-T 1521779227 18<Company18>	$libdir on autotools always points to $prefix/lib
-T 1521779240 18<Company18>	and $prefix always points to /usr/local
-T 1521779254 18<Company18>	all distros customize that to their directory layout
-T 1521779296 18<Company18>	like, the Fedora package builder does --prefix=/usr --libdir=/usr/lib64 for every autotools package
-T 1521779303 18<Company18>	meson does that automatically I believe
-T 1521779378 18<Company18>	and why do we have this mess? BEcause some idiot decided that you should install multiple architectures in the same directory structure and because 32bit is already there, everybody invented custom ways to shoot themselves in the foot
-T 1521779437 18<Company18>	which is why one installs pkgconfig files into $libdir/pkgconfig and then lets the distros figure out the rest
-T 1521780157 18<hergertme18>	yeah, its a damn disaster 
-T 1521817424 19*	Now talking on 22#gtk+
-T 1521817424 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1521817424 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1521820490 18<baedert18>	meh
-T 1521820516 18<baedert18>	selecting a folder from the Recent view in the filechooser via keyboard is possible even if the mode the select file thing
-T 1521820680 18<baedert18>	Company: One thing I'd like for the gtk-demo wrapper thingy you mentioned is that --run=demoname doesn't show the gtk-demo window at all
-T 1521820721 18<Company18>	i'm on board with that
-T 1521820759 18<Company18>	we just need to find somebody who enjoys doing such surgery
-T 1521820813 18<baedert18>	oh wow I just suddenly have this idea for a gsoc project you could mentor!
-T 1521820813 18<LRN18>	what's the gnome policy on patches and git state? Should a git branch (especially master) be compilable after each individual commit?
-T 1521820927 18<mclasen18>	LRN: there's no general policy on that, but it is certainly a nice thing to strive for
-T 1521820948 18<Company18>	LRN: if my bisects end up uncompilable, i'm generally very miffed
-T 1521820960 18<baedert18>	PROTIP: it only matters if someone notices!
-T 1521820971 18<Company18>	yeah, that's the other thing
-T 1521820981 18<LRN18>	it's just that i'm often asked to break up a patch into smaller pieces, and that's not always possible without making the thing uncompilable at some points
-T 1521821006 18<Company18>	nope
-T 1521821011 18<Company18>	keep the large piece
-T 1521821016 18<alex18>	It often *is* possible to do that
-T 1521821022 18<alex18>	you just have to structure them right
-T 1521821028 18<alex18>	and sometimes it just isn't possible
-T 1521821042 18<alex18>	but you can extract the chunk you can't extract into one commit
-T 1521821048 18<LRN18>	i could, in theory, work around that by making each patch larger (introducing changes that make the code compile, but that won't survive the next patch)
-T 1521821049 18<Company18>	yeah, you can pretty much always do that by introducing intermediate APIs that only live for 5 commits
-T 1521821052 18<alex18>	and do the rest in separate commits
-T 1521821078 18<baedert18>	Company: Is a paintable guaranteed to *scale* to the size I pass to snapshot() or is it allowed to do something else to draw into the given size?
-T 1521821096 18<Company18>	baedert: it's implementation-defined
-T 1521821114 18<smcv18>	re bisectability: I think it's like George Orwell's rules for writing. "Break any of these rules sooner than say anything outright barbarous"
-T 1521821141 18<Company18>	baedert: a CSS border is an example of a paintable that can do something else
-T 1521821164 18<Company18>	baedert: so is SVG
-T 1521821185 18<Company18>	not svg in gdk-pixbuf, but real svg
-T 1521821239 18<baedert18>	hmm
-T 1521821263 18<alex18>	Or a fixed aspect icon
-T 1521821266 18<Company18>	baedert: even a GskRenderNode Paintable doesn't "just" scale - it rerenders itself with higher resolution
-T 1521821309 18<Company18>	oh yeah, icontheme would be another example where I think we (a) don't scale but keep aspect ratio and (b) use the icon for the current size
-T 1521821328 18<Company18>	though icontheme is only implemented as CSSImage for now
-T 1521821381 18<Company18>	a GdkPaintable has a way to snapshot() itself at any width/height
-T 1521821402 18<Company18>	these ways are not related to each other at all
-T 1521821411 18<alex18>	So, do we have a shadertoy based paintable yet?
-T 1521821428 18<Company18>	we don't because we have no shader compiler yet
-T 1521821439 18<alex18>	what happened with that work?
-T 1521821462 18<Company18>	i got sick and my brain stopped being able to deal with it
-T 1521821478 18<Company18>	so i did something simpler that turned into rewriting dnd
-T 1521821493 18<alex18>	story of my life
-T 1521821518 18<Company18>	which i also didn't finish because christmas holidays happened and then hackfesting and now i'm doing something else again :/
-T 1521821538 18<baedert18>	I see a pattern!
-T 1521821553 18<Company18>	too much work!
-T 1521821567 18<alex18>	https://www.shadertoy.com/view/MdX3zr
-T 1521821573 18<alex18>	totally need this as a widget background
-T 1521821629 18<Company18>	alex: i want that on radio:hover
-T 1521821655 18<Company18>	though for that we'd also need to allow backgrounds to overdraw...
-T 1521821710 18<Company18>	i want the raindrops from https://www.shadertoy.com/view/MdfBRX (sound!) instead of blur
-T 1521821735 18<alex18>	so much fun
-T 1521821750 18<alex18>	think of the redidt threads!
-T 1521821780 18<Company18>	i'm also still looking for a shader that makes a widget look like it's at the bottom of a sea
-T 1521821789 18<Company18>	a clear sea
-T 1521821833 18<alex18>	https://www.shadertoy.com/view/MdlXz8
-T 1521821875 18<alex18>	https://www.shadertoy.com/view/4ljXWh
-T 1521821883 18<alex18>	https://www.shadertoy.com/view/MdKXDm
-T 1521821887 18<alex18>	depends on what you want
-T 1521821911 18<Company18>	something like https://www.dreamstime.com/stock-photo-stones-clear-sea-waters-sea-bottom-natural-background-water-image77319022
-T 1521821926 18<Company18>	but with widgets instead of stones
-T 1521821968 18<alex18>	so, like caustics effects
-T 1521821979 18<alex18>	https://www.google.com/search?q=water+caustics
-T 1521821997 18<Company18>	i did not know that term
-T 1521821998 18<Company18>	but yes
-T 1521822022 18<Company18>	and the same for glass
-T 1521822046 18<Company18>	so that you can make views (like treeview or textview) look as if they're behind glass
-T 1521822076 18<Company18>	then you use a marble structure for the headerbar
-T 1521822093 18<Company18>	and you have a sweet theme
-T 1521822119 18<alex18>	subtle like the cheese theme
-T 1521822186 18<Company18>	i had a freaking amazing winamp theme for that
-T 1521822189 18*	alex can't find screenshots of the cheese theme
-T 1521822200 18<Company18>	or at least I found it amazing 20 years ago when i still skinned winamp...
-T 1521822225 18<baedert18>	this shit is why you two are not on the design team
-T 1521822273 18<alex18>	They just don't realize our genius
-T 1521822322 18<Company18>	i think it was http://skinz.org/zoom.phtml?skinid=4242&cn=Winamp%202.x
-T 1521822388 18<Company18>	baedert: the problem is that nobody is doing fun themes anymore
-T 1521822402 18<TingPing18>	"fun"
-T 1521822414 18<Company18>	baedert: everybody is just doing Adwaita-newcolor, Adwaita-flat/bumpy/small/fatfingered
-T 1521822448 18<alex18>	rotating cubes were totally not actually useful
-T 1521822456 18<alex18>	but as PR it was genius
-T 1521822457 18<Company18>	TingPing: the fun themes have the innovations that usually catch on later when people have figured out how to not overdo it
-T 1521822521 18<Company18>	TingPing: all those glass effects that were in the original OS X Aqua theme had been done to death in custom winamp themes before
-T 1521822568 18<Company18>	and i'm sure rounded corners existed in xterm themes before Steve Jobs made them mandatory for desktops
-T 1521822651 18<AndroUser218>	Happy to see at least someone understanding that the soul has been lost...
-T 1521822723 18<alex18>	Oh, please
-T 1521822739 18<LRN18>	Company, why did _gdk_surface_invalidate_for_expose() have to die?
-T 1521822797 18<Company18>	LRN: because it's identical to gdk_surface_invaldiate_rect()
-T 1521822824 18<LRN18>	the problem i'm facing is that i have a Windows HRGN, which is not necessarily a simple rectangle
-T 1521822842 18<Company18>	LRN: there's gdk_surface_invaldiate_region(), too
-T 1521822861 18<Company18>	and i can't spell invalidate
-T 1521822861 18<LRN18>	ah, ok
-T 1521823109 18<Company18>	TingPing: one of my favorite GTK2 themes to this day is EasyListening
-T 1521823137 18<Company18>	TingPing: https://i.imgur.com/XK9eUvV.png is a random screenie I just made (is there a GTK2 widget-factory?)
-T 1521823154 18<Company18>	it's completely unusable in day to day life, but it has a really unique look
-T 1521823158 18<TingPing18>	there is a gtk2 widget factory, the gtk3 one was based on it
-T 1521823183 18<TingPing18>	http://gwf.sourceforge.net/
-T 1521823191 18<TingPing18>	oh no that isn't it
-T 1521823210 18<grawity18>	https://github.com/valr/awf
-T 1521823240 18<Company18>	"a widget factory"
-T 1521823256 18<Company18>	the only similarly named app I have installed seems to be "a widget kit"
-T 1521823281 18<Company18>	but that's some stupid posix thing
-T 1521823323 18<AndroUser218>	Can the threading bug maybe be a reason to upgrade to Qt? Qt has thread affinity for objects and thread-aware signals and slots.
-T 1521823356 18<TingPing18>	AndroUser2, why are you asking #gtk
-T 1521823450 18<AndroUser218>	I still don't understand why GTK is clung to by GNOME when there's Qt...
-T 1521823466 18<baedert18>	you said youself just yesterday that qt is horrible?
-T 1521823489 18<baedert18>	not PEOPLEONEtrue enough probably
-T 1521823495 18<Company18>	http://i.imgur.com/YbIO0B9.png
-T 1521823514 18<AndroUser218>	That was before the threading bug...
-T 1521823554 18<TingPing18>	AndroUser2, bugs exist everywhere, you fix them and move on
-T 1521823561 18<Company18>	we'll now wait for AndroUser2 to find a Qt bug
-T 1521823574 18<Company18>	then he'll go on #kde and ask why they're clung to Qt when there's GTK
-T 1521823581 18<TingPing18>	Company, sorry but you might just have bad taste
-T 1521823607 18<Company18>	TingPing: that thing has amazing ideas
-T 1521823613 18<AndroUser218>	I thought you admitted this is unfixable?
-T 1521823631 18<TingPing18>	AndroUser2, its a software bug, thus its fixable
-T 1521823640 18<baedert18>	threading is hard, let's go shopping
-T 1521823701 18<TingPing18>	Company, like insensitive buttons being unredable? spin buttons that melt into the bg? tabs not attached to anything?
-T 1521823778 18<Company18>	TingPing: spin buttons are actually kinda cool with being flat but not really
-T 1521823821 18<Company18>	TingPing: and I told you you don't want to use it, you want to get inspired by it
-T 1521823837 18<Company18>	nobody should ship that thing as the default theme for their distro
-T 1521823847 18<Company18>	not even after fixing all those obvious unfinished things
-T 1521823863 18<TingPing18>	must be too high art for me
-T 1521823888 18<Company18>	i also have no idea how old it is
-T 1521823897 18<Company18>	and how much GTK2 changed themeing after it was created
-T 1521823914 18<Company18>	I think it doesn't use any engine
-T 1521823948 18<Company18>	it uses the pixmap engine
-T 1521823971 18<AndroUser218>	I don't like Qt because you have to marshal stuff into incomplete JS they use for qml (not even let and for..of). It also can't access all of Qt too... and you even have to learn to use it...
-T 1521824023 18<TingPing18>	AndroUser2, maybe tk is more your style
-T 1521824064 18<mclasen18>	"you even have to learn to use it" about sums it up
-T 1521824146 18<AndroUser218>	IMO GNOME had better idea with GI.
-T 1521824170 18<Company18>	"I don't like Qt but don't get why GNOME isn't switching to it" 
-T 1521824172 18<Company18>	🤔
-T 1521824224 18<AndroUser218>	It doesn't even have basics like max width chars, only in pixels. Or at least it's hidden enough so I can't find it.
-T 1521824259 18<baedert18>	I thought Qt used some scaled/device pixel stuff like android
-T 1521824275 18<AndroUser218>	Yes it has scaling.
-T 1521824457 18<AndroUser218>	"I don't like Qt but don't get why GNOME isn't switching to it"  - Qt works on Windows (beats all API nonsense) and is praised rather than hated on forums
-T 1521824479 18<AndroUser218>	or rather, workingnon windows is firstclass supported
-T 1521824572 18<Company18>	I wonder how important Windows support is to the Gnome desktop
-T 1521824572 18<Company18>	🤔
-T 1521824609 18<AndroUser218>	E.g. why couldn't CSD turn to toolbars when on KDE instead of being forced? Wouldve saved gtk lots of reputation.
-T 1521824688 18<AndroUser218>	Imagine you want to write an app with rare or unique feature (subsurface, wireshark, krita), would you restrict it to Linux only as first class or share it with everyone?
-T 1521824745 18<baedert18>	I'd only support linux because that's everyhing I have so I can't possibly support more.
-T 1521824760 18<baedert18>	I can pretend and that it works everywhere but I can't ever make sure.
-T 1521824762 18<kre10s18>	baedert: +1
-T 1521824958 18<aday18>	what, everything doesn't just automatically work?! :P
-T 1521824965 18<aday18>	scandal.
-T 1521824971 18<katex18>	the ~~trendy~~ kids write electron applications now ;)
-T 1521824993 18<baedert18>	they also eat tide pods for breakfast
-T 1521825025 18<Company18>	has anybody actually ever eaten a tide pod?
-T 1521825041 18<Company18>	or is that just a meme gone way too real?
-T 1521825084 18<Company18>	and if so, could we use the same marketing method to convince people that everyone develops with GTK for KDE?
-T 1521825111 18<AndroUser218>	GIMP was obsoleted by Krita, Synfig was obsoleted by OpenToonz, IMO it may be only a matter of time for Inkscape to get obsoleted.
-T 1521825123 18<AndroUser218>	Both in Qt.
-T 1521825161 18<baedert18>	gimp has not been obsoleted at all
-T 1521825206 18<AndroUser218>	Admittedly QWidets without all the marshalling nonsense but no hope for Vulkan and stuff :/
-T 1521825208 18<kre10s18>	AndroUser2: where do you get your data from?
-T 1521825249 18<AndroUser218>	I thought it was obvious, if you disprove I'll change my opinion.
-T 1521825449 18<kre10s18>	I disaprove.
-T 1521825647 18<Company18>	AndroUser2: https://popcon.ubuntu.com/by_inst - 20x more gimp installs than krita, opentoonz isn't even in Ubuntu
-T 1521825678 18<Company18>	AndroUser2: those numbers hint very strongly towards you not having the slightest amount of clue, what you're talking about
-T 1521825734 18<baedert18>	corebird has 33 installations. just the other day I said "a few hundred maybe" when I got asked how many users it might have
-T 1521825859 18<Company18>	baedert: popcon is just used by a small percentage of users
-T 1521825863 18<TingPing18>	baedert, those would only be opt-in numbers which is very small for ubuntu
-T 1521825867 18<Company18>	baedert: and it only counts installations, not usage
-T 1521825870 18<TingPing18>	debian opt-in numbers are much larger
-T 1521825907 18<TingPing18>	baedert, https://qa.debian.org/popcon.php?package=corebird
-T 1521826203 18<TingPing18>	also 50% of debian users with popcon have gimp
-T 1521826226 18<TingPing18>	(100k users)
-T 1521826243 18<AndroUser218>	Company, https://github.com/synfig/synfig https://github.com/opentoonz/opentoonz
-T 1521826249 18<AndroUser218>	Compare activity
-T 1521826506 18<AndroUser218>	And GIMP had no release for years, no float colors in stable, no GTK3, while stable Krita is already Qt5.
-T 1521826572 18<AndroUser218>	I've seen speedpainters on YouTube using Krita and recommending it, again not hard data though.
-T 1521826593 18<TingPing18>	AndroUser2, its fair to question the health of projects with few contributors, it is not fair to call them "replaced"
-T 1521826633 18<Company18>	i have seen speedpainters on Youtube using Gimp and recommending it.
-T 1521826654 18<Company18>	i have even seen speedpainters on Youtube using MS Paint and recommending it.
-T 1521826710 18<baedert18>	Company: https://paste.xinu.at/92l7/
-T 1521826712 18<baedert18>	fix pls
-T 1521826809 18<paulo18>	Guys I'm having trouble linking gtksourceview to my Vala project on Gnome-Builder, can anyone help me? output: "fatal error: gtksourceview/gtksource.h: No such file or directory"
-T 1521826850 18<Company18>	baedert: export GDK_RENDERING=image
-T 1521826854 18<Company18>	:)
-T 1521826887 18<AndroUser218>	They're not replaced, but obsoleted, there's a difference.
-T 1521826905 18<baedert18>	Company: You said the surface APIs are all gone but gtk_drag_set_icon_surface is still there!
-T 1521826925 18<Company18>	baedert: I know - drag icons are the only exception :(
-T 1521826933 18<Company18>	baedert: but you can help there!
-T 1521826952 18<Company18>	baedert: what do we replace drag icons with? textures? rendernodes? paintables?
-T 1521826959 18<Company18>	sth else?
-T 1521826962 18<AndroUser218>	I.e. I of course know they're still here, but it looks like the future is for Krita and OpenToonz.
-T 1521827038 18<baedert18>	Company: Depends. You certainly want one version for paintables (esp. textures)
-T 1521827285 18<AndroUser218>	Is there anything big and not obsoleted left in GTK3 besides Inkscape?
-T 1521827457 18<kre10s18>	soon there will be an ecad suit
-T 1521827538 18<Company18>	AndroUser2: Gnome
-T 1521827603 18<Company18>	baedert: the reason i've been wondering is that you often create dnd icons by actually drawing things
-T 1521827616 18<Company18>	baedert: which in GTK4 means you'd snapshot things
-T 1521827668 18<Company18>	baedert: for that you want to create a snapshot, call some snapshot_this() and snapshot_that() and then pass the result as the drag icon
-T 1521827724 18<Company18>	baedert: but (a) creating a snapshot requires a renderer atm and (b) a snapshot gives you a render node and you can't pass those as a drag icon
-T 1521827843 18<Company18>	I think the answer is (a) make snapshots not require renderers anymore by using recording surfaces
-T 1521827868 18<Company18>	and (b) add gtk_snapshot_free_to_paintable() which hands you a (to be created) RenderNodePaintable
-T 1521828026 18<AndroUser218>	There are also books about Qt in book stores...
-T 1521828044 18<baedert18>	ffs just go and use Qt
-T 1521828055 18<baedert18>	Company: I have no idea about dnd and what people use for it
-T 1521828071 18<mclasen18>	its a fine toolkit, just not the one that is on-topic in this channel
-T 1521831658 18<dboles18>	mclasen, garnacho: hi, any thoughts on https://bugzilla.gnome.org/show_bug.cgi?id=791802#c5 ?
-T 1521831789 18<mclasen18>	not from me
-T 1521833780 18<Company18>	man, this is genius
-T 1521833797 18<Company18>	you use a semantic code analyzer
-T 1521833851 18<Company18>	and when you want to check if a certain condition is ever possible, you just assert the opposite and let the analyzer tell you how it happens
-T 1521833906 18<Company18>	like, you set up a bunch of emeus constraints and assert they are unsolvable and then you wait for the semantic analyzer to prove you wrong *with* the solution to your problem
-T 1521833940 18<Company18>	and yes, i know that semantic analyzers aren't good enough for that. But I like the idea
-T 1521833958 18<Company18>	assert (program_doesnt_halt);
-T 1521834129 18<borschty18>	kind of like forums where you have to state that something is not possible rather than asking how to do it in order to get an answer
-T 1521834513 18<Company18>	I like to think that TLA+ is just a formal specification for reddit user behavior
-T 1521834687 18<Company18>	woah
-T 1521834691 18<Company18>	this talk is really good
-T 1521834715 18<Company18>	https://www.idris-lang.org/
-T 1521834734 18<Company18>	a language where you can define "dependant types"
-T 1521834743 18<Company18>	like "a list that is not empty"
-T 1521834752 18<Company18>	or "an integer that is > 0"
-T 1521834776 18<Company18>	and then the compiler checks those types for you
-T 1521834809 18<Company18>	in essence, you get GParamSpec validation and introspection annotation checks at compile-time
-T 1521914927 20*	Disconnected (20Connection timed out)
-T 1521914940 19*	Now talking on 22#gtk+
-T 1521914940 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1521914940 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1521915431 18<baedert18>	render nodes, render ops, tons and tons of event controllers?
-T 1521915873 18<federico18>	Company: the latter is ~7Kb per widget
-T 1521915898 18<federico18>	doesn't seem outrageous, even if 120 MB of heap does
-T 1521916407 18<Company18>	federico: problem is that we wanna ultimately use this method as a treeview replacement
-T 1521916442 18<Company18>	federico: so 10,000s of rows should probably be a thing - and then you easily get to 10 widgets per row
-T 1521916995 18<kre10s18>	Coming back to menus and keyboard shortcuts. https://pastebin.com/uP0VvJbc I don't understand why the menubar and appmenu get keyboard shortcuts but the menu button does not. The menu models used all come from builder so why don't they work?
-T 1521917070 18<baedert18>	the menubutton is a popover which simply doesn't show the accelerators?
-T 1521917078 18<baedert18>	*is using a popover
-T 1521917099 18<kre10s18>	but the accelerators don't fire either.
-T 1521917149 18<kre10s18>	in the example ctrl+a and ctrl+c work but ctrl+b does not.
-T 1521917207 18<kre10s18>	you can click the menu button and activate the action but not using the keyboard. so the actions get hooked up but the accelerators don't?
-T 1521917539 18<baedert18>	Did adjustment changes already get delayed to the next size-allocate in gtk3?
-T 1521917713 18<kre10s18>	damit is there a gtk_application_set_accels_for_action that works on a window?
-T 1521917793 18<kre10s18>	Is it possible to set a window specific accelerator or are they always application wide?
-T 1521918509 18<federico18>	Company: I really think a treeview should create/destroy subwidgets as they get scrolled in
-T 1521918564 18<federico18>	Company: and I really think we should look at other platform's APIs for this.  Even Java Swing had some interesting concepts that we could have used have in GtkTreeView.
-T 1521918583 18<federico18>	Company: ... maybe with an eye of really replacing Evolution's ETable once and for all
-T 1521918590 18<federico18>	s/of/to
-T 1521918607 18*	federico goes to shower
-T 1521918892 18<Company18>	the tricky part of that is that you still need to update every visible row once per frame
-T 1521918907 18<Company18>	in some situations
-T 1521918917 18<Company18>	like, if i grab the scrollbar and yank it up and down
-T 1521918946 18<Company18>	or if i hold page-down
-T 1521925097 18<dboles18>	kre10s: it's actions that are app or window scope, not accels
-T 1521925129 18<dboles18>	so make your actions window scope, then set the accel on the app, but if you don't want actions to do anything in given windows, then don't put any action with that name in that window's action map, and nothing will happen when the accel is pressed
-T 1521925823 18<kre10s18>	Thanks! That makes sense.
-T 1521925945 18<dboles18>	erm, *other* accels can be window-specific, but the kind referred to by set_accels_for_action() isn't
-T 1521925979 18<Company18>	ebassi: CI is borked and can't find glib again! help!
-T 1521925994 18<dboles18>	kre10s: see https://developer.gnome.org/gtk3/stable/gtk3-Keyboard-Accelerators.html for the others. I'd say actions are the way to go though
-T 1521926005 18*	Company should learn how this stuff works so he can unbreak it himself
-T 1521926034 18<Company18>	it's supposed to be docker and I learned that Docker works by deleting everything and restarting
-T 1521926153 18<ebassi18>	Ugh, ccache again?
-T 1521926308 18<ebassi18>	Okay, now I've disabled ccache; let's see what happens
-T 1521926399 18<Company18>	ebassi: export CCACHE_DISABLE=true_ <-- that underscore there is on purpose/doesn't matter?
-T 1521926447 18<ebassi18>	Company: It doesn't really matter, as an envvar that is set mean "true"
-T 1521926462 18<ebassi18>	According to ccache's man page
-T 1521926467 18<ebassi18>	Could have set it to 1
-T 1521926512 18<AndroUser218>	Can there  be only one template in a widget's inheritance chain?
-T 1521926778 18<Company18>	every widget class can have its own template
-T 1521928726 18<Company18>	CI is making my day
-T 1521928735 18<Company18>	5 failed builds on master, then:
-T 1521928746 18<Company18>	ci: build with -Werror
-T 1521928753 18<Company18>	and stuff starts ucceeding
-T 1521931470 18<lovetox18>	hi, i have a weird problem, i have a scrolledwindow with a textview, and i want to catch if the user scrolls down
-T 1521931510 18<lovetox18>	i hook to the scroll-event signal, and then call get_scroll_direction()
-T 1521931529 18<lovetox18>	this yields always SCROLL_UP, no matter what the real scroll direction is
-T 1521931555 18<lovetox18>	and there is another var "has_direction" that is returned, and its always FALSE
-T 1521931572 18<lovetox18>	so im not really sure whats going on, but this even seems not really helpful
-T 1521931659 18<Company18>	lovetox: it might be telling you to scroll up by a negative amount?
-T 1521931711 18<baedert18>	I'd first try get_scroll_deltas and check those
-T 1521931722 18<Company18>	lovetox: or it's returning FALSE and you're not checking the return value
-T 1521931754 18<Company18>	because I believe that stuff does smooth scrolling could do that
-T 1521931814 18<Company18>	*does smooth scrolling and that would do that
-T 1521931868 18<lovetox18>	baedert, you are right from the deltas i can see if i scroll up or down +1/-1
-T 1521931906 18<lovetox18>	but maybe im misunderstanding how this works, so i have this method call
-T 1521931907 18<lovetox18>	https://lazka.github.io/pgi-docs/#Gdk-3.0/classes/Event.html#Gdk.Event.get_scroll_direction
-T 1521931916 18<lovetox18>	and it returns a tuple FALSE, direction
-T 1521931927 18<lovetox18>	so on seeing FALSE, what value should i check?
-T 1521931951 18<baedert18>	The other value only makes sense if the bool one was TRUE
-T 1521931975 18<baedert18>	all those accessors only work for a subset of event types
-T 1521932015 18<lovetox18>	yeah ok thats what i thought, if i get FALSE ignore the event because it does not tell me the direction
-T 1521932022 18<lovetox18>	but its always FALSE on linux
-T 1521932027 18<lovetox18>	debian for that matter
-T 1521932035 18<lovetox18>	so ok i can check deltas
-T 1521932046 18<lovetox18>	but is this really supposed to be like that?
-T 1521932063 18<lovetox18>	because i developed this originally on windows, and on windows the event behaves exactly like you would wish
-T 1521932069 18<lovetox18>	tells you always the scroll direction
-T 1521932110 18<baedert18>	gdkevents.c tells me get_scroll_direction only works for GDK_SCROLL events and only if the direction is not GDK_SCROLL_SMOOTH, i.e. smooth scrolling events have no direction
-T 1521932130 18<AndroUser218>	Is there some way to add placeholders to put custom widgets into in Glade?
-T 1521932191 18<lovetox18>	ok .. thanks for looking that up
-T 1521932199 18<lovetox18>	so i try something with deltas and hope that works
-T 1521932222 18<lovetox18>	would a scroll up on a mouse also trigger any other event? maybe some keypress event?
-T 1521932247 18<baedert18>	scroll deltas seem to only work for smooth scroll events though
-T 1521932306 18<lovetox18>	hm so do you have an idea how i could reliably tell if it was a scroll up or down always?
-T 1521932310 18<Company18>	the event APIs are pretty terrible, especially when bound, aren't they?
-T 1521932332 18<baedert18>	I have a pretty good idea how!
-T 1521932356 18<baedert18>	https://gitlab.gnome.org/GNOME/gtk/blob/master/gtk/gtkeventcontrollerscroll.c#L257
-T 1521932380 18<baedert18>	I don't even know where this logic was in gtk3. gtkscrolledwindow.c?
-T 1521932609 18<lovetox18>	ok thanks, i will look at that and try to figure it out :)
-T 1521934806 18<lovetox18>	baedert, yeah i have now a working solution, it would be nice if GTK4 could abstract this a bit form the regular gtk user
-T 1521934875 18<lovetox18>	like a mouse-scroll-event that just does all this and just gives you up, down, left, right back
-T 1521936274 18<EmmanueleBassi18>	Ah, that's why I didn't enable `--werror` on CI...
-T 1521936280 18<EmmanueleBassi18>	https://gitlab.gnome.org/GNOME/gtk/-/jobs/17796
-T 1521936289 18<EmmanueleBassi18>	GCC now warns in our tests
-T 1521936328 18<EmmanueleBassi18>	Which, of course, is nice - except we're trying to test the overflow handling...
-T 1521939286 18<EmmanueleBassi18>	There's also the Freetype issue in f27 that would fail with `-Wundef`...
-T 1521939307 18<EmmanueleBassi18>	We should move the CI image to the GNOME nightly SDK
-T 1521945862 18<Company18>	it kinda sucks that subprojects inherit -Werror
-T 1521945892 18<Company18>	and it sucks even more that we run tests in subprojects
-T 1521945934 18<Company18>	that said, if you want to test that behavior, can't you disable those warnings in the test with a #pragma?
-T 1521946041 18<Company18>	and last but not least, why did -Dwerror=true work?
-T 1521946045 18<Company18>	was that sheer luck?
-T 1521946227 18<Company18>	-Dwerror=true does work because it doesn't turn on -werror for subprojects
-T 1521949141 20*	Disconnected (20Connection timed out)
-T 1521983371 19*	Now talking on 22#gtk+
-T 1521983371 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1521983371 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1521986266 18<EmmanueleBassi18>	Company: We don't run tests in subprojects, but we do build them
-T 1521986276 18<EmmanueleBassi18>	We don't have an option to not build tests in GLib
-T 1521986301 18<EmmanueleBassi18>	Though we may be able to add one and tell Meson to use it when falling back to a subproject
-T 1521986375 18<EmmanueleBassi18>	Of course, the build would have failed by the time we tried to build Pango as a subproject, as it uses Freetype, and the copy of Freetype in Fedora 27 still has a broken header with undefined pre-processor symbols
-T 1521986410 18<EmmanueleBassi18>	We could "fix" both issues by switching the Docker image we use for CI to the same gnome-nightly-oci image we use for building Flatpaks
-T 1521986414 18<EmmanueleBassi18>	But we would not be able to run the tests suite, because it's missing Xvfb
-T 1521986441 18<EmmanueleBassi18>	And, yes: `-Dwerror` does not exist as an option
-T 1521987172 18<baedert18>	ebassi: Any opinion on https://paste.xinu.at/UiR/ ? (I guess we have to query if the extension is available?)
-T 1521987264 18<EmmanueleBassi18>	baedert: Looks good; and yes, it needs to check in the GdkDisplay GL init if there is the appropriate extension
+T 1524688830 18<geever18>	I found an unofficial port of gtkglext to gtk3 on github, but that project seems to be dead for years...
+T 1524688974 18<Company18>	geever: i think there's not many people who've done this, so I wouldn't get my hopes up
+T 1524688986 18<Company18>	and I don't know of any projects
+T 1524691116 18<hergertme18>	Company, so at what number of widgets in widgetbowl is it worth writing a blog post about improved gtk4 perf?
+T 1524691123 18*	hergertme things its worthwhile to do one now
+T 1524691126 18<hergertme18>	thinks rather
+T 1524691189 18<Company18>	hergertme: dunno
+T 1524691207 18<Company18>	does anybody care about fishbowling widgets in their apps?
+T 1524691237 18<hergertme18>	i just mean in terms of big jumps in perf. it was like 4x wasn't it?
+T 1524691240 18<Company18>	if we started advertising apps with more than 20 icons, our poor designers would get heart attacks - let alone 4000
+T 1524691390 18<Company18>	hergertme: gtk3-demo gets around 100 icons, vulkan on wayland gets 4000
+T 1524691397 18<Company18>	so it's somewhere around 40x
+T 1524691407 18<mclasen18>	nice numbers, if you can get them
+T 1524691413 18<Company18>	but drawing 40x faster doesn't help you much if you don't draw a lot
+T 1524691441 18<mclasen18>	it means you have more time to do other stuf
+T 1524691446 18<mclasen18>	thats nice
+T 1524691524 18<Company18>	mclasen: it also means you can animate all the things and redraw them eery frame
+T 1524691532 18<hergertme18>	exactly, i think of this stuff like an accordion 
+T 1524691534 18<mclasen18>	true
+T 1524691568 18<hergertme18>	in terms of multiply, i just meant from before the fix, it was ~500 wasn't it?
+T 1524691578 18<hergertme18>	but comparing to 3.x is probably smarter
+T 1524691585 18<hergertme18>	in the "why did we need to break ABI" category 
+T 1524691598 18<hergertme18>	40x improvement, but new ABI? okay, that's worth it
+T 1524691604 18<Company18>	hergertme: the problem is that we do so many other things different, too
+T 1524691615 18<Company18>	hergertme: and those other things aren't (yet?) 40x faster
+T 1524691635 18<hergertme18>	just trying to lay out a story that is positive :)
+T 1524691650 18<Company18>	drawing in general is a *LOT* faster
+T 1524691677 18<Company18>	where a LOT means stuff that used to take seconds to draw now draws in less than a frame
+T 1524691730 18<feaneron18>	listbox is faster
+T 1524692206 18<Company18>	i might now be the first person porting from GTK4 to GTK3
+T 1524692823 18<Company18>	dammit
+T 1524692836 18<Company18>	we need a script that ports ui files between gtk3 and gtk4
+T 1524748994 19*	Now talking on 22#gtk+
+T 1524748994 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
+T 1524748994 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
+T 1524750696 18<heftig18>	hm, no autoptr cleanup func for GTypeClass?
+T 1524750724 18<Company18>	probablyt just forgotten
+T 1524752417 18<bugbot18>	florian.muellner@gmail.com changed the Status on bug 795488 from REOPENED --- to RESOLVED FIXED.
+T 1524752417 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=795488 gio, normal, gtkdev, RESOLVED FIXED, gdesktopappinfo: Filter out some binary names in search
+T 1524752490 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 773435 from NEW --- to RESOLVED FIXED.
+T 1524752490 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=773435 general, normal, gtkdev, RESOLVED FIXED, After g_get_home_dir() fails, a second use deadlocks
+T 1524752523 18<pwithnall18>	heftig: Patch welcome :)
+T 1524752532 18<pwithnall18>	baedert: Are you planning on updating https://bugzilla.gnome.org/show_bug.cgi?id=784814 soon?
+T 1524752533 18<bugbot18>	Bug 784814: gio, normal, gtkdev, NEW , fdo notification backend: Crashes when dbus call fails
+T 1524752550 18<pwithnall18>	I see someone has taken the subtle approach of bumping by attaching a bogus patch
+T 1524752553 18<spacekookie18>	Is there a field in Gtk.TextView that specifies line height and padding on lines? (so how far from the left or right the area should start/ start wrapping?
+T 1524752560 18<spacekookie18>	I didn't really see anything in the docs that caught my eye
+T 1524752597 18<baedert18>	pwithnall: No, I don't really use the fdo notification backend, was just something I noticed while using xfce for testing. I wasn't planning on spending much more time on it than writing the initial patch
+T 1524752619 18<pwithnall18>	boo :(
+T 1524752653 18<pwithnall18>	I wonder if I can con this new commenter into updating your patch
+T 1524753386 18<Company18>	sooooo
+T 1524753400 18<Company18>	event sequences
+T 1524753428 18<Company18>	are we ever going to use them elsewhere or just in touch events?
+T 1524753482 18<Company18>	i'm asking because I'm wondering about how to treat DND events
+T 1524753500 18<Company18>	should the GdkDragContext be used as the event sequence?
+T 1524753592 18<mclasen18>	garnacho: ^
+T 1524753641 18<garnacho18>	Company: I think it should always probably be null in a dnd event controller
+T 1524753688 18<Company18>	garnacho: I'm mostly thinking about it from a unifying-gtk-code pov
+T 1524753722 18<Company18>	garnacho: because of the ENTER/MOTION/LEAVE and BEGIN/UPDATE/END machinery
+T 1524753756 18<Company18>	garnacho: do we unify that or do we add another special case for DRAG_ENTER/DRAG_MOTION/DRAG_LEAVE
+T 1524753808 18<Company18>	and the whole synth_crossing() part needs duplication also for FOCUS_IN/FOCUS_OUT
+T 1524753852 18<Company18>	that's 3.5 cases of event sequences that need very similar machinery
+T 1524753934 18<garnacho18>	Company: begin/end and enter/leave don't match semantically, and I'm not really keen on adding per touch enter/leave events to match it closer to pointers...
+T 1524754035 18<garnacho18>	making the focus tracking event delivery code common, sure. It's always propagating down a widget and up another
+T 1524754052 18<Company18>	yeah
+T 1524754070 18<Company18>	and it'll be tricky code for the cases where the widgetry changes during the sequence
+T 1524754131 18<Company18>	garnacho: what's the difference for touch? Does TOUCH_BEGIN grab the widget the touch started on?
+T 1524754143 18<Company18>	and then the rest of the events go to that widget?
+T 1524754197 18<garnacho18>	yup, that's what happens
+T 1524754204 18<mclasen18>	the other way around, right ?
+T 1524754212 18<mclasen18>	the controller grabs the sequence
+T 1524754217 18<mclasen18>	not the sequence grabs the widget
+T 1524754244 18<Company18>	that's actually another question I had
+T 1524754255 18<Company18>	how are motion events delivered while a button is pressed?
+T 1524754314 18<Company18>	because the web has :hover set on the element below the mouse pointer, no matter if there's a button pressed over another widget or not
+T 1524754334 18<Company18>	which would mean ENTER/MOTION/LEAVE proceeds as normal while a button is pressed
+T 1524754357 18<mclasen18>	thats just not how X works
+T 1524754368 18<Company18>	we're not using X
+T 1524754400 18<Company18>	with GTK4 there's no child windows anymore, so X requirements don't really matter to us
+T 1524754415 18<mclasen18>	somewhat true
+T 1524754424 18<Company18>	also, we're a wayland toolkit now :p
+T 1524754438 18<mclasen18>	we should put that on a sticker
+T 1524754467 18<garnacho18>	mclasen: the widget stack that will have the touch event propagated is per-sequence. The controllers in the widgets along the stack use the sequence for claiming purposes. eg. two sequences might have different targets, but end up claimed by a same common parent
+T 1524754509 18<garnacho18>	Company: right now it locks on the implicit grab, X style
+T 1524754758 18<heftig18>	pwithnall: any point adding cleanup to GParamSpec, GParamSpecClass, GObjectClass, GInitiallyUnownedClass?
+T 1524754798 18<pwithnall18>	Yes to the `Class` ones; less sure about `GParamSpec` because it’s typically floating iirc
+T 1524754825 18<pwithnall18>	and nobody ever constructs a `GParamSpec` for anything other than `g_object_class_install_properties()`
+T 1524754851 18<pwithnall18>	but then again, it’s easy enough to add cleanup support, so ¯_(ツ)_/¯
+T 1524754925 18<Company18>	can you mark globals as g_autoptr?
+T 1524755164 18<ebassi18>	Company: No
+T 1524755172 18<ebassi18>	Company: They never go out of scope
+T 1524755185 18<Company18>	they do on unload
+T 1524755202 18<Company18>	that's why I was wondering
+T 1524755234 18<Company18>	would be useful for global cleanup when running memcheck for example
+T 1524755278 18<Company18>	garnacho, mclasen: fun fact: JS doesn't even do a soft grab on button down
+T 1524755301 18<heftig18>	Company:  "This attribute can only be applied to auto function scope variables"
+T 1524755449 18<Company18>	garnacho, mclasen: actually, they do on left click, but not on right click
+T 1524755451 18<Company18>	screw the web
+T 1524755477 18<garnacho18>	heh
+T 1524755720 18<Company18>	actually, I'm just using the wrong events
+T 1524755792 18<heftig18>	pwithnall: gio isn't using G_DECLARE because nobody cared yet
+T 1524755795 18<heftig18>	pwithnall: ?
+T 1524755837 18<pwithnall18>	`G_DECLARE_[DERIVABLE|FINAL]_TYPE`?
+T 1524755855 18<Company18>	garnacho: so what the web does is not doing a grab at all
+T 1524755862 18<pwithnall18>	Porting to those typically breaks ABI
+T 1524755894 18<pwithnall18>	(always breaks ABI?)
+T 1524755895 18<Company18>	garnacho: but the event controllers for clicks only trigger if they received a button down followed by a button up
+T 1524755951 18<garnacho18>	Company: how does the source element know of the release? listening on the root elem?
+T 1524755965 18<Company18>	garnacho: i didn't analyze it that far yet
+T 1524755974 18<Company18>	garnacho: https://jsfiddle.net/9bm9oezd/1/
+T 1524755988 18<garnacho18>	no wonder why it's so easy to have google maps stubbornly stick to the pointer then :/
+T 1524755997 18<heftig18>	pwithnall: I thought it only breaks ABI if the instance struct respectively the class struct contains more than the parent struct
+T 1524756002 18<Company18>	garnacho: onlick only gets triggered (for the whole tree) if the target was the same for button down and button up
+T 1524756052 18<Company18>	garnacho: and up gets delivered to whatever button you release on (for any button
+T 1524756054 18<Company18>	)
+T 1524756095 18<Company18>	the neat thing about that approach is that it simplifies event delivery a lot
+T 1524756113 18<Company18>	because you don't have to track grabs
+T 1524756129 18<pwithnall18>	heftig: Yes, and that’s the case for a lot of classes in GIO (they have vfuncs defined in the class)
+T 1524756131 18<Company18>	the not so neat thing is that it makes the event controllers more complicated
+T 1524756138 18<ebassi18>	pwithnall: The reason why we don't use G_DECLARE in gio is because we have all the typedefs in a single header
+T 1524756144 18<pwithnall18>	I would be wary about other ways of breaking ABI too
+T 1524756154 18<Company18>	ebassi: that doesn't matter
+T 1524756154 18<heftig18>	pwithnall: in which case you would use G_DECLARE_DERIVABLE_TYPE so you the class struct remains under your control
+T 1524756168 18<Company18>	ebassi: you can duplicate typedefs
+T 1524756172 18<pwithnall18>	tl;dr: Please don’t port to G_DECLARE_* without some output from an ABI diff tool proving it’s OK
+T 1524756176 18<ebassi18>	pwithnall: And compilers warn about duplicated typedefs unless they run with c11 compatibility
+T 1524756199 18<ebassi18>	Company: You can only with recent GCC or with C11-compatible compilers
+T 1524756200 18<pwithnall18>	there is also that
+T 1524756232 18<ebassi18>	I also think C++ will warn about that
+T 1524756232 18<Company18>	ebassi: looks like people will figure out if their compilers are C11-compatible once they try compiling GTK4 then :o
+T 1524756246 18<ebassi18>	Company: Compiling GIO != Compiling code using GIO
+T 1524756274 18<Company18>	ebassi: because I've been using G_DECLARE() for all the paintables while redeclaring their types in the types.h headers
+T 1524756283 18<Company18>	and nobody has complained yet
+T 1524756287 18<ebassi18>	Nothing old uses GTK4, so we can ask people to use a decent compiler
+T 1524756298 18<ebassi18>	The same cannot be said about GIO
+T 1524756351 18<Company18>	yeah, agreed on that
+T 1524756358 18<pwithnall18>	https://wiki.gnome.org/Projects/GLib/CompilerRequirements#A.28C11.29_support_for_type_redefinition
+T 1524756441 18<ebassi18>	Yeah, GCC 4.2 was a point of contention
+T 1524756451 18<ebassi18>	Considering that *BSDs and Apple ship it
+T 1524756457 18<heftig18>	I'm tempted to add _GLIB_DEFINE_AUTOPTR_CHAINUP (ModuleObjName##Class, ParentName#Class)
+T 1524756463 18<heftig18>	but this is starting to look like serious overkill
+T 1524760091 18<converts18>	I'm having trouble with the the array length argument again with  g_signal_list_ids
+T 1524760174 18<converts18>	oknf i'm hoping you can take a look at GObject-2.0.gir
+T 1524760376 18<oknf[m]18>	converts, ok, what about it?
+T 1524760612 18<converts18>	the allocated array is returned by the function, and the length-arg is set on the return value as 1
+T 1524760683 18<oknf[m]18>	yes, the length will be returned in n_ids 
+T 1524760866 18<converts18>	so it looks ok
+T 1524761095 18<oknf[m]18>	I would probably expect caller-allocates="1" on n_ids
+T 1524761264 18<converts18>	i'm afraid cl-gir's function invocation has to be rewritten. i can't kludge this
+T 1524761460 18<converts18>	I think I see what I'm doing wrong but i'm out of time again
+T 1524761909 18<converts18>	thx
+T 1524765497 18<Company18>	mcatanzaro: your rebase skills need to be oiled
+T 1524765499 18<Company18>	mcatanzaro: https://git.gnome.org/browse/epiphany/commit/lib/ephy-prefs.h?id=7e96228e7aa11e5d1ebce3d292e98d98fee802b6
+T 1524765523 18<mcatanzaro18>	Are you implying that I should test my changes before pushing them? :P
+T 1524765537 18<Company18>	I would never do that
+T 1524765556 18<Company18>	i would be a hypocrite if I'd imply that
+T 1524765584 18<mcatanzaro18>	Good, fixed (I guess, maybe!)
+T 1524775600 19*	Now talking on 22#gtk+
+T 1524775600 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
+T 1524775600 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
+T 1524782678 18<Company18>	woah wowah woah
+T 1524782679 18<Company18>	https://www.reddit.com/r/gnome/comments/8f6hqe/system_sounds_arent_working_on_gnome_suddenly/
+T 1524782688 18<Company18>	people are using sounds
+T 1524782700 18<Company18>	well
+T 1524782708 18<Company18>	s/people are/at least one person is/
+T 1524782741 18<Company18>	so does that mean we can't just delete libcanberra integration?!
+T 1524783288 18<hergertme18>	just give it an extension point rather than modules at least?
+T 1524783777 18<andlabs18>	what's the integration
+T 1524783784 18<andlabs18>	I thought gtk just had a widget_beep function
+T 1524784495 18<Company18>	hergertme: extension points still need an API to call
+T 1524784511 18<Company18>	hergertme: unless you want to have GTK_EXTENSION_POINT_GTK_MODULE ?
+T 1524784548 18<Company18>	andlabs: yeah, but we have this amazing thing called a "signal handler" which supports so called "hooks"
+T 1524784595 18<Company18>	andlabs: and GTK3 on top of that has "modules" which is like LD_PRELOAD but as supported API
+T 1524784675 18<andlabs18>	so who is providing the integration then
+T 1524784696 18<Company18>	that's all you need
+T 1524784710 18<Company18>	well
+T 1524784716 18<Company18>	that's all the sounds need
+T 1524784719 18<andlabs18>	okay I guess I should rephrase
+T 1524784731 18<andlabs18>	it seems weird that gtk is providing the integration with libcanberra, and not libcanberra itself
+T 1524784744 18<Company18>	well yeah, libcanberra is
+T 1524784754 18<andlabs18>	or do you mean removing the hooking points
+T 1524784765 18<Company18>	i mean removing the hooking points, yes
+T 1524784770 18<andlabs18>	hm
+T 1524784779 18<Company18>	because it's stupid to support something like that
+T 1524784794 18<Company18>	g_inject_random_code() is not how you make debuggable libraries
+T 1524784816 18<andlabs18>	I do wonder what libcanberra wants to do with sounds
+T 1524784834 18<Company18>	our idea so far was "nobody cares"
+T 1524784841 18<Company18>	but then this guy shows up on reddit
+T 1524784842 18<andlabs18>	is it stuff like "here's a sound every time a button is clicked"
+T 1524784849 18<Company18>	it is, yes
+T 1524784862 18<andlabs18>	honestly I'm surprised that wasn't there already
+T 1524784877 18<andlabs18>	back when gtk1 was a thing that was in vogue
+T 1524784909 18<andlabs18>	I guess someone is still living the 'dream'
+T 1524784955 18<andlabs18>	though reading that post I don't see how this is related to that
+T 1524784961 18<andlabs18>	is "the popping click noise when changing volume or the right/left test in the sound settings" nt provided by gnome shell
+T 1524784978 18<andlabs18>	s@provided@done@g
+T 1524785039 18<Company18>	it is
+T 1524785067 18<Company18>	not sure if it uses the sound theme or not
+T 1524785071 18<andlabs18>	hm
+T 1524785170 18<Company18>	there's also https://mail.gnome.org/archives/desktop-devel-list/2008-December/msg00057.html
+T 1524785177 18<Company18>	but i'm not sure that guy would like it
+T 1524785225 18<TingPing18>	g-s does use the sound theme in a few places
+T 1524785305 18<hergertme18>	arguably it could be an a11y feature too
+T 1524785478 18<Company18>	yay!
+T 1524785500 18<Company18>	so we send a sound request over dbus to atk
+T 1524785509 18<Company18>	which sends it voer dbus to the event sound manager
+T 1524785522 18<Company18>	which then uses dbus to send it to pulseaudi
+T 1524785530 18<hergertme18>	"dbus on a chip"
+T 1524785537 18<hergertme18>	so we can send it to the soundcard 
+T 1524785566 18<Company18>	yeah, we could pass an fd straight through, so we can directly write to the soundcard!
+T 1524785640 18<Company18>	(except neither of those servers can do anything like that
+T 1524785643 18<Company18>	)
+T 1524785750 18<hergertme18>	i doubt the tlb shootdowns are worth the fd pass
+T 1524785756 18<Company18>	the biggest problem with sounds in gnome is that we have *no* expertise about sound
+T 1524785758 18<hergertme18>	unless every sample is > 1mb
+T 1524785763 18<Company18>	like
+T 1524785773 18<Company18>	games make sounds everywhere
+T 1524785781 18<Company18>	and phones make a lot of sounds too
+T 1524785790 18<Company18>	and nobody would turn them off
+T 1524785795 18<andlabs18>	I would answer this but have to head home
+T 1524789749 18<federicomena[m]18>	mclasen I'm sending people from mastodon over to try gnome-recipes - hopefully you'll get more users :)
+T 1524796176 18<mclasen18>	nice
+T 1524824013 18<houz18>	hi, is there a known bug in gtk3 on windows that prevents the file open dialog to react to clicking drive entries in the shortcut list? things like "Home" work
+T 1524825623 18<lazka18>	houz, yes, https://gitlab.gnome.org/GNOME/gtk/issues/170
+T 1524825712 18<mclasen18>	ebassi: did we get anywhere with bug migration ?
+T 1524825844 18<ebassi18>	mclasen: No, haven't heard from csicar[m] 
+T 1524825848 18<ebassi18>	csoriano: 
+T 1524825853 18<ebassi18>	Sorry, csicar[m] 
+T 1524825858 18<ebassi18>	Tab completion failure
+T 1524825877 18<mclasen18>	he was travelling
+T 1524825936 18<ebassi18>	I mean: I could try running the script myself, but I'm not an admin, so I can't really solve any issue popping up
+T 1524825958 18<ebassi18>	Also, the script needs admin privileges to read the Bugzilla users
+T 1524826263 18<Company18>	mclasen: Are you the right person to look at https://gitlab.gnome.org/GNOME/gtk/merge_requests/120 ?
+T 1524826285 18<Company18>	(we seriously need to find somebody to declare our new keyboard guru)
+T 1524826325 18<mclasen18>	if you need to ask, the answer is no
+T 1524826327 18*	mclasen looks anyway
+T 1524826439 18<mclasen18>	garnacho: ^ seems a bit dubious to me ?
+T 1524826451 18<Company18>	mclasen: with code that's untouched since GTK 2.x I always take my chances with you because you're the only one still around from that time ;)
+T 1524826470 18<mclasen18>	alex is around
+T 1524826489 18*	alex hides
+T 1524826492 18<mclasen18>	and has touched gdk much more than me, in recorded history
+T 1524826502 18<alex18>	he's lying!
+T 1524826542 18<Company18>	yeah, but alex has swapped most of his GTK knowledge out, so whenever I ask him about anything that's not renaming an object, he always forgot! ;)
+T 1524826564 18<mclasen18>	he's regularly swapping it back in
+T 1524826576 18<garnacho18>	mclasen: yeah, needs close inspection
+T 1524826606 18<Company18>	what's our stance on merge requests anyway?
+T 1524826608 18<alex18>	Yeah, i remember getting these random grab events 
+T 1524826610 18<mclasen18>	I mean, there's really no guarantee that a focus-out+notify-grab is just a short-lived wm shortcut
+T 1524826651 18<alex18>	not exactly these, but similar things
+T 1524826674 18<Company18>	like, do we let them queue up or do we try to close all merge requests?
+T 1524826701 18<mclasen18>	it would be good to not pile up tons of stuff again
+T 1524826732 18<Company18>	if merge requests get closed, discussions would move back to bug reports
+T 1524826734 18<garnacho18>	another grabbing client? but that would be weird with the keyboard focus here
+T 1524826750 18<alex18>	But i agree with mclasen, how do you know that the focus didn't go elsewhare
+T 1524826764 18<garnacho18>	unless passive grabs...
+T 1524826776 18<Company18>	alex: you'd get another focus notification, no?
+T 1524826777 18<garnacho18>	indeed, it's a rough guess
+T 1524826823 18<alex18>	Company: well, if you get a FocusOut event, how do you know its a temporary one so you can ignore it?
+T 1524826838 18<alex18>	You don't know ahead of time itsa FocusOut+FocusIn pair, right?
+T 1524826901 18<alex18>	Then again, i didn't really look at this, i don't really know what has_focus_window is
+T 1524827156 18<Company18>	alex: well, all we know is that has_focus_window is not has_focus - the docs in there only talk about one of those though
+T 1524827230 18<Company18>	Samuel (I forget his irc nick) investigated that and claimed the 2nd one was only introduced because of some refcounting mess
+T 1524827247 18<csoriano18>	ebassi: you are an admin of gitlab-test, you can run it there
+T 1524827258 18<csoriano18>	that would cover most of the cases already
+T 1524827261 18<Company18>	youpi!
+T 1524827296 18<Company18>	in any case, unless somebody complains about the change in the bug, I'm going to press the big green button on it
+T 1524827311 18<Company18>	because the merge request has been lingering and nobody said anything, and that's not good
+T 1524827349 18<garnacho18>	IMO, this could be further special cased to just handling passive grabs
+T 1524827371 18<garnacho18>	but even then, we have no guarantees that the focus will return back to this client
+T 1524827423 18<csoriano18>	in any case is still my top prio in the bztogl tool to implement to being able to run it withouth consulting the users, it should be just a very few lines of code. At that point is the same as running it on gitlab-test though
+T 1524827552 18<Company18>	garnacho: doesn't the X server send another event when the focus window moves while grabbed?
+T 1524827566 18<Company18>	garnacho: what else would NotifyWhileGrabbed be about?
+T 1524828011 18<garnacho18>	Company: xinput test-xi2 should tell, if you are on an x11 session
+T 1524828046 18<Company18>	i'm not
+T 1524828064 18<Company18>	because I'm on Wayland since I realized Wayland has way smoother framerates
+T 1524828086 18<Company18>	also, it's way easier to test Wayland + X11 from Wayland
+T 1524828115 18<Company18>	no need to spawn a nested compositor, just use GDK_BACKEND to run in (broken) X11
+T 1524828142 18<garnacho18>	however there alt-tab, volume keys and whatnot don't involve passive key grabs
+T 1524828220 18<Company18>	yeah, I'd neeed to relog if i wanted to test it
+T 1524828397 18<garnacho18>	same here, I think you could be right reading xserver code, but crossing mode/detail is tricky
+T 1524828455 18<Company18>	i'd just commit it and see if it breaks anything obvious
+T 1524828472 18<Company18>	youpi didn't have an issue and it clearly fixes a bug
+T 1524839727 19*	Now talking on 22#gtk+
+T 1524839727 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
+T 1524839727 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
+T 1524840504 18<mclasen18>	mitch: congratulations on the release!
+T 1524840517 18<mitch18>	mclasen: thanks :)
+T 1524840523 18<mitch18>	mclasen: looking forward to gtk3 ;)
+T 1524840546 18<ebassi18>	Importing glib bugs into gitlab times out pretty reliably; I just managed to create ~1400 issues, but import only 6.5 of them
+T 1524840546 18<mclasen18>	you can take a weekend off
+T 1524840556 18<mclasen18>	but then you should get right on it! :-)
+T 1524840602 18<alex18>	mitch: yay release!
+T 1524840627 18<alex18>	https://flathub.org/builds/#/builders/2/builds/1066
+T 1524840632 18<alex18>	building in flathub here
+T 1524840751 18<alex18>	mitch: so, gtk3 support in 6 years?
+T 1524840787 18<Company18>	if it takes 6 years, go GTK4!
+T 1524840854 18<baedert18>	*GTK5
+T 1524840991 18<mitch18>	alex: indeed :)
+T 1524841006 18<mitch18>	alex: 12 years :P
+T 1524841095 18<baedert18>	but *clearly* moving to gtk3 will at least double the amount of contributors!
+T 1524841157 18<mitch18>	haha one would hope
+T 1524841803 18<alexarnaud18>	Hello all
+T 1524857586 19*	Now talking on 22#gtk+
+T 1524857586 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
+T 1524857586 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
+T 1524858370 18<mclasen18>	so in master, I replaced the limited ctrl-shift-E thing for emoji with a completion popup
+T 1524858400 18<mclasen18>	one reason is to avoid fighting with ibus (and apps) over ctrl-shift-E
+T 1524858427 18<mclasen18>	and the ctrl-shift-e implementation was a bit subpar to begin with
+T 1524858443 18<mclasen18>	how would people feel about backporting that ?
+T 1524858451 18<mclasen18>	it does involve a new property to enable the completion
+T 1524859235 mclasen m4sk1n marv marvin___ mathrick MatrixTraveler[m] MatthiasM mattiasb Mc mceier mdhill meebey mickeyl mittwinter mlq mlundblad_ mmeeks moch mohadese[m] mpt mrtadis msanchez msantana mtwebster muks muktupavels mwleeds[m] mythos 
+T 1524859357 20<lufimtse>30	mclasen, we're having some issues with re-parenting, where children have subwindows. In the past we used to use 'gtk_widget_reparent(..)' which internally also does 'gtk_widget_reparent_subwindows(..)'. But that call was deprecated in gtk3.14.  We found that if we re-parent via container(remove & add), we get the situation that later 'parent is disposed(..)' is reported by one of the reparented children's sub containers.
+T 1524859372 20<lufimtse>30	is there a better way to reparent other than container(add|remove) ?
+T 1524859409 18<mclasen18>	whenever you reparent like that, you need to make sure that you keep a ref across the unparent/reparent
+T 1524859414 18<mclasen18>	I assume you do that ?
+T 1524859426 20<lufimtse>30	yea
+T 1524859427 20<lufimtse>30	/			OS.g_object_ref (widget); //so that it won't get destroyed due to lack of references.
+T 1524859427 20<lufimtse>30	/			GTK.gtk_container_remove (parentContainer, widget);
+T 1524859427 20<lufimtse>30	/			GTK.gtk_container_add (newParentHandle, widget);
+T 1524859427 20<lufimtse>30	/			OS.g_object_unref (widget);
+T 1524859442 20<lufimtse>30	but we still get the 'parent is disposed(..)' error
+T 1524859450 20<lufimtse>30	and some eclipse plugins throw errors
+T 1524859478 20<lufimtse>30	i.e container(remove & add) doesn't seem to fully do the job of reparent?
+T 1524859496 20<lufimtse>30	kinda hard to turn it into a gtk-snippet
+T 1524859543 20<lufimtse>30	but I could re-compile gtk and check if it's the 'gtk_widget_reparent_subwindows(..)' calls in gtk_widget_reparent()?
+T 1524859551 20<lufimtse>30	that make the difference 
+T 1524860097 20<lufimtse>30	I gotta run. Will post something on mailing list
+T 1524860224 FiSHLiM plugin unloaded
+T 1524860224 Python interface unloaded
+T 1525101020 19*	Now talking on 22#gtk+
+T 1525101020 22*	Topic for 22#gtk+ is: https://git.gnome.org/browse/gimp/tree/configure.ac#n53 ?
+T 1525101020 22*	Topic for 22#gtk+ set by 26Company (24Mon Apr 30 06:56:10 2018)
+T 1525101215 18<LRN18>	i hate chromium
+T 1525101364 18<LRN18>	they "deprecate" gyp (which is not a very good buildsystem, but seems to require Python and little else) with gn, which is baked into chromium repo (you can't just download it separately) and requires gcc > 4 to build
+T 1525101377 18<LRN18>	s/with/replacing it with/
+T 1525102449 18<alatiera18>	lazka: how do you update the gtk CI image? I want to add gtk-doc to it
+T 1525102477 18<alatiera18>	I found the Dockerfile but I got no idea from where the image gets pushed to the registry
+T 1525102594 18<ebassi18>	alatiera: Just open a MR with the updated Dockerfile
+T 1525102634 18<ebassi18>	alatiera: https://gitlab.gnome.org/GNOME/gtk/container_registry
+T 1525102862 18<alatiera18>	ebassi: done, https://gitlab.gnome.org/GNOME/gtk/merge_requests/130
+T 1525102943 18<alatiera18>	I was trying update the image locally first to publish the docs with pages , but I guess it's the same either way
+T 1525104784 18<baedert18>	Company: What's the plan for renderers saving some per-rendernode state? g_object_set_data on the node or a gdk_texture_set_render_data equivalent? (remember that the GObject API does locking)
+T 1525106168 18<Company18>	baedert: both don't really work - render nodes aren't GObjects and set_render_data() is a crappy API (especially on immutable types like GskRenderNode)
+T 1525106185 18<Company18>	baedert: so my idea was keeping a hash table rendernode => custom data in the renderer
+T 1525106221 18<mclasen18>	thats what object data is at the end of the day, anyway, so no big loss
+T 1525106276 18<Company18>	object data has the benefit of doing a LOCK/UNLOCK pair!
+T 1525106299 18<Company18>	otoh the hash tables are per-render node, so they're small
+T 1525106319 18<Company18>	while a per-renderer one has entries for every node, so they're quite a bit larger
+T 1525106342 18<Company18>	though I don't think we trigger pathologic hash table behavior that way
+T 1525106394 18<Soni18>	do you think GIO can handle this? https://gist.github.com/SoniEx2/90a1a580334a6fa68151a00a2bdadfff
+T 1525106457 18<mclasen18>	there's that - we already have the node in hands, so per-node storage avoids the lookup
+T 1525106551 18<Company18>	Soni: I remember there being some issues with gvfs and XFS or Reiser 4 or some filesystem where files could be directories
+T 1525106581 18<mclasen18>	baedert: what per-node state do we have ? 
+T 1525106584 18<Company18>	Soni: but that was quite a few years ago, so I dont remember the details
+T 1525106589 18<baedert18>	mclasen: None so far.
+T 1525106593 18<Soni18>	Company: I more mean the "anything goes in filenames" part
+T 1525106595 18<mclasen18>	and we we have to worry about clearing that, now that we cache nodes ?
+T 1525106629 18<baedert18>	of course we do
+T 1525106633 18<Company18>	Soni: you'd have to invent an escaping mechanism - but gvfs has display name and filename, so in theory anything goes
+T 1525106719 18<Company18>	mclasen: interesting fact to know: Vulkan fishbowl rendering spends most of its time copying rectangles from graphene_rect_t onto the vertex buffer to be sent as the input to the fragment shader
+T 1525106756 18<Company18>	mclasen: so if we were to cache those vertex buffers and not need to copy that data every frame, that'd be a huge speedup
+T 1525106759 18<mclasen18>	that is interesting information indeed
+T 1525106801 18<Company18>	that stuff could probably be sped up already by doing memcpy() instead of what we do today
+T 1525106816 18<mclasen18>	no way to make it zero copy, I guess
+T 1525106829 18<Company18>	for more complex apps, caching redirect textures could be interesting
+T 1525106862 18<Company18>	you could make it zero-copy if you allowed the render nodes to be allocated in GPU mapped memory
+T 1525106905 18<Company18>	or at least the parts of the render node that get sent to the GPU
+T 1525106926 18<Company18>	then all you'd need to do is make sure the render node layout matches the shader layout
+T 1525106973 18<Company18>	but before doing that, we should probably redo the css engine
+T 1525106981 18<Company18>	there's a bit more gains to be had there
+T 1525107612 18<ebassi18>	mclasen: Do you mind if I add myself to the gdk-pixbuf DOAP and remove the Autotools build from master?
+T 1525107626 18<mclasen18>	I don't mind it at all
+T 1525107635 18<mclasen18>	I welcome it!
+T 1525107646 18<ebassi18>	I was kind of waiting on the GitLab import, but I may have wobbly schedules in the foreseeable future, so I don't want to drop it on the floor
+T 1525108079 18<Company18>	ebassi: a gdk-pixbuf meson port is a requirement for my Windows world domination plans, so anything that makes it happen sooner is fine by me
+T 1525108170 18<tpm18>	Company, that already exists
+T 1525108209 18<Company18>	s/a meson port/a well-maintained default build with meson/
+T 1525108680 18<ebassi18>	And done
+T 1525108684 18<ebassi18>	Goodbye, Autotools
+T 1525108697 18<tpm18>	:)
+T 1525108780 18<TingPing18>	librsvg is probably the last gnome controlled dep that doesn't support meson
+T 1525108782 18<ebassi18>	Let's see what breaks horribly because I miscalculated
+T 1525108879 18<Company18>	TingPing: yeah, now we've finished the easy parts
+T 1525108899 18<Company18>	somebody now needs to replace behdad's m4 magic with meson
+T 1525108907 18<ebassi18>	tpm was working on that ;-)
+T 1525108916 18<TingPing18>	Company, for which project?
+T 1525108935 18<Company18>	TingPing: cairo
+T 1525108943 18<Company18>	is pango using meson already?
+T 1525108948 18<TingPing18>	yes
+T 1525108950 18<Company18>	neat
+T 1525108966 18<TingPing18>	harfbuzz uses cmake, but he seemed open to meson and its relatively simple
+T 1525109008 18<tpm18>	I've got harfbuzz on my list too, if no one else is faster
+T 1525109030 18<Company18>	meson Visual Studio integration still is done like described here: http://mesonbuild.com/Using-with-Visual-Studio.html ?
+T 1525109034 18<tpm18>	(and pixman fontconfig freetype)
+T 1525109049 18<Company18>	as in "open a shell and don't use visual studio"?
+T 1525109060 18<TingPing18>	Company, tbh vs support isn't great ime
+T 1525109091 18<TingPing18>	like everything builds fine, but opening in VS never worked smoothly
+T 1525109092 18<tpm18>	Company, well, you have to create the visual studio project files once if you don't want to use ninja
+T 1525109171 18<Company18>	tpm: i'm fine with using ninja or whatever
+T 1525109204 18<Company18>	tpm: I just want to hack using VS, and press the "Run" button in there once I want to run stuff
+T 1525109211 18<tpm18>	ninja backend = build stuff on the command line
+T 1525109237 18<tpm18>	(just like on linux)
+T 1525109240 18<baedert18>	how could fedex's unicode handling possibly be this bad
+T 1525109452 18<vktec18>	If I allocate a PangoFont with pango_font_map_load_font do I need to free it with g_object_unref?
+T 1525109472 18<vktec18>	The docs don't state that it needs freed, only that it's newly allocated
+T 1525109474 18<Company18>	baedert: don't specify your name as 	𝕿𝖎𝖒𝖒 𝕭𝖆𝖊𝖉𝖊𝖗  just because you expect a LAtex document?
+T 1525109607 18<Company18>	vktec: if it's "transfer full", you need to unref it
+T 1525109609 18<ebassi18>	vktec: https://developer.gnome.org/pango/stable/pango-Fonts.html#pango-font-map-load-font
+T 1525109628 18<ebassi18>	"transfer full" means "release the resources after use"
+T 1525109669 18<Company18>	vktec: basically, never look at what the docs say, only care about the annotations
+T 1525109676 18<vktec18>	Alright
+T 1525109682 18<Company18>	vktec: because annotations are code, so they are fixed
+T 1525109694 18<vktec18>	Is there a reference for what the annotations mean anywhere?
+T 1525109704 18<ebassi18>	vktec: Click on the annotation
+T 1525109717 18<vktec18>	Does nothing for me
+T 1525109718 18<TingPing18>	Company, well much of annotations are not
+T 1525109722 18<ebassi18>	Ah, wait, sorry
+T 1525109735 18<ebassi18>	vktec: https://developer.gnome.org/pango/stable/annotation-glossary.html
+T 1525109750 18<dboles18>	Company: you meant to say "annotations always need fixed"
+T 1525109750 18<vktec18>	Ah, I get a definition if I hover over them
+T 1525109764 18<Company18>	TingPing: they are more correct than the written docs *most* of the time
+T 1525109794 18<ebassi18>	Ideally gtk-doc would generate the appropriate text blurb, but that would also require fixing all documentation to drop things like "returns foo or NULL"
+T 1525109810 18<Company18>	i usually do what annotations say and then when it crashes I go look at what's wrong
+T 1525109819 18<TingPing18>	Company, oh and back to windows for a second. there is one thing that we will never get on a sane build system and that is a tls implemtnation for glib. openssl uses a massive awful perl script
+T 1525109847 18<Company18>	TingPing: for hacking on GTK, I don't need that \o/
+T 1525109853 18<dboles18>	ebassi: even better if that means it could enforce a description of what NULL means
+T 1525109865 18<Company18>	i don't even need gettext or librsvg or whatever
+T 1525109893 18<TingPing18>	Company, well you need gettext for anything to build
+T 1525109916 18<Company18>	TingPing: well, I *could* go the vcpkg route and just no-op everything
+T 1525109937 18<Company18>	but I meant to say "I don't care if stuff can be translated"
+T 1525109955 18<TingPing18>	upstream gettext has vs projects, its not a problem
+T 1525109969 18<TingPing18>	way thats a lie
+T 1525109978 18<TingPing18>	gvsbuild bundles its own, so yea that is hell
+T 1525109983 18<ebassi18>	dboles: If the language has a concept of "nullable" then its documentation system would be able to generate the appropriate "null" value
+T 1525110002 18<ebassi18>	dboles: If it's not in the text description then we wouldn't have duplication and brokenness
+T 1525110036 18<dboles18>	ebassi: oh, yeah, i mean more like "@null_means: unset the current value" or whatever
+T 1525110038 18<Company18>	TingPing: how does meson even find libraries on Windows?
+T 1525110053 18<Company18>	TingPing: does pkgconfig have some canonical location where to put pc files?
+T 1525110058 18*	dboles complains about glibmm not translating NULL strings to "" already
+T 1525110069 18<TingPing18>	Company, the gnome stack still relies on pkg-config. on windows pkg-config.exe looks relative to its binary so things are portable
+T 1525110158 18<TingPing18>	Company, pkgconf is built using meson, and i fixed up its windows bugs recently so that isn't a problem
+T 1525110163 18<Company18>	TingPing: for whatever definition of "portable"
+T 1525110187 18<TingPing18>	Company, portable meaning it can be installed into any location, you can upload a zip of the bulid dir and it runs on other users machines, etc
+T 1525110210 18<Company18>	TingPing: I was thinking of having a gnome-devel package that goes into C:\Program Files\Gnome but then you can't build gtk in visual studio with that
+T 1525110233 18<TingPing18>	yea program files is a bad choice
+T 1525110236 18<Company18>	you'd nee dot copy that gnome-devel package into whatever source layout you have in VS
+T 1525110314 18<TingPing18>	you just need a wrapper script that sets a few VS variables to the prefix the user chose, defaulting to something like C:\gnome or such that is relatively portable
+T 1525110372 18<Company18>	C;\gnome is not portable
+T 1525110389 18<Company18>	to any corporate machine where the user doesn't have an admin account
+T 1525110394 18<TingPing18>	sure it is, C:\gnome is C:\gnome on my computer, and its c:\gnome on your computer
+T 1525110419 18<tpm18>	Company, or everything is a Meson subproject, then you don't need to find anything because you build it all yourself :)
+T 1525110455 18<Company18>	TingPing: it's not writable on my computer though so I can't do anything in there
+T 1525110460 18<TingPing18>	tpm, but if he wants to build something today that isn't possible, and like i mentioned somethings like openssl will never be meson
+T 1525110479 18<Company18>	TingPing: also, people who dump stuff into the root dir are always suspicious to me - imagine vcpkg installing to /vcpkg on Linux
+T 1525110492 18<TingPing18>	*cough* /snap
+T 1525110502 18<tpm18>	TingPing, fair enough
+T 1525110508 18<Company18>	that would actually be making my point there
+T 1525110525 18<tpm18>	TingPing, could do "binary subprojects" ;)
+T 1525110525 18<Company18>	tpm: I am fine with subprojects
+T 1525110546 18<TingPing18>	Company, i mean we can do something in the user dir, i just think adding more variables is counter to the immediate goal
+T 1525110549 18<Company18>	tpm: but it'd need to be subprojects all the way down
+T 1525110573 18<TingPing18>	tpm, does meson support that today?
+T 1525110577 18<Company18>	I mean, gst-build is doing that, isn't it?
+T 1525110601 18<TingPing18>	tpm, i guess the source you link could just be binaries
+T 1525110658 18<tpm18>	TingPing, I think it could be done, not sure if anything is missing, nirbheek was talking about that (I don't like it but..)
+T 1525110709 18<tpm18>	TingPing, also, subprojects don't have to be upstream, for openssl it could "just" be a wrap or so, no?
+T 1525110740 18<TingPing18>	tpm, do you want to be the guy that converts a massive perl build system to meson for a large, complex, security sensitive project? :P
+T 1525110762 18<tpm18>	nope
+T 1525110772 18<TingPing18>	me either
+T 1525110798 18<TingPing18>	so if we limit the supported toolchain, binary might be fine...
+T 1525110821 18<tpm18>	run_command(.., [find_program('perl'), 'do-build.sh')) ;)
+T 1525110838 18<tpm18>	like nirbheek's cargo hack for librsvg
+T 1525110845 18<TingPing18>	perl isn't a small dep
+T 1525110896 18<Company18>	tpm: i'm not gonna install msys
+T 1525110906 18<Company18>	tpm: so not sure do-build.sh is gonna work on my box
+T 1525110946 18<TingPing18>	i think openssl only depends upon perl, no shell
+T 1525110952 18<TingPing18>	and perl is a self contained binary
+T 1525110957 18<TingPing18>	but.. it still sucks
+T 1525111181 18<tpm18>	why are we talking openssl again anyway?
+T 1525111282 18<Company18>	tpm: glib TLS
+T 1525111303 18<TingPing18>	not required to dev gtk, but required for plenty of people consuming it
+T 1525111416 18<tpm18>	wonder if https://github.com/centricular/glib-schannel would be useful for that (not sure how complete it is)
+T 1525111452 18<TingPing18>	oh nice, didn't realize that existed
+T 1525112004 18<garnacho18>	mclasen: some input fixes went in last week, indeed
+T 1525112024 18<garnacho18>	mclasen: also pushed wip/carlosg/controller, continuing Company's work
+T 1525112051 18<mclasen18>	maybe you can do a WIP MR for that, I hear Company loves those
+T 1525112062 18*	Company loads gun
+T 1525112095 18<baedert18>	suicide is not a solution!
+T 1525112158 18<Company18>	i recently learned about this ultimate weapon: https://fortnite.gamepedia.com/Boogie_Bomb
+T 1525112170 18<Company18>	i wish i had that sometimes
+T 1525112209 18<dboles18>	haha
+T 1525112290 18<dboles18>	reminds me of the Mario Kart lightning bolt, though presumably less annoying since it's classed as rare
+T 1525112405 18<mclasen18>	garnacho: I missed that you are on vacation atm, sorry
+T 1525112677 18<garnacho18>	mclasen: I forgot to remind in the first place...
+T 1525112746 18<dboles18>	lapo: I keep forgetting to get GChat set up and reply, but the answer is a definite 'probably''!
+T 1525121071 18<dboles18>	is there any quick/nice way to have a bunch of widgets use the same drag/drop target, use DEST_DEFAULT_ALL, but not accept/highlight drops from themselves?
+T 1525121093 18<dboles18>	short of manually handling 942 signals or building huge, nearly identical lists of targets or etc.
+T 1525121132 18<dboles18>	I can just ignore or error_bell() or etc on drop from self, but that's a bit meh
+T 1525123396 FiSHLiM plugin unloaded
+T 1525198425 19*	Now talking on 22#gtk+
+T 1525198425 22*	Topic for 22#gtk+ is: https://git.gnome.org/browse/gimp/tree/configure.ac#n53 ?
+T 1525198425 22*	Topic for 22#gtk+ set by 26Company (24Mon Apr 30 06:56:10 2018)
+T 1525198513 20<lufimtse>30	Hello guys. I'm on Fedora 28 with Gtk 3.22.30 with Wayland. We have a situation where when we use Eclipse, gnome crashes. I'm having a hard time debugging this because the whole gnome session dies. How do I go about fixing this? 
+T 1525198612 19<Company>	note to self: do not start eclipse until lufimtse has figured out what's going on
+T 1525198624 Company cagatayy[m] caricent[m] cassidyjames[m] catern cevi Chipzz chpe compyx cons[m] cosimoc[m] cristian_c CrypticSquared csicar[m] csoriano csoriano1618[m] 
+T 1525198627 20<lufimtse>30	Company, ha ha. 
+T 1525198631 Company cagatayy[m] caricent[m] cassidyjames[m] catern cevi Chipzz chpe compyx cons[m] cosimoc[m] cristian_c CrypticSquared csicar[m] csoriano csoriano1618[m] 
+T 1525198660 20<lufimtse>30	Company, our eclipse/wayland support is in still under construction. Doesn't crash with Wayland & x11 emulation
+T 1525198660 19<Company>	lufimtse: if I was doing this, I'd start playing with nested wayland compositors
+T 1525198661 19<mclasen>	lufimtse: any idea what crashes first, here ? gnome-shell ?
+T 1525198679 18<mclasen18>	only under Wayland ? or under X as well ?
+T 1525198682 mclasen m4sk1n manu marv marvin___ mathrick MatrixTraveler[m] MatthiasM mattiasb Mc mcatanzaro mceier mdhill meebey mickeyl mittwinter mlq mlundblad_ mmeeks moch mohadese[m] mpt mrtadis msanchez msantana mtwebster muks muktupavels mwleeds[m] mythos 
+T 1525198687 20<lufimtse>30	mclasen, only wayland/wayland
+T 1525198690 19<Company>	lufimtse: mutter --nested --wayland (works on X11 and Wayland)
+T 1525198698 20<lufimtse>30	mclasen, if we have wayland with GDK_BACKEND=x11 then no crash
+T 1525198725 20<lufimtse>30	when the issue happens, then gnome shell crashes and I'm back at the logon screen
+T 1525198726 18<spacekookie18>	So I have a textview inside a box and instead of wrapping words, it resizes the top-level window instead :(
+T 1525198732 18<spacekookie18>	(In Glade btw)
+T 1525198733 18<mclasen18>	abrt is not catching the shell crash ?
+T 1525198735 18<spacekookie18>	How do I stop this?
+T 1525198736 19<Company>	lufimtse: then you can run it with WAYLAND_DISPLAY=wayland-1 gdb eclipse
+T 1525198752 18<Company18>	spacekookie: put it in a scrolled window
+T 1525198754 18<baedert18>	spacekookie: don't set left-margin/right-margin?
+T 1525198816 18<spacekookie18>	baedert: Why wouldn't I set margins?
+T 1525198829 18<baedert18>	Company: I wanted to do something like https://paste.xinu.at/yqj0/ to merge container nodes but the way GtkSnapshot is structured makes this rather hard.
+T 1525198837 18<spacekookie18>	Or rather...I would like to have some margins
+T 1525198843 18<baedert18>	spacekookie: because there's a bug in GtkTextView causing word wrapping to malfunction if you have those set
+T 1525198895 20<lufimtse>30	Company, how do I run eclipse in mutter? when I fire up mutter, it shows empty
+T 1525198906 20<lufimtse>30	Company, is there something I can read to educate myself on the matter?
+T 1525198936 18<mclasen18>	baedert: how many nodes does that save ?
+T 1525198960 20<lufimtse>30	Company, oh, never mind, just figured out your instructions above
+T 1525199011 18<baedert18>	mclasen: hard to say with every widget getting its own GtkSnapshot
+T 1525199015 18<Company18>	baedert: the idea is good
+T 1525199032 18<Company18>	baedert: though I think it shouldn't go in collect_default(), but in append_internal()
+T 1525199061 18<spacekookie18>	Company: Also, thanks! That fixed it :3
+T 1525199063 18<spacekookie18>	Why though? :P
+T 1525199067 18<Company18>	baedert: ie do if (type == CONTAINER_NODE) { /* throw away container node and append its children instead */ }
+T 1525199069 18<mclasen18>	every widget is getting its own snapshot ?
+T 1525199111 18<Company18>	mclasen: yes, because we do a custom snapshot to create the widget render node 
+T 1525199120 18<Company18>	mclasen: then we cache it and append it to the parent
+T 1525199134 18*	mclasen should pay more attention
+T 1525199146 18<Company18>	mclasen: it's the new world of render node caching!
+T 1525199166 18<mclasen18>	Clearly, I've been away for too long
+T 1525199174 18<Company18>	mclasen: appending it to the parent involves adding an offset node though, so I don't think there are many gains to be had in baedert's patch
+T 1525199203 18<Company18>	but there might be specific situations he's thinking about where it could be very useful
+T 1525199239 18<Company18>	like, we avoid creating clip nodes if the clip is too large and just return the container node
+T 1525199241 18<baedert18>	Yes I'd more like to avoid creating the container node altogether and use the parent container node instead
+T 1525199249 18<Company18>	and we don't do offsets it the offset is (0, 0)
+T 1525199312 18<spacekookie18>	Btw, looking at TextView, is there some way to add more margin to the start of paragraphs?
+T 1525199621 18<baedert18>	Company: so does gtk_snapshot_append_node add the offset now or not?
+T 1525199627 18<baedert18>	Because the code says yes
+T 1525199629 18<baedert18>	and the docs say nope
+T 1525199680 18<Company18>	baedert: the docs are wrong then
+T 1525199703 18<Company18>	baedert: append_node adds an offset node and then calls append_internal() which does not add the offset
+T 1525199727 18<baedert18>	so in gtk we do get_offset + append_node_internal? why>
+T 1525199728 18<baedert18>	?
+T 1525199758 18<Company18>	what do you mean "in gtk"?
+T 1525199781 18<baedert18>	like in gtkrenderborder.c
+T 1525199820 18<Company18>	(a) because that code is older than offset nodes
+T 1525199821 18<baedert18>	where's the difference between append_node and manually adding the offset to the border outline? Less offset nodes?
+T 1525199828 18<Company18>	(b) because it avoids an offset node
+T 1525199889 18<Company18>	offset nodes were just meant as a workaround to allow caching of nodes
+T 1525199923 18<Company18>	in theory we could remove all x,y coordinates from all render noes and just use offset nodes everywhere
+T 1525199955 18<Company18>	i don't think that's a good approach in practice though
+T 1525200942 18<baedert18>	off
+T 1525200945 18<baedert18>	*orr
+T 1525201018 18<baedert18>	oh FFS I thought snapshot_new_child was still a thing
+T 1525201282 18<baedert18>	mclasen: in tests/testentryicons, we save ~30 nodes
+T 1525201303 18<baedert18>	widget-factory page1 between 65 and 300
+T 1525202325 18<Company18>	mclasen: do we have any plans with turning GdkEvent into a real GObject
+T 1525202326 18<Company18>	?
+T 1525202344 18<mclasen18>	you mean, beyond doing that ?
+T 1525202352 18<Company18>	with subclasses
+T 1525202369 18<Company18>	ie having a real GdkMotionEvent subclass
+T 1525202411 18<mclasen18>	I guess we could do that
+T 1525202420 18<Company18>	it's a good idea on one hand
+T 1525202434 18<Company18>	because then we can have functions like gdk_drag_event_get_drag_context()
+T 1525202444 18<baedert18>	it's garnacho territory so it would be GdkEventMotion :P
+T 1525202451 18<Company18>	instead of all those getters returning FALSE if you pass the wrong type of event
+T 1525202461 18<mclasen18>	yeah, the getters are awkward
+T 1525202471 18<Company18>	otoh there's a bunch of overlap
+T 1525202481 18<Company18>	like, get_coords() works on motion and button events
+T 1525202516 18<ebassi_18>	Unless you make a PointerEvent and then inherit from it
+T 1525202529 18<Company18>	right
+T 1525202539 18<Company18>	a side effect is that we could also have proper constructors
+T 1525202545 18<ebassi_18>	But there's always the risk of getting the hierarchy wrong
+T 1525202550 18<Company18>	gdk_drag_event_new()
+T 1525202568 18<ebassi_18>	Dunno about that; unless you mean private event constructors
+T 1525202583 18<Company18>	instead of event = gdk_event_new (); event.type = DRAG_MOTION; event.poke_random_member = foo;
+T 1525202589 18<ebassi_18>	I haven't seen many legitimate cases for out of tree event instances
+T 1525202591 18<Company18>	yes, I mean private ones
+T 1525202599 18<ebassi_18>	Right
+T 1525202611 18<Company18>	i'm running into cases a lot where backends do weird stuff
+T 1525202618 18<ebassi_18>	For those cases, having a gdk_create_drag_event() would also work
+T 1525202621 18<mclasen18>	yeah, should all be private, I think ?
+T 1525202624 18<Company18>	not just with events, but with all sorts of objects
+T 1525202651 18<Company18>	which is why GdkClipboard (and soon GdkDrag and GdkDrop) have a private struct
+T 1525202669 18<Company18>	GdkDrawContext and subclasses do, too
+T 1525202697 18<Company18>	so that gdkglcontext-x11.c doesn't just do some "neat trick" by setting context->surface to a magic value
+T 1525202735 18<Company18>	and then i refactor things in gdk/gdkglcontext.c and suddenly everything explodes, but only on X11
+T 1525202769 18<Company18>	in this case I asked because I was thinking about vfuncs
+T 1525202787 18<garnacho18>	I FWIW experimented with a nested hierarchy of structs (not objects) in mechane, and it 1) got really ugly to name a few of those intermediate ones 2) I had to shove some things in upper structs to avoid redefining them in multiple children
+T 1525202790 18<Company18>	because we have this awkward gdk_drag_context_handle_source_event()/handle_dest_event() setup
+T 1525202882 18<Company18>	garnacho: I would have gone the dumb route of just splitting up the union we have into all its subelements
+T 1525202908 18<Company18>	garnacho: the question is how many getters remain that work across multiple of those
+T 1525202986 18<Company18>	we could just keep the overlapping getters on GdkEvent and have them as vfuncs or so
+T 1525203005 18<Company18>	just call GDK_EVENT_GET_CLASS (entry)->get_coords()
+T 1525203073 18<Company18>	lol
+T 1525203077 18<Company18>	s/entry/event/
+T 1525203208 18<Company18>	also, we still have a bunch of APIs that take a const GdkEvent
+T 1525203221 18<Company18>	I suppose they should lose their constness because objects are never const?
+T 1525203981 18<Company18>	"it's not that expensive"
+T 1525204006 18<Company18>	"well, it is that expensive, but we're that good"
+T 1525204016 18*	Company rewatching old Linus git talk
+T 1525208559 FiSHLiM plugin unloaded

@@ -1,0 +1,162 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-17T19:14:24-04:00
+
+====== 0 inbox ======
+Created Tuesday 17 April 2018
+
+//-------------  Theory
+- 4 principles of OOP
+  - Encapsulation
+  - Abstraction
+  - Inheritance
+  - Polymorphism    (multiple methods with same name)
+
+- Sorting Algorithm Theory
+  - Simple:
+	- Selection Sort  O(n^2) (best/worse)
+	  * pick smallest each time.
+	  * very ineffective.
+	- Insertion Sort Best: O(n)  Worst: O(n^2)
+	  * puts element into the right place.
+	  * most effective on sorted lists O(n)
+
+  - Effective
+	- Merge Sort    O(n log n)
+	  * divide and conquer. Base case 2 elements.
+	  * merge() doMerge(ar, from, to), merge(..)
+	  * merge(..) uses array for copy.
+	- Quick Sort    Wrst: O(n^2)  Avrg: O(n log n)
+	  * can be faster than merge/other sorts on average.
+	  * Functionality:
+	* base cases = length of array = 1 or 0;
+	* select a pivot (at random is best)
+	* copy into left/right array
+	* recurse on left/right
+	* combine left+pivot+right & ret.
+	  * good choice of Pivot is important.
+		% left = bad for sorted lists.
+		% random is usually best> 1.368 n log n
+	- Heap Sort     Wrst: O(n log n)   Bst:O(n)
+	  + in-place sort. no stack issues due to deep recursion.
+	  - complex / slower than quick sort in general.
+	  * Functions:
+		parent = floor { (i-1) / 2 }         0
+		leftChild = parent*2 + 1           1   2
+		rightChild = parent*2 + 2        3  4  5 6
+		  mnemonic: write '0,1,2,3,4,5,6' as heap, work backwards.
+	  * Properties:                                      10
+		% Max-Heap = biggest value at the top   >:    5     8
+													 3  1   7 4
+	  * Method:
+		1) Make Heap
+			- traverse from middle (in reverse) to root, call max-Heapify() on i
+			  (middle = parent of last child)
+			  - FUNC: max-Heapify(array, i, last)
+				- at each node, swap with biggest child (if child bigger)
+				  % determine which child is bigger. set 'child' to biggest.
+				- parentIndex = formerBiggest childIndex
+				  childIndex = child of new parentIndex
+				- while loop till childIndex is <= last element.
+		2) Extract Max for array, place at end
+		 // idea is that we move first to end. As first is biggest, now
+		 // biggest will be at the end.
+		  - for array.len-1 itterations,
+		  - swap first and last element #biggest will be at the end now.
+		  - increment last (so that we don''t heapify to sorted number)
+		  - max-Heapify() on first number, with last limited.
+			  //max-heap property is broken. Need to call max-heapify to fix it.
+
+  - Distribution Sorts
+	- Radix Sort O(wn)
+		Sort by digits (10_ , 1_0).  w = word length.
+		Works well so long as word is constant & big n.
+		e.g sorting large amount of Persons by Age. Age is small.
+
+- Trees:
+  - Tree Traversal Orders:
+	* In Order   (left, data, right)
+	* Pre Order  (data, left, right)
+	* Post Order (left, right, data)
+  - Binary Search
+	* Useful for binary search or during tree construction etc..
+	* In general, you constrain upper and lower bounds.
+	  i.e, you do not divide by 2, this leads to loops.
+	  usually: middle = (lower+upper)/2;
+	* then to recurse deeper, you go with:
+	  left = lower, middle-1
+	  right = middle+1, upper
+	* instead of recusing, you could while loop  lower <= upper.
+
+  - Tree types:
+	- Tries:
+	  * each node stores a letter
+	  * many children
+	  * following a path forms a word
+
+- Graph Theory:
+  - Definitions:
+	V_i = Verticies (node)
+	E_i,j = Edge
+	P(v1,v2...vi) = path.
+  - Representations
+	* Adjacency list
+		a -> b,c      b ->c      c->a,b
+		++ Sparse graphs use little space.
+	* Adjacency matrix
+	   ( 0 1 )  a <-> b   Represent links in a 2d array.
+	   ( 1 0 )            ++ fast lookup. -- lots of space wasted for lrg graphs
+	* Incidence matrix
+	  maps verticies to edges. Useful to see if a vertex is connected to a
+	  certain edge.
+		rows = verticies
+		columns = edges.
+
+  - Dijkstras     O(|E|+|V|log|V|)
+	* single source, single destination shortest path
+	(-) does not handle negatives
+	(+) faster than Bellman Ford
+	- algo: (see wiki for illustration)
+	  - start at source, all neighbouring nodes have a distance of INF to them.
+	  - inspect distance to every neighbouring node. label them as such.
+	  - mark start node as 'out'
+	  - find neighbouring node with smallest distance, use it as new start
+	  - repeat till destination is found.
+
+  - Bellman Ford  O(|V||E|)
+	* single source, all destination shortest path
+	(+) handles negatives, more versitile
+	(+) shortest path to all nodes, not just a single like Dijkstra
+	(-) slower than dijkstras
+	* negative loops cause 'no cheapest path', bellman reports these.
+	- algorithm
+	  - table with source=0,    B=∞, C=∞,...D=∞
+	  - V verticies = V-1 iterations.
+		- during every iteration,inspect each node in order,
+		  see shortest path to neighbour, update if shorter
+		- if during an iteration, no nodes are updated, we are done.
+		  https://www.youtube.com/watch?v=obWXjtg0L64
+
+  - Spanning Trees
+	- Minimum Spanning Tree
+	  - Prims Algoritm
+	* Greedy, start at a node, pick the shortest edge.
+	* From all possible edges, pick the next shortest edge.
+		(*) run time varies depending on structure used. In general: O(|V|2)
+
+- Mathy Theroy bits:
+	* log n:    2^x = n <=> x = lg n
+	* Probability
+	  - P (A and B) = P(B given A) P(A)
+		P (A and B) = P(A)P(B)      if A & B are independent.ie P(a givn b)=P(b)
+	  - P (A or B) = P(A) + P(B) - P(A and B)
+	  ~P(A) = 1 - A
+	
+	
+- Dynamic Programming
+  * General Heuristics
+	- Base case + recursion. Often easy to 'reject' base case if it fails,
+	  (e.g tank path out of bound)
+	- Figure out what you can cache for scalability.
+	- for 'all sets', you can enumirate them like binary:
+	  000, 001, 010 ... then return an array of arrays.

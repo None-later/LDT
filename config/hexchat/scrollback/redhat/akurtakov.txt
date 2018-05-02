@@ -1,237 +1,3 @@
-T 1517003713 18<akurtakov>	I recommend moving to GTK/GDK
-T 1517003715 20<lufimtse>30	Option 1) GLIB.java and GLIB_NATIVE...    Option 2) GLib.java and GLib_NATIVE...
-T 1517003723 20<lufimtse>30	can't be mixed.
-T 1517003728 18<akurtakov>	why ?
-T 1517003739 20<lufimtse>30	SWT tools generates the macro as per class name.
-T 1517003743 18<akurtakov>	ah
-T 1517003746 18<akurtakov>	damn it
-T 1517003753 18<akurtakov>	GLIB let it be in this case
-T 1517003765 20<lufimtse>30	Capitalize it all?
-T 1517003770 18<akurtakov>	yeah sorry
-T 1517003773 20<lufimtse>30	ok, no worries. 
-T 1517003777 20<lufimtse>30	give me 50 seconds.
-T 1517003778 18<akurtakov>	I wasn't aware of the limitation 
-T 1517003793 18<akurtakov>	btw the functions you moved
-T 1517003810 18<akurtakov>	some of them come from gmodule.so not from glib.so
-T 1517003816 18<akurtakov>	the more I think about it
-T 1517003819 18<akurtakov>	the more I believe
-T 1517003824 20<lufimtse>30	gmodule?
-T 1517003829 20<lufimtse>30	like?
-T 1517003834 18<akurtakov>	rpm -ql glib2|grep so
-T 1517003849 18<akurtakov>	there are multiple so files
-T 1517003852 20<lufimtse>30	I think I checked all functions, they're all from GLib I think?
-T 1517003863 18<akurtakov>	from glib project yes
-T 1517003880 18<akurtakov>	from libglib.so for which your macro will generate dynamic if used
-T 1517003882 18<akurtakov>	no
-T 1517003884 18<akurtakov>	anyway
-T 1517003892 18<akurtakov>	I would say do GTK and GDK
-T 1517003896 18<akurtakov>	they should be easier
-T 1517003926 18<akurtakov>	just these two *.so files with clear naming which is where
-T 1517003934 18<akurtakov>	and leave glib in OS.java
-T 1517003954 18<akurtakov>	it's just not worth the effort and we lose too much time on explaining these diffs
-T 1517004051 20<lufimtse>30	hmm
-T 1517004059 20<lufimtse>30	https://git.eclipse.org/r/#/c/116065/ << GLIB
-T 1517004062 20<lufimtse>30	capitalized.
-T 1517004072 20<lufimtse>30	ok, I can do GTK and GDK
-T 1517004083 20<lufimtse>30	so GLIB/GTK/GDK would not add additional *.so files.
-T 1517004088 18<akurtakov>	no
-T 1517004100 18<akurtakov>	rpm -ql gtk3|grep so 
-T 1517004132 18<akurtakov>	and we don't have many dynamic functions for glib so no real benefit from this split
-T 1517004202 20<lufimtse>30	It helps with NativeStats tool for profiling. Easier to tell where calls go. (Gtk vs Glib).
-T 1517004222 20<lufimtse>30	I'd say go ahead with GLib as it's done and is only cosmetical for the most part and helps with profiling.
-T 1517004229 20<lufimtse>30	and GTK/GDK
-T 1517004234 20<lufimtse>30	leave GIO and GOBject
-T 1517004298 20<lufimtse>30	And while we dont have that many dynamic functions, it's usually easier to use dynamic functions during development phase.
-T 1517004301 18<akurtakov>	it's cosmetical now
-T 1517004316 20<lufimtse>30	for the most part, except we get different output in Native Stats
-T 1517004318 18<akurtakov>	but with the mixture of gmodule
-T 1517004326 20<lufimtse>30	which functions are gmodule?
-T 1517004385 18<akurtakov>	I would first look at gmodule.h for content
-T 1517004408 18<akurtakov>	and someone adding dynamic glib function to glib
-T 1517004416 18<akurtakov>	can lead to dlopen of the wrong so file
-T 1517004426 18<akurtakov>	that's why I think it's not safe to do it 
-T 1517004516 20<lufimtse>30	well, they can equally link it to wrong lib with OS.java :-/
-T 1517004519 20<lufimtse>30	but 
-T 1517004530 20<lufimtse>30	hmm
-T 1517004541 18<akurtakov>	but it requires people to add the line manually 
-T 1517004546 18<akurtakov>	aka at least read a bit
-T 1517004560 18<akurtakov>	while with automatic it will go entierly unnoticed
-T 1517004602 20<lufimtse>30	hmm, technically everything is linked to glib anyway?
-T 1517004625 18<akurtakov>	let's not go that path again
-T 1517004637 18<akurtakov>	it is linked in most of the cases yes
-T 1517004644 18<akurtakov>	but it's MANDATORY
-T 1517004669 18<akurtakov>	and there could be systems not overlinking and exporting symbols form other so files
-T 1517004759 18<akurtakov>	btw, do you know that libgdk.so is gone in GTK 4 ?
-T 1517004780 18<akurtakov>	I understand your willingness to improve things
-T 1517004788 18<akurtakov>	but it has to be well informed
-T 1517004812 18<akurtakov>	luckily for us we can easily change the GDK_LIB define to port to libgtk-4.so
-T 1517004916 20<lufimtse>30	Well, I think there's a possibility that you're overthinking it. If someone adds a non-glib function to GLIB.java then it would take ~2 minutes to move it if there is some linking issue. But if you're confident that GLIB.java could be a problem then I can abandon that patch.
-T 1517004921 20<lufimtse>30	Btw, 
-T 1517004943 18<akurtakov>	well, you will not find this issue on your system
-T 1517004957 18<akurtakov>	it can happen on system weirdly linked
-T 1517004975 18<akurtakov>	and the function will dlopen on your/my machine but not on this obscure user one
-T 1517005005 18<akurtakov>	I don't speak of adding non glib function
-T 1517005021 18<akurtakov>	I speak of glib function dlsym from wrong so file
-T 1517005085 20<lufimtse>30	well, if that would be an issue then it would have already been raised some where since it's been linked to libglib*.so for many years. But I'm not insisting on GLIB.java, it's not that important.
-T 1517005090 20<lufimtse>30	just thinking
-T 1517005091 20<lufimtse>30	meh
-T 1517005113 20<lufimtse>30	btw, how come you're not sleeping :-)
-T 1517005132 20<lufimtse>30	Anyhow, so abandon GLIB.java patch?
-T 1517005477 20<lufimtse>30	I'm off. I'll send you email.
-T 1517005764 18<akurtakov>	so
-T 1517005772 20<lufimtse>30	hey
-T 1517005773 20<lufimtse>30	update
-T 1517005776 20<lufimtse>30	see email
-T 1517005778 18<akurtakov>	what you end up doing here
-T 1517005787 20<lufimtse>30	->> see email
-T 1517005793 18<akurtakov>	is more or less in eclipse getting o.e.ui.ide classloader
-T 1517005806 18<akurtakov>	and trying to get swt classes from it
-T 1517005815 18<akurtakov>	as you know it's implemented on top of it
-T 1517005864 20<lufimtse>30	o.e.ui.ide?
-T 1517005870 18<akurtakov>	when in reality o.e.swt bundle classloader (dlopen) should be fetched and swt classes should be laoded through it (dlsym)
-T 1517005880 18<akurtakov>	org.eclipse.ui.ide osgi bundle
-T 1517005926 20<lufimtse>30	Meh?
-T 1517005953 20<lufimtse>30	I haven't worked with *.ui.ide before
-T 1517005964 18<akurtakov>	or any other ui bundle
-T 1517005988 18<akurtakov>	they all have Require-Bundle org.eclipse.swt
-T 1517006001 18<akurtakov>	which ensures swt is on it's classpath
-T 1517006009 20<lufimtse>30	ok ?
-T 1517006030 18<akurtakov>	but this is implementation detail of this bundle 
-T 1517006040 18<akurtakov>	next version might be on top of javafx
-T 1517006046 20<lufimtse>30	ok
-T 1517006071 18<akurtakov>	and your code will fail as it will not be able to load swt via this classloader
-T 1517006157 20<lufimtse>30	hmmm
-T 1517006166 20<lufimtse>30	not really sure what you mean but ok?
-T 1517006235 18<akurtakov>	ok, let's put it that way
-T 1517006254 18<akurtakov>	the change that way gives 2-3% risk for things going wrong
-T 1517006265 18<akurtakov>	as we have too many variations already - it's not fine :)
-T 1517006365 18<akurtakov>	you should learn a bit about osgi btw
-T 1517006478 20<lufimtse>30	ok
-T 1517006486 20<lufimtse>30	so basically GLIB.java is risk prone
-T 1517006493 18<akurtakov>	yes
-T 1517006495 20<lufimtse>30	ok, 
-T 1517006505 20<lufimtse>30	should we go ahead with GTK/GDK still?
-T 1517006509 18<akurtakov>	yes
-T 1517006514 18<akurtakov>	I think they are pretty clear 
-T 1517006522 20<lufimtse>30	ok, fair point.
-T 1517006523 18<akurtakov>	they have clear naming convention
-T 1517006537 20<lufimtse>30	so abandon GLIB and go ahead with GTK/GTK. I'll do next week.
-T 1517006540 18<akurtakov>	and less *.so fiels
-T 1517006555 20<lufimtse>30	GTK/GDK *
-T 1517006559 20<lufimtse>30	ok, I'm off for today :-)
-T 1517006574 20<lufimtse>30	You work too much :-D
-T 1517006576 20<lufimtse>30	ha ha
-T 1517006578 18<akurtakov>	:)
-T 1517006583 18<akurtakov>	enjoy your weekend
-T 1517007172 20<lufimtse>30	you too
-T 1517584607 20<lufimtse>30	hai
-T 1517584660 18<akurtakov>	hey
-T 1517584685 20<lufimtse>30	https://git.eclipse.org/r/#/c/116611 << u like?   s/Bug Snippets/ManualTests    in swt.tests and swt.tests.gtk
-T 1517584698 20<lufimtse>30	I was not fan of spaces either
-T 1517584702 20<lufimtse>30	was bugging me for a while.
-T 1517584710 18<akurtakov>	would you please resist recommending wrong things to do, see my commend in Gtk.java bug
-T 1517584767 18<akurtakov>	well, to be honest these things don't belong in git
-T 1517584773 18<akurtakov>	as they are useless once a bug is fixed
-T 1517584783 18<akurtakov>	aka short term thing
-T 1517584788 18<akurtakov>	but meh
-T 1517584791 20<lufimtse>30	no, we use them a lot after 
-T 1517584804 18<akurtakov>	ManualTests is better
-T 1517584809 18<akurtakov>	while fixing a bug
-T 1517584810 20<lufimtse>30	when re-visiting certain codes etc..
-T 1517584831 20<lufimtse>30	or we re-use them for other things, e.g the fixedContainer native snippet
-T 1517584842 20<lufimtse>30	it's a huge time saver
-T 1517584857 20<lufimtse>30	or the Browser javascript console, I use that snippet a lot
-T 1517584907 20<lufimtse>30	-- > ah ok, I won't reccomend behaviour that could lead to bad patches.
-T 1517584914 20<lufimtse>30	thanks for tip.
-T 1517585014 20<lufimtse>30	btw
-T 1517585025 20<lufimtse>30	I gather we are waiting for this guy: https://bugs.eclipse.org/bugs/show_bug.cgi?id=522270 << to upgrade test servers to webkit2?
-T 1517585037 20<lufimtse>30	the webkit1 crashes are very annoying :-|
-T 1517585041 20<lufimtse>30	and time consuming
-T 1517585047 18<akurtakov>	well, ping on the bug
-T 1517585055 18<akurtakov>	regarding the snippets
-T 1517585065 18<akurtakov>	I still don't believe that they are all useful
-T 1517585093 18<akurtakov>	nor that anyone that haven't pushed the snippet into git will look for it to repro/test the issue
-T 1517585104 18<akurtakov>	anyway, it's easier for you - so be it
-T 1517585122 18<akurtakov>	just they have to adhere to the same standards like everything else
-T 1517585156 20<lufimtse>30	ok
-T 1517585575 18<akurtakov>	btw, another request can you minimize the spam from bz :)
-T 1517585597 18<akurtakov>	settinga aliases, deadlines, removing them, etc.
-T 1517585609 20<lufimtse>30	I'll try. 
-T 1517585612 18*	akurtakov is thankful you're the only one doing it
-T 1517585629 18<akurtakov>	if everyone was doing it I would have had 1000+ bz mails per day :)
-T 1517585653 20<lufimtse>30	I'll tryna bundle them. You can remove yourself from time tracking group to not receive those emails btw.
-T 1517585675 18<akurtakov>	I'm not in timetracking group afaik 
-T 1517585692 18<akurtakov>	but when on cc one receives mails for everychange
-T 1517585708 20<lufimtse>30	Do you see "orgiginal estimate, Hours worked, "deadline" box?
-T 1517585729 20<lufimtse>30	above "attachements"
-T 1517585751 20<lufimtse>30	https://i.imgur.com/Ya7jrmC.png
-T 1517585758 18<akurtakov>	no
-T 1517585777 18<akurtakov>	but I get emails fro deadlines added/removed
-T 1517585785 20<lufimtse>30	Is this as of Bugzilla 5?
-T 1517585795 18<akurtakov>	no idea
-T 1517585797 20<lufimtse>30	I've been doing the deadline thing for over a year,
-T 1517585804 20<lufimtse>30	did you notice before?
-T 1517585811 18<akurtakov>	few months I see them
-T 1517585819 18<akurtakov>	so proabbly bz 5
-T 1517585820 20<lufimtse>30	Ah, it's since bugzilla 5. 
-T 1517585821 20<lufimtse>30	meh
-T 1517585825 20<lufimtse>30	I didn't know.
-T 1517585838 20<lufimtse>30	I thought only I get those mails.
-T 1517585844 20<lufimtse>30	or, actually I don't get those mails.
-T 1517585848 20<lufimtse>30	hmmm
-T 1517585860 18<akurtakov>	the one who does a change doesn't get an email 
-T 1517585876 18<akurtakov>	this used to be the case when commenting on a bug
-T 1517585890 18<akurtakov>	but I'm not sure this is the case anymore
-T 1517585891 20<lufimtse>30	yea, I mean I thought that when I change deadline field, no one sees it.
-T 1517585908 20<lufimtse>30	but looks like it does now with bugzilla 5.
-T 1517585916 20<lufimtse>30	maybe I should use personal tags or something.
-T 1517585924 20<lufimtse>30	I'll investigate.
-T 1517585932 18<akurtakov>	as long as no mails are sent received :)
-T 1517585951 18<akurtakov>	well, less mails :)
-T 1517586017 20<lufimtse>30	Aliases are quite useful when dealing with sub-tasks, depends on or 'see also'.
-T 1517586017 20<lufimtse>30	https://i.imgur.com/Fx7bZv9.png
-T 1517586024 20<lufimtse>30	much faster to navigate
-T 1517586027 20<lufimtse>30	and easier to find bugs
-T 1517586036 20<lufimtse>30	with quick search in bugzilla
-T 1517586046 20<lufimtse>30	but I'll try to bundle actions to reduce emails from aliases
-T 1517586055 18<akurtakov>	yup, that's what I ask for :)
-T 1517586062 20<lufimtse>30	ok
-T 1517586078 20<lufimtse>30	Your happiness is important to me. :-D.
-T 1517586088 20<lufimtse>30	ha ha, I worked in customer support for 2 years.
-T 1517586091 20<lufimtse>30	./habit.
-T 1517586098 18<akurtakov>	haha or else I'll subscribe you to all the things I get :)
-T 1517586105 20<lufimtse>30	X-D
-T 1517586121 20<lufimtse>30	Do you get emails about when I add hours worked also?
-T 1517586126 18<akurtakov>	no
-T 1517586169 20<lufimtse>30	ok. I started using those to keep taps on how much time I spend on bugs. Bugzilla has a useful reporting function that shows me how much time I've spent on stuff in a given interval. (week/month/year).
-T 1517586231 20<lufimtse>30	I use that wor my weekly report stuff.
-T 1519230037 20<lufimtse>30	hai
-T 1519230100 18<akurtakov>	hey
-T 1519230102 18<akurtakov>	what's up
-T 1519230126 20<lufimtse>30	I hacked together something to get around tls: https://i.imgur.com/j9AxZ8j.png  . It would take me a couple of days to implement something proper. Wdyt?
-T 1519230405 20<lufimtse>30	On OSX it shows a dialogue requesting permission to load.
-T 1519230409 20<lufimtse>30	I could implement something simmilar.
-T 1519230517 18<akurtakov>	can you show me osx screenshot
-T 1519230538 20<lufimtse>30	it's basically a little drop-down dialogue, showing 'show certificate', allow, deny
-T 1519230540 20<lufimtse>30	typa thing.
-T 1519230716 18<akurtakov>	can I see it :)
-T 1519230722 20<lufimtse>30	email en route
-T 1519230724 18<akurtakov>	btw, what was the code needed for this 
-T 1519230735 18<akurtakov>	for the screenshot you already shown me
-T 1519230915 20<lufimtse>30	I emailed you photo.  Proof of concept is here: https://git.eclipse.org/r/#/c/117884/
-T 1519230924 20<lufimtse>30	left a comment at the interesting bit.
-T 1519231082 20<lufimtse>30	To implement this I basically have to find a mechanism to figure out when a TLS issue occurs, implement popup dialogue and download/apply SSL certificate mechanism. But I can probably get it done within a week-ish.
-T 1519231098 20<lufimtse>30	assuming no roadblockers encountered
-T 1519231112 18<akurtakov>	how is your current task progressing ?
-T 1519231174 20<lufimtse>30	I fixed the table-editing regression. I barley started on the table cheese issue, but I've only explored snippets & read code. Haven't really worked on it much.
-T 1519231182 20<lufimtse>30	I could work on this webkit thing
-T 1519231185 18<akurtakov>	no
-T 1519231201 18<akurtakov>	webkit thing once you fixed your current thing
-T 1519231236 18<akurtakov>	in your weekly plan there is 531048 [GTK3] Large problems drawing ownerdraw tables
-T 1519231273 18<akurtakov>	the thing is we should be more accountable
-T 1519231291 18<akurtakov>	this is smth that is announced we are working on in SoS call
-T 1519231294 18<akurtakov>	and etc.
-T 1519231314 20<lufimtse>30	SoS call?
 T 1519231321 18<akurtakov>	Scrums of scrums
 T 1519231341 18<akurtakov>	all teams in devtools
 T 1519231426 20<lufimtse>30	ever read agile manifesto?
@@ -510,3 +276,254 @@ T 1521728878 20<lufimtse>30	I've learned to keep things concise
 T 1521728881 20<lufimtse>30	ish
 T 1521728888 18<akurtakov>	haha ok :)
 T 1521762523 20*	Disconnected (20Connection timed out)
+T 1522074284 20<lufimtse>30	morning. win laptop should be connectable
+T 1522074322 18<akurtakov>	cool
+T 1522074326 18<akurtakov>	I'll try later
+T 1522075244 20<lufimtse>30	can you ping?
+T 1522075273 18<akurtakov>	no
+T 1522075274 20<lufimtse>30	10.15.17.139
+T 1522075279 18<akurtakov>	hmm
+T 1522075282 18<akurtakov>	it changed IP
+T 1522075292 20<lufimtse>30	let me check
+T 1522075298 18<akurtakov>	in the email it's 145
+T 1522075331 20<lufimtse>30	hmm
+T 1522075335 20<lufimtse>30	may have been a typo
+T 1522075336 18<akurtakov>	but I can't ping 139 either
+T 1522075370 20<lufimtse>30	no, actually 139 is Roland's machine
+T 1522075375 20<lufimtse>30	let me check
+T 1522082807 20<lufimtse>30	akurtakov are you still using the windows laptop?
+T 1522082816 18<akurtakov>	no
+T 1522082825 18<akurtakov>	feel free to do whatever yo uneed  with it
+T 1522082834 18<akurtakov>	but please bring it back so I can try it tomorrow
+T 1522082934 20<lufimtse>30	Ok.
+T 1522082956 20<lufimtse>30	akurtakov yea, I plan to keep it on for ad-hoc use.
+T 1522082962 20<lufimtse>30	should be up most of the time.
+T 1522082981 18<akurtakov>	ok, I plan going through the first patch tomorrow 
+T 1522086146 23*	28[18akurtakov28] 30(24~akurtakov@ovpn-116-104.ams2.redhat.com30): 18Alexander Kurtakov
+T 1522086146 23*	28[18akurtakov28] #SWT #devtoolset-eng #java #devel #eclipse 
+T 1522086146 23*	28[18akurtakov28] 29irc.yyz.redhat.com :Toronto internal IRC server
+T 1522086146 23*	28[18akurtakov28] idle 2300:33:38, signon: 23Mon Mar 26 08:54:12
+T 1522086146 23*	28[18akurtakov28] End of WHOIS list.
+T 1522104468 20*	Disconnected (20Connection timed out)
+T 1523540643 20<lufimtse>30	hey
+T 1523540645 20<lufimtse>30	quick question
+T 1523540668 20<lufimtse>30	do we still backport stuff to 4.7?
+T 1523540671 20<lufimtse>30	Request here: https://bugs.eclipse.org/bugs/show_bug.cgi?id=527729#c44
+T 1523542067 18<akurtakov>	no
+T 1523542070 18<akurtakov>	4.7 is done
+T 1523542076 20<lufimtse>30	ok.
+T 1523542077 18<akurtakov>	there will be no future releases
+T 1523542081 18<akurtakov>	I'll comment
+T 1523542094 20<lufimtse>30	akurtakov please be nice
+T 1523542100 20<lufimtse>30	:-)
+T 1523542169 18*	akurtakov is always nice, isn't he :)
+T 1523542707 18<akurtakov>	how are things otherwise?
+T 1523548420 18<akurtakov>	around ?
+T 1523557021 18<akurtakov>	ping
+T 1523557027 20<lufimtse>30	hey
+T 1523557029 20<lufimtse>30	sorry
+T 1523557035 20<lufimtse>30	was at lunch, wayland crashed 
+T 1523557038 20<lufimtse>30	didn't see notification
+T 1523557039 20<lufimtse>30	sup
+T 1523557041 18<akurtakov>	:)
+T 1523557052 20<lufimtse>30	seems to crash if I'm not active for a long time
+T 1523557054 18<akurtakov>	so what are you up to
+T 1523557065 20<lufimtse>30	have you spoken with Sopot/Martha yet?
+T 1523557071 18<akurtakov>	about ?
+T 1523557116 20<lufimtse>30	ha ha. I take it you haven't.  At the moment I've been focused on clearing out any Webkit issues. Afaik there are no hard issues left
+T 1523557126 20<lufimtse>30	the only thing is the SSL thing and a little bit on the cookies
+T 1523557168 18<akurtakov>	what about the issues you were working on?
+T 1523557171 18<akurtakov>	are they done
+T 1523557190 20<lufimtse>30	I fixed the javadoc UI hang issue
+T 1523557197 20<lufimtse>30	was a deadlock in dispose logic
+T 1523557204 20<lufimtse>30	starting with webkit gtk 2.18
+T 1523557206 18<akurtakov>	good
+T 1523557214 20<lufimtse>30	that also fixed the SVG in javadoc issue
+T 1523557221 18<akurtakov>	even better
+T 1523557231 18<akurtakov>	so what's next for you?
+T 1523557243 20<lufimtse>30	the dispose logic was not related to any of the dbus/extension stuff. More due to a change in how webkit was disposed 
+T 1523557262 20<lufimtse>30	(and on the side, I verified there are no memory leaks in the webkit disposal
+T 1523557274 20<lufimtse>30	so webkit afaik is bomb proof.
+T 1523557276 20<lufimtse>30	next
+T 1523557277 20<lufimtse>30	welll
+T 1523557291 18<akurtakov>	re: webkit - nice to hear it
+T 1523557343 20<lufimtse>30	akurtakov well, I fixed up the build script: https://bugs.eclipse.org/bugs/show_bug.cgi?id=533496
+T 1523557349 20<lufimtse>30	someone needs to review / test
+T 1523557366 18<akurtakov>	yeah, I saw that but I would wait for win guy to test it
+T 1523557376 20<lufimtse>30	that's gtk32 bit
+T 1523557385 20<lufimtse>30	the win32 bit java thing was already merged
+T 1523557386 18<akurtakov>	yeah
+T 1523557394 18<akurtakov>	sorry I mixed things
+T 1523557397 20<lufimtse>30	:-)
+T 1523557424 18<akurtakov>	have you tried installing 32bit openjdk on fedora and whether it's detected 
+T 1523557434 20<lufimtse>30	yea, I did something like that
+T 1523557439 20<lufimtse>30	but haven't done an actual build
+T 1523557454 20<lufimtse>30	like it *should* work.
+T 1523557459 20<lufimtse>30	but there is theory and real life.
+T 1523557468 20<lufimtse>30	:-)
+T 1523557475 18<akurtakov>	:)
+T 1524146487 20<lufimtse>30	hey
+T 1524147346 18<akurtakov>	hello :)
+T 1524147361 20<lufimtse>30	how did you reproduce the download thing with epiphany?
+T 1524147364 20<lufimtse>30	on my system it opens in a tab
+T 1524147370 20<lufimtse>30	?
+T 1524147378 18<akurtakov>	in the url bar
+T 1524147391 18<akurtakov>	ttyping file://......./about.html
+T 1524147448 20<lufimtse>30	nope, opens in a tab, doesn't download
+T 1524147449 20<lufimtse>30	meh
+T 1524147479 20<lufimtse>30	Although I did use 'file:///home/lufimtse/Downloads/about.html' and not 'file://........../about.html'  :-/ 
+T 1524147481 20<lufimtse>30	:-)
+T 1524147483 20<lufimtse>30	hmmm
+T 1524152678 18<akurtakov>	hey Leo
+T 1524152683 18<akurtakov>	is webkit_web_context_get_type a macro ?
+T 1524152687 20<lufimtse>30	yea
+T 1524152700 20<lufimtse>30	see: https://git.eclipse.org/r/#/c/121373/
+T 1524152703 18<akurtakov>	well macros are compile time only
+T 1524152704 20<lufimtse>30	I just uploaded new patch
+T 1524152709 20<lufimtse>30	:-O
+T 1524152712 20<lufimtse>30	:-----O
+T 1524152714 20<lufimtse>30	wooot
+T 1524152729 18<akurtakov>	you can not call dlopen and call a macro 
+T 1524152736 20<lufimtse>30	dang
+T 1524152739 20<lufimtse>30	now that explains stuff
+T 1524152753 18<akurtakov>	it's smth that the C preprocessor replaces with actual content prior to compiling
+T 1524152753 20<lufimtse>30	that explains a lot
+T 1524152763 18<akurtakov>	that's why it's useless from Java side
+T 1524152817 18<akurtakov>	https://gcc.gnu.org/onlinedocs/cpp/Macros.html
+T 1524152856 20<lufimtse>30	WebKitWebContext.h:#define WEBKIT_TYPE_WEB_CONTEXT            (webkit_web_context_get_type())
+T 1524152856 20<lufimtse>30	WebKitWebContext.h:webkit_web_context_get_type                         (void);
+T 1524152922 18<akurtakov>	hmm this means WEBKIT_TYPE_WEB_CONTEXT is the macro
+T 1524152941 18<akurtakov>	which is replaced by webkit_web_context_get_type function call
+T 1524152944 18<akurtakov>	IIRC
+T 1524152963 20<lufimtse>30	actually
+T 1524152964 20<lufimtse>30	WEBKIT_API GType
+T 1524152964 20<lufimtse>30	webkit_web_context_get_type                         (void);
+T 1524152975 20<lufimtse>30	let me see what is GType
+T 1524153013 18<akurtakov>	GType is the base of glib object model
+T 1524153056 20<lufimtse>30	I don't understand the function definition:
+T 1524153058 20<lufimtse>30	webkit_web_context_get_type (void);
+T 1524153064 18<akurtakov>	this means more or less a return type of Class<T> in java
+T 1524153104 20<lufimtse>30	hmm
+T 1524153123 20<lufimtse>30	I can't seem to figure out how this type thing works, but it seems that webkit_web_context_get_type (..) is not reliable from java.
+T 1524153141 20<lufimtse>30	we have other ways to determine callback types thou
+T 1524153142 18<akurtakov>	define unreliable
+T 1524153150 20<lufimtse>30	it works on my system, not on Andreys system.
+T 1524153168 20<lufimtse>30	and works on roland's system.
+T 1524153220 20<lufimtse>30	I sort of don't trust the bit checking macros because of the complexity of going from java through jni into C dynamically...
+T 1524153225 20<lufimtse>30	probably bug in there somewhere
+T 1524153270 20<lufimtse>30	the patch I wrote basically dosen't reply on the type check and uses our own user_data to determine callback signature
+T 1524153273 20<lufimtse>30	which stops the crash
+T 1524153293 20<lufimtse>30	using user_data is more reliable
+T 1524153301 20<lufimtse>30	imho
+T 1524153319 20<lufimtse>30	it's hard to work on these things if I can't reproduce it on my system thou.
+T 1524153333 20<lufimtse>30	so I'm just working a theory here.
+T 1524153355 18<akurtakov>	if it's more stable - ok
+T 1524153366 20<lufimtse>30	kk
+T 1524153374 18<akurtakov>	it just sounds really weird that gtype is unreliable
+T 1524153381 18<akurtakov>	this is the fundamental under gtk
+T 1524153397 20<lufimtse>30	It might be reliable, but we have to take JNI & dynamic lib loading into account.
+T 1524153413 20<lufimtse>30	and the whole type system uses a lot of macros.
+T 1524153420 18<akurtakov>	looking at
+T 1524153423 18<akurtakov>	https://git.eclipse.org/r/#/c/121373/3/bundles/org.eclipse.swt/Eclipse+SWT+WebKit/gtk/org/eclipse/swt/browser/WebKit.java
+T 1524153440 18<akurtakov>	it's more likely G_TYPE_CHECK_INSTANCE_TYPE to be faulthy 
+T 1524153451 18<akurtakov>	as it's really a macro
+T 1524153452 20<lufimtse>30	ah
+T 1524153458 20<lufimtse>30	that's a good point
+T 1524153476 20<lufimtse>30	that may be it actually
+T 1524153483 20<lufimtse>30	hmm
+T 1524153487 20<lufimtse>30	I should investigate
+T 1524153494 20<lufimtse>30	after lunch, with full stomach.
+T 1524153504 18<akurtakov>	fwiw, this should be gone
+T 1524153511 20<lufimtse>30	the type check?
+T 1524153521 20<lufimtse>30	INSTANCE_TYPE ?
+T 1524153525 18<akurtakov>	yes
+T 1524153538 18<akurtakov>	it will return true or false - always
+T 1524153543 20<lufimtse>30	ok, I will investigate and look for a way to remove
+T 1524153548 20<lufimtse>30	thanks for looking into this.
+T 1524153549 18<akurtakov>	no matter what you pass it it will be same 
+T 1524153554 20<lufimtse>30	ah
+T 1524153589 20<lufimtse>30	we are off to lunch, see you in a bit.
+T 1524160717 18<akurtakov>	here?
+T 1524160723 20<lufimtse>30	hey
+T 1524160724 20<lufimtse>30	yes
+T 1524160735 18<akurtakov>	so you are moving on ?
+T 1524160750 20<lufimtse>30	It looks like it :-)
+T 1524160775 18<akurtakov>	so what are you moving to ?
+T 1524160818 20<lufimtse>30	At the moment I'm still going through the interview process, but Red Hat Middleware Consulting. Using Eclipse/javaEE/Docker/Openshift to move java apps into containers.
+T 1524160833 20<lufimtse>30	go to clients 
+T 1524160838 20<lufimtse>30	write some code there 
+T 1524160844 20<lufimtse>30	Not too far.
+T 1524160864 18<akurtakov>	I see 
+T 1524160871 18<akurtakov>	is there ETA ?
+T 1524160877 20<lufimtse>30	Not sure yet
+T 1524160893 20<lufimtse>30	but I'd still be around in case something webkit related crops up.
+T 1524160900 18<akurtakov>	what was the driving force to look for smth else ?
+T 1524160942 18<akurtakov>	it's an honest question
+T 1524160947 18<akurtakov>	be as direct as possible :)
+T 1524161069 20<lufimtse>30	I'd say career growth. I have 3.5 years of Support Engineer experience working with clients, which is not being taken account at Software Engineer. But in consulting it's actually being taken into account as I'd be working with clients. Also I've hit somewhat of a Plato in SWT, going into consulting allows me to learn lots of new things, build a network of people I know and gain field experience 
+T 1524161069 20<lufimtse>30	which could potentially help getting a Solution Architect position or Manager position some years down the road.
+T 1524161102 18<akurtakov>	I see
+T 1524161116 18<akurtakov>	yeah, I agree there isn't much career growth in the team
+T 1524161142 18<akurtakov>	it allows to deep dive and keep improving technically in an area
+T 1524161153 18<akurtakov>	but doesn't give opportunities for carreer growth
+T 1524161228 20<lufimtse>30	So instead of fixing SWT, I'd be chasing you guys down to fix things :-P
+T 1524161231 20<lufimtse>30	he he 
+T 1524161247 20<lufimtse>30	I'll probably be using RHEL with EclipseEE
+T 1524161252 20<lufimtse>30	for javaEE development
+T 1524161263 20<lufimtse>30	learn lots of industry patterns 
+T 1524161264 20<lufimtse>30	etc..
+T 1524161266 20<lufimtse>30	fun stuff
+T 1524161271 20<lufimtse>30	not sure if as much fun as SWT
+T 1524161275 20<lufimtse>30	but change in scenery
+T 1524161283 18<akurtakov>	sounds good
+T 1524161334 20<lufimtse>30	I don't know what plans you guys have for the intern, but I'd be happy to teach him if you guys assign him to SWT
+T 1524161348 18<akurtakov>	well, I had other plans
+T 1524161354 20<lufimtse>30	had*?
+T 1524161356 18<akurtakov>	to have him more on platform side
+T 1524161360 20<lufimtse>30	hybrid?
+T 1524161372 18<akurtakov>	yeah,  I *had*
+T 1524161379 20<lufimtse>30	:-)
+T 1524161383 18<akurtakov>	but I don't want to have Eric alone on swt
+T 1524161392 18<akurtakov>	so it's still smth to consider
+T 1524161412 18<akurtakov>	as it's a bit too much for intern to throw him at both swt and platform
+T 1524161423 20<lufimtse>30	Ian did well
+T 1524161429 20<lufimtse>30	doing both
+T 1524161438 18<akurtakov>	and I'm not sure we have an intern until given a name :)
+T 1524161452 20<lufimtse>30	Ask Patric
+T 1524161455 20<lufimtse>30	politley*
+T 1524161458 20<lufimtse>30	:-)
+T 1524161468 18<akurtakov>	I know we are *supposed* to have one :)
+T 1524161860 20<lufimtse>30	Let's talk a bit more once I actually have the job offer at hand otherwise I'm a bit nervous :-)... For now I'll focus on brushing up any webkit related stuff so that it's as clean as possible before I head out.
+T 1524161875 18<akurtakov>	ok
+T 1524161889 18<akurtakov>	I still hope you'll do way more before you leave the team :)
+T 1524161895 20<lufimtse>30	:-)
+T 1524512989 20<lufimtse>30	There was a guy who was running people over in a van like 2km away from our office : https://www.theglobeandmail.com/canada/toronto/article-injuries-reported-after-van-hits-people-in-north-toronto/  
+T 1524512990 20<lufimtse>30	:-/
+T 1524513177 18<akurtakov>	wow
+T 1524513184 18<akurtakov>	more and more crazy people
+T 1524513193 20<lufimtse>30	working from home has it's perks :-/
+T 1524513208 18<akurtakov>	well,  one has to go out
+T 1524513213 20<lufimtse>30	yea,
+T 1524513221 20<lufimtse>30	I kinda thought stuff like that would only happen in the US
+T 1524513222 18<akurtakov>	whether it's going to be to the store or to kindergarden or ...
+T 1524513471 20<lufimtse>30	ever considered home delivery?
+T 1524513481 20<lufimtse>30	then you wouldn't have to go out ever :-|
+T 1524513485 20<lufimtse>30	X-|
+T 1524513499 20<lufimtse>30	meh
+T 1524513637 18<akurtakov>	what about school ?
+T 1524513642 18<akurtakov>	and kids and sports and etc.
+T 1524513665 20<lufimtse>30	Online courses: https://www.udemy.com/   + get big back yard.
+T 1524513677 20<lufimtse>30	home schooling.
+T 1524513678 20<lufimtse>30	meh
+T 1524513684 18<akurtakov>	doesn't wokr that well for kids imho
+T 1524513687 20<lufimtse>30	true
+T 1524513700 20<lufimtse>30	was not being too serious.
+T 1524513701 18<akurtakov>	unless I want to open school in my big backyard 
+T 1524513709 20<lufimtse>30	I know a guy who does that.
+T 1524513718 20<lufimtse>30	Lives in a big house thou.
+T 1524513720 20<lufimtse>30	with big yard.
+T 1524513724 20<lufimtse>30	far out in the country.
+T 1524513735 18<akurtakov>	a bit late forme
+T 1524513746 18<akurtakov>	hoping that everyone is safe and well
+T 1524513750 18<akurtakov>	g'night
+T 1524513863 20<lufimtse>30	night night.
