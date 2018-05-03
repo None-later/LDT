@@ -14261,3 +14261,65 @@ May 01 15:20:41 <maxxe>	Arbalest, ok. no, just wanted to greet.
 May 01 17:02:39 Python interface unloaded
 **** ENDING LOGGING AT Tue May  1 17:02:39 2018
 
+**** BEGIN LOGGING AT Wed May  2 15:09:14 2018
+
+May 02 15:09:14 *	Now talking on #eclipse
+May 02 15:09:14 *	Topic for #eclipse is: Oxygen.3 and Eclipse 4.7.3 have been released! Stay connected after you ask a question or connect with https://mattermost.eclipse.org/eclipse/channels/users-qa . Check the FAQ at http://wiki.eclipse.org/IRC_FAQ and read some blogs at planeteclipse.org . | This channel is logged at http://echelog.com/logs/browse/eclipse , so behave.
+May 02 15:09:14 *	Topic for #eclipse set by nitind!~nitin@eclipse/developer/WebTools/kurrelgyre (Thu Mar 22 22:11:01 2018)
+May 02 15:09:14 *	Channel #eclipse url: http://eclipse.org
+May 02 16:52:50 <nitind>	~tell psprint_ about bugs
+May 02 16:52:50 <Arbalest>	psprint_: Bugzilla is the bug tracking system used by Eclipse. Open new bug reports and/or enhancement requests https://bugs.eclipse.org/bugs/enter_bug.cgi / Search for existing bugs and/or enhancement requests https://bugs.eclipse.org/bugs/query.cgi
+May 02 23:11:01 <psprint_>	thanks
+May 03 04:41:05 <Reignendt>	Hello! I need help. I want to disable the internal console in eclipse and instead use command prompt, like most IDE's. How do I do that?
+May 03 04:47:07 <Reignendt>	Hello! I need help. I want to disable the internal console in eclipse and instead use command prompt, like most IDE's. How do I do that?
+May 03 04:47:44 <mbooth>	Reignendt: You don't need to spam the channel -- be patient for a response ;-)
+May 03 04:48:08 <mbooth>	Reignendt: But most IDEs invoke tooling for you -- I'm not sure what you are after
+May 03 04:50:07 <Reignendt>	Sorry! Well, you know how there is a console tab at the bottom of the IDE? Most other IDE's have a cmd window pop-up when you run your project. That is what I want.
+May 03 04:59:32 <mbooth>	Reignendt: What would such a command window do?
+May 03 05:56:22 <Reignendt>	It should just run the program.
+May 03 06:00:49 <mbooth>	Reignendt: But that's what your IDE is already doing and the stdin/stdout/stdin streams are connected to the console view where you can interact with your program normally -- I don't understand what you want that is different
+May 03 06:10:36 <amis>	Hello! I'm on 4.7.3a, CDT and when I select something in the editor it becomes white text and is barely visible. Why is that? What happened? I never saw anything like this.
+May 03 06:11:28 <amis>	Is it using something OS specific?
+May 03 06:13:50 <amis>	This doesn't happend when I switch to the dark theme. It only affects the default it seems.
+May 03 06:13:55 <amis>	Were there any changes to it lately?
+May 03 06:14:01 <mbooth>	amis: And what OS are you on?
+May 03 06:14:09 <Reignendt>	That is not what I'm getting. The integrated console in Eclipse does not work as intended for me, whilst starting the program in cmd does.
+May 03 06:14:41 <amis>	Ubuntu 18.04, Eclipse Version: Oxygen.3a Release (4.7.3a) Build id: 20180405-1200
+May 03 06:15:46 <mbooth>	amis: Ugh, Ubuntu does weird things to GTK. Are you using wayland or X11? Whichever you are using it might be worth trying the other.
+May 03 06:15:49 <amis>	openjdk 10.0.1 2018-04-17
+May 03 06:16:16 <mbooth>	Reignendt: Maybe you could tell us about the actual problem you are having then :-)
+May 03 06:16:53 <amis>	mbooth, sorry. I'm actually on Ubuntu 18.04 MATE to be more specific.
+May 03 06:17:16 <mbooth>	amis: Eclipse still uses GTK whatever DE you use...
+May 03 06:17:32 <amis>	I did not change anything so I'm guessing it's still the Xorg one?
+May 03 06:17:41 <amis>	I'm trying to find out what is active
+May 03 06:18:24 <amis>	I'm on X11
+May 03 06:18:51 <mbooth>	amis: Although if you use an alternate DE you may be the victim of some theming clash
+May 03 06:19:33 <amis>	mbooth, would it be possible to explicitly set the selection color (as seen in the dark Eclipse theme)?
+May 03 06:20:06 <mbooth>	amis: Yes is preferences there are all sorts of options for setting colors of text etc
+May 03 06:20:42 <Reignendt>	Well, a standard "Hello world" works fine for me, but when I try to add a scanf, I'm programming in c btw, the console show nothing at all, when it is supposed to ask a question that I then answer. But the console want me to insert the data first, and then it prints the questions after the program is done.
+May 03 06:21:12 <mbooth>	Reignendt: That sounds like you are not flushing the buffer that you are writing to
+May 03 06:21:30 <Reignendt>	What does that mean?
+May 03 06:22:31 <mbooth>	Reignendt: Are you calling fflush()?
+May 03 06:22:39 <mbooth>	Reignendt: I.e.: printf("Buffered, will be flushed");
+May 03 06:22:39 <mbooth>	fflush(stdout); // Will now print everything in the stdout buffer
+May 03 06:24:45 <amis>	Okay it seems it was using system colors so something changed in Ubuntu/MATE that created this weird light on light combination.
+May 03 06:38:00 <Reignendt>	https://ghostbin.com/paste/47qos Here is the code. I don't understand this flush thing.
+May 03 06:38:16 <Reignendt>	The code works, just not in the eclipse console.
+May 03 06:38:49 <mbooth>	Reignendt: On most operating systems, stdout is buffered
+May 03 06:39:17 <Reignendt>	ok
+May 03 06:39:50 <mbooth>	Reignendt: And if the system can detect that stdout is connected to an interactive terminal, then it is automatically line buffered (hence it works from normal terminal window) otherwise the OS fully buffers it.
+May 03 06:40:23 <mbooth>	Reignendt: Because Eclipse is not an interactive terminal, it looks like your OS is fully buffering stdout
+May 03 06:40:34 <mbooth>	Reignendt: Hence the need to flush the buffer
+May 03 06:40:50 <mbooth>	Reignendt: So does adding a call to fflush(stdout) work for you?
+May 03 06:41:12 <Reignendt>	No, but I might have put it in the wrong place.
+May 03 06:42:19 <mbooth>	Reignendt: You haven't add it in the snippet you just showed
+May 03 06:42:47 <Reignendt>	https://ghostbin.com/paste/47qos
+May 03 06:42:53 <Reignendt>	Is this how I do it?
+May 03 06:43:35 <mbooth>	Reignendt: No, you have to flush the buffer *after* you write to it -- otherwise you just flush empty buffer to no effect ;-)
+May 03 06:43:47 <Reignendt>	Ok
+May 03 06:43:49 <mbooth>	Reignendt: I gave an example above
+May 03 06:45:23 <Reignendt>	Nope, not working.
+May 03 10:52:07 <hydrian>	Ello all
+May 03 10:52:27 <hydrian>	I'm getting on odd issue with Oxygen.3 and subclipse.
+May 03 10:53:38 <hydrian>	I've change a file and svn modification icon changed so it is showing modified, but when I try to go commit it, Eclipse reports back that there are no changes.
+May 03 11:00:35 <hydrian>	Clean up didn't work

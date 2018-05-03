@@ -1,119 +1,3 @@
-T 1524688830 18<geever18>	I found an unofficial port of gtkglext to gtk3 on github, but that project seems to be dead for years...
-T 1524688974 18<Company18>	geever: i think there's not many people who've done this, so I wouldn't get my hopes up
-T 1524688986 18<Company18>	and I don't know of any projects
-T 1524691116 18<hergertme18>	Company, so at what number of widgets in widgetbowl is it worth writing a blog post about improved gtk4 perf?
-T 1524691123 18*	hergertme things its worthwhile to do one now
-T 1524691126 18<hergertme18>	thinks rather
-T 1524691189 18<Company18>	hergertme: dunno
-T 1524691207 18<Company18>	does anybody care about fishbowling widgets in their apps?
-T 1524691237 18<hergertme18>	i just mean in terms of big jumps in perf. it was like 4x wasn't it?
-T 1524691240 18<Company18>	if we started advertising apps with more than 20 icons, our poor designers would get heart attacks - let alone 4000
-T 1524691390 18<Company18>	hergertme: gtk3-demo gets around 100 icons, vulkan on wayland gets 4000
-T 1524691397 18<Company18>	so it's somewhere around 40x
-T 1524691407 18<mclasen18>	nice numbers, if you can get them
-T 1524691413 18<Company18>	but drawing 40x faster doesn't help you much if you don't draw a lot
-T 1524691441 18<mclasen18>	it means you have more time to do other stuf
-T 1524691446 18<mclasen18>	thats nice
-T 1524691524 18<Company18>	mclasen: it also means you can animate all the things and redraw them eery frame
-T 1524691532 18<hergertme18>	exactly, i think of this stuff like an accordion 
-T 1524691534 18<mclasen18>	true
-T 1524691568 18<hergertme18>	in terms of multiply, i just meant from before the fix, it was ~500 wasn't it?
-T 1524691578 18<hergertme18>	but comparing to 3.x is probably smarter
-T 1524691585 18<hergertme18>	in the "why did we need to break ABI" category 
-T 1524691598 18<hergertme18>	40x improvement, but new ABI? okay, that's worth it
-T 1524691604 18<Company18>	hergertme: the problem is that we do so many other things different, too
-T 1524691615 18<Company18>	hergertme: and those other things aren't (yet?) 40x faster
-T 1524691635 18<hergertme18>	just trying to lay out a story that is positive :)
-T 1524691650 18<Company18>	drawing in general is a *LOT* faster
-T 1524691677 18<Company18>	where a LOT means stuff that used to take seconds to draw now draws in less than a frame
-T 1524691730 18<feaneron18>	listbox is faster
-T 1524692206 18<Company18>	i might now be the first person porting from GTK4 to GTK3
-T 1524692823 18<Company18>	dammit
-T 1524692836 18<Company18>	we need a script that ports ui files between gtk3 and gtk4
-T 1524748994 19*	Now talking on 22#gtk+
-T 1524748994 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1524748994 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1524750696 18<heftig18>	hm, no autoptr cleanup func for GTypeClass?
-T 1524750724 18<Company18>	probablyt just forgotten
-T 1524752417 18<bugbot18>	florian.muellner@gmail.com changed the Status on bug 795488 from REOPENED --- to RESOLVED FIXED.
-T 1524752417 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=795488 gio, normal, gtkdev, RESOLVED FIXED, gdesktopappinfo: Filter out some binary names in search
-T 1524752490 18<bugbot18>	bugzilla@tecnocode.co.uk changed the Status on bug 773435 from NEW --- to RESOLVED FIXED.
-T 1524752490 18<bugbot18>	Bug https://bugzilla.gnome.org/show_bug.cgi?id=773435 general, normal, gtkdev, RESOLVED FIXED, After g_get_home_dir() fails, a second use deadlocks
-T 1524752523 18<pwithnall18>	heftig: Patch welcome :)
-T 1524752532 18<pwithnall18>	baedert: Are you planning on updating https://bugzilla.gnome.org/show_bug.cgi?id=784814 soon?
-T 1524752533 18<bugbot18>	Bug 784814: gio, normal, gtkdev, NEW , fdo notification backend: Crashes when dbus call fails
-T 1524752550 18<pwithnall18>	I see someone has taken the subtle approach of bumping by attaching a bogus patch
-T 1524752553 18<spacekookie18>	Is there a field in Gtk.TextView that specifies line height and padding on lines? (so how far from the left or right the area should start/ start wrapping?
-T 1524752560 18<spacekookie18>	I didn't really see anything in the docs that caught my eye
-T 1524752597 18<baedert18>	pwithnall: No, I don't really use the fdo notification backend, was just something I noticed while using xfce for testing. I wasn't planning on spending much more time on it than writing the initial patch
-T 1524752619 18<pwithnall18>	boo :(
-T 1524752653 18<pwithnall18>	I wonder if I can con this new commenter into updating your patch
-T 1524753386 18<Company18>	sooooo
-T 1524753400 18<Company18>	event sequences
-T 1524753428 18<Company18>	are we ever going to use them elsewhere or just in touch events?
-T 1524753482 18<Company18>	i'm asking because I'm wondering about how to treat DND events
-T 1524753500 18<Company18>	should the GdkDragContext be used as the event sequence?
-T 1524753592 18<mclasen18>	garnacho: ^
-T 1524753641 18<garnacho18>	Company: I think it should always probably be null in a dnd event controller
-T 1524753688 18<Company18>	garnacho: I'm mostly thinking about it from a unifying-gtk-code pov
-T 1524753722 18<Company18>	garnacho: because of the ENTER/MOTION/LEAVE and BEGIN/UPDATE/END machinery
-T 1524753756 18<Company18>	garnacho: do we unify that or do we add another special case for DRAG_ENTER/DRAG_MOTION/DRAG_LEAVE
-T 1524753808 18<Company18>	and the whole synth_crossing() part needs duplication also for FOCUS_IN/FOCUS_OUT
-T 1524753852 18<Company18>	that's 3.5 cases of event sequences that need very similar machinery
-T 1524753934 18<garnacho18>	Company: begin/end and enter/leave don't match semantically, and I'm not really keen on adding per touch enter/leave events to match it closer to pointers...
-T 1524754035 18<garnacho18>	making the focus tracking event delivery code common, sure. It's always propagating down a widget and up another
-T 1524754052 18<Company18>	yeah
-T 1524754070 18<Company18>	and it'll be tricky code for the cases where the widgetry changes during the sequence
-T 1524754131 18<Company18>	garnacho: what's the difference for touch? Does TOUCH_BEGIN grab the widget the touch started on?
-T 1524754143 18<Company18>	and then the rest of the events go to that widget?
-T 1524754197 18<garnacho18>	yup, that's what happens
-T 1524754204 18<mclasen18>	the other way around, right ?
-T 1524754212 18<mclasen18>	the controller grabs the sequence
-T 1524754217 18<mclasen18>	not the sequence grabs the widget
-T 1524754244 18<Company18>	that's actually another question I had
-T 1524754255 18<Company18>	how are motion events delivered while a button is pressed?
-T 1524754314 18<Company18>	because the web has :hover set on the element below the mouse pointer, no matter if there's a button pressed over another widget or not
-T 1524754334 18<Company18>	which would mean ENTER/MOTION/LEAVE proceeds as normal while a button is pressed
-T 1524754357 18<mclasen18>	thats just not how X works
-T 1524754368 18<Company18>	we're not using X
-T 1524754400 18<Company18>	with GTK4 there's no child windows anymore, so X requirements don't really matter to us
-T 1524754415 18<mclasen18>	somewhat true
-T 1524754424 18<Company18>	also, we're a wayland toolkit now :p
-T 1524754438 18<mclasen18>	we should put that on a sticker
-T 1524754467 18<garnacho18>	mclasen: the widget stack that will have the touch event propagated is per-sequence. The controllers in the widgets along the stack use the sequence for claiming purposes. eg. two sequences might have different targets, but end up claimed by a same common parent
-T 1524754509 18<garnacho18>	Company: right now it locks on the implicit grab, X style
-T 1524754758 18<heftig18>	pwithnall: any point adding cleanup to GParamSpec, GParamSpecClass, GObjectClass, GInitiallyUnownedClass?
-T 1524754798 18<pwithnall18>	Yes to the `Class` ones; less sure about `GParamSpec` because it’s typically floating iirc
-T 1524754825 18<pwithnall18>	and nobody ever constructs a `GParamSpec` for anything other than `g_object_class_install_properties()`
-T 1524754851 18<pwithnall18>	but then again, it’s easy enough to add cleanup support, so ¯_(ツ)_/¯
-T 1524754925 18<Company18>	can you mark globals as g_autoptr?
-T 1524755164 18<ebassi18>	Company: No
-T 1524755172 18<ebassi18>	Company: They never go out of scope
-T 1524755185 18<Company18>	they do on unload
-T 1524755202 18<Company18>	that's why I was wondering
-T 1524755234 18<Company18>	would be useful for global cleanup when running memcheck for example
-T 1524755278 18<Company18>	garnacho, mclasen: fun fact: JS doesn't even do a soft grab on button down
-T 1524755301 18<heftig18>	Company:  "This attribute can only be applied to auto function scope variables"
-T 1524755449 18<Company18>	garnacho, mclasen: actually, they do on left click, but not on right click
-T 1524755451 18<Company18>	screw the web
-T 1524755477 18<garnacho18>	heh
-T 1524755720 18<Company18>	actually, I'm just using the wrong events
-T 1524755792 18<heftig18>	pwithnall: gio isn't using G_DECLARE because nobody cared yet
-T 1524755795 18<heftig18>	pwithnall: ?
-T 1524755837 18<pwithnall18>	`G_DECLARE_[DERIVABLE|FINAL]_TYPE`?
-T 1524755855 18<Company18>	garnacho: so what the web does is not doing a grab at all
-T 1524755862 18<pwithnall18>	Porting to those typically breaks ABI
-T 1524755894 18<pwithnall18>	(always breaks ABI?)
-T 1524755895 18<Company18>	garnacho: but the event controllers for clicks only trigger if they received a button down followed by a button up
-T 1524755951 18<garnacho18>	Company: how does the source element know of the release? listening on the root elem?
-T 1524755965 18<Company18>	garnacho: i didn't analyze it that far yet
-T 1524755974 18<Company18>	garnacho: https://jsfiddle.net/9bm9oezd/1/
-T 1524755988 18<garnacho18>	no wonder why it's so easy to have google maps stubbornly stick to the pointer then :/
-T 1524755997 18<heftig18>	pwithnall: I thought it only breaks ABI if the instance struct respectively the class struct contains more than the parent struct
-T 1524756002 18<Company18>	garnacho: onlick only gets triggered (for the whole tree) if the target was the same for button down and button up
-T 1524756052 18<Company18>	garnacho: and up gets delivered to whatever button you release on (for any button
-T 1524756054 18<Company18>	)
-T 1524756095 18<Company18>	the neat thing about that approach is that it simplifies event delivery a lot
 T 1524756113 18<Company18>	because you don't have to track grabs
 T 1524756129 18<pwithnall18>	heftig: Yes, and that’s the case for a lot of classes in GIO (they have vfuncs defined in the class)
 T 1524756131 18<Company18>	the not so neat thing is that it makes the event controllers more complicated
@@ -613,3 +497,157 @@ T 1525203981 18<Company18>	"it's not that expensive"
 T 1525204006 18<Company18>	"well, it is that expensive, but we're that good"
 T 1525204016 18*	Company rewatching old Linus git talk
 T 1525208559 FiSHLiM plugin unloaded
+T 1525288143 19*	Now talking on 22#gtk+
+T 1525288143 22*	Topic for 22#gtk+ is: MASS MIGRATION OF BUGS FROM BUGZILLA TO GITLAB IN PROGRESS
+T 1525288143 22*	Topic for 22#gtk+ set by 26ebassi_ (24Wed May  2 09:26:03 2018)
+T 1525288347 18<lovetox18>	so a user reported a problem with pixbuf and big images
+T 1525288360 18<lovetox18>	he has a image that has a bigger size than a integer can hold
+T 1525288399 18<lovetox18>	if i request the width/height with get_width() this seems to return 0 or negativ i didnt check
+T 1525288429 18<lovetox18>	which should return int which it cant
+T 1525288449 18<lovetox18>	soo is this a hard limitation of a pixbuf, or is there a way around that?
+T 1525288514 18<baedert18>	looks like a pretty hard limitation to me
+T 1525288586 18<lovetox18>	so how can i know that this file is to big, if it makes gtk crash when i request the size?
+T 1525288613 18<Company18>	lovetox: it should error out when trying to load the file
+T 1525288642 18<lovetox18>	oh no sorry, gtk is not crashing becasue of this
+T 1525288659 18<lovetox18>	it crashes because i try to scale_simple with dest_height 0
+T 1525288675 18<lovetox18>	but i can catch this beforehand
+T 1525288678 18<lovetox18>	thanks
+T 1525297668 18<Company18>	xkcd made a comic for ebassi_ today
+T 1525297690 18<Company18>	(or was that yesterday already?)
+T 1525308267 18<Company18>	oh yay
+T 1525308277 18<Company18>	we compile GTK 3 times in CI?
+T 1525308311 18<Company18>	once to build and test, once to create the widget-factory flatpak and once to create the gtk-demo flatpak?
+T 1525309175 18<Company18>	baedert: about https://gitlab.gnome.org/GNOME/gtk/commit/622a150bb4a83afba909c051a4baf12a88868e62 it would be nice to have a reason for why that optimization was necessary in the commit message
+T 1525309203 18<Company18>	baedert: so that when I look at that code in 3 years (or next week) and wonder why that special case is there, I can git blame myself to an answer
+T 1525331624 18<csoriano18>	ebassi_: migration completed 💪
+T 1525331732 18<baedert18>	apparently people rush to gitlab to upvote the new issues
+T 1525333699 18<hellozee18>	gnome
+T 1525333707 18<hellozee18>	sorry
+T 1525334906 18<Company18>	rofl
+T 1525334931 18<Company18>	/r/linux is hating on GTK today because it has more themes than kde
+T 1525334982 18<SilverRainZ18>	lol
+T 1525335896 18<ebassi_18>	csoriano: 👌
+T 1525336002 18<ebassi_18>	csoriano: How long did it actually take?
+T 1525336022 18<csoriano18>	ebassi_: no idea, I went party on the night xd
+T 1525336049 18<csoriano18>	it was half at 20:00
+T 1525336063 18<csoriano18>	and I started when I told you, so seems more than 5 hours no?
+T 1525336074 18<csoriano18>	maybe 10
+T 1525336111 18<ebassi_18>	Yeah, 10 seems more accurate
+T 1525336159 18<baedert18>	The fact that sorting by "Popularity" just uses upvotes is weird
+T 1525336164 18<csoriano18>	we can actually see it by looking at the first bug migrated and the last
+T 1525336405 18<krnowak18>	So probably the channel topic can be changed.
+T 1525336615 18<baedert18>	not like it will be changed to something better
+T 1525336738 18<heftig18>	Company: could you build it once and then package it three times?
+T 1525336763 18<heftig18>	er, or rather, build it once, test that build, then flatpak it twice
+T 1525336800 22*	26ebassi_ has changed the topic to: GTK now officially migrated to https://gitlab.gnome.org/GNOME/gtk
+T 1525336962 18<Company18>	heftig: I have no idea, I don't do CI
+T 1525336983 18<Company18>	ebassi_ and lazka did most of that and would be to blame for building GTK 3x
+T 1525337044 18<heftig18>	you can have gitlab copy artifacts (e.g. a builddir or all untracked files) from one ci step to another
+T 1525337145 18<Company18>	also, I would like to thank CI for https://gitlab.gnome.org/GNOME/gtk/commit/35e74a1501b93025b9755dd1d98b82ef1957d1e1
+T 1525337169 18<Company18>	us having a Windows build is *great*
+T 1525337402 18<heftig18>	meh, it logged me out again; made me notice the default bright color scheme makes added/removed lines not obvious enough
+T 1525337448 18<heftig18>	maybe you need to have a properly calibrated display...
+T 1525338804 18<baedert18>	dboles is adding labels now lol
+T 1525339015 18<Company18>	I take bets on what will take longer: running the import script of labelling the bugs
+T 1525339077 18<csoriano18>	you can mass label the bugs in the UI fwiw
+T 1525339187 18<ebassi_18>	Company: We cannot avoid the two flatpak builds: the manifests are different; they are done in parallel anyway
+T 1525339214 18<baedert18>	they are also both minimal
+T 1525339245 18<Company18>	ebassi_: I'd have thought they could share the same libgtk.so
+T 1525339306 18<ebassi_18>	Nope
+T 1525339330 18<ebassi_18>	I mean: one way to do that would be to make them not parallel and cache the flatpak-builder cache, *maybe*
+T 1525339395 18<ebassi_18>	But I'm not entirely sure it'd work anyway: gtk+ is the last component on the manifest, and flatpak-builder will likely rebuild it anyway, because the manifest is different
+T 1525339396 18<Company18>	it just feels like such a waste of CPU power to build 3 times
+T 1525340300 18<hadess18>	pwithnall: not sure you can do something about that still being online: https://developer.gnome.org/integration-guide/stable/thumbnailer.html.en
+T 1525340571 18<pwithnall18>	hadess: nope, I don’t hav access to the docs server
+T 1525340573 18<pwithnall18>	*have
+T 1525340587 18<pwithnall18>	Looks like that used to be in gnome-devel-docs, but is no longer there?
+T 1525343149 18<pwithnall18>	GObject experts: is there a way to get a function to be called when someone connects a signal handler to a signal? I suspect there isn’t, but there’s a chance I’m missing something really evil
+T 1525343309 18<pwithnall18>	From looking at the code, I’m pretty sure there isn’t
+T 1525343348 18<mclasen18>	no
+T 1525343353 18<mclasen18>	there's old bugs about it
+T 1525343585 18<pwithnall18>	https://bugzilla.gnome.org/show_bug.cgi?id=380581
+T 1525343607 18<ebassi_18>	pwithnall: https://bugzilla.gnome.org/show_bug.cgi?id=635054
+T 1525343648 18<pwithnall18>	looks like I can do some easy dupe-closing
+T 1525343873 18<alexarnaud18>	Hello all
+T 1525343885 18<alexarnaud18>	Could it be possible to see this fix also applied in GTK2? https://bugzilla.gnome.org/show_bug.cgi?id=778811
+T 1525343912 18<alexarnaud18>	Should open a merge request ? We've already a patch for GTK2 and it works properly.
+T 1525343935 18<ebassi_18>	alexarnaud: Changing behaviours in gtk2 is kind of a no-no
+T 1525343973 18<alexarnaud18>	ebassi_: So we should apply it downstream?
+T 1525343985 18<ebassi_18>	What's "downstream"?
+T 1525344006 18<alexarnaud18>	on Debian if they accept or on our own repository.
+T 1525344032 18<alexarnaud18>	We would like to avoid to have to override GTK2 for such thing.
+T 1525344062 18<alexarnaud18>	And to make all users to benefit to such feature. It's indispensable for blind.
+T 1525344100 18<ebassi_18>	alexarnaud: Feel free to open a MR
+T 1525344110 18<ebassi_18>	Against gtk-2-24
+T 1525344150 18<alexarnaud18>	ebassi_: OK, we'll. Thanks for the advise :).
+T 1525344156 18<ebassi_18>	Of course, I hope you realise that a new GTK 2.24 release may be in a while
+T 1525344168 18<ebassi_18>	So you'll have to apply the patch downstream anyway
+T 1525344308 18<alexarnaud18>	ebassi_: We've already the patch apply downstream since one year but I've discover last week it was not proposed on GTK2 side..
+T 1525344332 18<alexarnaud18>	Debian buster will be release in more a year
+T 1525344344 18<alexarnaud18>	*released in more than a year
+T 1525346233 18<alex18>	baedert: does the snapshot container merge really do much these days? I mean, every widget creates its own render node and saves it, and appends it with a different call
+T 1525346255 18<baedert18>	alex: what node does it create? Where does it add the node?
+T 1525346264 18<baedert18>	the answer is "container" to both, usually
+T 1525346269 18<baedert18>	I posted numbers when I wrote the patch
+T 1525346392 18<alex18>	baedert: Well, it already created the node
+T 1525346403 18<alex18>	I guess its nice to have a less deep final tree
+T 1525346427 18<baedert18>	I mentioned that it sucks to create the node just to throw it away
+T 1525346447 18<baedert18>	also sucks to use a GPtrArray/GArray per snapshot() call for saving nodes+state
+T 1525347076 18<alex18>	baedert: on the other hand, creating the node means you don't have to later re-create it if a sibling node changed but you did not
+T 1525347087 18<alex18>	baedert: which is the entire point
+T 1525360902 18<Company18>	alex: i think the biggest problem with rendernode optimizations these days is that we have no idea what we're even doing
+T 1525360928 18<Company18>	the render node caching work deleted all our preexisting knowledge and now there's offset nodes everywhere
+T 1525360973 18<Company18>	and once somebody innovates the GskRenderers to take advantage of that, we'll reset our knowledge again
+T 1525361131 18<Company18>	what we really need is a benchmarking infrastructure so that we can have competitions on who writes the fastest renderer for the benchmarks we come up with
+T 1525361214 18<Company18>	even our existing benchmarks are probably useless today
+T 1525361869 18<mclasen18>	in what sense are they useless ?
+T 1525361907 18<mclasen18>	are they not stressing the right part of the stack ?
+T 1525361958 18<Company18>	yeah
+T 1525361970 18<Company18>	a big part of the caching is the caching
+T 1525361996 18<Company18>	so if you branchmark a "draw this this thing", there's no caching involved
+T 1525362019 18<Company18>	i guess "useless" is the wrong word, "very incomplete" is probably better
+T 1525368812 18<csoriano18>	any feedback or leftover from the migration?
+T 1525368918 18<baedert18>	yes, those bugs suck and it was better without them :(
+T 1525369828 18<ebassi_18>	csoriano: There shouldn't be any stragglers; and hopefully the migration will be an excuse to do some more spring cleaning and drop a bunch of old bugs
+T 1525369839 18<csoriano18>	cool
+T 1525369850 18<ebassi_18>	csoriano: Other than that, thanks a lot for donating your laptop to the migration ;-)
+T 1525369861 18<csoriano18>	hah that's nothing
+T 1525369877 18<ebassi_18>	Prepare yourself for the glib migration
+T 1525369883 18<ebassi_18>	*That* is going to be fun
+T 1525369896 18<ebassi_18>	I'll try to do a test run over the weekend
+T 1525371199 18<mclasen18>	baedert: go and close some
+T 1525373700 18<johncc318>	Hello all, Need some ideas. I must be doing something stupid :). I have a small(ish) program to demo the use of g_io_channels, and get a compile error:  undefined reference to `g_io_channel_unix_new'
+T 1525373756 18<johncc318>	I do have #include <glib.h>, and I do have a pkg-config call on the command line. What's more, GIOChannel is not complained about by the compiler.
+T 1525373870 18<pochu18>	you need to include gio-2.0 in your pkg-config call
+T 1525373879 18<johncc318>	And I checked the compile line: gcc -Wall -g -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -g -O2   -o demo_gpoll main.o
+T 1525373914 18<oknf[m]18>	johncc3, which package do you use with pkg-config?
+T 1525374020 18<johncc318>	This is a gcc command generated with Anjuta. I tried also adding #include <gio.h> but that generated basically the same options again.
+T 1525374060 18<johncc318>	 pkg-config --cflags gio-2.0  ->   -pthread -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
+T 1525374110 18<johncc318>	pkg-config --cflags glib-2.0  -->  -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
+T 1525374161 18<johncc318>	I understand that gio.h is now part of glib, and a separate include isn't necessary
+T 1525374216 18<johncc318>	(though I did try)
+T 1525374362 18<johncc318>	Any ideas?
+T 1525374391 18<oknf[m]18>	if thats all, then you are not linking in any libraries, i.e., --libs glib-2.0 
+T 1525374537 18<johncc318>	oknf[m], That's a good point! The line was generated by the ide...
+T 1525374666 18<johncc318>	Checked the automake. and it was missing $(GLIB_LIBS) (which receives the -L/-l options).
+T 1525374722 18<johncc318>	I have had several problems with Anjuta with this issue, and really should go to another IDE. 
+T 1525374765 18<johncc318>	Thanks for the hint, oknf[m]!
+T 1525374813 18<oknf[m]18>	glad you found the source of the problem
+T 1525375354 18<lovetox18>	some of the changes you did for 3.22.29 or 3.22.30, broke the FileChooserDialog on Windows
+T 1525375381 18<lovetox18>	harddrives are not selectable anymore
+T 1525375392 18<lovetox18>	clicking on them doesnt do anything
+T 1525375578 18<ebassi_18>	lovetox: Can you bisect which changes?
+T 1525375619 18<lovetox18>	no i can only install GTK from msys sorry
+T 1525375629 18<lovetox18>	but between 3.22.28 and 3.22.30 are not many commits
+T 1525375711 18<lovetox18>	if i would have to make a guess, it maybe has to do with the "activate on single click" stuff that someone reverted
+T 1525375776 18<baedert18>	there's a bug for that
+T 1525375920 18<lovetox18>	for what exactly?
+T 1525375947 18<baedert18>	broken filechooser in windows iirc
+T 1525376006 18<lovetox18>	hm i searched gitlab and in the last 2 months there was no issue about a broken filechooser
+T 1525376011 18<baedert18>	can't find it now of course but it was from lazka
+T 1525376113 18<oknf[m]18>	this one probably https://gitlab.gnome.org/GNOME/gtk/issues/170
+T 1525376165 18<ebassi_18>	https://bugzilla.gnome.org/show_bug.cgi?id=795153 was fixed
+T 1525376172 18<ebassi_18>	I guess it needs a new glib 2.56 release
+T 1525376226 18<lovetox18>	oh nice of course didnt think it was closed ^^
+T 1525376289 18<lovetox18>	hmi created also a issue, should i close?
+T 1525376663 18<ebassi_18>	lovetox: Marked as duplicate

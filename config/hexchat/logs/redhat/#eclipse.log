@@ -18174,3 +18174,89 @@ May 01 14:13:42 *	Topic for #eclipse is: Eclipse discussions
 May 01 14:13:42 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
 **** ENDING LOGGING AT Tue May  1 17:02:39 2018
 
+**** BEGIN LOGGING AT Wed May  2 15:09:00 2018
+
+May 02 15:09:00 *	Now talking on #eclipse
+May 02 15:09:00 *	Topic for #eclipse is: Eclipse discussions
+May 02 15:09:00 *	Topic for #eclipse set by akurtakov!~akurtakov@vpn1-5-170.ams2.redhat.com (Tue May 17 08:53:56 2016)
+May 03 10:19:11 <mbooth>	rgrunber: Hey Mr Orbit, there are some php errors at the bottom of this page: http://download.eclipse.org/tools/orbit/downloads/drops/S20180302171354/
+May 03 10:19:21 <mbooth>	Is it something you know about?
+May 03 10:20:41 <mbooth>	https://paste.fedoraproject.org/paste/kr6e9iUnaRnernbrXVa6nA
+May 03 10:20:57 <rgrunber>	yeah i think i could have a look.. seems like wrong include path.. not deep enough
+May 03 10:29:15 <rgrunber>	mbooth: ok i think i know the issue.. /me puts his thinking cap on.. needs to be solved in jenkins surprisingly
+May 03 11:14:04 <rgrunber>	mbooth: k testing out a solution.. the footers i've commented for now because i can't seem to find them anywhere, and i think removing them will look the same. should fix some images that weren't showing though.
+May 03 11:14:36 <mbooth>	rgrunber: Cool :-)
+May 03 11:15:23 <rgrunber>	basically there's relative paths at build (jenkins) time, and at html (runtime) viewing and they need to be different as the environment for both are different.
+May 03 11:15:36 <rgrunber>	i can change the other paths manually.. just wanna confirm it'll be fixed for the future.
+May 03 11:17:31 *	mbooth wonders if you can sack php and generate static html for these pages
+May 03 11:18:15 <rgrunber>	mbooth: that is what i do. the pages are static.. the php runs at build time.
+May 03 11:18:20 <scela>	rgrunber: I like the nickname cc mbooth
+May 03 11:18:35 <mbooth>	rgrunber: Aha, gotcha
+May 03 11:18:47 <rgrunber>	ie.. pre-mars.2 if you do a view source, you see a very small html page, because it's calling php at "view-time"
+May 03 11:19:13 <rgrunber>	now i generate the page with php as part of the jenkins build cause.. how much could the page possibly change when the build is already determined.
+May 03 12:01:26 <ericwill>	mbooth re: https://bugs.eclipse.org/bugs/show_bug.cgi?id=534174#c12 that looks to be the culprit
+May 03 12:01:50 <ericwill>	mbooth if you prepare a patch I'll push it, build script stuff is not my forte
+May 03 12:02:44 <mbenitez>	eclipse-team: if you find any bugs where Ian was CCd could you please remove his address? that'd be really nice for my inbox :)
+May 03 12:05:08 <ericwill>	mbenitez he is probably following/watching the SWT inbox...he would have to log in and remove that himself, I don't think we can
+May 03 12:06:33 <akurtakov>	rgrunber: https://src.fedoraproject.org/rpms/eclipse/blob/master/f/eclipse-make-droplets-runnable.patch
+May 03 12:06:45 <akurtakov>	why do we ship without artifacts.xml
+May 03 12:06:57 <akurtakov>	due to checksums ?
+May 03 12:07:00 <mbooth>	ericwill: Okay, will take a look -- I suppose this never gets run upstream because natives are not built
+May 03 12:07:45 <mbenitez>	ericwill, then I guess I'm stuck as long as his RH email is the one on the bugs :(
+May 03 12:07:49 <rgrunber>	akurtakov: i believe it was just a decision in upstream p2 because most of the info from the artifacts file can be generated on the fly.. obviously except for the runnable flag..
+May 03 12:08:22 <rgrunber>	it didn't make sense to have to ship that extra file with data that's mostly not needed and can be determined..
+May 03 12:08:47 <mbooth>	rgrunber: Should we ship it? Is it a change needed in fp-p2 or xmvn?
+May 03 12:09:01 <mbooth>	To make our droplet usage more "standard"
+May 03 12:09:03 <akurtakov>	well the real question is will it break smth if we ship it ?
+May 03 12:09:22 <rgrunber>	yes iirc it does break some things not having it
+May 03 12:09:35 <akurtakov>	one thing I'm afraid of checksums failing 
+May 03 12:09:53 <akurtakov>	e.g. with thirdparty coming from other rpms
+May 03 12:09:56 <akurtakov>	as symlinks
+May 03 12:10:15 <rgrunber>	akurtakov: i can't reccall if all artifacts.xml files have checksum data embedded.. i've seen those that don't.
+May 03 12:11:01 <mbooth>	Maybe we could remove checksums if they aren't mandatory -- I mean we already don't ship checksums...
+May 03 12:11:18 <rgrunber>	ah.. so if i remember correctly i believe the bug is :.. if your droplet repo isn't recognized as runnable.. when you install new stuff.. it copies it over into your .eclipse instead of just referring to the location in /usr/share/eclipse/droplets...
+May 03 12:11:51 <rgrunber>	in the event that something you install depends on something you already have
+May 03 12:12:34 <mbooth>	Okay, and it *would* be recognized as runnable without this patch if there was a artifacts.xml with the droplet, right?
+May 03 12:13:27 <rgrunber>	yes
+May 03 12:13:48 <akurtakov>	mbooth: btw, this patch is not enough for droplets to work with upstream
+May 03 12:14:04 <rgrunber>	but iirc we went with no having that artifacts.xml file in the format.. ie.. less redundant data
+May 03 12:14:05 <akurtakov>	rgrunber: do you remember how ot test/develop droplets changes
+May 03 12:14:21 <akurtakov>	with upstream eclipse
+May 03 12:15:24 <rgrunber>	i believe so. are you planning to upstream the change ?
+May 03 12:16:00 <rgrunber>	there are also some tests in p2 upstream that should test droplet functionality.
+May 03 12:16:30 <mbooth>	You can use repo2runnable application to create p2 fragments too, IIRC
+May 03 12:16:36 <mbooth>	https://wiki.eclipse.org/Equinox/p2/P2_Fragments
+May 03 12:16:43 <rgrunber>	yup
+May 03 12:17:34 <akurtakov>	I want to see all this changes upstreamed in some way
+May 03 12:17:41 <akurtakov>	for now it's Mat's ui patches
+May 03 12:18:00 <akurtakov>	but I can't make droplets work with upstream Photon
+May 03 12:18:09 <ericwill>	mbenitez O
+May 03 12:18:23 <ericwill>	mbenitez *I'll ping him on facebook and ask him to remove himself
+May 03 12:18:28 <akurtakov>	what I tried is adding -Dp2.fragments=/usr/lib/eclipse/droplets,/usr/share/eclipse/droplets to vmargs in launch config
+May 03 12:18:43 <akurtakov>	also added the patch marking as executable
+May 03 12:19:37 <mbenitez>	ericwill, thanks, I just sent him an email to his external account
+May 03 12:22:01 <akurtakov>	rgrunber: if you can help me how to setup
+May 03 12:22:17 <rgrunber>	when you call repo2runnable you just need the -createFragments, and -flagAsRunnable arguments..
+May 03 12:22:39 <rgrunber>	you can then remove the artfacts/content jars/xmls generated.
+May 03 12:23:00 <rgrunber>	from there you just set the p2.fragments to include the directory that has the droplet locations.
+May 03 12:25:47 <rgrunber>	we perform the exact same steps in fp-p2 https://github.com/rgrunber/fedoraproject-p2/blob/master/org.fedoraproject.p2/src/org/fedoraproject/p2/installer/impl/Director.java#L105
+May 03 12:26:03 <mbooth>	akurtakov: Maybe something like this: https://paste.fedoraproject.org/paste/Hs4~b2DCA6ZyygfV55CNkQ
+May 03 12:26:18 <akurtakov>	rgrunber: shouldn't it work if I try to use the rpm installed droplets ?
+May 03 12:27:00 <rgrunber>	for the directory format, i'm pretty sure the folder you specify to p2.fragments property needs to be some top level folder.. and inside there are individual droplet folders, like /droplets contains droplet1, droplet2, etc.. they can be named anything
+May 03 12:27:15 <rgrunber>	mbooth: also needs the -createFragments property
+May 03 12:27:42 <akurtakov>	rgrunber:  -Dp2.fragments=/usr/lib/eclipse/droplets,/usr/share/eclipse/droplets
+May 03 12:27:58 <rgrunber>	yup
+May 03 12:28:22 <akurtakov>	but it's not working
+May 03 12:28:38 <akurtakov>	mbooth: hmm can it be the toplevel eclipse dir for which we patch in fedora ?
+May 03 12:28:58 <rgrunber>	could be that yes.. they have an additional 'eclipse' folder
+May 03 12:29:03 <mbooth>	akurtakov: Upstream also does not support symlinked bundles
+May 03 12:29:06 <mbooth>	:-/
+May 03 12:29:20 <akurtakov>	damn
+May 03 12:29:25 *	akurtakov goes for dinner
+May 03 12:29:35 <rgrunber>	kk.. yeah need to run some errands but i can try it myself as well..
+May 03 12:30:39 <mbooth>	akurtakov: Oh yes, you might need to apply this patch to the upstream eclipse: https://src.fedoraproject.org/rpms/eclipse/blob/master/f/eclipse-adjust-droplets.patch
+May 03 12:30:54 <mbooth>	To support that extra 'eclipse' dir
+May 03 12:31:07 *	mbooth is getting rid of the need for that
+May 03 13:13:02 <mbooth>	rgrunber / akurtakov: FWIW I don't think there are any checksums in the fragment metadata -- I think I will try shipping full fragments and seeing how many patches I can drop....
+May 03 13:13:42 <mbooth>	I don't really care if there is any duplicate metadata -- hard disk space is cheaper than engineering time
+May 03 13:14:30 *	mbooth goes for dinner
