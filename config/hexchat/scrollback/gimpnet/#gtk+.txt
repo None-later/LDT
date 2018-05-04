@@ -1,420 +1,3 @@
-T 1524756113 18<Company18>	because you don't have to track grabs
-T 1524756129 18<pwithnall18>	heftig: Yes, and that’s the case for a lot of classes in GIO (they have vfuncs defined in the class)
-T 1524756131 18<Company18>	the not so neat thing is that it makes the event controllers more complicated
-T 1524756138 18<ebassi18>	pwithnall: The reason why we don't use G_DECLARE in gio is because we have all the typedefs in a single header
-T 1524756144 18<pwithnall18>	I would be wary about other ways of breaking ABI too
-T 1524756154 18<Company18>	ebassi: that doesn't matter
-T 1524756154 18<heftig18>	pwithnall: in which case you would use G_DECLARE_DERIVABLE_TYPE so you the class struct remains under your control
-T 1524756168 18<Company18>	ebassi: you can duplicate typedefs
-T 1524756172 18<pwithnall18>	tl;dr: Please don’t port to G_DECLARE_* without some output from an ABI diff tool proving it’s OK
-T 1524756176 18<ebassi18>	pwithnall: And compilers warn about duplicated typedefs unless they run with c11 compatibility
-T 1524756199 18<ebassi18>	Company: You can only with recent GCC or with C11-compatible compilers
-T 1524756200 18<pwithnall18>	there is also that
-T 1524756232 18<ebassi18>	I also think C++ will warn about that
-T 1524756232 18<Company18>	ebassi: looks like people will figure out if their compilers are C11-compatible once they try compiling GTK4 then :o
-T 1524756246 18<ebassi18>	Company: Compiling GIO != Compiling code using GIO
-T 1524756274 18<Company18>	ebassi: because I've been using G_DECLARE() for all the paintables while redeclaring their types in the types.h headers
-T 1524756283 18<Company18>	and nobody has complained yet
-T 1524756287 18<ebassi18>	Nothing old uses GTK4, so we can ask people to use a decent compiler
-T 1524756298 18<ebassi18>	The same cannot be said about GIO
-T 1524756351 18<Company18>	yeah, agreed on that
-T 1524756358 18<pwithnall18>	https://wiki.gnome.org/Projects/GLib/CompilerRequirements#A.28C11.29_support_for_type_redefinition
-T 1524756441 18<ebassi18>	Yeah, GCC 4.2 was a point of contention
-T 1524756451 18<ebassi18>	Considering that *BSDs and Apple ship it
-T 1524756457 18<heftig18>	I'm tempted to add _GLIB_DEFINE_AUTOPTR_CHAINUP (ModuleObjName##Class, ParentName#Class)
-T 1524756463 18<heftig18>	but this is starting to look like serious overkill
-T 1524760091 18<converts18>	I'm having trouble with the the array length argument again with  g_signal_list_ids
-T 1524760174 18<converts18>	oknf i'm hoping you can take a look at GObject-2.0.gir
-T 1524760376 18<oknf[m]18>	converts, ok, what about it?
-T 1524760612 18<converts18>	the allocated array is returned by the function, and the length-arg is set on the return value as 1
-T 1524760683 18<oknf[m]18>	yes, the length will be returned in n_ids 
-T 1524760866 18<converts18>	so it looks ok
-T 1524761095 18<oknf[m]18>	I would probably expect caller-allocates="1" on n_ids
-T 1524761264 18<converts18>	i'm afraid cl-gir's function invocation has to be rewritten. i can't kludge this
-T 1524761460 18<converts18>	I think I see what I'm doing wrong but i'm out of time again
-T 1524761909 18<converts18>	thx
-T 1524765497 18<Company18>	mcatanzaro: your rebase skills need to be oiled
-T 1524765499 18<Company18>	mcatanzaro: https://git.gnome.org/browse/epiphany/commit/lib/ephy-prefs.h?id=7e96228e7aa11e5d1ebce3d292e98d98fee802b6
-T 1524765523 18<mcatanzaro18>	Are you implying that I should test my changes before pushing them? :P
-T 1524765537 18<Company18>	I would never do that
-T 1524765556 18<Company18>	i would be a hypocrite if I'd imply that
-T 1524765584 18<mcatanzaro18>	Good, fixed (I guess, maybe!)
-T 1524775600 19*	Now talking on 22#gtk+
-T 1524775600 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1524775600 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1524782678 18<Company18>	woah wowah woah
-T 1524782679 18<Company18>	https://www.reddit.com/r/gnome/comments/8f6hqe/system_sounds_arent_working_on_gnome_suddenly/
-T 1524782688 18<Company18>	people are using sounds
-T 1524782700 18<Company18>	well
-T 1524782708 18<Company18>	s/people are/at least one person is/
-T 1524782741 18<Company18>	so does that mean we can't just delete libcanberra integration?!
-T 1524783288 18<hergertme18>	just give it an extension point rather than modules at least?
-T 1524783777 18<andlabs18>	what's the integration
-T 1524783784 18<andlabs18>	I thought gtk just had a widget_beep function
-T 1524784495 18<Company18>	hergertme: extension points still need an API to call
-T 1524784511 18<Company18>	hergertme: unless you want to have GTK_EXTENSION_POINT_GTK_MODULE ?
-T 1524784548 18<Company18>	andlabs: yeah, but we have this amazing thing called a "signal handler" which supports so called "hooks"
-T 1524784595 18<Company18>	andlabs: and GTK3 on top of that has "modules" which is like LD_PRELOAD but as supported API
-T 1524784675 18<andlabs18>	so who is providing the integration then
-T 1524784696 18<Company18>	that's all you need
-T 1524784710 18<Company18>	well
-T 1524784716 18<Company18>	that's all the sounds need
-T 1524784719 18<andlabs18>	okay I guess I should rephrase
-T 1524784731 18<andlabs18>	it seems weird that gtk is providing the integration with libcanberra, and not libcanberra itself
-T 1524784744 18<Company18>	well yeah, libcanberra is
-T 1524784754 18<andlabs18>	or do you mean removing the hooking points
-T 1524784765 18<Company18>	i mean removing the hooking points, yes
-T 1524784770 18<andlabs18>	hm
-T 1524784779 18<Company18>	because it's stupid to support something like that
-T 1524784794 18<Company18>	g_inject_random_code() is not how you make debuggable libraries
-T 1524784816 18<andlabs18>	I do wonder what libcanberra wants to do with sounds
-T 1524784834 18<Company18>	our idea so far was "nobody cares"
-T 1524784841 18<Company18>	but then this guy shows up on reddit
-T 1524784842 18<andlabs18>	is it stuff like "here's a sound every time a button is clicked"
-T 1524784849 18<Company18>	it is, yes
-T 1524784862 18<andlabs18>	honestly I'm surprised that wasn't there already
-T 1524784877 18<andlabs18>	back when gtk1 was a thing that was in vogue
-T 1524784909 18<andlabs18>	I guess someone is still living the 'dream'
-T 1524784955 18<andlabs18>	though reading that post I don't see how this is related to that
-T 1524784961 18<andlabs18>	is "the popping click noise when changing volume or the right/left test in the sound settings" nt provided by gnome shell
-T 1524784978 18<andlabs18>	s@provided@done@g
-T 1524785039 18<Company18>	it is
-T 1524785067 18<Company18>	not sure if it uses the sound theme or not
-T 1524785071 18<andlabs18>	hm
-T 1524785170 18<Company18>	there's also https://mail.gnome.org/archives/desktop-devel-list/2008-December/msg00057.html
-T 1524785177 18<Company18>	but i'm not sure that guy would like it
-T 1524785225 18<TingPing18>	g-s does use the sound theme in a few places
-T 1524785305 18<hergertme18>	arguably it could be an a11y feature too
-T 1524785478 18<Company18>	yay!
-T 1524785500 18<Company18>	so we send a sound request over dbus to atk
-T 1524785509 18<Company18>	which sends it voer dbus to the event sound manager
-T 1524785522 18<Company18>	which then uses dbus to send it to pulseaudi
-T 1524785530 18<hergertme18>	"dbus on a chip"
-T 1524785537 18<hergertme18>	so we can send it to the soundcard 
-T 1524785566 18<Company18>	yeah, we could pass an fd straight through, so we can directly write to the soundcard!
-T 1524785640 18<Company18>	(except neither of those servers can do anything like that
-T 1524785643 18<Company18>	)
-T 1524785750 18<hergertme18>	i doubt the tlb shootdowns are worth the fd pass
-T 1524785756 18<Company18>	the biggest problem with sounds in gnome is that we have *no* expertise about sound
-T 1524785758 18<hergertme18>	unless every sample is > 1mb
-T 1524785763 18<Company18>	like
-T 1524785773 18<Company18>	games make sounds everywhere
-T 1524785781 18<Company18>	and phones make a lot of sounds too
-T 1524785790 18<Company18>	and nobody would turn them off
-T 1524785795 18<andlabs18>	I would answer this but have to head home
-T 1524789749 18<federicomena[m]18>	mclasen I'm sending people from mastodon over to try gnome-recipes - hopefully you'll get more users :)
-T 1524796176 18<mclasen18>	nice
-T 1524824013 18<houz18>	hi, is there a known bug in gtk3 on windows that prevents the file open dialog to react to clicking drive entries in the shortcut list? things like "Home" work
-T 1524825623 18<lazka18>	houz, yes, https://gitlab.gnome.org/GNOME/gtk/issues/170
-T 1524825712 18<mclasen18>	ebassi: did we get anywhere with bug migration ?
-T 1524825844 18<ebassi18>	mclasen: No, haven't heard from csicar[m] 
-T 1524825848 18<ebassi18>	csoriano: 
-T 1524825853 18<ebassi18>	Sorry, csicar[m] 
-T 1524825858 18<ebassi18>	Tab completion failure
-T 1524825877 18<mclasen18>	he was travelling
-T 1524825936 18<ebassi18>	I mean: I could try running the script myself, but I'm not an admin, so I can't really solve any issue popping up
-T 1524825958 18<ebassi18>	Also, the script needs admin privileges to read the Bugzilla users
-T 1524826263 18<Company18>	mclasen: Are you the right person to look at https://gitlab.gnome.org/GNOME/gtk/merge_requests/120 ?
-T 1524826285 18<Company18>	(we seriously need to find somebody to declare our new keyboard guru)
-T 1524826325 18<mclasen18>	if you need to ask, the answer is no
-T 1524826327 18*	mclasen looks anyway
-T 1524826439 18<mclasen18>	garnacho: ^ seems a bit dubious to me ?
-T 1524826451 18<Company18>	mclasen: with code that's untouched since GTK 2.x I always take my chances with you because you're the only one still around from that time ;)
-T 1524826470 18<mclasen18>	alex is around
-T 1524826489 18*	alex hides
-T 1524826492 18<mclasen18>	and has touched gdk much more than me, in recorded history
-T 1524826502 18<alex18>	he's lying!
-T 1524826542 18<Company18>	yeah, but alex has swapped most of his GTK knowledge out, so whenever I ask him about anything that's not renaming an object, he always forgot! ;)
-T 1524826564 18<mclasen18>	he's regularly swapping it back in
-T 1524826576 18<garnacho18>	mclasen: yeah, needs close inspection
-T 1524826606 18<Company18>	what's our stance on merge requests anyway?
-T 1524826608 18<alex18>	Yeah, i remember getting these random grab events 
-T 1524826610 18<mclasen18>	I mean, there's really no guarantee that a focus-out+notify-grab is just a short-lived wm shortcut
-T 1524826651 18<alex18>	not exactly these, but similar things
-T 1524826674 18<Company18>	like, do we let them queue up or do we try to close all merge requests?
-T 1524826701 18<mclasen18>	it would be good to not pile up tons of stuff again
-T 1524826732 18<Company18>	if merge requests get closed, discussions would move back to bug reports
-T 1524826734 18<garnacho18>	another grabbing client? but that would be weird with the keyboard focus here
-T 1524826750 18<alex18>	But i agree with mclasen, how do you know that the focus didn't go elsewhare
-T 1524826764 18<garnacho18>	unless passive grabs...
-T 1524826776 18<Company18>	alex: you'd get another focus notification, no?
-T 1524826777 18<garnacho18>	indeed, it's a rough guess
-T 1524826823 18<alex18>	Company: well, if you get a FocusOut event, how do you know its a temporary one so you can ignore it?
-T 1524826838 18<alex18>	You don't know ahead of time itsa FocusOut+FocusIn pair, right?
-T 1524826901 18<alex18>	Then again, i didn't really look at this, i don't really know what has_focus_window is
-T 1524827156 18<Company18>	alex: well, all we know is that has_focus_window is not has_focus - the docs in there only talk about one of those though
-T 1524827230 18<Company18>	Samuel (I forget his irc nick) investigated that and claimed the 2nd one was only introduced because of some refcounting mess
-T 1524827247 18<csoriano18>	ebassi: you are an admin of gitlab-test, you can run it there
-T 1524827258 18<csoriano18>	that would cover most of the cases already
-T 1524827261 18<Company18>	youpi!
-T 1524827296 18<Company18>	in any case, unless somebody complains about the change in the bug, I'm going to press the big green button on it
-T 1524827311 18<Company18>	because the merge request has been lingering and nobody said anything, and that's not good
-T 1524827349 18<garnacho18>	IMO, this could be further special cased to just handling passive grabs
-T 1524827371 18<garnacho18>	but even then, we have no guarantees that the focus will return back to this client
-T 1524827423 18<csoriano18>	in any case is still my top prio in the bztogl tool to implement to being able to run it withouth consulting the users, it should be just a very few lines of code. At that point is the same as running it on gitlab-test though
-T 1524827552 18<Company18>	garnacho: doesn't the X server send another event when the focus window moves while grabbed?
-T 1524827566 18<Company18>	garnacho: what else would NotifyWhileGrabbed be about?
-T 1524828011 18<garnacho18>	Company: xinput test-xi2 should tell, if you are on an x11 session
-T 1524828046 18<Company18>	i'm not
-T 1524828064 18<Company18>	because I'm on Wayland since I realized Wayland has way smoother framerates
-T 1524828086 18<Company18>	also, it's way easier to test Wayland + X11 from Wayland
-T 1524828115 18<Company18>	no need to spawn a nested compositor, just use GDK_BACKEND to run in (broken) X11
-T 1524828142 18<garnacho18>	however there alt-tab, volume keys and whatnot don't involve passive key grabs
-T 1524828220 18<Company18>	yeah, I'd neeed to relog if i wanted to test it
-T 1524828397 18<garnacho18>	same here, I think you could be right reading xserver code, but crossing mode/detail is tricky
-T 1524828455 18<Company18>	i'd just commit it and see if it breaks anything obvious
-T 1524828472 18<Company18>	youpi didn't have an issue and it clearly fixes a bug
-T 1524839727 19*	Now talking on 22#gtk+
-T 1524839727 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1524839727 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1524840504 18<mclasen18>	mitch: congratulations on the release!
-T 1524840517 18<mitch18>	mclasen: thanks :)
-T 1524840523 18<mitch18>	mclasen: looking forward to gtk3 ;)
-T 1524840546 18<ebassi18>	Importing glib bugs into gitlab times out pretty reliably; I just managed to create ~1400 issues, but import only 6.5 of them
-T 1524840546 18<mclasen18>	you can take a weekend off
-T 1524840556 18<mclasen18>	but then you should get right on it! :-)
-T 1524840602 18<alex18>	mitch: yay release!
-T 1524840627 18<alex18>	https://flathub.org/builds/#/builders/2/builds/1066
-T 1524840632 18<alex18>	building in flathub here
-T 1524840751 18<alex18>	mitch: so, gtk3 support in 6 years?
-T 1524840787 18<Company18>	if it takes 6 years, go GTK4!
-T 1524840854 18<baedert18>	*GTK5
-T 1524840991 18<mitch18>	alex: indeed :)
-T 1524841006 18<mitch18>	alex: 12 years :P
-T 1524841095 18<baedert18>	but *clearly* moving to gtk3 will at least double the amount of contributors!
-T 1524841157 18<mitch18>	haha one would hope
-T 1524841803 18<alexarnaud18>	Hello all
-T 1524857586 19*	Now talking on 22#gtk+
-T 1524857586 22*	Topic for 22#gtk+ is: Keep this in mind when doing GTK4 work: http://mirror.onet.pl/pub/mirrors/video.fosdem.org/2018/AW1.120/ode_gtk3.webm
-T 1524857586 22*	Topic for 22#gtk+ set by 26Company (24Sun Feb 11 20:56:17 2018)
-T 1524858370 18<mclasen18>	so in master, I replaced the limited ctrl-shift-E thing for emoji with a completion popup
-T 1524858400 18<mclasen18>	one reason is to avoid fighting with ibus (and apps) over ctrl-shift-E
-T 1524858427 18<mclasen18>	and the ctrl-shift-e implementation was a bit subpar to begin with
-T 1524858443 18<mclasen18>	how would people feel about backporting that ?
-T 1524858451 18<mclasen18>	it does involve a new property to enable the completion
-T 1524859235 mclasen m4sk1n marv marvin___ mathrick MatrixTraveler[m] MatthiasM mattiasb Mc mceier mdhill meebey mickeyl mittwinter mlq mlundblad_ mmeeks moch mohadese[m] mpt mrtadis msanchez msantana mtwebster muks muktupavels mwleeds[m] mythos 
-T 1524859357 20<lufimtse>30	mclasen, we're having some issues with re-parenting, where children have subwindows. In the past we used to use 'gtk_widget_reparent(..)' which internally also does 'gtk_widget_reparent_subwindows(..)'. But that call was deprecated in gtk3.14.  We found that if we re-parent via container(remove & add), we get the situation that later 'parent is disposed(..)' is reported by one of the reparented children's sub containers.
-T 1524859372 20<lufimtse>30	is there a better way to reparent other than container(add|remove) ?
-T 1524859409 18<mclasen18>	whenever you reparent like that, you need to make sure that you keep a ref across the unparent/reparent
-T 1524859414 18<mclasen18>	I assume you do that ?
-T 1524859426 20<lufimtse>30	yea
-T 1524859427 20<lufimtse>30	/			OS.g_object_ref (widget); //so that it won't get destroyed due to lack of references.
-T 1524859427 20<lufimtse>30	/			GTK.gtk_container_remove (parentContainer, widget);
-T 1524859427 20<lufimtse>30	/			GTK.gtk_container_add (newParentHandle, widget);
-T 1524859427 20<lufimtse>30	/			OS.g_object_unref (widget);
-T 1524859442 20<lufimtse>30	but we still get the 'parent is disposed(..)' error
-T 1524859450 20<lufimtse>30	and some eclipse plugins throw errors
-T 1524859478 20<lufimtse>30	i.e container(remove & add) doesn't seem to fully do the job of reparent?
-T 1524859496 20<lufimtse>30	kinda hard to turn it into a gtk-snippet
-T 1524859543 20<lufimtse>30	but I could re-compile gtk and check if it's the 'gtk_widget_reparent_subwindows(..)' calls in gtk_widget_reparent()?
-T 1524859551 20<lufimtse>30	that make the difference 
-T 1524860097 20<lufimtse>30	I gotta run. Will post something on mailing list
-T 1524860224 FiSHLiM plugin unloaded
-T 1524860224 Python interface unloaded
-T 1525101020 19*	Now talking on 22#gtk+
-T 1525101020 22*	Topic for 22#gtk+ is: https://git.gnome.org/browse/gimp/tree/configure.ac#n53 ?
-T 1525101020 22*	Topic for 22#gtk+ set by 26Company (24Mon Apr 30 06:56:10 2018)
-T 1525101215 18<LRN18>	i hate chromium
-T 1525101364 18<LRN18>	they "deprecate" gyp (which is not a very good buildsystem, but seems to require Python and little else) with gn, which is baked into chromium repo (you can't just download it separately) and requires gcc > 4 to build
-T 1525101377 18<LRN18>	s/with/replacing it with/
-T 1525102449 18<alatiera18>	lazka: how do you update the gtk CI image? I want to add gtk-doc to it
-T 1525102477 18<alatiera18>	I found the Dockerfile but I got no idea from where the image gets pushed to the registry
-T 1525102594 18<ebassi18>	alatiera: Just open a MR with the updated Dockerfile
-T 1525102634 18<ebassi18>	alatiera: https://gitlab.gnome.org/GNOME/gtk/container_registry
-T 1525102862 18<alatiera18>	ebassi: done, https://gitlab.gnome.org/GNOME/gtk/merge_requests/130
-T 1525102943 18<alatiera18>	I was trying update the image locally first to publish the docs with pages , but I guess it's the same either way
-T 1525104784 18<baedert18>	Company: What's the plan for renderers saving some per-rendernode state? g_object_set_data on the node or a gdk_texture_set_render_data equivalent? (remember that the GObject API does locking)
-T 1525106168 18<Company18>	baedert: both don't really work - render nodes aren't GObjects and set_render_data() is a crappy API (especially on immutable types like GskRenderNode)
-T 1525106185 18<Company18>	baedert: so my idea was keeping a hash table rendernode => custom data in the renderer
-T 1525106221 18<mclasen18>	thats what object data is at the end of the day, anyway, so no big loss
-T 1525106276 18<Company18>	object data has the benefit of doing a LOCK/UNLOCK pair!
-T 1525106299 18<Company18>	otoh the hash tables are per-render node, so they're small
-T 1525106319 18<Company18>	while a per-renderer one has entries for every node, so they're quite a bit larger
-T 1525106342 18<Company18>	though I don't think we trigger pathologic hash table behavior that way
-T 1525106394 18<Soni18>	do you think GIO can handle this? https://gist.github.com/SoniEx2/90a1a580334a6fa68151a00a2bdadfff
-T 1525106457 18<mclasen18>	there's that - we already have the node in hands, so per-node storage avoids the lookup
-T 1525106551 18<Company18>	Soni: I remember there being some issues with gvfs and XFS or Reiser 4 or some filesystem where files could be directories
-T 1525106581 18<mclasen18>	baedert: what per-node state do we have ? 
-T 1525106584 18<Company18>	Soni: but that was quite a few years ago, so I dont remember the details
-T 1525106589 18<baedert18>	mclasen: None so far.
-T 1525106593 18<Soni18>	Company: I more mean the "anything goes in filenames" part
-T 1525106595 18<mclasen18>	and we we have to worry about clearing that, now that we cache nodes ?
-T 1525106629 18<baedert18>	of course we do
-T 1525106633 18<Company18>	Soni: you'd have to invent an escaping mechanism - but gvfs has display name and filename, so in theory anything goes
-T 1525106719 18<Company18>	mclasen: interesting fact to know: Vulkan fishbowl rendering spends most of its time copying rectangles from graphene_rect_t onto the vertex buffer to be sent as the input to the fragment shader
-T 1525106756 18<Company18>	mclasen: so if we were to cache those vertex buffers and not need to copy that data every frame, that'd be a huge speedup
-T 1525106759 18<mclasen18>	that is interesting information indeed
-T 1525106801 18<Company18>	that stuff could probably be sped up already by doing memcpy() instead of what we do today
-T 1525106816 18<mclasen18>	no way to make it zero copy, I guess
-T 1525106829 18<Company18>	for more complex apps, caching redirect textures could be interesting
-T 1525106862 18<Company18>	you could make it zero-copy if you allowed the render nodes to be allocated in GPU mapped memory
-T 1525106905 18<Company18>	or at least the parts of the render node that get sent to the GPU
-T 1525106926 18<Company18>	then all you'd need to do is make sure the render node layout matches the shader layout
-T 1525106973 18<Company18>	but before doing that, we should probably redo the css engine
-T 1525106981 18<Company18>	there's a bit more gains to be had there
-T 1525107612 18<ebassi18>	mclasen: Do you mind if I add myself to the gdk-pixbuf DOAP and remove the Autotools build from master?
-T 1525107626 18<mclasen18>	I don't mind it at all
-T 1525107635 18<mclasen18>	I welcome it!
-T 1525107646 18<ebassi18>	I was kind of waiting on the GitLab import, but I may have wobbly schedules in the foreseeable future, so I don't want to drop it on the floor
-T 1525108079 18<Company18>	ebassi: a gdk-pixbuf meson port is a requirement for my Windows world domination plans, so anything that makes it happen sooner is fine by me
-T 1525108170 18<tpm18>	Company, that already exists
-T 1525108209 18<Company18>	s/a meson port/a well-maintained default build with meson/
-T 1525108680 18<ebassi18>	And done
-T 1525108684 18<ebassi18>	Goodbye, Autotools
-T 1525108697 18<tpm18>	:)
-T 1525108780 18<TingPing18>	librsvg is probably the last gnome controlled dep that doesn't support meson
-T 1525108782 18<ebassi18>	Let's see what breaks horribly because I miscalculated
-T 1525108879 18<Company18>	TingPing: yeah, now we've finished the easy parts
-T 1525108899 18<Company18>	somebody now needs to replace behdad's m4 magic with meson
-T 1525108907 18<ebassi18>	tpm was working on that ;-)
-T 1525108916 18<TingPing18>	Company, for which project?
-T 1525108935 18<Company18>	TingPing: cairo
-T 1525108943 18<Company18>	is pango using meson already?
-T 1525108948 18<TingPing18>	yes
-T 1525108950 18<Company18>	neat
-T 1525108966 18<TingPing18>	harfbuzz uses cmake, but he seemed open to meson and its relatively simple
-T 1525109008 18<tpm18>	I've got harfbuzz on my list too, if no one else is faster
-T 1525109030 18<Company18>	meson Visual Studio integration still is done like described here: http://mesonbuild.com/Using-with-Visual-Studio.html ?
-T 1525109034 18<tpm18>	(and pixman fontconfig freetype)
-T 1525109049 18<Company18>	as in "open a shell and don't use visual studio"?
-T 1525109060 18<TingPing18>	Company, tbh vs support isn't great ime
-T 1525109091 18<TingPing18>	like everything builds fine, but opening in VS never worked smoothly
-T 1525109092 18<tpm18>	Company, well, you have to create the visual studio project files once if you don't want to use ninja
-T 1525109171 18<Company18>	tpm: i'm fine with using ninja or whatever
-T 1525109204 18<Company18>	tpm: I just want to hack using VS, and press the "Run" button in there once I want to run stuff
-T 1525109211 18<tpm18>	ninja backend = build stuff on the command line
-T 1525109237 18<tpm18>	(just like on linux)
-T 1525109240 18<baedert18>	how could fedex's unicode handling possibly be this bad
-T 1525109452 18<vktec18>	If I allocate a PangoFont with pango_font_map_load_font do I need to free it with g_object_unref?
-T 1525109472 18<vktec18>	The docs don't state that it needs freed, only that it's newly allocated
-T 1525109474 18<Company18>	baedert: don't specify your name as 	𝕿𝖎𝖒𝖒 𝕭𝖆𝖊𝖉𝖊𝖗  just because you expect a LAtex document?
-T 1525109607 18<Company18>	vktec: if it's "transfer full", you need to unref it
-T 1525109609 18<ebassi18>	vktec: https://developer.gnome.org/pango/stable/pango-Fonts.html#pango-font-map-load-font
-T 1525109628 18<ebassi18>	"transfer full" means "release the resources after use"
-T 1525109669 18<Company18>	vktec: basically, never look at what the docs say, only care about the annotations
-T 1525109676 18<vktec18>	Alright
-T 1525109682 18<Company18>	vktec: because annotations are code, so they are fixed
-T 1525109694 18<vktec18>	Is there a reference for what the annotations mean anywhere?
-T 1525109704 18<ebassi18>	vktec: Click on the annotation
-T 1525109717 18<vktec18>	Does nothing for me
-T 1525109718 18<TingPing18>	Company, well much of annotations are not
-T 1525109722 18<ebassi18>	Ah, wait, sorry
-T 1525109735 18<ebassi18>	vktec: https://developer.gnome.org/pango/stable/annotation-glossary.html
-T 1525109750 18<dboles18>	Company: you meant to say "annotations always need fixed"
-T 1525109750 18<vktec18>	Ah, I get a definition if I hover over them
-T 1525109764 18<Company18>	TingPing: they are more correct than the written docs *most* of the time
-T 1525109794 18<ebassi18>	Ideally gtk-doc would generate the appropriate text blurb, but that would also require fixing all documentation to drop things like "returns foo or NULL"
-T 1525109810 18<Company18>	i usually do what annotations say and then when it crashes I go look at what's wrong
-T 1525109819 18<TingPing18>	Company, oh and back to windows for a second. there is one thing that we will never get on a sane build system and that is a tls implemtnation for glib. openssl uses a massive awful perl script
-T 1525109847 18<Company18>	TingPing: for hacking on GTK, I don't need that \o/
-T 1525109853 18<dboles18>	ebassi: even better if that means it could enforce a description of what NULL means
-T 1525109865 18<Company18>	i don't even need gettext or librsvg or whatever
-T 1525109893 18<TingPing18>	Company, well you need gettext for anything to build
-T 1525109916 18<Company18>	TingPing: well, I *could* go the vcpkg route and just no-op everything
-T 1525109937 18<Company18>	but I meant to say "I don't care if stuff can be translated"
-T 1525109955 18<TingPing18>	upstream gettext has vs projects, its not a problem
-T 1525109969 18<TingPing18>	way thats a lie
-T 1525109978 18<TingPing18>	gvsbuild bundles its own, so yea that is hell
-T 1525109983 18<ebassi18>	dboles: If the language has a concept of "nullable" then its documentation system would be able to generate the appropriate "null" value
-T 1525110002 18<ebassi18>	dboles: If it's not in the text description then we wouldn't have duplication and brokenness
-T 1525110036 18<dboles18>	ebassi: oh, yeah, i mean more like "@null_means: unset the current value" or whatever
-T 1525110038 18<Company18>	TingPing: how does meson even find libraries on Windows?
-T 1525110053 18<Company18>	TingPing: does pkgconfig have some canonical location where to put pc files?
-T 1525110058 18*	dboles complains about glibmm not translating NULL strings to "" already
-T 1525110069 18<TingPing18>	Company, the gnome stack still relies on pkg-config. on windows pkg-config.exe looks relative to its binary so things are portable
-T 1525110158 18<TingPing18>	Company, pkgconf is built using meson, and i fixed up its windows bugs recently so that isn't a problem
-T 1525110163 18<Company18>	TingPing: for whatever definition of "portable"
-T 1525110187 18<TingPing18>	Company, portable meaning it can be installed into any location, you can upload a zip of the bulid dir and it runs on other users machines, etc
-T 1525110210 18<Company18>	TingPing: I was thinking of having a gnome-devel package that goes into C:\Program Files\Gnome but then you can't build gtk in visual studio with that
-T 1525110233 18<TingPing18>	yea program files is a bad choice
-T 1525110236 18<Company18>	you'd nee dot copy that gnome-devel package into whatever source layout you have in VS
-T 1525110314 18<TingPing18>	you just need a wrapper script that sets a few VS variables to the prefix the user chose, defaulting to something like C:\gnome or such that is relatively portable
-T 1525110372 18<Company18>	C;\gnome is not portable
-T 1525110389 18<Company18>	to any corporate machine where the user doesn't have an admin account
-T 1525110394 18<TingPing18>	sure it is, C:\gnome is C:\gnome on my computer, and its c:\gnome on your computer
-T 1525110419 18<tpm18>	Company, or everything is a Meson subproject, then you don't need to find anything because you build it all yourself :)
-T 1525110455 18<Company18>	TingPing: it's not writable on my computer though so I can't do anything in there
-T 1525110460 18<TingPing18>	tpm, but if he wants to build something today that isn't possible, and like i mentioned somethings like openssl will never be meson
-T 1525110479 18<Company18>	TingPing: also, people who dump stuff into the root dir are always suspicious to me - imagine vcpkg installing to /vcpkg on Linux
-T 1525110492 18<TingPing18>	*cough* /snap
-T 1525110502 18<tpm18>	TingPing, fair enough
-T 1525110508 18<Company18>	that would actually be making my point there
-T 1525110525 18<tpm18>	TingPing, could do "binary subprojects" ;)
-T 1525110525 18<Company18>	tpm: I am fine with subprojects
-T 1525110546 18<TingPing18>	Company, i mean we can do something in the user dir, i just think adding more variables is counter to the immediate goal
-T 1525110549 18<Company18>	tpm: but it'd need to be subprojects all the way down
-T 1525110573 18<TingPing18>	tpm, does meson support that today?
-T 1525110577 18<Company18>	I mean, gst-build is doing that, isn't it?
-T 1525110601 18<TingPing18>	tpm, i guess the source you link could just be binaries
-T 1525110658 18<tpm18>	TingPing, I think it could be done, not sure if anything is missing, nirbheek was talking about that (I don't like it but..)
-T 1525110709 18<tpm18>	TingPing, also, subprojects don't have to be upstream, for openssl it could "just" be a wrap or so, no?
-T 1525110740 18<TingPing18>	tpm, do you want to be the guy that converts a massive perl build system to meson for a large, complex, security sensitive project? :P
-T 1525110762 18<tpm18>	nope
-T 1525110772 18<TingPing18>	me either
-T 1525110798 18<TingPing18>	so if we limit the supported toolchain, binary might be fine...
-T 1525110821 18<tpm18>	run_command(.., [find_program('perl'), 'do-build.sh')) ;)
-T 1525110838 18<tpm18>	like nirbheek's cargo hack for librsvg
-T 1525110845 18<TingPing18>	perl isn't a small dep
-T 1525110896 18<Company18>	tpm: i'm not gonna install msys
-T 1525110906 18<Company18>	tpm: so not sure do-build.sh is gonna work on my box
-T 1525110946 18<TingPing18>	i think openssl only depends upon perl, no shell
-T 1525110952 18<TingPing18>	and perl is a self contained binary
-T 1525110957 18<TingPing18>	but.. it still sucks
-T 1525111181 18<tpm18>	why are we talking openssl again anyway?
-T 1525111282 18<Company18>	tpm: glib TLS
-T 1525111303 18<TingPing18>	not required to dev gtk, but required for plenty of people consuming it
-T 1525111416 18<tpm18>	wonder if https://github.com/centricular/glib-schannel would be useful for that (not sure how complete it is)
-T 1525111452 18<TingPing18>	oh nice, didn't realize that existed
-T 1525112004 18<garnacho18>	mclasen: some input fixes went in last week, indeed
-T 1525112024 18<garnacho18>	mclasen: also pushed wip/carlosg/controller, continuing Company's work
-T 1525112051 18<mclasen18>	maybe you can do a WIP MR for that, I hear Company loves those
-T 1525112062 18*	Company loads gun
-T 1525112095 18<baedert18>	suicide is not a solution!
-T 1525112158 18<Company18>	i recently learned about this ultimate weapon: https://fortnite.gamepedia.com/Boogie_Bomb
-T 1525112170 18<Company18>	i wish i had that sometimes
-T 1525112209 18<dboles18>	haha
-T 1525112290 18<dboles18>	reminds me of the Mario Kart lightning bolt, though presumably less annoying since it's classed as rare
-T 1525112405 18<mclasen18>	garnacho: I missed that you are on vacation atm, sorry
-T 1525112677 18<garnacho18>	mclasen: I forgot to remind in the first place...
-T 1525112746 18<dboles18>	lapo: I keep forgetting to get GChat set up and reply, but the answer is a definite 'probably''!
-T 1525121071 18<dboles18>	is there any quick/nice way to have a bunch of widgets use the same drag/drop target, use DEST_DEFAULT_ALL, but not accept/highlight drops from themselves?
-T 1525121093 18<dboles18>	short of manually handling 942 signals or building huge, nearly identical lists of targets or etc.
-T 1525121132 18<dboles18>	I can just ignore or error_bell() or etc on drop from self, but that's a bit meh
-T 1525123396 FiSHLiM plugin unloaded
-T 1525198425 19*	Now talking on 22#gtk+
-T 1525198425 22*	Topic for 22#gtk+ is: https://git.gnome.org/browse/gimp/tree/configure.ac#n53 ?
-T 1525198425 22*	Topic for 22#gtk+ set by 26Company (24Mon Apr 30 06:56:10 2018)
-T 1525198513 20<lufimtse>30	Hello guys. I'm on Fedora 28 with Gtk 3.22.30 with Wayland. We have a situation where when we use Eclipse, gnome crashes. I'm having a hard time debugging this because the whole gnome session dies. How do I go about fixing this? 
-T 1525198612 19<Company>	note to self: do not start eclipse until lufimtse has figured out what's going on
-T 1525198624 Company cagatayy[m] caricent[m] cassidyjames[m] catern cevi Chipzz chpe compyx cons[m] cosimoc[m] cristian_c CrypticSquared csicar[m] csoriano csoriano1618[m] 
-T 1525198627 20<lufimtse>30	Company, ha ha. 
-T 1525198631 Company cagatayy[m] caricent[m] cassidyjames[m] catern cevi Chipzz chpe compyx cons[m] cosimoc[m] cristian_c CrypticSquared csicar[m] csoriano csoriano1618[m] 
-T 1525198660 20<lufimtse>30	Company, our eclipse/wayland support is in still under construction. Doesn't crash with Wayland & x11 emulation
-T 1525198660 19<Company>	lufimtse: if I was doing this, I'd start playing with nested wayland compositors
-T 1525198661 19<mclasen>	lufimtse: any idea what crashes first, here ? gnome-shell ?
-T 1525198679 18<mclasen18>	only under Wayland ? or under X as well ?
-T 1525198682 mclasen m4sk1n manu marv marvin___ mathrick MatrixTraveler[m] MatthiasM mattiasb Mc mcatanzaro mceier mdhill meebey mickeyl mittwinter mlq mlundblad_ mmeeks moch mohadese[m] mpt mrtadis msanchez msantana mtwebster muks muktupavels mwleeds[m] mythos 
-T 1525198687 20<lufimtse>30	mclasen, only wayland/wayland
-T 1525198690 19<Company>	lufimtse: mutter --nested --wayland (works on X11 and Wayland)
-T 1525198698 20<lufimtse>30	mclasen, if we have wayland with GDK_BACKEND=x11 then no crash
-T 1525198725 20<lufimtse>30	when the issue happens, then gnome shell crashes and I'm back at the logon screen
-T 1525198726 18<spacekookie18>	So I have a textview inside a box and instead of wrapping words, it resizes the top-level window instead :(
-T 1525198732 18<spacekookie18>	(In Glade btw)
-T 1525198733 18<mclasen18>	abrt is not catching the shell crash ?
-T 1525198735 18<spacekookie18>	How do I stop this?
-T 1525198736 19<Company>	lufimtse: then you can run it with WAYLAND_DISPLAY=wayland-1 gdb eclipse
-T 1525198752 18<Company18>	spacekookie: put it in a scrolled window
-T 1525198754 18<baedert18>	spacekookie: don't set left-margin/right-margin?
-T 1525198816 18<spacekookie18>	baedert: Why wouldn't I set margins?
-T 1525198829 18<baedert18>	Company: I wanted to do something like https://paste.xinu.at/yqj0/ to merge container nodes but the way GtkSnapshot is structured makes this rather hard.
-T 1525198837 18<spacekookie18>	Or rather...I would like to have some margins
-T 1525198843 18<baedert18>	spacekookie: because there's a bug in GtkTextView causing word wrapping to malfunction if you have those set
-T 1525198895 20<lufimtse>30	Company, how do I run eclipse in mutter? when I fire up mutter, it shows empty
-T 1525198906 20<lufimtse>30	Company, is there something I can read to educate myself on the matter?
-T 1525198936 18<mclasen18>	baedert: how many nodes does that save ?
-T 1525198960 20<lufimtse>30	Company, oh, never mind, just figured out your instructions above
-T 1525199011 18<baedert18>	mclasen: hard to say with every widget getting its own GtkSnapshot
-T 1525199015 18<Company18>	baedert: the idea is good
 T 1525199032 18<Company18>	baedert: though I think it shouldn't go in collect_default(), but in append_internal()
 T 1525199061 18<spacekookie18>	Company: Also, thanks! That fixed it :3
 T 1525199063 18<spacekookie18>	Why though? :P
@@ -651,3 +234,350 @@ T 1525376172 18<ebassi_18>	I guess it needs a new glib 2.56 release
 T 1525376226 18<lovetox18>	oh nice of course didnt think it was closed ^^
 T 1525376289 18<lovetox18>	hmi created also a issue, should i close?
 T 1525376663 18<ebassi_18>	lovetox: Marked as duplicate
+T 1525382306 18<amerigus18>	How would I proxy properties to internal GObject? Let's say I want to create LabeledSwitch, which is GtkBox with childs GtkLabel and GtkSwitch, and I want to behave them as GtkSwitch (have the same properties, etc)
+T 1525382410 18<amerigus18>	Now I have to proxy properties active, state, and methods get_active, get_state, set_active, set_state, calling same stuff on internal GtkSwitcher
+T 1525382430 18<amerigus18>	Is there a possibility to automate, make simpler this stuff?
+T 1525382575 18<Company18>	amerigus: just call g_object_set_property (switch, pspec->name, value); in the set property function?
+T 1525382650 18<amerigus18>	Company, yes, but this manual redirecting / proxying?
+T 1525382743 18<amerigus18>	If yes, it's quite tedious to redirect all stuff. I want to avoid that. Because, what if I decide to create LabeledIconSwitch on top of LabeledSwitcher? It looks like for every new widget, consisting from other, I have to redirect all stuff manually
+T 1525383118 18<Company18>	amerigus: yes
+T 1525403049 18<imp18>	I wish to remove the Bottom InnerBorder from a GtkEntry (also want to make the font bolder), in documentations says to use CSS_Provider. IS there any tutorial in how to set this?
+T 1525411184 18<baedert18>	google "gtk howdoi custom css"
+T 1525412474 18<imp18>	baedert: thanks
+T 1525421508 18<baedert18>	what we should really have is a maximum number of open bugs. Once hit, you have to first fix a bug if you want to report one. SUCCESS.
+T 1525421644 18<Company18>	set it to 3!
+T 1525421649 18<baedert18>	Company: https://gitlab.gnome.org/GNOME/gtk/issues/209 seems like the expected behavior to me?
+T 1525421777 18<Company18>	baedert: yes
+T 1525421786 18<baedert18>	Close plz
+T 1525422817 18<alexarnaud18>	Hello all
+T 1525422938 18<alexarnaud18>	I'm observing a really annoying since my migration to GTK3 on Debian Buster. When I open a window, a black background is displayed before the window is loaded. I observe the issue on LibreOffice and Mate terminal for example. Should I open a bug this ?
+T 1525423091 18<Company18>	alexarnaud: do you run a compositing WM?
+T 1525423102 18<Company18>	(assuming this is on Xorg)
+T 1525423128 18*	grawity greps mutter commit log
+T 1525423131 18<alexarnaud18>	Company: Yes, I'm running Compiz 0.9 on Xorg for its accessibility features (zoom, negative, etc)
+T 1525423208 18<Company18>	alexarnaud: we usually tell the X server to display a transparent black window until we get a chance to draw it
+T 1525423225 18<Company18>	usually blackness is a sign of something going wrong with transparency
+T 1525423257 18<alexarnaud18>	Company: Who is the culprit ?
+T 1525423282 18<baedert18>	there is a rather long bug report about this...
+T 1525423353 18<alexarnaud18>	Company: Its annoying for low-vision people because I inverse screen to avoid white screen so the black screen for me and the low-vision people I help is white and it's like a flash in my head.
+T 1525423385 18<alexarnaud18>	baedert: Do you have the link and the way to find it? I'm not familiar with the terminology.
+T 1525423389 18<ebassi18>	Compiz is not the best implemented or maintained compositor
+T 1525423419 18<ebassi18>	The bug in question was related to running gtk apps without a compositor, though
+T 1525423423 18<alexarnaud18>	ebassi: Maybe but in the most low-vision friendly at this time.
+T 1525423446 18<ebassi18>	Two steps forward, one step back
+T 1525423449 18<baedert18>	3310:kernel/drivers/video/nvidia.ko: kernel/drivers/char/ipmi/ipmi_msghandler.ko.xz
+T 1525423449 18<baedert18>	GRR
+T 1525423449 18<baedert18>	well
+T 1525423449 18<baedert18>	go to gitlab and search for black
+T 1525423449 18<baedert18>	done
+T 1525423473 18<Company18>	alexarnaud: you could try to not invert the screen but use a dark theme
+T 1525423493 18<ebassi18>	alexarnaud: Sure, I'm saying that even if it worked great for visually impaired users, it may break at random, and very few people will be able to fix it
+T 1525423526 18<ebassi18>	https://gitlab.gnome.org/GNOME/gtk/issues/550
+T 1525423528 18<alexarnaud18>	Company: I couldn't change user preference, I'm not the only one to do that. Majority of visual-impaired.
+T 1525423541 18<Company18>	alexarnaud: or you could go down the rabbit hole trying to figure out why the black isn't transparent and who causes that
+T 1525423576 18<alexarnaud18>	ebassi: Compiz is really stable :)
+T 1525423589 18<ebassi18>	alexarnaud: hahaha, yes, that's one way to put it
+T 1525423621 18<ebassi18>	Ah, the issue I've linked is one that happens with compositors
+T 1525423655 18<ebassi18>	And it's likely related to either a) apps like firefox rendering out of order or b) compositors without frame synchronization
+T 1525423662 18<alexarnaud18>	Company, ebassi: Does Mutter has the same issue or not ?
+T 1525423695 18<ebassi18>	alexarnaud: Nobody experiencing this issue uses GNOME Shell
+T 1525423733 18<Company18>	alexarnaud: I don't have that issue and I run gnome-shell
+T 1525423770 18<alexarnaud18>	I'll try with Marco and Metacity.
+T 1525423810 18<alexarnaud18>	Thank you guys for your help :)
+T 1525423822 18<ebassi18>	alexarnaud: Neither of which have frame synchronisation
+T 1525423827 18<ebassi18>	You can try reverting https://gitlab.gnome.org/GNOME/gtk/commit/74f2d9448f24bbfdaf32ae6b328ed3e126700afe
+T 1525423859 18<ebassi18>	Kind of annoying that cosimoc[m] didn't write a proper commit message for that one :-/
+T 1525423894 18<baedert18>	Does that actually fix the delayed rendering or just change the black to the adwaita grey?
+T 1525423963 18<alexarnaud18>	Thanks for the link ebassi
+T 1525423986 18<Company18>	ebassi: I think that won't work because we have rounded corners, so it'll still use transparent black
+T 1525424034 18<Company18>	baedert: it only reinstates the call to XSetBackground()
+T 1525424043 18<ebassi18>	Company: I'm not saying we should revert it ourselves; I understand why we dropped it
+T 1525424065 18<ebassi18>	Also, X is terrible because there's no way to fix this properly
+T 1525424070 18<Company18>	ebassi: no i mean reverting that patch is likely not gonna work
+T 1525424119 18<Company18>	because gtk_style_context_set_background() checks some CSS conditions hold before applying the background
+T 1525424149 18<Company18>	might be that we don't set rounded corners on non-csd widgets though, then it would work
+T 1525424156 18<alexarnaud18>	I've the same issue on Marco
+T 1525424207 18<ebassi18>	We could fill with green and then have the compositor do some chroma key level shit and replace green with something else: https://i1.wp.com/www.videoschoolonline.com/wp-content/uploads/2015/02/Screen-Shot-2015-02-18-at-4.24.30-PM.png
+T 1525424218 18<alexarnaud18>	ebassi, Company: If I run Marco in mode no compositor I'm experiencing the same issue
+T 1525424244 18<ebassi18>	Company: I think we don't use rounded corners and shadows on compositors if they aren't gnome-shell
+T 1525424345 18<ebassi18>	alexarnaud: Under a non-compositing WM you're at the mercy of the X server
+T 1525424363 18<ebassi18>	alexarnaud: Which will fill up your window with whatever it thinks works best
+T 1525424368 18<Company18>	does the X server ever composite anything?
+T 1525424393 18<alexarnaud18>	Company: I don't know.
+T 1525424397 18<Company18>	without a compositing manager I think it just ignores transparency completely
+T 1525424404 18<Company18>	so you'd always get black
+T 1525424406 18<ebassi18>	Company: I think there were rumors about adding some compositing features straight into the X server
+T 1525424429 18<ebassi18>	Because addng complexity is usually what'll make a complex system more tractable
+T 1525424599 18<alexarnaud18>	I don't observe the issue with Mutter indeed but with I'm observing the issue with Metacity, Marc and Compiz. All are in their latest version.
+T 1525424615 18<alexarnaud18>	*Marco
+T 1525424624 18<Company18>	alexarnaud: metacity has compositing turned on?
+T 1525424629 18<ebassi18>	Yes, because none of those implement the frame sync protocol
+T 1525424642 18<ebassi18>	It was added to gnome-shell, but not to metacity, AFAIK
+T 1525424650 18<ofourdan18>	ebassi: gtk+ will use client shadows and round corners with any X11 wm/compositor who supports compositing (obviously) and _GTK_FRAME_EXTENTS property, that's more than just mutter :p
+T 1525424683 18<ebassi18>	So the compositor will not present the window until the toolkit finished the first frame
+T 1525424701 18<alexarnaud18>	Company: I don't know maybe muktupavels could tell me how to know if compositor is enabled on metacity
+T 1525424709 18<ebassi18>	ofourdan: Oh, somebody else added _GTK_FRAME_EXTENTS? :-)
+T 1525424717 18<ofourdan18>	ebassi: yeap
+T 1525424726 18<ofourdan18>	(I did in xfwm4 years ago)
+T 1525424746 18<Company18>	alexarnaud: metacity has a command-line switch to turn it on/off
+T 1525424776 18<alexarnaud18>	Thanks, I'll verify that
+T 1525424779 18<ebassi18>	ofourdan: Ah, so that's why people complain that CSD and shadows are broken on xfce ;-)
+T 1525424792 18<ofourdan18>	they aren't
+T 1525424798 18<ofourdan18>	works well
+T 1525424811 18<ofourdan18>	dunno which people you've been talking to... :p
+T 1525424820 18<ebassi18>	ofourdan: Not according to the bugs we have…
+T 1525424829 18<alexarnaud18>	Company: According to the man, I observe the issue without compositor
+T 1525424870 18<Company18>	alexarnaud: as is expected
+T 1525424889 18<Company18>	alexarnaud: you will ALWAYS get black without a compositor
+T 1525424926 18<alexarnaud18>	And with composite enabled it's the same
+T 1525424963 18<ebassi18>	alexarnaud: So, let me recap a bit: if you're not using a compositor, you'll get a black "flash" because that's how things go without compositing; with compositors you'll likely get the same unless your compositor is gnome-shell, because that'll present the window once the toolkit is done rendering the frame, instead of immediately
+T 1525425009 18<ebassi18>	alexarnaud: These are known issues and there isn't an easy fix that is not "implement the _NET_WM_SYNC protocol: https://fishsoup.net/misc/wm-spec-synchronization.html
+T 1525425035 18<Company18>	ebassi: wait - we create the window as transparent
+T 1525425041 18<Company18>	ebassi: it shouldn't be black
+T 1525425101 18<ebassi18>	Company: ARGB visuals are a thing in the compositor; I don't think the X server knows how to handle them, so the surface will be set to a black pixel
+T 1525425127 18<ebassi18>	It'd be up to the compositor to know what to do with that
+T 1525425168 18<ofourdan18>	I think this is why it's called a compositor
+T 1525425170 18<Company18>	ebassi: it will be set to the pixel we tell it to
+T 1525425183 18<Company18>	ebassi: and that pixel is 0, and not 0xFF000000
+T 1525425209 18<alex18>	Company, ebassi: we used to map windows with bg=None until we had data
+T 1525425212 18<ebassi18>	Company: If you get an xRGB depth, the FF is ignored and you get black
+T 1525425235 18<Company18>	ebassi: but we use the ARGBA visual
+T 1525425236 18<alex18>	this will cause the xserver to not paint over it with the bg color (keeping whatever was behind)
+T 1525425240 18<Company18>	*RGBA
+T 1525425260 18<alex18>	Of course, that only works for the non-composited case, but seems that is the case here?
+T 1525425268 18<ebassi18>	I meant that there probably is a window in between the surface existing and the visual being caught
+T 1525425275 18<ebassi18>	i.e. there's no atomicity
+T 1525425300 18<Company18>	we're using BlackPixel() though
+T 1525425360 18<ebassi18>	alex: No, this also happens for compositors that are not mutter/gnome-shell
+T 1525425373 18<ebassi18>	Maybe it's our reliance on the frame sync counter
+T 1525425408 18<alex18>	ebassi: i have no idea what the behaviour is of bg None in the composited case
+T 1525425420 18<Company18>	we're not using bg=None
+T 1525425425 18<Company18>	we're using bg=BlackPixel()
+T 1525425497 18<Company18>	https://gitlab.gnome.org/GNOME/gtk/blob/gtk-3-22/gdk/x11/gdkwindow-x11.c#L1069
+T 1525425498 18<Company18>	there
+T 1525425506 18<alex18>	bg none is generally a bad idea, because it will cause weird issues when you drag something above such a window
+T 1525425532 18<alex18>	the old gdk used to temporarily switch to bg none when mapping, and then immediately switch back to the real bg
+T 1525425554 18<alex18>	to avoid the xserver clearing the area before it sent an expose event
+T 1525425597 18<alex18>	Company: here: https://gitlab.gnome.org/GNOME/gtk/blob/gtk-3-22/gdk/x11/gdkwindow-x11.c#L623
+T 1525425646 18<alex18>	I'm just saying, i know how that works on non-composited X, but i have no idea what it means when compositing
+T 1525425738 18<alex18>	The whole idea of bg none is leave whatever was in the front buffer instead of clearing when the window just got visible
+T 1525425752 18<alex18>	That kind of thing just doesn't happen in a composited mode
+T 1525425799 18<Company18>	yes it does
+T 1525425822 18<Company18>	the difference between composited and non-composited is just that painting the windows on top of each other is done by the compositor
+T 1525425841 18<Company18>	so if the compositor has to composite before we handle the expose event, then you get the background
+T 1525425862 18<alex18>	True that, but it is a different situation
+T 1525425889 18<Company18>	not really
+T 1525425911 18<alex18>	In the non-composted case, the X server, when reciving a move-window operation, synchronously does a bit-blit-move + clear of now-uncovered area to bg, then sends an async expose yourself to this area
+T 1525425917 18<Company18>	if the compositor does not do anything sophisticated and ignores alpha, it has the exact same bugs as the X server would
+T 1525425922 18<alex18>	in the composited case the entire drawing is async
+T 1525425929 18<alex18>	true, we have a *similar* case
+T 1525425951 18<alex18>	in that the compositor is told to draw before the client code drew to the offscreen pixmap
+T 1525426049 18<alex18>	But, in that similar case the operation the bg none implies just doesn't apply, as it relies on the traditional old-front-buffer-content-lives-forever model of traditional x rendering
+T 1525426094 18<Company18>	alexarnaud: could you try if https://paste.fedoraproject.org/paste/NKb-p0Ff3EmAB7vIczhhHA helps?
+T 1525426103 18<alex18>	I guess that the xserver would ignore that and always fill the initial pixmap content with the window bg
+T 1525426124 18<alex18>	Which means, can we always set the initial color to transparent?
+T 1525426142 18<alexarnaud18>	Company: In which branch can I apply this ?
+T 1525426148 18<alexarnaud18>	On 3.22?
+T 1525426157 18<Company18>	alexarnaud: 3.22, yes
+T 1525426200 18<alexarnaud18>	I'll try, thanks. Maybe it will take 1 hour to compile GTK3 on my machine as I've not any cache of it.
+T 1525426212 18<alexarnaud18>	I'll tell you on the afternoon.
+T 1525426256 18<naxuroqa18>	Hello! I am trying to wrap my head around using gtk radiobuttons with glib actions. Do those radio buttons have to be in a group? As far as I understood I have should give each button the same action-name with a different action-target, right?
+T 1525426263 18<Company18>	alexarnaud: once I know it works, I can push it to git :)
+T 1525426296 18<alexarnaud18>	:)
+T 1525426334 18<alex18>	Company: i wonder if we can set an empty shape until the first expose?
+T 1525426374 18<alex18>	it might not get an expose then though...
+T 1525426396 18<naxuroqa18>	I'm using gtk builder to inflate my ui components and it seems I can't set the target inside glade. I tried setting it via a detailed name ("win.some-type::text") but that didn't work for some reason
+T 1525426448 18<naxuroqa18>	setting the "action_target" property directly in the xml works though, but glade will remove it on save :/
+T 1525426580 18<alex18>	Company: maybe we can set _NET_WM_WINDOW_OPACITY initially?
+T 1525427039 18<naxuroqa18>	so my question: am I doing this wrong? Should I even use radiobuttons or are modelbuttons the correct way?
+T 1525427530 18<Company18>	alex: I don't care about that cornercase enough to invent crazy schemes to make it work better
+T 1525427540 18<Company18>	but both ideas sound interesting
+T 1525428001 18<ebassi18>	naxuroqa: Have you seen https://wiki.gnome.org/HowDoI/ApplicationMenu#Toggles.2C_radios ?
+T 1525428094 18<ebassi18>	naxuroqa: If Glade is removing things from the XML, you need to file a bug against Glade
+T 1525428177 18<ebassi18>	naxuroqa: Though my suggestion would be to keep the XML with the menu definitions as a separate file you can hand edit
+T 1525428210 18<ebassi18>	The format is simpler and the size much smaller than a typical UI definition
+T 1525428237 18<naxuroqa18>	ebassi: yes, I am already using glib menus in my application. The thing that I'm not getting to work is setting the target of an action via a detailed action name.
+T 1525428282 18<naxuroqa18>	what I want to do is use the actions in radio buttons inside my application (not a menu)
+T 1525428367 18<naxuroqa18>	glade doesn't allow me to set a target for an action, so I tried using a detailed action name, which doesn't work as far as I tried
+T 1525428392 18<naxuroqa18>	and yes, seems like a bug that glade is removing the "action-target" property
+T 1525428614 18<naxuroqa18>	as far as I know it should be possible to set an action target of an actionable via a detailed name (e.g. "win.conference-type::text" or "win.conference-type('text')" or is that not supported?
+T 1525428770 18<naxuroqa18>	I'm probably just overcomplicating things and just get back and attach signal listeners as usual
+T 1525428881 18<alexarnaud18>	How can I verify which GTK binary is used on my system ?
+T 1525428914 18<alexarnaud18>	I've compiled it from master but the issue I'm testing is not fixed by the Company's patch or the system uses the wrong GTK
+T 1525428970 18<Company18>	alexarnaud: you can use demos/gtk-demo/gtk3-demo in your builddir to test
+T 1525428970 18<alexarnaud18>	My $PATH is "/usr/lib/ccache:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+T 1525428989 18<Company18>	path doesn't matter for libs
+T 1525429040 18<alexarnaud18>	Company: I'm sorry but I don't understand how the GTK demo could help me to determine the GTK version used ?
+T 1525429069 18<Company18>	it doesn't
+T 1525429072 18<oknf[m]18>	ldd `which gtk3-demo`
+T 1525429087 18<Company18>	but the one in the builddir is setup to be linked against the one in the builddir
+T 1525429136 18<alexarnaud18>	Ah
+T 1525429158 18<oknf[m]18>	or for running process you could look at ls -l  /proc/pid/map_files/
+T 1525429192 18<Company18>	grep gtk /proc/`pidof gtk3-demo`/maps
+T 1525429308 18<alexarnaud18>	I'm trying
+T 1525429364 18<grawity18>	LD_DEBUG=libs gtk3-demo |& grep "calling init"
+T 1525429504 18<alexarnaud18>	I'm doing the test with the demo program without the patch to verify
+T 1525429511 18<alexarnaud18>	But it sounds good
+T 1525429755 18<Company18>	"it sounds good" = it seems to be working?
+T 1525429795 18<alexarnaud18>	The GTK demo isn't the right apps to test with.
+T 1525429799 18<alexarnaud18>	It's too fast to load
+T 1525429815 18<Company18>	go us!
+T 1525429820 18<grawity18>	test with the widget factory then
+T 1525429825 18<Company18>	try gtk3-demo --run=listbox
+T 1525429902 18<alexarnaud18>	Company: OK, without the patch, I observe the issue with --run=listbox
+T 1525429912 18<alexarnaud18>	I'm doing the test with the patch
+T 1525430033 18<naxuroqa18>	ebassi: seems more like a problem I have in combination with glade. Seems like modelbutton is what I actually want. Still weird that I can't use detailed names (even though they are heavily refered to in manuals and HowDoI pages)
+T 1525430231 18<alexarnaud18>	Company: The issue still happened here with your patch
+T 1525430248 18<alexarnaud18>	Company: Is it fixed on your computer or test machine ?
+T 1525430279 18<alexarnaud18>	I would like be sure I'm dong stuff correctly. It's the first I'm trying to test feature/fix on GTK3.
+T 1525430281 18<Company18>	alexarnaud: I run mutter, so I couldn't test it
+T 1525430454 18<alexarnaud18>	It's sure I've apply the patch on top of the 3.22 branch and it's sure the issue still persist if I run the demo program where I've compiled.
+T 1525430508 18<alexarnaud18>	I'm doing the test with the Marco window manager
+T 1525430522 18<alexarnaud18>	On a VM
+T 1525430727 18<alexarnaud18>	Let me know if I could help to test another patch.
+T 1525430749 18<alexarnaud18>	GTK3 is faster to compile than GTK2 so it's pretty easy to compile it.
+T 1525430773 18<Company18>	you should try GTK4
+T 1525430789 18<Company18>	once you've compiled that, you never wanna try GTK3 again, because GTK3 is so slow...
+T 1525430824 18<heftig18>	speaking of speed, I wish the shell was as good a compositor as weston
+T 1525430848 18<heftig18>	(the latter manages 60fps 4k video playback, the former is a laggy mess)
+T 1525431051 18<Company18>	that's because Weston and Mutter have a different focus
+T 1525431056 18<Company18>	sorry
+T 1525431061 18<Company18>	that's because Weston and gnome-shell have a different focus
+T 1525431117 18<Company18>	heftig: see also https://wiki.gnome.org/Initiatives/Wayland/GnomeShell/GnomeShell4
+T 1525431156 18<baedert18>	I wish people would stop linking that wiki page
+T 1525431240 18<heftig18>	yeah, i know; the shell is a good UI but it feels like the wayland support was just cobbled together and bolted onto a compositor that never had to deal with speed because it evaded the problem with unredirection
+T 1525431250 18<heftig18>	(and not concerning itself with input at all)
+T 1525431263 18<Company18>	yes and no
+T 1525431274 18<Company18>	it was a compositor all along
+T 1525431281 18<Company18>	but it was less of a problem in the X11 days
+T 1525431324 18<Company18>	clearly, gnome-shell was (implicitly) designed under the assumption that there's a seperate server process
+T 1525431440 18<Company18>	baedert: what's so bad about that page btw?
+T 1525431492 18<baedert18>	Company: Nobody is working towards it and people act like "yeah this sucks but just wait for the stuff on this wiki page".
+T 1525431525 18<Company18>	makes sense, though that wasn't my intention here
+T 1525431550 18<Company18>	heftig: fwiw, shell on Wayland is still better than shell on X11 for me
+T 1525431600 18<heftig18>	yes, I think that's what I mean: when mutter/the shell was designed, input was not in scope and unredirection made the gaming and video crowd happy 
+T 1525431732 18<grumbel18>	I am getting a "GtkDialog mapped without a transient parent. This is discouraged." warning, however I can't set a parent as I am using the GtkDialog as main window. Can I avoid this warning by other means?
+T 1525431739 18<Company18>	alexarnaud: seems there is no way to solve the problem reliably - we can't set a transparent pixel
+T 1525431750 18<Company18>	grumbel: no
+T 1525431785 18<Company18>	grumbel: that warning is actually a thing I wanted to complain to mclasen about because I don't think it makes much sense
+T 1525431809 18<Company18>	(I know why it's there and that's Wayland, but it still doesn't make much sense)
+T 1525432351 18<chpe18>	it's done via g_message(), so you could install a log handler that swallows it
+T 1525433340 18<alexarnaud18>	Company: How GTK2 does ? On GTK2, I don't have the issue.
+T 1525433396 18<Company18>	alexarnaud: might be the stuff alex was talking about
+T 1525433465 18<alexarnaud18>	Company: The drag to an invisible window ? Do you have lot of people complaining about that ? I've never heard about that.
+T 1525433520 18<Company18>	alexarnaud: temporally setting the window to be parent-realtive
+T 1525433556 18<Company18>	alexarnaud: does https://paste.fedoraproject.org/paste/eFAlU~dUNygPu4taFiYUcw help?
+T 1525434115 18<ebassi18>	grumbel: Don't use a dialog as an application window
+T 1525434121 18<ebassi18>	grumbel: Use a window
+T 1525434151 18<ebassi18>	Company: Actually, the reason the warning is there is because we used to attach dialogs to parent windows long before wayland
+T 1525434201 18<Company18>	ebassi: but we never had any reason to require that, it makes perfect sense to have dialogs that are toplevels
+T 1525434203 18<ebassi18>	And also because people used to spawn modal dialogs without parent windows, and that made a mess
+T 1525434241 18<Company18>	we should either enforce dialogs being children of real windows
+T 1525434244 18<ebassi18>	Company: Doesn't make any sense to me; dialogs are not for top levels
+T 1525434245 18<Company18>	or get rid of the warning
+T 1525434251 18<grumbel18>	ebassi: problem is I want to give the user direct access to a dialog from command line without going through the main application window
+T 1525434254 18<Company18>	but "this is discouraged" is bullshit
+T 1525434272 18<ebassi18>	Unless they are system modal dialogs, in which case they are handled by a system component
+T 1525434303 18<ebassi18>	grumbel: The answer is the same: use a real GtkWindow
+T 1525434319 18<Company18>	and I think zenity is a weird but valid usecase
+T 1525434326 18<Company18>	with the APIs that we provide
+T 1525434361 18<baedert18>	a GtkDialog is just a GtkWindow with the type-hint set to DIALOG, you can do that conditionally even
+T 1525434372 18<grumbel18>	ebassi: than I would have to duplicate the functionality of the GtkDialog
+T 1525434386 18<alexarnaud18>	Company: I can confirm that you second patch fix the issue :).
+T 1525434421 18<ebassi18>	grumbel: My suggestion would then to not use a dialog, but use the main window of your application in a different mode
+T 1525434426 18<ebassi18>	grumbel: Or live with the warning
+T 1525434473 18<Company18>	alexarnaud: pushed as https://gitlab.gnome.org/GNOME/gtk/commit/2ce63a86ba689aa41eb47409c889c469497478b0
+T 1525434477 18<ebassi18>	grumbel: You can create the contents of the dialog separately and decide whether to add them to a GtkDialog or a GtkWindow
+T 1525434511 18<ebassi18>	Company: Would have been nice to reference the issue in the commit message
+T 1525434567 18<Company18>	ebassi: oh right, there was an issue
+T 1525434577 18*	Company was just fixing things on irc
+T 1525438770 18<mclasen18>	jadahl: I forget, what was 71 about again ? https://github.com/flatpak/xdg-desktop-portal-gtk/issues/130
+T 1525438915 18<jadahl18>	mclasen: haven't investigated that one
+T 1525439505 18<mclasen18>	jadahl: the crash I'm seeing is not just rawhide either, it seems: https://gitlab.gnome.org/GNOME/gtk/issues/201
+T 1525445717 18<Company18>	baedert: that SPECIAL_CONTAINER() check in gtk_container_buildable_set_child_property(), does that make sense?
+T 1525445977 18<Company18>	looking at the original commit that introduced that branch - https://gitlab.gnome.org/GNOME/gtk/commit/e6a8848d0 - it seems that whole branch should just go away?
+T 1525446218 18*	Company comments on gitlab instead
+T 1525446562 19*	Now talking on 22#gtk+
+T 1525446562 22*	Topic for 22#gtk+ is: GTK now officially migrated to https://gitlab.gnome.org/GNOME/gtk
+T 1525446562 22*	Topic for 22#gtk+ set by 26ebassi_ (24Thu May  3 04:39:59 2018)
+T 1525449191 18<baedert18>	Company: Ive asked in here several times if it still makes sense or why it is there and never got an answer.
+T 1525449207 18<Company18>	dammit
+T 1525449216 18<Company18>	we need more developers answering those questions!
+T 1525449302 18<mclasen18>	if ebassi comes through with killing child properties, then we don't need any of that anymore
+T 1525449528 18<Company18>	I still don't know if the replacement with meta objects would be better
+T 1525449539 18<Company18>	would certainly blow up the code
+T 1525449562 18<Company18>	but I guess it would only be bad for C, Python probably wouldn't notice
+T 1525449631 18<Company18>	the one thing I had about child properties is that they're cheating
+T 1525449647 18<Company18>	because almost none of the child properties have proper getters and setters
+T 1525449652 18<baedert18>	meh, I dont want all that just to save one bit per box child
+T 1525449785 18<Company18>	fun question: should such meta objects be widgets?
+T 1525449797 18<Company18>	because in the ListBox case they are
+T 1525450971 18<baedert18>	ruins css
+T 1525451248 18<pwithnall18>	mclasen: review needed on https://bugzilla.gnome.org/show_bug.cgi?id=795735
+T 1525451326 18<mclasen18>	oh really ? sorry I didn't notice the tests failing
+T 1525451333 18<mclasen18>	some automated system should have yelled at me
+T 1525451693 18<Company18>	baedert: yeah, that's the one problem I have with that approach
+T 1525451704 18<Company18>	baedert: otoh, for listboxrows that's exactly the point...
+T 1525451739 18<Company18>	And it might not work well for notebooks
+T 1525451776 18<Company18>	I'm still wondering if we should have the ability to create widgets that don't have a CSS node
+T 1525451899 18<pwithnall18>	mclasen: I can’t wait to move over to gitlab either
+T 1525452271 18<mclasen18>	pwithnall: I didn't even stop to think about the fact that pointer comparison makes no sense there
+T 1525452299 18<pwithnall18>	heh, I noticed it when reviewing, but assumed that you had spotted it and it was the right thing
+T 1525452310 18<pwithnall18>	I should have commented, sorry
+T 1525452325 18<mclasen18>	why are arrays, tuples and the like incomparable ?
+T 1525452555 18<mclasen18>	I find myself unhappy that some gvariant apis have these special cases built in
+T 1525452574 18<mclasen18>	g_variant_parse can't handle indefinite types, g_variant_compare can't handle containers,...
+T 1525452633 18<smcv18>	is (1, 2, 3) less than or greater than [1, 2, 3], and why?
+T 1525452690 18<mclasen18>	who cares anyway, we just want equal
+T 1525452703 18<mclasen18>	pwithnall: reviewed
+T 1525452728 18<smcv18>	so the problem is that some larger API asks for <=> when it actually just needs ==?
+T 1525452757 18<mclasen18>	smvc: and to answer your questions, a comes before t, so [1,2,3] < (1,2,3)
+T 1525452787 18<pwithnall18>	smcv: Yes. The same API is used for ordering integer GParamSpec values though
+T 1525452788 18<smcv18>	tuples are 'r', but yes
+T 1525452805 18<mclasen18>	well, just compare the types first, and if they are equal, compare the data
+T 1525452806 18<pwithnall18>	although I have no idea when you’d want to order GParamSpec values
+T 1525452813 18<mclasen18>	sort containers lexicographically
+T 1525452831 18<smcv18>	(because in D-Bus they're called structs, s was taken for string, and I'm not sure why t was assigned to uint64 in preference to struct)
+T 1525452863 18<mclasen18>	pwithnall: oh, i misread this code
+T 1525452879 18<mclasen18>	let me look at my comment again
+T 1525452886 18<pwithnall18>	But what use is that sort order? It’s well-defined, but that’s about it
+T 1525452898 18*	pwithnall is not going to get sucked into this discussion
+T 1525452995 18<pwithnall18>	I’m using g_variant_compare() on the last line of the comparison function
+T 1525453096 18<mclasen18>	yeah, that was scrolled off
+T 1525453110 18<mclasen18>	well, is comparing pointers more useful ?
+T 1525453121 18<mclasen18>	anyway, I think the patch is fine. let me update my review
+T 1525453125 18<Company18>	having an order is useful when creating set data structures
+T 1525453215 18<Company18>	and the questio about having a well-defined order comes up whenever you talk about serializing those data structures
+T 1525453228 18*	Company been through that same mess with CSS nodes
+T 1525455149 18<LRN18>	okay, what's the deal with gtktypefuncs.c ?
+T 1525455215 18<Company18>	LRN: it's supposed to be an autogenerated list of all get_type() functions in the whole source tree
+T 1525455226 18<LRN18>	well, it's not being generated
+T 1525455228 18<Company18>	LRN: so that we can run tests on each type
+T 1525455310 18<Company18>	i don't know nothing about the build system!
+T 1525455915 18<ebassi18>	LRN: I'm fairly sure it's generated :-)
+T 1525455927 18<ebassi18>	Otherwise CI would definitely break
+T 1525455974 18<ebassi18>	Though, to be fair, it's not valid C — it's just a plain text file
+T 1525455986 18<ebassi18>	It gets included inside gtktestutils.c
+T 1525456012 18<ebassi18>	Since it's generated by a small python script we could make it generate valid C
+T 1525456068 18<LRN18>	i had to generate it manually (make gtktypefuncs.c), it wasn't generated automatically
+T 1525456570 18<ebassi18>	LRN: Oh, this is gtk-3-22?
+T 1525456738 18<ebassi18>	LRN: It's a built file; it should be built before gtktestutils.c gets compiled
+T 1525457667 18<baedert18>	gdb backtraces mentioning other issues is seriously annoying
+T 1525458041 18<LRN18>	isn't there a special markdown for gdb backtraces?
+T 1525458097 18<baedert18>	if there was it'd be irrelevant because people don't use it. They don't even use ```
+T 1525458293 18<baedert18>	https://paste.xinu.at/YF2RY8/
+T 1525458303 18<baedert18>	is that tiny arrow really what the insertion cursor arrow is supposed to look like?
+T 1525458426 18<Company18>	baedert: no, its supposed to be larger and centered
+T 1525458587 18<Company18>	actually no, it's supposed to look kinda like that
+T 1525458588 18*	baedert files bug and auto-CCs Company
+T 1525458619 18<Company18>	gtk-demo (the GTK2 version) in the MultipleViews example has RTL text
+T 1525458642 18<Company18>	just type some ascii text into the arabaic part and then move the cursor through it
+T 1525458675 18<baedert18>	ah I even still have gtk2 installed!
+T 1525458689 18<Company18>	everybody does
+T 1525458693 18<Company18>	because gimp
+T 1525458719 18*	baedert has never seen split cursors before
+T 1525458771 18<baedert18>	cursors over widgets in textviews are still broken in gtk4
+T 1525459235 18<Company18>	that's by design
+T 1525459250 18<Company18>	in the sense that the default cursor is NULL which means inherit
+T 1525459257 18<Company18>	and textview sets a text cursor
+T 1525459286 18<Company18>	well, we'd need to add some wrapper if we wanted to change that at least

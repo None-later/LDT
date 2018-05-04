@@ -1,0 +1,110 @@
+**** BEGIN LOGGING AT Fri May  4 11:09:00 2018
+
+May 04 11:09:00 *	Now talking on #fedora-devel
+May 04 11:09:00 *	Topic for #fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
+May 04 11:09:00 *	Topic for #fedora-devel set by dgilmore (Fri Apr 28 18:02:05 2017)
+May 04 11:09:08 *	pingou discretly removes the if flask.g.fas_user.username == 'vondruch': time.sleep(120)
+May 04 11:09:16 FiSHLiM plugin unloaded
+May 04 11:09:16 Python interface unloaded
+**** ENDING LOGGING AT Fri May  4 11:09:16 2018
+
+**** BEGIN LOGGING AT Fri May  4 11:09:33 2018
+
+May 04 11:09:33 *	Now talking on #fedora-devel
+May 04 11:09:33 *	Topic for #fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
+May 04 11:09:33 *	Topic for #fedora-devel set by dgilmore (Fri Apr 28 18:02:05 2017)
+May 04 11:09:44 <pingou>	vondruch: can you reproduce in stg.pagure.io?
+May 04 11:10:13 <vondruch>	pingou: hmmm, there are no issues, are there? :)
+May 04 11:10:22 <pingou>	should be some
+May 04 11:11:26 <vondruch>	pingou: may be PRs
+May 04 11:11:27 <pingou>	vondruch: https://stg.pagure.io/freeipa-test2/issues
+May 04 11:12:13 <vondruch>	pingou: ah, staging ... sorry, I was confused
+May 04 11:12:14 <pingou>	(this one is taking longer for me 16 secs and counting)
+May 04 11:12:29 <pingou>	~40 seconds totla
+May 04 11:13:04 <vondruch>	pingou: that is smooth for me ;)
+May 04 11:13:21 <vondruch>	pingou: just 2 seconds at max
+May 04 11:26:52 <sharkcz>	pjones: hi, please look at https://bugzilla.redhat.com/show_bug.cgi?id=1574868 - we have broken composes on non-efi arches right now
+May 04 11:28:06 <pjones>	hey sweet, how'd I manage that
+May 04 11:28:21 <tyll>	zbyszek: these are the long-time FTBFS packages: https://paste.fedoraproject.org/paste/eIPZx2sLv9sqAF5FdJvG-Q
+May 04 11:28:25 <pingou>	vondruch: using ipv4 or ipv6?
+May 04 11:28:26 <pjones>	oh, okay
+May 04 11:28:38 <pjones>	sharkcz: thanks for getting my attention, should be easy to fix, and I'll do so right after lunch
+May 04 11:28:54 <sharkcz>	pjones: thx
+May 04 11:31:15 <tmz>	pingou, vondruch: I see the same issue.  When logged in, loading the infra issues (or freeipa issues, as above), pagure takes a long time (well, it doesn't load in the several minutes I've let it spin on numerous tries).  In stg, that wasn't the case for freeipa-test2/issues.
+May 04 11:47:37 <vondruch>	pingou: ipv4 .. assuming
+May 04 11:48:33 <vondruch>	pingou: at least I'd say from the traceroute output
+May 04 11:49:22 <vondruch>	tmz: glad I am not alone ;)
+May 04 11:51:37 <tmz>	vondruch: And Michal Novotny (clime) said it affected him as well.  Hopefully that's enough to help find what's common and spot a fix. :)
+May 04 12:06:19 <smooge>	vondruch, can you do an ip addr and see if you have an ipv6 address
+May 04 12:06:48 <smooge>	I believe traceroute will only do ipv4 even if you have both ipv6 and ipv4
+May 04 12:20:30 <tomhughes>	there is a separate traceroute6
+May 04 12:21:08 <tomhughes>	or use mtr which has the normal -4 / -6 switches
+May 04 12:28:26 <nirik>	tmz / vondruch: can you see if it is any better/different now?
+May 04 12:31:25 <tmz>	nirik: Sure.  With the firefox dev console, it was taking a little over 10 minutes to load that page.  I reloaded it now.
+May 04 12:31:56 <tmz>	And, FWIW, I don't have any ipv6 connectivity at the moment.
+May 04 12:31:58 <nirik>	so it's not network time it's time until you get a responce back?
+May 04 12:33:09 <tmz>	The firefox performance graph shows something like 619 seconds for the html portion.
+May 04 12:33:40 <nirik>	wow. ok. The infra issues page loads here in 7 seconds.
+May 04 12:34:04 <tmz>	For me, loading the page from a clean tab just leave the tab blank and the tab icon spinning.  I go and do other things and eventually it loads.
+May 04 12:34:24 <nirik>	and it looks ok then? no missing images/js/avatars?
+May 04 12:35:00 <tmz>	Yeah.  I'll look closer at the dev tool output and see if there's any 4XX or 5XX response codes, but I didn't notice any before.
+May 04 12:35:25 <nirik>	weird. Also, for grins could you try a new profile?
+May 04 12:37:12 <tmz>	Yeah, I was going to get to that.  I was actually just going to move ~/.mozilla aside and be completely clean.
+May 04 12:42:07 <tmz>	that it's consistently just over 10 minutes makes me suspicious that there's some network timeouts.
+May 04 12:42:36 <bowlofeggs>	nirik++
+May 04 12:42:36 <zodbot>	bowlofeggs: Karma for kevin changed to 9 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+May 04 12:42:55 <nirik>	bowlofeggs++
+May 04 12:42:56 <zodbot>	nirik: Karma for bowlofeggs changed to 7 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+May 04 12:56:25 <tmz>	nirik: There does seem to be something boked up in my browser profile.  Moving ~/.mozilla aside entirely and starting fresh, the issues page loads quickly.
+May 04 12:56:53 <nirik>	huh. but other folks are hitting it too, so it has to be something pretty common. ;(
+May 04 12:57:00 <nirik>	what extensions do you use?
+May 04 12:57:04 <tmz>	Time to poke around at what's wrong in my profile (or more likely take the opportunity to clean house)
+May 04 13:03:44 <tmz>	nirik: I have: Cookie Controller, GNOME Shell Integration, It's All Text!, Tab Mix Plus, and uBlock Origin.
+May 04 13:04:15 <tmz>	I disabled them all, without effect on the issue, so it doesn't seem like it's one of those.
+May 04 13:05:22 <tmz>	I'm running Firefox ESR (built from a COPR which uses the fedora firefox-52.x, rather than the mozilla binary).
+May 04 13:16:39 <nirik>	huh, ok.
+May 04 13:54:24 <pjones>	sharkcz: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769722 should fix things for you
+May 04 13:54:46 <pjones>	sharkcz: it at least fixes the ExclusiveArch issue; hopefully it also evaluates without errors on the other arches.
+May 04 13:56:42 <nirik>	hum... pjones:
+May 04 13:56:44 <nirik>	Error: Transaction check error:
+May 04 13:56:44 <nirik>	  file /boot/efi/EFI from install of efi-filesystem-2-5.fc29.noarch conflicts with file from package shim-x64-15-3.x86_64
+May 04 13:57:01 <nirik>	perms on that stupid vfat volume again?
+May 04 13:57:09 <pjones>	yeah, the problem with stopping working on the shim package to fix the thing it depends on...
+May 04 13:57:20 *	pjones goes back to fixing that
+May 04 13:57:33 <nirik>	happy to help test if you like
+May 04 13:57:57 <pjones>	the very moment I figure out how to actually make the koji srpm building work like it looks like it should, I will let you know ;)
+May 04 13:58:56 <nirik>	I'll not wait around... 🙂
+May 04 14:07:32 <pjones>	nirik: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769862 should solve that issue (though it's a temporary fix while I work on the other part)
+May 04 14:08:10 <nirik>	ok
+May 04 14:08:38 <pjones>	the intent here is to move all of the directory ownereship of that crap to efi-filesystem so the other packages won't conflict by virtue of not owning the directories
+May 04 14:08:44 <pjones>	ownership even
+May 04 14:09:47 <pjones>	though I expect somewhere around the 100 or 200th attempt Guinness is going to beat rpm.
+May 04 14:10:16 <nirik>	pity that fs has to be vfat. ;(
+May 04 14:10:25 <pjones>	ain't nothin' I can do about that.
+May 04 14:10:27 <nirik>	and yes, I would put Guinness over rpm. ;)
+May 04 14:23:01 <tmz>	nirik: So much for a clean firfox profile solving load times in pagure issues.  I've now gotten 3 consecutive 500 responses from https://pagure.io/fedora-infrastructure/issues, ranging from 48 seconds to 6+ minutes.
+May 04 14:23:41 <nirik>	huh, ok. what version of firefox was this?
+May 04 14:24:36 <tmz>	52.7.3
+May 04 14:25:15 <tmz>	It's not all pagure project issues pages.  But fedora-infrastructure/issues tickles something.
+May 04 14:26:04 <nirik>	I'm not sure how to further debug. ;( It's definitely a bug tho. Just started in the last day or two?
+May 04 14:26:43 <tmz>	I only noticed it today.  I don't recall when I pulled up the issues page last, but sometime in the past few days I believe.
+May 04 14:27:15 <nirik>	yeah, so likely tied to the pagure upgrade yesterday.
+May 04 14:27:22 <tmz>	The 500 response codes should have some logs, so perhaps they'll help.
+May 04 14:27:36 <nirik>	yeah
+May 04 14:27:44 *	nirik has to head out for a bit. back in a bit
+May 04 14:27:49 <tmz>	Enjoy.
+May 04 14:31:18 <pjones>	I'll take "degenerate cases in .spec macro expansion" for $400, Alex: https://paste.fedoraproject.org/paste/sl49dOJMeCfRkjbuiKJQMA
+May 04 14:31:56 <pjones>	I like how it takes 60 attempts before it decides a->a transitions aren't going to work out.
+May 04 14:43:33 <maxamillion>	puiterwijk: ping - I'm good with this if you are -> https://github.com/fedora-cloud/docker-brew-fedora/pull/56
+May 04 14:43:45 <maxamillion>	I need to run, bbl
+May 04 14:44:30 <puiterwijk>	maxamillion: in that case, I'd rather merge the one from Jim from... way longer ago: https://github.com/fedora-cloud/docker-brew-fedora/pull/34
+May 04 14:45:00 <puiterwijk>	I was under the impression you didn't want anything like that because you didn't touch that one
+May 04 14:45:17 <maxamillion>	puiterwijk: OMG, I forgot about that. I should have merged it forever ago. +1
+May 04 14:46:15 <puiterwijk>	ack. Merged that.
+May 04 14:46:23 <puiterwijk>	I'll rebuild the images somewhere next week I think
+May 04 14:46:50 <maxamillion>	+1
+May 04 14:47:01 <maxamillion>	Gotta run, bbl
+May 04 15:30:51 FiSHLiM plugin unloaded
+May 04 15:30:51 Python interface unloaded
+**** ENDING LOGGING AT Fri May  4 15:30:51 2018
+

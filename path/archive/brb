@@ -1,0 +1,83 @@
+#!/bin/bash
+echo "Clean up of bindings"
+set -x  # print info about every command that is executed.
+cd ~/git/eclipse.platform.swt.binaries/bundles/org.eclipse.swt.gtk.linux.x86_64 && \
+git clean -xdf && \
+git reset --hard && \
+set +x  # turn off printing of every command
+
+echo "Rebuild of bindings . . ."
+
+
+# Make log file
+mkdir -p ~/swtbuildlogs/
+LogFile=~/swtbuildlogs/$(date +'%Y-W%V-%m%b-%d%a_%I.%M.%S%p')
+
+if [[ "$1" == "nolog" ]]; then
+  cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library && ./build.sh -gtk-all install
+else
+  cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library && ./build.sh -gtk-all install |& tee $LogFile
+fi
+
+
+
+
+echo "Fixing class paths"
+cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt
+rm -f .classpath
+cp .classpath_gtk .classpath
+
+cd ~/git/eclipse.platform.swt/examples/org.eclipse.swt.snippets
+rm -f .classpath
+cp .classpath_gtk .classpath
+
+if [[ "$1" != "nolog" ]]; then
+  echo ""
+  echo "Summary of warnings:"
+  cat $LogFile | grep -E 'warning|Building GTK'
+  echo -n "WarningCount:"
+  cat $LogFile | grep warning | wc -l
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+# echo "Rebuild of bindings"
+# # Make log file
+# mkdir -p ~/swtbuildlogs/
+# LogFile=~/swtbuildlogs/$(date +'%Y-W%V-%m%b-%d%a_%I.%M.%S%p')
+#
+# if [[ "$1" == "nolog" ]]; then
+#   cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library && ./build.sh -gtk-all install
+# else
+#   cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt/bin/library && ./build.sh -gtk-all install |& tee $LogFile
+# fi
+#
+#
+# set +x  # turn off printing of every command
+#
+# echo "Fixing class paths"
+# cd ~/git/eclipse.platform.swt/bundles/org.eclipse.swt
+# rm -f .classpath
+# cp .classpath_gtk .classpath
+#
+# cd ~/git/eclipse.platform.swt/examples/org.eclipse.swt.snippets
+# rm -f .classpath
+# cp .classpath_gtk .classpath
+#
+# if [[ "$1" != "nolog" ]]; then
+#   echo ""
+#   echo "Summary of warnings:"
+#   cat $LogFile | grep -E 'warning|Building GTK'
+#   echo -n "WarningCount:"
+#   cat $LogFile | grep warning | wc -l
+# fi

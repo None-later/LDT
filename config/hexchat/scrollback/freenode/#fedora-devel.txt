@@ -1,0 +1,102 @@
+T 1525446540 19*	Now talking on 22#fedora-devel
+T 1525446540 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
+T 1525446540 22*	Topic for 22#fedora-devel set by 26dgilmore (24Fri Apr 28 18:02:05 2017)
+T 1525446548 18*	pingou discretly removes the if flask.g.fas_user.username == 'vondruch': time.sleep(120)
+T 1525446556 FiSHLiM plugin unloaded
+T 1525446556 Python interface unloaded
+T 1525446573 19*	Now talking on 22#fedora-devel
+T 1525446573 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
+T 1525446573 22*	Topic for 22#fedora-devel set by 26dgilmore (24Fri Apr 28 18:02:05 2017)
+T 1525446584 18<pingou18>	vondruch: can you reproduce in stg.pagure.io?
+T 1525446613 18<vondruch18>	pingou: hmmm, there are no issues, are there? :)
+T 1525446622 18<pingou18>	should be some
+T 1525446686 18<vondruch18>	pingou: may be PRs
+T 1525446687 18<pingou18>	vondruch: https://stg.pagure.io/freeipa-test2/issues
+T 1525446733 18<vondruch18>	pingou: ah, staging ... sorry, I was confused
+T 1525446734 18<pingou18>	(this one is taking longer for me 16 secs and counting)
+T 1525446749 18<pingou18>	~40 seconds totla
+T 1525446784 18<vondruch18>	pingou: that is smooth for me ;)
+T 1525446801 18<vondruch18>	pingou: just 2 seconds at max
+T 1525447612 18<sharkcz18>	pjones: hi, please look at https://bugzilla.redhat.com/show_bug.cgi?id=1574868 - we have broken composes on non-efi arches right now
+T 1525447686 18<pjones18>	hey sweet, how'd I manage that
+T 1525447701 18<tyll18>	zbyszek: these are the long-time FTBFS packages: https://paste.fedoraproject.org/paste/eIPZx2sLv9sqAF5FdJvG-Q
+T 1525447705 18<pingou18>	vondruch: using ipv4 or ipv6?
+T 1525447706 18<pjones18>	oh, okay
+T 1525447718 18<pjones18>	sharkcz: thanks for getting my attention, should be easy to fix, and I'll do so right after lunch
+T 1525447734 18<sharkcz18>	pjones: thx
+T 1525447875 18<tmz18>	pingou, vondruch: I see the same issue.  When logged in, loading the infra issues (or freeipa issues, as above), pagure takes a long time (well, it doesn't load in the several minutes I've let it spin on numerous tries).  In stg, that wasn't the case for freeipa-test2/issues.
+T 1525448857 18<vondruch18>	pingou: ipv4 .. assuming
+T 1525448913 18<vondruch18>	pingou: at least I'd say from the traceroute output
+T 1525448962 18<vondruch18>	tmz: glad I am not alone ;)
+T 1525449097 18<tmz18>	vondruch: And Michal Novotny (clime) said it affected him as well.  Hopefully that's enough to help find what's common and spot a fix. :)
+T 1525449979 18<smooge18>	vondruch, can you do an ip addr and see if you have an ipv6 address
+T 1525450008 18<smooge18>	I believe traceroute will only do ipv4 even if you have both ipv6 and ipv4
+T 1525450830 18<tomhughes18>	there is a separate traceroute6
+T 1525450868 18<tomhughes18>	or use mtr which has the normal -4 / -6 switches
+T 1525451306 18<nirik18>	tmz / vondruch: can you see if it is any better/different now?
+T 1525451485 18<tmz18>	nirik: Sure.  With the firefox dev console, it was taking a little over 10 minutes to load that page.  I reloaded it now.
+T 1525451516 18<tmz18>	And, FWIW, I don't have any ipv6 connectivity at the moment.
+T 1525451518 18<nirik18>	so it's not network time it's time until you get a responce back?
+T 1525451589 18<tmz18>	The firefox performance graph shows something like 619 seconds for the html portion.
+T 1525451620 18<nirik18>	wow. ok. The infra issues page loads here in 7 seconds.
+T 1525451644 18<tmz18>	For me, loading the page from a clean tab just leave the tab blank and the tab icon spinning.  I go and do other things and eventually it loads.
+T 1525451664 18<nirik18>	and it looks ok then? no missing images/js/avatars?
+T 1525451700 18<tmz18>	Yeah.  I'll look closer at the dev tool output and see if there's any 4XX or 5XX response codes, but I didn't notice any before.
+T 1525451725 18<nirik18>	weird. Also, for grins could you try a new profile?
+T 1525451832 18<tmz18>	Yeah, I was going to get to that.  I was actually just going to move ~/.mozilla aside and be completely clean.
+T 1525452127 18<tmz18>	that it's consistently just over 10 minutes makes me suspicious that there's some network timeouts.
+T 1525452156 18<bowlofeggs18>	nirik++
+T 1525452156 18<zodbot18>	bowlofeggs: Karma for kevin changed to 9 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+T 1525452175 18<nirik18>	bowlofeggs++
+T 1525452176 18<zodbot18>	nirik: Karma for bowlofeggs changed to 7 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+T 1525452985 18<tmz18>	nirik: There does seem to be something boked up in my browser profile.  Moving ~/.mozilla aside entirely and starting fresh, the issues page loads quickly.
+T 1525453013 18<nirik18>	huh. but other folks are hitting it too, so it has to be something pretty common. ;(
+T 1525453020 18<nirik18>	what extensions do you use?
+T 1525453024 18<tmz18>	Time to poke around at what's wrong in my profile (or more likely take the opportunity to clean house)
+T 1525453424 18<tmz18>	nirik: I have: Cookie Controller, GNOME Shell Integration, It's All Text!, Tab Mix Plus, and uBlock Origin.
+T 1525453455 18<tmz18>	I disabled them all, without effect on the issue, so it doesn't seem like it's one of those.
+T 1525453522 18<tmz18>	I'm running Firefox ESR (built from a COPR which uses the fedora firefox-52.x, rather than the mozilla binary).
+T 1525454199 18<nirik18>	huh, ok.
+T 1525456464 18<pjones18>	sharkcz: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769722 should fix things for you
+T 1525456486 18<pjones18>	sharkcz: it at least fixes the ExclusiveArch issue; hopefully it also evaluates without errors on the other arches.
+T 1525456602 18<nirik18>	hum... pjones:
+T 1525456604 18<nirik18>	Error: Transaction check error:
+T 1525456604 18<nirik18>	  file /boot/efi/EFI from install of efi-filesystem-2-5.fc29.noarch conflicts with file from package shim-x64-15-3.x86_64
+T 1525456621 18<nirik18>	perms on that stupid vfat volume again?
+T 1525456629 18<pjones18>	yeah, the problem with stopping working on the shim package to fix the thing it depends on...
+T 1525456640 18*	pjones goes back to fixing that
+T 1525456653 18<nirik18>	happy to help test if you like
+T 1525456677 18<pjones18>	the very moment I figure out how to actually make the koji srpm building work like it looks like it should, I will let you know ;)
+T 1525456736 18<nirik18>	I'll not wait around... 🙂
+T 1525457252 18<pjones18>	nirik: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769862 should solve that issue (though it's a temporary fix while I work on the other part)
+T 1525457290 18<nirik18>	ok
+T 1525457318 18<pjones18>	the intent here is to move all of the directory ownereship of that crap to efi-filesystem so the other packages won't conflict by virtue of not owning the directories
+T 1525457324 18<pjones18>	ownership even
+T 1525457387 18<pjones18>	though I expect somewhere around the 100 or 200th attempt Guinness is going to beat rpm.
+T 1525457416 18<nirik18>	pity that fs has to be vfat. ;(
+T 1525457425 18<pjones18>	ain't nothin' I can do about that.
+T 1525457427 18<nirik18>	and yes, I would put Guinness over rpm. ;)
+T 1525458181 18<tmz18>	nirik: So much for a clean firfox profile solving load times in pagure issues.  I've now gotten 3 consecutive 500 responses from https://pagure.io/fedora-infrastructure/issues, ranging from 48 seconds to 6+ minutes.
+T 1525458221 18<nirik18>	huh, ok. what version of firefox was this?
+T 1525458276 18<tmz18>	52.7.3
+T 1525458315 18<tmz18>	It's not all pagure project issues pages.  But fedora-infrastructure/issues tickles something.
+T 1525458364 18<nirik18>	I'm not sure how to further debug. ;( It's definitely a bug tho. Just started in the last day or two?
+T 1525458403 18<tmz18>	I only noticed it today.  I don't recall when I pulled up the issues page last, but sometime in the past few days I believe.
+T 1525458435 18<nirik18>	yeah, so likely tied to the pagure upgrade yesterday.
+T 1525458442 18<tmz18>	The 500 response codes should have some logs, so perhaps they'll help.
+T 1525458456 18<nirik18>	yeah
+T 1525458464 18*	nirik has to head out for a bit. back in a bit
+T 1525458469 18<tmz18>	Enjoy.
+T 1525458678 18<pjones18>	I'll take "degenerate cases in .spec macro expansion" for $400, Alex: https://paste.fedoraproject.org/paste/sl49dOJMeCfRkjbuiKJQMA
+T 1525458716 18<pjones18>	I like how it takes 60 attempts before it decides a->a transitions aren't going to work out.
+T 1525459413 18<maxamillion18>	puiterwijk: ping - I'm good with this if you are -> https://github.com/fedora-cloud/docker-brew-fedora/pull/56
+T 1525459425 18<maxamillion18>	I need to run, bbl
+T 1525459470 18<puiterwijk18>	maxamillion: in that case, I'd rather merge the one from Jim from... way longer ago: https://github.com/fedora-cloud/docker-brew-fedora/pull/34
+T 1525459500 18<puiterwijk18>	I was under the impression you didn't want anything like that because you didn't touch that one
+T 1525459517 18<maxamillion18>	puiterwijk: OMG, I forgot about that. I should have merged it forever ago. +1
+T 1525459575 18<puiterwijk18>	ack. Merged that.
+T 1525459583 18<puiterwijk18>	I'll rebuild the images somewhere next week I think
+T 1525459610 18<maxamillion18>	+1
+T 1525459621 18<maxamillion18>	Gotta run, bbl
+T 1525462251 FiSHLiM plugin unloaded
+T 1525462251 Python interface unloaded
