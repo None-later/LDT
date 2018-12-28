@@ -1,0 +1,139 @@
+T 1542986829 19*	Now talking on 22#ansible
+T 1542986829 22*	Topic for 22#ansible is: https://docs.ansible.com * latest releases: 2.7.2 / 2.6.8 / 2.5.11
+T 1542986829 22*	Topic for 22#ansible set by 26mattclay!sid166880@ansible/staff/mattclay (24Thu Nov 15 22:08:55 2018)
+T 1542986855 20<lufimtse>30	Hello guys. Is there a way to change a user password when you're connecting as a non-root user (who is not a sudoer)?
+T 1542986859 18<zofrex18>	whole play would also be acceptable
+T 1542986865 18<zofrex18>	but I absolutely need this to keep executing if one host fails
+T 1542986869 18<zofrex18>	which seems to rule out serial?
+T 1542986873 20<lufimtse>30	the user module expects become priviledges..
+T 1542986883 18<abyss18>	winem_: so the last task in play would be: set var: node_number + 1? and then in delegate_host: ansible_play_hosts[node_number]?
+T 1542986905 18<winem_18>	yes, I think I would go for something like that 
+T 1542986928 18<zofrex18>	is there any way to group multiple tasks as one task, so then with forks: 1, only one would happen at a time?
+T 1542986972 18<Kelsar18>	I have a expression that i want to mix with manual generated entries in a list, how do i do it without beeing ugly?
+T 1542986973 18<Kelsar18>	"{{ groups['getcloser'] | map('extract', hostvars, ['ansible_host']) | map('regex_replace', '$', ':9100') | list }}"
+T 1542987004 18<winem_18>	block is used to group tasks but that does not support serialization :/
+T 1542987064 18<abyss18>	winem_: ok, thank you, I will try. But at fist I need to set this variable, right? So I should set this variable at the begiining of play (as global var) and then increase it at the end of play by: set_fact: seq: {{ seq + 1 }} ?
+T 1542987113 18<Kelsar18>	also that expression yields onle :9100 instead of ansible_host:9100
+T 1542987291 18<winem_18>	yes, abyss
+T 1542987418 18<abyss18>	winem_: thank you very much :) I go to check it :)
+T 1542987889 18<abyss18>	winem_: ok, it not so easy I have command when I add more nodes to cluster ;) So on first node I will do command_to_create_clster --init node1... But on node2 I need to do: command_to_create_clster --init node1,node2, for thirs: command_to_create_clster --init node1,node2,node3 ....
+T 1542988070 18<abyss18>	I can do variable like init_node: node1 when ansible_play_hosts[0], init_node: node1,node2 when ansible_play_hosts[1] etc... ;)
+T 1542988093 18<Kelsar18>	in the expression above, why is ansible_host always empty?
+T 1542988116 18<winem_18>	then I would create a 2nd fact at the end of the play that creates a list and appends the current node name or index. but this gets more and more dirty 
+T 1542988143 18<abyss18>	yeah, but probably it is still better than long playbook? Or not?;)
+T 1542988205 18<abyss18>	I need this playbook to easy modify because people will be use this playbook with different inventories, so they will be modify 'hosts:' etc to make it order , so less modification of playbook then better
+T 1542988245 18<tuxick18>	when using with_items for a path:{{item}}, isn't there simple way to make it skip files that don't exist?
+T 1542988252 18<tuxick18>	in this case for lineinfile
+T 1542988280 18<tuxick18>	skip or at least not bail out with error
+T 1542988624 18<tuxick18>	hm
+T 1542988657 18<winem_18>	abyss: agree and see the reason why you do it like that :) 
+T 1542990948 18<zofrex18>	I found a way to execute tasks in serial for some tasks but not all!
+T 1542990957 18<zofrex18>	this was the clue in the docs
+T 1542990960 18<zofrex18>	"When an include statement loads different tasks for different hosts, the linear strategy keeps the hosts in lock-step by alternating which hosts are executing tasks while doing a noop for all other hosts."
+T 1542990977 18<zofrex18>	it's not pretty but here it is: https://gist.github.com/zofrex/add24ea058f30d146ac5e9dfc283ec45
+T 1542991189 18<zofrex18>	by creating multiple symlinks to the file I want to include, ansible can no longer tell it's the same file, nor the same tasks, and treats them as different tasks - triggering the behaviour documented above
+T 1542991203 18<zofrex18>	thus giving us opt-in serialisation in the middle of a parallel execution :D
+T 1542991361 18<herald8518>	zofrex: I need to shower after reading that
+T 1542991382 18<zofrex18>	:D
+T 1542991383 18<zofrex18>	thanks, I get that a lot
+T 1542993048 18<abyss18>	winem_: Are you still around?;)
+T 1542993066 18<winem_18>	abyss: yes :) 
+T 1542993205 18<abyss18>	most of things works ;) But I have a trouble with increasing vars after each interation, because when I do set_fact, it probably set_fact on the node where I issued this task. So in another iteration I have stil old variable... I do at as the last task something like this: - set_fact: node_number: "{{ node_number + 1 }}"
+T 1542993230 18<abyss18>	is the way to increase this variable globally? For example register for each node?;)
+T 1542993293 18<abyss18>	anyway I'm suprised that most thing works as intended :D Playbook is 3x shorter :)
+T 1542993628 18<abyss18>	winem_: maybe the only way to get this variable is something like this: set fact: node_number: {{ hostvars[ansible_play_hosts[current_play_index - 1]]['node_number'] } with leaving the last task?;)
+T 1542993783 18<winem_18>	abyss: I think there is no way around the reference via hostvars[...]
+T 1542993811 18<winem_18>	but I'm really tired and start to do stupid mistakes.. so I might be wrong 
+T 1542993822 18<abyss18>	ok but how to get current_play_index - 1? ;) ansible_play_hosts.index - it will be ok?;)
+T 1542993843 18<abyss18>	winem_: ok, yeah it late for me as well :( Thank you anyway, you help me a lot apreciate it :)
+T 1542993860 18<winem_18>	oh, thanks. I'm always happy to help 
+T 1542993911 18<winem_18>	yeah, it's almost 1 a.m. here. just wanted to push an update for my PR and I'm so close to haev it done, but I do stupid things... but how should I go to sleep when I know that I'm that close to the solution? :D 
+T 1542993955 18<winem_18>	maybe I'm not stupid and just found something fishy.. maybe a bug... let's see 
+T 1542993973 18*	winem_ goes back into his cave and cuddles with the sysctl module 
+T 1542994002 18<abyss18>	winem_: the same :D I can't leave it when I so close to finish this #@%^ playbook ;)
+T 1542994007 18<abyss18>	ok good luck :)
+T 1542994022 18<winem_18>	haha, thanks! 
+T 1542994048 18<winem_18>	but I run out of coke.. and somehow the guys in malaysia do not have that much gas stations... 
+T 1542994065 18<abyss18>	lol
+T 1542995325 18<memoryleak18>	Hi I'm using ansible 2.7 and whenever I seem to access a variable I get this error: "ERROR! failed to combine variables, expected dicts but got a 'dict' and a 'AnsibleSequence': 
+T 1542995325 18<memoryleak18>	{}
+T 1542995325 18<memoryleak18>	[{"debug": {"var": "ansible_distribution_version"}}]
+T 1542995325 18<memoryleak18>	ERROR: 
+T 1542995325 18<memoryleak18>	"
+T 1542995353 18<memoryleak18>	yaml piec looks like this: 
+T 1542995353 18<memoryleak18>	- debug:
+T 1542995353 18<memoryleak18>	    var: ansible_distribution_version
+T 1542995580 18<agaffney18>	can you show a gist/pastebin of the playbook and the full error output?
+T 1542995637 18<agaffney18>	that error sounds like you're trying to use a list with |combine()
+T 1542995926 18<winem_18>	I'm currently testing a super small change on the sysctl module which is actually just about the string formatting but I managed it twice now to create a kernel panic with OoM and no killable process after the first few keys were set. is there anything likely to create a leak? known pitfalls with a loop or something like that? 
+T 1542995985 18<winem_18>	mem = 4G 
+T 1542996057 18<winem_18>	ah it happens when I allow IPv4 forwarding 
+T 1542996071 18<winem_18>	but instant.. wtf..
+T 1542996146 18<memoryleak18>	agaffney, this is all of it https://www.irccloud.com/pastebin/036aB0ur/
+T 1542996370 18<memoryleak18>	agaffney: looks like something wrong with my ansible role
+T 1542996611 18<winem_18>	holy, that error was evil as stupid.. that would have killed each host... time to go to bed now 
+T 1542998964 18<cyrus_mc_18>	Trying to template a file on a Windows machine and the path is c:\Program Files\NewRelic\newrelic-infra\newrelic-infra.yml. It appears a path with - in it causes an issue with win_template as it errors with : Get-AnsibleParam: Parameter 'path' has an invalid path
+T 1542998988 18<cyrus_mc_18>	if I just set the path to c:\Program Files\NewRelic\infra.yml it works
+T 1542999054 18<cyrus_mc_18>	is there some sort of escaping that is needed? I tried \ and \\ before - but no go
+T 1542999642 18<cyrus_mc_18>	anyone provide any insight?
+T 1542999789 18<bradlane18>	put the whole path in quotes
+T 1542999978 18<cyrus_mc_18>	bradlane: already tried that
+T 1542999979 18<cyrus_mc_18>	same error
+T 1543000317 18<cyrus_mc_18>	Found the fix. I was using the following syntax win_template: src=... dest=... just switched to the multi line with src and dest on separate lines (so the full yaml syntax)
+T 1543000318 18<cyrus_mc_18>	that worked
+T 1543001463 18<gundalow18>	Any django users: https://github.com/ansible/ansible/pull/46544
+T 1543003055 18<gundalow18>	Reminder, on Thursday 29th Nov we are doing a big PR review session.  Even if you are new to contributing to Ansible this is a great opportunity to get involved! https://github.com/ansible/community/issues/407
+T 1543003064 18<gundalow18>	All you need is a bit of time and a GitHub account
+T 1543006564 18<mrproper18>	Is anyone available to verify https://github.com/ansible/ansible/issues/49030? You'll need a Digital Ocean account for validation.
+T 1543006600 18<mrproper18>	I've seen it on two separate installs personally.
+T 1543008500 18<geekodour0818>	is there any way to unarchive+rename the directory on the same directive?
+T 1543008518 18<geekodour0818>	using the unarchive module?
+T 1543008618 18<bcoca18>	ansible-doc unarchive
+T 1543009565 18<fine12118>	hi guys, I have the lists below:
+T 1543009576 18<fine12118>	- name: set fact list1
+T 1543009576 18<fine12118>	  set_fact:
+T 1543009576 18<fine12118>	    list1: [ ["alias1"], ["alias2","alias3","alias4"] ]
+T 1543009576 18<fine12118>	- name: set fact list2
+T 1543009578 18<fine12118>	  set_fact:
+T 1543009580 18<fine12118>	    list2: [ ["expires"], ["expires","ok","ok"] ]
+T 1543009589 18<fine12118>	what I want to achieve:
+T 1543009606 18<fine12118>	"dict_final": [
+T 1543009606 18<fine12118>	        {
+T 1543009606 18<fine12118>	            "result": {
+T 1543009606 18<fine12118>	                "alias": "alias1",
+T 1543009606 18<fine12118>	                "expiry": "expires"
+T 1543009608 18<fine12118>	            }
+T 1543009609 18<bcoca18>	pastebin/gist plesz
+T 1543009610 18<fine12118>	        },
+T 1543009612 18<fine12118>	        {
+T 1543009614 18<fine12118>	            "result": {
+T 1543009616 18<fine12118>	                "alias": "alias2",
+T 1543009618 18<fine12118>	                "expiry": "expires"
+T 1543009620 18<bcoca18>	dont post soo much here or you'll get kicked
+T 1543009620 18<fine12118>	            }
+T 1543009622 18<fine12118>	        },
+T 1543009624 18<fine12118>	        {
+T 1543009626 18<fine12118>	            "result": {
+T 1543009628 18<fine12118>	                "alias": "alias3",
+T 1543009629 18<bcoca18>	its also unreadable in many clients
+T 1543009630 18<fine12118>	                "expiry": "ok"
+T 1543009632 18<fine12118>	            }
+T 1543009634 18<fine12118>	        }  
+T 1543009638 18<fine12118>	    ]
+T 1543009640 18<fine12118>	alright will do
+T 1543009642 18<fine12118>	sorry
+T 1543009673 18<bcoca18>	also, bad day to ask questions most people are either out or about to be out
+T 1543009677 18<bcoca18>	day/time
+T 1543009951 18<fine12118>	okay thanks
+T 1543009955 18<fine12118>	https://pastebin.com/Lt02aBkP
+T 1543010642 18<centrex18>	Hello, I'm trying to create a playbook, that will install a package to a windows machine made to a dynamically specified host, since we'll be creating VMs for qa/testing purposes, and then shutting them down.  So for using something like win_package, I have to have the host configured in /etc/ansible/hosts ?  which isn't ideal, I'd rather specify the host via hostname through commandline/variabble
+T 1543010645 18<centrex18>	is such a thing possible?
+T 1543011023 18<bcoca18>	 -i 'hostname, '
+T 1543011272 18<centrex18>	playbooks take -i hostname?
+T 1543011398 18<centrex18>	I thought that was to specify the hostname defined in /etc/ansible/hosts
+T 1543011513 18<bcoca18>	no, playbooks dont take parameters, ansibile-playbook does
+T 1543011529 18<bcoca18>	no, that is the default, but you can have many diff inventory sources
+T 1543011563 18<centrex18>	so I do have to have an inventory source, I can't just specify a dns hostname?
+T 1543011598 18<bcoca18>	 -i 'dnsname,' <= that is an 'inventory source', comma separated string inline to command line qualifies as such
+T 1543011626 18<centrex18>	ah okay, thank you
+T 1543012502 18<greatgatsby18>	fine121 left?  (I don't display join/leave messages).   Oh well, here's my solution, flatten (with sum) and zip:  https://paste.pound-python.org/show/sRSBrHzvUwttK42MbDA3/

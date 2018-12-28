@@ -1,502 +1,548 @@
-T 1521068961 18<oo_miguel18>	opening a new window from surf does not spawn a new processes
-T 1521068962 18<antoyo18>	Hum, I started with this for my web browser but that way of doing things has a big flaw: cookies are not shared correctly between the different processes.
-T 1521068973 18<oo_miguel18>	but I can run surf from teh command line for example
-T 1521068988 18<oo_miguel18>	which creates a brand new ui process, as well es a process for the extnesion
-T 1521069029 18<oo_miguel18>	antoyo: oh ok
-T 1521069078 18<oo_miguel18>	so maybe I should "fix" surf and check if a ui porcess is running already and instruct it to open a new window...
-T 1521069107 18<antoyo18>	That's what I do (with abstract unix domain socket, but that only works on Linux).
-T 1521069137 18<oo_miguel18>	I guess I already invented some linux dependencies
-T 1521069171 18<oo_miguel18>	so it would not hurt using sockets (however I am happy with the fifo pipe)
-T 1521069235 18<oo_miguel18>	I can use it for the same purpose as well. My idea was to have seperate pipes for all ui processes
-T 1521069259 18<oo_miguel18>	but probably sticking to one singe ui process will be better, as you pointed out
-T 1521069284 18<antoyo18>	That brings other issues though, specially if your process model is M-N like in my case.
-T 1521069324 18<oo_miguel18>	I have to admit I do not know what the process model is by now :P
-T 1521069331 18<oo_miguel18>	I thought its simply 1:1
-T 1521069355 18<antoyo18>	Check if there's a call to webkit_web_context_set_process_model
-T 1521069356 18<oo_miguel18>	one process for the ui and one process for the extension
-T 1521069372 18<oo_miguel18>	WEBKIT_PROCESS_MODEL_MULTIPLE_SECONDARY_PROCESSES
-T 1521069433 18<antoyo18>	And is there a call to webkit_web_context_set_web_process_count_limit?
-T 1521069459 18<oo_miguel18>	nope
-T 1521069473 18<antoyo18>	Ok, so it looks 1:1. This is simpler than M:N.
-T 1521069494 18<oo_miguel18>	why do you use M:N ?
-T 1521069506 18<antoyo18>	To avoid having 100 processes if I have 100 windows/tabs.
-T 1521069513 18<antoyo18>	(so to save memory)
-T 1521069513 18<oo_miguel18>	allright
-T 1521069528 18<antoyo18>	Like the new Firefox is doing.
-T 1521069590 18<oo_miguel18>	I will stick to 1:1 and switch to M:N (including extra headaches) when I run into troubles
-T 1521069606 18<antoyo18>	Good idea.
-T 1521069730 18<oo_miguel18>	so in your "main" you first check if your browser is already running , in wich case you send it a "message" (through the socket) to spawn a new window?
-T 1521070069 18<antoyo18>	Yes and I can do it easily since I use abstract (named) UDS, because I cannot listen twice on the same name.
-T 1521070102 18<oo_miguel18>	ah good idea
-T 1521084319 18<j_v18>	I've run into a issue building the 2.20.0 release that only seems to be triggered when using '-j 1'
-T 1521084531 18<j_v18>	I was thinking of doing a git bisect, so I cloned the webkit repo. I was hoping someone could point me to the git commits or svn revisions for the last too stable releases, so I could have some kind of starting points.
-T 1521092610 18<j_v18>	I've come up with the following simple patch that fixes building with '-j 1' for 2.20.0 release, based on upstream r229282 (add_dependencies portion): http://ix.io/Xj1
-T 1521101021 18<tpopela18>	j_v: please open a bug in bugzilla with the error you are getting and attach the patch there (please follow https://webkit.org/contributing-code/ )
-T 1521101323 18<j_v18>	tpopela: it's already fixed in scm at revision 229282. my point is that single threaded builds on the 2.20.0 release are broken without the change
-T 1521101460 18<j_v18>	not a big deal, I'm sure there's not too many people like me who build single threaded by default
-T 1521104187 18<convert18>	is it just my libsoup, or is it a general error of all libsoups when connecting to https://lists.nongnu.org/
-T 1521104200 18<convert18>	I'm on 2.60 btw
-T 1521104250 18<convert18>	I get a Error performing TLS handshake: error:00000001:lib(0):func(0):reason(1)
-T 1521104966 18<convert18>	oh I forgot, i want to make the WebKitCache size configurable - user specified Mb, there seems to be a way to do this already: In NetworkProcess.cpp you have m_diskCacheSizeOverride = parameters.diskCacheSizeOverride;
-T 1521105008 18<convert18>	but where would I be initializing parameters passed to the NetworkProcess?
-T 1521105473 18<convert18>	so i should follow how mimic how webkit_web_context_set_cache_model() works to add a new option to WebKitWebContext  for this?
-T 1521121344 20*	Disconnected (20Invalid argument)
-T 1521121367 19*	Now talking on 22#webkitgtk+
-T 1521121367 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521121367 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521123507 20*	Disconnected (20Remote host closed socket)
-T 1521123532 19*	Now talking on 22#webkitgtk+
-T 1521123532 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521123532 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521126621 18<convert18>	the save to file in the inspector is a dud isnt it
-T 1521126643 18<convert18>	resources -> rightclick -> savefile
-T 1521126662 18<MonkeyofDoom18>	I think I've seen a number of actions in the inspector that do nothing
-T 1521142251 18<oo_miguel18>	Is the WebKitDOMHTMLCOllection returned by webkit_dom_document_get_links on a WebKitDomHTMLDocument not supposed to contain WebKitDOMHTMLLinkElements?
-T 1521142386 18<oo_miguel18>	It seems to contain WebKitDOMHTMLElements in my case that indeed contain <a href=..../>
-T 1521142402 18<oo_miguel18>	but they are not exposed as ..LinkElements for some reason
-T 1521142414 18<antoyo18>	oo_miguel: You might need to downcast them.
-T 1521142480 18<oo_miguel18>	I upcast them from NodeElements
-T 1521142598 18<antoyo18>	I'm not sure but it's possible that webkit_dom_document_get_links() returns actually the <link/> elements of thep age.
-T 1521142647 18<antoyo18>	Ah no, it's the <area> and <a> with href elements.
-T 1521142658 18<oo_miguel18>	I get the <a> elements
-T 1521142660 18<oo_miguel18>	but
-T 1521142680 18<oo_miguel18>	 WebKitDOMHTMLLinkElement * node = webkit_dom_html_collection_item (links,i);
-T 1521142682 18<oo_miguel18>	 char *link = webkit_dom_html_link_element_get_href (node);
-T 1521142696 18<oo_miguel18>	results in a runtime error
-T 1521142703 18<oo_miguel18>	assertion 'WEBKIT_DOM_IS_HTML_LINK_ELEMENT(self)' failed
-T 1521142826 18<antoyo18>	Ah, I think I know why.
-T 1521142869 18<antoyo18>	You want to use this function instead: https://webkitgtk.org/reference/webkitdomgtk/stable/WebKitDOMHTMLAnchorElement.html#webkit-dom-html-anchor-element-get-href
-T 1521142885 18<antoyo18>	LinkElement is <link/> and AnchorElement is <a/>.
-T 1521142900 18<oo_miguel18>	ouch
-T 1521142908 18<oo_miguel18>	makes perfectly sense. thank you !
-T 1521142915 18<antoyo18>	You're welcome.
-T 1521142959 18<antoyo18>	Also, since the doc of webkit2gtk is not detailed, I suggest you use MDN (it's a JavaScript doc, but the names are very simalar).
-T 1521142992 18<oo_miguel18>	ok, I will have a look at this one
-T 1521143059 18<antoyo18>	For instance, you have https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement and https://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
-T 1521143403 18<oo_miguel18>	it works perfectly with the Anchor element :)
-T 1521206378 19*	Now talking on 22#webkitgtk+
-T 1521206378 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521206378 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521469299 19*	Now talking on 22#webkitgtk+
-T 1521469299 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521469299 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521498331 20*	Disconnected (20Connection timed out)
-T 1521551066 19*	Now talking on 22#webkitgtk+
-T 1521551066 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521551066 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521587187 20*	Disconnected (20Connection timed out)
-T 1521588853 19*	Now talking on 22#webkitgtk+
-T 1521588853 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521588853 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521597024 18<convert18>	did something change about reload without bypass? the request is always passing in a WebCore::ReloadIgnoringCacheData
-T 1521597857 18<convert18>	indeed. 4833ac59d
-T 1521597915 18<convert18>	nevermind its just wrong behaviour
-T 1521597963 18<convert18>	the webkit commits have too much noise
-T 1521597966 18<convert18>	to be useful
-T 1521597971 18<convert18>	all those uuids
-T 1521598041 18<convert18>	"See rdar://problem/37778785 for website being broken"
-T 1521598044 18<convert18>	how to see rdar??
-T 1521598195 18<convert18>	and creating additional bug reports "RESOLVED FIXED" when the original report is also "RESOLVED FIXED" except it wasnt resolved or fixed at all!
-T 1521598203 18<convert18>	nonsense!
-T 1521598238 18<convert18>	service workers nonsense!
-T 1521598550 18<convert18>	actually i dont understand
-T 1521598562 18<convert18>	it shouldn't be setting reloadignorecache at all
-T 1521598572 18<convert18>	because you are NOT bypassing cache
-T 1521599081 18<convert18>	but it looks like it was always this way from day 1
-T 1521599104 18<convert18>	Source/WebCore/loader/FrameLoader.cpp: reload
-T 1521599662 18<convert18>	so i guess i caught the off-behaviour when the release had RefreshAnyCacheData
-T 1521599670 18<convert18>	which was then reverted
-T 1521599726 18<convert18>	but when you have a webkit_web_view_reload_bypass_cache, i don't see why webkit_web_view_reload should just not use the cache
-T 1521600067 18<convert18>	and the scrollbar behaviour is really screwed up, there is no way to get non-proportional scaling is there? so a click in the scrollbar area only scrolls by one page?
-T 1521600079 18<convert18>	this really screws up devhelp and makes it unusable
-T 1521600155 18<convert18>	by "non-proportional scaling" i meant  gtk-primary-button-warps-slider = FALSE
-T 1521602058 18<convert18>	its not getting set at Frameloader.cpp reload  anyway
-T 1521602381 18<convert18>	well it is, but it it gets overridden later
-T 1521602942 18<convert18>	in  addExtraFieldsToMainResourceRequest
-T 1521620110 18<converts18>	i think webkit_web_view_reload_bypass_cache is a crock, it only worked because Frameloader::reload was unconditionally bypassing cache
-T 1521620152 18<converts18>	Now if Frameloader::reload did check for FromOrigin, and *then* ignored cache, that would make sense
-T 1521620317 18<converts18>	I'm having another problem, which I havent noticed before 2.19.92 - rendering google's <div style="blocked"> works on and off
-T 1521620330 18<converts18>	usually a reload would show it but that meant an extra network fetch
-T 1521620338 18<converts18>	it should show it without any network fetch
-T 1521637065 20*	Disconnected (20Connection timed out)
-T 1521637088 19*	Now talking on 22#webkitgtk+
-T 1521637088 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521637088 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521639957 18<TmRocha18>	How can i know which version of webkitgtk match with webkit?
-T 1521639985 18<TmRocha18>	i mean, how do i know that 2.12 (gtk+) match 601 (webkit)?
-T 1521639992 18<annulen18>	number like 601 makes sense only in apple branches
-T 1521640011 18<annulen18>	e.g. safari-601-branch
-T 1521640027 18<annulen18>	it makes no sense outside
-T 1521640087 18<annulen18>	webkit doesn't have versions independent from particular ports
-T 1521640108 18<TmRocha18>	ok...but they (apple) are somewhere are using the same version of gtk+
-T 1521640175 18<annulen18>	apple's branches have different starting points in trunk then gtk's
-T 1521640192 18<annulen18>	and then branches diverge even more because of backporting
-T 1521640366 18<TmRocha18>	Ok, I though that i could have and it will easy to match the same version that apple is using in safariN for gtk+ run in linux
-T 1521640514 18<annulen18>	you can have very tentative idea by looking at user-agent string
-T 1521640577 18<annulen18>	but if it has same number (e.g. 601) it doesn't mean it has the same features as Safari 9
-T 1521640760 18<TmRocha18>	this is part of my browser's user agent "AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36" I was reading AppleWebKit instead of Safari
-T 1521640764 18<TmRocha18>	but they are the same in this case
-T 1521640799 18<TmRocha18>	and how do i find a similar version of gtk+?
-T 1521640924 18<annulen18>	it's somewhere around 2.2
-T 1521640931 18<annulen18>	2013 year
-T 1521641052 18<TmRocha18>	ok, I must try to follow the year. Thanks :)
-T 1521670025 20*	Disconnected (20Connection timed out)
-T 1521670054 19*	Now talking on 22#webkitgtk+
-T 1521670054 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521670054 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521680645 20*	Disconnected (20Connection timed out)
-T 1521680671 19*	Now talking on 22#webkitgtk+
-T 1521680671 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521680671 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521726318 20*	Disconnected (20Connection timed out)
-T 1521726343 19*	Now talking on 22#webkitgtk+
-T 1521726343 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521726343 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:27:00 2018)
-T 1521762556 20*	Disconnected (20Connection timed out)
-T 1521762579 19*	Now talking on 22#webkitgtk+
-T 1521762579 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521762579 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521817436 19*	Now talking on 22#webkitgtk+
-T 1521817436 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521817436 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521914927 20*	Disconnected (20Connection timed out)
-T 1521914952 19*	Now talking on 22#webkitgtk+
-T 1521914952 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521914952 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1521949079 20*	Disconnected (20Connection timed out)
-T 1521983381 19*	Now talking on 22#webkitgtk+
-T 1521983381 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1521983381 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522010728 20*	Disconnected (20Connection timed out)
-T 1522010752 19*	Now talking on 22#webkitgtk+
-T 1522010752 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522010752 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522022140 20*	Disconnected (20Connection timed out)
-T 1522022166 19*	Now talking on 22#webkitgtk+
-T 1522022166 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522022166 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522029416 18<convert18>	i guess i didnt test 2.19.92 or 2.20.0 fully on the ubuntu-14.04 box with gtk glib from ubuntu. I get a double free corruption apparently  from within libwebkitgtk2
-T 1522030420 18<convert18>	webkitgtk/build/lib/libwebkit2gtk-4.0.so.37(_ZN6WebKit17InputMethodFilter19handleKeyboardEventEP12_GdkEventKeyRKN3WTF6StringENS0_24EventFakedForCompositionE+0x6a)[0x7ffff403f94a]
-T 1522030444 18<convert18>	thats some libXi related stuff yes?
-T 1522030579 18<convert18>	sigh
-T 1522030703 18<convert18>	oh not ubuntu 14.04, ubuntu 16.04
-T 1522032043 18<convert18>	commit  e47a0024bd465 adds gst.h functions to MiniBrowser/main.c without checking if gst is available
-T 1522032220 18<convert18>	I'm stumped by this double free error
-T 1522032250 18<convert18>	the ubuntu box apparently ships webkit 2.18.6 installed, that runs fine
-T 1522032433 18<convert18>	unfortunately i deleted the earlier pre-feb 20 build which i thought worked
-T 1522033831 18<convert18>	i guess its time to bite the bullet and go back to firefox
-T 1522034290 18<convert18>	with minibrowser i'm getting a different stacktrace:
-T 1522038524 20*	Disconnected (20Connection timed out)
-T 1522071658 19*	Now talking on 22#webkitgtk+
-T 1522071658 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522071658 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:27:00 2018)
-T 1522072474 18<tpopela18>	KaL: I think that you should look at that problem as my clean build didn't finished yet :/.. I don't know why ninja is spawing only 1 compiler job and the unified sources are anyway "broken - slow" for me..
-T 1522072517 18<KaL18>	tpopela: please file a bug report with info about how to reproduce it
-T 1522072552 18<tpopela18>	it's a matter of installing xreader and running xreader some.pdf
-T 1522072558 18<tpopela18>	but I will create a bug..
-T 1522072561 18<tpopela18>	KaL: ^
-T 1522073019 18<tpopela18>	KaL: https://bugs.webkit.org/show_bug.cgi?id=184006
-T 1522104501 20*	Disconnected (20Connection timed out)
-T 1522104526 19*	Now talking on 22#webkitgtk+
-T 1522104526 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522104526 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522109170 20*	Disconnected (20Connection timed out)
-T 1522111667 19*	Now talking on 22#webkitgtk+
-T 1522111667 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522111667 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522117632 20*	Disconnected (20Connection timed out)
-T 1522156592 19*	Now talking on 22#webkitgtk+
-T 1522156592 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522156592 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522172433 18<h3118>	Hello. Are there any ways to allow "window.close()" to work in the WebKitGTK+ browser?
-T 1522352200 19*	Now talking on 22#webkitgtk+
-T 1522352200 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522352200 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522677327 19*	Now talking on 22#webkitgtk+
-T 1522677327 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522677327 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522846628 19*	Now talking on 22#webkitgtk+
-T 1522846628 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1522846628 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1522939378 18<xjuan18>	hello guys, is anyone interested in embedding Gtk widgets in a WebView?
-T 1522939408 18<xjuan18>	I been working on it for a past few weeks
-T 1522939420 18<xjuan18>	and this is what I have come up with
-T 1522939421 18<xjuan18>	https://github.com/endlessm/maxwell
-T 1522939476 18<xjuan18>	now I am wondering if this is something interesting to add upstream
-T 1523281307 19*	Now talking on 22#webkitgtk+
-T 1523281307 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523281307 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1523285071 19*	Now talking on 22#webkitgtk+
-T 1523285071 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523285071 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1523292537 20*	Disconnected (20Connection timed out)
-T 1523293323 19*	Now talking on 22#webkitgtk+
-T 1523293323 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523293323 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1523304419 19*	Now talking on 22#webkitgtk+
-T 1523304419 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.0, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523304419 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.18.182 (24Mon Mar 12 06:26:56 2018)
-T 1523366235 19*	Now talking on 22#webkitgtk+
-T 1523366235 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523366235 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523393604 19*	Now talking on 22#webkitgtk+
-T 1523393604 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523393604 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523457960 19*	Now talking on 22#webkitgtk+
-T 1523457960 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523457960 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523462224 18<converts18>	hmm i thought i fixed this before
-T 1523462697 18<converts18>	if i load a file:///dev/shm/tmp/index.html uri through webkit_web_view_load_uri and then loaded page contains a link <a href="../1.html">1</a>, then clicking on the link doesn't work, it gives a "CONSOLE ERROR Not allowed to load local resource" at FrameLoader::loadFrameRequest
-T 1523462718 18<converts18>	the actual condition which fails is request.requesterSecurityOrigin().canDisplay(url)
-T 1523462744 18<converts18>	But If I access the file as file:///dev/shm/tmp//index.html then the access is permitted
-T 1523462806 18<converts18>	clicking on generated directory indices adds the doubleslash automatically, so that works, i.e. if i first open file:///dev/shm/tmp then click on index.html then click on the link ../1.html
-T 1523462912 18<annulen18>	is "AllowUniversalAccessFromFileURLs" enabled?
-T 1523462969 18<annulen18>	err, AllowFileAccessFromFileURLs
-T 1523462979 18<converts18>	wait what i posted is not quite right
-T 1523463004 18<converts18>	i have an example which fails, but let me reproduce that
-T 1523463188 18<converts18>	my sentence about directory indices is wrong. of course
-T 1523463238 18<converts18>	i.e. it  in the case that 1) index.html is accessed from the directory index page, 2) accessing ../1.html works without an error.
-T 1523463261 18<converts18>	the setting allow-file-access-from-file-urls is true
-T 1523463284 18<converts18>	allow-universal-access-from-file-urls is false
-T 1523463332 18<converts18>	i feel pretty sure i've asked about this before and i thought i resolved it too
-T 1523463899 18<annulen18>	so, what case does not work?
-T 1523464117 18<converts18>	loading "index.html" through webkit_web_view_load_uri and clicking a link to ../readme.html" (say)
-T 1523465361 18<brrian18>	I wish I was awake when KaL was awake :(
-T 1523466646 18<annulen18>	brrian: that's not hard, just keep working at night :)
-T 1523466933 18<brrian18>	annulen: yeah, I wish.
-T 1523467628 18<annulen18>	https://leanpub.com/nightowls/read#leanpub-auto-do-programmers-work-at-night
-T 1523468127 18<converts18>	ok i think there are two bugs
-T 1523468177 18<converts18>	first,  I think allow-file-access-from-file-urls = true, should allow access to a ../file.html link
-T 1523468194 18<converts18>	if allow-universal-access-from-file-urls = true that is allowed
-T 1523468259 18<converts18>	second there is a bug with the directory indices: if you have /dev/shm/tmp/page.html (and NO /dev/shm/page.html,) and /dev/shm/index.html has a link to ../page.html --- then loading "file:///dev/shm/tmp/" then clicking index.html and then clicking the link loads /dev/shm/tmp/page.html (!) ---  not /dev/shm/page.html (which does not exist)
-T 1523469103 18<converts18>	it is actually a deeper problem
-T 1523469137 18<converts18>	if the uri is "file:///dev/shm/tmp//index.html" then a relative ../page.html gets resolved as ./page.html
-T 1523469170 18<converts18>	which is what i said when i started blogging about this here ..^^
-T 1523469235 18<converts18>	security durrrrr origin
-T 1523538979 19*	Now talking on 22#webkitgtk+
-T 1523538979 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523538979 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:40 2018)
-T 1523556237 19*	Now talking on 22#webkitgtk+
-T 1523556237 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523556237 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523613198 18<converts18>	i'm seeing odd timing issues (with user javascripts that run on WEBKIT_LOAD_FINISHED)  an issue with google uses a display:none css.
-T 1523613269 18<converts18>	In the second issue, I get a blank page rendered, which renders correctly if the contents is reloaded with webkit_web_view_load_bytes
-T 1523613300 18<converts18>	google actually sends a http-equiv meta to reload the page with tracking, so you wont actually see this page with your webkit
-T 1523613403 18<converts18>	this is a calculated scam, i remember fb used to reload the same page with a metrefresh directive if you didnt have js and clicked on a page and left it for an hour, it would download a GB of useless data redownloading the same page
-T 1523613477 18<converts18>	the fact that google and apple put out a browser where the http meta directives cannot be disabled is a racket!
-T 1523887491 19*	Now talking on 22#webkitgtk+
-T 1523887491 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523887491 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523891673 20*	Disconnected (20Connection timed out)
-T 1523891702 19*	Now talking on 22#webkitgtk+
-T 1523891702 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523891702 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523902682 20*	Disconnected (20Connection timed out)
-T 1523902706 19*	Now talking on 22#webkitgtk+
-T 1523902706 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523902706 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523907222 18<AmarOk18>	Hei!
-T 1523907267 18<AmarOk18>	With webkitgtk+ I load a webpage which is trying to load local files
-T 1523907291 18<AmarOk18>	It works perfectly... unless there is an accented character in the path
-T 1523907323 18<AmarOk18>	like Tél/image.jpg
-T 1523907338 18<AmarOk18>	but Tel/image.jpg is working
-T 1523907354 18<AmarOk18>	<html>
-T 1523907356 18<AmarOk18>	<head>
-T 1523907358 18<AmarOk18>	  <meta charset=“utf-8”>
-T 1523907360 18<AmarOk18>	</head>
-T 1523907362 18<AmarOk18>	<body>
-T 1523907364 18<AmarOk18>	<img src="file:///home/AmarOk/T%C3%A9l/t7d4.jpg"><!-- NOT OK But file exists (works on firefox)-->
-T 1523907366 18<AmarOk18>	<img src="https://enconn.fr/T%C3%A9l/t7d4.jpg"><!-- OK -->
-T 1523907368 18<AmarOk18>	<img src="file:///home/AmarOk/Downloads/1.png"><!-- OK and file exists-->
-T 1523907370 18<AmarOk18>	</body>
-T 1523907372 18<AmarOk18>	</html>
-T 1523907374 18<AmarOk18>	Any idea ?
-T 1523980120 19*	Now talking on 22#webkitgtk+
-T 1523980120 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523980120 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1523997365 19*	Now talking on 22#webkitgtk+
-T 1523997365 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.19.92 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1523997365 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Tue Apr 10 05:10:36 2018)
-T 1524060173 19*	Now talking on 22#webkitgtk+
-T 1524060173 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524060173 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524060395 20<lufimtse>30	What's the difference between a webView handle and webcontext? I'm struggling to figure out the difference
-T 1524060826 20<lufimtse>30	like when would you have more than 1 webcontext?
-T 1524061031 18<xjuan18>	to implement private browsing maybe?
-T 1524061728 18<converts18>	"WebKitWebContext   Manages aspects common to all WebKitWebViews"
-T 1524061751 20<lufimtse>30	xjuan, thank you
-T 1524061752 20<lufimtse>30	I see
-T 1524061768 20<lufimtse>30	converts, thank you, I read the docus. I was more curious as to what it's purpose was
-T 1524061776 20<lufimtse>30	compared to just having it being part of webview
-T 1524061784 20<lufimtse>30	private browsing seems to make sense
-T 1524061812 18<converts18>	i dont think there is a way to create a new web context is there
-T 1524061833 18<converts18>	there is only one webcontext for all web views: you get it with webkit_web_view_get_context
-T 1524061855 18<converts18>	oh no i was wrong webkit_web_context_new
-T 1524062124 18<converts18>	webkit_website_data_manager_new has some cryptic text: the second sentence of "Creates a new WebKitWebsiteDataManager with the given options. It must be passed as construction parameter of a WebKitWebContext."
-T 1524062151 20<lufimtse>30	converts, I see
-T 1524062163 20<lufimtse>30	converts, I looked around, it seems we can get by with single context
-T 1524062169 converts calvaris ceyusa ChanServ clee clopez Company compnerd 
-T 1524062184 18<converts18>	(i meant i dont understand the text for data_manager_new - i think it is wrong)
-T 1524062215 20<lufimtse>30	converts, I'm confused also :-), but can work with a single context
-T 1524062674 19<xjuan>	lufimtse, converts if you want to specify your own data manager then you have to use webkit_web_context_new_with_website_data_manager() to create the context
-T 1524062690 18<xjuan18>	because context:website-data-manager property is construct only
-T 1524062698 20<lufimtse>30	xjuan, ah ok, thank you
-T 1524062705 18<xjuan18>	which means you can not change it after the object is created
-T 1524062853 18<converts18>	i never looked at the datamanager before, i should see what it does
-T 1524062899 18<converts18>	i though you could not have per-website cookie policies, maybe it is possible by having one datamanager per website and one webcontext per website
-T 1524062949 18<converts18>	one more slimy thing about webkit is even if you have cookie accept policy to not accept any cookies, any existing cookies in your cookie file still gets sent on a POST or GET
-T 1524063166 18<converts18>	well that idea wouldnt work, because web-context property of the WebKitWebView also seems to be construct only
-T 1524146492 19*	Now talking on 22#webkitgtk+
-T 1524146492 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524146492 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524176433 18<MonkeyofDoom18>	can someone explain why the existence of an *overridden* CSS rule for background-size changes button rendering from native (GTK) to HTML in a way that other CSS rules can't revert?
-T 1524176516 18<MonkeyofDoom18>	I have a minimal example document which should be enough to provoke confusion given basic CSS knowledge: https://pastebin.com/3wqTsmXB
-T 1524242464 19*	Now talking on 22#webkitgtk+
-T 1524242464 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524242464 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524495629 19*	Now talking on 22#webkitgtk+
-T 1524495629 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524495629 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:32 2018)
-T 1524564646 18<tpopela18>	KaL: zdobersek Hi guys, does this looks familiar to you? https://paste.fedoraproject.org/paste/FQ4AGY~L4GyCg9o0pPCiMA/raw - it's a WebCore::GLContext::version (this=0x0) crash
-T 1524564674 18<KaL18>	tpopela: yes, it's already reported
-T 1524564705 18<tpopela18>	KaL: nice.. do you remember a bug number?
-T 1524564742 18<KaL18>	https://bugs.webkit.org/show_bug.cgi?id=184040
-T 1524564744 18<KaL18>	tpopela: ^
-T 1524564773 18<tpopela18>	KaL: thank you Carlos!
-T 1524566210 18<tpopela18>	KaL: btw there are some compiler warnings in Source/JavaScriptCore/API/glib - https://paste.fedoraproject.org/paste/7Z66GZUYW9PLzhxI4CMhjA
-T 1524566253 18<KaL18>	tpopela: weird, not here
-T 1524566296 18<tpopela18>	and more https://paste.fedoraproject.org/paste/MMwupP-AaDfSrh8eWA25ow
-T 1524566310 18<tpopela18>	all related to _WEBKIT_DEFINE_TYPE_EXTENDED
-T 1524566327 18<KaL18>	but that's also used in WebKit API
-T 1524566518 18<tpopela18>	on ARM I can't even get to the point where I'm able to compile WebKit API.. I'm not able to compile even the JSC there :)
-T 1524566545 18<tpopela18>	on 2.21.1..
-T 1524566570 18<tpopela18>	berto: is 2.21.1 on ARM building fine in Debian?
-T 1524566761 18<berto18>	tpopela: I think so, let me see
-T 1524566769 18<berto18>	armhf is still missing, armel and arm64 build fine
-T 1524566821 18<berto18>	there's however https://bugs.webkit.org/show_bug.cgi?id=182622
-T 1524566953 18<tpopela18>	berto: for armhf I'm hitting https://bugs.webkit.org/show_bug.cgi?id=184730
-T 1524567012 18<berto18>	ok...
-T 1524567027 18<berto18>	ah, armhf hasn't been built yet
-T 1524567029 18<berto18>	in debian
-T 1524567099 18<tpopela18>	berto: let me know if you hit it there as well..
-T 1524567107 18<berto18>	ok
-T 1524567116 18<berto18>	tpopela: are you having problems with atomics in some arches?
-T 1524567131 18<tpopela18>	berto: no, we don't..
-T 1524577532 18<xjuan18>	hello, does anyone know if there is a replacement for webkitPutImageDataHD() ?
-T 1524577542 18<xjuan18>	it was removed in https://bugs.webkit.org/show_bug.cgi?id=180387
-T 1524577582 18<annulen18>	putImageData
-T 1524577595 18<xjuan18>	the patch implies that its not needed because the backing store is always 1x
-T 1524577630 18<annulen18>	"HD" suffix made no sense because backing store is always 1x
-T 1524577635 18<annulen18>	for many years
-T 1524577642 18<xjuan18>	annulen, yeah I know, but I want something that can actually set an image at the same resolution as the screen
-T 1524577673 18<xjuan18>	hmm really?
-T 1524577707 18<annulen18>	get window.devicePixelRatio
-T 1524577719 18<annulen18>	and make your canvas n times larger
-T 1524577731 18<xjuan18>	so, there is no way to show a hi res image on a canvas in a hidpi display?
-T 1524577745 18<annulen18>	canvas backing store is 1x
-T 1524577785 18<annulen18>	I guess you can e.g. make 2x canvas and zoom it down
-T 1524577864 18<xjuan18>	well yeah I tried using transform: scale() translate()
-T 1524577870 18<xjuan18>	looks fine
-T 1524577887 18<xjuan18>	but the actual size of the canvas is still 2x
-T 1524577898 18<annulen18>	yep
-T 1524577932 18<annulen18>	that's correct
-T 1524577934 18<xjuan18>	but I do not want it to take more space than it should
-T 1524577989 18<annulen18>	if you scale it down, how does it take more space?
-T 1524578030 18<xjuan18>	well it does not take more space, I mean it does not takes less space
-T 1524578095 18<xjuan18>	if that makes any sense
-T 1524578126 18<xjuan18>	say I have a 128x128 pixel image I want to show in a HiDPI display
-T 1524578177 18<annulen18>	you make 128x128 canvas and scale it down by 0.5 on each dimension
-T 1524578208 18<xjuan18>	right
-T 1524578239 18<xjuan18>	but the element still takes 128x128 space
-T 1524578295 18<xjuan18>	and I would like it to take 64x64
-T 1524578377 18<annulen18>	it doesn't seem to be the case
-T 1524578401 18<annulen18>	when I apply zoom: 50% element shrinks its layout size
-T 1524578414 18<xjuan18>	example https://paste.fedoraproject.org/paste/hzUIV~OneLdnIUZoluzXzA
-T 1524578424 18<xjuan18>	ohh zoom, I never used that one
-T 1524578435 18<xjuan18>	I was using transform: scale(0.5, 0.5);
-T 1524578482 18<annulen18>	indeed, scale leaves space
-T 1524578684 18<xjuan18>	ok, well... as long as zoom exist, it will work great
-T 1524578801 18<xjuan18>	annulen, thanks for your help
-T 1524578849 18<xjuan18>	now I can embed HiDPI Gtk widgets in webkit :D
-T 1524578980 18<Ms2ger18>	You can probably use <canvas width=128 style="width:64px;">
-T 1524579044 18<annulen18>	whoa
-T 1524579184 18<xjuan18>	annulen, https://github.com/endlessm/maxwell
-T 1524579228 18<xjuan18>	Ms2ger, yeah I guess that would be the same as using zoom, but I want to use width:100% on the canvas
-T 1524579940 18<annulen18>	xjuan: how does event processing work for widget image?
-T 1524580039 18<xjuan18>	I put every child widget in an offscreen window
-T 1524580062 18<annulen18>	ok, but how do you deliver clicks to them?
-T 1524580072 18<xjuan18>	then I update the position an size from the DOM using getBoundingClientRect()
-T 1524580115 18<xjuan18>	and use pick-embedded-child signal to choose the corresponding child
-T 1524580152 18<xjuan18>	its all done by Gdk, its how offscreen widgets work
-T 1524580180 18<xjuan18>	the parent decide if the event belongs to the widget in pick-embedded-child
-T 1524582203 19*	Now talking on 22#webkitgtk+
-T 1524582203 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524582203 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524589144 19*	Now talking on 22#webkitgtk+
-T 1524589144 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524589144 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524589926 18<xjuan18>	annulen, btw seems like zoom breaks getBoundingClientRect()
-T 1524589927 18<xjuan18>	:(
-T 1524590074 18<annulen18>	you can also use absolute positioning + scale()
-T 1524590293 18<xjuan18>	ohh instead of zoom
-T 1524590683 19*	Now talking on 22#webkitgtk+
-T 1524590683 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524590683 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524591428 19*	Now talking on 22#webkitgtk+
-T 1524591428 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524591428 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:32 2018)
-T 1524592185 19*	Now talking on 22#webkitgtk+
-T 1524592185 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524592185 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524749008 19*	Now talking on 22#webkitgtk+
-T 1524749008 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524749008 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524758652 18<mrarm18>	Hello. Is there a way to wait for the page to fully load?
-T 1524758671 18<mrarm18>	including images/resources, so it can be fully rendered before showing it
-T 1524768018 18<xjuan18>	annulen, hi, so I found out that getBoundingClientrect() divides x and y by zoom instead of width and height
-T 1524768027 18<xjuan18>	I filed https://bugs.webkit.org/show_bug.cgi?id=185034
-T 1524768426 18<annulen18>	huh
-T 1524768692 18<annulen18>	xjuan: are you planning to make patch?
-T 1524768925 18<xjuan18>	heh well, i tried to use gdb to break on Element::getBoundingClientRect() with no luck
-T 1524768953 18<xjuan18>	and I do not see any obvious error in the code
-T 1524773593 FiSHLiM plugin unloaded
-T 1524775608 19*	Now talking on 22#webkitgtk+
-T 1524775608 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524775608 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524797474 18<DaemonFC18>	Hi everyone. I noticed that sites like Facebook take a lot of CPU time on WebktiGTK browsers and they don't on Firefox and Chrome. Does anyone know why that is?
-T 1524808080 18<tpopela18>	mrarm: see https://bugs.webkit.org/show_bug.cgi?id=164180
-T 1524814546 18<mrarm18>	so basically no way currently?
-T 1524814578 18<mrarm18>	hmm, I guess I could try to implement it somehow but I'm not sure what'd the API be supposed to look like
-T 1524815680 18<mrarm18>	for the first proposition from that issue: I am not sure if exposing a new state is a good idea - it breaks the abi
-T 1524815696 18<mrarm18>	I hope I haven't duplicated any messages
-T 1524815716 18<mrarm18>	I am on a really bad connection
-T 1524815784 18<mrarm18>	but then, perhaps a layout state should be created
-T 1524839738 19*	Now talking on 22#webkitgtk+
-T 1524839738 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524839738 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1524857598 19*	Now talking on 22#webkitgtk+
-T 1524857598 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1524857598 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1525101029 19*	Now talking on 22#webkitgtk+
-T 1525101029 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1525101029 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1525198442 19*	Now talking on 22#webkitgtk+
-T 1525198442 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1525198442 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1525288154 19*	Now talking on 22#webkitgtk+
-T 1525288154 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1525288154 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
-T 1525347932 18<aperezdc18>	So, there's this one thing I've been wondering about...
-T 1525347960 18<aperezdc18>	Is there any good reason why the detached inspector window in WebKitGTK+ has the always-on-top flag set?
-T 1525348047 18<aperezdc18>	on a small screen (let's say, laptop size) it's rather annoying because the inspector window will always cover the Epiphany window, for example when one wants to go and scroll around the webpage while still keeping the inspector open
-T 1525348068 18<aperezdc18>	both Firefox and Chromium allow their detached inspector windows to be below the browser window
-T 1525348117 18<aperezdc18>	and this seems to be something inside WebKitGTK+, because I see the same behaviour with MiniBrowser
-T 1525354633 18<KaL18>	aperezdc: there isn't
-T 1525354729 18<aperezdc18>	KaL: right... maybe I'll look into making a patch for  that later on, then
-T 1525354749 18<aperezdc18>	I think if some particular application really wants to make the window always-on-top, it could be done in the application itself
-T 1525354770 18<aperezdc18>	(the windows = detached inspector window)
-T 1525370750 18<xjuan18>	Source/WTF/wtf/Expected.h:576:101: error: binding reference of type ‘std::experimental::fundamentals_v3::unexpected_t&’ to ‘const std::experimental::fundamentals_v3::unexpected_t’ discards qualifiers
-T 1525370763 18<xjuan18>	has anyone seen this kind of error building master?
-T 1525446573 19*	Now talking on 22#webkitgtk+
-T 1525446573 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.1, unstable: 2.21.1 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
-T 1525446573 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.55.27.0.81.ibercom.com (24Wed Apr 18 05:00:28 2018)
+T 1528301230 20*	Disconnected (20Connection timed out)
+T 1528301253 19*	Now talking on 22#webkitgtk+
+T 1528301253 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528301253 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:01 2018)
+T 1528313440 20*	Disconnected (20Connection timed out)
+T 1528313462 19*	Now talking on 22#webkitgtk+
+T 1528313462 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528313462 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:02 2018)
+T 1528315222 20*	Disconnected (20Connection timed out)
+T 1528315244 19*	Now talking on 22#webkitgtk+
+T 1528315244 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528315244 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:01 2018)
+T 1528378727 18<tpopela18>	KaL: Hi Carlos? When will be the 2.20.3 released? On Monday?
+T 1528378742 18<KaL18>	I didn't have plans
+T 1528378753 18<KaL18>	but I can od it next week if needed
+T 1528379601 18<tpopela18>	KaL: thank would be nice (because of the gigacage fix - it's easy to backport, but it would be nice to have a stable release with it)..
+T 1528401611 19*	Now talking on 22#webkitgtk+
+T 1528401611 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528401611 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:02 2018)
+T 1528457334 19*	Now talking on 22#webkitgtk+
+T 1528457334 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528457334 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:02 2018)
+T 1528459473 19*	Now talking on 22#webkitgtk+
+T 1528459473 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528459473 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:01 2018)
+T 1528465247 19*	Now talking on 22#webkitgtk+
+T 1528465247 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528465247 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:02 2018)
+T 1528465332 19*	Now talking on 22#webkitgtk+
+T 1528465332 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528465332 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:02 2018)
+T 1528471715 19*	Now talking on 22#webkitgtk+
+T 1528471715 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.2, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528471715 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@81.0.23.158 (24Mon May 28 07:21:01 2018)
+T 1528654056 18<converts18>	i still cant figure out how to use jsc in the web extension
+T 1528654081 18<converts18>	so i dont understand at all how the dom api can be deprecated
+T 1528654271 18<converts18>	i can see what kal did with epiphany but all the js gets called in the webview
+T 1528702404 18<tpopela18>	bertogg: Hi Berto, do you use https://trac.webkit.org/changeset/232067/webkit somewhere in the wild? I saw that in Debian you are using some old version.. I was hit by this on ppc32, and the patch that's in the upstream, fails with some cmake error - https://paste.fedoraproject.org/paste/~xS~4XviCUoPOFjMKHCbgQ .. any idea? (so far I'm using what you have in debian)..
+T 1528702499 18<bertogg18>	let me see
+T 1528702540 18<berto18>	tpopela: I think the latest releases come with this patch already
+T 1528702556 18<tpopela18>	berto: this is 2.20.2..
+T 1528702580 18<berto18>	2.21.x
+T 1528702628 18<berto18>	aaah
+T 1528702640 18<berto18>	the PUBLIC / PRIVATE thing is only in the 2.12.x branch
+T 1528702676 18<tpopela18>	berto: ah ok.. I see it proposed for the merge for 2.20.3..
+T 1528702682 18<berto18>	https://bug-182622-attachments.webkit.org/attachment.cgi?id=340490
+T 1528702689 18<berto18>	that's the patch backported
+T 1528702723 18<tpopela18>	aah, but there is also the rollout proposed for the merge..
+T 1528702753 18<tpopela18>	berto: that one should work? :)
+T 1528702785 18<tpopela18>	I can't try it now (our ppc builders are busted), but thank you for it :)
+T 1528702803 18<berto18>	+set(THREADS_PREFER_PTHREAD_FLAG ON)
+T 1528702806 18<berto18>	this part is optional
+T 1528702815 18<berto18>	it was reported to cause problems with cross compilers
+T 1528702820 18<berto18>	so you can leave it out
+T 1528702827 18<berto18>	I think it was only necessary for the risc-v 64 build
+T 1528702937 18<tpopela18>	ok!
+T 1528703198 18<tpopela18>	berto: so shouldn't we update the proposed merges in https://trac.webkit.org/wiki/WebKitGTK/2.20.x to actually contain the link for the patch you sent me?
+T 1528704297 18<berto18>	didn't I do that?
+T 1528704313 18<berto18>	hmmm
+T 1528704338 18<berto18>	it is there, I don't know who added the other link
+T 1528704364 18<berto18>	tpopela: one of the links points to the comment where I added that patch
+T 1528704431 18<tpopela18>	berto: ah, now I see.. I didn't looked into already merged things, as I saw them in the unmerged part..
+T 1528708830 18<KaL18>	berto: tpopela: I'm preparing the release, so if you want me to merge anything just let me know
+T 1528708875 18<converts18>	ok so to execute javascript inside the webprocess itself i just call jsc_context_evaluate
+T 1528708896 18<converts18>	inside the *webextension* process
+T 1528708921 18<converts18>	the dom api seems more appropriate there though
+T 1528709090 18<berto18>	KaL: did you merge https://trac.webkit.org/changeset/232067/webkit ?
+T 1528709091 18<converts18>	especially escaping the javascript in the c-source, instead of reading it from a file
+T 1528709129 18<KaL18>	berto: yes
+T 1528709143 18<berto18>	KaL: you have to remove the PRIVATE keyword from the new code
+T 1528709151 18<berto18>	it doesn't work in 2.20.x
+T 1528709170 18<KaL18>	let me check
+T 1528709177 18<berto18>	list(APPEND WebKit_LIBRARIES PRIVATE atomic)
+T 1528709182 18<berto18>	no PRIVATE there, leave the rest
+T 1528709233 18<KaL18>	ok, thanks
+T 1528709243 18<berto18>	unless you backported the changes that added the PRIVATE thing
+T 1528709245 18<berto18>	but I don't think so
+T 1528709380 18<converts18>	do you use mdn documentation for dom?
+T 1528709565 18<tpopela18>	converts: yes I use(d) it a lot.. I think that there's nothing better..
+T 1528709735 18<Kekun18>	Has anyone been working on this annoying Pulseaudio volume problem on WebKitGTK+?
+T 1528709797 18<Kekun18>	You know, the volume going lower everytime you start a new video
+T 1528719442 18<converts18>	kal how can i call javascript in the webextension say inside the send-request callback?
+T 1528719498 18<converts18>	I dont have a frame there do i
+T 1528719534 18<converts18>	now i can get the document from the WebKitWebPahe and call the dom api on it.
+T 1528719640 18<converts18>	ah webkit_web_page_get_main_frame
+T 1528719695 18<converts18>	lets try this again
+T 1528720073 18<KaL18>	right, get the main frame from the page
+T 1528720091 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.20.3, unstable: 2.21.3 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528720174 18<converts18>	interpolating strings and calling jsc_context_evaluate is too clunky. let's try jsc_function_call
+T 1528720179 18<converts18>	ah a new release already
+T 1528720304 18<KaL18>	converts: jsc_function_call or jsc_object_method_invoke are the right way indeed
+T 1528720327 18<converts18>	ok i think i have it working
+T 1528720368 18<converts18>	do i have to push an exception handler each time
+T 1528720376 18<KaL18>	no
+T 1528720804 18<converts18>	hmm every call has to unref 5 objects
+T 1528720873 18<converts18>	i get a compiler warning for webkit_frame_get_javascript_context_for_script_world(frame, world);
+T 1528720877 18<converts18>	i dont understand it
+T 1528721089 18<KaL18>	converts: we still have time to change api to adopt refs to make it more convenient
+T 1528721107 18<KaL18>	what warning?
+T 1528721108 18<converts18>	i could use webkit_frame_get_js_context(frame), but the frame I'm getting is still NULL
+T 1528721116 18<converts18>	"incompatible pointer"
+T 1528721121 18<converts18>	on the return value
+T 1528721135 18<KaL18>	you are using the deprecated one
+T 1528721144 18<KaL18>	it's js_context to get the new one
+T 1528721155 18<converts18>	ah
+T 1528721189 18<converts18>	no its the new one
+T 1528721204 18<converts18>	i mean webkit_frame_get_js_context is marked 2.22
+T 1528721283 18<converts18>	the compiler problem was with assigning the value from  webkit_frame_get_javascript_context_for_script_world to a JSCContext
+T 1528721395 18<converts18>	forget my NULL comment. That was a g_assert failyre for webkit_frame_is_main_frame(webkit_web_page_get_main_frame(p))
+T 1528721594 18<converts18>	removing that assert seems to make it work
+T 1528721669 18<converts18>	no actually it fails further down
+T 1528721675 18<converts18>	out of time. for now
+T 1528726793 18<converts18>	kal, i think the two problems i mentioned above with the api are valid
+T 1528726797 18<converts18>	but i have a bigger problem
+T 1528726837 18<converts18>	i think window-object-cleared is not called before send-request
+T 1528726867 18<converts18>	so any javascript objects initialized in window-object-cleared are not available in the callback executing send-request
+T 1528726921 18<KaL18>	could you write a simple test case?
+T 1528726986 18<antoyo18>	Hi. Is there a way to intercept a request and change its content?
+T 1528726997 18<KaL18>	goota go, file a bug report and explain the problem there please
+T 1528727089 18<converts18>	you can intercept a request but i dont see how you can change the content
+T 1528727097 18<converts18>	too bad kal left
+T 1528727168 18<antoyo18>	Ok.
+T 1528727226 18<converts18>	i'm not sure what you mean by content but all the C++ objects are all protected by half a dozen abstraction layers
+T 1528727248 18<converts18>	you cant change any damn thing without serious pain
+T 1528727275 18<converts18>	should i file a bug report?
+T 1528727279 18<antoyo18>	The body of an XHR request, for instance.
+T 1528727292 18<aperezdc18>	antoyo: to intercept requests and change contents, you will need a WebExtension
+T 1528727310 18<converts18>	that is the send-request callback
+T 1528727322 18<converts18>	thats where i'm having problems with the glib jsc api
+T 1528727323 18<antoyo18>	aperezdc: That's what I thought, but even then, I only know how to intercept it, not how to change the body of the response.
+T 1528727383 18<converts18>	as far as i tried you cant even change the headers
+T 1528727409 18<aperezdc18>	antoyo: I was thinking of  https://webkitgtk.org/reference/webkit2gtk/stable/WebKitWebPage.html#WebKitWebPage-send-request
+T 1528727414 18<aperezdc18>	but you are right, th body cannot be changed
+T 1528727490 18<converts18>	how can i file a bug report there is no example code for a web extension
+T 1528727502 18<converts18>	where i can stick in a patch
+T 1528727512 18<converts18>	bah
+T 1528727531 18<aperezdc18>	for filing bugs, please use bugs.webkit.org
+T 1528727544 18<aperezdc18>	as an example for a WebExtension, you can check Epiphany's sources
+T 1528727580 18<converts18>	i've filed 2 patches to webkit there, but i dont think anyone looked at it
+T 1528727614 18<converts18>	compilation fixes for a combination of compilation flags
+T 1528727630 18<converts18>	apparently nobody uses that combination
+T 1528727635 18<aperezdc18>	https://gitlab.gnome.org/GNOME/epiphany/tree/master/embed/web-extension
+T 1528727656 18<converts18>	i know about that aperezdc, i'm talking about conveying the api bugs to kal
+T 1528727663 18<converts18>	i can do a better job on irc
+T 1528727686 18<converts18>	lets see if the other suspect is in gnome irc
+T 1528727734 18<aperezdc18>	converts: could you please share which bugs you filed? I'm usually interested in build issues
+T 1528727763 18<aperezdc18>	it could be that I didn't notice them because th previous weeks I've been on holidays
+T 1528727827 18<converts18>	oh this was months ago, i should probably update the patches
+T 1528727888 18<aperezdc18>	can you CC me in the bugs, if you can still find them, please?
+T 1528727923 18<converts18>	ok let me get my browser working first and then look up bugzilla
+T 1528727945 18<converts18>	so webprocess doesnt crash
+T 1528728346 18<converts18>	but i'm in the middle of debugging something else i dont want to lose track just yet
+T 1528729169 18<converts18>	ok i'm getting help from mcatanzro :)
+T 1528787421 22*	26KaL has changed the topic to: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528818135 20*	Disconnected (20Connection timed out)
+T 1528818163 19*	Now talking on 22#webkitgtk+
+T 1528818163 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528818163 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1528932464 18<vollick18>	Hi all. Is this the right venue for asking about webkit gtk build errors on linux?
+T 1528984283 19*	Now talking on 22#webkitgtk+
+T 1528984283 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1528984283 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1528999451 18<converts18>	now bugs.webkit wont let me login
+T 1528999467 18<converts18>	i'm sure my password is right but i keep getting "You tried to log in using the enometh@meer.net account, but Bugzilla is unable to trust your request. Make sure your web browser accepts cookies and that you haven't been redirected here from an external web site"
+T 1530211577 19*	Now talking on 22#webkitgtk+
+T 1530211577 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530211577 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1530213848 18<dydz18>	Hi all, I am looking for a contact person for the GTK and WPE EWS bots to work with to configure them to support processing security bug patches.
+T 1530257566 18<gauteh18>	it seems that the web-inspector also requires some other settings to be enabled (in addition to developer-extras). these are not documented as far as I can see.. does anyone know what they are?
+T 1530259302 18<aperezdc18>	gauteh: Web inspector should work with only the developer extras enabled
+T 1530260023 18<gauteh18>	aperezdc: with is-ephemral true it does not work
+T 1530260061 18<gauteh18>	note that enable-private-browsing is true and it still works
+T 1530261337 18<aperezdc18>	mmh, that's interesting... here I have just tried opening the inspector in an Epiphany incognito window and it worked
+T 1530261349 18<aperezdc18>	IIRC it uses an ephemeral session
+T 1530261377 18<aperezdc18>	lemme check how it instantiates the webview in this case
+T 1530265260 18<gauteh18>	aperezdc: ok, thanks - didn't notice your reply before opening a bug here: https://bugs.webkit.org/show_bug.cgi?id=187172
+T 1530266385 18<aperezdc18>	gauteh: I checked the Ephy code, it just uses the same code for both incognito and normal windows, the only difference is that it uses webkit_web_context_new() or webkit_web_context_new_ephemeral()
+T 1530266452 18<aperezdc18>	I see you linked some code in your bug report, I'll take a look
+T 1530266508 18<aperezdc18>	if you want to check what Ephy does, this is the spot: https://gitlab.gnome.org/GNOME/epiphany/blob/master/embed/ephy-embed-shell.c#L856
+T 1530266560 18<aperezdc18>	the WebKitSettings is a singleton, it's created here: https://gitlab.gnome.org/GNOME/epiphany/blob/master/embed/ephy-embed-prefs.c#L425
+T 1530266561 18<aperezdc18>	note that it always sets enable-developer-extras to TRUE
+T 1530266720 18<aperezdc18>	note that Epiphany uses g_object_new() directly, in order to be able to pass both its WebKitSettings and its WebKitWebContext during construction
+T 1530266735 18<aperezdc18>	You can see that here: https://gitlab.gnome.org/GNOME/epiphany/blob/master/embed/ephy-web-view.c#L2800
+T 1530266802 18<aperezdc18>	but I see that in Astroid you change the settings object after having created the web view
+T 1530266802 18<aperezdc18>	I think that might be the cause
+T 1530266814 18<aperezdc18>	I'm going to comment this in the bug, because it can be an actual bug
+T 1530266862 18<aperezdc18>	and if it is some kind of internal limitation in WebKit, we should document that to have inspector with an epheemeral session then it's needed to set both at the time of WebView construction
+T 1530268251 18<gauteh18>	aperezdc: ok, thanks, i'll try out your suggestions later
+T 1530268485 18<aperezdc18>	you're welcome!
+T 1530269534 18<aperezdc18>	gauteh: I've commented the same I wrote here in a comment in the bug report, so it doesn't get forgotten; IRC *is* ephemeral after all ;-)
+T 1530270150 18<gauteh18>	aperezdc: hehe, thanks ;)
+T 1530623095 19*	Now talking on 22#webkitgtk+
+T 1530623095 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530623095 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530638313 20*	Disconnected (20Connection timed out)
+T 1530638342 19*	Now talking on 22#webkitgtk+
+T 1530638342 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530638342 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530641918 20*	Disconnected (20Connection reset by peer)
+T 1530641944 19*	Now talking on 22#webkitgtk+
+T 1530641944 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530641944 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530642357 20*	Disconnected (20Remote host closed socket)
+T 1530642380 19*	Now talking on 22#webkitgtk+
+T 1530642380 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530642380 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530708012 20*	Disconnected (20Invalid argument)
+T 1530708039 19*	Now talking on 22#webkitgtk+
+T 1530708039 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530708039 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530715925 20*	Disconnected (20Invalid argument)
+T 1530715951 19*	Now talking on 22#webkitgtk+
+T 1530715951 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530715951 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1530716237 18<dmc18>	webkitgtk2 = webkit2gtk?
+T 1530716326 18<dmc18>	looks like webkitgtk2 might be an older version..?
+T 1530716388 18<dmc18>	oh, there's a webkit2
+T 1530716399 18<antoyo18>	maybe webkitgtk2 is for webkit 1 and gtk+ 2.
+T 1530716421 18<dmc18>	so it seems
+T 1530716459 18*	dmc shakes fist at the people behind this naming scheme
+T 1530716788 18<aperezdc18>	definitely, you want the package which installs `webkit2gtk-4.0.pc`
+T 1530717478 18<dmc18>	ty
+T 1530882173 18<amosbird18>	hello, can I make webkitgtk's "copy image" menu really put the image into clipboard instead of its url ?
+T 1530966935 19*	Now talking on 22#webkitgtk+
+T 1530966935 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1530966935 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531137507 19*	Now talking on 22#webkitgtk+
+T 1531137507 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531137507 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531225139 19*	Now talking on 22#webkitgtk+
+T 1531225139 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531225139 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1531318852 19*	Now talking on 22#webkitgtk+
+T 1531318852 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531318852 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531329415 20*	Disconnected (20Connection reset by peer)
+T 1531329440 19*	Now talking on 22#webkitgtk+
+T 1531329440 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531329440 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1531413455 20*	Disconnected (20Connection timed out)
+T 1531413480 19*	Now talking on 22#webkitgtk+
+T 1531413480 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531413480 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531425665 20*	Disconnected (20Connection timed out)
+T 1531506041 19*	Now talking on 22#webkitgtk+
+T 1531506041 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531506041 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1531509430 20*	Disconnected (20Connection timed out)
+T 1531509456 19*	Now talking on 22#webkitgtk+
+T 1531509456 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531509456 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531575187 19*	Now talking on 22#webkitgtk+
+T 1531575187 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531575187 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1531744305 19*	Now talking on 22#webkitgtk+
+T 1531744305 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531744305 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1531745814 18<converts18>	ok i have a build with soup symbols but no glib symbols
+T 1531746113 18<converts18>	kal - the only thing that adds to that backtrace is this:
+T 1531746124 18<converts18>	#17 0x00007f13fa046487 in soup_session_add_feature_by_type (session=0x1621100, feature_type=23212688) at soup-session.c:2740
+T 1531746153 18<converts18>	#18 0x00007f13fa04110b in soup_session_set_property (object=0x1621100, prop_id=18, value=0x7ffc5b5caf40, pspec=0x161f050) at soup-session.c:763
+T 1531746373 18<converts18>	if soup is trying to get the proxy settings from dconf that would fail
+T 1531746380 18<converts18>	but it always failed on this box
+T 1531746490 19*	Now talking on 22#webkitgtk+
+T 1531746490 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1531746490 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:24 2018)
+T 1531746557 18<converts18>	#13 0x00007f4d208dc757 in soup_proxy_resolver_default_constructed (object=0x7f4cc800ad60) at soup-proxy-resolver-default.c:84
+T 1531761652 18<converts18>	ok that crash was a gsettings crash. sorry for the noise and curses to freedesktop
+T 1531761679 18<converts18>	sheesh
+T 1531816047 18<tpopela18>	Does someone know the reason why we made the unit tests depend on DEVELOPER_MODE? I (as a downstream) want to build unit test to test whether the build is working fine, but I don't want to enable DEVELOPER_MODE for that..
+T 1531821468 18<fujihiro18>	tpopela:  WebKitTestRunner needs the internal symbols which is hidden by Source/WebKit/webkitglib-symbols.map.
+T 1531821553 18<tpopela18>	fujihiro: I'm aware of that.. I was curious if there was other reason..
+T 1531863319 18<No0n3Left18>	With webkitgtk+, how can I override JS functions (specifically canvas's toDataURL)? I would like to be able to override these functions at runtime, but cannot find how to modify the JS engine ran by WebKit.
+T 1531903725 18<converts18>	kal that crash was happening in glib when loading gschemas.compiled
+T 1531926290 20*	Disconnected (20Connection timed out)
+T 1532005665 19*	Now talking on 22#webkitgtk+
+T 1532005665 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.4 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532005665 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.158.23.0.81.ibercom.com (24Tue Jun 12 03:10:21 2018)
+T 1532010821 18<luca218>	aperezdc: Ok thanks for the info ;) I'm trying to debug with gdb but seems impossible because the minibrowser and the jsc crashes, so i have opted to use printf for the moment. I have read that the docs says that debugging with gdb can be a pain
+T 1532010858 18<luca218>	there is some tips anyone can share for debugging webkitgtk+ with gdb?
+T 1532014648 18<aperezdc18>	luca2: you're welcome
+T 1532014707 18<aperezdc18>	you can make the webprocess pause and wait for some seconds, so you can attach to it with gdb before it actually starts
+T 1532014771 18<aperezdc18>	if you have a developer mode build, set the environment variable WEBKIT2_PAUSE_WEB_PROCESS_ON_LAUNCH=1 before running anything
+T 1532015525 18<annulen18>	or just enable core dumps
+T 1532017057 18<Hello7118>	astroid gets stuck loading threads, WebKitWebProcess looks like this: https://bpaste.net/show/f96bcd98c375. known issue?
+T 1532017531 18<annulen18>	you may need to print other threads to see the issue
+T 1532017562 18<annulen18>	but here waitForSyncReply waits for message from other process
+T 1532017584 18<annulen18>	DecidePolicyForNavigationAction
+T 1532101239 19*	Now talking on 22#webkitgtk+
+T 1532101239 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532101239 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532265161 19*	Now talking on 22#webkitgtk+
+T 1532265161 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532265161 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532284241 20*	Disconnected (20Connection reset by peer)
+T 1532284391 19*	Now talking on 22#webkitgtk+
+T 1532284391 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532284391 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532349754 20*	Disconnected (20Network is unreachable)
+T 1532349779 19*	Now talking on 22#webkitgtk+
+T 1532349779 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532349779 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532350490 18<ManDay[m]18>	What is the correct configuration option to enable WebRTC? Would it work in MiniBrowser?
+T 1532351352 18<annulen18>	alexg__: ^
+T 1532354940 18<alexg__18>	ManDay[m], annulen follow this bug: https://bugs.webkit.org/show_bug.cgi?id=187064
+T 1532414306 18<consolers18>	ok i'll ask here now:
+T 1532414312 18<consolers18>	build/DerivedSources/ForwardingHeaders/wtf/EnumTraits.h: In instantiation of 'constexpr std::enable_if_t<std::is_enum<_Tp>::value, bool> WTF::isValidEnum(T) [with E = WebCore::NetworkLoadPriority; T = long long unsigned int; std::enable_if_t<std::is_enum<_Tp>::value, bool> = bool]':
+T 1532414386 18<consolers18>	recently WebCore::NetworkLoadPriority went from: enum class NetworkLoadPriority to:  enum class NetworkLoadPriority : uint8_t
+T 1532414459 18<consolers18>	in bug 187671, so now WebCore::NetworkLoadPriority seems to be not wtf serializable anymore
+T 1532422208 18<converts18>	I'm whoosed by this C++ error. WTF template Traits is going over my head
+T 1532424011 18<converts18>	including "WebCoreArgumentCoders.h" fixes it for some unknown reason
+T 1532424057 18<converts18>	if i include that file, the enum which was hitherto an incomplete type - now becomes complete?
+T 1532429842 18<converts18>	aper
+T 1532429929 18<converts18>	webkit still crashes my machine on the antichrist's www.ampproject.com page, WebkitWebProcess takes all available memory. if swap is enabled, then it trashes the disk. if there is no swap, then all malloc() for all processes on the system fails
+T 1532429956 18<converts18>	i thought this was fixed between 2.21.4 and trunk based on what aperz said but it isnt
+T 1532429966 18<converts18>	same thing happens with some indian banks website
+T 1532429992 18<converts18>	i call deviltry
+T 1532430017 18<converts18>	how do i run this with some memory limits
+T 1532430091 18<converts18>	only the oom killer can unwedge this
+T 1532430671 18<converts18>	if i start with a ulimit -l 2G -m 2G then the webprocess automatically crashes
+T 1532430724 18<converts18>	all these companies and banks that insist on a webkit or a post-mozilla-57 browser are insisting on technologies which google has backdoored
+T 1532430777 18<converts18>	what a grand conspiracy of known tricks put into the code that are exploited by the webservers on each release
+T 1532430871 18<converts18>	and this is just css, not even javascript which you cant disable, which doesnt even go through send-request
+T 1532431390 18<converts18>	ulimit means it gets killed with SIGKILL right?
+T 1532431714 18<ManDay[m]18>	I'd think (guess) ulimit means allocations above that threshold are going to fail.
+T 1532431774 18<ManDay[m]18>	Looks like I'm wrong, though.
+T 1532431832 18<converts18>	this isnt a gl thing it is just a css thing
+T 1532431849 18<converts18>	but it'll take me 30 min before i can look at it again
+T 1532435939 18<converts18>	yeah this is hopeless
+T 1532435978 18<converts18>	the whole narrative of separating the web process and google's running it in its own container, after making it untracable by the parent process- the whole narrative is lies
+T 1532436012 18<converts18>	display elements crashing the system is the goal
+T 1532436438 18<converts18>	if i attach gdb to the web process, program exits without dropping me into the debugger
+T 1532443396 18<converts18>	ok I'm getting a gdb backtrace now
+T 1532443400 18<converts18>	#0  0xf36de3b2 in WTF::Vector<WebCore::TileUpdateInfo, 0u, WTF::CrashOnOverflow, 16u>::reserveCapacity ()
+T 1532443465 18<converts18>	#15 0xf36af575 in WebKit::CompositingCoordinator::flushPendingLayerChanges() ()
+T 1532443523 18<converts18>	#3  0xf36dca7b in WebCore::CoordinatedGraphicsLayer::updateTile(unsigned int, WebCore::SurfaceUpdateInfo const&, WebCore::IntRect const&)
+T 1532443531 18<converts18>	#4  0xf36dbb8e in WebCore::CoordinatedGraphicsLayer::updateContentBuffers() ()
+T 1532448771 18<converts18>	there must be someway to disable the css from executing and crashing the system
+T 1532448974 18<converts18>	it is crashing while doing animations
+T 1532449020 18<converts18>	eg. the .three-d element in https://www.centralbankofindia.co.in/Css/Page.css
+T 1532449126 18<annulen18>	did you try disabling AC?
+T 1532449385 18<converts18>	ENABLE_ACCESSIBILITY ?
+T 1532449468 18<converts18>	I see ENABLE_CSS_ANIMATIONS_LEVEL_2
+T 1532449473 18<converts18>	thats also on
+T 1532449490 18<annulen18>	accelerated compositing
+T 1532449548 18<converts18>	I have ENABLE_CSS_COMPOSITING:BOOL=OFF
+T 1532449563 18<converts18>	but further down it says ENABLE_CSS_COMPOSITING-ADVANCED:INTERNAL=1
+T 1532449609 18<converts18>	i already had ENABLE_ACCELERATED_2D_CANVAS:BOOL=OFF
+T 1532449629 18<annulen18>	export WEBKIT_FORCE_COMPOSITING_MODE=0
+T 1532449671 18<converts18>	let me try that. i didnt know about that var or i forgot it if i saw it before
+T 1532449781 18<converts18>	That helps! thanks again
+T 1532449816 18<converts18>	wait. i commened out my test case...
+T 1532449825 18<converts18>	let me test the correct thing again
+T 1532449850 18<converts18>	nope. that doesnt help
+T 1532449920 18<converts18>	maybe i should try recompiling without the css animation and css boxes tomorrow
+T 1532450249 18<mcatanzaro18>	Did you report a bug? ADVANCED:INTERNAL is your hint that you should not be changing that option...
+T 1532450296 18<annulen18>	or just use ccmake//cmake-gui which hides advanced stuff by default
+T 1532450449 18<converts18>	not yet mcatanzaro
+T 1532450476 18<converts18>	no, i wasnt changing it - i was just reading it off the CMakeCache.txt
+T 1532450547 18<converts18>	i configured it normally $ cmake -D.... etc turning most options off
+T 1532450603 18<annulen18>	turning options off without understanding is a bad idea
+T 1532450662 18<converts18>	i thought i was aware of all the options i turned off...
+T 1532450699 18<converts18>	-DENABLE_GEOLOCATION=OFF -DENABLE_SPELLCHECK=OFF -DENABLE_WEB_AUDIO=OFF -DENABLE_VIDEO=OFF -DUSE_LIBHYPHEN=OFF -DENABLE_OPENGL=OFF -DUSE_UPOWER=OFF
+T 1532450706 18<converts18>	all should be safe
+T 1532450716 18<annulen18>	right
+T 1532450829 18<converts18>	i havent heard of ccmake
+T 1532450881 18<converts18>	aha
+T 1532450897 18<mcatanzaro18>	Anyway, that backtrace looks familiar to me, but I wasn't able to find an existing bug report after a quick Bugzilla search... there are similar bugs, but I didn't see one that was the same. So I would definitely report it. Crashes are WebKit's fault, not yours
+T 1532451156 18<converts18>	ok!
+T 1532451230 18<converts18>	ccmake with an empty CMakeCache.txt didnt' change anything significant. i'll try disabling webkit animations and boxes in the advanced view tomorrow. that should probably prevent it from crashing
+T 1532451270 18<converts18>	the css animations crash on www.ampproject.com.  aperezdc said he tried it out but it didnt crash for him
+T 1532451317 18<converts18>	not crash exactly - but they eat up all system memory. if there is swap it trashes until poweroff. if there is no swap, no other process can malloc any memory
+T 1532451335 18<converts18>	the backtrace i got i got from ulimit -m 2G -v 2G
+T 1532451347 18<converts18>	otherwise i couldnt even get a backtrace
+T 1532451390 18<Adrian[m]118>	mmh, this may be far fetched idea... here I usully build with Clang because it's slightly faster than GCC
+T 1532451397 18<Adrian[m]118>	could it be due to some difference between both?
+T 1532451425 18<converts18>	no space/time for clang toolchain on this box for now
+T 1532451516 18<converts18>	i usually load only one page - dont even load the css or javascript subresouces, and still google got me through the ammpproject.com webpage and i had ext4 lossage
+T 1532515838 18<converts18>	so my build finished with ENABLE_CSS_ANIMATIONS_LEVEL_2:BOOL=OFF now webprocess  crashes immediately on the amp page, not just after loading
+T 1532515854 18<converts18>	and on the other bank page too
+T 1532515969 18<converts18>	hmm this time it seems to be in libgl: WebCore::TextureMapperGL::drawUnitRect(WebCore::TextureMapperShaderProgram&, unsigned int) () from /usr/lib/libwebkit2gtk-4.0.so.37
+T 1532516242 18<converts18>	ok both failure modes are the same as before
+T 1532516263 18<converts18>	only thing i didnt try is a build without opengl
+T 1532517875 20*	Disconnected (20Connection timed out)
+T 1532517900 19*	Now talking on 22#webkitgtk+
+T 1532517900 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532517900 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532519102 18<converts18>	ok i wasnt setting the environment variable this time around
+T 1532519110 18<converts18>	let me set it and try again
+T 1532519343 18<converts18>	then i get the CrashOnOverflow trace
+T 1532519780 18<converts18>	in both cases. for the bank page:
+T 1532519781 18<converts18>	#0  0xf3620942 in WTF::Vector<WebCore::TileUpdateInfo, 0u, WTF::CrashOnOverflow, 16u>::reserveCapacity ()
+T 1532519793 18<converts18>	#2  0xf3620e45 in void WTF::Vector<WebCore::TileUpdateInfo, 0u, WTF::CrashOnOverflow, 16u>::appendSlowCase<WebCore::TileUpdateInfo&>(WebCore::TileUpdateInfo&&&) ()
+T 1532519806 18<converts18>	#3  0xf361f00b in WebCore::CoordinatedGraphicsLayer::updateTile(unsigned int, WebCore::SurfaceUpdateInfo const&, WebCore::IntRect const&)
+T 1532519906 18<converts18>	same trace for the other case too. this is running with 2G ulimts
+T 1532519941 18<converts18>	it isnt just a compositing thing it is a css animation bloat
+T 1532519966 18<converts18>	sigh
+T 1532519979 18<converts18>	and there is no knob to turn it off
+T 1532519990 18<annulen18>	maybe we should use tryReserveCapacity there
+T 1532519998 18<annulen18>	why are you using ulimit btw?
+T 1532520008 18<converts18>	because otherwise i have to reboot the machine
+T 1532520017 18<converts18>	when it expands to all available memory
+T 1532520037 18<converts18>	without swap: malloc for other processes fail, with swap: trash till endtimes
+T 1532520039 18<annulen18>	invoke oom killer
+T 1532520076 18<converts18>	it worked sometimes but othertimes even that didnt respond i dont know why. SYSREQ b booted it though
+T 1532520093 18<converts18>	maybe X was killed instead
+T 1532520112 18<annulen18>	which process grows memory usage?
+T 1532520117 18<converts18>	WebKitWebProcess
+T 1532520142 18<converts18>	I have 4GB ram and 2GB swap
+T 1532520156 18<converts18>	it cant handle a css animation
+T 1532520190 18<converts18>	i only guessed that X was killed because i got no response from the keyboard
+T 1532520210 18<converts18>	it all becomes unusable when virtual memory is trashing
+T 1532520236 18<converts18>	remember netscape in 1996
+T 1532520288 18<converts18>	clearly the profits are in the status quo and the business model is based on the philosophy "no silver bullet" but as a derivative market on HR
+T 1532520306 18*	annulen didn't have a pc in 1996
+T 1532520329 18<converts18>	i think it crashed sun's vm too
+T 1532520345 18<converts18>	not sure though
+T 1532520347 18<annulen18>	well, what you see is certainly bug, not a business model :)
+T 1532520370 18<converts18>	but it must be pretty prevalent
+T 1532520425 18<converts18>	that css page i gave has the comment "animation domination" on top of the fragment that triggers it
+T 1532520600 18<annulen18>	converts: please \try setting larger ulimit. eg 2.5G, and compare backtrace if it still crashes
+T 1532520658 18<converts18>	i can try that. but with with fglrx i only have 3.5G non-video memory available
+T 1532520732 18<annulen18>	you'd still have whole gig left
+T 1532520780 18<converts18>	lets see ulimit -m 2621440 -v 2621440
+T 1532520885 18<converts18>	before killing gdb i checked top: 3.3G was WebKitWebProcess started with ulimit -m 1587436 -v 1887436
+T 1532520907 18<converts18>	now for the new one. if i ping out i've crashed.
+T 1532520943 18<annulen18>	don't use gdb, use cores
+T 1532520949 18<annulen18>	gdb takes additional memory
+T 1532520955 18<annulen18>	sometimes a lot of it
+T 1532521017 18<annulen18>	ulimit -c unlimited and adjust /proc/sys/kernel/core_pattern if needed
+T 1532521126 18<converts18>	that wont work i think
+T 1532521176 18<converts18>	before starting free -m shows only 2282M
+T 1532521185 18<converts18>	as "available"
+T 1532521235 18<converts18>	let me use the stripped "release" library instead
+T 1532521307 18<annulen18>	size of binary should not matter
+T 1532521348 18<annulen18>	most of it is debug info which is only loaded when debugger needs it
+T 1532521395 18<converts18>	same pattern
+T 1532521430 18<converts18>	the problem with linux virtual memory is you dont have to have swap to trash
+T 1532521479 18<converts18>	it will trash automatically for you even without swap! when all physical memory is in use loadavg goes up to to 4 on 2 cpus just doing disk
+T 1532521517 18<converts18>	I cant reach whatever limit that animation needs on this box
+T 1532521614 18<annulen18>	what url is that?
+T 1532521947 18<converts18>	eg. the .three-d element in https://www.centralbankofindia.co.in/Css/Page.css
+T 1532522069 18<converts18>	or the animation in www.ampproject.com
+T 1532522084 18<converts18>	i've tried these only with no javascript or images
+T 1532522134 18<converts18>	ampproject.ORG
+T 1532522142 18<converts18>	like that makes it holy
+T 1532537641 20*	Disconnected (20Remote host closed socket)
+T 1532537666 19*	Now talking on 22#webkitgtk+
+T 1532537666 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532537666 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532537918 20*	Disconnected (20Remote host closed socket)
+T 1532537940 19*	Now talking on 22#webkitgtk+
+T 1532537940 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532537940 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532594440 18<KaL18>	yusukesuzuki: so, are you going to add the symbols api to jsc glib?
+T 1532594586 18<converts18>	only by building without opengl can i avoid that error
+T 1532594611 18<converts18>	now i still see some animation but it is clearly faulty
+T 1532594652 18<converts18>	i dont really care for css - i just dont want to crash but is there any css expert on irc
+T 1532594660 18<converts18>	i can give them a test case
+T 1532594777 18<converts18>	since it is opengl, perhaps it is a bug only with whichever opengl/graphics card i am using?
+T 1532594931 18<converts18>	argh my whole Version 12 WebKitWebCache is wiped out!!!
+T 1532595039 18<converts18>	hmm i still have webgl
+T 1532595075 18<converts18>	wierd
+T 1532595089 18<converts18>	apparently i made a mistake in configuring ENABLE_OPENGL:BOOL=OF
+T 1532595166 18<converts18>	cmakeconfig.h has ENABLE_OPENGL 0 and USE_OPENGL 1
+T 1532595187 18<converts18>	the library still links to libGL.so
+T 1532595193 18<converts18>	but i dont get the error anymore
+T 1532595233 18<converts18>	i dont have my cmakeconfig.h from the previous build but i do have the CMakeCache.txt
+T 1532595251 18<converts18>	and i have the installed files
+T 1532595579 18<converts18>	i guess i have the source to look at where the conditionals are used
+T 1532596045 18<converts18>	maybe it was a hardware acceleration thing
+T 1532596211 18<converts18>	so it was
+T 1532596230 18<converts18>	no crash with hardware-acceleration-policy=NEVER
+T 1532596356 18<converts18>	now why didnt i see this 2 weeks ago
+T 1532597476 18<converts18>	but whats puzzling me is that  after annulen suggested  WEBKIT_FORCE_COMPOSITING_MODE=0 yesterday, that would have had the same effect
+T 1532597505 18<converts18>	i'm pretty sure I tried it - but maybe it was user error again on my part
+T 1532598572 18<converts18>	hmm, strange
+T 1532599114 18<converts18>	ah annulen maybe you meant  WEBKIT_DISABLE_COMPOSITING_MODE=0
+T 1532599169 18<converts18>	or rather =1
+T 1532601539 18<annulen18>	converts: try WEBKIT_DISABLE_COMPOSITING_MODE=1
+T 1532602422 18<converts18>	yes that stops the crash here
+T 1532603215 18<yusukesuzuki18>	KaL: i'm a bit considering about implementing this, but now i'm really busy... so, it takes several weeks.
+T 1532603250 18<KaL18>	yusukesuzuki: I can look at it, because we are going to freeze the api soon for 2.22
+T 1532603265 18<KaL18>	I guess it's easy to add
+T 1532603278 18<yusukesuzuki18>	KaL: oh, cool. feel free to steal this work.
+T 1532691177 20*	Disconnected (20Connection timed out)
+T 1532691201 19*	Now talking on 22#webkitgtk+
+T 1532691201 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532691201 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532702402 18<amosbird18>	Hi, why does webkit copy image command generate image url instead of image content  ?
+T 1532702426 18<amosbird18>	reproduce step: epiphany browser and https://xmonad.org/ , right click and copy a image on that page
+T 1532707694 18<mcatanzaro18>	That would be a bug
+T 1532707701 18<mcatanzaro18>	Congratulations, nobody else has reported that yet
+T 1532707731 18<mcatanzaro18>	Well actually, it works when pasting into LibreOffice
+T 1532707768 18<mcatanzaro18>	Looks like the behavior difference is WebKit offers the URL as fallback, Firefox doesn't
+T 1532707798 18<mcatanzaro18>	Also, the WebKit copy gets resized to be blurry, that's not good... anyway, it works at least
+T 1532788754 19*	Now talking on 22#webkitgtk+
+T 1532788754 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532788754 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1532953254 19*	Now talking on 22#webkitgtk+
+T 1532953254 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1532953254 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1533026777 18<luca318>	hello all :) i have a question: is webkit on osx (eg. Safari) more easy, more prepared, to debug then webkitgtk? because webkitgtk seems very difficult to debug with gdb
+T 1533031060 18<luca318>	when I start the debug build of jsc I receive this error:
+T 1533031063 18<luca318>	Thread 1 "jsc" received signal SIGSEGV, Segmentation fault.
+T 1533031065 18<luca318>	0x00000000004478c8 in JSC::JSCell::isGetterSetter (this=0x0) at ../../Source/JavaScriptCore/runtime/JSCellInlines.h:170
+T 1533031201 18<luca318>	I'm working on revision 320b1fc3f6f47a31b6ccb4578bcea56c32c9e10b
+T 1533031240 18<luca318>	the release build works fine instead
+T 1533031548 18<luca318>	please let me know if I have to describe further details that help you understand the problem
+T 1533031662 18<luca318>	this is very strange
+T 1533031679 18<luca318>	I have found the same bug signaled and fixed in 2014
+T 1533031681 18<luca318>	https://bugs.webkit.org/show_bug.cgi?id=137340
+T 1533031702 18<luca318>	but the revision that I'm working on is 2016
+T 1533034949 18<annulen18>	luca3: 2016 is too old, try on trunk
+T 1533034997 18<annulen18>	luca3: this may help you to debug: https://webkit.org/blog/6411/javascriptcore-csi-a-crash-site-investigation-story/
+T 1533126355 20*	Disconnected (20Connection timed out)
+T 1533126377 19*	Now talking on 22#webkitgtk+
+T 1533126377 22*	Topic for 22#webkitgtk+ is: WebKitGTK+ stable: 2.20.3, unstable: 2.21.5 | Homepage: http://webkitgtk.org/ | https://trac.webkit.org/wiki/WebKitGTK/2.20.x | "HTML is useful for a web content rendering engine."
+T 1533126377 22*	Topic for 22#webkitgtk+ set by 26KaL!~cgarcia@static.108.13.0.81.ibercom.com (24Fri Jul 20 04:15:11 2018)
+T 1533126507 18<Guest226318>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533126720 18<__idiot__18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533126723 18<__idiot__18>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533126727 18<__idiot__18>	Read what IRC investigative journalists have uncovered on the freenode pedophilia scandal https://encyclopediadramatica.rs/Freenodegate
+T 1533126730 18<__idiot__18>	A fascinating blog by freenode staff member Matthew 'mst' Trout https://MattSTrout.com/
+T 1533126802 18<Colti218>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533127024 18<Nefertiti2818>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533127130 18<O-dog118>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533127130 18<O-dog118>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533127130 18<O-dog118>	Read what IRC investigative journalists have uncovered on the freenode pedophilia scandal https://encyclopediadramatica.rs/Freenodegate
+T 1533127970 18<czart_18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533127970 18<czart_18>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533128248 18<Peng1718>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533130407 18<Davnit18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533131719 18<smaudet18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533133256 18<Pyrotechno18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533133256 18<Pyrotechno18>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533133381 18<woddf21818>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533133381 18<woddf21818>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533133381 18<woddf21818>	Read what IRC investigative journalists have uncovered on the freenode pedophilia scandal https://encyclopediadramatica.rs/Freenodegate
+T 1533133476 18<johnny561818>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533133629 18<ultrabong18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533134578 18<Cisien1918>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533134578 18<Cisien1918>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533134578 18<Cisien1918>	Read what IRC investigative journalists have uncovered on the freenode pedophilia scandal https://encyclopediadramatica.rs/Freenodegate
+T 1533135845 18<Guest1633518>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533135848 18<Guest1633518>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533135852 18<Guest1633518>	Read what IRC investigative journalists have uncovered on the freenode pedophilia scandal https://encyclopediadramatica.rs/Freenodegate
+T 1533135854 18<Guest1633518>	A fascinating blog by freenode staff member Matthew 'mst' Trout https://MattSTrout.com/

@@ -1,0 +1,417 @@
+**** BEGIN LOGGING AT Wed Oct  3 13:09:28 2018
+
+Oct 03 13:09:28 *	Now talking on #java
+Oct 03 13:10:55 <lufimtse>	Hello folks, does anyone know, Does JBoss EAP 7.1 work well with OpenJDK, or is it better to run on Oracle java? (I understand the compatability testing was done on both, but I'm wondering if there are known issues with OpenJDK). Context: Client uses EAP with Oracle Java 1.8, I want to know if I should recommend switching to OpenJDK
+Oct 03 13:11:42 <jvanek>	lufimtse, You ask here?
+Oct 03 13:11:47 <jvanek>	of courseOpenJDK!
+Oct 03 13:12:00 <jvanek>	definltley recommend them OpenJDK
+Oct 03 13:12:09 <jvanek>	oracle JDK is dead thing
+Oct 03 13:12:17 <aph>	jvanek: lol!
+Oct 03 13:12:22 <jvanek>	O:)
+Oct 03 13:13:10 <lufimtse>	jvanek, They connect to an Oracle DB. Do you know, can OpenJDK do the same stuff for connecting to OracleDB?
+Oct 03 13:13:42 <aph>	lufimtse: we're pretty confident in openjdk. But it's probably a good idea to ask the JBoss EAP people
+Oct 03 13:13:43 <lufimtse>	I used to be on the eclipse team. We'd run Eclipse on OpenJDK :-).
+Oct 03 13:13:53 <lufimtse>	aph, do we have a channel for EAP?
+Oct 03 13:14:02 <lufimtse>	any one know?
+Oct 03 13:14:22 <aph>	lufimtse: #jboss
+Oct 03 13:14:32 <lufimtse>	aph, thank you. 
+Oct 03 13:14:44 *	mbooth waves at lufimtse 
+Oct 03 13:14:53 <lufimtse>	jvanek, You said Oracle JDK is a dead thing. Can you elaborate?
+Oct 03 13:15:04 *	lufimtse waves back at mbooth, :-)
+Oct 03 13:15:44 <aph>	lufimtse: we no longer ship it as part of enterprise linux and oracle are going to move over to paid subscriptions only Real Soon Now
+Oct 03 13:16:29 <aph>	lufimtse: so, not strictly speaking dead, but dead to us. 'cos we're not paying
+Oct 03 13:16:46 <jvanek>	lufimtse,  connection form oracleJDK or OpenJDK to OraclDB is via same driver...
+Oct 03 13:29:33 <lufimtse>	jvanek, thank you. 
+Oct 03 13:30:05 <lufimtse>	Btw, how well does Red Hat support OpenJDK related problems? I read somewhere that Oracle develops OpenJDK. How much OpenJDK do we do?
+Oct 03 13:30:17 <jvanek>	lufimtse,  the best
+Oct 03 13:30:26 <lufimtse>	e.g if there is a JVM crash involving OpenJDK, I guess we dig into it?
+Oct 03 13:30:36 <jvanek>	lufimtse,  aph can fix anything
+Oct 03 13:30:41 <lufimtse>	:-)
+Oct 03 13:30:48 <jvanek>	and the rest of the java team is just step behind
+Oct 03 13:30:48 <lufimtse>	how many engineers do we have working on Openjdk?
+Oct 03 13:30:50 <lufimtse>	ish?
+Oct 03 13:30:56 <jvanek>	dbhole,  ^
+Oct 03 13:30:59 <dbhole>	lufimtse: who is asking?
+Oct 03 13:31:06 <lufimtse>	dbhole, hello 
+Oct 03 13:31:11 <jvanek>	dbhole,  how can you, itis obvious, lftimase :0
+Oct 03 13:31:29 <dbhole>	:) I meant is it a customer asking? Usually we try not to give a solid number for that
+Oct 03 13:32:33 <lufimtse>	dbhole, I'm downtown at Interac. They have JBoss EAP 7.1 with Oracle JDK. I think they're using Oracle JDK for historical reasons (4+ years). I'm looking for reasons to convince them to move to OpenJDK.    Ok, if we don't give out the number, I won't mention. 
+Oct 03 13:33:53 <dbhole>	lufimtse: yeah best to stay away from a number, other than stating that we fully support it and that we will continue supporting 8 until June 2023
+Oct 03 13:34:19 <lufimtse>	dbhole, ah. That's very useful.
+Oct 03 13:34:35 <lufimtse>	Do we have articles that explain that Red Hat does less support for OracleJDK?
+Oct 03 13:35:30 <lufimtse>	aph, ^
+Oct 03 13:36:20 <jvanek>	lufimtse,  we did no supoprt
+Oct 03 13:36:25 <jvanek>	we only repacked blobs
+Oct 03 13:36:31 <jvanek>	so support was for integration only
+Oct 03 13:36:43 <lufimtse>	when did we end the integration?
+Oct 03 13:36:54 <jvanek>	in 14 days will be last update
+Oct 03 13:36:59 <lufimtse>	oh
+Oct 03 13:37:05 <jvanek>	not sure how much this is confidential...
+Oct 03 13:37:11 <jvanek>	dbhole,  ^
+Oct 03 13:37:17 <lufimtse>	I'll use the words "probably this year"
+Oct 03 13:37:23 <jvanek>	yy
+Oct 03 13:37:29 <lufimtse>	so what about people who use Oracle on RHEL 7?
+Oct 03 13:37:34 <lufimtse>	via standalone download?
+Oct 03 13:37:38 <lufimtse>	are there problems for those people?
+Oct 03 13:37:41 <jvanek>	poor guys....
+Oct 03 13:37:56 <dbhole>	lufimtse: we do no support for Oracle JDK. Unless they are getting Oracle JDK through us already, they are no longer allowed to install new instances. Any instances they have will become completely unsupported after November 2018. Until then, we will support existing Oracle JDK installs for installation/packaging issues, and we can open a ticket on behalf of customers with Oracle, but we cannot guarantee fixes and that too will stop ...
+Oct 03 13:38:03 <dbhole>	... after November 2018
+Oct 03 13:38:07 <jvanek>	aph,  you see? Again sombody wishes static builds
+Oct 03 13:38:23 <jvanek>	aph,  and you have not seen https://bugzilla.redhat.com/show_bug.cgi?id=1569351
+Oct 03 13:38:29 <jvanek>	aph,  for your own sake, donot read
+Oct 03 13:38:47 *	lufimtse curious
+Oct 03 13:39:18 <dbhole>	basically, unless they are paying Oracle JDK, their only option is to use OpenJDK. Oracle JDK8 from the Oracle site can be used until Jan 2019 only, after that it turns paid. Oracle JDK11 is not allowed for commercial use at all from their site. For commercial use, the only option is http://jdk.java.net/11/ which till be updated until March 2019
+Oct 03 13:41:07 <dbhole>	jvanek: their use case makes sense though,, in the Java world it is pretty common to want to use zips and as you stated in bug today, with dynamic they cant use latest openjdk on EUS streams 
+Oct 03 13:41:22 <dbhole>	as much of a pain it is for us :)
+Oct 03 13:42:50 <jvanek>	dbhole,  the legacy Rhel do not gave so much sense
+Oct 03 13:43:13 <jvanek>	dbhole,  still our whole team is walking aorund static builds
+Oct 03 13:43:24 <jvanek>	and trying to convice ourselves that they donot exists
+Oct 03 13:43:39 <jvanek>	for at least two years, there was no decission
+Oct 03 13:43:54 <jvanek>	quite a faith was in AdoptOJDK, but I failed here and t have proper agant you need fulltimer
+Oct 03 13:44:17 <jvanek>	or to reuse akashche_afk 's or jvanek 's static builds
+Oct 03 13:44:24 <jvanek>	with jdk8 slowly failing to us....
+Oct 03 13:44:25 <dbhole>	jvanek: they are not legacy, we actively support RHEL 7.3 still for example.. customers on that have no way to use newer secure OpenJDK there
+Oct 03 13:44:37 <jvanek>	dbhole,  hm
+Oct 03 13:44:47 <jvanek>	right, jdk was happily excluded from those ELTS supports
+Oct 03 13:44:51 <jvanek>	ok, here it strikec
+Oct 03 13:44:52 <jvanek>	ok, here it striked
+Oct 03 13:46:27 <lufimtse>	dbhole, thank you for your explanation. So we have no ZIP versions of OpenJDK, only rpms. 
+Oct 03 13:46:40 <lufimtse>	dbhole, do we backport openjdk 1.8 stuff to RHEL 6.10?
+Oct 03 13:46:40 <dbhole>	lufimtse: correct, and np!
+Oct 03 13:46:59 <dbhole>	lufimtse: I believe so.. jvanek ^ ?
+Oct 03 13:47:05 <dbhole>	we still update 6.10 right?
+Oct 03 13:47:34 <lufimtse>	dbhole, they're using RHEL 6.x. I'm wondering if I have to get them to upgrade to RHEL 7, or if they can use 6.x for now.
+Oct 03 13:47:36 <dbhole>	hmm, is brew down?
+Oct 03 13:47:54 <jvanek>	yes, 6.10 is still alive
+Oct 03 13:51:13 <lufimtse>	oki.
+Oct 03 14:02:06 <aph>	jvanek: thank you for that. or something
+Oct 03 14:07:40 <jvanek>	sorry :(
+Oct 03 14:12:19 <lufimtse>	aph, jvanek dbhole. Is OpenJDK more or less the same as OracleJDK these days or is there something that OracleJDK does that OpenJDK doesn't?
+Oct 03 14:12:55 <dbhole>	lufimtse: as far as Java SE is concerned, more or less the same -- some minor differences in font rendering and such
+Oct 03 14:14:41 <dbhole>	lufimtse: We do not ship JavaFX so if they have any JavaFX apps those will not port.. JavaFX is not part of the Java SE specification though so if the apps are correctly SE compliant, they should just work.. tbh the best way is to just replace the jdk in a sandbox and see if the app works and passes tests.. it is quite easy to replace
+Oct 03 14:24:46 <lufimtse>	dbhole, I see. Thank you very muhc.
+Oct 03 14:24:51 <lufimtse>	dbhole++
+Oct 03 14:25:04 <lufimtse>	aph++ jvanek++ :-)
+Oct 03 14:25:30 <dbhole>	lufimtse: np
+Oct 03 21:12:39 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Oct  3 21:12:39 2018
+
+**** BEGIN LOGGING AT Wed Oct  3 21:12:50 2018
+
+Oct 03 21:12:50 *	Now talking on #java
+Oct 04 09:34:34 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Oct  4 09:34:34 2018
+
+**** BEGIN LOGGING AT Thu Oct  4 09:34:44 2018
+
+Oct 04 09:34:44 *	Now talking on #java
+Oct 04 09:50:42 <neugens>	jvanek, ping
+Oct 04 10:34:30 <lufimtse>	(low priority, just curious) Does anyone know when OpenJDK 11 will be available in RHEL? According to https://access.redhat.com/articles/3409141 they mention Sept 2018. It's around in Fedora, but I haven't seen it in RHEL yet.
+Oct 04 10:36:05 <lufimtse>	officially it doesn't look like we have dates for OpenJDK 11 info yet. https://access.redhat.com/articles/1299013#OpenJDK_Lifecycle_Dates_and_RHEL_versions 
+Oct 04 10:36:38 <jerboaa>	lufimtse, https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=69258
+Oct 04 10:36:52 <jerboaa>	lufimtse, planned for rhel 7.6
+Oct 04 10:37:20 jerboaa jdcasey jjanco jkang|wfh jkepler1 Jmatsuok johara jperkins juril jvanek 
+Oct 04 10:37:23 <lufimtse>	jerboaa, I see. Thank you. 
+Oct 04 10:39:03 <jerboaa>	anytime
+Oct 04 10:40:41 <jvanek>	neugens,  whats up?
+Oct 04 10:42:17 <jvanek>	jerboaa,  I think the findings of adinn  apply also to the reproducer of yours
+Oct 04 10:43:58 <neugens>	jvanek, hi! I wanted to double check with you the bug id that was stück on the desktop people
+Oct 04 10:44:13 <neugens>	 https://bugzilla.redhat.com/show_bug.cgi?id=1496205
+Oct 04 10:44:18 <jvanek>	neugens,  persistent issue
+Oct 04 10:44:21 <neugens>	did we have anything else?
+Oct 04 10:44:24 <jvanek>	what with it?
+Oct 04 10:44:34 <neugens>	just sent them a ping
+Oct 04 10:44:40 <neugens>	but I don't expect anyone to be awake
+Oct 04 10:44:47 <jerboaa>	jvanek, Oh, I missed that. thanks.
+Oct 04 10:46:16 <jvanek>	jerboaa,  double check please
+Oct 04 10:46:25 <jvanek>	I jsut have that suspicion
+Oct 04 10:46:44 <jerboaa>	jvanek, of course.
+Oct 04 11:18:24 <adinn>	jerboaa: does what I found make any sense of the issue you are looking at? do you need any help?
+Oct 04 11:19:11 <jerboaa>	adinn, it makes sense, but I need to reproduce myself first. thanks.
+Oct 04 11:20:45 <adinn>	jerboaa: ok. shout if you need any help, especially with the Inet serialization classes (they are a tad gross :-)
+Oct 04 11:21:22 <jerboaa>	adinn, appreciate it. thanks.
+Oct 04 11:25:47 <rwestrel_>	adinn: are you ok with fix for 8211320?
+Oct 04 11:31:12 <aph>	martin_uy: found the cause of the jboss build failure. you're not allowed to have absolute paths in manifest classpaths, and this CPU adds a check for that
+Oct 04 11:31:37 <lufimtse>	Can people run Java7 application and Java8 applications at the same time without issues? (For test, I've ran EAP6 on Java7, switched java to java 8 via alternatives and ran EAP7 on java8. This seems to work well. But I'm wondering if there are any known issues from an engineering perspectives?)
+Oct 04 11:31:53 <martin_uy>	aph: do you know which bug is the one related to that?
+Oct 04 11:32:22 <aph>	we have a chat channel for the CPU, don't we? remind me what it's called
+Oct 04 11:32:27 <jerboaa>	lufimtse, define "at the same time"?
+Oct 04 11:32:45 <lufimtse>	e.g two web servers, on different ports
+Oct 04 11:32:53 <lufimtse>	at the same time as in at run time
+Oct 04 11:33:15 <martin_uy>	aph: java-sec
+Oct 04 11:33:55 <jerboaa>	lufimtse, if you switch alternatives' java you switch the system wide java
+Oct 04 11:34:39 <lufimtse>	jerboaa, I got it to work by launching the fist java7 app, then switching to java8 with alternatives, then launching java 8 app. Is that bad?
+Oct 04 11:34:47 <lufimtse>	or specify the java path manuall
+Oct 04 11:34:54 <aph>	lufimtse: it's very bad
+Oct 04 11:35:06 <aph>	lufimtse: specify the one you want on the command line
+Oct 04 11:35:21 <lufimtse>	aph, I see. Thank you for info. 
+Oct 04 11:35:27 <jerboaa>	lufimtse, on rhel. so in order to run eap on jdk 7 and jdk 8. use /usr/lib/jvm/java-1.8.0-openjdk/bin/java <something> and /usr/lib/jvm/java-1.7.0-openjdk/bin/java <something>
+Oct 04 11:35:43 <aph>	jerboaa: better just /usr/lib/jvm/java-1.8.0/bin/java
+Oct 04 11:35:53 <lufimtse>	So would it be ok to run both jdk 1.7 and jdk 1.8 concurrently if we specify the paths manually?
+Oct 04 11:36:00 <aph>	jerboaa: cos updates will break run scripts every time you update
+Oct 04 11:36:09 <aph>	lufimtse: thath's how it's supposed to work
+Oct 04 11:36:23 <jerboaa>	aph, ok
+Oct 04 11:36:28 <lufimtse>	ah, ok. Thank you.
+Oct 04 11:37:15 <aph>	adinn: who is on the wildfly team? do you know anyone?
+Oct 04 12:16:40 <adinn>	aph: I'm not absolutely but the github wildfly group includes David Lloyd Jmes Perkins and Jeff Mesnil https://github.com/orgs/wildfly/people
+Oct 04 12:18:10 <aph>	adinn: ok
+Oct 04 12:58:26 <omajid>	hm. anyone around who is involved in rhel 8?
+Oct 04 13:25:15 <akashche>	shade, on jdk11-arm32, it works with newer gcc but is broken with gcc 4.8
+Oct 04 13:25:26 <shade>	yeah
+Oct 04 13:25:43 <shade>	I am just giving guy a binary to work with, because I think that's his goal :)
+Oct 04 21:01:33 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Thu Oct  4 21:01:33 2018
+
+**** BEGIN LOGGING AT Fri Oct  5 17:21:00 2018
+
+Oct 05 17:21:00 *	Now talking on #java
+Oct 05 17:46:16 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Oct  5 17:46:16 2018
+
+**** BEGIN LOGGING AT Sun Oct  7 19:38:19 2018
+
+Oct 07 19:38:19 *	Now talking on #java
+**** BEGIN LOGGING AT Mon Oct 15 12:10:10 2018
+
+Oct 15 12:10:10 *	Now talking on #java
+Oct 16 08:42:51 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Oct 16 08:42:51 2018
+
+**** BEGIN LOGGING AT Tue Oct 16 11:37:33 2018
+
+Oct 16 11:37:33 *	Now talking on #java
+Oct 16 11:51:33 <jerboaa>	shade, Hi! There are going to be some JDK 11 and container footprint tests being done. Shall I loop you in to get shenandoah considered?
+Oct 16 11:51:41 <shade>	yes
+Oct 16 13:23:25 *	chrisphi_ power returns...
+Oct 17 11:53:43 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Oct 17 11:53:43 2018
+
+**** BEGIN LOGGING AT Thu Oct 18 10:12:44 2018
+
+Oct 18 10:12:44 *	Now talking on #java
+Oct 18 10:17:19 <neugens>	shade, yes, that's just an overflow of the integer that becomes negative again because it wraps around, is it?
+Oct 18 10:17:43 <shade>	neugens: http://mail.openjdk.java.net/pipermail/shenandoah-dev/2018-October/007916.html
+Oct 18 10:17:46 <neugens>	I've seen this done in C as an optimisation, except that it broke with arm that doesn't wrap
+Oct 18 10:18:15 <neugens>	I wonder if this produces the same with the arm port :)
+Oct 18 10:19:17 <neugens>	funny bug
+Oct 18 10:19:22 <zgu_>	neugens: I think because of positive has one less number
+Oct 18 10:19:27 <neugens>	yeah
+Oct 18 10:19:42 <neugens>	if you add to MAX_VALUUE you get MIN_VALUE
+Oct 18 10:19:47 <neugens>	add 1
+Oct 18 10:20:40 <neugens>	I wonder if this is the same on arm :)
+Oct 18 10:24:42 <jerboaa>	jvanek, does that ring a bell? http://pastebin.test.redhat.com/658661
+Oct 18 10:27:25 <chrisphi_>	Is anyone succesfully using zoom to attend the loom mtg (vaguely dr seus that)
+Oct 18 10:29:11 <jerboaa>	neugens, --^ you've used zoom or something for jmc stuff, haven't you?
+Oct 18 10:29:22 <neugens>	yes
+Oct 18 10:29:33 <neugens>	zoom, is like blujeans
+Oct 18 10:29:54 <neugens>	there's an rpm you need to install, is on their website
+Oct 18 10:30:04 <neugens>	or you can dial via phone if they share the meeting number
+Oct 18 10:30:20 <neugens>	works on fedora and rhel (at least 7)
+Oct 18 10:32:54 <chrisphi_>	neugens: Will try phone.
+Oct 18 10:35:25 <chrisphi_>	When I dial the number there are 3 participants all me... very dr seussian... (And a great echo generator ;-)
+Oct 18 10:36:31 <chrisphi_>	Maybe I've got time wrong 1500 UTC S/B 10 am EDT?
+Oct 18 10:42:04 <chrisphi_>	Hmm no response, signed in via both Zoom app and Zoom ext under Chrome , nobody but me there... 
+Oct 18 10:43:36 <chrisphi_>	aph,chf Are either of you in the meeting ?
+Oct 18 10:43:53 <chf>	I thought it was at 11?
+Oct 18 10:44:40 <chrisphi_>	Ah maybe I'm off by 1 due to daylight savings... OK will try again at 11 Thanks!
+Oct 18 11:04:56 <neugens>	is that in europe?
+Oct 18 11:05:06 <neugens>	we still have summer time
+Oct 18 11:05:17 <neugens>	(it's 17:00 here)
+Oct 18 11:33:36 <chrisphi_>	Hmmm still no body but me in the zoom mtg...
+Oct 18 11:36:44 <lufimtse>	jerboaa, In regards to our earlier discussion on using java versions. The client here wants to run different java applications on different OpenJDK 'minor' versions. (e.g 8.60  8.151,   8.181). The reason is that some apps take longer to test/verify than others and they have multiple apps per server. Our KB says that as of RHEL 7 this is supported: https://access.redhat.com/solutions/3508401 . If I understand correctly, they would have to 
+Oct 18 11:36:44 <lufimtse>	set the JAVA_HOME manually and refer to the java by full path. Are there any problems/concerns that come to mind by using this method for running eap/spring java applications?
+Oct 18 11:38:03 <shade>	the usual recipe is: export JAVA_HOME=...; export PATH=$JAVA_HOME/bin:$PATH -- because some tools are known to reach for e.g. javac via path too
+Oct 18 11:41:50 <jerboaa>	lufimtse, I don't know about the supported way for running eap/spring with a given JAVA_HOME. but yes, parallel minor versions is something we support as described via the KB article. Of course that means users won't get security updates et. al.
+Oct 18 11:42:20 <jerboaa>	lufimtse, that's for eap/spring people to tell you.
+Oct 18 11:43:07 <lufimtse>	shade, jerboaa I see. Thank you.  Btw, the article mentions (in a private comment) that that is only for RHEL 7+. Do we support minor versions for RHEL 6 too?
+Oct 18 11:43:48 <jerboaa>	lufimtse, also note that if customers run into JDK crashes with some old version we usually ask them as one of the first questions as to whether it reproduces on latest supported JDK
+Oct 18 11:44:17 <lufimtse>	jerboaa, I see
+Oct 18 12:02:55 *	chrisphi_ gave up on meeting...
+Oct 18 12:13:42 <lufimtse>	Can there be any issues for when you update your RHEL and keep using an older OpenJDK?
+Oct 18 12:14:04 <lufimtse>	Does OpenJDK use any system libs or is it self-contained?
+Oct 18 12:14:39 <lufimtse>	I mean older OpenJDK *minor* builds
+Oct 18 12:16:32 <jerboaa>	lufimtse, OpenJDK uses system libs, yes. to what extent varies from version to version
+Oct 18 12:17:05 <lufimtse>	can updating RHEL break an older OpenJDK?
+Oct 18 12:17:19 <jerboaa>	define "updating" :)
+Oct 18 12:17:25 <lufimtse>	sudo yum update :-)
+Oct 18 12:17:51 <lufimtse>	assuming we keep openjdk builds via 'installonlypkgs' 
+Oct 18 12:18:05 <lufimtse>	and use old builds and update the RHEL server
+Oct 18 12:18:27 <lufimtse>	my concern is that OpenJDK uses system libs and if those are updated, it could break some apps that use older openjdk apps. but idk
+Oct 18 12:21:52 <jerboaa>	I'm not sure. But given there is API/ABI promise for RHEL, I'd think it should be OK. at least we haven't heard of issues related to that.
+Oct 18 12:22:11 <jerboaa>	this installonlypkgs trick is still somewhat a corner case
+Oct 18 12:23:08 <omajid_wfh>	i think an upgrade of nss might cause an issue. historically version mismatch between nss and openjdk has been problematic, because we use internal apis from nss 
+Oct 18 12:24:22 <jerboaa>	omajid_wfh, weren't the issues wrt. to newer nss used at build time than was available at runtime?
+Oct 18 12:24:59 <jerboaa>	omajid_wfh, but yes. nss is probably the most 'interesting' case.
+Oct 18 12:25:43 <omajid_wfh>	jerboaa: you are probably right. i just remember the version mismatches caused issues.
+Oct 18 12:26:13 <jerboaa>	fwiw, we have requires baked into the rpms these days so that this cannot happen.
+Oct 18 12:26:53 <jerboaa>	Requires: nss-something >= build-version-of-nss
+Oct 18 12:29:30 <jerboaa>	lufimtse, as to the rhel 7+ question. I'm not sure. Jiri Vanek would likely know whether RHEL-6 supports it. looking at the specs I'm getting inconclusive answers
+Oct 18 12:31:57 jerboaa jjanco jkang Jmatsuok johara jperkins juril 
+Oct 18 12:32:38 <lufimtse>	omajid_wfh, jerboaa I see. Thank you.   When you say that 'requires baked into rpms', do you know, did we start doing that only in RHEL 7?
+Oct 18 12:32:47 <lufimtse>	would the nss thing potentially occur on RHEL 6?
+Oct 18 12:33:00 <lufimtse>	when you say inconculsive, are there reports of it not working on rhel 6?
+Oct 18 12:33:34 <jerboaa>	lufimtse, inconclusive as in it's not clear whether it has a chance of working.
+Oct 18 12:33:46 <lufimtse>	jerboaa, I see
+Oct 18 12:34:27 <jerboaa>	lufimtse, we'd have to know when SunEC cipher support via system NSS was added.
+Oct 18 12:34:40 <jerboaa>	maybe I can find something
+Oct 18 12:34:51 <lufimtse>	jerboaa, that'd be useful
+Oct 18 12:42:29 <lufimtse>	btw, is there an internal mailing list for our OpenJDK development that you guys work in?
+Oct 18 12:42:30 <jerboaa>	looks like jdk 7 and 8 have it in rhel-6.8https://bugzilla.redhat.com/show_bug.cgi?id=1208307
+Oct 18 12:42:42 <lufimtse>	like for swt/eclipse we had swt-dev kinda thing.
+Oct 18 12:43:02 <jerboaa>	most of our work is upstream
+Oct 18 12:43:21 <jerboaa>	there is java-project@redhat.com
+Oct 18 12:45:23 <jerboaa>	requires for NSS libs being used at build time are there too.
+Oct 18 13:00:15 <lufimtse>	jerboaa, thank you. I wrote an email and cc'ed a bunch of you guys :-)
+Oct 18 13:00:33 <lufimtse>	including Jiri and a few other OpenJDK folks 
+Oct 18 13:09:58 <jerboaa>	lufimtse, support questions are best directed to support-openjdk@redhat.com
+Oct 18 13:10:06 <jerboaa>	lufimtse, for the future
+Oct 18 13:10:12 <lufimtse>	jerboaa, ah, thank you. 
+Oct 18 15:02:00 <dbhole>	zgu_: hi, just give me a few more min to start please.. just having some coffee 
+Oct 18 15:02:25 <zgu_>	dbhole: sure
+Oct 19 13:10:02 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Fri Oct 19 13:10:02 2018
+
+**** BEGIN LOGGING AT Fri Oct 19 15:36:10 2018
+
+Oct 19 15:36:10 *	Now talking on #java
+Oct 20 10:49:27 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sat Oct 20 10:49:27 2018
+
+**** BEGIN LOGGING AT Mon Oct 22 08:51:13 2018
+
+Oct 22 08:51:13 *	Now talking on #java
+Oct 22 08:59:52 <dmlloyd>	hi folks... I was wondering if anyone here had any thoughts on http://mail.openjdk.java.net/pipermail/core-libs-dev/2018-October/056122.html
+Oct 22 09:14:04 <radka>	ping jvanek / zzambers : What version is our rhel8 image?
+Oct 22 09:15:13 <zzambers>	radka, are you talking about RHEL-8 VM?
+Oct 22 09:15:30 <radka>	zzambers: yup
+Oct 22 09:15:47 <radka>	zzambers: I mean the one in our jenkins infra
+Oct 22 09:16:32 <zzambers>	radka, that one uses latest (finished) compose repos
+Oct 22 09:17:11 <radka>	zzambers: I see, thank you :]
+Oct 22 09:18:27 <zzambers>	radka, np, for repo urls see: http://git.engineering.redhat.com/git/users/jvanek/TckScripts/.git/tree/kickstarter/postinst/postinst.sh#n743
+Oct 22 09:18:52 <radka>	zzambers: thanks :)
+Oct 22 09:22:08 <zzambers>	zzambers, you're welcome :)
+Oct 22 09:28:42 <zzambers>	^^ should have been radka :
+Oct 22 09:28:51 <zzambers>	:)
+Oct 22 09:33:32 <zzambers>	radka, but I am not sure when system was actually updated (dnf update) if you meant that
+Oct 22 09:37:54 <zzambers>	radka, It completely recreated about month and half ago, but I can run update on it
+Oct 22 09:38:56 <aph>	dmlloyd: it doesn't look too terrible, but the devil is in the details. I guess it should be fine and there will be no security implications, but my instinct is not to touch anything in this area
+Oct 22 09:39:08 <aph>	dmlloyd: simple cowardice on my part, I guess
+Oct 22 09:39:27 <dmlloyd>	it only adds POSIX_SPAWN as an option; it does not change any defaults.
+Oct 22 09:39:38 <dmlloyd>	in order to use it, a jdk system property must be specified.
+Oct 22 09:39:50 <dmlloyd>	basically, it allows it to be tested.
+Oct 22 09:39:52 <aph>	yeah, I saw that, which makes me less worried
+Oct 22 09:40:18 <dmlloyd>	I'd be more worried about linux using vfork :)
+Oct 22 09:40:36 <aph>	dmlloyd: sure. it's an evil hack.
+Oct 22 09:40:37 <dmlloyd>	the solaris port has been on posix_spawn for a long time, which should also lend assurance
+Oct 22 09:40:47 <aph>	ah, indeed it does.
+Oct 22 09:41:02 <aph>	dmlloyd: are you familiar with the jdk-submit repo?
+Oct 22 09:41:15 <dmlloyd>	I've heard of it
+Oct 22 09:41:32 <dmlloyd>	it doesn't seem to be mentioned on https://openjdk.java.net/contribute/ though
+Oct 22 09:41:39 <aph>	https://wiki.openjdk.java.net/display/Build/Submit+Repo
+Oct 22 09:42:17 <radka>	zzambers: It's not a rush, if you guys will need it updated now for beta, you can update it, if not, don't bother, I can work with that :)
+Oct 22 09:42:22 <dmlloyd>	maybe I'll give that a try, thanks aph
+Oct 22 09:45:05 <aph>	dmlloyd: once you get the OK, and if no-one objects, I'll OK it
+Oct 22 09:45:12 <zzambers>	radka, ok, I'll take a look after CPU then.
+Oct 22 09:45:18 <aph>	dmlloyd: get the ok from jdk-submit, I mean
+Oct 22 10:02:10 <dbhole>	aph: ping .. 1on1?
+Oct 22 10:02:19 <aph>	dbhole: i'm on
+Oct 22 10:02:39 <dbhole>	aph: you are? hmm
+Oct 22 10:02:41 <dbhole>	I dont see you
+Oct 22 10:02:43 <dbhole>	let me redial
+Oct 22 10:03:11 <aph>	dbhole: my fault
+Oct 22 10:03:23 <aph>	there was another "press this button" button to press
+Oct 22 11:00:53 <gnu_andrew>	dbhole: we have a 1-on-1 today?
+Oct 22 11:01:09 <dbhole>	gnu_andrew: we do, I am on
+Oct 22 11:01:17 <gnu_andrew>	dbhole: ok, dialing in
+Oct 22 16:38:34 <gnu_andrew>	dbhole: could you dev-ack https://bugzilla.redhat.com/show_bug.cgi?id=1598152 and https://bugzilla.redhat.com/show_bug.cgi?id=1477159 please? Moved both to RHEL 7.7
+Oct 23 09:05:54 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Tue Oct 23 09:05:54 2018
+
+**** BEGIN LOGGING AT Fri Oct 26 16:35:02 2018
+
+Oct 26 16:35:02 *	Now talking on #java
+Oct 28 09:19:32 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Sun Oct 28 09:19:32 2018
+
+**** BEGIN LOGGING AT Wed Oct 31 11:34:58 2018
+
+Oct 31 11:34:58 *	Now talking on #java
+Oct 31 11:43:32 <shade>	is it even okay to show up in purple hat in public? :)
+Oct 31 11:49:30 <siege>	shade, https://imgur.com/gallery/PRowL4r?fbclid=IwAR3abA24istOIFxjfCYtleBpd100lSXQdEFLZl5mKFNar2lO3hWOZxtmkBc
+Oct 31 11:49:52 <shade>	not a fan of blue fedoras
+Oct 31 11:49:57 <shade>	I think purple captures the message better :)
+Oct 31 12:26:26 <dbhole>	jvanek: ping
+Oct 31 12:26:39 <dbhole>	jvanek: wasn't jdk11 stuff supposed to be in 7.6 release notes?
+Oct 31 12:26:50 <dbhole>	or am I confusing that with rhel 8?
+Oct 31 12:28:35 <omajid_wfh>	shade: blue fedora? like https://getfedora.org/static/images/fedora-logotext.png :)
+Oct 31 12:30:23 <shade>	oh, btw, what was the recent CPU patch that was broken by Oracle, but we did it right?
+Oct 31 12:30:27 <shade>	is this the one? https://hg.openjdk.java.net/jdk/jdk/rev/f54dcfc5a5f8
+Oct 31 12:32:27 <shade>	gnu_andrew, martin_uy: ^^^
+Oct 31 12:32:46 <gnu_andrew>	shade: yup
+Oct 31 12:32:50 <martin_uy>	shade: checking..
+Oct 31 12:32:51 <gnu_andrew>	that's the fix
+Oct 31 12:33:09 <martin_uy>	shade: yes
+Oct 31 12:33:09 <gnu_andrew>	8195874 is the breaker
+Oct 31 12:33:10 <shade>	okay, can I boast we found it in our CPU? :)
+Oct 31 12:33:40 <gnu_andrew>	shade: in our testing? I think so, but check with dbhole 
+Oct 31 12:33:44 <shade>	dbhole: ^^^
+Oct 31 13:19:35 <dbhole>	gnu_andrew, shade: I don't see why not .. the original and the regression fix are both public now. Was the original fix indicated in the cpu matrix?
+Oct 31 13:20:02 <dbhole>	if it wasn't, we cant talk about it as we cannot say a bug s a cpu fix if it wasnt in the matrix
+Oct 31 13:20:14 <dbhole>	s/s a/was a
+Oct 31 13:20:37 <gnu_andrew>	dbhole: I'll check
+Oct 31 13:21:53 <gnu_andrew>	dbhole: we can say it's a fix in 8u191 either way, can't we?
+Oct 31 13:22:22 <dbhole>	gnu_andrew: what do you mean? Would hg log of u191 show that it is in there?
+Oct 31 13:22:46 <dbhole>	gnu_andrew: we just cannot say or imply that it is a cpu fix unless it is in the public matrix
+Oct 31 13:23:44 <gnu_andrew>	dbhole: yes, either way
+Oct 31 13:26:20 <gnu_andrew>	dbhole: ok no, it's a defense-in-depth fix
+Oct 31 13:26:31 <gnu_andrew>	so a security patch, but no CVE
+Oct 31 13:27:08 <dbhole>	gnu_andrew: was it mentioned in any of the security release notes? If not, then unfortunately we can't mention it shade :/
+Oct 31 13:27:50 <shade>	ah, ok then
+Oct 31 13:28:06 <shade>	there is a trouble in OpenJDK Debian side which prompted me to question this
+Oct 31 13:28:21 <shade>	https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
+Oct 31 13:28:46 <shade>	that reflects back badly on OpenJDK itself
+Oct 31 13:29:17 <dbhole>	shade: Ah.. you can point to it and say that we found the error and spoke to oracle to partially revert and point to the revert, thats fine.. just cant say it was during cpu time, or that it is related to cpu in any way
+Oct 31 13:29:49 <dbhole>	s/cpu/security
+Oct 31 13:43:46 <gnu_andrew>	shade: so have they just patched from the original bundle? Because the fixed version went out with time before the unembargo
+Oct 31 13:44:01 <shade>	I imagine that what happened, yet
+Oct 31 13:44:03 <shade>	*yeah
+Oct 31 13:45:25 <gnu_andrew>	shade: yeah, I don't know what they're doing. There is no b13.
+Oct 31 13:45:51 <gnu_andrew>	oh wait even more confusing, the update should be 8u191, not 8u181
+Oct 31 20:45:48 *	Disconnected (Connection timed out)
+**** ENDING LOGGING AT Wed Oct 31 20:45:48 2018
+
+**** BEGIN LOGGING AT Fri Nov  9 11:18:10 2018
+
+Nov 09 11:18:10 *	Now talking on #java
+Nov 09 11:27:06 <stooke>	aph, ping?
+Nov 09 12:29:08 <gnu_andrew>	dbhole: could you dev-ack https://bugzilla.redhat.com/show_bug.cgi?id=1574469? Or maybe we can just close it?
+Nov 09 12:49:05 <dbhole>	gnu_andrew: done
+Nov 09 12:49:28 <gnu_andrew>	dbhole: thanks
+Nov 09 12:49:40 <dbhole>	np
+**** BEGIN LOGGING AT Wed Nov 21 09:34:28 2018
+
+Nov 21 09:34:28 *	Now talking on #java
+Nov 21 11:22:30 <adinn>	n.b. we have 3 jdk8u reviewers gnu_andrew, Roland and Zhengyu
+Nov 21 11:22:54 <gnu_andrew>	adinn: yeah, it's not the reviewers, but the 'approvers'. 
+Nov 21 11:23:13 <gnu_andrew>	adinn: the list of 'Maintainers' on here: https://openjdk.java.net/projects/jdk8u/
+Nov 21 11:23:31 <adinn>	yeah but reviewers helps
+Nov 21 11:23:39 <gnu_andrew>	adinn: I can nominate more people for reviewer, that's not so much the issue
+Nov 21 11:24:44 <adinn>	Well I'll be happy to help (once I am confirmed as a committer :-)
+Nov 21 11:25:52 <gnu_andrew>	adinn: too much bureaucracy all round :)
+Nov 21 11:29:44 <jerboaa>	http://mail.openjdk.java.net/pipermail/workshop-discuss/2018-November/000042.html
+Nov 21 11:30:03 <jerboaa>	OpenJDK Committers' Workshop
+Nov 21 11:42:18 <chf>	I'm disappointed that they chose to overlap the OpenJDK committers workshop with the JFOKUS JVM summit.  
+Nov 21 12:51:00 <zgu>	http://mail.openjdk.java.net/pipermail/jdk8u-dev/2018-November/008179.html
+Nov 21 12:51:38 <zgu>	"I'd like to invite new 
+Nov 21 12:51:38 <zgu>	non Oracle participants to help in maintainer duties. The primary duty 
+Nov 21 12:51:38 <zgu>	involved from here on is reviewing and making approval decisions on 
+Nov 21 12:51:38 <zgu>	incoming requests which will ultimately end up in the next, non Oracle 
+Nov 21 12:51:38 <zgu>	led, release of this Project (post release of JDK 8u202)."
+Nov 21 12:56:45 <jerboaa>	nice!
+Nov 21 12:58:29 <jerboaa>	somebody from our side needs to step up now ;-)
+**** BEGIN LOGGING AT Fri Dec  7 15:14:54 2018
+
+Dec 07 15:14:54 *	Now talking on #java
+**** BEGIN LOGGING AT Fri Dec 14 16:17:36 2018
+
+Dec 14 16:17:36 *	Now talking on #java

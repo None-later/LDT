@@ -1,0 +1,62 @@
+#!/bin/bash
+# Notability find
+
+# reference material:
+# https://stackoverflow.com/questions/4643438/how-to-search-contents-of-multiple-pdf-files
+
+# DESIGN:
+#########
+# nfind [-i|--index] TERM [INDEX]
+#
+# TODO - explain.
+
+# IMPLEMENTATION
+################
+
+# CONSTANTS
+GDRIVE_NOTABILITY_DIR="$(realpath ~/googleDriveRh/Notability/)/"   #'/' at the end so rsync copies content rather than folder.
+TMP_NOTABILITY_DIR="/tmp/notabilitycopy/"
+TMP_FIND_OUT=/tmp/nfindout   # temp file for storing find output, so we don't have to search twice to select.
+
+
+# handle '-i | --index' 
+if [[ "$1" == "-i" || "$1" == "--index" ]]; then
+	echo "STATUS: Copying pdfs for backup. (-i --index)"
+	mkdir -p $NOTABILITY_DIR
+	rsync -rtvu --delete-delay "$GDRIVE_NOTABILITY_DIR" "$TMP_NOTABILITY_DIR"
+	cd "$TMP_NOTABILITY_DIR"
+	echo "\nSTATUS: generating text files from pdf for searching"
+	find $(pwd) -name '*.pdf' -exec pdftotext -raw "{}" \;
+	echo "STATUS: Done"
+
+	shift  # this will remove '-i'.
+fi
+
+
+TERM="$1"
+INDEX="$2"
+
+if [[ "$INDEX" != "" ]]; then
+	echo "index is set"
+	# TODO cat nfindout, get index line, open in eveince with --find
+	evince --find "$TERM" "$(cat /tmp/nfindout | head -n $INDEX | tail -n 1 | cut -f1 -d ":" | sed 's/.txt/.pdf/')"
+	exit
+fi
+
+
+# Search text files and produce enumirated output.
+
+pwd | grep -i notability -q || cd $TMP_NOTABILITY_DIR
+find "$(pwd)" -name "*.txt" -exec grep -i --with-filename "$TERM" "{}" \; | tee /tmp/nfindout | nl | sed 's/\/tmp\/notabilitycopy//' | grep --color=always "$TERM"
+
+
+# Useful:
+# if not in Notability, go into.
+# pwd | grep -i Notability -q || cd ~/googleDriveRh/Notability
+# rsync -avzh ./Notability/ /tmp/notabilitycopy/
+# find $(pwd) -name '*.pdf' -exec pdftotext -raw "{}" \;
+
+# find $(pwd) -name "*.txt" -exec grep -i --with-filename note "{}" \; | tee /tmp/nfindout | nl | grep note
+
+# evince "$(cat /tmp/nfindout | head -n 5 | tail -n 1 | cut -f1 -d ":" | sed 's/.txt/.pdf/g')"
+

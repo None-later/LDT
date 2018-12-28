@@ -1,0 +1,103 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.4
+Creation-Date: 2018-04-30T14:15:01-04:00
+
+====== Week 18 2018 ======
+29 April to 05 May
+
+====== Observations and Life Lessons ======
+
+====== Weekly Goals ======
+
+====== Day Logs ======
+
+=== Sunday 29 April ===
+
+
+=== Monday 30 April ===
+
+
+=== Tuesday 01 May ===
+
+
+=== Wednesday 02 May ===
+
+
+=== Thursday 03 May ===
+
+
+=== Friday 04 May ===
+- Tried Xournal - good. Had to compile manually.
+   https://sourceforge.net/p/xournal/code/ci/master/tree/
+   git clone git://git.code.sf.net/p/xournal/code xournal-code
+   cd xournal-code/
+   ./autogen.sh
+   make
+   cd /src 
+   ./xournal
+
+- Contacted Xournal maintainer:
+  Zbigniew Jedrzejewski Szmek
+  Zbigniew Jedrzejewski Szmek's profile photo
+  zjedrzej@redhat.com
+
+- Tried Jarnal - subset of Xournal's functionality.
+  Ran via: java -jar jarnal.jar
+- Couldn't get Hoodle to work, (conflicting packages on Fedora 28, seemed like it would be hard to keep up to date).
+- Tried Write from: http://www.styluslabs.com/download/
+	- Didn't work well on Wayland/Fedora 28. (Couldn't select some tools). Lacked 'keyboard typing' input.
+
+
+=== Saturday 05 May ===
+
+
+====== Weekly Report ======
+
+  Highlight:
+  ##########
+  - Fixed (with Eric's suggestion): 533710 – [Wayland] Gnome-shell crashes when selecting an item from List
+
+  Last 7 days:
+  ############
+   * 533710 – [Wayland] Gnome-shell crashes when selecting an item from List
+	 - TL;DR; New in ~Gtk3.22, invisible windows have their GdkWindow disposed.
+			  Fix is not to hide windows when we add event hooks & manipulate them.
+	   Details:
+	 - Eclipse would cause all of gnome shell to crash.
+	 - Found a way to run eclipse in mutter (wayland session window), so that
+	   when eclipse crashes, it only crashed mutter instead of whole desktop.
+	 - Debugged Mutter, found that issue was in invalid gdk surface being passed
+	   from eclipse through gtk down to wayland.
+	 - Found commit that broke things. (at the time it was working, but due
+	   to later underlying changes in gtk, it caused breakage and caused regression)
+	 - Eric made a good suggestion on gtkWindow visibilty code. Upon digging deeper
+	   into it, that was the root cause. I.e, making windows invisible before
+	   before attaching events to it caused these events to pass an invalid window
+	   reference to Wayland.
+
+	* 534089 – [GTK3] Tabfolder setControl(..) breaks with a table that has composite controls
+	  - Implemented quickfix (reparenting using a deprecated function) so that
+		Photon release would function well.
+	  - Long-term fix is complicated as we'd have to re-parent all underlying
+		gdk windows. A new mechanism may need to be implemented for gtk4 port.
+
+	* (50 min effort) Wrote "IRC quick start guide" with diagram, as there was
+	  a complaint on memo list that IRC was too complicated.
+	  Received 7 likes and 157 unique page visitors. 
+	  Article was later referenced on memo list.
+	  https://mojo.redhat.com/docs/DOC-1170243
+
+  Previous 2 weeks 
+  ############
+   - Fixed Webkit2 crash due to broken C-Macro. #533545 & refactored related code to avoid such issues in the future.
+	 - No more (interesting) webkit2 bugs left in Bugzilla. 
+   - 527729 – Dehardcode Adwaita CSS theme fixes.  -> Allow people to turn of css fixes.
+
+
+  Next 7 days:
+  ############
+  - SWT intern presentation
+  - Bug 498217 [GTK3][DnD] Dragging parts does not show rectangle
+	* Only eclipse 'major' UI issue I'm aware of.
+	* This is not a major problem for experieced users, 
+	  but may bother new users and hinder eclipse adoption.

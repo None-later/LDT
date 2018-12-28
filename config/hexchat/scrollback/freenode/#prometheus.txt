@@ -1,0 +1,222 @@
+T 1539702533 19*	Now talking on 22#prometheus
+T 1539702533 22*	Topic for 22#prometheus is: Prometheus Monitoring System - https://prometheus.io - PromCon 2018 Schedule https://promcon.io/2018-munich/schedule/ - Register with Nickserv to join the channel
+T 1539702533 22*	Topic for 22#prometheus set by 26bbrazil!~bbrazil@gnewsense/friend/bbrazil (24Wed Aug  1 08:35:20 2018)
+T 1539702553 20<lufimtse>30	Hello Folks. Does Prometheus support Netflow?
+T 1539702553 29*	#prometheus :Cannot send to nick/channel
+T 1539702645 20<lufimtse>30	Hello Folks. Does Prometheus support Netflow?
+T 1539702700 19<SuperQ>	lufimtse: Not directly, no.
+T 1539702711 SuperQ superdump SuperQ[m] surajd[m] suresh2[m] suto[m] 
+T 1539702719 20<lufimtse>30	SuperQ, thank you
+T 1539702727 19<SuperQ>	lufimtse: I've done some experiemnts collecting flows and aggregating them in real-time
+T 1539702769 19<SuperQ>	lufimtse: Check out https://github.com/taktv6/tflow2
+T 1539702795 20<lufimtse>30	SuperQ, interesting. Thanks for sharing, I'll look at the git repo.
+T 1539702828 18<SuperQ18>	I wanted to setup a flow collector that does GeoIP lookups for every flow, and gives metrics on country-to-country stats.
+T 1539702836 18<SuperQ18>	For example
+T 1539702864 18<SuperQ18>	Others have talked about doing similar things with BGP AS tables
+T 1539702880 18<SuperQ18>	So you can see what ASNs your network is talking to in real time.
+T 1539702924 SuperQ superdump SuperQ[m] surajd[m] suresh2[m] suto[m] 
+T 1539702949 20<lufimtse>30	SuperQ, that's pretty interesting. In our case we're looking to figure out bandwidth bottlenecks in our network
+T 1539702962 20<lufimtse>30	or which connections are bottlenecked
+T 1539702974 20<lufimtse>30	as we're paying for size of pipe, but not it's usage
+T 1539703045 18<SuperQ18>	Yea, are you collecting SNMP metrics from your network?
+T 1539703570 SuperQ superdump SuperQ[m] surajd[m] suresh2[m] suto[m] 
+T 1539703577 20<lufimtse>30	SuperQ, not sure yet, we're exploring options
+T 1539704971 18<SuperQ18>	SNMP can be a good start. Prometheus can collect router and switch stats pretty easily via the snmp_exporter.
+T 1539705153 18<kryl18>	is it possible to match alerts based on "label" ? IF {{ $label.name }} == 0
+T 1539705188 18<kryl18>	labels:
+T 1539705569 18<kryl18>	# TYPE status gauge --> status{name="zee-123-zex"} 1.0 not sure it's exploitable like that ... And if neigher if I use zee-123-zex{type="status"} 1.0
+T 1539705860 18<SuperQ18>	kryl: You can use labels in the expression: `status{name="zee-123-zex"} == 0`
+T 1539705893 18<kryl18>	but I don't know the value of the label it's changing too often
+T 1539705906 18<SuperQ18>	Labels shouldn't change often.
+T 1539705935 18<SuperQ18>	Otherwise you'll blow up the server
+T 1539705940 18<kryl18>	ok so I'll keep the second option
+T 1539705963 18<kryl18>	zee-123-zex{type="status"} 1.0 < but I don't know how to math the names if they changes
+T 1539705966 18<SuperQ18>	Maybe if you explain what you're trying to monitor for, I can suggest some ideas
+T 1539705971 18<SuperQ18>	Metric names also should not change often.
+T 1539706003 18<SuperQ18>	Metric names should also never change.
+T 1539706014 18<kryl18>	I'll receive new a list of "devices" from an API, I'll have name & status essentials informations.
+T 1539706031 18<SuperQ18>	Sure
+T 1539706033 18<kryl18>	I use a homemade exporter
+T 1539706053 18<SuperQ18>	status{device_name="zee-123-zex"} 1.0
+T 1539706056 18<kryl18>	but sometime the API will remove or add new devices...
+T 1539706056 18<SuperQ18>	that's fine
+T 1539706064 18<SuperQ18>	Yes, sometimes changing is ok
+T 1539706084 18<kryl18>	and then I'll have to create alerts capable to fire only for one device.
+T 1539706105 18<SuperQ18>	How do you know which one to alert for?
+T 1539706117 18<kryl18>	it's about the status if it's 0 or 1 :)
+T 1539706134 18<SuperQ18>	Then just alert on `status == 0`
+T 1539706156 18<kryl18>	status = GaugeMetricFamily('status', 'device status', value=None, labels=['name']) / status.add_metric([i['name']], value=i['status'])
+T 1539706188 18<kryl18>	I can play with that in entry I guess there is a mistake at this place
+T 1539706243 18<SuperQ18>	Yea, that should work ok.
+T 1539706249 18<kryl18>	ok right now I just change data inside my exporter, and status don't appear in prometheus :-)
+T 1539706288 18<kryl18>	I was looking if there is a way to "clean" the data in prometheus
+T 1539706296 18<SuperQ18>	rm -rf data :)
+T 1539706300 18<kryl18>	not sure it will change anything it's just a parallel question
+T 1539706325 18<SuperQ18>	Do you see the status metric when you curl the exporter?
+T 1539706329 18<kryl18>	seriously ? you rm /var/lib/prometheus/metrics ? :-)
+T 1539706336 18<kryl18>	no I don't
+T 1539706339 18<SuperQ18>	That's one way.
+T 1539706348 18<kryl18>	oh sorry yes I do
+T 1539706348 18<SuperQ18>	Well, then there's something wrong with your exporter registry
+T 1539706351 18<kryl18>	but I don't see it in prometheus api
+T 1539706363 18<kryl18>	no sorry it's working with the exporter
+T 1539706366 18<SuperQ18>	Is your exporter reported as `up`?
+T 1539706385 18<kryl18>	one sec
+T 1539706389 18<SuperQ18>	and what about `scrape_samples_scraped`
+T 1539706420 18<kryl18>	I forgot to control this step... : text format parsing error in line 16: second HELP line for metric name "status"
+T 1539706452 18<SuperQ18>	O.o
+T 1539706478 18<SuperQ18>	Sounds like something is wrong with the exporter's output
+T 1539706780 18<kryl18>	I think I got it ;)
+T 1539706795 18<kryl18>	it's because I create Gauge many times... with the same name
+T 1539707148 18<kryl18>	SuperQ, it works right now, thank you
+T 1539707327 18<SuperQ18>	Yea, you create the gauge once, and the label values a bunch of times. :)
+T 1539707338 18<SuperQ18>	I'm not an expert in the Python way to do this. :)
+T 1539715262 18<gchristensen18>	I have an interesting setup where I have systemA and systemB, I want to use node-exporter on systemB but I can only access systemB over SSH through systemA. is there a nice way to handle this? I have 10 systems set up like this, each with their own systemA and systemB
+T 1539715295 18<gchristensen18>	(systemA is also only accessible over SSH)
+T 1539717873 18<kryl18>	hi
+T 1539717969 18<kryl18>	Error on notify: starttls failed: x509: certificate has expired or is not yet valid < is there a way to disable cert verification ?
+T 1539718013 18<kryl18>	alertmanager, version 0.5.1+ds (branch: debian/sid, revision: 0.5.1+ds-7+b2)
+T 1539791635 20*	Disconnected (20Connection timed out)
+T 1539791656 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1539791656 -18freenode-connect-	Due to the persistent ongoing spam, all new connections are being set +R (block messages from unidentified users) and will be scanned for vulnerabilities. This will not harm your computer, and vulnerable hosts will be notified.
+T 1539791657 24*	Received a CTCP 24VERSION from 18freenode-connect
+T 1539791661 19*	Now talking on 22#prometheus
+T 1539791661 22*	Topic for 22#prometheus is: Prometheus Monitoring System - https://prometheus.io - PromCon 2018 Schedule https://promcon.io/2018-munich/schedule/ - Register with Nickserv to join the channel
+T 1539791661 22*	Topic for 22#prometheus set by 26bbrazil!~bbrazil@gnewsense/friend/bbrazil (24Wed Aug  1 08:35:20 2018)
+T 1539795270 18<abond_18>	Hello... When the admin api is disabled do we have another way of deleting time series from the host? I made a bad rule and now I want to get rid of the data.
+T 1539795772 18<ptselios18>	bbrazil: Yes
+T 1539796201 18<bbrazil18>	abond_: there isn't
+T 1539796217 18<abond_18>	Bummer, thank you!
+T 1539871657 20*	Disconnected (20Connection timed out)
+T 1539871677 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1539871677 -18freenode-connect-	Due to the persistent ongoing spam, all new connections are being set +R (block messages from unidentified users) and will be scanned for vulnerabilities. This will not harm your computer, and vulnerable hosts will be notified.
+T 1539871677 24*	Received a CTCP 24VERSION from 18freenode-connect
+T 1539871682 19*	Now talking on 22#prometheus
+T 1539871682 22*	Topic for 22#prometheus is: Prometheus Monitoring System - https://prometheus.io - PromCon 2018 Schedule https://promcon.io/2018-munich/schedule/ - Register with Nickserv to join the channel
+T 1539871682 22*	Topic for 22#prometheus set by 26bbrazil!~bbrazil@gnewsense/friend/bbrazil (24Wed Aug  1 08:35:20 2018)
+T 1539873035 18<ffledgling18>	Are bucket style metrics common with prometheus? How should one interpret them?
+T 1539873428 18<DeadTrickster18>	what is bucket - style?
+T 1539873650 18<Blackb|rd18>	Histograms, I suspect
+T 1539874069 18<ffledgling18>	DeadTrickster: I'm not quite sure myself, they seem to be metrics with quantiles
+T 1539874078 18<ffledgling18>	However I don't know how to use them or plot them
+T 1539874178 18<DeadTrickster18>	quantiles and buckets are different things :-)
+T 1539874268 18<landervdb18>	ffledgling: wrt plotting them, look for example at the heatmap panel in grafana
+T 1539874326 18<ffledgling18>	Hm, let me try that
+T 1539874425 18<ffledgling18>	landervdb: still don't know what to make of it...
+T 1539874532 18<ffledgling18>	landervdb: this is what it looks like - https://pastebin.ffledgling.com/grafana-heatmap-http-requests.png
+T 1539874820 18<landervdb18>	ffledgling: it's basically like a "top-down" view of a histogram at each timestamp. so each "column" is a histogram; the brighterm, the higher the value of that bucket
+T 1539874989 18<ffledgling18>	landervdb: hmm, that makes sense, however, I don't understand the underlying data format/structure. What's the raw data I'm getting from prom?
+T 1539875174 18<landervdb18>	ffledgling: using that http_request_duration_seconds_bucket metric as an example, each bucket contains the amount of requests completed under a certain value, which is indicated in the "le" (less than or equal to) label
+T 1539875189 18<landervdb18>	ffledgling: so it's cumulative
+T 1539875246 18<ffledgling18>	Hm, so that's the part that's confusing me. Is it over the entire lifetime of the application (or metrics that have been collected) ?
+T 1539875294 18<ffledgling18>	Isn't it slightly difficult to extract useful information about performance from that? Wouldn't it make more sense to have quantiles for all requests in the past say 1 hours or 15min (or some time slice)?
+T 1539876785 18<SuperQ18>	ffledgling: You need to adjust the query a bit.
+T 1539876831 18<SuperQ18>	ffledgling: You probably want something like sum by (le) (rate(http_request_duration_seconds_bucket[$__interval]))
+T 1539876855 18<SuperQ18>	ffledgling: Then put {{le}} in the legend
+T 1539876904 18<ffledgling18>	Would you mind explaining that query a little bit? I understand that's a bit of handholding, but I'd rather understand it once than ask over and over
+T 1539876993 18<SuperQ18>	ffledgling: Sure, basically, every le="XXX" is a counter of how many requests are "less than or equal" to the value of the bucket.
+T 1539877021 18<ffledgling18>	Yep, like a  quantile band
+T 1539877024 18<SuperQ18>	So you need to take the rate() of the bucket counters in order to find out how many requests per second are hitting each bucket.
+T 1539877059 18<SuperQ18>	Grafana now has the understanding of how to turn the le="xxx" bucket values into the right thing on the heatmap.
+T 1539877127 18<SuperQ18>	https://dashboards.gitlab.com/d/-UvftW1iz/ssh-performance
+T 1539877153 18<ffledgling18>	Hm, so that's what I don't quite understand, I can't do [1h] on a bucket, unless you meant $__interval literally?
+T 1539877220 18<ffledgling18>	The underlying vector type doesn't seem to be compatible
+T 1539877272 18<SuperQ18>	$__interval is a Grafana trick
+T 1539877275 18<SuperQ18>	Literal
+T 1539877292 18<SuperQ18>	Grafana knows how to pass the exact correct step value to Prometheus
+T 1539877390 18<ffledgling18>	Oh wow, this query is much better than what I had
+T 1539877457 18<ffledgling18>	I don't quite understand why I have negative values in the historgram, I suppose that's a function of just having single in that interval (A-B, A is missing?)
+T 1539877537 18<SuperQ18>	Hrm, there shouldn't be negative after doing the rate.
+T 1539877837 18<ffledgling18>	I'm probably doing something wrong, but they're there - https://pastebin.ffledgling.com/grafana-heatmap-negative-values.png
+T 1539877911 18<ffledgling18>	(can't seem to screenshot with a hovering tooltip, but as an example the last cell on the bottom right says : "bucket -174 - 0 ns ; count 38")
+T 1539878045 18<SuperQ18>	Hmm
+T 1539879387 18<LeoNerd18>	Does there exist some advice somewhere on how client libraries (probably for dynamic languages primarily) can easily provide "optional" requirement?
+T 1539879418 18<LeoNerd18>	The problem I'm struggling with is how to add prometheus instrumentation to some piece of code, that doesn't -require- the prometheus client in the first place. Just would use it if it was there
+T 1539879647 18<SuperQ18>	LeoNerd: I'm not sure what you mean
+T 1539879655 18<LeoNerd18>	OK lets go concrete
+T 1539879659 18<SuperQ18>	:)
+T 1539879671 18<LeoNerd18>	I want Net::Async::HTTP::Server to be able to provide metrics via Net::Prometheus, without it *depending* on it
+T 1539879674 18<LeoNerd18>	Just using it if the module is there
+T 1539879684 18<SuperQ18>	Java?
+T 1539879685 18<LeoNerd18>	Perl
+T 1539879709 18<SuperQ18>	Oh, I have no idea about Perl. :(
+T 1539879717 18<LeoNerd18>	Now, I can write a bunch of code that would allow this quite easily but would require that the user definitely did   use Net::Prometheus;  use Net::Async::HTTP::Server;
+T 1539879719 18<LeoNerd18>	in that order
+T 1539879728 18<SuperQ18>	I haven't looked at perl in like 15 years
+T 1539879752 18<LeoNerd18>	With _somewhat_ more hackery I can not depend on that order, by making a little stub-container place to act as glue for the time when they're both loaded
+T 1539879782 18<LeoNerd18>	With _even_ more hackery and lots of copypaste code, I can dispense with that entirely, but force any author of code that wanted to optionally be instrumented in this manner, to copypaste those little stub blocks around
+T 1539879814 18<LeoNerd18>	I am figuring this is not a problem unique to me - I'm sure a lot of other people across other languages would have such questions.. moreso the dynamic languages I expect, than the statics... but I'm interested to see thoughts generally
+T 1539879858 18<LeoNerd18>	I'm not asking for a solution, as such, because I have many ideas on how to solve it. More looking for guidance about what kind of solution tends to get used
+T 1539880463 18<LeoNerd18>	Perhaps there's some other examples in other languages I could steal?
+T 1539882552 18<geekodour0818>	SuperQ: okay, thankyou. I'll try it with docker, but can you elaborate a little more on "Especially in Ubuntu, where the Debian maintainer is not doing backports." Idk what backports mean, the package version is 2.1 for bionic https://packages.ubuntu.com/bionic/prometheus
+T 1539883749 18<SuperQ18>	geekodour08: The person who maintains the Prometheus packages only works on Debian, not Ubuntu. On Debian they actively maintain the backports to older releases. https://packages.debian.org/search?keywords=prometheus
+T 1539885879 18<ffledgling18>	LeoNerd: I've done similar stuff with Python, there are two things to do - (1) Define dynamic imports and wrapper functions that either use the imported lib or do nothing, then use that wrapper function everywhere you wish to log. For example you'd just add a prometheus hook to your logger (which may also log to file, syslog etc) if a prom client import was successful, otherwise you don't. (2)
+T 1539885885 18<ffledgling18>	Python (pip/wheel) packages allow for "optional" dependencies - you can specify them and the user can use specific syntax to install them, but the package install does not fail if they're available.
+T 1539886022 18<LeoNerd18>	ffledgling: Righty; so you're using the mere ability of being able to import the module, as control for it?
+T 1539886068 18<ffledgling18>	LeoNerd: Sure, you can always make it a command line arg, that depends on what behaviour you want to expose to the user
+T 1539886081 18<ffledgling18>	C/C++ would do it with a #define :)
+T 1539886123 18<LeoNerd18>	I guess I'm still not quite seeing how this all fits together
+T 1539886141 18<ffledgling18>	Oh?
+T 1539886142 18<LeoNerd18>	What does a callsite to this actually look like? At the moment you want to be incrementing some counters
+T 1539886205 18<ffledgling18>	Hm, okay, let me see if I can spin up an example, real quick. Does python work for you?
+T 1539886215 18<LeoNerd18>	It'll be fine.. anything really :)
+T 1539886234 18<LeoNerd18>	I was preferring real examples in existing code that folks can just point at
+T 1539886346 18<ffledgling18>	Hm, I don't have one off the top of my head since I don't remember where I saw it. I've written it at my workplace, but then I no longer have access to it
+T 1539886535 18<LeoNerd18>	Anyone else? :)
+T 1539886540 18<LeoNerd18>	I can't be the first person ever to ask this
+T 1539886974 18<ffledgling18>	LeoNerd: https://gist.github.com/ffledgling/473e23b055e5ba265766641b56e52eda ; General pattern
+T 1539887029 18*	LeoNerd reads
+T 1539887056 18<LeoNerd18>	Hrm... so a helper object that stubs out all the method calls
+T 1539887084 18<LeoNerd18>	Which presumably is the object that constructs and stores the actual metrics
+T 1539887099 18<LeoNerd18>	I can see that resulting in a lot of relatively boring trampolines
+T 1539887232 18<ffledgling18>	LeoNerd: Well, usually you'd club this with your regular logger, which is also likely logging events to a file or something
+T 1539887257 18<LeoNerd18>	Righty.. but I'm not talking about "logging events" here
+T 1539887268 18<LeoNerd18>	More, things like the big chunk of stats at the end of serving an HTTP request
+T 1539887289 18<ffledgling18>	Do you not log your HTTP request in the standard apache format after it's done?
+T 1539887291 18<LeoNerd18>	Maybe that's doable with just a lot of params...
+T 1539887322 18<ffledgling18>	You'd just pass a map/dict additionally with the stats
+T 1539887350 18<LeoNerd18>	I guess that might not be so bad for some of those
+T 1539887359 18<LeoNerd18>	What about timing ones? I guess you'd have to keep your own timers
+T 1539887413 18<ffledgling18>	Hm, I'd have to dig into how prom client libraries expect timing metrics, but let me see if I can find an example instead...
+T 1539887509 18<ffledgling18>	LeoNerd: so here's an example of how gitlab handles request durations - https://gitlab.com/gitlab-org/gitlab-workhorse/merge_requests/184/diffs?commit_id=989293043fbcd0b46f6bc8bc010deb8245b32fc3
+T 1539887526 18<ffledgling18>	Oops, hold on
+T 1539887555 18<LeoNerd18>	(ugh, why do I only have 15 columns of code in the middle of the screen?)
+T 1539887939 18<ffledgling18>	LeoNerd: yeah, here's the new version - https://gitlab.com/gitlab-org/gitlab-workhorse/blob/master/internal/upstream/metrics.go#L59-69
+T 1539887943 18<ffledgling18>	Instead of a silly diff
+T 1539887962 18<ffledgling18>	you'll have to dig around to find the call sites, but it's the live example you wanted :)
+T 1539887982 18<LeoNerd18>	Right but that's exactly the opposite of what I wanted
+T 1539887988 18<LeoNerd18>	This is _requiring_ the prometheus client library
+T 1539888000 18<LeoNerd18>	being listed right up there in the import list
+T 1539888012 18<LeoNerd18>	I know how to write code that style; that's what I want to avoid
+T 1539888235 18<ffledgling18>	Hm, maybe I should hold off on trying to explain this in that case, to me the abstraction style that gitlab is using, coupled with an optional import should work
+T 1539888244 18<ffledgling18>	maybe I misunderstand your requirement
+T 1539892759 18<SuperQ18>	LeoNerd: that only wraps things in that package. I've seen plugin-style implementations that keep the metrics code separated and only setup when the plugin is required.
+T 1539892781 18<SuperQ18>	LeoNerd: https://github.com/coredns/coredns/tree/master/plugin/metrics
+T 1539892800 18<SuperQ18>	But, this can add some overhead, because you now need to wrap the metrics calls in another layer.
+T 1539893046 18<higuita18>	i have one service (rabbitmq)  that ,id="rabbitmq-live-cluster02-a01",idle_since="2018-10-18 19:51:20",  via a telegraf
+T 1539893210 18<higuita18>	but that idle_since= is breaking the prometheus queries... i have hundred of points instead of just one line with one machine.  is any way to remove that? or add a ignore=idle_since in the fields, just like id=~rabbitmq.*"
+T 1539895932 18<xdexter18>	Hello! I'm trying configure jmx_exporter with wildfly, i added "-javaagent:/opt/wildfly/jmx_exporter/jmx_prometheus_javaagent-0.3.1.jar=8888:/opt/wildfly/jmx_exporter/config.yaml" to JAVA_OPTS but i have this error:https://pastebin.com/ifd6v4LN something could help me please?
+T 1539969019 20*	Disconnected (20Connection timed out)
+T 1539969037 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1539969039 -18freenode-connect-	Due to the persistent ongoing spam, all new connections are being set +R (block messages from unidentified users) and will be scanned for vulnerabilities. This will not harm your computer, and vulnerable hosts will be notified.
+T 1539969039 24*	Received a CTCP 24VERSION from 18freenode-connect
+T 1539969045 19*	Now talking on 22#prometheus
+T 1539969045 22*	Topic for 22#prometheus is: Prometheus Monitoring System - https://prometheus.io - PromCon 2018 Schedule https://promcon.io/2018-munich/schedule/ - Register with Nickserv to join the channel
+T 1539969045 22*	Topic for 22#prometheus set by 26bbrazil!~bbrazil@gnewsense/friend/bbrazil (24Wed Aug  1 08:35:20 2018)
+T 1539974561 18<xdexter18>	Hello, i added the jmx_exporter to my wildfly container and the request to localhost:port/metrics works, i have 200 containers distribuited in ~20 servers with Wildfly and i want monitoring all them, it's possible creat a scrape to get metrics dynammically?
+T 1539978909 18<klr18>	j ##motorcycles
+T 1539979465 18<emauton18>	xdexter: What is managing your containers ?
+T 1539979525 18<xdexter18>	Docker Swarm
+T 1539979713 18<emauton18>	What you need to dynamically figure out where metrics are is service discovery (Brian Brazil's book describes how all this fits together).
+T 1539979747 18<emauton18>	Looks like the recommended way is using "File", cf. https://prometheus.io/docs/operating/integrations/#file-service-discovery & last few messages in https://github.com/prometheus/prometheus/issues/1766
+T 1539980129 18<xdexter18>	hmm like this? https://github.com/ContainerSolutions/prometheus-swarm-discovery
+T 1539980315 18<emauton18>	I guess so! There's also https://github.com/jmendiara/prometheus-swarm-discovery - but I'm not sure of the differences. It looks like you're in the wild west re: getting service discovery for this setup, but these ideas should get you started.
+T 1539980438 18<xdexter18>	i got it
+T 1539980441 18<xdexter18>	;/
+T 1540046836 20*	Disconnected (20Connection timed out)
+T 1540046854 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1540046855 -18freenode-connect-	Due to the persistent ongoing spam, all new connections are being set +R (block messages from unidentified users) and will be scanned for vulnerabilities. This will not harm your computer, and vulnerable hosts will be notified.
+T 1540046855 24*	Received a CTCP 24VERSION from 18freenode-connect
+T 1540046860 19*	Now talking on 22#prometheus
+T 1540046860 22*	Topic for 22#prometheus is: Prometheus Monitoring System - https://prometheus.io - PromCon 2018 Schedule https://promcon.io/2018-munich/schedule/ - Register with Nickserv to join the channel
+T 1540046860 22*	Topic for 22#prometheus set by 26bbrazil!~bbrazil@gnewsense/friend/bbrazil (24Wed Aug  1 08:35:20 2018)

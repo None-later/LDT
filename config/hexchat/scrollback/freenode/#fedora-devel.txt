@@ -1,102 +1,529 @@
-T 1525446540 19*	Now talking on 22#fedora-devel
-T 1525446540 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
-T 1525446540 22*	Topic for 22#fedora-devel set by 26dgilmore (24Fri Apr 28 18:02:05 2017)
-T 1525446548 18*	pingou discretly removes the if flask.g.fas_user.username == 'vondruch': time.sleep(120)
-T 1525446556 FiSHLiM plugin unloaded
-T 1525446556 Python interface unloaded
-T 1525446573 19*	Now talking on 22#fedora-devel
-T 1525446573 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/ | s390x now in primary koji for rawhide
-T 1525446573 22*	Topic for 22#fedora-devel set by 26dgilmore (24Fri Apr 28 18:02:05 2017)
-T 1525446584 18<pingou18>	vondruch: can you reproduce in stg.pagure.io?
-T 1525446613 18<vondruch18>	pingou: hmmm, there are no issues, are there? :)
-T 1525446622 18<pingou18>	should be some
-T 1525446686 18<vondruch18>	pingou: may be PRs
-T 1525446687 18<pingou18>	vondruch: https://stg.pagure.io/freeipa-test2/issues
-T 1525446733 18<vondruch18>	pingou: ah, staging ... sorry, I was confused
-T 1525446734 18<pingou18>	(this one is taking longer for me 16 secs and counting)
-T 1525446749 18<pingou18>	~40 seconds totla
-T 1525446784 18<vondruch18>	pingou: that is smooth for me ;)
-T 1525446801 18<vondruch18>	pingou: just 2 seconds at max
-T 1525447612 18<sharkcz18>	pjones: hi, please look at https://bugzilla.redhat.com/show_bug.cgi?id=1574868 - we have broken composes on non-efi arches right now
-T 1525447686 18<pjones18>	hey sweet, how'd I manage that
-T 1525447701 18<tyll18>	zbyszek: these are the long-time FTBFS packages: https://paste.fedoraproject.org/paste/eIPZx2sLv9sqAF5FdJvG-Q
-T 1525447705 18<pingou18>	vondruch: using ipv4 or ipv6?
-T 1525447706 18<pjones18>	oh, okay
-T 1525447718 18<pjones18>	sharkcz: thanks for getting my attention, should be easy to fix, and I'll do so right after lunch
-T 1525447734 18<sharkcz18>	pjones: thx
-T 1525447875 18<tmz18>	pingou, vondruch: I see the same issue.  When logged in, loading the infra issues (or freeipa issues, as above), pagure takes a long time (well, it doesn't load in the several minutes I've let it spin on numerous tries).  In stg, that wasn't the case for freeipa-test2/issues.
-T 1525448857 18<vondruch18>	pingou: ipv4 .. assuming
-T 1525448913 18<vondruch18>	pingou: at least I'd say from the traceroute output
-T 1525448962 18<vondruch18>	tmz: glad I am not alone ;)
-T 1525449097 18<tmz18>	vondruch: And Michal Novotny (clime) said it affected him as well.  Hopefully that's enough to help find what's common and spot a fix. :)
-T 1525449979 18<smooge18>	vondruch, can you do an ip addr and see if you have an ipv6 address
-T 1525450008 18<smooge18>	I believe traceroute will only do ipv4 even if you have both ipv6 and ipv4
-T 1525450830 18<tomhughes18>	there is a separate traceroute6
-T 1525450868 18<tomhughes18>	or use mtr which has the normal -4 / -6 switches
-T 1525451306 18<nirik18>	tmz / vondruch: can you see if it is any better/different now?
-T 1525451485 18<tmz18>	nirik: Sure.  With the firefox dev console, it was taking a little over 10 minutes to load that page.  I reloaded it now.
-T 1525451516 18<tmz18>	And, FWIW, I don't have any ipv6 connectivity at the moment.
-T 1525451518 18<nirik18>	so it's not network time it's time until you get a responce back?
-T 1525451589 18<tmz18>	The firefox performance graph shows something like 619 seconds for the html portion.
-T 1525451620 18<nirik18>	wow. ok. The infra issues page loads here in 7 seconds.
-T 1525451644 18<tmz18>	For me, loading the page from a clean tab just leave the tab blank and the tab icon spinning.  I go and do other things and eventually it loads.
-T 1525451664 18<nirik18>	and it looks ok then? no missing images/js/avatars?
-T 1525451700 18<tmz18>	Yeah.  I'll look closer at the dev tool output and see if there's any 4XX or 5XX response codes, but I didn't notice any before.
-T 1525451725 18<nirik18>	weird. Also, for grins could you try a new profile?
-T 1525451832 18<tmz18>	Yeah, I was going to get to that.  I was actually just going to move ~/.mozilla aside and be completely clean.
-T 1525452127 18<tmz18>	that it's consistently just over 10 minutes makes me suspicious that there's some network timeouts.
-T 1525452156 18<bowlofeggs18>	nirik++
-T 1525452156 18<zodbot18>	bowlofeggs: Karma for kevin changed to 9 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
-T 1525452175 18<nirik18>	bowlofeggs++
-T 1525452176 18<zodbot18>	nirik: Karma for bowlofeggs changed to 7 (for the f28 release cycle):  https://badges.fedoraproject.org/tags/cookie/any
-T 1525452985 18<tmz18>	nirik: There does seem to be something boked up in my browser profile.  Moving ~/.mozilla aside entirely and starting fresh, the issues page loads quickly.
-T 1525453013 18<nirik18>	huh. but other folks are hitting it too, so it has to be something pretty common. ;(
-T 1525453020 18<nirik18>	what extensions do you use?
-T 1525453024 18<tmz18>	Time to poke around at what's wrong in my profile (or more likely take the opportunity to clean house)
-T 1525453424 18<tmz18>	nirik: I have: Cookie Controller, GNOME Shell Integration, It's All Text!, Tab Mix Plus, and uBlock Origin.
-T 1525453455 18<tmz18>	I disabled them all, without effect on the issue, so it doesn't seem like it's one of those.
-T 1525453522 18<tmz18>	I'm running Firefox ESR (built from a COPR which uses the fedora firefox-52.x, rather than the mozilla binary).
-T 1525454199 18<nirik18>	huh, ok.
-T 1525456464 18<pjones18>	sharkcz: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769722 should fix things for you
-T 1525456486 18<pjones18>	sharkcz: it at least fixes the ExclusiveArch issue; hopefully it also evaluates without errors on the other arches.
-T 1525456602 18<nirik18>	hum... pjones:
-T 1525456604 18<nirik18>	Error: Transaction check error:
-T 1525456604 18<nirik18>	  file /boot/efi/EFI from install of efi-filesystem-2-5.fc29.noarch conflicts with file from package shim-x64-15-3.x86_64
-T 1525456621 18<nirik18>	perms on that stupid vfat volume again?
-T 1525456629 18<pjones18>	yeah, the problem with stopping working on the shim package to fix the thing it depends on...
-T 1525456640 18*	pjones goes back to fixing that
-T 1525456653 18<nirik18>	happy to help test if you like
-T 1525456677 18<pjones18>	the very moment I figure out how to actually make the koji srpm building work like it looks like it should, I will let you know ;)
-T 1525456736 18<nirik18>	I'll not wait around... 🙂
-T 1525457252 18<pjones18>	nirik: hopefully https://koji.fedoraproject.org/koji/taskinfo?taskID=26769862 should solve that issue (though it's a temporary fix while I work on the other part)
-T 1525457290 18<nirik18>	ok
-T 1525457318 18<pjones18>	the intent here is to move all of the directory ownereship of that crap to efi-filesystem so the other packages won't conflict by virtue of not owning the directories
-T 1525457324 18<pjones18>	ownership even
-T 1525457387 18<pjones18>	though I expect somewhere around the 100 or 200th attempt Guinness is going to beat rpm.
-T 1525457416 18<nirik18>	pity that fs has to be vfat. ;(
-T 1525457425 18<pjones18>	ain't nothin' I can do about that.
-T 1525457427 18<nirik18>	and yes, I would put Guinness over rpm. ;)
-T 1525458181 18<tmz18>	nirik: So much for a clean firfox profile solving load times in pagure issues.  I've now gotten 3 consecutive 500 responses from https://pagure.io/fedora-infrastructure/issues, ranging from 48 seconds to 6+ minutes.
-T 1525458221 18<nirik18>	huh, ok. what version of firefox was this?
-T 1525458276 18<tmz18>	52.7.3
-T 1525458315 18<tmz18>	It's not all pagure project issues pages.  But fedora-infrastructure/issues tickles something.
-T 1525458364 18<nirik18>	I'm not sure how to further debug. ;( It's definitely a bug tho. Just started in the last day or two?
-T 1525458403 18<tmz18>	I only noticed it today.  I don't recall when I pulled up the issues page last, but sometime in the past few days I believe.
-T 1525458435 18<nirik18>	yeah, so likely tied to the pagure upgrade yesterday.
-T 1525458442 18<tmz18>	The 500 response codes should have some logs, so perhaps they'll help.
-T 1525458456 18<nirik18>	yeah
-T 1525458464 18*	nirik has to head out for a bit. back in a bit
-T 1525458469 18<tmz18>	Enjoy.
-T 1525458678 18<pjones18>	I'll take "degenerate cases in .spec macro expansion" for $400, Alex: https://paste.fedoraproject.org/paste/sl49dOJMeCfRkjbuiKJQMA
-T 1525458716 18<pjones18>	I like how it takes 60 attempts before it decides a->a transitions aren't going to work out.
-T 1525459413 18<maxamillion18>	puiterwijk: ping - I'm good with this if you are -> https://github.com/fedora-cloud/docker-brew-fedora/pull/56
-T 1525459425 18<maxamillion18>	I need to run, bbl
-T 1525459470 18<puiterwijk18>	maxamillion: in that case, I'd rather merge the one from Jim from... way longer ago: https://github.com/fedora-cloud/docker-brew-fedora/pull/34
-T 1525459500 18<puiterwijk18>	I was under the impression you didn't want anything like that because you didn't touch that one
-T 1525459517 18<maxamillion18>	puiterwijk: OMG, I forgot about that. I should have merged it forever ago. +1
-T 1525459575 18<puiterwijk18>	ack. Merged that.
-T 1525459583 18<puiterwijk18>	I'll rebuild the images somewhere next week I think
-T 1525459610 18<maxamillion18>	+1
-T 1525459621 18<maxamillion18>	Gotta run, bbl
-T 1525462251 FiSHLiM plugin unloaded
-T 1525462251 Python interface unloaded
+T 1532973017 18<jaroslav18>	ah, I'm not the only one, there's BZ for that, closed EOL, LOL
+T 1532973031 18<jaroslav18>	RaphGro: journal
+T 1532973040 18<jaroslav18>	`journalctl -f -u packagekit`
+T 1532973091 18<RaphGro18>	no, one entry per reboot here, F28
+T 1532973107 18<gicmo18>	jaroslav: is it crashing?
+T 1532973277 18<jaroslav18>	gicmo: the process does not crash (packagekitd), from what I can see
+T 1532973303 18<jaroslav18>	gicmo: it's still on the same pid, and apart of those `get-updates transaction...` messages, there's nothing else from comming from PackageKit
+T 1532973315 18<gicmo18>	maybe some client (gnome-software) is requesting stuff? have you checked dbus-monitor ?
+T 1532973460 18<jaroslav18>	gicmo: don't see anything suspicious there
+T 1532973651 18<jaroslav18>	that's probably not the correct way, but I've just removed PackageKit, [case_solved]
+T 1532975721 18<ajax18>	i like how multilib is almost 20 years old and all of our tools and services are still routinely surprised by it
+T 1532975768 18<ajax18>	hey, you're trying to install just the 64-bit version of some libraries and you need to do the 32-bit ones too! here's fifty pages of scroll about all the conflicts.
+T 1532975806 18<ajax18>	hey, here's a service that lets you build test packages and host a repository for them! no it doesn't have all arches in the repo, why would you want it to work.
+T 1532976802 18<pjones18>	multilib: still a terrible idea
+T 1532976841 18<ajax18>	psht
+T 1532976852 18<ajax18>	"run whatever binary you've got" is an excellent idea
+T 1532976868 18<ajax18>	and we built a system that makes that work
+T 1532976889 18<ajax18>	we just decided to make it completely impossible to keep it working or understand it when you ask it to make a move that would break it
+T 1532976919 18<ajax18>	and then refuse to fix it because "the repo data would be too big" for your three package copr
+T 1532980366 18<walters18>	where is the tarball of specs again?  it's impossible to google search for, and it's apparently moved since I linked to it in http://lists.rpm.org/pipermail/rpm-ecosystem/2017-May/000480.html
+T 1532980385 18<walters18>	so many things would be better with one or a few layered git repos instead of repo-per-pacakge
+T 1532980533 18<ajax18>	https://pkgs.fedoraproject.org/repo/
+T 1532980557 18<ajax18>	which firefox no longer wants to let me see, SEC_ERROR_UNKNOWN_ISSUER
+T 1532980579 18<walters18>	should be s/pkgs/src/ now AIUI
+T 1532980637 18<ajax18>	well, doing so 404s, so maybe not
+T 1532980663 18<ajax18>	oh lord
+T 1532980669 18<ajax18>	https://src.fedoraproject.org/repo - 404
+T 1532980675 18<ajax18>	https://src.fedoraproject.org/repo/ - what you want
+T 1532995450 18<dbenoit18>	what is the best way to have a symlink between two files in the buildroot?  should I use the real path of the target? for example:
+T 1532995527 18<dbenoit18>	ln -s %{_bindir}/my-file ${RPM_BUILD_ROOT}%{_bindir}/my-file-legacy-alias
+T 1532995540 18<dbenoit18>	^^is this ok?
+T 1532996247 18<tmz18>	dbenoit: That works.  Or just ln -s my-file ${RPM_BUILD_ROOT}%{_bindir}/my-file-legacy-alias since both files are in %{_bindir}.
+T 1532996272 18<tmz18>	https://fedoraproject.org/wiki/Packaging:Guidelines#Symlinks discusses the pros and cons of absolute versus relative symlinks.
+T 1532996351 18<tmz18>	The cons for a relative link like this aren't really relevant, since the file and the link are in the same dir.
+T 1533000167 18<QuLogic18>	bodhi emails sure are slow lately
+T 1533025935 18<timothy18>	hi, is there any way to have subdirectories processed by find-debuginfo? I have /usr/lib64/SUBDIRECTORY/*.so.*, but in the debuginfo package I don't have the split symbols for those files
+T 1533026044 18<ignatenkobrain18>	timothy: can you open an issue for rpm with all details?
+T 1533026054 18<ignatenkobrain18>	And your srpm as well
+T 1533026391 18<tomhughes18>	timothy: it does process all files, but it will only process files with exec permissions - my guess is those .so's are marked as executables
+T 1533026396 18<tomhughes18>	aren't
+T 1533026424 18<tomhughes18>	note that so's don't really need x perms but Fedora has traditionally marked them as such and find-debuginfo ignores files without
+T 1533026869 18<timothy18>	tomhughes: you are right, it was a bug in the upstream makefile that uses -s while building the files inside the subdirectory. sorry for the noise
+T 1533034330 18<rorx618>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533034330 18<rorx618>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533034333 18<rorx618>	or maybe this blog by freenode staff member Matthew 'mst' Trout https://MattSTrout.com/
+T 1533037376 18<kushal18>	Do we have http://www.libpng.org/pub/png/apps/pngcheck.html packaged in Fedora?
+T 1533038519 18<misc18>	kushal: do not seems so
+T 1533039756 18<kushal18>	misc, Yup, thanks for confirming.
+T 1533039814 18<kushal18>	misc, I am trying to figure out how to verify png images, just in case if there is any malware etc hidden inside of the image.
+T 1533039917 18<misc18>	kushal: imagemagick + a sandbox ?
+T 1533039987 18<misc18>	(especially the sandbox part)
+T 1533040014 18<kushal18>	misc, I am using the container as the sandbox, and already using imagemagick, but, I was told what if there is other known vulnerabilities  targeting imagemagick.
+T 1533040018 18<misc18>	something like convert to bitmap and back, without compression
+T 1533040028 18<misc18>	kushal: that's why you have the sandbox
+T 1533040030 18<kushal18>	misc, Yup, that is what I am thinking to do.
+T 1533040045 18<misc18>	a timeboxed execution, no network, no syscall
+T 1533040055 18<misc18>	and also ressources limitation
+T 1533040058 18<jsmith18>	Anybody else having problems with the "rpmdev-bumpspec" tool?  When I bump the version number, it's throwing and error and duplicating the version and revision twice.
+T 1533040073 18<kushal18>	jsmith, ah, good morning there :)
+T 1533040081 18<kushal18>	misc, Yup, exactly that.
+T 1533040086 18<jsmith18>	Howdy kushal :-)
+T 1533040092 18<misc18>	kushal: now, the what if could be the same for pngcheck
+T 1533040106 18<kushal18>	misc, yeah, that is also going on my mind.
+T 1533040110 18<kushal18>	misc, pm?
+T 1533040114 18<misc18>	kushal: sure
+T 1533040121 18<jsmith18>	kushal: Just a word of advice, I'd use "graphicsmagick" over "imagemagick" any day... more security items fixed, is faster (as it runs across multiple cores), etc.
+T 1533040149 18<kushal18>	jsmith, checking
+T 1533043634 18<rishi18>	rpm --requires -q liboauth | grep ss <-- I get libnss3.so and libssl3.so
+T 1533043640 18<rishi18>	How's that possible?
+T 1533043711 18<rishi18>	Oh, ok.
+T 1533043727 18<rishi18>	libssl3.so is from NSS. I somehow thought it's OpenSSL.
+T 1533043735 18<rishi18>	All good. :)
+T 1533051332 18<tibbs18>	Ugh; znc updated again and broke znc-clientbuffer.
+T 1533051353 18<tibbs18>	I think I will fix znc-clientbuffer to depend on the specific version of znc.
+T 1533052381 18<nb18>	tibbs, sorry! I need to remember to rebuild znc-clientbuffer when I update znc
+T 1533052558 18<tibbs18>	I just made znc-clientbuffer depend on znc by version, so it just won't update if they're out of date.
+T 1533052581 18<tibbs18>	I'll push that out for f28 and f27.
+T 1533052611 18<tibbs18>	%global znc_version %((znc -v 2>/dev/null || echo 'a 0') | head -1 | awk '{print $2}')
+T 1533052623 18<tibbs18>	Not sure if there's a smarter way to do that.
+T 1533052711 18<eclipseo18>	ignatenkobrain: if you have less than 2 mn free, please check the question here: https://bugzilla.redhat.com/show_bug.cgi?id=1609629#c9
+T 1533053228 18<gholms18>	tibbs: That'll need a buildroot override to make updates not break things
+T 1533053253 18<tibbs18>	gholms: Sorry, I don't see why.
+T 1533053273 18<tibbs18>	znc is already updated to 1.7.1, so things are already broken.
+T 1533053308 18<gholms18>	If znc updates in the future it will need to have a buildroot override in order for znc-clientbuffer to rebuild with it.
+T 1533053310 18<tibbs18>	If you mean in the future, then yes.
+T 1533053316 18<gholms18>	Yeah, not today.
+T 1533053328 18<tibbs18>	But that's how this always works.  Needing an override for that is neither new nor surprising.
+T 1533053340 18<gholms18>	True
+T 1533053934 18<biberao61118>	<+SP9002_@efnet> so, he wants the win. so we're just gonna get lunch or something, then hes gonna push me to the ground and tap my ass with his foot so he can claim he "kicked my ass" tbh im going along with it becase I dont wanna lose any teeth
+T 1533053934 18<biberao61118>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533053938 18<biberao61118>	I thought you guys might be interested in this blog by freenode staff member Bryan 'kloeri' Ostergaard https://bryanostergaard.com/
+T 1533053941 18<biberao61118>	or maybe this blog by freenode staff member Matthew 'mst' Trout https://MattSTrout.com/
+T 1533054132 18<RaphGro18>	.bug 1610331
+T 1533054134 18<zodbot18>	RaphGro: Bug 1610331 – xfce-polkit-v0.3 is available - https://bugzilla.redhat.com/1610331
+T 1533054153 18<RaphGro18>	nirik: from the chanelog "Switch to gtk3", no idea if gtk2 is still supported.
+T 1533054179 22*	26ajax sets quiet on 18$~a
+T 1533054206 18<ajax18>	momentary hush of unregistered nicks since apparently it's spam day again
+T 1533054215 18<nirik18>	RaphGro: yes, we should wait and do this when nonamedotc does the rest of the 4.13 ones.
+T 1533054226 18<RaphGro18>	nirik: ok.
+T 1533054260 18<RaphGro18>	nirik: is there a tracker bug?
+T 1533054279 18<nirik18>	not yet, waiting for the change to be approved.
+T 1533054309 18<RaphGro18>	ok
+T 1533054421 18<fenrus0218>	ajax, is it worth updating the /topic with something like "if you cannot say anything, register your nick?"
+T 1533054451 18<ajax18>	probably
+T 1533054514 22*	26ajax has changed the topic to: Unregistered nicks are muted, blame spammers. '/msg nickserv help' for instructions to register your nick | Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1533054532 18<ajax18>	dropped the bit about s390x being primary "now", it's sort of not news anymore
+T 1533054545 18<gholms18>	Heh
+T 1533054555 18<tibbs18>	Yeah, I was asking about that some time ago but I never know who has ops here.
+T 1533054567 18<fenrus0218>	that works.
+T 1533054599 18<gholms18>	My standby for that sort of thing is usually "just ask nirik"
+T 1533054612 18<ajax18>	tibbs: /m chanserv access #fedora-devel list
+T 1533054630 18<ajax18>	the 'o' flag means has ops, iirc
+T 1533054634 18<tibbs18>	There is a small chance I will remember that the next time it actually matters.
+T 1533054637 18<ajax18>	heh
+T 1533054643 18*	nirik waves
+T 1533054649 18<tibbs18>	At least now it will be in my logs.
+T 1533054683 18<fenrus0218>	tibbs, you can ask in -ops too.
+T 1533054816 18<fenrus0218>	sadly that variant of spammer is joining channels and then PM'ing users with the same drivel.  so it hits users even if the channel is muted for unreg.
+T 1533055009 18<gholms18>	If that becomes a problem mode +R will block PMs from unregistered users.
+T 1533055165 18<fenrus0218>	sure, that certainly works.  per user.
+T 1533055192 18<gholms18>	Not much else one can do without handling this particular spammer specifically  :/
+T 1533060808 18<nb18>	nirik, tibbs ping
+T 1533060813 18*	nb has a packaging question
+T 1533060861 18<nb18>	so, upstream asked us why certbot-renew systemd timer isn't enabled by default
+T 1533060887 18<nb18>	i was looking at the policy and i think it would meet the guidelines of the policy, with one part that i'm ot sure about
+T 1533060922 18<nb18>	the part about not listening on network sockets..... when certbot-renew timer runs, if it needs to renew a cert that was obtained with --standalone, it will temporarily listen during the verification process then will stop again
+T 1533060929 18<nb18>	would that violate that criteria from the guidelines?
+T 1533060945 18<nb18>	if --webroot or dns or something else was used, i think it would meet the criteria on the guidelines
+T 1533060956 18<tibbs18>	Don't you have to configure it or something?
+T 1533060985 18<nb18>	tibbs, certbot-renew will work just fine even if there are not certs configured
+T 1533061000 18<nb18>	it just tries to renew any certs that are more than 2/3 through their validity period
+T 1533061015 18<Elyscape18>	yeah, by default, it doesn't do anything. if you've configured any certs, it'll perform whatever actions are necessary to renew them, which may include listening on a network socket
+T 1533061062 18<tibbs18>	I mean, I wouldn't turn it on just because you have the package installed.
+T 1533061097 18<tibbs18>	But I don't really know what to tell you.  I don't know how listening on a network socket could even work in general.  What if you're behind NAT or something?
+T 1533061118 18<Elyscape18>	if you're using that validation method, you'll have already configured that stuff
+T 1533061153 18<Elyscape18>	there are several validation methods and the only one that requires listening on a network socket is not recommended for most deployments
+T 1533061167 18<nb18>	tibbs, we are asking if the guidelines would allow us to turn certbot-renew on by default
+T 1533061187 18<Elyscape18>	but also it remembers the validation method you used for a given cert, so it'll only listen on a network socket if you told it to before, in which case you'd have already figured out NAT port forwarding or whatever
+T 1533061202 18<nb18>	from reading the criteria on the services page it looks like it would be ok, as long as the user didn't use --standalone which makes it listen on a socket during validation
+T 1533061212 18<tibbs18>	So if you have to configure before it is useful, then I guess I don't understand the question.  Running systemctl enable would be part of that configuration.
+T 1533061272 18<Elyscape18>	it still starts properly, it just doesn't do anything until you've configured it. the thing is, configuring it is generally done by running a command, rather than editing config files
+T 1533061353 18<Elyscape18>	my reasoning for turning on the timer by default is this: generally, if you're installing certbot, you want it to manage your certs, which includes renewing them. having the timer enabled by default simplifies that
+T 1533061369 18<tibbs18>	You have no idea why anyone installed the package.
+T 1533061375 18<tibbs18>	Maybe they wanted to look at the documentation?
+T 1533061435 18<Elyscape18>	well the good news there is that we aren't currently building the documentation, and when we fix that it'll be in a separate package
+T 1533061469 18<d9k18>	please do not turn anything by default if it is not completely necessary
+T 1533061506 18<tibbs18>	d9k: Well, that view doesn't agree with what Fedora currently wants.
+T 1533061575 18<nb18>	i'm kind of indifferent
+T 1533061580 18<tibbs18>	So, if I understand everything correctly and you really don't violate the four MUSTs listed on https://fedoraproject.org/wiki/Packaging:DefaultServices then I think you wouldn't be in violation.
+T 1533061585 18<Elyscape18>	the certbot package itself (as compared to the python-certbot packages) only provides the binary commands and the systemd units
+T 1533061603 18<nb18>	personally i don't know that i would expect for it to renew stuff atuomatically, but i don't think it would be bad if it does do so
+T 1533061632 18<tibbs18>	I still wouldn't turn it on personally since setup is required before it's actually useful, and a quick 'systemctl enable' should just be part of that setup.
+T 1533061670 18<tibbs18>	But it seems like the worst thing that would happen is maybe some log pollution by this thing running forever and not doing anything.
+T 1533061704 18<tibbs18>	But if it spams the logs about not being configured or anything like that, then it certainly shouldn't be enabled.
+T 1533061829 18<Elyscape18>	without configuration, it logs a line saying "No renewals were attempted." once per run, which is scheduled to happen daily
+T 1533062314 18*	gholms adds ``systemctl disable certbot-renew.service certbot-renew.timer'' to his kickstart templates just in case
+T 1533062361 18<grift18>	i think the `systemctl` is the easier part of the config, theres probably other low hanging fruit, although i have to say that certbot is pretty good state. but the assumption is that someone wants to renew automatically, and that it wants to try daily
+T 1533062400 18<grift18>	i suppose daily tries makes sense if you have a shedload of certs
+T 1533062414 18<grift18>	but if you have one then why try to renew everyday?
+T 1533062432 18<gholms18>	Ooh, actually, can kickstart service directives refer to systemd units other than .service ones?
+T 1533062956 18<grift18>	in other words the units are optional
+T 1533064060 18<Elyscape18>	grift: it doesn't actually try to renew daily. it runs `certbot renew` daily, which only actually attempts to renew a cert if the cert has only 1/3 of its life left
+T 1533064149 18<grift18>	yes ok, point i am trying to make is that its optional, one might be fine with running certbot manually
+T 1533064153 18<Elyscape18>	that's fair
+T 1533064223 18<Elyscape18>	FWIW, the reason upstream made the decision to recommend running daily in a timer unit or cron job is that certbot is designed to be a set-and-forget thing, and running daily lets that happen and also means that, if the renew process fails one day due to network conditions or something, it'll try again the next day
+T 1533064233 18<Elyscape18>	but that's sorta neither here nor there
+T 1533064248 18<gholms18>	That's exactly the reason one would enable it during installation
+T 1533064254 18<gholms18>	...or setup, rather
+T 1533064278 18<grift18>	i agree there
+T 1533064292 18<RaphGro18>	mbaldessari++ fix atomicwrites
+T 1533064292 18<zodbot18>	RaphGro: Karma for mbaldessari changed to 1 (for the current release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+T 1533064318 18<grift18>	thats the easier part comparing to doing the post/pre renew scripts
+T 1533064367 18<Elyscape18>	totally fair
+T 1533064566 18<grift18>	you provided the units, that is already nice
+T 1533064825 22*	26ajax removes quiet on 18$~a
+T 1533064843 22*	26ajax has changed the topic to: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1533066823 18<m7122718>	<+SP9002_@efnet> so, he wants the win. so we're just gonna get lunch or something, then hes gonna push me to the ground and tap my ass with his foot so he can claim he "kicked my ass" tbh im going along with it becase I dont wanna lose any teeth
+T 1533068923 18<mar77i_18>	<+SP9002_@efnet> so, he wants the win. so we're just gonna get lunch or something, then hes gonna push me to the ground and tap my ass with his foot so he can claim he "kicked my ass" tbh im going along with it becase I dont wanna lose any teeth
+T 1533068923 18<mar77i_18>	With our IRC ad service you can reach a global audience of entrepreneurs and fentanyl addicts with extraordinary engagement rates! https://williampitcock.com/
+T 1533071639 18<tibbs18>	adamw: Python-requests-oauthlib is in EPEL.
+T 1533071653 18<adamw18>	tibbs: it isn't supposed to be for el7, though.
+T 1533071660 18<adamw18>	tibbs: i put it in an update and was told to take it out because it's in RHEL.
+T 1533071703 18<adamw18>	tibbs: https://bodhi.fedoraproject.org/updates/python-mwclient-0.9.1-1.el7#comment-799349
+T 1533071740 18<tibbs18>	It's not blocked from epel7.
+T 1533071782 18<tibbs18>	And on a test machine I still get 0.4.0-7.el7 from EPEL.
+T 1533071834 18<tibbs18>	Where is this mythical python-requests-oauthlib-0.8.0-5.el7 supposed to come from? I only have CentOS.
+T 1533072002 18<tibbs18>	I'll ask in the EPEL channel.
+T 1533072020 18<tibbs18>	But it might be in one of the addon repositories and not in RHEL7 proper.
+T 1533072069 18<adamw18>	yeah, i think that was what it turned out to be. it's in one of the ones EPEL is not supposed to conflict with.
+T 1533072660 18<tibbs18>	But still, you wanted python2-requests-oauthlib?
+T 1533072710 18<tibbs18>	Because that's also already in centos/rhel7.
+T 1533074832 18<tibbs18>	If a PR can be merged "with a merge commit" in pagure, is that generally OK to do or do people dislike the merge commit?
+T 1533074918 18<mizdebsk18>	some people may not like it, but that's how git works; i don't know of any policy against merge commits in dist-git
+T 1533074945 18<mizdebsk18>	and i pushed many of them already
+T 1533075037 18<tibbs18>	Well I mean I could ask the submitter for a rebase, or just do the change manually.  But that seems like a lot of effort to avoid seeing a merge commit.
+T 1533075128 18<tibbs18>	Ah, well, I'll just merge it and see what happens.
+T 1533075482 18<volter18>	https://kojipkgs.fedoraproject.org//work/tasks/6113/28746113/build.log -- That's not my fault, is it?
+T 1533075522 18<tibbs18>	What's not your fault?
+T 1533075527 18<tibbs18>	There's no error condition there.
+T 1533075544 18<tibbs18>	If your build failed, the cause is not shown in that file.
+T 1533075562 18<tibbs18>	No matching package to install: 'qscintilla-python2-devel'
+T 1533075579 18<tibbs18>	That's from root.log.
+T 1533075587 18<volter18>	Ah, OK, I somehow thought the build log would be empty then.
+T 1533075590 18<volter18>	Right, thanks!
+T 1533075616 18<tibbs18>	That bit of the build log is from the building of the srpm.
+T 1533126355 20*	Disconnected (20Connection timed out)
+T 1533126371 -18NickServ-	This nickname is registered. Please choose a different nickname, or identify via /msg NickServ identify <password>.
+T 1533126377 19*	Now talking on 22#fedora-devel
+T 1533126377 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1533126377 22*	Topic for 22#fedora-devel set by 26ajax!ajax@nat/redhat/x-alaeithzopmirfvw (24Tue Jul 31 15:20:43 2018)
+T 1533130612 18<JohnKDEFC2818>	anyone for an answer: There has been a lot of updates since F28 release, ie spectre, meltdown, microcode and a whole lot of GIGABYTES of KDE. Whre is the point release hybrid .ISO, so I can install it on a new machine? Shouldn't there be a daily builds like in Ubuntu? (cdimage daily builds for LTS).
+T 1533130641 18<rdieter18>	JohnKDEFC28: #fedora provides re-spins, look in /topic
+T 1533130681 18<rdieter18>	there are daily builds of development releases
+T 1533130694 18<JohnKDEFC2818>	I mean a point release with up to date packages on day 01.August.2018
+T 1533130780 18<rdieter18>	JohnKDEFC28: other priorities, lack of resources,time is the other excuse I suppose.  a daily item like that would miss any QA too, of course
+T 1533130810 18<JohnKDEFC2818>	So I will be pulling ALL GIGABYTES of updates?!
+T 1533130827 18<rdieter18>	JohnKDEFC28: alternatively, you're always welcome to use automated kickstart installs, which can install updates as part of the initial install process
+T 1533130858 18<rdieter18>	(I guess kickstart isn't necessarily automated, can be interactive too)
+T 1533130876 18<rdieter18>	so kickstart and/or network installs are an option for you too, if that's what you really want
+T 1533130886 18<JohnKDEFC2818>	Anyone is planning to automate the process of eg. weekly .iso releases for new installs? This is insane!
+T 1533130905 18<pingou18>	are you planning on doing it?
+T 1533130912 18<rdieter18>	I'm not aware of any plans.  Again, it's a matter or priorities and interest.
+T 1533131002 18<JohnKDEFC2818>	Can someone point at the next meeting of devs? Sorry for nagging, but Manjaro is looking at me right now! And I've been using Fedora, like.. since ever.
+T 1533131016 18<rdieter18>	based on this conversation, #fedora 's respins are the closest thing to what you want
+T 1533131045 18<rdieter18>	and I've offered other alternatives (like network installs that can pull in updates too)
+T 1533131095 18<JohnKDEFC2818>	but no POINT relese up to date on 01.August.2018 + it would be usefull to have live usb stick with updates of meldown and spectre an microcode and kernel and all other security packages just in case.
+T 1533131110 18<rdieter18>	JohnKDEFC28: it's not like this isn't a known issue (it's been discussed many times), but you're welcome to bring it up again on fedora -devel list
+T 1533131176 18<rdieter18>	JohnKDEFC28: https://lists.fedoraproject.org/admin/lists/devel.lists.fedoraproject.org/
+T 1533131217 18<rdieter18>	https://dl.fedoraproject.org/pub/alt/live-respins/  these are relatively fresh, only ~1 week old
+T 1533131231 18<JohnKDEFC2818>	Devel don't care. Sorry, userbase for that will be dropping and that's needed for testing...stability. Thanks and over.
+T 1533131301 18<rdieter18>	nice attitude, suit yourself
+T 1533131530 18<FranciscoD18>	What's wrong with the re-spins?
+T 1533131533 18<FranciscoD18>	Oh well..
+T 1533131589 18<rdieter18>	he wants daily iso's, and wants them *now*, or else you don't care.  apparently
+T 1533131659 18<sdgathman18>	I'm about to add my first git submodule.  Is pointing to clone on the same machine goo practice?  Or should it point to a remote repo?
+T 1533131662 18<FranciscoD18>	Yeh, 'twas more a rant than a discussion
+T 1533131727 18<sdgathman18>	rdieter: aren't there instructions for building your own iso?
+T 1533131766 18<sdgathman18>	A link to that would be a good thing to give people who want it yesterday.
+T 1533131797 18<rdieter18>	pretty sure that information is included with the respins
+T 1533132078 18<gholms18>	Last time I tried our published instructions they were years out of date, but that was also a while ago
+T 1533132108 18<gholms18>	sdgathman: If you plan on pushing it somewhere for others to use it should point somewhere they can access.
+T 1533132671 18<sdgathman18>	gholms: the man page says submodules are read only (no edits)
+T 1533133183 18<gholms18>	sdgathman: Sure, but people still need to be able to fetch what they point to
+T 1533133221 18<sdgathman18>	So, I already have the submodule checked out to work on in a parallel directory.
+T 1533133280 18<sdgathman18>	So I thought edit would take place there, and projects including it as a submodule would just point to the local clone.  But as I said, it's my first git submodule.
+T 1533133431 18<gholms18>	A submodule has a pointer to a commit where it wpuld normally have a pointer to a directory tree.  When it sees that it will want to check out in-place.
+T 1533133501 18<gholms18>	The workflow for managing that is more or less "cd into submodule, make whatever changes are needed, cd back out, and commit the change to what commit the submodule points to."
+T 1533133553 18<gholms18>	I suggest doing some more reading on how that all works if you can.  It is neither obvious nor easy.
+T 1533133912 18*	sdgathman starts leaning toward including a tarball instead...
+T 1533136537 18<eclipseo18>	RaphGro
+T 1533136541 18<eclipseo18>	.any RaphGro
+T 1533136541 18<zodbot18>	eclipseo: RaphGro was last seen in #fedora-devel 8 hours, 48 minutes, and 48 seconds ago: *** RaphGro <RaphGro!~raphgro@fedora/raphgro> has quit IRC (Quit: Please remember your own message. It'll be read as soon as possible.)
+T 1533137499 -18christel-	: [Global Notice] Hi all, we are aware of the current spambot attacks, and we would encourage users to set themselves +R and channel operators to set +r in the channels while the attack is ongoing. While our mitigating efforts are catching the vast majority at the gate, a small proportion still make it through. Apologies for the inconvenience and please bear with us as we do our best to minimize impact.
+T 1533604964 19*	Now talking on 22#fedora-devel
+T 1533604964 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1533604964 22*	Topic for 22#fedora-devel set by 26ajax!ajax@nat/redhat/x-alaeithzopmirfvw (24Tue Jul 31 15:20:43 2018)
+T 1539702510 19*	Now talking on 22#fedora-devel
+T 1539702510 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1539702510 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1539703187 18<nim18>	sgallagh, github renamings suck, sure they keep the old url working, but any download you do via the old url will give you the new name inside the generated tar.gzs
+T 1539703207 18<nim18>	sgallagh, including for releases that antedate the renaming
+T 1539703207 18<sgallagh18>	nim: Not an issue in this particular case.
+T 1539703231 18<nim18>	sgallagh, ok, good for you then !
+T 1539703237 18<sgallagh18>	:)
+T 1539703258 18<simo18>	nim: using github tarballs is alays a bad idea, as they make them anew every time their cache expires, so they are never really stable (you can't mdsum them)
+T 1539703298 18<nim18>	simo, don't really have a choice nowadays as many projects do not cut standalone release archives
+T 1539703307 18<simo18>	nim: yeah lots of lazy people
+T 1539703309 18<nim18>	simo, when they bother to release at all
+T 1539703322 18<simo18>	also the taballs are a git archive, not a make distcheck, which is also bad :/
+T 1539703335 18*	sgallagh always uploads a proper tarball as a release, thankyouverymuch
+T 1539703337 18<nim18>	simo, right now you can be happy if they even tag stable code states in some way
+T 1539703342 18<simo18>	sgallagh: I do the same
+T 1539703364 18<simo18>	nim: I simply chose to avoid those repositories if at all possible
+T 1539703391 18<simo18>	release hygiene is a big factor in deciding to use something
+T 1539703402 18<nim18>	simo, lucky you, all the new infra scene uses golang and such lazy practices
+T 1539703405 18<simo18>	no release hygine means no committment -> can disappear at any moment
+T 1539703424 18<nim18>	simo, hard to avoid containers, docker or kubernetes nowadays when doing infra stuff
+T 1539703438 18<simo18>	nim: golang is an area I just left, that kind of (un)discipline was part of my decision
+T 1539703484 18<nim18>	simo,  lucky you ++
+T 1539703530 18<nim18>	sgallagh, & simo: you are a disappearing specie
+T 1539703563 18<simo18>	nim: or maybe the current draft is an ephemeral phenomenon, and they will simply re-learn all lessons the hard way as usual ..
+T 1539703564 18<nim18>	good release hygiene extinction event nowadays
+T 1539703603 18<nim18>	simo, it will take them years, and even those who learn won't bother fixing all their past errors
+T 1539703652 18<simo18>	nim: they'll just stop supporting those repos, I see this happening already
+T 1539703668 18<simo18>	golang has an alarmin rate of abandonment in my experience
+T 1539703707 18<nim18>	can’t say I disagree
+T 1539703710 18<simo18>	otoh given all easy things have like half a dozen (re)implementations it is natural most of them die a quick death
+T 1539703756 18<nim18>	huge strain to adapt fedora packaging to projects that sprout and die continuously
+T 1539703773 18<simo18>	nim: just don't package them :-)
+T 1539703827 18<nim18>	like I said, they have abysmal release hygiene, but they code stuff people need, and that has no alternatives right now
+T 1539703849 18<nim18>	so Fedora nees to adapt to them to stay relevant infra-side
+T 1539703872 18<nim18>	trying to "fix" people just does not work in my experience
+T 1539704562 18<han-solo18>	hello guys
+T 1539704574 18<han-solo18>	could someone fix this ? https://id.fedoraproject.org/openid/Consent
+T 1539704618 18<han-solo18>	Thank you
+T 1539704634 18<kwizart18>	han-solo, can you report to pagure ipsilon thx ?
+T 1539704686 18<kwizart18>	han-solo, https://pagure.io/ipsilon
+T 1539704729 18<kwizart18>	han-solo, or even peter uiterwijk in #fedora-admin
+T 1539704752 18<han-solo18>	kwizart: Sure
+T 1539704931 18<han-solo18>	kwizart: done! # https://pagure.io/ipsilon/issue/310
+T 1539705456 18<Mr_Doge18>	tibbs, thank you for looking at it , i will making the changes you suggested
+T 1539705552 18<Mr_Doge18>	*will be
+T 1539709708 18<mattdm18>	tibbs: Working on the antora packaging problem https://gitlab.com/antora/antora/issues/264#note_109274575
+T 1539709909 18<jsmith18>	mattdm: That's good news :-)
+T 1539710181 18<nim18>	ignatenkobrain, so I rebased PR35 with the new lua rpm dir created in the rpm you rebuilt today with Panu's changes
+T 1539710219 18<nim18>	ignatenkobrain, you can see it working in https://copr.fedorainfracloud.org/coprs/nim/fontpackages-2/
+T 1539710294 18<nim18>	ignatenkobrain, specifically https://copr.fedorainfracloud.org/coprs/nim/fontpackages-2/package/dejavu-fonts/ or https://copr.fedorainfracloud.org/coprs/nim/fontpackages-2/package/ibm-plex-fonts/
+T 1539710319 18<nim18>	ignatenkobrain, the fonts macro bit actually reuse quite a lot of the lua code in pr35
+T 1539710344 18<nim18>	ignatenkobrain, I think I've finished nailing them down but they are not part of the PR
+T 1539710356 18<nim18>	ignatenkobrain, that will be a separate call
+T 1539710415 18<nim18>	ignatenkobrain, once you & tibbs have done pr35 and I've templated the font macro proposal a bit
+T 1539710514 18<nim18>	and of course the fonts bits depend on https://pagure.io/packaging-committee/issue/813 being arbitrated by FPC
+T 1539791635 20*	Disconnected (20Connection timed out)
+T 1539791661 19*	Now talking on 22#fedora-devel
+T 1539791661 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1539791661 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1539802385 18<sergiodj18>	hi there.  just trying to understand better the CI Gating thing.  IIUC, only a very specific set of tests can be enabled via the gating mechanism, right?
+T 1539802414 18<sergiodj18>	i.e., it's not possible to, e.g., run you project's own testsuite and enable gating based on its results
+T 1539802418 18<sergiodj18>	or is it?
+T 1539802488 18<sergiodj18>	a bit of background: I'm asking because I'm working on enabling gating for GDB
+T 1539803315 18<misc18>	usually, people do that with %check already, no ?
+T 1539803552 18<mizdebsk18>	sergiodj, it should be possible to run arbitrary tests from dist-git
+T 1539803637 18<barc0d418>	is any one know how to fix lock_tlp on fedora ?
+T 1539803740 18<sergiodj18>	misc: yeah...  we already use %check for some regular testing, but I was wondering if the "trend" now is to use CI/gating
+T 1539803809 18<sergiodj18>	mizdebsk: could you point me to some documentation on how to do that, please?  I haven't been able to find anything really useful
+T 1539803822 18<mizdebsk18>	sure
+T 1539803829 18<mizdebsk18>	sergiodj, https://fedoraproject.org/wiki/CI/Tests
+T 1539803896 18<sergiodj18>	mizdebsk: thanks; I was already on that page.  I guess a better question would be: "how to integrate these tests with the gating machinery?"
+T 1539803927 18<mizdebsk18>	sergiodj, gating is not yet enabled in fedora, so right now you can't
+T 1539803942 18<mizdebsk18>	ref: https://pagure.io/fedora-infrastructure/issue/7311
+T 1539803964 18<sergiodj18>	aha
+T 1539803974 18<sergiodj18>	mizdebsk: thanks, didn't know that
+T 1539803984 18<sergiodj18>	I'll keep an eye on this bug
+T 1539804776 18<mizdebsk18>	sergiodj, once gating is enabled you will be able to configure it in gating.yaml file as documented here, https://docs.pagure.org/greenwave/package-specific-policies.html
+T 1539871657 20*	Disconnected (20Connection timed out)
+T 1539871682 19*	Now talking on 22#fedora-devel
+T 1539871682 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1539871682 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1539871701 18<han-solo18>	carlwgeorge: Okay. I forgot to add the to the BuildRequires, but the issue persists
+T 1539872206 18<Caterpillar18>	mrunge: I will see you tomorrow at CERN :-)))
+T 1539872266 18<carlwgeorge18>	han-solo: run `spectool python-easysnmp.spec`.  does that display a pypi tarball url?
+T 1539872520 18<han-solo18>	carlwgeorge: let me check
+T 1539872550 18<han-solo18>	carlwgeorge: Yep. Source0: https://files.pythonhosted.org/packages/source/e/easysnmp/easysnmp-0.2.5.tar.gz
+T 1539872578 18<carlwgeorge18>	so what problem are you having exactly?  it doesn't seem like it's %pypi_source.
+T 1539872584 18<han-solo18>	carlwgeorge: stupid question, but dos rpmbuild do any caching ? :/
+T 1539872602 18<carlwgeorge18>	not that i know of
+T 1539872632 18<han-solo18>	carlwgeorge: Okay. It's just it errors to : error: File /home/ec2-user/deps/easysnmp/easysnmp-0.2.5/build/bdist.linux-x86_64/rpm/SOURCES/easysnmp-0.2.5.tar.gz: No such file or directory
+T 1539872651 18<han-solo18>	which i think, it is looking for the Source
+T 1539872693 18<han-solo18>	and i have only one `Source` line defined
+T 1539872728 18<carlwgeorge18>	that's not a problem with %pypi_source, that's telling you that you haven't downloaded the source yet
+T 1539872745 18<carlwgeorge18>	run `spectool -R -g python-easysnmp.spec`
+T 1539872769 18<carlwgeorge18>	or leave of the `-R` flag to just download to your working directory
+T 1539872845 18<carlwgeorge18>	rpmbuild doesn't automatically download the source for you, it just expects the filename from the url to exist
+T 1539873645 18<han-solo18>	carlwgeorge: Okay
+T 1539873686 18<han-solo18>	carlwgeorge: it does downloads to my current working directory
+T 1539873751 18<han-solo18>	carlwgeorge: forgive me, i was under the impression that, that it will take from the source pointed from %pypi_source
+T 1539873755 18<han-solo18>	How stupid :/
+T 1539873916 18<carlwgeorge18>	this is discussed in https://rpm-guide.readthedocs.io.  i've mentioned this guide to you multiple times.  have you read it yet?
+T 1539873976 18<han-solo18>	er, sorry, i couldn't read it, and i was just fixing tests, nad making it work
+T 1539873988 18<han-solo18>	s/read it/read it all/
+T 1539874014 18<han-solo18>	i will defenitely read it now that i see
+T 1539874217 18<carlwgeorge18>	it's really good, maxamillion and others have put a lot of work into it
+T 1539874482 18<carlwgeorge18>	btw, it looks like the pypi tarball doesn't include the tests, so personally i would switch source0 to use https://github.com/kamakazikamikaze/easysnmp/archive/%{version}/%{srcname}-%{version}.tar.gz
+T 1539874520 18<carlwgeorge18>	that url structure is explained here https://fedoraproject.org/wiki/Packaging:SourceURL#Git_Hosting_Services
+T 1539874539 18<carlwgeorge18>	specifically this section https://fedoraproject.org/wiki/Packaging:SourceURL#Git_Tags
+T 1539874580 18<han-solo18>	carlwgeorge: Yeah, i have talked with the guy that created this, and he acknowledges that the tests are not consistent
+T 1539874632 18<carlwgeorge18>	that's not uncommon, most people that install it from pypi aren't running the tests
+T 1539874663 18<han-solo18>	carlwgeorge: Yeah, it is only for people cloning from master branch anyway
+T 1539874686 18<carlwgeorge18>	not just master, packagers routinely run the tests from a tag
+T 1539874728 18<han-solo18>	Okay
+T 1539875759 18<fedbot18>	FPC meeting in 45 minutes in #fedora-meeting-1
+T 1539877813 18<fedbot18>	FPC meeting in 10 minutes in #fedora-meeting-1
+T 1539877836 18<tibbs18>	geppetto: I am being pulled into a "mandatory meeting".
+T 1539877886 18<tibbs18>	I'll have a laptop and hopefully should be able to participate in the FPC meeting in some sense but I don't know what this other meeting is about so it's tough to say.
+T 1539878241 18<geppetto18>	tibbs: ok, nothing significant for the FPC anyway
+T 1539878320 18<ignatenkobrain18>	should we just skip it?
+T 1539878336 18<geppetto18>	We could have a very short one
+T 1539878415 18<fedbot18>	FPC meeting starting now in #fedora-meeting-1
+T 1539881747 18<bcotton18>	Fedora 29 Final Go/No-Go Meeting in 5 minutes in #fedora-meeting-1
+T 1539888910 18<bcotton18>	Fedora 29 Final Release Readiness meeting in 5 minutes in #fedora-meeting-1
+T 1539969019 20*	Disconnected (20Connection timed out)
+T 1539969045 19*	Now talking on 22#fedora-devel
+T 1539969045 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1539969045 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1539969765 18<rindolf18>	d9k: dont know
+T 1539969779 18<rindolf18>	d9k: 10-20 minutes
+T 1539969801 18<rindolf18>	Pharaoh_Atem: i did dnf makecache - it is still slow
+T 1539969817 18<rindolf18>	Pharaoh_Atem: and i am on jwm now
+T 1539970824 18<sgallagh18>	ignatenkobrain++
+T 1539970825 18<zodbot18>	sgallagh: Karma for ignatenkobrain changed to 10 (for the current release cycle):  https://badges.fedoraproject.org/tags/cookie/any
+T 1539970851 18<sgallagh18>	(Conversation in #rpm.org which didn't have zodbot)
+T 1539971127 18<rindolf18>	rdieter: an update - i have an .src.rpm that builds fine and is rpmlint clean, but : 1. i didnt try installing the binaries. 2. no mock test yet
+T 1539972615 18<rindolf18>	Pharaoh_Atem: perhaps there is a misconfig?
+T 1539973688 18<rdieter18>	rindolf: probably good enough for an initial package review
+T 1539973700 18<rindolf18>	rdieter: ok
+T 1539973712 18<rindolf18>	rdieter: let me upload it
+T 1539974268 18<eclipseo18>	RaphGro: any time for the review you took?
+T 1539974315 18<rindolf18>	rdieter: https://www.shlomifish.org/Files/files/arcs/freecell-solver-4.20.0-1.src.rpm - here
+T 1539974456 18<rindolf18>	rdieter: Pharaoh_Atem : moving away /var/lib/dnf/* seem to have fixed it
+T 1539974541 18<rindolf18>	strace ftw
+T 1539974631 18<RaphGro18>	eclipseo: hopefully in the next days (weekend), sorry
+T 1539974640 18<eclipseo18>	thanks
+T 1539974808 18<rdieter18>	rindolf: were you intending to submit that for formal package review?  it's not clear to me
+T 1539975036 18<rindolf18>	rdieter: yes, it is what i have now
+T 1539975443 18<rindolf18>	rdieter: i installed the .rpm s fine using dnf and the exes seem to work
+T 1539975488 18<rindolf18>	now trying mock which is slow
+T 1539975571 18<rdieter18>	rindolf: ok, thanks.
+T 1539975586 18<rindolf18>	rdieter: you're welcome
+T 1539975604 18<rindolf18>	rdieter: koji build gives me an error
+T 1539975691 18<rdieter18>	rindolf: usually means missing BuildRequires:
+T 1539975783 18<rindolf18>	rdieter: https://www.shlomifish.org/Files/files/images/VirtualBox_fedora%2029_19_10_2018_22_01_10.png
+T 1539975832 18<rindolf18>	rdieter: mock succeeded \o/
+T 1539976765 18<rindolf18>	still kinda slow :(
+T 1539977108 18<eclipseo18>	i hate perl package review
+T 1539977185 18<rindolf18>	https://www.shlomifish.org/Files/files/images/VirtualBox_fedora%2029_19_10_2018_22_24_28.png - this is what strace gives me :(
+T 1539977248 18<rindolf18>	Son_Goku: hi
+T 1539977265 18<rindolf18>	Son_Goku: https://www.shlomifish.org/Files/files/images/VirtualBox_fedora%2029_19_10_2018_22_24_28.png - this is what strace gives me :( any idea?
+T 1539977306 18<Son_Goku18>	oh boy
+T 1539977317 18<Son_Goku18>	I think I know which bug this is
+T 1539977350 18<Son_Goku18>	https://bugzilla.redhat.com/show_bug.cgi?id=1596827
+T 1539977842 18<rindolf18>	there are no versions of this here
+T 1539977856 18<rindolf18>	dnf is only 3.5.x
+T 1539978608 18<rindolf18>	ok, had to do dnf upgrade dnf
+T 1539980648 18<nim18>	Pharaoh_Atem, you've got mail!
+T 1539980771 18<Pharaoh_Atem18>	nim: I do?
+T 1539980808 18<nim18>	Pharaoh_Atem, no pm_request in copr
+T 1539980820 18<Pharaoh_Atem18>	it won't work in koji either
+T 1539980836 18<nim18>	Pharaoh_Atem, then I'll fill a bug on koji too
+T 1539980878 18<nim18>	Pharaoh_Atem, at this point I don't care anymore if it requires fixing rpm, redhat-rpm-con,fig, copr koji or whatever
+T 1539980886 18<Pharaoh_Atem18>	haha
+T 1539980889 18<nim18>	Pharaoh_Atem, I just want it fixed and working
+T 1539980931 18<nim18>	Pharaoh_Atem, and people will say I just wrotye a few lines of rpm macros
+T 1539981067 18<Pharaoh_Atem18>	is it just me or is copr down?
+T 1539981132 18<nim18>	nope it was down for me too
+T 1539981142 18<nim18>	had to write the bug with saved urls
+T 1539981183 18<nim18>	it worked an hour ago
+T 1539981462 18<nim18>	Pharaoh_Atem, you've got mail #2
+T 1539981477 18<nim18>	Pharaoh_Atem, anywhere else I need to fill bugs?
+T 1539981499 18<Pharaoh_Atem18>	you're probably going to have to bug releng to allow it
+T 1539981616 18<nim18>	Pharaoh_Atem, sure no problem, Just another ticket to fill somewhere
+T 1539981633 18<nim18>	Pharaoh_Atem, where is the releng issue tracker nowadays?
+T 1539981850 18<mizdebsk18>	nim, you mean mock pm_request plugin? if yes then i'm curious what is your use for it
+T 1539981858 18<mizdebsk18>	copr is or was down due to switch maintenance
+T 1539981864 18<mizdebsk18>	releng tracker is at https://pagure.io/releng/
+T 1539981902 18<nim18>	Pharaoh_Atem, https://pagure.io/releng/issue/7878
+T 1539981921 18<nim18>	mizdebsk, bazically any "modern" language is a mess
+T 1539981941 18<nim18>	mizdebsk, though Go (golang) is messier than most
+T 1539982001 18<nim18>	mizdebsk, it's so bad that the Fedora Go maintainers had to write a code analysis tool to identify the actual deps of a bit of Go code
+T 1539982024 18<mizdebsk18>	i honestly doubt relengs will ever enable it
+T 1539982034 18<nim18>	mizdebsk, I'm currently wrapping up this engine (written @RH) in some macro code
+T 1539982034 18<rindolf18>	Pharaoh_Atem: hi
+T 1539982064 18<nim18>	mizdebsk, to translate the result of the analysis in fedora package names
+T 1539982070 18<rindolf18>	Pharaoh_Atem: my fedora 29 vm is in working cond now
+T 1539982071 18<nim18>	mizdebsk, so the workflow is
+T 1539982102 18<rindolf18>	Pharaoh_Atem: took me the whole day due to that f*^$%%##$##$# dnf bug
+T 1539982122 18<nim18>	mizdebsk, unpack in prep → analyse code to get the corresponding Fedora rpm names → use pm request to install those in the buildroot
+T 1539982137 18<nim18>	mizdebsk, there's no better alternative
+T 1539982159 18<nim18>	mizdebsk, as otherwise packagers just run the same code analysis out of band to generate spec files
+T 1539982188 18<nim18>	mizdebsk, and generated spec files are awful from a Fedora releng POW
+T 1539982211 18<mizdebsk18>	yeah, i see
+T 1539982216 18<nim18>	mizdebsk, since there's no easy way to distinguish what lines were generated
+T 1539982231 18<nim18>	mizdebsk, and what lines are a human packager intervention
+T 1539982275 18<nim18>	mizdebsk, so basically I need PM request to cleanly separate the thing the code analysis tool did from the things the packager did
+T 1539982280 18<mizdebsk18>	i generally split builderquires into 2 blocks - first one is generated, second is added by maintainer
+T 1539982304 18<nim18>	mizdebsk, also, to make sure the code anaysis that is run is the one checked and audited by Fedora and not something else
+T 1539982349 18<nim18>	mizdebsk, well that's about the same result, except there is no pre-generated block, it's done dynamically in the build roor
+T 1539982351 18<nim18>	root
+T 1539982389 18<nim18>	mizdebsk, and it also makes sure deps which are not needed anymore are removed
+T 1539982396 18<mizdebsk18>	yes, i know how pm_request works as i designed it
+T 1539982424 18<nim18>	mizdebsk, as humans tend to keep the generated block forever without checking if buildrequires still apply
+T 1539982445 18<mizdebsk18>	true; you update generated block only when there is a problem
+T 1539982469 18<nim18>	mizdebsk, so you kepp old deps which are no longer necessary
+T 1539982500 18<nim18>	mizdebsk, and the end result for an langage ecosystem that rewrites its deps every other month like golang is awful
+T 1539982521 18<nim18>	mizdebsk, so, that's why I need pm request
+T 1539982539 18<nim18>	mizdebsk, not enabling it just makes the whole situation worse
+T 1539982579 18<mizdebsk18>	if results of your analysis is included in build logs (as is done for java) then you could analyze outputs of scratch builds done by koschei to identify packages with outdated buildrequires
+T 1539982617 18<mizdebsk18>	i wanted to do this for java, but didn't have enough time for this
+T 1539982633 18<nim18>	mizdebsk, the
+T 1539982657 18<nim18>	mizdebsk, there are just too many deps involved Golang side for it to be workable
+T 1539982708 18<nim18>	mizdebsk, the Go maintainers have spent years trying to audit the state of the Go packages through out of band scipts they never managed to do it
+T 1539982741 18<nim18>	mizdebsk, the end result was just a pile of rotting generated spec files no one undertood or maintained
+T 1539982777 18<nim18>	mizdebsk, the mecanism I've prototyped for go is pretty transparent
+T 1539982791 18<mizdebsk18>	i agree that auto-buildrequires would be good to have, but i don't believe fedora will enable them any time soon
+T 1539982808 18<nim18>	mizdebsk, you see exactly in the build logs what was reuested from pm_request and when i nthe spec
+T 1539982838 18<nim18>	mizdebsk, if they want unbundled go software they will have to do it
+T 1539982911 18<nim18>	mizdebsk, if they prefer shipping bundled stuff no one has any idea where it comes from and what CVEs it includes like it is done right now
+T 1539982930 18<nim18>	mizdebsk, then they just need blocking pm request use
+T 1539983029 18<rindolf18>	https://twitter.com/shlomif/status/1053390606758825984 - tweeted about it
+T 1539983054 18<nim18>	mizdebsk, we've past the point were anyone can pretend not doing pm request is constructive, we have the years of experience not doing it and the result it produced for fedora packages
+T 1539983235 18<nim18>	mizdebsk, also in case you didn't know, go does not use dynamic libraries
+T 1539983288 18<nim18>	mizdebsk, the end-result software needs to dep directly on every bit of code involved in its build
+T 1539983339 18<nim18>	mizdebsk, for complex software like docker or kubernetes that's score if not hundreds of deps to record in the spec file
+T 1539983832 18<nim18>	mizdebsk, anyway, in case I've not bored you to death yet, you cann see it all woring in https://paste.fedoraproject.org/paste/hglkYSWJAHd2YuGBX2XnsA
+T 1539983887 18<nim18>	mizdebsk, line 2493 the golist command written @rh by Fedora's Go maintainers computes the deps
+T 1539983899 18<nim18>	mizdebsk, and then pm_request makes it all work
+T 1540046836 20*	Disconnected (20Connection timed out)
+T 1540046860 19*	Now talking on 22#fedora-devel
+T 1540046860 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1540046860 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1542986746 19*	Now talking on 22#fedora-devel
+T 1542986746 22*	Topic for 22#fedora-devel is: Fedora developers channel | end users: please ask for help in #fedora | Infra status http://status.fedoraproject.org/
+T 1542986746 22*	Topic for 22#fedora-devel set by 26ajax (24Tue Jul 31 15:20:43 2018)
+T 1542987272 18<timothy18>	hi, is there any reason to have java-1.8.0-openjdk as dependency of ant since ant can work with any java version?
+T 1542987472 18<tomhughes18>	is not a require, it's a recommend (on java-devel >= 1:1.8.0)
+T 1542987498 18<tomhughes18>	so while that might be the default way of satisfying it other versions should do so if installed
+T 1542987519 18<timothy18>	tomhughes: no, ant requires javapackages-tools that hard-requires java-1.8.0-openjdk-headless
+T 1542987525 18<timothy18>	https://src.fedoraproject.org/rpms/javapackages-tools/blob/master/f/javapackages-tools.spec#_59
+T 1542987530 18<timothy18>	but without a good reason imho
+T 1542987532 18<tomhughes18>	so it's not ant that's the problem then
+T 1542987538 18<tomhughes18>	it's javapackages-tools that is the problem
+T 1542990874 18<mizdebsk18>	timothy, the reason is that ant is tested only with jdk 8
+T 1542990896 18<mizdebsk18>	i don't have time to test it with all jdk, available in fedora and third-party
+T 1542990956 18<mizdebsk18>	https://fedoraproject.org/wiki/Changes/Decouple_system_java_setting_from_java_command_setting
+T 1542991045 18<mizdebsk18>	users can change which jdk is used to run ant, but at their own risk
+T 1542991432 18<timothy18>	mizdebsk: thank you (btw oracle will deprecated java8 in a year, so I think we should move to java11 or 12 in the next fedora releases)
+T 1542991462 18<mizdebsk18>	timothy, i am planning to move to java 11 indeed
+T 1542991471 18<mizdebsk18>	as it's next lts release after 8
+T 1542991482 18<timothy18>	sure
+T 1543004548 18<redi18>	the f29 installation guide recommends 10gb for /
+T 1543004625 18<redi18>	my / is over 15gb, and that's with a separate partition for /var
+T 1543004665 18<redi18>	10gb seems outdated
+T 1543006493 18<linuxplease18>	redi, https://access.redhat.com/discussions/641923
+T 1543006542 18<linuxplease18>	and if you choose automatic partitioning it wont do that
+T 1543006594 18<linuxplease18>	my point was dont separate /var and /
+T 1543008630 18<thm18>	it's really easy to have ~16G in /
+T 1543008841 18<thm18>	btw, it seems dnf and PackageKit still have duplicate caches. this was discussed long time ago, but still is unsolved
+T 1543011508 18<QuLogic18>	if you have been upgrading from previous release, make sure to check package caches for old releases
+T 1543011520 18<QuLogic18>	I've cleaned several gigs from deleting those
+T 1543011562 18<DrNick18>	/ should probably be 40GB
